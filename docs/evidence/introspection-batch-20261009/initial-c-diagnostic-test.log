@@ -1,0 +1,23 @@
+......FF.
+======================================================================
+FAIL: test_owned_operations_and_refusals (__main__.NanoisaIntrospection.test_owned_operations_and_refusals) (refusal='leak')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_introspection.py", line 107, in test_owned_operations_and_refusals
+    self.assertIn(b'E0036', diagnostic)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'E0036' not found in b"I cannot verify affine ownership at line 31, column 2: resource remains live at scope exit \xe2\x80\x94 h\nWarning at line 17, column 1: Unused variable 'h'\nerror: type check failed\n"
+
+======================================================================
+FAIL: test_owned_operations_and_refusals (__main__.NanoisaIntrospection.test_owned_operations_and_refusals) (refusal='moved')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_introspection.py", line 107, in test_owned_operations_and_refusals
+    self.assertIn(b'E0036', diagnostic)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'E0036' not found in b'I cannot verify affine ownership at line 31, column 47: I cannot use a moved value \xe2\x80\x94 h\nerror: type check failed\n'
+
+----------------------------------------------------------------------
+Ran 8 tests in 17.115s
+
+FAILED (failures=2)

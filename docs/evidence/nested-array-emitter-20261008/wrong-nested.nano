@@ -1,0 +1,1 @@
+fn main()->int { let child:array<int> = [1] let xs:array<array<u8>> = [child] return 0 }

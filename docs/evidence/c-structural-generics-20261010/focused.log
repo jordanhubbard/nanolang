@@ -1,0 +1,26 @@
+test_array_binding_parity (tests.test_cseed_generic_functions.CseedGenericFunctions.test_array_binding_parity) ... ok
+test_builtin_tail_call_does_not_enter_generic_specialization (tests.test_cseed_generic_functions.CseedGenericFunctions.test_builtin_tail_call_does_not_enter_generic_specialization) ... ok
+test_distinct_record_specializations (tests.test_cseed_generic_functions.CseedGenericFunctions.test_distinct_record_specializations) ... ok
+test_generic_array_contexts_reject_wrong_elements (tests.test_cseed_generic_functions.CseedGenericFunctions.test_generic_array_contexts_reject_wrong_elements) ... ok
+test_generic_array_mutation_preserves_aliases_and_empty_types (tests.test_cseed_generic_functions.CseedGenericFunctions.test_generic_array_mutation_preserves_aliases_and_empty_types) ... ok
+test_growing_array_specializations_preserve_output (tests.test_cseed_generic_functions.CseedGenericFunctions.test_growing_array_specializations_preserve_output) ... ok
+test_imported_generic_array_results_keep_complete_types (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_generic_array_results_keep_complete_types) ... ok
+test_imported_qualified_and_selective_owners (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_qualified_and_selective_owners) ... ok
+test_imported_structural_generic_parameters (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_structural_generic_parameters) ... ok
+test_nested_array_calls_and_record_elements (tests.test_cseed_generic_functions.CseedGenericFunctions.test_nested_array_calls_and_record_elements) ... ok
+test_primitive_generic_fixture (tests.test_cseed_generic_functions.CseedGenericFunctions.test_primitive_generic_fixture) ... ok
+test_repeated_generic_array_types_must_match (tests.test_cseed_generic_functions.CseedGenericFunctions.test_repeated_generic_array_types_must_match) ... ok
+test_repeated_type_variable_rejects_distinct_records (tests.test_cseed_generic_functions.CseedGenericFunctions.test_repeated_type_variable_rejects_distinct_records) ... ok
+test_retained_record_result_regression (tests.test_cseed_generic_functions.CseedGenericFunctions.test_retained_record_result_regression) ... ok
+test_structural_array_minimum (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_array_minimum) ... ok
+test_structural_array_parameters (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_array_parameters) ... ok
+test_structural_callable_local_and_nominal_letter (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_callable_local_and_nominal_letter) ... ok
+test_structural_callable_parameters (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_callable_parameters) ... ok
+test_structural_generic_refusals_preserve_output (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_generic_refusals_preserve_output) ... ok
+test_typed_locals_transitive_calls_and_recursion (tests.test_cseed_generic_functions.CseedGenericFunctions.test_typed_locals_transitive_calls_and_recursion) ... ok
+test_unbound_structural_result_preserves_output (tests.test_cseed_generic_functions.CseedGenericFunctions.test_unbound_structural_result_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 4.045s
+
+OK

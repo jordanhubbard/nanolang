@@ -1,0 +1,72 @@
+python3 scripts/embed_binary64_parser.py --check
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+
+NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/private/tmp/nanolang-match-guards-20261009/obj/module_cache perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' bin/nanoc_c src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2567, column 9: Unused variable 'rejected'
+Warning at line 2731, column 9: Unused variable 'rejected'
+Warning at line 2735, column 9: Unused variable 'rejected'
+Warning at line 2742, column 13: Unused variable 'rejected'
+Warning at line 2800, column 9: Unused variable 'rejected'
+Warning at line 2804, column 9: Unused variable 'rejected'
+Warning at line 2811, column 13: Unused variable 'rejected'
+Warning at line 6417, column 17: Unused variable 'imported'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2567, column 9: Unused variable 'rejected'
+Warning at line 2731, column 9: Unused variable 'rejected'
+Warning at line 2735, column 9: Unused variable 'rejected'
+Warning at line 2742, column 13: Unused variable 'rejected'
+Warning at line 2800, column 9: Unused variable 'rejected'
+Warning at line 2804, column 9: Unused variable 'rejected'
+Warning at line 2811, column 13: Unused variable 'rejected'
+Warning at line 6417, column 17: Unused variable 'imported'
+python3 -m unittest -v tests.test_scalar_match_values
+test_all_scalar_results_and_expression_contexts (tests.test_scalar_match_values.ScalarMatchValues.test_all_scalar_results_and_expression_contexts) ... ok
+test_c_seed_resource_payload_constructor_remains_checked (tests.test_scalar_match_values.ScalarMatchValues.test_c_seed_resource_payload_constructor_remains_checked) ... FAIL
+test_nested_payload_names_restore_outer_and_sibling (tests.test_scalar_match_values.ScalarMatchValues.test_nested_payload_names_restore_outer_and_sibling) ... ok
+test_nominal_payload_offsets_do_not_follow_shared_field_names (tests.test_scalar_match_values.ScalarMatchValues.test_nominal_payload_offsets_do_not_follow_shared_field_names) ... ok
+test_refusals_preserve_output (tests.test_scalar_match_values.ScalarMatchValues.test_refusals_preserve_output) ... ok
+test_reordered_constructor_evaluates_once_in_source_order (tests.test_scalar_match_values.ScalarMatchValues.test_reordered_constructor_evaluates_once_in_source_order) ... ok
+test_scalar_payloads_calls_returns_and_lexical_scope (tests.test_scalar_match_values.ScalarMatchValues.test_scalar_payloads_calls_returns_and_lexical_scope) ... ok
+test_scrutinee_once_and_only_selected_arm (tests.test_scalar_match_values.ScalarMatchValues.test_scrutinee_once_and_only_selected_arm) ... ok
+test_selected_value_shadows_remain_mandatory (tests.test_scalar_match_values.ScalarMatchValues.test_selected_value_shadows_remain_mandatory) ... ok
+test_unchanged_core_examples_and_selected_shadows (tests.test_scalar_match_values.ScalarMatchValues.test_unchanged_core_examples_and_selected_shadows) ... ok
+test_unsupported_payloads_and_failed_shadows_refuse (tests.test_scalar_match_values.ScalarMatchValues.test_unsupported_payloads_and_failed_shadows_refuse) ... ok
+test_value_match_refusals_preserve_output (tests.test_scalar_match_values.ScalarMatchValues.test_value_match_refusals_preserve_output) ... ok
+
+======================================================================
+FAIL: test_c_seed_resource_payload_constructor_remains_checked (tests.test_scalar_match_values.ScalarMatchValues.test_c_seed_resource_payload_constructor_remains_checked)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_scalar_union_emission.py", line 167, in test_c_seed_resource_payload_constructor_remains_checked
+    result = self.command(ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', module)
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_scalar_union_emission.py", line 18, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
+AssertionError: (PosixPath('/private/tmp/nanolang-match-guards-20261009/bin/nano_virt'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/scalar-unions-6zl1pe48/resource.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/scalar-unions-6zl1pe48/resource.nvm')): 1
+
+Warning at line 6, column 2: Unused variable 'payload'
+I could not compile shadows at line 5: I require exact mode-zero scalar/owner or separate borrowed parameters in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 12 tests in 239.370s
+
+FAILED (failures=1)
+make: *** [test-scalar-match-values] Error 1

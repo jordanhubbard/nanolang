@@ -1,0 +1,722 @@
+{
+  "sanitizer_artifacts": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-dispatch-xo1uj096",
+  "corrected_isolation_artifacts": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-isolation-corrected-dx0tses6",
+  "modes": {
+    "instrumented": {
+      "phases": {
+        "capture-run": {
+          "status": {
+            "timeout": false,
+            "returncode": 0,
+            "leader_reaped": true,
+            "group_disappeared": true,
+            "bound_seconds": 240,
+            "errors": [],
+            "cleanup_signals": [],
+            "launched": true
+          },
+          "trace_count": 536,
+          "trace_sha256": "8800bfcbbbc5e9b213452b4538f5ca26af25ed123992b38e2bae22089c283e84",
+          "stdout_sha256": "1b0d2939183e5a01ae0a807dbd12d77f2545620bc6439280dfd2391e7ce2c0f6"
+        },
+        "O0-run": {
+          "status": {
+            "timeout": false,
+            "returncode": 0,
+            "leader_reaped": true,
+            "group_disappeared": true,
+            "bound_seconds": 240,
+            "errors": [],
+            "cleanup_signals": [],
+            "launched": true
+          },
+          "trace_count": 536,
+          "trace_sha256": "8800bfcbbbc5e9b213452b4538f5ca26af25ed123992b38e2bae22089c283e84",
+          "stdout_sha256": "4a1e0db23bc51666428fe26e528785b9b7626fecd943732fe620a7b683aabc79"
+        },
+        "O2-run": {
+          "status": {
+            "timeout": false,
+            "returncode": 0,
+            "leader_reaped": true,
+            "group_disappeared": true,
+            "bound_seconds": 240,
+            "errors": [],
+            "cleanup_signals": [],
+            "launched": true
+          },
+          "trace_count": 536,
+          "trace_sha256": "8800bfcbbbc5e9b213452b4538f5ca26af25ed123992b38e2bae22089c283e84",
+          "stdout_sha256": "4a1e0db23bc51666428fe26e528785b9b7626fecd943732fe620a7b683aabc79"
+        }
+      },
+      "modules": 54,
+      "generated": 53
+    },
+    "linked": {
+      "phases": {
+        "capture-run": {
+          "status": {
+            "timeout": false,
+            "returncode": 0,
+            "leader_reaped": true,
+            "group_disappeared": true,
+            "bound_seconds": 240,
+            "errors": [],
+            "cleanup_signals": [],
+            "launched": true
+          },
+          "trace_count": 530,
+          "trace_sha256": "ba1f69997be8bd3f33b64f2ada843d3c8d8a74d1e894cdc4d717f7ddb348b640",
+          "stdout_sha256": "62969c746157af5a87b06fe6e06934cc957979465a2f12983ae033e7f5c95280"
+        },
+        "O0-run": {
+          "status": {
+            "timeout": false,
+            "returncode": 0,
+            "leader_reaped": true,
+            "group_disappeared": true,
+            "bound_seconds": 240,
+            "errors": [],
+            "cleanup_signals": [],
+            "launched": true
+          },
+          "trace_count": 530,
+          "trace_sha256": "ba1f69997be8bd3f33b64f2ada843d3c8d8a74d1e894cdc4d717f7ddb348b640",
+          "stdout_sha256": "a0c5ece302830d6a695b01be0a0fca68f08f9e95549b142d341fbd941f142b0a"
+        },
+        "O2-run": {
+          "status": {
+            "timeout": false,
+            "returncode": 0,
+            "leader_reaped": true,
+            "group_disappeared": true,
+            "bound_seconds": 240,
+            "errors": [],
+            "cleanup_signals": [],
+            "launched": true
+          },
+          "trace_count": 530,
+          "trace_sha256": "ba1f69997be8bd3f33b64f2ada843d3c8d8a74d1e894cdc4d717f7ddb348b640",
+          "stdout_sha256": "a0c5ece302830d6a695b01be0a0fca68f08f9e95549b142d341fbd941f142b0a"
+        }
+      },
+      "modules": 54,
+      "generated": 53
+    }
+  },
+  "first_nonzero_terminals": {
+    "linked-target_dispatch-O0-run-status.json": {
+      "timeout": false,
+      "returncode": 1,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    }
+  },
+  "corrected_isolation_terminals": {
+    "linked-candidates-O2-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-reference-O2-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-dead_label-O2-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-abi_size-O0-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-candidates-O2-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-edge-O2-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-abi_revision-O2-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-dead_label-O2-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-target_dispatch-O0-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-dead_label-O0-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-later_variant-O0-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-abi_size-O2-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-abi_revision-O0-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-plain-O0-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-dead_label-O2-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-candidates-O0-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-target_dispatch-O0-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-dead_label-O0-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-plain-O0-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-abi_size-O2-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-edge-O0-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-edge-O2-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-abi_size-O0-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-target_dispatch-O2-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-abi_revision-O2-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-plain-O2-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-abi_size-O2-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-checked_candidates-O0-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-target_dispatch-O2-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-plain-O2-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-checked_candidates-O0-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-target_dispatch-O2-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-target_dispatch-O0-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-later_variant-O2-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-reference-O2-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-candidates-O2-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-abi_revision-O0-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-edge-O2-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-edge-O0-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-abi_revision-O2-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-candidates-O0-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-edge-O0-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-checked_candidates-O2-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-reference-O0-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-checked_candidates-O2-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-plain-O0-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-abi_revision-O0-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-candidates-O0-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-plain-O2-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-later_variant-O0-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-abi_size-O0-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-reference-O2-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-checked_candidates-O0-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-later_variant-O0-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-reference-O0-build-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-dead_label-O0-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-later_variant-O2-run-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-checked_candidates-O2-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-later_variant-O2-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    },
+    "linked-reference-O0-symbols-status.json": {
+      "timeout": false,
+      "returncode": 0,
+      "leader_reaped": true,
+      "group_disappeared": true,
+      "bound_seconds": 240,
+      "errors": [],
+      "cleanup_signals": [],
+      "launched": true
+    }
+  }
+}

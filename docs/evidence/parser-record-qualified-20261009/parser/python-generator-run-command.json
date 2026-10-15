@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/usr/local/bin/python3",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/python-generator/scripts/gen_compiler_schema.py"
+  ],
+  "cwd": "/private/tmp/nanolang-array-types-20261008",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

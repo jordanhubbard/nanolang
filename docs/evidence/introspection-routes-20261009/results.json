@@ -1,0 +1,34 @@
+[
+  {
+    "case": "function_value",
+    "producer": "nano_virt",
+    "compile_exit": 1,
+    "stdout": "",
+    "stderr": "I could not compile shadows at line 3: undefined variable '___module_function_count_route_probe'\n",
+    "preserved": true
+  },
+  {
+    "case": "function_value",
+    "producer": "component",
+    "compile_exit": 1,
+    "stdout": "I cannot lower this checked program: I require a NanoISA body for a function value\n",
+    "stderr": "",
+    "preserved": true
+  },
+  {
+    "case": "owned_direct",
+    "producer": "nano_virt",
+    "compile_exit": 1,
+    "stdout": "",
+    "stderr": "I could not compile shadows at line 2: I require only resource records, scalar unions, main, one helper and selected shadows in my source borrow profile\n",
+    "preserved": true
+  },
+  {
+    "case": "owned_direct",
+    "producer": "component",
+    "compile_exit": 1,
+    "stdout": "I cannot lower this checked program: I require defined source functions in my source borrow profile\n",
+    "stderr": "",
+    "preserved": true
+  }
+]

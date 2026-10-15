@@ -1,0 +1,3 @@
+PASS IPv4 affine TCP Result/borrow/move/NUL/byte/EOF/cleanup
+PASS IPv6 affine TCP Result/borrow/move/NUL/byte/EOF/cleanup
+PASS 320 separately linked Socket value checks

@@ -1,0 +1,5 @@
+  nsi_gen: NanoLang and Forth from the same NSI                PASS
+  nsi_gen: dispatch ids and NanoISA imports                    PASS
+  nsi_gen: C/C++/Python/Rust/NanoVM share method ids           PASS
+
+3 passed, 0 failed

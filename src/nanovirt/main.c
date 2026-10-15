@@ -7,12 +7,13 @@
  * Pipeline: .nano → lexer → parser → typechecker → codegen → .nvm
  * With -o:        writes .nvm bytecode (if .nvm extension or --emit-nvm)
  *                 or a packaged-interpreter executable (otherwise, via
- *                 wrapper_gen, which embeds nano_vm). It is never native AOT;
- *                 native AOT is bin/nvm2c.
+ *                 wrapper_gen, which embeds nano_vm). Checked File graphs use
+ *                 their qualified native emitter instead of wrapper_gen.
  * With --run:     executes the .nvm via the embedded VM
  */
 
 #include "nanolang.h"
+#include "service_driver.h"
 #include "module_builder.h"
 #include "nanovirt/codegen.h"
 #include "nanovirt/wrapper_gen.h"
@@ -61,16 +62,21 @@ static void usage(const char *prog) {
     fprintf(stderr, "Usage: %s <input.nano> [-o output] [--run] [--emit-nvm] [--emit-nvm-v2] [--strip-debug] [--daemon-wrapper] [-v]\n", prog);
     fprintf(stderr, "\n");
     fprintf(stderr, "Options:\n");
-    fprintf(stderr, "  -o <path>          Packaged interpreter only: wrapper_gen embeds\n");
+    fprintf(stderr, "  -o <path>          Packaged interpreter for ordinary graphs: wrapper_gen embeds\n");
     fprintf(stderr, "                     nano_vm to run the module. It is not native AOT.\n");
     fprintf(stderr, "                     Use --emit-nvm or a .nvm path for bytecode;\n");
-    fprintf(stderr, "                     native AOT is bin/nvm2c, not this default\n");
+    fprintf(stderr, "                     ordinary native AOT uses bin/nvm2c\n");
     fprintf(stderr, "  --run              Execute after compilation (in-process VM)\n");
     fprintf(stderr, "  --emit-nvm         Write raw .nvm bytecode instead of the packaged interpreter\n");
     fprintf(stderr, "  --emit-nvm-v2      Retired alias for --emit-nvm (v2 is the default since 4.0)\n");
     fprintf(stderr, "  --strip-debug      Strip source-map debug info from emitted module\n");
     fprintf(stderr, "  --test-imports     I run dependency shadows before root shadows (default)\n");
     fprintf(stderr, "  --root-shadows-only I run only root-file shadows\n");
+    fprintf(stderr, "  --allow-tcp-connections I grant TCP shadows and --run outbound connections\n");
+    fprintf(stderr, "  --allow-websocket-connections I grant WebSocket connections\n");
+    fprintf(stderr, "  --allow-websocket-lookup I separately grant DNS with --websocket-resolver-helper PATH\n");
+    fprintf(stderr, "  --allow-temporary-files I grant File shadows and --run temporary-file access\n");
+    fprintf(stderr, "                     I publish File graphs as native executables unless --emit-nvm\n");
     fprintf(stderr, "  --daemon-wrapper   Generate thin daemon-mode binary (needs nano_vmd at runtime)\n");
     fprintf(stderr, "  -v                 Verbose output\n");
 }
@@ -94,10 +100,26 @@ int main(int argc, char **argv) {
     bool daemon_wrapper = false;
     bool verbose = false;
     bool test_imports = true;
+    bool allow_temporary_files = false, allow_tcp_connections = false;
+    bool allow_websocket_connections=false,allow_websocket_lookup=false;
+    const char *websocket_resolver_helper=NULL;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
             output = argv[++i];
+        } else if (strcmp(argv[i], "--allow-websocket-connections") == 0) {
+            if(allow_websocket_connections)return 1;
+            allow_websocket_connections=true;
+        } else if (strcmp(argv[i], "--allow-websocket-lookup") == 0) {
+            if(allow_websocket_lookup)return 1;
+            allow_websocket_lookup=true;
+        } else if (strcmp(argv[i], "--websocket-resolver-helper") == 0) {
+            if(websocket_resolver_helper || i+1>=argc)return 1;
+            websocket_resolver_helper=argv[++i];
+        } else if (strcmp(argv[i], "--allow-tcp-connections") == 0) {
+            allow_tcp_connections = true;
+        } else if (strcmp(argv[i], "--allow-temporary-files") == 0) {
+            allow_temporary_files = true;
         } else if (strcmp(argv[i], "--test-imports") == 0) {
             test_imports = true;
         } else if (strcmp(argv[i], "--root-shadows-only") == 0) {
@@ -157,7 +179,7 @@ int main(int argc, char **argv) {
     Environment *env = create_environment();
 
     ModuleList *modules = create_module_list();
-    if (!process_imports(program, env, modules, input)) {
+    if (!process_imports_for_service(program, env, modules, input)) {
         fprintf(stderr, "error: module loading failed\n");
         free_ast(program);
         free_environment(env);
@@ -166,6 +188,19 @@ int main(int argc, char **argv) {
         free_tokens(tokens, token_count);
         free(source);
         return 1;
+    }
+
+    if(env->service_namespace) {
+        int result=1;
+        char *root=nl_service_product_root(argv[0]);
+        const char *cc=getenv("NANO_CC");if(!cc || !*cc)cc=getenv("CC");
+        NvmWebSocketHostPolicy websocket={1,allow_websocket_connections,allow_websocket_lookup,60000,websocket_resolver_helper};
+        NlServiceProductOptions options={output,root,cc,getenv("NANO_CFLAGS"),getenv("NANO_LDFLAGS"),
+            emit_nvm || (output && has_nvm_extension(output)),allow_temporary_files,run,allow_tcp_connections,&websocket};
+        if(daemon_wrapper || strip_debug)fputs("I do not support these output options for File source.\n",stderr);
+        else if(root)result=nl_service_compile(program,env,test_imports,&options);
+        free(root);free_environment(env);free_ast(program);free_module_list(modules);
+        clear_module_cache();free_tokens(tokens,token_count);free(source);return result;
     }
 
     /* Type Checking */

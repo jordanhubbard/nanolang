@@ -1,0 +1,6 @@
+sdl_image_demo 0  ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'
+ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'
+
+VERIFY 0  
+sdl_image_tiled_background 0  
+VERIFY 0  

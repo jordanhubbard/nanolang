@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "<stdin>", line 10, in <module>
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 26, in run_module
+    source = self.emit(work, text, stdout)
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 23, in emit
+    result = self.checked([ROOT / 'bin/nano_vm', module])
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/case.py", line 925, in assertEqual
+    assertion_func(first, second, msg=msg)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/case.py", line 918, in _baseAssertEqual
+    raise self.failureException(msg)
+AssertionError: 1 != 0 : I could not execute the module: Type error
+  Function 1 returned struct, expected tuple
+

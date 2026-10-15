@@ -1,0 +1,2 @@
+pub fn declared()->int { return 17 }
+shadow declared { assert (== (declared) 17) }

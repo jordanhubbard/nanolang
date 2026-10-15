@@ -1,0 +1,27 @@
+bin/nano_virt wildcard PASS
+bin/nano_virt qualified_write FAIL 1 != 0 : -- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-_vmyr9r9/main.nano
+I cannot find a variable named `first`.
+
+2| fn main()->int{set first.count 7 assert (== first.count 7) set first.count 0 return 0}
+                  ^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-_vmyr9r9/main.nano
+I cannot find a variable named `first`.
+
+2| fn main()->int{set first.count 7 assert (== first.count 7) set first.count 0 return 0}
+                                                              ^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+error: type check failed
+
+bin/nano_virt canonical_alias FAIL 1 != 0 : Error at line 2, column 1: Module file './a.nano' not found
+error: module loading failed
+
+bin/nano_virt conflict PASS
+bin/nano_vm /private/tmp/nanolang-cseed-public-import-final-compiler.nvm -- wildcard PASS
+bin/nano_vm /private/tmp/nanolang-cseed-public-import-final-compiler.nvm -- qualified_write FAIL 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0002] I cannot find a definition for `first`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-aenc7yat/main.nano:2:16)
+  [E0002] I cannot find a definition for `first`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-aenc7yat/main.nano:2:60)
+
+bin/nano_vm /private/tmp/nanolang-cseed-public-import-final-compiler.nvm -- canonical_alias PASS
+bin/nano_vm /private/tmp/nanolang-cseed-public-import-final-compiler.nvm -- conflict FAIL 0 == 0 : 

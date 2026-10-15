@@ -1,0 +1,7 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nl51-native-array-iteration.nano
+I cannot determine this function value's signature.
+
+5| for callback in callbacks {assert (== (callback 7) 8)}
+                                         ^
+Hint: Declare the function value's parameter and return types.
+Type checking failed

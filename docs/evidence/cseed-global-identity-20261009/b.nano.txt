@@ -1,0 +1,3 @@
+let answer: string = "second"
+pub fn read_answer()->string{return answer}
+shadow read_answer {assert (== (read_answer) "second")}

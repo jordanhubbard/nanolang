@@ -1,0 +1,3 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -Isrc/nanoisa tests/nanoisa/test_affine_global_flow.c -o /private/tmp/nl51-effect-globals/fresh-objects/test_affine_global_flow
+/private/tmp/nl51-effect-globals/fresh-objects/test_affine_global_flow
+PASS 20971528 global transfer checks; handler integration remains separate

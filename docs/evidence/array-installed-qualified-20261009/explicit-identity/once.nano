@@ -1,0 +1,17 @@
+let mut arrays: int = 0
+let mut starts: int = 0
+let mut lengths: int = 0
+fn values() -> array<int> { set arrays (+ arrays 1) return [7, 8, 9] }
+shadow values { set arrays 0 assert (== (array_length (values)) 3) assert (== arrays 1) }
+fn start() -> int { set starts (+ starts 1) return 1 }
+shadow start { set starts 0 assert (== (start) 1) assert (== starts 1) }
+fn length() -> int { set lengths (+ lengths 1) return 2 }
+shadow length { set lengths 0 assert (== (length) 2) assert (== lengths 1) }
+fn main() -> int {
+ set arrays 0 set starts 0 set lengths 0
+ let copy: array<int> = (array_slice (values) (start) (length))
+ assert (== arrays 1) assert (== starts 1) assert (== lengths 1)
+ assert (== (array_length copy) 2) assert (== (at copy 0) 8)
+ return 0
+}
+shadow main { assert (== (main) 0) }

@@ -1,0 +1,68 @@
+[
+  {
+    "path": "before.log",
+    "sha256": "5da3480e6d6e93172ff2be33ae238d53a4ce1ff8961485345b64833f668069af",
+    "bytes": 971,
+    "text_archived": true
+  },
+  {
+    "path": "candidate.json",
+    "sha256": "9acd7063bbec37d6dec4cea8f2c04548dae675d7018f2c8ae1eaad37b868e0cf",
+    "bytes": 853,
+    "text_archived": true
+  },
+  {
+    "path": "candidate.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "manifest.json",
+    "sha256": "00fe7827061c499775715bf78c2068cbab71dde284b3e4b2486d829391e1dd24",
+    "bytes": 1143,
+    "text_archived": true
+  },
+  {
+    "path": "observer-inventory.json",
+    "sha256": "08edee2d3f6a9fc771ebb009540e88853b71b7c6cf86702987487b70ecb8f4bc",
+    "bytes": 1426,
+    "text_archived": true
+  },
+  {
+    "path": "observer-runner.py",
+    "sha256": "f31bdcdacad1ae8f13551977ded65fe4ec0b90ae5a28145e35592e3e2763d4b9",
+    "bytes": 1306,
+    "text_archived": true
+  },
+  {
+    "path": "observers.log",
+    "sha256": "dc6f967c4c014450a7e40b08b7fcdea26dd52b51c857d038d637d6ade0d5a941",
+    "bytes": 426,
+    "text_archived": true
+  },
+  {
+    "path": "test_popped_closure_survives_owner_reuse_and_collection.c",
+    "sha256": "7d32521b58ea6c73132b15e320ec7d711807bd916431ee7f117b67ad2e77467a",
+    "bytes": 55956,
+    "text_archived": true
+  },
+  {
+    "path": "test_popped_closure_survives_owner_reuse_and_collection.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "test_record_children_survive_owner_reuse_and_collection.c",
+    "sha256": "b63fe44ead58fa4464f831fb47f61d14c6f9228c1588be3a35b014ebeb6338e6",
+    "bytes": 58076,
+    "text_archived": true
+  },
+  {
+    "path": "test_record_children_survive_owner_reuse_and_collection.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  }
+]

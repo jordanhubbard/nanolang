@@ -1,0 +1,28 @@
+test_actual_helper_edit_and_source_membership_changes (__main__.BootstrapDependencies.test_actual_helper_edit_and_source_membership_changes) ... FAIL
+test_artifacts_and_documentation_are_not_source_inputs (__main__.BootstrapDependencies.test_artifacts_and_documentation_are_not_source_inputs) ... ok
+test_cache_payload_changes_do_not_invalidate_bootstrap (__main__.BootstrapDependencies.test_cache_payload_changes_do_not_invalidate_bootstrap) ... ok
+test_missing_index_is_generated_before_bootstrap_snapshot (__main__.BootstrapDependencies.test_missing_index_is_generated_before_bootstrap_snapshot) ... ok
+test_missing_raw_modules_or_receipt_invalidate_bootstrap (__main__.BootstrapDependencies.test_missing_raw_modules_or_receipt_invalidate_bootstrap) ... ok
+test_missing_stage_one_invalidates_later_stages (__main__.BootstrapDependencies.test_missing_stage_one_invalidates_later_stages) ... ok
+test_missing_stage_two_invalidates_validation (__main__.BootstrapDependencies.test_missing_stage_two_invalidates_validation) ... ok
+test_runtime_inputs_invalidate_all_selfhost_stages (__main__.BootstrapDependencies.test_runtime_inputs_invalidate_all_selfhost_stages) ... ok
+test_unrelated_program_does_not_invalidate_bootstrap (__main__.BootstrapDependencies.test_unrelated_program_does_not_invalidate_bootstrap) ... ok
+test_up_to_date_and_source_invalidation (__main__.BootstrapDependencies.test_up_to_date_and_source_invalidation) ... ok
+
+======================================================================
+FAIL: test_actual_helper_edit_and_source_membership_changes (__main__.BootstrapDependencies.test_actual_helper_edit_and_source_membership_changes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-bootstrap-index-dependency-20261009/test_dependencies.py", line 125, in test_actual_helper_edit_and_source_membership_changes
+    self.assertEqual(self.query(".bootstrap3.built"), 1)
+                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-bootstrap-index-dependency-20261009/test_dependencies.py", line 78, in query
+    self.assertIn(result.returncode, (0, 1), result.stdout + result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 not found in (0, 1) : make: *** No rule to make target `modules/std/fs.c', needed by `bin/generate_module_index'.  Stop.
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 14.803s
+
+FAILED (failures=1)

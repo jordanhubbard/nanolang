@@ -1,0 +1,1 @@
+I cannot assemble '/private/tmp/nanolang-selfhost-union-final/raw/OwnedGlobalProducer/test_uninitialized_global_read_in_initializer_refused/main.nasm': Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[0] at 111: I require global initialization before reads and no repeated immutable store

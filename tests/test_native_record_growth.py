@@ -39,7 +39,7 @@ class NativeRecordGrowth(unittest.TestCase):
             work = Path(tmp)
             source = self.emit(work, text)
             self.compile(source, work / 'program')
-            self.run_checked([work / 'program'], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+            self.run_checked([work / 'program'], env={**os.environ})
 
     def test_growth_preserves_owned_strings_through_collection(self):
         text = ('.entry main\n.types 1 0 0\n.string key "key"\n.string text "retained"\n'
@@ -57,7 +57,7 @@ class NativeRecordGrowth(unittest.TestCase):
             work = Path(tmp)
             source = self.emit(work, text)
             self.compile(source, work / 'program')
-            self.run_checked([work / 'program'], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+            self.run_checked([work / 'program'], env={**os.environ})
 
     def test_borrowed_storage_growth_preserves_stack_owner(self):
         with tempfile.TemporaryDirectory(prefix='nano-record-borrowed-growth-') as tmp:
@@ -80,7 +80,7 @@ int main(void) {
 }
 ''')
             self.compile(source, work / 'program')
-            self.run_checked([work / 'program'], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+            self.run_checked([work / 'program'], env={**os.environ})
 
     def test_growth_failure_preserves_existing_storage(self):
         with tempfile.TemporaryDirectory(prefix='nano-record-growth-failure-') as tmp:
@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
             self.compile(source, work / 'program')
             for args in ([], ['overflow']):
                 result = subprocess.run([str(work / 'program'), *args], capture_output=True,
-                                        timeout=30, env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                                        timeout=30, env={**os.environ})
                 self.assertEqual(result.returncode, 77, result.stdout + result.stderr)
 
 

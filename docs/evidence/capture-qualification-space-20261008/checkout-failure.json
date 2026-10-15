@@ -1,0 +1,10 @@
+{
+  "source_commit": "ae92c0488ed44da0112f7eb51367a9976054b16a",
+  "phase": "clean checkout before gate",
+  "checkout_exit": 128,
+  "runner_exit": 2,
+  "failure": "No space left on device while checking out tracked docs/evidence; gate did not start",
+  "df_before_cleanup": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   926Gi   906Gi   220Mi   100%     11M  2.3M   83%   /System/Volumes/Data\n",
+  "removed_path": "/private/tmp/nanolang-capture-ae92c0488",
+  "recovery": "I remove only this incomplete disposable checkout; committed source and historical qualification host libraries remain intact."
+}

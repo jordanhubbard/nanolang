@@ -1,0 +1,72 @@
+diff --git a/src/nsi_cap.c b/src/nsi_cap.c
+index 3b394d10d..50adf46b5 100644
+--- a/src/nsi_cap.c
++++ b/src/nsi_cap.c
+@@ -43,6 +43,12 @@ struct NlCapTable {
+     int audit_seq;
+ };
+ 
++bool nl_cap_private_storage_bound(size_t *out) {
++    if (!out) return false;
++    *out = sizeof(NlCapTable);
++    return true;
++}
++
+ static void bounded_copy(char *dest, size_t dest_size, const char *src) {
+     size_t n;
+     if (!dest || dest_size == 0) {
+diff --git a/src/nsi_cap_private.h b/src/nsi_cap_private.h
+index af71413bc..22c9a4f5e 100644
+--- a/src/nsi_cap_private.h
++++ b/src/nsi_cap_private.h
+@@ -2,6 +2,7 @@
+ #define NL_NSI_CAP_PRIVATE_H
+ 
+ #include "nsi_cap.h"
++#include <stdbool.h>
+ 
+ /* I serve only contexts that privately own the entire table. Existing public
+  * users keep their current lifetime policy. No external restart/revoke/borrow
+@@ -9,6 +10,9 @@
+ #define NL_CAP_PRIVATE_SLOTS 64u
+ #define NL_CAP_PRIVATE_ERR_GENERATION 8
+ 
++/* I report the entire table's storage without allocating. Failure preserves *out. */
++bool nl_cap_private_storage_bound(size_t *out);
++
+ int nl_cap_private_mint(NlCapTable *table, const char *type_id,
+                        const char *service_id, uint32_t rights, NlCap *out);
+ /* I publish a new token and retire the old slot only after mint succeeds.
+diff --git a/src/nsi_file.c b/src/nsi_file.c
+index 966bcced8..f57c3481e 100644
+--- a/src/nsi_file.c
++++ b/src/nsi_file.c
+@@ -23,6 +23,14 @@ struct NlFileService {
+     FileEntry files[NL_CAP_PRIVATE_SLOTS];
+ };
+ 
++bool nl_file_service_storage_bound(size_t *out) {
++    size_t capabilities;
++    if (!out || !nl_cap_private_storage_bound(&capabilities) ||
++        capabilities > SIZE_MAX - sizeof(NlFileService)) return false;
++    *out = sizeof(NlFileService) + capabilities;
++    return true;
++}
++
+ /* Serialized private context creation, not a process-shared/remote token ABI.
+  * I never reset this identity when a context is freed or its address is reused. */
+ static uint64_t file_context_counter;
+diff --git a/src/nsi_file.h b/src/nsi_file.h
+index 367080a86..7414d68bd 100644
+--- a/src/nsi_file.h
++++ b/src/nsi_file.h
+@@ -9,6 +9,9 @@
+ /* Private native adapter only: no source, NanoISA import or NSI dispatch uses
+  * this interface. Context creation/use is serialized by the caller. */
+ typedef struct NlFileService NlFileService;
++/* I report service plus capability storage without allocating. Failure preserves *out. */
++bool nl_file_service_storage_bound(size_t *out);
++
+ typedef struct {
+     uint64_t context_id;
+     NlCap cap;

@@ -1,0 +1,10 @@
+I retain NanoISA match evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-370n27tk
+test_block_values_and_union_wildcards (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_block_values_and_union_wildcards) ... ok
+test_integer_wildcard_effects_and_exits (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_integer_wildcard_effects_and_exits) ... ok
+test_invalid_guards_domains_and_coverage (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_invalid_guards_domains_and_coverage) ... ok
+test_named_union_guard_effects (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_named_union_guard_effects) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 79.796s
+
+OK

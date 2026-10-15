@@ -300,10 +300,12 @@ int main(void) {
 #include <assert.h>
 int main(void) {
     const char *names[] = {"plain", "a-b", "a_b", "a b", "a'b", "",
-        "__nano_hex_612d62", "__nano_hex_", "a$(touch marker)", "\xc3\xa9"};
-    char symbols[10][4096];
-    for (unsigned i = 0; i < 10; i++) {
+        "__nano_hex_612d62", "__nano_hex_", "a$(touch marker)", "\xc3\xa9",
+        "9probe", "__nano_hex_3970726f6265"};
+    char symbols[12][4096];
+    for (unsigned i = 0; i < sizeof(names)/sizeof(names[0]); i++) {
         strcpy(symbols[i], module_symbol_suffix(names[i]));
+        assert(!(symbols[i][0] >= '0' && symbols[i][0] <= '9'));
         for (const char *p = symbols[i]; *p; p++)
             assert((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
                    (*p >= '0' && *p <= '9') || *p == '_');

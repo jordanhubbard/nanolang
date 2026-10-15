@@ -1,0 +1,14 @@
+{
+  "vm": {
+    "returncode": 0,
+    "seconds": 0.02581679099239409,
+    "exact_c_catalogs": true,
+    "sha256": "4104c938ba3e0d58fe0334e513b6fe66383427772aba3b5d4061024a75a1d5f4"
+  },
+  "native": {
+    "returncode": 0,
+    "seconds": 0.2867364580743015,
+    "exact_c_catalogs": true,
+    "sha256": "4104c938ba3e0d58fe0334e513b6fe66383427772aba3b5d4061024a75a1d5f4"
+  }
+}

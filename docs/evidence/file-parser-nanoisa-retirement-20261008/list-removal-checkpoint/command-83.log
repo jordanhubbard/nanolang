@@ -1,0 +1,22 @@
+['/private/tmp/nanolang-list-removal-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-yiaapfyv/pop-empty.nano', 'program']
+.types 0 0 0
+.entry 0
+
+.function main 0 2 0 int 1
+  ARR_NEW 1
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  STORE_LOCAL 1
+  LOAD_LOCAL 1
+  ARR_LEN
+  PUSH_I64 0
+  I64_GT_S
+  ASSERT
+  LOAD_LOCAL 1
+  ARR_POP
+  POP
+  PUSH_I64 0
+  RET
+.end
+
+

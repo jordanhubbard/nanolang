@@ -1,0 +1,11 @@
+make[1]: GNUmakefile: No such file or directory
+make[1]: Entering directory '/work'
+make[1]: Entering directory '/work'
+make[1]: Leaving directory '/work'
+make[1]: GNUmakefile: No such file or directory
+make[1]: *** No rule to make target 'GNUmakefile'.  Stop.
+make[1]: Leaving directory '/work'
+make[1]: *** No rule to make target 'GNUmakefile'.  Stop.
+make: *** [Makefile:46: nano_virt] Error 2
+make: *** Waiting for unfinished jobs....
+make: *** [Makefile:46: nano_vm] Error 2

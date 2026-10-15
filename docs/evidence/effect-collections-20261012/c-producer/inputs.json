@@ -1,0 +1,8 @@
+{
+  "Makefile.gnu": "a5a98bc41590bdc2436e53595002fcc538920bbd7f18d9bff9ce7767b8ca7ef8",
+  "src/nanovirt/borrow_codegen.inc": "83e8e9bcaa78e5078435bad9bc7daf8b339175fdd3f29b0923786d662142aff5",
+  "src/nanovirt/borrow_array_codegen.inc": "e2ef019dae34947818a5a9cdc436d6c9a9fd5aa253c1766ad28db80910da5160",
+  "src/nanovirt/borrow_effect_codegen.inc": "96ddb31d4dbd72021eecc6f82b7d2ecbdb95bc8bcd51927f1f1df24ae85423b2",
+  "tests/nanovirt/test_effect_array_producer.c": "8c92d1810ba2efaff1d6d3a9184287a59b9ea2b4eecc166c472b24faf9f760c3",
+  "tests/test_effect_array_producer.py": "9ae40c3b911e3740637d80656349be351a553db3a421f3ffaf102b7a1d86c385"
+}

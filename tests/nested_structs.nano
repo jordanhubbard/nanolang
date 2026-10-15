@@ -24,13 +24,13 @@ fn main() -> int {
     
     let tri: Triangle = Triangle { a: p1, b: p2, c: p3 }
     
-    println("Nested structs test - accessing nested fields")
-    println(line.start.x)
-    println(line.end.y)
-    println(tri.a.x)
-    println(tri.b.y)
-    println(tri.c.x)
-    println("All nested field accesses successful!")
+    (println "Nested structs test - accessing nested fields")
+    (println line.start.x)
+    (println line.end.y)
+    (println tri.a.x)
+    (println tri.b.y)
+    (println tri.c.x)
+    (println "All nested field accesses successful!")
     return 0
 }
 

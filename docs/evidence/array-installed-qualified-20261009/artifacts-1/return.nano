@@ -1,0 +1,2 @@
+fn bytes()->array<u8> { return [300] } fn main()->int { assert (== (at (bytes) 0) 44) return 0 }
+shadow main { assert true }

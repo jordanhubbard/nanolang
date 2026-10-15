@@ -1,0 +1,61 @@
+I retain guard artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-match-guards-1gdyyyee
+test_unchecked_generated_terminal_backstops (tests.test_canonical_match_guards.CanonicalMatchGuards.test_unchecked_generated_terminal_backstops) ... FAIL
+
+======================================================================
+FAIL: test_unchecked_generated_terminal_backstops (tests.test_canonical_match_guards.CanonicalMatchGuards.test_unchecked_generated_terminal_backstops)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_canonical_match_guards.py", line 228, in test_unchecked_generated_terminal_backstops
+    self.command([BIN / "nanoc_c", source, "-o", driver, "--keep-c"], timeout=600)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_canonical_match_guards.py", line 153, in command
+    self.assertEqual(result.returncode, expected, f"{args}\n{result.stdout}{result.stderr}")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/private/tmp/nanolang-array-types-20261008/bin/nanoc_c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-match-guards-1gdyyyee/backstop-driver.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-match-guards-1gdyyyee/backstop-driver', '--keep-c']
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2567, column 9: Unused variable 'rejected'
+Warning at line 2731, column 9: Unused variable 'rejected'
+Warning at line 2735, column 9: Unused variable 'rejected'
+Warning at line 2742, column 13: Unused variable 'rejected'
+Warning at line 2800, column 9: Unused variable 'rejected'
+Warning at line 2804, column 9: Unused variable 'rejected'
+Warning at line 2811, column 13: Unused variable 'rejected'
+Warning at line 6417, column 17: Unused variable 'imported'
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-match-guards-1gdyyyee/backstop-driver.nano
+I cannot find a variable named `nisa_names`.
+
+10|  set nisa_names ["x"]
+     ^^^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-match-guards-1gdyyyee/backstop-driver.nano
+I cannot find a variable named `nisa_types`.
+
+11|  set nisa_types ["int"]
+     ^^^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-match-guards-1gdyyyee/backstop-driver.nano
+I cannot find a variable named `nisa_return_type`.
+
+12|  set nisa_return_type "int"
+     ^^^^^^^^^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-match-guards-1gdyyyee/backstop-driver.nano
+I cannot find a variable named `nisa_ok`.
+
+16|  if (not nisa_ok) { return "" }
+             ^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-match-guards-1gdyyyee/backstop-driver.nano
+`not` requires a bool operand.
+
+16|  if (not nisa_ok) { return "" }
+        ^
+Hint: Convert the operand to bool before using not.
+Warning at line 6, column 2: Unused variable 'reset'
+Type checking failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.210s
+
+FAILED (failures=1)

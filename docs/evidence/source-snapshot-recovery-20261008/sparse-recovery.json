@@ -1,0 +1,48 @@
+{
+  "before_free": 15806087168,
+  "checkouts": [
+    {
+      "path": "/private/tmp/nanolang-5.1-fixedpoint-7dc131e44",
+      "pin": "ffe819332687525b291cc234aea44782468b4bde",
+      "excluded": "docs/evidence",
+      "final_status": ""
+    },
+    {
+      "path": "/private/tmp/nanolang-function-arrays-c7ba27e8c",
+      "pin": "c7ba27e8c29906aed9aa18cf0dc1bea3e30fcb3e",
+      "excluded": "docs/evidence",
+      "final_status": ""
+    },
+    {
+      "path": "/private/tmp/nanolang-closure-arrays-9790d9a91",
+      "pin": "9790d9a91aac6b412e48e2f6af04c8f5a6392be1",
+      "excluded": "docs/evidence",
+      "final_status": ""
+    },
+    {
+      "path": "/private/tmp/nanolang-native-environments-3f2defe23",
+      "pin": "3f2defe23d2e52e0c31718dc8adc9397d29e8c0f",
+      "excluded": "docs/evidence",
+      "final_status": ""
+    },
+    {
+      "path": "/private/tmp/nanolang-selfhost-containers-c7a43b0bc",
+      "pin": "c7a43b0bc6ed3032ec25695f3d56971320736b3a",
+      "excluded": "docs/evidence",
+      "final_status": ""
+    },
+    {
+      "path": "/private/tmp/nanolang-native-callables-f701198ad",
+      "pin": "f701198adb3b5eac7909a4ba4ea841bc2b71e616",
+      "excluded": "docs/evidence",
+      "final_status": ""
+    },
+    {
+      "path": "/private/tmp/nanolang-callables-4f56b353c",
+      "pin": "4f56b353ced394c13317a3df14fafffe1dfd28ff",
+      "excluded": "docs/evidence",
+      "final_status": ""
+    }
+  ],
+  "after_free": 55911952384
+}

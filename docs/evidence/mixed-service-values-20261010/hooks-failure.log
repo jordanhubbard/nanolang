@@ -1,0 +1,30 @@
+CC="/opt/homebrew/opt/llvm/bin/clang" python3 -m unittest tests.test_services_values -v
+test_real_lifetimes_and_faults (tests.test_services_values.ServicesValues.test_real_lifetimes_and_faults) ... I retain mixed value evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-obsfupjy
+FAIL
+
+======================================================================
+FAIL: test_real_lifetimes_and_faults (tests.test_services_values.ServicesValues.test_real_lifetimes_and_faults)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_services_values.py", line 41, in test_real_lifetimes_and_faults
+    run([*compiler, *flags, *(['-DSERVICES_ALLOC_TEST'] if instrument else []),
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         'tests/test_nsi_services_values.c', *objects, '-o', exe])
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_services_values.py", line 26, in run
+    self.assertEqual(completed.returncode, 0, completed.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tests/test_nsi_services_values.c:17:17: error: variable 'file_closes' set but not used [-Werror,-Wunused-but-set-global]
+   17 | static unsigned file_closes,tcp_closes;
+      |                 ^
+tests/test_nsi_services_values.c:17:29: error: variable 'tcp_closes' set but not used [-Werror,-Wunused-but-set-global]
+   17 | static unsigned file_closes,tcp_closes;
+      |                             ^
+2 errors generated.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.484s
+
+FAILED (failures=1)
+make: *** [test-services-values] Error 1

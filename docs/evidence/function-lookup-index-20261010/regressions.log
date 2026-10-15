@@ -1,0 +1,14 @@
+..........................................F
+======================================================================
+FAIL: test_mixed_catalog_namespace_and_types (tests.test_service_namespace.ServiceNamespace.test_mixed_catalog_namespace_and_types)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_namespace.py", line 110, in test_mixed_catalog_namespace_and_types
+    self.assertIn("I have not connected TCP wire and runtime lowering",run.stdout+run.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'I have not connected TCP wire and runtime lowering' not found in 'I require --allow-tcp-connections for selected service shadows or execution.\n'
+
+----------------------------------------------------------------------
+Ran 43 tests in 84.578s
+
+FAILED (failures=1)

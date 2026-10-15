@@ -1,0 +1,3 @@
+I cannot verify affine ownership at line 8, column 48: I cannot partially move a resource field — value
+I cannot verify affine ownership at line 8, column 20: resource remains live at scope exit — payload
+error: type check failed

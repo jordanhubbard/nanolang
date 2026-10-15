@@ -1,0 +1,7 @@
+ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'
+ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'
+/private/tmp/nanolang-launcher-global-candidate/sdl_example_launcher.nano:112:59: error: use of undeclared identifier 'image'
+  112 |     int64_t img_result = ({ __auto_type __nl_arg_2562_0 = image.IMG_INIT_PNG; IMG_Init(__nl_arg_2562_0); });
+      |                                                           ^~~~~
+1 error generated.
+C compilation failed

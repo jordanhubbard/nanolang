@@ -3,8 +3,8 @@ import "src_nano/parser.nano"
 import "src_nano/compiler/lexer.nano"
 
 fn main() -> int {
-    let sources: array<string> = ["(sum + i)", "(a + b * c)", "(p.1, p.0)", "(p.x, p.y)", "(x, y)", "(f x)", "(f)", "(Mod.f x)", "(Leaf { value: 1 }, 2)", "(Leaf { value: 1 })", "(Mod.Leaf { value: 1 }, 2)"]
-    let kinds: array<int> = [ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_MODULE_QUALIFIED_CALL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_STRUCT_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL]
+    let sources: array<string> = ["(sum + i)", "(a + b * c)", "(p.1, p.0)", "(p.x, p.y)", "(x, y)", "(f x)", "(f)", "(Mod.f x)", "(Leaf { value: 1 }, 2)", "(Leaf { value: 1 })", "(Mod.Leaf { value: 1 }, 2)", "tcp.Endpoint { family: 4 }", "(tcp.Endpoint { family: 4 })", "(take tcp.Endpoint { family: 4 })", "(tcp.Endpoint { family: 4 }, 2)"]
+    let kinds: array<int> = [ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_MODULE_QUALIFIED_CALL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_STRUCT_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_STRUCT_LITERAL, ParseNodeType.PNODE_STRUCT_LITERAL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_TUPLE_LITERAL]
     let mut i: int = 0
     while (< i (array_length sources)) {
         let tokens: List<LexerToken> = (tokenize_string (at sources i) "parser-test.nano" (list_CompilerDiagnostic_new))
@@ -12,6 +12,10 @@ fn main() -> int {
         assert (not (parser_has_error parsed))
         assert (== parsed.last_expr_node_type (at kinds i))
         assert (parser_is_at_end parsed)
+        if (>= i 11) {
+            assert (== parsed.struct_literals_count 1)
+            assert (== (parser_get_struct_literal parsed 0).struct_name "tcp.Endpoint")
+        }
         if (== i 1) {
             let root: ASTBinaryOp = (list_ASTBinaryOp_get parsed.binary_ops parsed.last_expr_node_id)
             assert (== root.op (token_star))

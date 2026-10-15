@@ -1,0 +1,36 @@
+--- 
++++ 
+@@ -16,12 +16,12 @@
+ .string "vm_string_from_char"
+ .string "file_write"
+ .string "vm_file_write"
+-.string "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-73c6fe6f3f61f786044ab4ef848a17ea0f42b3de29033b90d5d84d63cfb6fdea/.nano-gen-Y5Qv5J/libnanoisa.dylib"
++.string "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-73c6fe6f3f61f786044ab4ef848a17ea0f42b3de29033b90d5d84d63cfb6fdea/.nano-gen-PsZu32/libnanoisa.dylib"
+ .string "nl_nanoisa_assemble_text_save"
+ .string "nl_nanoisa_last_error"
+-.string "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-2d117157bbac7e962a0bd7124c688ca3b825bc56317715bd9cdf990381965bd8/.nano-gen-XU9cpr/libstd.dylib"
++.string "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-2d117157bbac7e962a0bd7124c688ca3b825bc56317715bd9cdf990381965bd8/.nano-gen-QC8efn/libstd.dylib"
+ .string "path_canonical"
+-.string "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-13bbc4ecd686c6b0331670a17746976c18dac31bd11c6f6996e2d749dec33a89/.nano-gen-8qi9AB/libcompiler_support.dylib"
++.string "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-13bbc4ecd686c6b0331670a17746976c18dac31bd11c6f6996e2d749dec33a89/.nano-gen-aQ3YQh/libcompiler_support.dylib"
+ .string "nlc_module_header_constants"
+ .string "vm_is_alnum"
+ .string "nlc_module_artifact"
+@@ -9413,12 +9413,12 @@
+ .import "" "vm_string_from_char" string int
+ .import "" "file_write" int string string
+ .import "" "vm_file_write" int string string
+-.import "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-73c6fe6f3f61f786044ab4ef848a17ea0f42b3de29033b90d5d84d63cfb6fdea/.nano-gen-Y5Qv5J/libnanoisa.dylib" "nl_nanoisa_assemble_text_save" int string string
+-.import "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-73c6fe6f3f61f786044ab4ef848a17ea0f42b3de29033b90d5d84d63cfb6fdea/.nano-gen-Y5Qv5J/libnanoisa.dylib" "nl_nanoisa_last_error" string
+-.import "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-2d117157bbac7e962a0bd7124c688ca3b825bc56317715bd9cdf990381965bd8/.nano-gen-XU9cpr/libstd.dylib" "path_canonical" string string
+-.import "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-13bbc4ecd686c6b0331670a17746976c18dac31bd11c6f6996e2d749dec33a89/.nano-gen-8qi9AB/libcompiler_support.dylib" "nlc_module_header_constants" string string
++.import "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-73c6fe6f3f61f786044ab4ef848a17ea0f42b3de29033b90d5d84d63cfb6fdea/.nano-gen-PsZu32/libnanoisa.dylib" "nl_nanoisa_assemble_text_save" int string string
++.import "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-73c6fe6f3f61f786044ab4ef848a17ea0f42b3de29033b90d5d84d63cfb6fdea/.nano-gen-PsZu32/libnanoisa.dylib" "nl_nanoisa_last_error" string
++.import "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-2d117157bbac7e962a0bd7124c688ca3b825bc56317715bd9cdf990381965bd8/.nano-gen-QC8efn/libstd.dylib" "path_canonical" string string
++.import "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-13bbc4ecd686c6b0331670a17746976c18dac31bd11c6f6996e2d749dec33a89/.nano-gen-aQ3YQh/libcompiler_support.dylib" "nlc_module_header_constants" string string
+ .import "" "vm_is_alnum" bool int
+-.import "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-13bbc4ecd686c6b0331670a17746976c18dac31bd11c6f6996e2d749dec33a89/.nano-gen-8qi9AB/libcompiler_support.dylib" "nlc_module_artifact" string string
++.import "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-13bbc4ecd686c6b0331670a17746976c18dac31bd11c6f6996e2d749dec33a89/.nano-gen-aQ3YQh/libcompiler_support.dylib" "nlc_module_artifact" string string
+ 
+ .import_kind 17 artifact
+ .import_kind 18 artifact

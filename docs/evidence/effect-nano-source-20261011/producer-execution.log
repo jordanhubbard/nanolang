@@ -1,0 +1,202 @@
+test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) ... 
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='ordered_arguments') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='nested_transfer') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='capture_mutation') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='parameter_shadow') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='arm_prefix_destructure') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='destructure_before_perform') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_resume') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_perform_return') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_handle_return') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='float_resume') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='string_resume') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='body_return') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='body_break') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='owned_union') ... FAIL
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='ordered_arguments')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='nested_transfer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='capture_mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='parameter_shadow')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='arm_prefix_destructure')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='destructure_before_perform')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_resume')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_perform_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_handle_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='float_resume')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='string_resume')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='body_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='body_break')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='owned_union')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 86, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined constant symbol: s0
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.260s
+
+FAILED (failures=14)

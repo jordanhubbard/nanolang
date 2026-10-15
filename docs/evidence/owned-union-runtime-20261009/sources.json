@@ -1,0 +1,11 @@
+{
+  "src/nanoisa/affine_bytecode.c": "3724e4893bdc39f9907770f0c4c2b7d9edeaf160de1d4d561e0aa790a688e9fd",
+  "src/nanoisa/affine_state.c": "b9b6f2822b2279e40f0fcdd16d7c35ad5ce4e98458bed3d16db77df6fc214f6a",
+  "src/nanoisa/verifier.c": "72b55d2835ec63c8ddc14796f4203f17ba7761c66ef5f53643f8757b2472e404",
+  "src/nanovm/vm.c": "51cd1706c2c14c14423da7d5ff64453c5c4ca3e651a90628b949a068d01c82b8",
+  "tests/nanoisa/test_owned_union_runtime.c": "9652a9991529c9a96e41d9a7160311f430d501d671cbb54564ac985cd058afe0",
+  "tests/nanoisa/test_owned_union_runtime_alloc.c": "9971b5dd9a937f7f4c1a8199c59e10663a80afed32d42c2c8e1a8458d1611b4a",
+  "tests/test_owned_union_runtime.py": "17e63c83bbb9d422cc367100d729d996e926ea0cb7edcc7c0b420da50fa17445",
+  "tests/test_owned_runtime.py": "5b7a034a4d4245327c36dd4f853c045f3f53a27280e1cfba97a54b4d1783e135",
+  "Makefile.gnu": "fb282c693ae837c57ecfdcf2acd8d4ccd05b7b57d9360bb86cc4544dc75dbab7"
+}

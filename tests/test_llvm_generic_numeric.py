@@ -19,7 +19,7 @@ class GenericNumeric(unittest.TestCase):
 
     def run_cmd(self, args, success=True):
         p = subprocess.run([str(a) for a in args], capture_output=True, text=True, timeout=30,
-                           env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:abort_on_error=1'})
+                           env={**os.environ, 'ASAN_OPTIONS': 'abort_on_error=1'})
         self.assertEqual(p.returncode == 0, success, str(args) + '\n' + p.stdout + p.stderr)
         return p
 

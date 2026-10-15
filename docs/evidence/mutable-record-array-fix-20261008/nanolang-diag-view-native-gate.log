@@ -1,0 +1,159 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c_shape.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_callables.c -o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c_callables.o
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+OK
+.I verified fresh ASan/UBSan translator and shape objects.
+I verified fresh ASan/UBSan translator and shape objects.
+.I did not find ASan and UBSan instrumentation in nvm2c.o
+I did not find ASan and UBSan instrumentation in nvm2c.o
+I did not find ASan and UBSan instrumentation in nvm2c.o
+.
+----------------------------------------------------------------------
+Ran 3 tests in 0.005s
+
+OK
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -o /private/tmp/nanolang-diag-tools/obj/test_nvm2c_shape \
+		tests/nanoisa/test_nvm2c_shape.c src/nanoisa/nvm2c_shape.c
+Shape constraints: 2553 passed, 0 failed
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -o /private/tmp/nanolang-diag-tools/obj/test_nvm2c_callables \
+		tests/nanoisa/test_nvm2c_callables.c /private/tmp/nanolang-diag-tools/obj/nanoisa/file_flow.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_file_nominal.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_file_nominal_plan.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_bindings.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_bindings_module.o /private/tmp/nanolang-diag-tools/obj/nanoisa/mixed_float_proof.o /private/tmp/nanolang-diag-tools/obj/nanoisa/managed_array_shapes.o /private/tmp/nanolang-diag-tools/obj/nanoisa/local_bindings.o /private/tmp/nanolang-diag-tools/obj/nanoisa/affine_bytecode.o /private/tmp/nanolang-diag-tools/obj/nanoisa/affine_state.o /private/tmp/nanolang-diag-tools/obj/nanoisa/ownership_contracts.o /private/tmp/nanolang-diag-tools/obj/nanoisa/retained_layouts.o /private/tmp/nanolang-diag-tools/obj/nanoisa/reference_places.o /private/tmp/nanolang-diag-tools/obj/nanoisa/passive.o /private/tmp/nanolang-diag-tools/obj/nanoisa/isa.o /private/tmp/nanolang-diag-tools/obj/nanoisa/verifier_types.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_format.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_format_v2.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_cursor.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_constants.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_signatures.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_layouts.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_functions.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_imports.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_module.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_convert.o /private/tmp/nanolang-diag-tools/obj/nanoisa/assembler.o /private/tmp/nanolang-diag-tools/obj/nanoisa/disassembler.o /private/tmp/nanolang-diag-tools/obj/nanoisa/verifier.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c_shape.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c_callables.o /private/tmp/nanolang-diag-tools/obj/nanoisa/frontend.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nanoisa_facade.o /private/tmp/nanolang-diag-tools/obj/nanovm/vm_decode.o /private/tmp/nanolang-diag-tools/obj/nanovm/vm_dispatch.o /private/tmp/nanolang-diag-tools/obj/nsi_file_plan.o /private/tmp/nanolang-diag-tools/obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -o /private/tmp/nanolang-diag-tools/bin/nvm2c /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c_main.o /private/tmp/nanolang-diag-tools/obj/nanoisa/file_flow.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_file_nominal.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_file_nominal_plan.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_bindings.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_bindings_module.o /private/tmp/nanolang-diag-tools/obj/nanoisa/mixed_float_proof.o /private/tmp/nanolang-diag-tools/obj/nanoisa/managed_array_shapes.o /private/tmp/nanolang-diag-tools/obj/nanoisa/local_bindings.o /private/tmp/nanolang-diag-tools/obj/nanoisa/affine_bytecode.o /private/tmp/nanolang-diag-tools/obj/nanoisa/affine_state.o /private/tmp/nanolang-diag-tools/obj/nanoisa/ownership_contracts.o /private/tmp/nanolang-diag-tools/obj/nanoisa/retained_layouts.o /private/tmp/nanolang-diag-tools/obj/nanoisa/reference_places.o /private/tmp/nanolang-diag-tools/obj/nanoisa/passive.o /private/tmp/nanolang-diag-tools/obj/nanoisa/isa.o /private/tmp/nanolang-diag-tools/obj/nanoisa/verifier_types.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_format.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_format_v2.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_cursor.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_constants.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_signatures.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_layouts.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_functions.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_imports.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_module.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_convert.o /private/tmp/nanolang-diag-tools/obj/nanoisa/assembler.o /private/tmp/nanolang-diag-tools/obj/nanoisa/disassembler.o /private/tmp/nanolang-diag-tools/obj/nanoisa/verifier.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c_shape.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c_callables.o /private/tmp/nanolang-diag-tools/obj/nanoisa/frontend.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nanoisa_facade.o /private/tmp/nanolang-diag-tools/obj/nanovm/vm_decode.o /private/tmp/nanolang-diag-tools/obj/nanovm/vm_dispatch.o /private/tmp/nanolang-diag-tools/obj/nsi_file_plan.o /private/tmp/nanolang-diag-tools/obj/utf8.o /private/tmp/nanolang-diag-tools/obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+Callable constraints: 379 passed, 0 failed
+Running nvm2c structured-C tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -Imodules/nanoisa -o /private/tmp/nanolang-diag-tools/test_nvm2c \
+		tests/nanoisa/test_nvm2c.c /private/tmp/nanolang-diag-tools/obj/nanoisa/file_flow.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_file_nominal.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_file_nominal_plan.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_bindings.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_bindings_module.o /private/tmp/nanolang-diag-tools/obj/nanoisa/mixed_float_proof.o /private/tmp/nanolang-diag-tools/obj/nanoisa/managed_array_shapes.o /private/tmp/nanolang-diag-tools/obj/nanoisa/local_bindings.o /private/tmp/nanolang-diag-tools/obj/nanoisa/affine_bytecode.o /private/tmp/nanolang-diag-tools/obj/nanoisa/affine_state.o /private/tmp/nanolang-diag-tools/obj/nanoisa/ownership_contracts.o /private/tmp/nanolang-diag-tools/obj/nanoisa/retained_layouts.o /private/tmp/nanolang-diag-tools/obj/nanoisa/reference_places.o /private/tmp/nanolang-diag-tools/obj/nanoisa/passive.o /private/tmp/nanolang-diag-tools/obj/nanoisa/isa.o /private/tmp/nanolang-diag-tools/obj/nanoisa/verifier_types.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_format.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_format_v2.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_cursor.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_constants.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_signatures.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_layouts.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_functions.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_imports.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_module.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_convert.o /private/tmp/nanolang-diag-tools/obj/nanoisa/assembler.o /private/tmp/nanolang-diag-tools/obj/nanoisa/disassembler.o /private/tmp/nanolang-diag-tools/obj/nanoisa/verifier.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c_shape.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c_callables.o /private/tmp/nanolang-diag-tools/obj/nanoisa/frontend.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nanoisa_facade.o /private/tmp/nanolang-diag-tools/obj/nanovm/vm_decode.o /private/tmp/nanolang-diag-tools/obj/nanovm/vm_dispatch.o /private/tmp/nanolang-diag-tools/obj/nsi_file_plan.o /private/tmp/nanolang-diag-tools/obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_string at generated C line 650.
+I stopped at a native invariant in nvalue_require_bool at generated C line 643.
+I stopped at a native invariant in nvalue_require_bool at generated C line 643.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nl___init__ at generated C line 103.
+I stopped at a native invariant in nl_main at generated C line 964.
+I stopped at a native invariant in nl_main at generated C line 964.
+I stopped at a native invariant in nl_main at generated C line 964.
+I stopped at a native invariant in nl_main at generated C line 963.
+I stopped at a native invariant in nl_main at generated C line 963.
+I stopped at a native invariant in nl_main at generated C line 963.
+I stopped at a native invariant in nl_main at generated C line 985.
+I stopped at a native invariant in nl_main at generated C line 985.
+I stopped at a native invariant in nl_main at generated C line 985.
+I stopped at a native invariant in nl_main at generated C line 971.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nl_main at generated C line 868.
+I stopped at a native invariant in nl_main at generated C line 868.
+I stopped at a native invariant in nl_main at generated C line 868.
+I stopped at a native invariant in nl_main at generated C line 953.
+I stopped at a native invariant in nhost_walk_0 at generated C line 746.
+I stopped at a native invariant in nhost_walk_0 at generated C line 730.
+I stopped at a native invariant in nhost_walk_0 at generated C line 732.
+I stopped at a native invariant in nhost_walk_0 at generated C line 735.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nl_update at generated C line 973.
+I stopped at a native invariant in nl_update at generated C line 973.
+I stopped at a native invariant in nvalue_array_len at generated C line 895.
+I stopped at a native invariant in nvalue_array_len at generated C line 895.
+I stopped at a native invariant in nvalue_array_len at generated C line 895.
+I stopped at a native invariant in nvalue_require_int at generated C line 687.
+I stopped at a native invariant in nl_prove at generated C line 59.
+I stopped at a native invariant in nvalue_array_len at generated C line 815.
+I stopped at a native invariant in nl_main at generated C line 945.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 638.
+I stopped at a native invariant in nvalue_require_int at generated C line 638.
+I stopped at a native invariant in nvalue_require_int at generated C line 638.
+I stopped at a native invariant in nvalue_require_int at generated C line 687.
+I stopped at a native invariant in nvalue_array_len at generated C line 815.
+I stopped at a native invariant in nvalue_array_len at generated C line 815.
+I stopped at a native invariant in nvalue_array_set at generated C line 921.
+I stopped at a native invariant in nvalue_array_set at generated C line 921.
+I stopped at a native invariant in nvalue_array_set at generated C line 921.
+I stopped at a native invariant in nvalue_array_set at generated C line 921.
+I stopped at a native invariant in nvalue_array_set at generated C line 921.
+I stopped at a native invariant in nvalue_array_set at generated C line 921.
+I stopped at a native invariant in nvalue_array_set at generated C line 921.
+I stopped at a native invariant in nvalue_array_set at generated C line 921.
+I stopped at a native invariant in nvalue_array_set at generated C line 921.
+I stopped at a native invariant in nvalue_array_set at generated C line 921.
+I stopped at a native invariant in nvalue_array_set at generated C line 921.
+I stopped at a native invariant in nvalue_array_set at generated C line 921.
+I stopped at a native invariant in nvalue_array_set at generated C line 920.
+I stopped at a native invariant in nvalue_array_set at generated C line 920.
+I stopped at a native invariant in nvalue_array_set at generated C line 920.
+I stopped at a native invariant in nvalue_array_set at generated C line 920.
+I stopped at a native invariant in nvalue_array_set at generated C line 920.
+I stopped at a native invariant in nvalue_array_set at generated C line 920.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_string at generated C line 588.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nvalue_require_string at generated C line 588.
+I stopped at a native invariant in nvalue_require_string at generated C line 588.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_string at generated C line 603.
+I stopped at a native invariant in nvalue_require_string at generated C line 603.
+I stopped at a native invariant in nvalue_require_string at generated C line 603.
+I stopped at a native invariant in nvalue_require_string at generated C line 652.
+I stopped at a native invariant in nvalue_require_string at generated C line 603.
+I stopped at a native invariant in nl_main at generated C line 852.
+I stopped at a native invariant in nvalue_require_string at generated C line 588.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nl_main at generated C line 887.
+
+[nvm2c] structured C11 from NanoISA...
+
+
+=== 2431 passed, 0 failed ===

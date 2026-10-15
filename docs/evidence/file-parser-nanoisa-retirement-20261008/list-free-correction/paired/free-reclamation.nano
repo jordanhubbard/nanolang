@@ -1,0 +1,13 @@
+fn main()->int {
+ (print 0)
+ let xs:List<int> = (list_int_new)
+ (list_int_push xs 42)
+ (print 1)
+ let alias:List<int> = xs
+ (list_int_free xs)
+ (print 2)
+ (list_int_free alias)
+ (print 3)
+ return 0
+}
+shadow main { assert true }

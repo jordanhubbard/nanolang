@@ -41,6 +41,23 @@ shadow main {{ assert (== (main) 0) }}
     def test_string(self):
         self.check(self.ordinary('let Box.Some { value } = payload', 'string', '"kept"', 'assert (== value "kept") return 7'), True)
 
+    def test_copyable_pattern_with_resource_functions(self):
+        prefix = ('resource struct Unused { value: int } '
+                  'fn consume(h: Unused) -> int { let Unused { value } = h return value } '
+                  'shadow consume { assert (== (consume Unused { value: 7 }) 7) }\n')
+        for payload, literal, body in (
+            ('int', '7', 'assert (== value payload.value) return value'),
+            ('string', '"kept"', 'assert (== value payload.value) return 7'),
+        ):
+            with self.subTest(payload=payload):
+                self.check(prefix + self.ordinary('let Box.Some { value } = payload',
+                                                 payload, literal, body), True)
+        for pattern in ('let Box.Other { value } = payload',
+                        'let Box.Some {} = payload',
+                        'let Box.Some { value, value } = payload'):
+            with self.subTest(pattern=pattern):
+                self.check(prefix + self.ordinary(pattern, body='return 7'), False)
+
     def test_missing(self):
         self.check(self.ordinary('let Box.Some {} = payload', body='return 0'), False)
 

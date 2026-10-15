@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nanoc_stage1",
+    "/private/tmp/nanolang-selfhost-union-final/installed/GenericSelectedUnionStage1/test_conditional_constructor_return/main.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-final/installed/GenericSelectedUnionStage1/test_conditional_constructor_return/main.nvm"
+  ],
+  "exit": 0
+}

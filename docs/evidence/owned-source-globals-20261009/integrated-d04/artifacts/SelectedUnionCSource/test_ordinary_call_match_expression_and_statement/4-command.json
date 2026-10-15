@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/Users/jordanh/Src/nanolang/bin/nvm2c",
+    "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_ordinary_call_match_expression_and_statement/main.nvm",
+    "-o",
+    "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_ordinary_call_match_expression_and_statement/main.c"
+  ],
+  "exit": 0
+}

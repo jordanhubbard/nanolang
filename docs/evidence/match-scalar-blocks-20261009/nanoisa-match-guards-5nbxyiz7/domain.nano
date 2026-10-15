@@ -1,0 +1,2 @@
+union Choice { Some { number: int }, None {} }
+fn main() -> int { return match "text" { _ => 1 } } shadow main { assert true }

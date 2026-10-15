@@ -1,0 +1,7 @@
+test_invalid_literal_and_operand_types_preserve_output (tests.test_service_strings.ServiceStrings.test_invalid_literal_and_operand_types_preserve_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ks1c0dv4
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.075s
+
+OK

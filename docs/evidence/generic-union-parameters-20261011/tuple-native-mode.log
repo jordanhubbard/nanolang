@@ -1,0 +1,7 @@
+test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) ... ok
+test_tuple_binding_mismatches_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_binding_mismatches_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.117s
+
+OK

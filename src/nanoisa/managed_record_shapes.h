@@ -40,4 +40,5 @@ typedef struct {
 NvmArrayEligibilityResult nvm_select_managed_heap(const NvmModule *, int mutable_arrays,
                                                  NvmManagedHeapPlan **out);
 void nvm_managed_heap_plan_free(NvmManagedHeapPlan *);
+NvmArrayEligibilityResult nvm_select_portable_read_heap(const NvmModule *, NvmManagedHeapPlan **);
 #endif

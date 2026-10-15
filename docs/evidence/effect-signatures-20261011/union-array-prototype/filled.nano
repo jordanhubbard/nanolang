@@ -1,0 +1,3 @@
+union Box<T>{Some{value:T}}
+fn main()->int{let xs:array<Box<int>> = (array_new 3 Box<int>.Some{value:9}) match (at xs 2){Some(p)=>{assert (== p.value 9)}} return 7}
+shadow main{assert (== (main) 7)}

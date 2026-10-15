@@ -1,0 +1,13 @@
+# My effect signature and union-array evidence
+
+I track this implementation under GitHub #976. I leave full 5.1 acceptance and imported-effect identity/visibility open.
+
+I preserve complete record, enum, generic-union and callable identities at effect argument and resumption boundaries. I recover complete annotations for effect results and reject mismatched identities without replacing an existing output file.
+
+I also admit native union arrays using retained aggregate storage, merge finite variant payload facts across literals and mutation, resolve ordinary union annotations in C, and retain concrete generic union types in self-hosted array reads. My paired-v3.log covers ten executed union-array fixtures and four refusal fixtures through both producers. Executed fixtures cover generic and ordinary unions, mixed int/string variants, saved values across mutation, array payloads, filled/empty/nested arrays and an effect boundary. VM and sanitized native results agree. Literal, nested and aliased wrong-union arrays preserve prior outputs on refusal.
+
+My union-array-product-audit passes all eight steps with unchanged recorded source inputs: paired entry tests, compiler self-compilation, bytecode verification, native translation, strict C11 linking, CLI execution, focused tests through the resulting native compiler, and adjacent generic/purity tests through that compiler. The manifest retains input and artifact hashes and timings. My seed passes 1,142 shadows. The C typechecker unit suite, nine adjacent native array methods and 29 adjacent generic/aggregate methods also pass; their logs remain under union-array-prototype.
+
+I retain earlier failures as provenance. The first effect product audit used the misspelled NANOLANG_SHADOW_TIMEOUT_SECONDS variable and hit the ten-second runtime default. The corrected-audit directory records its successful rerun with NANO_SHADOW_TIMEOUT_SECONDS=60; it predates the array changes. Earlier array probes retain element-recovery, mutation-classification and nominal-identity failures, followed by corrected results. One adjacent native run used Apple Clang and failed its unsupported leak-detection setting; adjacent-native-corrected.log uses LLVM Clang and the final installed translator.
+
+My effect-bindings helper separately passes 372 shadows but is not yet connected to the compiler. The private-import reproducer still demonstrates private effects leaking across module boundaries in both producers. Same-named imported effects also remain unresolved. I do not claim that these passing tests close the broader effect or release requirements.

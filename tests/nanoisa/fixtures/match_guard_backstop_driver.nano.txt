@@ -1,25 +1,33 @@
 from "modules/std/env.nano" import argc, argv
 import "src_nano/parser.nano"
-import "src_nano/transpiler.nano"
+import "src_nano/compiler/nanoisa_codegen.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
-fn render(statement: bool) -> string {
- let text: string = "fn value(x: int) -> int { return match x { 1 if true => 7 } } fn action(x: int) -> int { match x { 1 if true => { return 7 } } return 99 }"
+fn render(statement: bool, miss: bool) -> string {
+ let reset: int = (nisa_reset)
+ let text: string = "fn value(x: int) -> int { return match x { 1 if true => 7 } } fn action(x: int) -> int { match x { 1 if true => { return 7 } } return 99 } fn context(x: int) -> int { return x }"
  let tokens: List<LexerToken> = (tokenize_string text "unchecked.nano" (list_CompilerDiagnostic_new))
  let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "unchecked.nano")
- let env: GenEnv = (genenv_put (genenv_new "value") "x" "int" false)
+ # I establish the same function context through the normal function emitter.
+ let prepared: string = (nisa_emit_function parsed (parser_get_function parsed 2))
+ if (== prepared "") { return "" }
  let mut body: string = ""
- if statement { set body (generate_match_stmt parsed (parser_get_match parsed 1) 0 env "int") }
- else { set body (+ "return " (+ (generate_match_expr parsed (parser_get_match parsed 0) env "int") ";")) }
- return (+ "#include <stdint.h>\n#include <stdio.h>\n#include <stdlib.h>\nint64_t probe(int64_t nl_x){" (+ body "}\nint main(int argc,char **argv){(void)argv;return (int)(probe(argc==1?1:2)-7);}\n"))
+ if statement { set body (+ (nisa_emit_match_cases parsed 1 "") "  PUSH_I64 99\n  RET\n") }
+ else { set body (+ (nisa_emit_match_cases parsed 0 "int") "  RET\n") }
+ if (!= (nanoisa_last_lowering_error) "") { return "" }
+ let input: string = (cond (miss "2") (else "1"))
+ return (+ ".types 0 0 0\n.entry 0\n.function main 0 0 0 int 1\n  PUSH_I64 " (+ input (+ "\n  CALL probe\n  PUSH_I64 7\n  I64_SUB\n  RET\n.end\n.function probe 1 1 0 int 1\n" (+ body ".end\n"))))
 }
 shadow render {
- assert (str_contains (render false) "if (!_matched)")
- assert (str_contains (render true) "abort();")
- assert (not (str_contains (render true) "switch"))
+ assert (str_contains (render false false) "PUSH_I64 7")
+ assert (str_contains (render true true) "PUSH_BOOL 0\n  ASSERT\n  HALT")
+ assert (str_contains (render false true) "PUSH_I64 2\n  CALL probe")
+ assert (== (nisa_reset) 0)
 }
 fn main() -> int {
- if (!= (argc) 2) { return 2 }
- (print (render (== (argv 1) "statement")))
+ if (!= (argc) 3) { return 2 }
+ let result: string = (render (== (argv 1) "statement") (== (argv 2) "miss"))
+ if (== result "") { return 1 }
+ (print result)
  return 0
 }
-shadow main { assert true }
+shadow main { assert (str_contains (render false false) ".entry 0") }

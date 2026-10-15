@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-selfhost-union-boundaries/UnionBoundaryProducer/shadow-driver",
+    "/private/tmp/nanolang-selfhost-union-boundaries/UnionBoundaryProducer/test_copyable_union_inside_ordinary_arm_of_owned_union/main.nano",
+    "0",
+    "raw"
+  ],
+  "exit": 0
+}

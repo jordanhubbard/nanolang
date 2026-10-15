@@ -1,0 +1,16 @@
+[
+  {
+    "stage": 1,
+    "exit_code": 0,
+    "elapsed_seconds": 212.28568237501895,
+    "log": "/private/tmp/nanolang-selfhost-stage1-file-drivers.log",
+    "shadow_timeout_seconds": 10
+  },
+  {
+    "stage": 2,
+    "exit_code": 0,
+    "elapsed_seconds": 211.4854093340109,
+    "log": "/private/tmp/nanolang-selfhost-stage2-file-drivers.log",
+    "shadow_timeout_seconds": 10
+  }
+]

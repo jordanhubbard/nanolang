@@ -91,5 +91,23 @@ shadow main {{ assert (== (main) 0) }}
     def test_mixed_cycle_preserves_previous_output(self):
         self.check('struct Loop { choice: Choice }\nunion Choice { Some { item: Loop } }\n'+MAIN, False)
 
+    def test_direct_record_cycle_preserves_previous_output(self):
+        self.check('struct Loop { next: Loop }\n'+MAIN, False)
+
+    def test_direct_union_cycle_preserves_previous_output(self):
+        self.check('union Loop { Some { next: Loop }, None {} }\n'+MAIN, False)
+
+    def test_tuple_record_cycle_preserves_previous_output(self):
+        self.check('struct Loop { next: (int,Loop) }\n'+MAIN, False)
+
+    def test_generic_union_record_cycle_preserves_previous_output(self):
+        self.check('union Box<T> { Some { value: T }, None {} }\nstruct Loop { box: Box<Loop> }\n'+MAIN, False)
+
+    def test_callable_record_signatures_are_not_layout_cycles(self):
+        self.check('struct Node { callback: fn(Node)->Node }\n'+MAIN)
+
+    def test_generic_array_payload_is_not_a_layout_cycle(self):
+        self.check('union Box<T> { Some { values: array<T> }, None {} }\nstruct Node { box: Box<Node> }\n'+MAIN)
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,31 @@
+I retain source lowering artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ry_s0oq_
+I build independent File lowerer with producer 0.
+test_assertion_drains_live_file (tests.test_service_lowering_nano.ServiceLoweringNano.test_assertion_drains_live_file) ... I finish native compilation in 0.388s
+ok
+test_failed_selected_shadow_drains_live_file (tests.test_service_lowering_nano.ServiceLoweringNano.test_failed_selected_shadow_drains_live_file) ... I finish native compilation in 0.469s
+ok
+test_helpers_loops_fields_and_result_values (tests.test_service_lowering_nano.ServiceLoweringNano.test_helpers_loops_fields_and_result_values) ... I finish native compilation in 2.844s
+ok
+test_limits_preserve_outputs (tests.test_service_lowering_nano.ServiceLoweringNano.test_limits_preserve_outputs) ... ok
+test_multiple_borrow_assertion_drains_owners (tests.test_service_lowering_nano.ServiceLoweringNano.test_multiple_borrow_assertion_drains_owners) ... I finish native compilation in 18.773s
+I finish native compilation in 18.647s
+ok
+test_multiple_forwarded_reference_maps (tests.test_service_lowering_nano.ServiceLoweringNano.test_multiple_forwarded_reference_maps) ... I finish native compilation in 18.974s
+ERROR
+
+======================================================================
+ERROR: test_multiple_forwarded_reference_maps (tests.test_service_lowering_nano.ServiceLoweringNano.test_multiple_forwarded_reference_maps)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 158, in test_multiple_forwarded_reference_maps
+    self.assertIn("REFERENCE MAPS 2:",report)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/case.py", line 1189, in assertIn
+    if member not in container:
+       ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: argument of type 'NoneType' is not a container or iterable
+
+----------------------------------------------------------------------
+Ran 6 tests in 110.755s
+
+FAILED (errors=1)

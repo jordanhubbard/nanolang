@@ -23,6 +23,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
+#include <ctype.h>
+#include <limits.h>
 #include <time.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -376,10 +378,12 @@ static uint64_t hash_file_fnv1a(const char *path) {
     return failed ? 0 : h;
 }
 
+/* I preserve an explicit module driver (including C++) before the default CC.
+ * NANO_CC remains my deliberate override for every module. */
 static const char *module_selected_compiler(const ModuleBuildMetadata *meta) {
     const char *cc = getenv("NANO_CC");
-    if (!cc) cc = getenv("CC");
     if (!cc) cc = meta->c_compiler;
+    if (!cc) cc = getenv("CC");
     return cc ? cc : "cc";
 }
 
@@ -1693,71 +1697,118 @@ failed:
 // Note: This is a basic parser - it handles simple integer #define patterns only
 #include "nanolang.h"
 
+char *module_find_header(const char *header_name) {
+    const char *directories[] = {"/opt/homebrew/include", "/usr/local/include", "/usr/include"};
+    if (!header_name || !header_name[0]) return NULL;
+    for (size_t i = 0; i < sizeof(directories) / sizeof(directories[0]); ++i) {
+        int length = snprintf(NULL, 0, "%s/%s", directories[i], header_name);
+        if (length < 0) return NULL;
+        char *path = malloc((size_t)length + 1);
+        if (!path) return NULL;
+        snprintf(path, (size_t)length + 1, "%s/%s", directories[i], header_name);
+        FILE *header = fopen(path, "r");
+        if (header) {
+            fclose(header);
+            return path;
+        }
+        free(path);
+    }
+    return NULL;
+}
+
+/* I import only complete integer literals representable by my signed int.
+ * I do not evaluate C expressions or silently import their numeric prefixes. */
+static bool header_integer_literal(const char *line, char name[256], int64_t *value) {
+    const char *p = line;
+    while (isspace((unsigned char)*p)) ++p;
+    if (*p++ != '#') return false;
+    while (isspace((unsigned char)*p)) ++p;
+    if (strncmp(p, "define", 6) || !isspace((unsigned char)p[6])) return false;
+    p += 6;
+    while (isspace((unsigned char)*p)) ++p;
+    if (!(isalpha((unsigned char)*p) || *p == '_')) return false;
+    const char *start = p++;
+    while (isalnum((unsigned char)*p) || *p == '_') ++p;
+    size_t length = (size_t)(p - start);
+    if (length >= 256 || !isspace((unsigned char)*p)) return false;
+    memcpy(name, start, length);
+    name[length] = '\0';
+    while (isspace((unsigned char)*p)) ++p;
+    bool negative = *p == '-';
+    const char *digits = p + (*p == '+' || *p == '-');
+    if (!isdigit((unsigned char)*digits)) return false;
+    int base = *digits != '0' ? 10 :
+        (digits[1] == 'x' || digits[1] == 'X') ? 16 : 8;
+    errno = 0;
+    char *end = NULL;
+    long long parsed = strtoll(p, &end, base);
+    if (end == p || errno == ERANGE || parsed < INT64_MIN || parsed > INT64_MAX)
+        return false;
+    p = end;
+    bool is_unsigned = *p == 'u' || *p == 'U';
+    if (is_unsigned) ++p;
+    if (*p == 'l' || *p == 'L') {
+        char long_case = *p++;
+        if (*p == long_case) ++p;
+    }
+    if (!is_unsigned && (*p == 'u' || *p == 'U')) {
+        is_unsigned = true;
+        ++p;
+    }
+    /* A negative unsigned C constant does not carry this signed value. */
+    if (negative && is_unsigned) return false;
+    for (;;) {
+        while (isspace((unsigned char)*p)) ++p;
+        if (!*p || (p[0] == '/' && p[1] == '/')) break;
+        if (p[0] != '/' || p[1] != '*') return false;
+        const char *close = strstr(p + 2, "*/");
+        if (!close) return false;
+        p = close + 2;
+    }
+    *value = (int64_t)parsed;
+    return true;
+}
+
 ConstantDef* parse_c_header_constants(const char *header_path, int *count_out) {
     *count_out = 0;
-    
     FILE *fp = fopen(header_path, "r");
-    if (!fp) {
-        return NULL;  /* Header not found - not an error, just skip */
-    }
-    
-    /* First pass: count #define integer constants */
-    char line[1024];
-    int const_count = 0;
-    while (fgets(line, sizeof(line), fp)) {
-        /* Look for #define NAME VALUE patterns */
+    if (!fp) return NULL;
+    ConstantDef *constants = NULL;
+    int count = 0, capacity = 0;
+    char *line = NULL;
+    size_t line_capacity = 0;
+    /* I read complete physical lines, so a long expression cannot be accepted
+     * merely because its operator lies beyond a fixed-size buffer. */
+    while (getline(&line, &line_capacity, fp) >= 0) {
         char name[256];
-        long long value;
-        char *trimmed = line;
-        while (*trimmed == ' ' || *trimmed == '\t') trimmed++;
-        
-        /* Try hex format: #define NAME 0x1234 */
-        if (sscanf(trimmed, "#define %255s 0x%llx", name, (unsigned long long *)&value) == 2) {
-            const_count++;
+        int64_t value;
+        if (!header_integer_literal(line, name, &value)) continue;
+        if (count == capacity) {
+            if (capacity > INT_MAX / 2) goto failed;
+            int next = capacity ? capacity * 2 : 16;
+            ConstantDef *grown = realloc(constants, sizeof(*constants) * (size_t)next);
+            if (!grown) goto failed;
+            constants = grown;
+            capacity = next;
         }
-        /* Try decimal format: #define NAME 1234 */
-        else if (sscanf(trimmed, "#define %255s %lld", name, &value) == 2) {
-            const_count++;
-        }
+        constants[count].name = strdup(name);
+        if (!constants[count].name) goto failed;
+        constants[count].value = value;
+        constants[count].type = TYPE_INT;
+        ++count;
     }
-    
-    if (const_count == 0) {
-        fclose(fp);
-        return NULL;
-    }
-    
-    /* Second pass: extract constants */
-    ConstantDef *constants = malloc(sizeof(ConstantDef) * const_count);
-    rewind(fp);
-    
-    int idx = 0;
-    while (fgets(line, sizeof(line), fp) && idx < const_count) {
-        char name[256];
-        long long value;
-        char *trimmed = line;
-        while (*trimmed == ' ' || *trimmed == '\t') trimmed++;
-        
-        bool parsed = false;
-        /* Try hex format */
-        if (sscanf(trimmed, "#define %255s 0x%llx", name, (unsigned long long *)&value) == 2) {
-            parsed = true;
-        }
-        /* Try decimal format */
-        else if (sscanf(trimmed, "#define %255s %lld", name, &value) == 2) {
-            parsed = true;
-        }
-        
-        if (parsed) {
-            constants[idx].name = strdup(name);
-            constants[idx].value = value;
-            constants[idx].type = TYPE_INT;
-            idx++;
-        }
-    }
-    
+    if (ferror(fp)) goto failed;
+    free(line);
     fclose(fp);
-    *count_out = idx;
+    *count_out = count;
     return constants;
+
+failed:
+    for (int i = 0; i < count; ++i) free(constants[i].name);
+    free(constants);
+    free(line);
+    fclose(fp);
+    return NULL;
 }
 
 // Module metadata functions
@@ -2288,6 +2339,8 @@ struct ModuleBuilder {
     char *module_path;
     char **include_paths;
     size_t include_paths_count;
+    ModuleBuildInfo **native_builds;
+    size_t native_build_count;
 };
 
 ModuleBuilder* module_builder_new(const char *module_path) {
@@ -2307,6 +2360,9 @@ void module_builder_free(ModuleBuilder *builder) {
         free(builder->include_paths[i]);
     }
     free(builder->include_paths);
+    for (size_t i = 0; i < builder->native_build_count; ++i)
+        module_build_info_free(builder->native_builds[i]);
+    free(builder->native_builds);
 
     free(builder);
 }
@@ -3391,7 +3447,8 @@ static ModuleLinkResponseGrammar module_link_response_grammar_command(const char
                 cJSON *vendor = cJSON_GetObjectItemCaseSensitive(tapi, "version_string");
                 /* I admit the installed Apple implementation covered by my
                  * identity/grammar corpus, not every JSON-speaking linker. */
-                if (cJSON_IsString(version) && !strcmp(version->valuestring, "1267") &&
+                if (cJSON_IsString(version) &&
+                    (!strcmp(version->valuestring, "1267") || !strcmp(version->valuestring, "27037.1")) &&
                     cJSON_IsArray(architectures) && cJSON_GetArraySize(architectures) > 0 &&
                     cJSON_IsString(vendor) && !strncmp(vendor->valuestring, "Apple TAPI version ", 19))
                     grammar = MODULE_LINK_RESPONSE_APPLE;
@@ -3486,8 +3543,12 @@ static bool module_link_response_safe(const ModuleBuildMetadata *meta, const Mod
     char word[4096];
     int status;
     while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
-        if (!strchr(word, '@')) continue;
-        if (word[0] != '@') return false;
+        if (word[0] != '@') {
+            /* I distinguish literal path characters (openssl@3) from a
+             * response operand forwarded directly to the linker. */
+            if (!strncmp(word, "-Wl,", 4) && strstr(word, ",@")) return false;
+            continue;
+        }
         if (link_word[0] && !strcmp(word, link_word)) continue;
         bool found = false;
         for (size_t group = 0; group < 3 && !found; group++) {
@@ -3565,8 +3626,18 @@ static bool module_append_source_fragment(const ModuleBuildMetadata *meta, const
         if (admitted || (phases & MODULE_FLAG_ASSEMBLER)) return ok;
         /* Unadmitted compatibility fragments retain their original handling. */
     }
-    if (!flags->linker_grammar || retained)
+    if (retained)
         return module_append_compiler_fragment(meta, flags, fragment, retained, output, capacity);
+    /* I filter literal argument sequences only. An unadmitted shell fragment
+     * keeps its original compilation path and remains ineligible for capture. */
+    const char *literal_cursor = fragment;
+    char literal_word[4096];
+    int literal_status;
+    while ((literal_status = module_flag_word(&literal_cursor, literal_word, sizeof(literal_word))) > 0) {}
+    if (literal_status < 0)
+        return module_append_compiler_fragment(meta, flags, fragment, false, output, capacity);
+    /* Compile-only fallback jobs still must not receive literal linker operands.
+     * Capturing linker provenance controls caching, not the driver's phase. */
     size_t length = strlen(fragment);
     if (length > (SIZE_MAX - 16) / 4) return false;
     size_t size = length * 4 + 16;
@@ -3578,8 +3649,14 @@ static bool module_append_source_fragment(const ModuleBuildMetadata *meta, const
     bool ok = true;
     while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0 && ok) {
         if (!strcmp(word, "-Xlinker")) {
-            ok = module_flag_word(&cursor, word, sizeof(word)) == 1 && word[0] != '@';
-        } else ok = module_append_path_flag(filtered, size, "", word);
+            ok = module_flag_word(&cursor, word, sizeof(word)) == 1;
+        } else {
+            bool operand = module_flag_takes_operand(word);
+            ok = module_append_path_flag(filtered, size, "", word);
+            if (ok && operand)
+                ok = module_flag_word(&cursor, word, sizeof(word)) == 1 &&
+                    module_append_path_flag(filtered, size, "", word);
+        }
     }
     ok = ok && status == 0 &&
         module_append_compiler_fragment(meta, flags, filtered, false, output, capacity);
@@ -5319,7 +5396,7 @@ static bool module_equal_libraries(const char *left, const char *right) {
  * A failed link is not permission to retry and hide its failure. */
 static int module_linux_link_matches(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
                                      const char *objects, const char *staging, const char *object_file) {
-    char retained[2048] = {0}, candidate[2048] = {0}, command[4096] = {0};
+    char retained[2048] = {0}, candidate[2048] = {0}, command[65537] = {0};
     bool ok = module_build_append(retained, sizeof(retained), "%s/lib%s.so", objects, meta->name) &&
         module_build_append(candidate, sizeof(candidate), "%s/lib%s.so", staging, meta->name) &&
         module_shared_link_command(meta, flags, object_file, candidate, objects, command, sizeof(command));
@@ -5562,28 +5639,28 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 }
             }
 
-            char combine_cmd[8192] = {0};
+            /* I retain every object path even when a large module closure
+             * exceeds the former fixed command buffer. Quoting remains exact. */
+            char *combine_cmd = NULL;
+            command_ok &= module_append_fragment(&combine_cmd, cc);
 #ifdef __APPLE__
-            /* I am producing one relocatable object, not a runnable image.
-             * Apple Clang otherwise adds -lSystem and compiler-rt to `cc -r`;
-             * ld then warns that libSystem is an unexpected dylib. I retain
-             * the selected compiler driver and its target selection, but keep
-             * default libraries for the later shared/product link. */
-            command_ok &= module_build_append(combine_cmd, sizeof(combine_cmd),
-                                               "%s -nostdlib -r", cc);
+            command_ok &= module_append_fragment(&combine_cmd, "-nostdlib -r");
 #else
-            command_ok &= module_build_append(combine_cmd, sizeof(combine_cmd), "%s -r", cc);
+            command_ok &= module_append_fragment(&combine_cmd, "-r");
 #endif
-            command_ok &= module_append_path_flag(combine_cmd, sizeof(combine_cmd), "-o ", object_file);
+            char *quoted_output = module_quote_path(object_file);
+            command_ok &= quoted_output && module_append_fragment(&combine_cmd, "-o") &&
+                          module_append_fragment(&combine_cmd, quoted_output);
+            free(quoted_output);
             for (size_t i = 0; i < meta->c_sources_count; i++) {
-                command_ok &= src_objects[i] && module_append_path_flag(combine_cmd, sizeof(combine_cmd), "", src_objects[i]);
+                char *quoted = src_objects[i] ? module_quote_path(src_objects[i]) : NULL;
+                command_ok &= quoted && module_append_fragment(&combine_cmd, quoted);
+                free(quoted);
             }
-
-            if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+            if ((module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) && combine_cmd)
                 printf("[Module] %s\n", combine_cmd);
-            }
-
             int combine_result = command_ok ? system(combine_cmd) : -1;
+            free(combine_cmd);
             for (size_t i = 0; i < meta->c_sources_count; i++) free(src_objects[i]);
             free(src_objects);
 
@@ -5618,7 +5695,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         }
 
         if (shared_dir_ok) {
-            char lib_cmd[4096] = {0};
+            char lib_cmd[65537] = {0}; /* I size this for every shared object path. */
             command_ok &= module_shared_link_command(meta, flags, object_file, shared_lib,
                                                       build_dir, lib_cmd, sizeof(lib_cmd));
 
@@ -6390,6 +6467,83 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
     module_response_metadata_free(meta, &captured);
     if (!info) module_trace_evidence("build-result", 1, 0, false);
     return info;
+}
+
+/* I build native providers independently of the private support embedded in
+ * each shared library. The builder pins identities across separate root imports;
+ * the per-root visited list handles diamonds and cycles without duplicate links. */
+static bool module_native_walk(ModuleBuilder *builder, ModuleBuildMetadata *meta,
+                               ModuleBuildInfo ***closure, size_t *count, size_t depth) {
+    if (depth > 64 || *count >= 4096) {
+        fprintf(stderr, "I exceeded the native module dependency bound.\n");
+        return false;
+    }
+    char *directory = realpath(meta->module_dir, NULL);
+    if (!directory) return false;
+    ModuleBuildInfo *info = NULL;
+    for (size_t i = 0; i < builder->native_build_count; ++i)
+        if (!strcmp(builder->native_builds[i]->module_dir, directory)) {
+            info = builder->native_builds[i];
+            break;
+        }
+    free(directory);
+    if (!info) {
+        info = module_build(builder, meta);
+        if (!info) return false;
+        ModuleBuildInfo **grown = realloc(builder->native_builds,
+            (builder->native_build_count + 1) * sizeof *grown);
+        if (!grown) { module_build_info_free(info); return false; }
+        builder->native_builds = grown;
+        builder->native_builds[builder->native_build_count++] = info;
+    }
+    for (size_t i = 0; i < *count; ++i)
+        if ((*closure)[i] == info) return true;
+    ModuleBuildInfo **grown = realloc(*closure, (*count + 1) * sizeof *grown);
+    if (!grown) return false;
+    *closure = grown;
+    (*closure)[(*count)++] = info;
+    for (size_t i = 0; i < meta->dependencies_count; ++i) {
+        char *path = module_dependency_directory(builder, meta->module_dir, meta->dependencies[i]);
+        ModuleBuildMetadata *dependency = path ? module_load_metadata(path) : NULL;
+        free(path);
+        if (!dependency) {
+            fprintf(stderr, "I cannot load native dependency '%s' of module '%s'.\n",
+                    meta->dependencies[i], meta->name ? meta->name : "");
+            return false;
+        }
+        bool passed = module_native_walk(builder, dependency, closure, count, depth + 1);
+        module_metadata_free(dependency);
+        if (!passed) return false;
+    }
+    return true;
+}
+
+ModuleBuildInfo *module_build_native(ModuleBuilder *builder, ModuleBuildMetadata *meta) {
+    if (!builder || !meta) return NULL;
+    ModuleBuildInfo **closure = NULL;
+    size_t count = 0;
+    if (!module_native_walk(builder, meta, &closure, &count, 0)) {
+        free(closure);
+        return NULL;
+    }
+    ModuleBuildInfo *root = closure[0];
+    ModuleBuildInfo *result = calloc(1, sizeof *result);
+    if (result) {
+        result->object_file = root->object_file ? strdup(root->object_file) : NULL;
+        result->module_dir = strdup(root->module_dir);
+        result->needs_rebuild = root->needs_rebuild;
+        result->link_flags = module_get_link_flags(closure, count, &result->link_flags_count);
+        result->compile_flags = module_get_compile_flags(&root, 1, &result->compile_flags_count);
+        bool valid = (!root->object_file || result->object_file) && result->module_dir &&
+                     result->link_flags && result->compile_flags;
+        for (size_t i = 0; valid && i < result->link_flags_count; ++i)
+            valid = result->link_flags[i] != NULL;
+        for (size_t i = 0; valid && i < result->compile_flags_count; ++i)
+            valid = result->compile_flags[i] != NULL;
+        if (!valid) { module_build_info_free(result); result = NULL; }
+    }
+    free(closure);
+    return result;
 }
 
 void module_build_info_free(ModuleBuildInfo *info) {

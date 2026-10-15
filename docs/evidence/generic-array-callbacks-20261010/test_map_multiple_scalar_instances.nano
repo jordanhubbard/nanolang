@@ -1,0 +1,13 @@
+fn increment(value:int)->int{return (+ value 1)}
+shadow increment {assert (== (increment 7) 8)}
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 7) 7)}
+fn keep(value:T)->bool{return true}
+shadow keep {assert (keep 7)}
+fn latest(previous:T, value:T)->T{return value}
+shadow latest {assert (== (latest 1 2) 2)}
+fn main()->int {
+let numbers:array<int> = (map [7,9] identity)
+let flags:array<bool> = (map [true,false] identity)
+assert (== (at numbers 1) 9) assert (at flags 0) assert (not (at flags 1)) return 0}
+shadow main {assert (== (main) 0)}

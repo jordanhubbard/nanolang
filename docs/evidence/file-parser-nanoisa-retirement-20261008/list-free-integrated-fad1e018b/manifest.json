@@ -1,0 +1,22 @@
+{
+  "source_commit": "fad1e018be60f825075994fd03293e084af76f3a",
+  "initial_status": "?? tests/user_guide/refresh_language_pure_function.nano",
+  "user_sha256": "c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976",
+  "command": [
+    "make",
+    "-j2",
+    "test-nanoisa-list-free",
+    "test-nanovirt",
+    "CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "PATH": "/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "initial_free_bytes": 19687591936,
+  "runner_pid": 16680,
+  "make_pid": 16802,
+  "exit_code": 0,
+  "elapsed_seconds": 110.98681841703365,
+  "final_commit": "fad1e018be60f825075994fd03293e084af76f3a",
+  "final_status": "?? tests/user_guide/refresh_language_pure_function.nano",
+  "final_user_sha256": "c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976",
+  "final_free_bytes": 19582738432
+}

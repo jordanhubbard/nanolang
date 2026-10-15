@@ -1,0 +1,5 @@
+enum Color { RED=0, BLUE=1 }
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 3) 3)}
+fn main()->int{let color:Color = (identity Color.BLUE) assert (== color Color.BLUE) return 0}
+shadow main {assert (== (main) 0)}

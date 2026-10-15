@@ -1,0 +1,203 @@
+test_callable_shadowing (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_callable_shadowing) ... ok
+test_matching_arity_shadow (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_matching_arity_shadow) ... ok
+test_pipeline (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_pipeline) ... ok
+test_record_result_inference (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_record_result_inference) ... ok
+test_signature_refusals (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_signature_refusals) ... ok
+test_string_accumulator (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_string_accumulator) ... ok
+test_declared_filter_changes_element_type (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_filter_changes_element_type) ... 
+  test_declared_filter_changes_element_type (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_filter_changes_element_type) (driver='bin/nanoc_c', name='filter') ... FAIL
+  test_declared_filter_changes_element_type (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_filter_changes_element_type) (driver='bin/nanoc_c', name='array_filter') ... FAIL
+test_declared_fold_preserves_initial (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_fold_preserves_initial) ... 
+  test_declared_fold_preserves_initial (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_fold_preserves_initial) (driver='bin/nanoc_c', name='reduce') ... FAIL
+  test_declared_fold_preserves_initial (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_fold_preserves_initial) (driver='bin/nanoc_c', name='array_fold') ... FAIL
+test_declared_map_preserves_input (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_map_preserves_input) ... 
+  test_declared_map_preserves_input (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_map_preserves_input) (driver='bin/nanoc_c', name='map') ... FAIL
+  test_declared_map_preserves_input (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_map_preserves_input) (driver='bin/nanoc_c', name='array_map') ... FAIL
+test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) ... 
+  test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nanoc_c', name='map') ... FAIL
+  test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nanoc_c', name='filter') ... FAIL
+  test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nanoc_c', name='reduce') ... FAIL
+  test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nanoc_c', name='array_map') ... FAIL
+  test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nanoc_c', name='array_filter') ... FAIL
+  test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nanoc_c', name='array_fold') ... FAIL
+
+======================================================================
+FAIL: test_declared_filter_changes_element_type (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_filter_changes_element_type) (driver='bin/nanoc_c', name='filter')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 1, column 21: Unused variable 'n'
+Warning at line 1, column 80: Unused variable 'values'
+Warning at line 1, column 80: Unused variable 'callback'
+Error: Cannot access field on non-struct value
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 13
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_declared_filter_changes_element_type (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_filter_changes_element_type) (driver='bin/nanoc_c', name='array_filter')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 1, column 21: Unused variable 'n'
+Warning at line 1, column 80: Unused variable 'values'
+Warning at line 1, column 80: Unused variable 'callback'
+Error: Cannot access field on non-struct value
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 13
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_declared_fold_preserves_initial (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_fold_preserves_initial) (driver='bin/nanoc_c', name='reduce')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 1, column 66: Unused variable 'values'
+Warning at line 1, column 66: Unused variable 'callback'
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 13
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_declared_fold_preserves_initial (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_fold_preserves_initial) (driver='bin/nanoc_c', name='array_fold')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 1, column 66: Unused variable 'values'
+Warning at line 1, column 66: Unused variable 'callback'
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 13
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_declared_map_preserves_input (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_map_preserves_input) (driver='bin/nanoc_c', name='map')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 1, column 62: Unused variable 'callback'
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 13
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_declared_map_preserves_input (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_map_preserves_input) (driver='bin/nanoc_c', name='array_map')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 1, column 62: Unused variable 'callback'
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 13
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nanoc_c', name='map')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: map() requires a function as second argument
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 13
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nanoc_c', name='filter')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: filter() requires a function as second argument
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 13
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nanoc_c', name='reduce')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: reduce() requires a function as third argument
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 13
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nanoc_c', name='array_map')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: map() requires a function as second argument
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 13
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nanoc_c', name='array_filter')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: filter() requires a function as second argument
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 13
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nanoc_c', name='array_fold')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: reduce() requires a function as third argument
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 13
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 9.371s
+
+FAILED (failures=12)

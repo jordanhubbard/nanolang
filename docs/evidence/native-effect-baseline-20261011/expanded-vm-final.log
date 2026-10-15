@@ -1,0 +1,56 @@
+.FFF.
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='bin/nano_virt', case='array_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 102, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 4, column 57: Expected ',' or ']' in array literal
+Error at line 4, column 57: Failed to parse function argument
+Error at line 4, column 57: Expected expression in handle body
+Error at line 4, column 58: Unexpected token in expression: RBRACKET (type=12)
+Error at line 4, column 59: Unexpected token in expression: RPAREN (type=8)
+Error at line 4, column 62: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 67: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 68: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 75: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 80: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 82: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 83: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 84: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 95: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 101: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 102: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 103: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 104: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 106: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 113: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+error: parser failed
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/private/tmp/nl51-row-signatures/seed', case='array_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 102, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpm8i0wr74/source.nano:4, column 57: unexpected token '3'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/private/tmp/nl51-row-signatures/compiler', case='array_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 102, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpe2ccvdlo/source.nano:4, column 57: unexpected token '3'
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 14.670s
+
+FAILED (failures=3)

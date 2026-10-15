@@ -1,0 +1,2 @@
+RECORD-RETURN f=266 pc=10 got=8
+I cannot translate '/tmp/nanolang-5.1-20261007/compiler-seed.nvm': RET: expected record value

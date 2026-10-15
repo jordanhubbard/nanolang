@@ -1,0 +1,12 @@
+[
+  {
+    "route": "native",
+    "code": 0,
+    "preserved": false
+  },
+  {
+    "route": "nanoisa",
+    "code": 1,
+    "preserved": true
+  }
+]

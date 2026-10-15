@@ -1,0 +1,16 @@
+{
+  "src/nsi_socket.c": "8c84905ac4e0a4ddcafffe0c6a9a1cfa6d15440ad3dff32d88298e008d25e5c5",
+  "src/nsi_socket.h": "8b6e2570af92f90da04b8329212901dc2f7584b1df582ec9428cf9a34f19537d",
+  "src/nsi_cap.c": "a94dfd27cce4a112d018d541c32ca5cc41927efb0dd7b622b84ef2e787abc353",
+  "src/nsi_cap.h": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+  "src/nsi_cap_private.h": "63d678efc51176823a3c9ddfabddabd9ba5b25232d9e451e77d442f1a25a8fc5",
+  "src/nsi_file.c": "87b11bff744dc0cda8b8d6341917543df106717e0d4e7b3163d189dc8c0a88de",
+  "src/nsi_file.h": "4b76d8e23f366ee5311ffcc2bc38f183a71df5d3318459cb76292898e706613f",
+  "tests/test_nsi_socket.c": "7bd9a88e7695a9f8e0e202c7211afdd6609f79e1401bf72f1f6bb9796963c13c",
+  "tests/test_nsi_socket_linked.c": "535da479fd089329d562c7ff881443d8008f60ea78030ca7d6fa11c0e3d67ac5",
+  "tests/socket_tcp_fixture.h": "a9577093bf70190f74aa00358f645b132cb132b181feec4fdd2ab3e49ec08e9b",
+  "tests/socket_tcp_faults.h": "167eae80ffd4dc3f124730ac9eec2a87259bbd5b6e5a895101dc377a92b3337f",
+  "tests/test_nsi_file.c": "73debf2f9dc613578bb1fac97357b2d6b893d8e0c6391eb247815ec25fbb83cf",
+  "tests/test_nsi_file_linked.c": "0685248874ef5f42c9f7329005d350a622a624eba557d024f87bd41198a1364d",
+  "tests/test_nsi_cap.c": "7c436df72196fdfac7b83ca63996646586b62552ef6f293a7eb3b4c983fdcab5"
+}

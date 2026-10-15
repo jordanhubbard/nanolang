@@ -1,0 +1,18 @@
+union Box<T> { Some {value:T}, None {} }
+fn unbox(value:Box<T>,fallback:T)->T{match value{Some(p)=>{return p.value} None(p)=>{return fallback}}}
+shadow unbox {assert (== (unbox Box<int>.Some {value:7} 0) 7)}
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 1) 1)}
+union Choice<T,E> {Left {value:T}, Right {value:E}}
+fn second(value:Choice<T,E>,fallback:E)->E{match value{Left(p)=>{return fallback} Right(p)=>{return p.value}}}
+shadow second {assert (== (second Choice<int,string>.Right {value:"kept"} "") "kept")}
+fn main()->int{
+ let inner:Box<int> = Box.Some {value:7}
+ let outer:Box<Box<int>> = Box.Some {value:inner}
+ let recovered:Box<int> = (unbox (identity outer) Box<int>.None {})
+ assert (== (unbox recovered 0) 7)
+ assert (== (second Choice<int,string>.Right {value:"kept"} "") "kept")
+ assert (second Choice<string,bool>.Left {value:"unused"} true)
+ return 0
+}
+shadow main {assert (== (main) 0)}

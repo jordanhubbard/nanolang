@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-selfhost-union-final/raw/SelectedUnionProducer/shadow-driver",
+    "/private/tmp/nanolang-selfhost-union-final/raw/SelectedUnionProducer/test_guarded_owned_match_remains_rejected/main.nano",
+    "0",
+    "raw"
+  ],
+  "exit": 1
+}

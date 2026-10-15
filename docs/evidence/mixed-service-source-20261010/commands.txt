@@ -1,0 +1,12 @@
+I run from /Users/jordanh/Src/nanolang with PATH=/opt/homebrew/opt/llvm/bin:$PATH.
+
+make -f Makefile.gnu CC=/opt/homebrew/opt/llvm/bin/clang obj/test_service_lowering bin/nano_virt bin/nano_vm bin/nvm2c
+NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang NANO_SERVICE_LOWERING_RETAIN=1 make -f Makefile.gnu CC=/opt/homebrew/opt/llvm/bin/clang test-service-lowering-sanitize
+NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang NANO_SERVICE_LOWERING_RETAIN=1 python3 -m unittest -f -v tests.test_service_lowering_nano.ServiceLoweringNano.test_mixed_source_bytes_and_execution
+NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang NANO_SERVICE_LOWERING_RUNNER=/Users/jordanh/Src/nanolang/obj/test_service_lowering_sanitize NANO_SERVICE_LOWERING_RETAIN=1 ASAN_OPTIONS=detect_leaks=1 python3 -m unittest -f -v tests.test_service_lowering_nano tests.test_service_wire
+bin/nano_virt tests/parser_parenthesized.nano --emit-nvm -o /private/tmp/nl-mixed-parser.nvm
+bin/nano_vm /private/tmp/nl-mixed-parser.nvm
+bin/nvm2c /private/tmp/nl-mixed-parser.nvm -o /private/tmp/nl-mixed-parser.c
+/opt/homebrew/opt/llvm/bin/clang -std=c11 -O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all /private/tmp/nl-mixed-parser.c -o /private/tmp/nl-mixed-parser-native -lm
+/private/tmp/nl-mixed-parser-native
+/opt/homebrew/bin/gcc-16 -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -Isrc -fsyntax-only src/service_lowering.c tests/test_service_lowering.c

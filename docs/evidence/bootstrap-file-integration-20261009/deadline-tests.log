@@ -1,0 +1,8 @@
+test_shadow_deadline_overrides_are_bounded (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_shadow_deadline_overrides_are_bounded) ... ok
+test_shadow_deadline_reaches_children_and_is_pinned_by_receipt (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_shadow_deadline_reaches_children_and_is_pinned_by_receipt) ... I run deadline; I retain its log at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-xm_8cjkg/work/00-deadline.log.
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.830s
+
+OK

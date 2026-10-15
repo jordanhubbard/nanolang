@@ -1,0 +1,44 @@
+[
+  {
+    "name": "manifest.json",
+    "sha256": "00fe7827061c499775715bf78c2068cbab71dde284b3e4b2486d829391e1dd24",
+    "bytes": 1143,
+    "text_archived": true
+  },
+  {
+    "name": "test_popped_closure_survives_owner_reuse_and_collection.c",
+    "sha256": "7d32521b58ea6c73132b15e320ec7d711807bd916431ee7f117b67ad2e77467a",
+    "bytes": 55956,
+    "text_archived": true
+  },
+  {
+    "name": "test_popped_closure_survives_owner_reuse_and_collection.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "name": "test_popped_closure_survives_owner_reuse_and_collection.o",
+    "sha256": "b33d7888622afc115be9827c9981deccac2d743d1e41783176d1b6abcec53c65",
+    "bytes": 72696,
+    "text_archived": false
+  },
+  {
+    "name": "test_record_children_survive_owner_reuse_and_collection.c",
+    "sha256": "b63fe44ead58fa4464f831fb47f61d14c6f9228c1588be3a35b014ebeb6338e6",
+    "bytes": 58076,
+    "text_archived": true
+  },
+  {
+    "name": "test_record_children_survive_owner_reuse_and_collection.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "name": "test_record_children_survive_owner_reuse_and_collection.o",
+    "sha256": "9ebc05d096ebd1654541b35c689b828af0a3533ed7c1bf853162f4e81b234b13",
+    "bytes": 75440,
+    "text_archived": false
+  }
+]

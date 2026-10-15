@@ -1,0 +1,6 @@
+The first strict wrapper build reported:
+src/nanoisa/socket_indirect_public_native.c:26:21: error: call to undeclared function 'socket_indirect_native_emit_serialized'
+The shared helper is file_indirect_native_emit_serialized.
+src/nanovm/socket_indirect_public_vm.c:18:18: error: call to undeclared function 'socket_vm_indirect_execute_serialized'
+The shared helper is file_vm_indirect_execute_serialized.
+I corrected only these two static helper references, retaining the Socket public API names.

@@ -1,0 +1,2 @@
+['/private/tmp/nanolang-array-types-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-field-transport-thn3rp2w/string-False-ARR_PUSH.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-field-transport-thn3rp2w/string-False-ARR_PUSH.c']
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-field-transport-thn3rp2w/string-False-ARR_PUSH.nvm': ARR_PUSH record field representation mismatch (function 0, offset 60, field 0: const char * versus nmap_value)

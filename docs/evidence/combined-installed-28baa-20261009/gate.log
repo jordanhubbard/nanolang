@@ -1,0 +1,327 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/mixed_float_proof.c -o obj/nanoisa/mixed_float_proof.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o obj/nanoisa/nvm_v2_convert.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal_plan.c -o obj/nanoisa/service_file_nominal_plan.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o obj/nanoisa/verifier.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier_types.c -o obj/nanoisa/verifier_types.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -c src/nanovirt/shadow_runner.c -o obj/nanovirt/shadow_runner.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -DNANO_WRAPPER_CRYPTO_DIR='"/opt/homebrew/Cellar/openssl@3/3.6.4/lib"' -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -c src/nanovm/cop_protocol.c -o obj/nanovm/cop_protocol.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -c src/nanovm/vm_callback.c -o obj/nanovm/vm_callback.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -c src/nanovm/vm_ffi.c -o obj/nanovm/vm_ffi.o
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+✓ Bootstrap Stage 0: C reference compiler ready
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -c src/nanovirt/main.c -o obj/nanovirt/main.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -o bin/nano_virt obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nanovirt/main.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -c src/nanovm/main.c -o obj/nanovm/main.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+		obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+		obj/nanovm/main.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib 
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -o bin/nanoisa obj/nanoisa/dump_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+python3 scripts/embed_binary64_parser.py --check
+I run seed; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/00-seed.log.
+I run seed-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/01-seed-verify.log.
+I run stage1; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/02-stage1.log.
+I run stage1-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/03-stage1-verify.log.
+I run stage1-translate; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/04-stage1-translate.log.
+I run stage1-native; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/05-stage1-native.log.
+I run stage1-hello-compile; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/06-stage1-hello-compile.log.
+I run stage1-hello-execute; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/07-stage1-hello-execute.log.
+I run stage2; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/08-stage2.log.
+I run stage2-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/09-stage2-verify.log.
+I run stage2-translate; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/10-stage2-translate.log.
+I run stage2-native; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/11-stage2-native.log.
+I run stage2-hello-compile; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/12-stage2-hello-compile.log.
+I run stage2-hello-execute; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/13-stage2-hello-execute.log.
+I run seed-final-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/14-seed-final-verify.log.
+I run stage1-final-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/15-stage1-final-verify.log.
+I run stage2-final-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-rqb9zhe6/16-stage2-final-verify.log.
+I compared raw Stage 1 and Stage 2 modules: they are byte-identical in this build.
+I have not established reproducibility across clean environments or proved compiler semantic correctness.
+I installed bin/nanoc from the verified Stage 2 module.
+Hello from NanoLang!
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+NANOLANG_GUARD_SAN_CC="/opt/homebrew/opt/llvm/bin/clang" python3 -m unittest -v tests.test_canonical_match_guards
+I retain guard artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-match-guards-fj35n53m
+test_checked_negatives_preserve_output (tests.test_canonical_match_guards.CanonicalMatchGuards.test_checked_negatives_preserve_output) ... ok
+test_named_union_vm_and_sanitized_native (tests.test_canonical_match_guards.CanonicalMatchGuards.test_named_union_vm_and_sanitized_native) ... ok
+test_native_order_scope_and_control (tests.test_canonical_match_guards.CanonicalMatchGuards.test_native_order_scope_and_control) ... ok
+test_parser877_unchanged (tests.test_canonical_match_guards.CanonicalMatchGuards.test_parser877_unchanged) ... ok
+test_shadow_and_profile_refusals (tests.test_canonical_match_guards.CanonicalMatchGuards.test_shadow_and_profile_refusals) ... ok
+test_unchecked_generated_terminal_backstops (tests.test_canonical_match_guards.CanonicalMatchGuards.test_unchecked_generated_terminal_backstops) ... ok
+test_wildcard_vm_and_sanitized_native (tests.test_canonical_match_guards.CanonicalMatchGuards.test_wildcard_vm_and_sanitized_native) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 220.547s
+
+OK
+CC="/opt/homebrew/opt/llvm/bin/clang" python3 -m unittest -v tests.test_nanoisa_match_guards
+I retain NanoISA match evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-jv_nii2u
+test_block_values_and_union_wildcards (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_block_values_and_union_wildcards) ... ok
+test_integer_wildcard_effects_and_exits (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_integer_wildcard_effects_and_exits) ... ok
+test_invalid_guards_domains_and_coverage (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_invalid_guards_domains_and_coverage) ... ok
+test_named_union_guard_effects (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_named_union_guard_effects) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 117.124s
+
+OK
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+
+python3 -m unittest -v tests.test_selfhost_native_array_slice
+I retain source, logs and generated artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-1qy_hpmn
+test_arguments_are_evaluated_once (tests.test_selfhost_native_array_slice.NativeArraySlice.test_arguments_are_evaluated_once) ... ok
+test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) ... ok
+test_generated_native_null_boundary (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_native_null_boundary) ... ok
+test_source_and_normal_shadows (tests.test_selfhost_native_array_slice.NativeArraySlice.test_source_and_normal_shadows) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 24.618s
+
+OK
+CC="/opt/homebrew/opt/llvm/bin/clang" python3 -m unittest -v tests.test_selfhost_array_literal_context
+I retain checked array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/checked-array-literals-_bh_ctuo
+test_all_byte_destinations (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_all_byte_destinations) ... ok
+test_complete_slice_kind_bit_and_identity_fixture (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_complete_slice_kind_bit_and_identity_fixture) ... ok
+test_invalid_elements_and_existing_storage_preserve_output (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_invalid_elements_and_existing_storage_preserve_output) ... ok
+test_nested_literals_keep_context (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_nested_literals_keep_context) ... ok
+test_string_builtin_literal_element (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_string_builtin_literal_element) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 151.911s
+
+OK
+CC="/opt/homebrew/opt/llvm/bin/clang" python3 -m unittest -v tests.test_native_array_identity
+I retain array identity evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-array-identity-husy47yv
+test_alias_and_independent_slice_all_storage_kinds (tests.test_native_array_identity.NativeArrayIdentity.test_alias_and_independent_slice_all_storage_kinds) ... ok
+test_record_projection_retains_child_handle (tests.test_native_array_identity.NativeArrayIdentity.test_record_projection_retains_child_handle) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.210s
+
+OK
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -o obj/test_affine_state tests/nanoisa/test_affine_state.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+./obj/test_affine_state
+413 affine state checks passed
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -Dmalloc=affine_test_malloc -Dcalloc=affine_test_calloc -c src/nanoisa/affine_state.c -o obj/test_affine_state_alloc.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -DAFFINE_ALLOCATION_TEST -o obj/test_affine_state_alloc tests/nanoisa/test_affine_state.c obj/test_affine_state_alloc.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+./obj/test_affine_state_alloc
+445 affine state checks passed
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -o obj/test_affine_bytecode tests/nanoisa/test_affine_bytecode.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+./obj/test_affine_bytecode
+546 affine bytecode checks passed
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -Dmalloc=affine_bytecode_test_malloc -Dcalloc=affine_bytecode_test_calloc -Drealloc=affine_bytecode_test_realloc -DNVM_AFFINE_TEST_VISIT_LIMIT=affine_bytecode_test_visit_limit -c src/nanoisa/affine_bytecode.c -o obj/test_affine_bytecode_alloc.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -DAFFINE_BYTECODE_ALLOCATION_TEST -o obj/test_affine_bytecode_alloc tests/nanoisa/test_affine_bytecode.c obj/test_affine_bytecode_alloc.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+./obj/test_affine_bytecode_alloc
+856 affine bytecode checks passed
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -o obj/test_ownership_contracts tests/nanoisa/test_ownership_contracts.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+python3 -m unittest tests.test_ownership_contracts
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.162s
+
+OK
+CC="/opt/homebrew/opt/llvm/bin/clang" python3 -m unittest -v tests.test_native_array_pop
+test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) ... ok
+test_empty_record_array_returns_void (tests.test_native_array_pop.NativeArrayPop.test_empty_record_array_returns_void) ... ok
+test_empty_record_projection_traps (tests.test_native_array_pop.NativeArrayPop.test_empty_record_projection_traps) ... ok
+test_popped_closure_survives_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_popped_closure_survives_owner_reuse_and_collection) ... ok
+test_popped_record_crosses_return_and_argument (tests.test_native_array_pop.NativeArrayPop.test_popped_record_crosses_return_and_argument) ... ok
+test_record_children_survive_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_record_children_survive_owner_reuse_and_collection) ... ok
+test_scalar_values_aliases_and_empty_results (tests.test_native_array_pop.NativeArrayPop.test_scalar_values_aliases_and_empty_results) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 4.629s
+
+OK
+CC="/opt/homebrew/opt/llvm/bin/clang" python3 -m unittest -v tests.test_native_local_clear
+test_dead_clear_and_reassignment_across_control_flow (tests.test_native_local_clear.NativeLocalClear.test_dead_clear_and_reassignment_across_control_flow) ... ok
+test_observable_clear_is_not_erased (tests.test_native_local_clear.NativeLocalClear.test_observable_clear_is_not_erased) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.162s
+
+OK
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -o obj/test_nvm2c_callables \
+		tests/nanoisa/test_nvm2c_callables.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+Callable constraints: 379 passed, 0 failed
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+OK
+.I verified fresh ASan/UBSan translator and shape objects.
+I verified fresh ASan/UBSan translator and shape objects.
+.I did not find ASan and UBSan instrumentation in nvm2c.o
+I did not find ASan and UBSan instrumentation in nvm2c.o
+I did not find ASan and UBSan instrumentation in nvm2c.o
+.
+----------------------------------------------------------------------
+Ran 3 tests in 0.007s
+
+OK
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -o obj/test_nvm2c_shape \
+		tests/nanoisa/test_nvm2c_shape.c src/nanoisa/nvm2c_shape.c
+Shape constraints: 3098 passed, 0 failed
+Running nvm2c structured-C tests...
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -Imodules/nanoisa -o tests/nanoisa/test_nvm2c \
+		tests/nanoisa/test_nvm2c.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_bool at generated C line 643.
+I stopped at a native invariant in nvalue_require_bool at generated C line 643.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nl___init__ at generated C line 103.
+I stopped at a native invariant in nl_main at generated C line 1018.
+I stopped at a native invariant in nl_main at generated C line 1018.
+I stopped at a native invariant in nl_main at generated C line 1018.
+I stopped at a native invariant in nl_main at generated C line 1009.
+I stopped at a native invariant in nl_main at generated C line 1009.
+I stopped at a native invariant in nl_main at generated C line 1009.
+I stopped at a native invariant in nl_main at generated C line 1011.
+I stopped at a native invariant in nl_main at generated C line 1011.
+I stopped at a native invariant in nl_main at generated C line 1011.
+I stopped at a native invariant in nl_main at generated C line 994.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nl_main at generated C line 891.
+I stopped at a native invariant in nl_main at generated C line 891.
+I stopped at a native invariant in nl_main at generated C line 891.
+I stopped at a native invariant in nl_main at generated C line 984.
+I stopped at a native invariant in nhost_walk_0 at generated C line 759.
+I stopped at a native invariant in nhost_walk_0 at generated C line 743.
+I stopped at a native invariant in nhost_walk_0 at generated C line 745.
+I stopped at a native invariant in nhost_walk_0 at generated C line 748.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nl_update at generated C line 1027.
+I stopped at a native invariant in nl_update at generated C line 1027.
+I stopped at a native invariant in nvalue_array_len at generated C line 913.
+I stopped at a native invariant in nvalue_array_len at generated C line 913.
+I stopped at a native invariant in nvalue_array_len at generated C line 913.
+I stopped at a native invariant in nvalue_require_int at generated C line 687.
+I stopped at a native invariant in nl_prove at generated C line 59.
+I stopped at a native invariant in nvalue_array_len at generated C line 833.
+I stopped at a native invariant in nl_main at generated C line 999.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 639.
+I stopped at a native invariant in nvalue_require_int at generated C line 639.
+I stopped at a native invariant in nvalue_require_int at generated C line 639.
+I stopped at a native invariant in nvalue_require_int at generated C line 688.
+I stopped at a native invariant in nvalue_array_len at generated C line 853.
+I stopped at a native invariant in nvalue_array_len at generated C line 853.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 962.
+I stopped at a native invariant in nvalue_array_set at generated C line 962.
+I stopped at a native invariant in nvalue_array_set at generated C line 962.
+I stopped at a native invariant in nvalue_array_set at generated C line 962.
+I stopped at a native invariant in nvalue_array_set at generated C line 962.
+I stopped at a native invariant in nvalue_array_set at generated C line 962.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_string at generated C line 588.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nvalue_require_string at generated C line 588.
+I stopped at a native invariant in nvalue_require_string at generated C line 588.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_string at generated C line 603.
+I stopped at a native invariant in nvalue_require_string at generated C line 603.
+I stopped at a native invariant in nvalue_require_string at generated C line 603.
+I stopped at a native invariant in nvalue_require_string at generated C line 652.
+I stopped at a native invariant in nvalue_require_string at generated C line 603.
+I stopped at a native invariant in nl_main at generated C line 875.
+I stopped at a native invariant in nvalue_require_string at generated C line 588.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nl_main at generated C line 910.
+
+[nvm2c] structured C11 from NanoISA...
+
+
+=== 2435 passed, 0 failed ===

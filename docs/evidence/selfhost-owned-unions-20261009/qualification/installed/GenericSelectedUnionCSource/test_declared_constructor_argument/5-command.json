@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-g",
+    "/private/tmp/nanolang-selfhost-union-final/installed/GenericSelectedUnionCSource/test_declared_constructor_argument/main.c",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-final/installed/GenericSelectedUnionCSource/test_declared_constructor_argument/native"
+  ],
+  "exit": 0
+}

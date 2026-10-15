@@ -1,0 +1,60 @@
+[
+  {
+    "argv": [
+      "/private/tmp/nl51-selfhost-resource-effects/product-audit-v2/seed",
+      "/Users/jordanh/Src/nanolang/tests/test_resource_effect_checker.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-selfhost-resource-effects/product-audit-v2/checker.nvm"
+    ],
+    "returncode": 0,
+    "seconds": 103.8261065420229
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nl51-selfhost-resource-effects/product-audit-v2/checker.nvm"
+    ],
+    "returncode": 0,
+    "seconds": 0.038106707972474396
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "/private/tmp/nl51-selfhost-resource-effects/product-audit-v2/checker.nvm",
+      "-o",
+      "/private/tmp/nl51-selfhost-resource-effects/product-audit-v2/checker.c"
+    ],
+    "returncode": 0,
+    "seconds": 13.688734208000824
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-O0",
+      "/private/tmp/nl51-selfhost-resource-effects/product-audit-v2/checker.c",
+      "-o",
+      "/private/tmp/nl51-selfhost-resource-effects/product-audit-v2/checker",
+      "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+      "-lm"
+    ],
+    "returncode": 0,
+    "seconds": 4.630391167011112
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "tests.test_resource_effect_frontend",
+      "-v"
+    ],
+    "returncode": 0,
+    "seconds": 0.9622641250025481
+  }
+]

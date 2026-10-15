@@ -1,0 +1,9 @@
+{
+  "bin/nanoc_c": "1d3043964d1d495a41246e2af90041ec4fd22f9ea169f62d1f56618ad23538e6",
+  "bin/nanoc_stage1": "83175cd586a5b7a1dedeb6458812fc78d81303f4fb030b53370e6ba390430f33",
+  "bin/nanoc_stage2": "fcae4c6e6bdfe6c0d8caca0234f1cfa1e3c9b1fb37c5504b20f7cfe191611e92",
+  "bin/nanoisa_emit": "22cccb75069c4ac0861a2e07201edec5011dd441a27388ed77fa8d720f5a17f1",
+  "bin/nanoisa": "dcfd9cbfae4c1eed4922beba017684725b5879152dd9f60032a4ac74c694ce17",
+  "bin/nano_vm": "df10174851ffe0d820f0fe8e7739b04c4f3be825c11f139f1f88419e3f561c99",
+  "bin/nvm2c": "a2080fd10c2de9cb3659a7d5ab8ad3cbf3647f24d64ba58be6229f37fde2ef93"
+}

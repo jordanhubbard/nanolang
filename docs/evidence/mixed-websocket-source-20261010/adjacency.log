@@ -1,0 +1,19 @@
+test_lookup_policy_is_supplied_at_invocation (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_lookup_policy_is_supplied_at_invocation) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl
+ok
+test_installed_and_relocated_native_publication (tests.test_websocket_service_drivers.WebSocketServiceDrivers.test_installed_and_relocated_native_publication) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-q66jmsp1
+ok
+test_lookup_requires_separate_authority (tests.test_websocket_service_drivers.WebSocketServiceDrivers.test_lookup_requires_separate_authority) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz
+ok
+test_nonexecuting_emission_and_source_aliases (tests.test_websocket_service_drivers.WebSocketServiceDrivers.test_nonexecuting_emission_and_source_aliases) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy
+ok
+test_refusals_preserve_prior_outputs (tests.test_websocket_service_drivers.WebSocketServiceDrivers.test_refusals_preserve_prior_outputs) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b
+ok
+test_source_shadows_and_invocation_policy (tests.test_websocket_service_drivers.WebSocketServiceDrivers.test_source_shadows_and_invocation_policy) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry
+ok
+test_repeated_single_catalog_permissions (tests.test_mixed_service_drivers.MixedServiceDrivers.test_repeated_single_catalog_permissions) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb
+ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 19.803s
+
+OK

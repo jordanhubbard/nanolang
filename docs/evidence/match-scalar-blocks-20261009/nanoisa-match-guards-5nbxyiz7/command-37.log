@@ -1,0 +1,10 @@
+['/private/tmp/nanolang-array-types-20261008/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-5nbxyiz7/named-union.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-5nbxyiz7/named-union-seed.nvm']
+Warning at line 5, column 41: Unused variable 'ignored'
+Warning at line 7, column 24: Unused variable 'ignored'
+Warning at line 10, column 9: Unused variable 'e'
+Warning at line 10, column 9: Unused variable 'payload'
+Warning at line 10, column 9: Unused variable 'other'
+Warning at line 10, column 9: Unused variable 'e'
+Warning at line 23, column 15: Unused variable 'empty'
+Warning at line 25, column 2: Unused variable 'payload'
+Warning at line 25, column 2: Unused variable 'empty'

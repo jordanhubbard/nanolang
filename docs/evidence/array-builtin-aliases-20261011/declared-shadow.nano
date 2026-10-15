@@ -1,0 +1,3 @@
+fn plus(n:int)->int{return (+ n 1)} shadow plus{assert true}
+fn array_map(values:array<int>, callback:fn(int)->int)->array<int>{return values} shadow array_map{assert true}
+fn main()->int{let values:array<int> = (array_map [7] plus) return (at values 0)} shadow main{assert (== (main) 7)}

@@ -1,0 +1,64 @@
+{
+  "source_commit": "c7a43b0bc6ed3032ec25695f3d56971320736b3a",
+  "commands": [
+    {
+      "name": "seed",
+      "command": [
+        "/Users/jordanh/Src/nanolang/bin/nano_virt",
+        "/private/tmp/nanolang-captured-closure-probe-20261008/capture.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-captured-closure-probe-20261008/capture.nvm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.03214062500046566
+    },
+    {
+      "name": "selfhost",
+      "command": [
+        "/private/tmp/nanolang-function-container-producer",
+        "/private/tmp/nanolang-captured-closure-probe-20261008/capture.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-captured-closure-probe-20261008/selfhost.nvm"
+      ],
+      "exit_code": 1,
+      "seconds": 0.047709417005535215
+    },
+    {
+      "name": "vm",
+      "command": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "/private/tmp/nanolang-captured-closure-probe-20261008/capture.nvm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.01741545897675678
+    },
+    {
+      "name": "native",
+      "command": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nanolang-captured-closure-probe-20261008/capture.nvm",
+        "-o",
+        "/private/tmp/nanolang-captured-closure-probe-20261008/capture.c"
+      ],
+      "exit_code": 1,
+      "seconds": 0.012393291981425136
+    }
+  ],
+  "sha256": {
+    "seed.log": "b9c5a788655a688f33ccafe0b05dbd93ff1c50af221171752ed8a45b24b5df45",
+    "native.log": "381a324371bea5d721ff9f0dcea5e6a48c7be9833a7d9293098c2b8ed99c7639",
+    "capture.nano": "ef63a034a4e5bbb13ae3aa5af15c6e85295c9ac303a9d5898ebf9e432bc8f28c",
+    "capture.nvm": "09566852fba9e3d58b6bac97f6d1de783622bbb1a77b1d9914d0db6498d3f592",
+    "vm.log": "084c799cd551dd1d8d5c5f9a5d593b2e931f5e36122ee5c793c1d08a19839cc0",
+    "selfhost.log": "8b09b223ad41d9069e602a9be554c5b598fd4fa4fdce55a2c67f51d3d401ad36"
+  },
+  "task": "task_f9059876cb0b463a8d51244f759e55c9",
+  "tools_sha256": {
+    "/Users/jordanh/Src/nanolang/bin/nano_virt": "ec8e83924758e89afc5c5e30e887d801f518de6b1e6b8c7c248076678210cc94",
+    "/Users/jordanh/Src/nanolang/bin/nano_vm": "b34c60d6a9f57616238254ae8495f01a3c4cfcd90d4dc75f9ec9430c84d9995d",
+    "/Users/jordanh/Src/nanolang/bin/nvm2c": "771abf424925e4da221fa2960bf0da5f261469c2aba5bc44ea39c2f3bbe04a35",
+    "/private/tmp/nanolang-function-container-producer": "f0e499204a6ba2335e73adafd5ff81d54a7013f39b7d92c134e4ef1587c77ba8"
+  }
+}

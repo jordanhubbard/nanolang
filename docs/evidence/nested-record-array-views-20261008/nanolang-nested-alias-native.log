@@ -1,0 +1,24 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+OK
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -o /private/tmp/nanolang-diag-tools/obj/test_nvm2c_shape \
+		tests/nanoisa/test_nvm2c_shape.c src/nanoisa/nvm2c_shape.c
+.I verified fresh ASan/UBSan translator and shape objects.
+I verified fresh ASan/UBSan translator and shape objects.
+.I did not find ASan and UBSan instrumentation in nvm2c.o
+I did not find ASan and UBSan instrumentation in nvm2c.o
+I did not find ASan and UBSan instrumentation in nvm2c.o
+.
+----------------------------------------------------------------------
+Ran 3 tests in 0.009s
+
+OK
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -o /private/tmp/nanolang-diag-tools/obj/test_nvm2c_callables \
+		tests/nanoisa/test_nvm2c_callables.c /private/tmp/nanolang-diag-tools/obj/nanoisa/file_flow.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_file_nominal.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_file_nominal_plan.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_bindings.o /private/tmp/nanolang-diag-tools/obj/nanoisa/service_bindings_module.o /private/tmp/nanolang-diag-tools/obj/nanoisa/mixed_float_proof.o /private/tmp/nanolang-diag-tools/obj/nanoisa/managed_array_shapes.o /private/tmp/nanolang-diag-tools/obj/nanoisa/local_bindings.o /private/tmp/nanolang-diag-tools/obj/nanoisa/affine_bytecode.o /private/tmp/nanolang-diag-tools/obj/nanoisa/affine_state.o /private/tmp/nanolang-diag-tools/obj/nanoisa/ownership_contracts.o /private/tmp/nanolang-diag-tools/obj/nanoisa/retained_layouts.o /private/tmp/nanolang-diag-tools/obj/nanoisa/reference_places.o /private/tmp/nanolang-diag-tools/obj/nanoisa/passive.o /private/tmp/nanolang-diag-tools/obj/nanoisa/isa.o /private/tmp/nanolang-diag-tools/obj/nanoisa/verifier_types.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_format.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_format_v2.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_cursor.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_constants.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_signatures.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_layouts.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_functions.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_imports.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_module.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm_v2_convert.o /private/tmp/nanolang-diag-tools/obj/nanoisa/assembler.o /private/tmp/nanolang-diag-tools/obj/nanoisa/disassembler.o /private/tmp/nanolang-diag-tools/obj/nanoisa/verifier.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c_shape.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nvm2c_callables.o /private/tmp/nanolang-diag-tools/obj/nanoisa/frontend.o /private/tmp/nanolang-diag-tools/obj/nanoisa/nanoisa_facade.o /private/tmp/nanolang-diag-tools/obj/nanovm/vm_decode.o /private/tmp/nanolang-diag-tools/obj/nanovm/vm_dispatch.o /private/tmp/nanolang-diag-tools/obj/nsi_file_plan.o /private/tmp/nanolang-diag-tools/obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+Callable constraints: 379 passed, 0 failed
+I failed nvm_shape_function_count(g, shape) == count at line 407
+Shape constraints: 2634 passed, 1 failed
+make: *** [test-nvm2c-shapes] Error 1

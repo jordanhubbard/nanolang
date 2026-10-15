@@ -1,0 +1,18 @@
+test_record_call_results_do_not_accumulate_hidden_stack_copies (tests.test_native_record_locals.NativeRecordLocals.test_record_call_results_do_not_accumulate_hidden_stack_copies) ... ok
+test_record_tail_swap_preserves_owned_edges_and_array_aliases (tests.test_native_record_locals.NativeRecordLocals.test_record_tail_swap_preserves_owned_edges_and_array_aliases) ... ok
+test_tail_restart_clears_record_locals_without_stack_literals (tests.test_native_record_locals.NativeRecordLocals.test_tail_restart_clears_record_locals_without_stack_literals) ... ok
+test_wide_local_frames_preserve_recursive_values_with_small_static_stack (tests.test_native_record_locals.NativeRecordLocals.test_wide_local_frames_preserve_recursive_values_with_small_static_stack) ... ok
+test_declared_parameter_resolves_unused_packed_field (tests.test_one_ir_compiler.OneIrCompiler.test_declared_parameter_resolves_unused_packed_field) ... ok
+test_nested_record_consumer_constrains_projection (tests.test_one_ir_compiler.OneIrCompiler.test_nested_record_consumer_constrains_projection) ... ok
+test_nominal_constructor_scalar_evidence (tests.test_one_ir_compiler.OneIrCompiler.test_nominal_constructor_scalar_evidence) ... ok
+test_projected_array_length_uses_runtime_storage_tag (tests.test_one_ir_compiler.OneIrCompiler.test_projected_array_length_uses_runtime_storage_tag) ... ok
+test_projected_array_reads_constrain_container (tests.test_one_ir_compiler.OneIrCompiler.test_projected_array_reads_constrain_container) ... ok
+test_record_temporaries_have_scoped_heap_storage (tests.test_one_ir_compiler.OneIrCompiler.test_record_temporaries_have_scoped_heap_storage) ... ok
+test_string_consumers_constrain_projected_local (tests.test_one_ir_compiler.OneIrCompiler.test_string_consumers_constrain_projected_local) ... ok
+test_typed_i64_consumer_constrains_record_projection (tests.test_one_ir_compiler.OneIrCompiler.test_typed_i64_consumer_constrains_record_projection) ... ok
+test_unconstrained_scalar_projection_preserves_tags (tests.test_one_ir_compiler.OneIrCompiler.test_unconstrained_scalar_projection_preserves_tags) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 20.193s
+
+OK

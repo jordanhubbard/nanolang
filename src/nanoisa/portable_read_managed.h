@@ -15,4 +15,6 @@ typedef struct {
  * I do not begin, finish, collect, dispose, or consume caller roots. */
 NprManagedResult npr_read_managed(NmsRuntime *, NmsHandle,
                                  const NprHostBinding *);
+NprManagedResult npr_read_bytes_managed(NmsRuntime *, NmsHandle,
+                                       const NprHostBinding *);
 #endif

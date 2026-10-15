@@ -1,0 +1,30 @@
+FF
+======================================================================
+FAIL: test_native_dependencies_pin_shared_providers (tests.test_native_module_generation_selection.NativeModuleGenerationSelection.test_native_dependencies_pin_shared_providers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_module_generation_selection.py", line 198, in test_native_dependencies_pin_shared_providers
+    self.assertEqual(result.returncode, 0, result.stderr.decode())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined symbols for architecture arm64:
+  "_core_probe", referenced from:
+      _first_probe in first.o
+      _second_probe in second.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+C compilation failed
+
+
+======================================================================
+FAIL: test_missing_native_dependency_preserves_output (tests.test_native_module_generation_selection.NativeModuleGenerationSelection.test_missing_native_dependency_preserves_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_module_generation_selection.py", line 222, in test_missing_native_dependency_preserves_output
+    self.assertNotEqual(result.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.712s
+
+FAILED (failures=2)

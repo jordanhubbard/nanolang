@@ -1,0 +1,26 @@
+[
+  {
+    "functions": 16,
+    "exit_code": 0,
+    "elapsed_seconds": 0.19921104202512652,
+    "byte_identical": true
+  },
+  {
+    "functions": 64,
+    "exit_code": 0,
+    "elapsed_seconds": 0.2740142499678768,
+    "byte_identical": true
+  },
+  {
+    "functions": 256,
+    "exit_code": 0,
+    "elapsed_seconds": 0.9648150829598308,
+    "byte_identical": true
+  },
+  {
+    "functions": 1024,
+    "exit_code": 0,
+    "elapsed_seconds": 13.916355833003763,
+    "byte_identical": true
+  }
+]

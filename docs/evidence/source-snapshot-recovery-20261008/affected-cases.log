@@ -1,0 +1,9 @@
+raw (__main__.Affected.raw) ... ok
+preprocessed (__main__.Affected.preprocessed) ... ok
+shared_raw (__main__.Affected.shared_raw) ... ok
+shared_preprocessed (__main__.Affected.shared_preprocessed) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 351.058s
+
+OK

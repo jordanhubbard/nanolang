@@ -1,0 +1,21 @@
+{
+  "spec/nanoisa.yaml": "5a629313b053ea8292d3e28b4a728539dc75eaecd4872249f613ade245258e53",
+  "src/nanoisa/file_code.inc": "daa8bb2d7e741e8292a0394c80122a65898ffbf63a9de6e0445ae9f2f63b4be7",
+  "src/nanoisa/file_cyclic_runtime.inc": "4befb69070475f8325d953d505207e60c706400a9d9e12cb238dc3dce50666ce",
+  "src/nanoisa/file_cyclic_runtime_facts.inc": "a8c09d5e3fb0eb47b78594b22e0cd3a68119fdd0ed9d75b012109b6d4b2bc41d",
+  "src/nanoisa/file_indirect_dispatch.inc": "0dba6ce432fdb6e5fa1985fec67cb69a9be1ffdd006ded2edd0c0d4a3d7d9857",
+  "src/nanoisa/file_indirect_flow.inc": "7103aeadbcb7e14f9b8cb353901391d12d7b7fa5a1621135d0c8cb7a80841205",
+  "src/nanoisa/file_indirect_hosted.inc": "b0401cbd49085c34623977c45b3004c2a9995b792dd2f1cc2a60cfc52f76fcc1",
+  "src/nanoisa/file_indirect_native_emit.inc": "adcbb77ffbd9b181ac966be8c377493f53e29f958cdc6b03867196d3e6d656c3",
+  "src/nanoisa/file_indirect_targets.inc": "97c7b16b2346f4aedf53f3d327a46d13abae41d13aeab25f4aefb753df74e33c",
+  "src/nanoisa/file_runtime_frames.inc": "640ac4ff89d1d9b422394d7bfb9176844c462794641e7de91d82fc0ba38d2ba4",
+  "src/nanoisa/generated_schema.h": "d2bbdf06733619d95fcb2a51ec4126f3dda6027fc5b4f985f6a609dae8d87cf8",
+  "src/nanoisa/isa.c": "267e1fd0e56d72bb45450b4138a268cf78178cc5f2e5bddafa4e6d801cd6fdc7",
+  "src/nanoisa/isa.h": "86ee6e69fa7daf05bfe857b73b6429d0e75876b326c17740e438897d8c01d95e",
+  "src/nanovm/file_vm_indirect_engine.inc": "88cc3a19d4843c4ff3db07fc0e945a4f4b48b42df75f970ed319911aa34588e4",
+  "tests/nanoisa/test_file_indirect_dispatch.c": "b1979bba7e799ad3ba67dfcadeb81f2b783f5e624d88efb8fc9361f6b38f51ef",
+  "tests/nanoisa/test_file_opcodes.c": "82bc09a078aed976529d7d7d5c931c5ce5b093a84ac197882e15154bfdb10abb",
+  "tests/nanoisa/test_nanoisa.c": "91f4dbd00f0874cd45ae10605d4e48c06711f26649c68b481a84840cf96b2761",
+  "tests/test_file_indirect_dispatch.py": "88055f945ec8173f3f34c32de238130473a5c91b073e1b5c739538a16abdd8a9",
+  "tests/test_nanoisa_schema.py": "5c64bee614399c54eb7262603174514f042fdff8bc9fae237c14988de2520f00"
+}

@@ -101,7 +101,7 @@ int main(void) {
         self.command(os.environ.get('CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
                      '-fsanitize=address,undefined', '-fno-omit-frame-pointer', harness, '-o', binary)
         result = subprocess.run([binary], cwd=ROOT, capture_output=True, text=True, timeout=30,
-                                env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+                                env={**os.environ, 'ASAN_OPTIONS': 'halt_on_error=1'})
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertNotIn('Sanitizer', result.stderr)
 

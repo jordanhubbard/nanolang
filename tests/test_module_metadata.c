@@ -555,26 +555,34 @@ static void test_recursive_signature_roundtrip(void) {
     parameter_info[1] = &callback; /* I retain an intentional graph cycle. */
     Type tuple_types[] = {TYPE_INT, TYPE_UNION};
     char *tuple_names[] = {NULL, "Box<int>"};
-    char *row_names[] = {"value"};
-    Type row_types[] = {TYPE_UNION};
-    char *row_type_names[] = {"Box<int>"};
+    TypeInfo service = {.base_type = TYPE_OPAQUE, .service_declaration = 37,
+        .service_module = 2, .service_ordinal = 0, .service_category = 1};
+    char *row_names[] = {"value", "owned"};
+    Type row_types[] = {TYPE_UNION, TYPE_OPAQUE};
+    char *row_type_names[] = {"Box<int>", NULL};
     char *variables[] = {"T", "U"};
+    TypeInfo tuple_integer = {.base_type = TYPE_INT};
+    TypeInfo *tuple_elements[] = {&tuple_integer, &generic};
+    TypeInfo *row_annotations[] = {&generic, &service};
     TypeInfo tuple = {.base_type = TYPE_TUPLE, .tuple_types = tuple_types,
+        .tuple_elements = tuple_elements,
         .tuple_type_names = tuple_names, .tuple_element_count = 2,
         .opaque_type_name = "opaque\"\\\n", .is_open_row = true,
         .row_var_name = "r", .row_field_names = row_names,
         .row_field_types = row_types, .row_field_type_names = row_type_names,
-        .row_field_count = 1, .type_var_names = variables, .type_var_count = 2};
+        .row_field_type_info = row_annotations,
+        .row_field_count = 2, .type_var_names = variables, .type_var_count = 2};
     Parameter parameters[] = {
         {.name = "callback", .type = TYPE_FUNCTION, .fn_sig = &outer, .type_info = &callback},
         {.name = "values", .type = TYPE_ARRAY, .element_type = TYPE_ARRAY, .type_info = &nested},
-        {.name = "pair", .type = TYPE_TUPLE, .type_info = &tuple}};
+        {.name = "pair", .type = TYPE_TUPLE, .type_info = &tuple},
+        {.name = "file", .type = TYPE_OPAQUE, .type_info = &service}};
     Function fn = make_simple_fn("factory");
     fn.return_type = TYPE_FUNCTION;
     fn.return_fn_sig = &outer;
     fn.return_type_info = &callback;
     fn.params = parameters;
-    fn.param_count = 3;
+    fn.param_count = 4;
     ModuleMetadata meta = make_empty_meta("recursive");
     meta.functions = &fn;
     meta.function_count = 1;
@@ -613,12 +621,21 @@ static void test_recursive_signature_roundtrip(void) {
         " assert(g->type_params[1]->base_type == TYPE_INT);\n"
         " assert(s->return_fn_sig->return_type_info == a);\n"
         " assert(s->return_fn_sig->param_types == NULL && s->return_fn_sig->param_type_info == NULL);\n"
+        " TypeInfo *file = f->params[3].type_info;\n"
+        " assert(file->base_type == TYPE_OPAQUE && file->service_declaration == 37);\n"
+        " assert(file->service_module == 2 && file->service_ordinal == 0 && file->service_category == 1);\n"
+        " assert(a->service_declaration == 0);\n"
         " TypeInfo *t = f->params[2].type_info;\n"
         " assert(t->tuple_element_count == 2 && t->tuple_types[1] == TYPE_UNION);\n"
+        " assert(t->tuple_elements[0]->base_type == TYPE_INT);\n"
+        " assert(t->tuple_elements[1]->type_params[0]->element_type->element_type->base_type == TYPE_INT);\n"
         " assert(t->tuple_type_names[0] == NULL && !strcmp(t->tuple_type_names[1], \"Box<int>\"));\n"
         " assert(!strcmp(t->opaque_type_name, \"opaque\\\"\\\\\\n\"));\n"
         " assert(t->is_open_row && !strcmp(t->row_var_name, \"r\"));\n"
-        " assert(t->row_field_count == 1 && t->row_field_types[0] == TYPE_UNION);\n"
+        " assert(t->row_field_count == 2 && t->row_field_types[0] == TYPE_UNION);\n"
+        " assert(t->row_field_type_info[1]->base_type == TYPE_OPAQUE);\n"
+        " assert(t->row_field_type_info[1]->service_declaration == 37 && t->row_field_type_info[1]->service_module == 2);\n"
+        " assert(t->row_field_type_info[0]->type_params[0]->element_type->element_type->base_type == TYPE_INT);\n"
         " assert(!strcmp(t->row_field_names[0], \"value\"));\n"
         " assert(!strcmp(t->row_field_type_names[0], \"Box<int>\"));\n"
         " assert(t->type_var_count == 2 && !strcmp(t->type_var_names[1], \"U\"));\n"

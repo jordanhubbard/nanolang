@@ -1,0 +1,3 @@
+I reproduce the byte and nested slice gaps at e873f9bf7 without modifying the release checkout while its full parser gate runs. The full six-method slice suite retains four failing subcases: byte literals through both producers, nested literals through C-seed native translation, and nested self-hosted lowering.
+
+My two additional raw byte-array methods pass assembly, verification and every VM assertion, then fail native translation at ARR_NEW/ARR_LITERAL respectively. They establish U8 read tags, integer narrowing (300 to 44 and -1/511 to 255), shared mutation, independent slice storage and empty slices. I require these same controls to pass native ASan/UBSan with leak detection; this is failure evidence, not qualification. I retain the complete source corpus.

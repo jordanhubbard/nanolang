@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-build-map-prototype.py", line 27, in <module>
+    link_args=next(shlex.split(line) for line in lines if '-o bin/nano_virt ' in line)
+  File "/private/tmp/nanolang-build-map-prototype.py", line 27, in <genexpr>
+    link_args=next(shlex.split(line) for line in lines if '-o bin/nano_virt ' in line)
+                   ~~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/shlex.py", line 312, in split
+    return list(lex)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/shlex.py", line 299, in __next__
+    token = self.get_token()
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/shlex.py", line 107, in get_token
+    raw = self.read_token()
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/shlex.py", line 208, in read_token
+    raise ValueError("No escaped character")
+ValueError: No escaped character

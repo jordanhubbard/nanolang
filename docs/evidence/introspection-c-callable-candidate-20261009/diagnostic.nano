@@ -1,0 +1,42 @@
+module "/private/tmp/nanolang-introspection-callables-20261009/probe.nano" as probe
+extern fn ___module_is_unsafe_callable_probe() -> bool
+extern fn ___module_has_ffi_callable_probe() -> bool
+extern fn ___module_name_callable_probe() -> string
+extern fn ___module_path_callable_probe() -> string
+extern fn ___module_function_count_callable_probe() -> int
+extern fn ___module_struct_count_callable_probe() -> int
+extern fn ___module_function_name_callable_probe(index: int) -> string
+extern fn ___module_struct_name_callable_probe(index: int) -> string
+let mut evaluations: int = 0
+fn index() -> int { set evaluations (+ evaluations 1) return 0 }
+shadow index { assert true }
+fn returned() -> fn() -> int { return ___module_function_count_callable_probe }
+shadow returned { assert true }
+fn invoke(f: fn() -> int) -> int { return (f) }
+shadow invoke { assert true }
+fn main() -> int {
+let value_is_unsafe: fn() -> bool = ___module_is_unsafe_callable_probe
+assert (== (value_is_unsafe) false)
+let value_has_ffi: fn() -> bool = ___module_has_ffi_callable_probe
+assert (== (value_has_ffi) false)
+let value_name: fn() -> string = ___module_name_callable_probe
+assert (== (value_name) "callable_probe")
+let value_path: fn() -> string = ___module_path_callable_probe
+(println (value_path))
+let value_function_count: fn() -> int = ___module_function_count_callable_probe
+assert (== (value_function_count) 1)
+let value_struct_count: fn() -> int = ___module_struct_count_callable_probe
+assert (== (value_struct_count) 1)
+let value_function_name: fn(int) -> string = ___module_function_name_callable_probe
+assert (== (value_function_name (index)) "answer")
+assert (== (value_function_name -1) "")
+assert (== (value_function_name 1) "")
+let value_struct_name: fn(int) -> string = ___module_struct_name_callable_probe
+assert (== (value_struct_name (index)) "Visible")
+assert (== (value_struct_name -1) "")
+assert (== (value_struct_name 1) "")
+assert (== evaluations 2)
+let count: fn() -> int = (returned)
+assert (== (invoke count) 1)
+return 0 }
+shadow main { assert (== (main) 0) }

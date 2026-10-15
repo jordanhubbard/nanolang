@@ -9,6 +9,7 @@
 #include "nanovirt/codegen.h"
 #include "nanoisa/isa.h"
 #include "nanoisa/nvm_format.h"
+#include "nanoisa/nvm_v2_sections.h"
 #include "nanovm/vm.h"
 #include "nanovm/value.h"
 
@@ -1089,14 +1090,25 @@ static void test_serialize_and_run(void) {
     CodegenResult cg = codegen_compile(program, env, NULL, NULL);
     ASSERT(cg.ok, cg.error_msg);
 
-    uint32_t size = 0;
-    uint8_t *blob = nvm_serialize(cg.module, &size);
-    ASSERT(blob != NULL, "serialize failed");
+    uint32_t legacy_size = 99;
+    ASSERT(nvm_serialize(cg.module, &legacy_size) == NULL && legacy_size == 0,
+           "I require v1 refusal instead of lost frontend metadata");
+    ASSERT(nvm_function_purity(cg.module, 0) == 0, "I retain undeclared purity");
+    NvmV2Module wire;
+    ASSERT(nvm_v2_from_nvm_module(cg.module, &wire) == NVM_V2_OK, "v2 conversion failed");
+    size_t size = 0;
+    ASSERT(nvm_v2_module_serialize(&wire, NULL, 0, &size) == NVM_V2_OK, "v2 sizing failed");
+    uint8_t *blob = malloc(size);
+    ASSERT(blob != NULL, "allocation failed");
+    ASSERT(nvm_v2_module_serialize(&wire, blob, size, &size) == NVM_V2_OK, "v2 serialization failed");
+    nvm_v2_module_free(&wire);
     nvm_module_free(cg.module);
-
-    NvmModule *mod2 = nvm_deserialize(blob, size);
-    ASSERT(mod2 != NULL, "deserialize failed");
+    ASSERT(nvm_v2_module_deserialize(blob, size, &wire) == NVM_V2_OK, "v2 deserialization failed");
+    NvmModule *mod2 = NULL;
+    ASSERT(nvm_v2_to_nvm_module(&wire, &mod2) == NVM_V2_OK, "v2 module conversion failed");
+    nvm_v2_module_free(&wire);
     free(blob);
+    ASSERT(nvm_function_purity(mod2, 0) == 0, "I preserve purity during serialization");
 
     VmState vm;
     vm_init(&vm, mod2);

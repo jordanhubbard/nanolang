@@ -1,0 +1,10 @@
+{
+  "src/nanoisa/affine_state.c": "af72109ae1e0f083135808f24e113502d3938778aec5aef8c803745ca3644253",
+  "src/nanoisa/affine_state.h": "9fc83937136b24855695862a2548a882acf3e4b119f9286e831f3d4ded309288",
+  "src/nanoisa/affine_bytecode.c": "ed2cc2aa1f2566313bfe188811ea9e76afc6e7ad9c1593531cb5f2625232ac18",
+  "src/nanoisa/ownership_contracts.c": "261164a7eabe0b8aa7e20fd59e2516cc9873ac41265fa34b7f6d6cc0e0cddd04",
+  "src/nanoisa/ownership_effects.inc": "223742799c2b7fd6868a450b8cb3095cd58d60e6797e1bb47bf0cb40e699573c",
+  "tests/nanoisa/test_affine_state.c": "3eced6db82f22191637c004e34505ae54f993e4487bb92afc331593ebbc2df08",
+  "tests/nanoisa/test_affine_bytecode.c": "f683bacb400164aeb903bab5f2a2d8b35f80555a4cd8e442abd9604e8c0ef887",
+  "tests/nanoisa/affine_effect_fixture.h": "0051a7bb84f97cf887a2870cd7d7a63062ebf90a3ef422cc16169f1f35f68a01"
+}

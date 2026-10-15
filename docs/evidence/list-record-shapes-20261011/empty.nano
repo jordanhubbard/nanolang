@@ -1,0 +1,7 @@
+struct Holder {values:List<int>}
+fn main()->int {
+ let values:List<int> = (list_int_new)
+ let holder:Holder = Holder {values:values}
+ return (list_int_length holder.values)
+}
+shadow main {assert (== (main) 0)}

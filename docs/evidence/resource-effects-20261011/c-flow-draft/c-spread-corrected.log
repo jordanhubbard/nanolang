@@ -1,0 +1,6 @@
+test_effect_preserves_staged_spread_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_preserves_staged_spread_owner) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.011s
+
+OK

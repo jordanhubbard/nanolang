@@ -1,0 +1,35 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -o obj/test_service_lowering_sanitize tests/test_service_lowering.c obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_LOWERING_RUNNER="/Users/jordanh/Src/nanolang/obj/test_service_lowering_sanitize" python3 -m unittest -v tests.test_service_lowering
+test_assertion_drains_live_file (tests.test_service_lowering.ServiceLowering.test_assertion_drains_live_file) ... ok
+test_helpers_loops_fields_and_result_values (tests.test_service_lowering.ServiceLowering.test_helpers_loops_fields_and_result_values) ... ok
+test_qualified_reexported_helper (tests.test_service_lowering.ServiceLowering.test_qualified_reexported_helper) ... ok
+test_short_circuit_skips_effects (tests.test_service_lowering.ServiceLowering.test_short_circuit_skips_effects) ... ok
+test_terminal_operands_release_pending_values (tests.test_service_lowering.ServiceLowering.test_terminal_operands_release_pending_values) ...
+  test_terminal_operands_release_pending_values (tests.test_service_lowering.ServiceLowering.test_terminal_operands_release_pending_values) (body='fn exercise(file:File)->int {\n let ignored:int=(+ 5 (match (close file) {Ok()=>{return 7} Error(e)=>{return 8}}))\n return ignored\n}\n') ... FAIL
+test_unchanged_generated_binding_and_all_shadows (tests.test_service_lowering.ServiceLowering.test_unchanged_generated_binding_and_all_shadows) ... ok
+
+======================================================================
+FAIL: test_terminal_operands_release_pending_values (tests.test_service_lowering.ServiceLowering.test_terminal_operands_release_pending_values) (body='fn exercise(file:File)->int {\n let ignored:int=(+ 5 (match (close file) {Ok()=>{return 7} Error(e)=>{return 8}}))\n return ignored\n}\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 142, in test_terminal_operands_release_pending_values
+    with self.subTest(body=body):self.check(body+main,expected=7)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 65, in check
+    vm=self.command([os.environ.get('NANO_SERVICE_LOWERING_RUNNER',ROOT/'obj/test_service_lowering'),path,selection,native_c,status])
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 59, in command
+    if process.returncode:raise AssertionError(f'{args}\n{process.returncode}\n{stdout}\n{stderr}')
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_lowering_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-5mak1r8e/source.nano'), 'main', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-5mak1r8e/source.c'), 0]
+-6
+
+I cannot type-check File service bodies: I require the exact nominal type and borrow mode.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (env->service_bodies && env->service_bodies->status==0), function main, file test_service_lowering.c, line 40.
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 60.030s
+
+FAILED (failures=1)
+make: *** [test-service-lowering-sanitize] Error 1

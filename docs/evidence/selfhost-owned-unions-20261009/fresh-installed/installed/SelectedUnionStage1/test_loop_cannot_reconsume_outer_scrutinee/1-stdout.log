@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I cannot verify ownership: loop changes ownership of an outer resource: value (/private/tmp/nanolang-selfhost-union-fresh-installed/installed/SelectedUnionStage1/test_loop_cannot_reconsume_outer_scrutinee/main.nano:5:12)

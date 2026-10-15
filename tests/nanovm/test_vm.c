@@ -2767,6 +2767,37 @@ static void test_closure_call_releases_the_callable(void) {
     nvm_module_free(mod);
 }
 
+static void test_recursive_calls_retain_closure(void) {
+    for (int tail = 0; tail < 2; ++tail) {
+        char source[1024];
+        snprintf(source, sizeof(source),
+            ".function recurse 1 1 1 int 1\n"
+            "LOAD_LOCAL 0\nPUSH_I64 0\nEQ\nJMP_FALSE again\n"
+            "LOAD_UPVALUE 0 0\nRET\nagain:\n"
+            "LOAD_LOCAL 0\nPUSH_I64 1\nSUB\n%s\n.end\n"
+            ".function caller 0 0 0 int 1\n"
+            "PUSH_I64 8\nPUSH_I64 42\nCLOSURE_NEW 0 1\n"
+            "CALL_INDIRECT 1 1\nRET\n.end\n.entry 1\n",
+            tail ? "TAIL_CALL 0" : "CALL 0\nRET");
+        AsmResult assembled;
+        NvmModule *module = asm_assemble(source, &assembled);
+        ASSERT(module, "I assemble direct and tail recursive closure calls");
+        NvmVerifyResult verified = nvm_verify(module);
+        ASSERT(verified.ok, "I verify recursive capture access");
+        VmState vm;vm_init(&vm,module);
+        size_t baseline = vm.heap.stats.num_objects;
+        NanoValue result = val_void();
+        ASSERT_EQ_INT(vm_invoke(&vm,1,NULL,0,&result),VM_OK,
+                      "I retain the active environment across recursion");
+        ASSERT_EQ_INT(result.tag,TAG_INT,"I return the captured scalar type");
+        ASSERT_EQ_INT(result.as.i64,42,"I return the captured scalar value");
+        vm_gc_collect_cycles(&vm.heap);
+        ASSERT_EQ_INT(vm.heap.stats.num_objects,baseline,
+                      "I release recursive frame ownership after return");
+        vm_destroy(&vm);nvm_module_free(module);
+    }
+}
+
 static void test_destroy_releases_trapped_callable(void) {
     AsmResult assembled;
     NvmModule *module = asm_assemble(
@@ -5993,6 +6024,7 @@ int main(void) {
     RUN_TEST(test_heap_destroy_collects_cycles);
     RUN_TEST(test_array_remove_releases_the_element);
     RUN_TEST(test_closure_call_releases_the_callable);
+    RUN_TEST(test_recursive_calls_retain_closure);
     RUN_TEST(test_destroy_releases_trapped_callable);
     RUN_TEST(test_direct_function_reference);
 

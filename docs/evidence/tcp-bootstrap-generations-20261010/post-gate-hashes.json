@@ -1,0 +1,28 @@
+{
+  "source_differences": [
+    "Makefile.gnu"
+  ],
+  "Makefile.gnu": "8139e63d8b96c02f6396c314a5f21830716a6f34364395294d24deabf6036a9d",
+  "artifacts": {
+    "nanoc_seed.nvm": "057b9134a29d85220b02b813eb3f18b7865848cbdb64363001c7c0d758419b51",
+    "nanoc_stage1.nvm": "470a5016fb2fce87ae4d15e235d9730460e4547791c95329f5f6570e838186aa",
+    "nanoc_stage1": "83a66c1de401ae505b5d99ddddc359f247433fbade7c0684046a35ac6a56aa9d",
+    "nanoc_stage2.nvm": "470a5016fb2fce87ae4d15e235d9730460e4547791c95329f5f6570e838186aa",
+    "nanoc_stage2": "b164b49d8b18568a684bb2fcde1b97eed5a3f1e56970a166eebfd7006319bf8a"
+  },
+  "tools": {
+    "nano_virt": "fe619d7c28d5bcd45aee86441f856916ab0a7394512cfe245eb32929ace42eb2",
+    "nano_vm": "a86eb0f3b76b9bc43af8a4e1b279d9c49bb5778724f68dd6129348e12cefd0e7",
+    "nanoisa": "cec36b801e62b2d5e732a7859f65da49d363f9547b897395101b05fef9197a8d",
+    "nvm2c": "e8cb448792820ce5e62d3b57baf4faa71daf0aa2576643b48f4bc59a1106b3fe",
+    "nano_aot_runtime.o": "e620df6d8335f93a5a2f5a473300cf9d6a7c2e5c149eaf88bf7474d76f93468c"
+  },
+  "hosts": {
+    "/private/tmp/nl51-tcp-fb1/v2-25e22f6f5bfb436f8169942af490416d7afdf733ccdcae23bf09521382400820/.nano-gen-PtRXhJ/libfile_product.dylib": "f82b41717729d7a1f15d4d920236d152571dddd3fab83ff022e7d6d8350dbf2d",
+    "/private/tmp/nl51-tcp-fb1/v2-616efd80512a2778925874a16684652704390c7033e3ec69724ec9d6b2d22d5b/.nano-gen-GW0Dca/libstd.dylib": "3d309cd22089b43186937fc2f4c16d0adcb8f55e0cd0f6f63b9eae929ac68205",
+    "/private/tmp/nl51-tcp-fb1/v2-7f21c4bbf92270f4bade93d5f424b94279e8c361db7ba958741c3541a14c06c1/.nano-gen-CwQzcO/libnanoisa.dylib": "bf3d3fe3b62533b4c78c794aefb738f80b955b99e7e63ddfa9ed5342dd0f0b91",
+    "/private/tmp/nl51-tcp-fb1/v2-9a1620749cd96ecbeef20baad0ebb763788a50e59587ed92f68044d043e91fa9/.nano-gen-xOXAuA/libfile_source_catalog.dylib": "f37981f372bd0ea7c5c98f50c997898bd820264a5a9d3396b41047817edabdce",
+    "/private/tmp/nl51-tcp-fb1/v2-9e0ee2ec1ced8082a23f35c144074fe6564dfc2bb25750d9dfc80d4643b5774e/.nano-gen-N1H2x2/libfile_source_inputs.dylib": "9bf034cf289b2b348d3726487bc67bbc3ad8519350815cc8a343fe6ce39e888c",
+    "/private/tmp/nl51-tcp-fb1/v2-eac8e28c4db475450cbb3375ccdf9959e1be88c561af16985806c1ce2017169e/.nano-gen-ViSTxE/libcompiler_support.dylib": "987a250a724980bdfc3573459438d72c6570fe3278e68801a29f6c44bf3a46b2"
+  }
+}

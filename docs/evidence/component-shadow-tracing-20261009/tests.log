@@ -1,0 +1,14 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -DNANO_WRAPPER_CRYPTO_DIR='"/opt/homebrew/Cellar/openssl@3/3.6.5/lib"' -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -ffp-contract=off -fno-fast-math -c src/eval.c -o obj/eval.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/module.c -o obj/module.o
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+python3 -m unittest -v tests.test_cseed_shadow_trace
+test_assertion_failure_is_completed_and_preserves_output (tests.test_cseed_shadow_trace.CSeedShadowTrace.test_assertion_failure_is_completed_and_preserves_output) ... ok
+test_success_and_opt_in (tests.test_cseed_shadow_trace.CSeedShadowTrace.test_success_and_opt_in) ... ok
+test_timeout_retains_last_start_and_preserves_output (tests.test_cseed_shadow_trace.CSeedShadowTrace.test_timeout_retains_last_start_and_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.978s
+
+OK

@@ -1,0 +1,288 @@
+I retain slice qualification at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5
+test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) ... 
+  test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) (case='order', producer='seed') ... FAIL
+  test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) (case='order', producer='selfhost') ... FAIL
+test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) ... 
+  test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) (case='bits', producer='seed') ... FAIL
+  test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) (case='bits', producer='selfhost') ... FAIL
+test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) ... 
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='original', producer='seed') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='original', producer='selfhost') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='bounds', producer='seed') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='bounds', producer='selfhost') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='leaves', producer='seed') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='leaves', producer='selfhost') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='seed') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='selfhost') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='record', producer='seed') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='record', producer='selfhost') ... FAIL
+test_unchecked_emitter_refuses_invalid_operands (tests.test_nanoisa_array_slice.NanoISASlice.test_unchecked_emitter_refuses_invalid_operands) ... ok
+
+======================================================================
+FAIL: test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) (case='order', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(*self.cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     native_c, "-lm", "-o", native)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/order-seed.c', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/order-seed.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/order-seed.c:946:26: error: unused function 'nvalue_array_slice' [-Werror,-Wunused-function]
+  946 | static inline nmap_value nvalue_array_slice(nmap_value a, int64_t begin, int64_t end) {
+      |                          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) (case='order', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(*self.cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     native_c, "-lm", "-o", native)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/order-selfhost.c', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/order-selfhost.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/order-selfhost.c:946:26: error: unused function 'nvalue_array_slice' [-Werror,-Wunused-function]
+  946 | static inline nmap_value nvalue_array_slice(nmap_value a, int64_t begin, int64_t end) {
+      |                          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) (case='bits', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 50, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/bits-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/bits-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/bits-seed.nvm': function 0: I support int, bool, float, string, function or record elements in ARR_LITERAL
+
+
+======================================================================
+FAIL: test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) (case='bits', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 45, in qualify
+    assembly.write_text(self.run_checked(self.driver, source, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-slice-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/bits.nano', 'program']: 1
+
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='original', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(*self.cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     native_c, "-lm", "-o", native)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/original-seed.c', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/original-seed.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/original-seed.c:944:26: error: unused function 'nvalue_array_slice' [-Werror,-Wunused-function]
+  944 | static inline nmap_value nvalue_array_slice(nmap_value a, int64_t begin, int64_t end) {
+      |                          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='original', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(*self.cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     native_c, "-lm", "-o", native)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/original-selfhost.c', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/original-selfhost.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/original-selfhost.c:944:26: error: unused function 'nvalue_array_slice' [-Werror,-Wunused-function]
+  944 | static inline nmap_value nvalue_array_slice(nmap_value a, int64_t begin, int64_t end) {
+      |                          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='bounds', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(*self.cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     native_c, "-lm", "-o", native)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/bounds-seed.c', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/bounds-seed.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/bounds-seed.c:952:26: error: unused function 'nvalue_array_slice' [-Werror,-Wunused-function]
+  952 | static inline nmap_value nvalue_array_slice(nmap_value a, int64_t begin, int64_t end) {
+      |                          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='bounds', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(*self.cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     native_c, "-lm", "-o", native)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/bounds-selfhost.c', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/bounds-selfhost.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/bounds-selfhost.c:952:26: error: unused function 'nvalue_array_slice' [-Werror,-Wunused-function]
+  952 | static inline nmap_value nvalue_array_slice(nmap_value a, int64_t begin, int64_t end) {
+      |                          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='leaves', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(*self.cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     native_c, "-lm", "-o", native)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/leaves-seed.c', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/leaves-seed.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/leaves-seed.c:1033:26: error: unused function 'nvalue_array_slice' [-Werror,-Wunused-function]
+ 1033 | static inline nmap_value nvalue_array_slice(nmap_value a, int64_t begin, int64_t end) {
+      |                          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='leaves', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(*self.cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     native_c, "-lm", "-o", native)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/leaves-selfhost.c', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/leaves-selfhost.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/leaves-selfhost.c:1033:26: error: unused function 'nvalue_array_slice' [-Werror,-Wunused-function]
+ 1033 | static inline nmap_value nvalue_array_slice(nmap_value a, int64_t begin, int64_t end) {
+      |                          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 50, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/nested-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/nested-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/nested-seed.nvm': function 0: I support int, bool, float, string, function or record elements in ARR_LITERAL
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 45, in qualify
+    assembly.write_text(self.run_checked(self.driver, source, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-slice-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/nested.nano', 'program']: 1
+
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='record', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(*self.cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     native_c, "-lm", "-o", native)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/record-seed.c', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/record-seed.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/record-seed.c:945:26: error: unused function 'nvalue_array_slice' [-Werror,-Wunused-function]
+  945 | static inline nmap_value nvalue_array_slice(nmap_value a, int64_t begin, int64_t end) {
+      |                          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='record', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(*self.cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     native_c, "-lm", "-o", native)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/record-selfhost.c', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/record-selfhost.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0acjk7v5/record-selfhost.c:945:26: error: unused function 'nvalue_array_slice' [-Werror,-Wunused-function]
+  945 | static inline nmap_value nvalue_array_slice(nmap_value a, int64_t begin, int64_t end) {
+      |                          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.260s
+
+FAILED (failures=14)

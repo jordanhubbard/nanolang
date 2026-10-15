@@ -1,0 +1,28 @@
+test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) ... 
+  test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='seed', element='int') ... FAIL
+  test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='seed', element='string') ... FAIL
+
+======================================================================
+FAIL: test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='seed', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='seed', element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.075s
+
+FAILED (failures=2)

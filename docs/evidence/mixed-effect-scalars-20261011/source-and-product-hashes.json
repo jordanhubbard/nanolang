@@ -1,0 +1,8 @@
+{
+  "src/nanoisa/nvm2c.c": "aad8b5a35cc608a9e808d1ade664a2e703ed43c8f1e63c3ebe88f6752542bcdb",
+  "src/nanoisa/nvm2c_effects.h": "17166baac124ee8c92e4b3bab4772fb2001bbc91cffb4b09f4ebf413c4b838a6",
+  "src/nanoisa/nvm2c_effect_emit.h": "8011a4d1f7ec9498fa17e9d517e67513d851495efa1bfc10513af1b6f7e18213",
+  "tests/test_native_effects.py": "96ef1b155657fd69c6537ad6ca6865e44802ee1a3c36acb108b7fa1336932c0e",
+  "/private/tmp/nl51-native-effects/compiler.c": "5dc1ab3ac807fda0c07ac8d8ae22e59dd261bddff3d9a43797401f86c229d294",
+  "/private/tmp/nl51-native-effects/compiler-mixed.c": "5dc1ab3ac807fda0c07ac8d8ae22e59dd261bddff3d9a43797401f86c229d294"
+}

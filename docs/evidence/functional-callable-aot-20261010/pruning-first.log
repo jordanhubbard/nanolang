@@ -1,0 +1,35 @@
+F
+======================================================================
+FAIL: test_uninvoked_indirect_caller_is_omitted_with_callee (tests.test_native_dead_callable_paths.NativeDeadCallablePaths.test_uninvoked_indirect_caller_is_omitted_with_callee)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_dead_callable_paths.py", line 107, in test_uninvoked_indirect_caller_is_omitted_with_callee
+    self.execute('.entry main\n.function main 0 0 0 int 1\nFUNCREF unused\nPOP\nPUSH_I64 0\nRET\n.end\n'
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        +'.function unused 1 1 0 void 0\nLOAD_LOCAL 0\nFUNCREF unresolved\nCALL_INDIRECT 1 0\nRET\n.end\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        +'.function unresolved 1 1 0 void 0\nLOAD_LOCAL 0\nCALL_INDIRECT 0 0\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_dead_callable_paths.py", line 37, in execute
+    runner.sanitized(source, work/'native')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 30, in sanitized
+    self.checked([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))),
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-dead-callable-2ergx5ay/input.c:908:5: error: call to undeclared function 'nl_unresolved'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  908 |     nl_unresolved(v[0]);
+      |     ^
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.106s
+
+FAILED (failures=1)

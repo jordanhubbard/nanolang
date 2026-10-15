@@ -1,0 +1,21 @@
+fn identity(values:array<array<int>>)->array<array<int>> { return values }
+shadow identity { let xs:array<array<int>> = [] assert (== (array_length (identity xs)) 0) }
+fn main()->int {
+ let values:array<array<int>> = [[7, 8], []]
+ let cube:array<array<array<int>>> = [values]
+ let projected:array<array<int>> = (at cube 0)
+ let copy:array<array<int>> = (array_slice (identity projected) 0 2)
+ let child:array<int> = (at values 0)
+ (array_set child 0 42)
+ let retained:array<int> = (at copy 0)
+ assert (== (at retained 0) 42)
+ (array_set values 0 [99])
+ assert (== (at retained 0) 42)
+ assert (== (array_length (at copy 1)) 0)
+ let floats:array<array<float>> = [[], [1.5]]
+ assert (== (at (at floats 1) 0) 1.5)
+ let bytes:array<array<u8>> = [[], [300]]
+ assert (== (at (at bytes 1) 0) 44)
+ return 0
+}
+shadow main { assert (== (main) 0) }

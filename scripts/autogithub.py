@@ -1,0 +1,359 @@
+#!/usr/bin/env python3
+"""I report NanoLang test/example failures in GitHub Issues, retaining test outcomes offline."""
+from __future__ import annotations
+
+import argparse
+import datetime as _dt
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+
+GH = os.environ.get("NANOLANG_GH", "gh")
+REPOSITORY = "jordanhubbard/nanolang"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+TEST_OUTPUT_DIR = PROJECT_ROOT / ".test_output"
+
+
+@dataclass(frozen=True)
+class Failure:
+    kind: str  # "test_compile" | "test_runtime" | "examples"
+    name: str
+    log_paths: tuple[Path, ...]
+    fingerprint: str
+    summary: str
+
+
+def _run(
+    cmd: list[str],
+    *,
+    cwd: Path,
+    timeout_s: int | None = None,
+    env: dict[str, str] | None = None,
+    stream: bool = False,
+    merge_stderr: bool = True,
+) -> subprocess.CompletedProcess[str]:
+    stderr_target = subprocess.STDOUT if merge_stderr else subprocess.PIPE
+    if stream:
+        # Stream output to terminal while capturing it
+        proc = subprocess.Popen(
+            cmd,
+            cwd=str(cwd),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=stderr_target,
+            env=env,
+        )
+        output_lines: list[str] = []
+        try:
+            assert proc.stdout is not None
+            for line in proc.stdout:
+                print(line, end="", flush=True)
+                output_lines.append(line)
+            proc.wait(timeout=timeout_s)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait()
+            raise
+        return subprocess.CompletedProcess(
+            args=cmd,
+            returncode=proc.returncode,
+            stdout="".join(output_lines),
+            stderr=None,
+        )
+    return subprocess.run(
+        cmd,
+        cwd=str(cwd),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=stderr_target,
+        timeout=timeout_s,
+        check=False,
+        env=env,
+    )
+
+
+def _read_tail(path: Path, max_chars: int = 4000) -> str:
+    try:
+        data = path.read_text(errors="replace")
+    except FileNotFoundError:
+        return ""
+    if len(data) <= max_chars:
+        return data
+    return data[-max_chars:]
+
+
+def _fingerprint_from_text(text: str) -> str:
+    # Keep it stable across line numbers/paths and small timing variations.
+    # Strip absolute paths and line/col numbers.
+    normalized = re.sub(r"/Users/[^\s]+", "<ABS_PATH>", text)
+    normalized = re.sub(r"line \d+", "line <N>", normalized)
+    normalized = re.sub(r"column \d+", "column <N>", normalized)
+    normalized = re.sub(r"0x[0-9a-fA-F]+", "0x<ADDR>", normalized)
+    normalized = normalized.strip()
+    h = hashlib.sha256(normalized.encode("utf-8", errors="ignore")).hexdigest()
+    return h[:12]
+
+
+def _ensure_test_output_dir() -> None:
+    TEST_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _gh(*args: str) -> str:
+    result = _run([GH, *args], cwd=PROJECT_ROOT, timeout_s=30, merge_stderr=False)
+    if result.returncode:
+        raise RuntimeError(f"GitHub command failed ({result.returncode}): {result.stderr or result.stdout}")
+    return result.stdout.strip()
+
+
+def _load_issues() -> list[dict[str, Any]]:
+    pages = json.loads(_gh("api", f"repos/{REPOSITORY}/issues?state=all&per_page=100",
+                          "--paginate", "--slurp"))
+    if not isinstance(pages, list) or any(not isinstance(page, list) for page in pages):
+        raise ValueError("I require paginated GitHub issue arrays")
+    issues = []
+    for page in pages:
+        for issue in page:
+            if not isinstance(issue, dict):
+                raise ValueError("I require GitHub issue objects")
+            if "pull_request" not in issue:
+                if not isinstance(issue.get("number"), int) or "state" not in issue:
+                    raise ValueError("I require an issue number and state")
+                issues.append(issue)
+    return issues
+
+
+def _body_command(verb: str, body: str, *args: str) -> str:
+    with tempfile.NamedTemporaryFile("w", suffix=".md", encoding="utf-8") as f:
+        f.write(body)
+        f.flush()
+        return _gh("issue", verb, *args, "--repo", REPOSITORY, "--body-file", f.name)
+
+
+def _create_issue(title: str, body: str) -> dict[str, Any]:
+    url = _body_command("create", body, "--title", title)
+    match = re.fullmatch(r"https://github\.com/" + re.escape(REPOSITORY) + r"/issues/(\d+)", url)
+    if not match:
+        raise ValueError(f"I could not read the created issue URL: {url}")
+    return {"number": int(match[1]), "title": title, "body": body, "state": "open"}
+
+
+def _find_issue(issues: list[dict[str, Any]], title: str, fingerprint: str = "") -> dict[str, Any] | None:
+    managed = [i for i in issues if "Autogenerated by scripts/autogithub.py" in (i.get("body") or "")]
+    return next((i for i in managed if i.get("title") == title), None) or next(
+        (i for i in managed if fingerprint and f"Fingerprint: {fingerprint}" in (i.get("body") or "")), None)
+
+
+def _comment(issue: dict[str, Any], body: str) -> None:
+    _body_command("comment", body, str(issue["number"]))
+
+
+def _reopen(issue: dict[str, Any]) -> None:
+    if issue["state"].lower() == "closed":
+        _gh("issue", "reopen", str(issue["number"]), "--repo", REPOSITORY)
+        issue["state"] = "open"
+
+
+def _failure_body(failure: Failure) -> str:
+    logs = "\n".join(f"Log tail: {p}\n\n{_read_tail(p)}" for p in failure.log_paths)
+    return (f"Kind: {failure.kind}\nName: {failure.name}\nFingerprint: {failure.fingerprint}\n"
+            f"Commit: {_git(['rev-parse', 'HEAD'])}\nObserved: {_dt.datetime.now().isoformat(timespec='seconds')}\n\n{logs}")
+
+
+def _report(kind: str, code: int, failures: list[Failure], log: Path, args: argparse.Namespace) -> None:
+    issues = _load_issues()
+    if args.mode == "summary":
+        title = f"[autotest][summary] {kind} (branch={_current_branch()}, job={_sanitize_job_name(args.job_name)})"
+        issue = _find_issue(issues, title)
+        if code == 0:
+            if issue and issue["state"].lower() == "open":
+                _comment(issue, f"I passed {kind} at {_git(['rev-parse', 'HEAD'])}; exit 0.")
+                if args.close_on_success:
+                    _gh("issue", "close", str(issue["number"]), "--repo", REPOSITORY, "--reason", "completed")
+            return
+        body = f"Exit: {code}\n\n" + "\n\n".join(_failure_body(f) for f in failures)
+        body += "\n\nMake log tail:\n" + _read_tail(log, 8000)
+        if issue:
+            _reopen(issue)
+            _comment(issue, body)
+        elif args.max_new > 0:
+            _create_issue(title, "Autogenerated by scripts/autogithub.py (summary mode)\n\n" + body)
+        else:
+            print(f"I reached the new-issue limit; unfiled failure: {title}", file=sys.stderr)
+        return
+    created = 0
+    for failure in failures:
+        title = f"[autotest] {failure.summary}: {failure.name}"
+        issue = _find_issue(issues, title, failure.fingerprint)
+        body = _failure_body(failure)
+        if issue:
+            _reopen(issue)
+            _comment(issue, body)
+        elif created < args.max_new:
+            issues.append(_create_issue(title, "Autogenerated by scripts/autogithub.py\n\n" + body))
+            created += 1
+        else:
+            print(f"I reached the new-issue limit; unfiled failure: {title}", file=sys.stderr)
+
+
+def _collect_test_failures() -> list[Failure]:
+    failures: list[Failure] = []
+
+    # run_all_tests.sh leaves logs for failures; passes are deleted.
+    compile_logs = sorted(TEST_OUTPUT_DIR.glob("*.compile.log"))
+    for log in compile_logs:
+        tail = _read_tail(log, max_chars=6000)
+        if not tail.strip():
+            # Sometimes the compiler crashes before writing; keep a placeholder.
+            tail = "(empty compile log)"
+        fp = _fingerprint_from_text(tail)
+        failures.append(
+            Failure(
+                kind="test_compile",
+                name=log.name.replace(".compile.log", ""),
+                log_paths=(log,),
+                fingerprint=fp,
+                summary="Compilation failed",
+            )
+        )
+
+    run_logs = sorted(TEST_OUTPUT_DIR.glob("*.run.log"))
+    for log in run_logs:
+        # If a run.log exists, it implies compilation succeeded but runtime failed.
+        tail = _read_tail(log, max_chars=6000)
+        if not tail.strip():
+            tail = "(empty run log)"
+        fp = _fingerprint_from_text(tail)
+        failures.append(
+            Failure(
+                kind="test_runtime",
+                name=log.name.replace(".run.log", ""),
+                log_paths=(log,),
+                fingerprint=fp,
+                summary="Runtime (shadow test) failed",
+            )
+        )
+
+    return failures
+
+
+def _git(cmd: list[str]) -> str:
+    proc = _run(["git"] + cmd, cwd=PROJECT_ROOT, timeout_s=10)
+    if proc.returncode != 0:
+        return ""
+    return proc.stdout.strip()
+
+
+def _current_branch() -> str:
+    b = _git(["rev-parse", "--abbrev-ref", "HEAD"])
+    if b and b != "HEAD":
+        return b
+    sha = _git(["rev-parse", "--short", "HEAD"])
+    return sha or "unknown"
+
+
+def _detect_ci_job_name() -> str:
+    # Prefer explicit CI job identifiers if present.
+    candidates = [
+        os.environ.get("CI_JOB_NAME"),  # GitLab CI
+        os.environ.get("GITHUB_JOB"),  # GitHub Actions
+        os.environ.get("GITHUB_WORKFLOW"),  # GitHub Actions (coarser)
+        os.environ.get("BUILDKITE_LABEL"),  # Buildkite
+        os.environ.get("BUILDKITE_JOB_ID"),  # Buildkite
+        os.environ.get("CIRCLE_JOB"),  # CircleCI
+        os.environ.get("TRAVIS_JOB_NAME"),  # Travis
+        os.environ.get("JENKINS_JOB_NAME"),  # Jenkins (custom)
+    ]
+    for c in candidates:
+        if c and c.strip():
+            return c.strip()
+    return "local"
+
+
+def _sanitize_job_name(job: str) -> str:
+    # Keep titles stable and readable.
+    job = (job or "local").strip()
+    job = re.sub(r"\s+", " ", job)
+    # Avoid weird punctuation in issue titles
+    job = re.sub(r"[^A-Za-z0-9 _./:-]+", "_", job)
+    return job or "local"
+
+
+def _run_tests(timeout_s: int, *, dry_run: bool) -> int:
+    _ensure_test_output_dir()
+    # Always use makefile targets per repo rule.
+    # NOTE: run test-impl to avoid recursion when `make test` itself calls autogithub.
+    cmd = ["make", "test-impl"]
+    if dry_run:
+        print("[dry-run] " + " ".join(cmd))
+        return 0
+    proc = _run(cmd, cwd=PROJECT_ROOT, timeout_s=timeout_s)
+    (TEST_OUTPUT_DIR / "make_test.log").write_text(
+        proc.stdout, encoding="utf-8", errors="replace"
+    )
+    return proc.returncode
+
+
+def _run_examples(timeout_s: int, *, dry_run: bool) -> int:
+    _ensure_test_output_dir()
+    cmd = ["make", "examples"]
+    if dry_run:
+        print("[dry-run] " + " ".join(cmd))
+        return 0
+    env = dict(os.environ)
+    env["NANOLANG_AUTOGITHUB_EXAMPLES"] = "1"
+    proc = _run(cmd, cwd=PROJECT_ROOT, timeout_s=timeout_s, env=env, stream=True)
+    (TEST_OUTPUT_DIR / "make_examples.log").write_text(
+        proc.stdout or "", encoding="utf-8", errors="replace"
+    )
+    return proc.returncode
+
+
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description="I run tests/examples and track failures in GitHub Issues.")
+    parser.add_argument("--tests", action="store_true")
+    parser.add_argument("--examples", action="store_true")
+    parser.add_argument("--mode", choices=["per", "summary"], default="per")
+    parser.add_argument("--close-on-success", action="store_true")
+    parser.add_argument("--job-name", default=_detect_ci_job_name())
+    parser.add_argument("--timeout-seconds", type=int, default=1800)
+    parser.add_argument("--dry-run", action="store_true", help="I print planned Make commands without running tests or contacting GitHub.")
+    parser.add_argument("--max-new", type=int, default=10)
+    args = parser.parse_args(argv)
+    if not args.tests and not args.examples:
+        parser.error("I require --tests or --examples")
+    if args.max_new < 0 or args.timeout_seconds <= 0:
+        parser.error("I require a nonnegative issue limit and positive timeout")
+    exit_code = 0
+    for enabled, kind, runner, filename in [
+        (args.tests, "make test", _run_tests, "make_test.log"),
+        (args.examples, "make examples", _run_examples, "make_examples.log"),
+    ]:
+        if not enabled:
+            continue
+        code = runner(args.timeout_seconds, dry_run=args.dry_run)
+        exit_code = exit_code or code
+        if args.dry_run or (code == 0 and args.mode == "per"):
+            continue
+        log = TEST_OUTPUT_DIR / filename
+        failures = _collect_test_failures() if args.tests and kind == "make test" and code else []
+        if code and not failures:
+            tail = _read_tail(log)
+            failures = [Failure("test_runtime" if kind == "make test" else "examples", kind,
+                                (log,), _fingerprint_from_text(tail or f"{kind} exit {code}"), "Command failed")]
+        try:
+            _report(kind, code, failures, log, args)
+        except (OSError, RuntimeError, ValueError, subprocess.SubprocessError) as error:
+            print(f"I could not update GitHub Issues: {error}. I retain test exit {code} and logs at {TEST_OUTPUT_DIR}.", file=sys.stderr)
+    return exit_code
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

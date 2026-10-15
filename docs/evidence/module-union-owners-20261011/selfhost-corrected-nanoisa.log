@@ -1,0 +1,20 @@
+test_cross_owner_refusals_preserve_output (tests.test_module_union_owners.ModuleUnionOwners.test_cross_owner_refusals_preserve_output) ... ok
+test_distinct_layouts_and_both_import_orders (tests.test_module_union_owners.ModuleUnionOwners.test_distinct_layouts_and_both_import_orders) ... ok
+test_duplicate_declaration_in_one_owner_preserves_output (tests.test_module_union_owners.ModuleUnionOwners.test_duplicate_declaration_in_one_owner_preserves_output) ... ok
+test_malformed_qualified_constructors_preserve_output (tests.test_module_union_owners.ModuleUnionOwners.test_malformed_qualified_constructors_preserve_output) ... ok
+test_ordinary_module_unions (tests.test_module_union_owners.ModuleUnionOwners.test_ordinary_module_unions) ... ok
+test_root_union_and_qualified_constructors (tests.test_module_union_owners.ModuleUnionOwners.test_root_union_and_qualified_constructors) ... ok
+test_same_owner_aliases_and_imported_callbacks (tests.test_module_union_owners.ModuleUnionOwners.test_same_owner_aliases_and_imported_callbacks) ... ok
+test_array_and_callable_payloads (tests.test_generic_union_parameters.GenericUnionParameters.test_array_and_callable_payloads) ... ok
+test_imported_union_and_generic_function (tests.test_generic_union_parameters.GenericUnionParameters.test_imported_union_and_generic_function) ... ok
+test_mismatched_instances_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_mismatched_instances_preserve_output) ... ok
+test_nested_and_multiple_parameters (tests.test_generic_union_parameters.GenericUnionParameters.test_nested_and_multiple_parameters) ... ok
+test_ordinary_union_identity (tests.test_generic_union_parameters.GenericUnionParameters.test_ordinary_union_identity) ... ok
+test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) ... ok
+test_scalar_instances_and_empty_variants (tests.test_generic_union_parameters.GenericUnionParameters.test_scalar_instances_and_empty_variants) ... ok
+test_union_result_boundaries_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_union_result_boundaries_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 4.758s
+
+OK

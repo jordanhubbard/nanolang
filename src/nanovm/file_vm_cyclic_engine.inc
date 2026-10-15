@@ -77,7 +77,7 @@ static NvmFileRuntimeStatus fvm_step(NvmFileRuntime *c,NvmFileRuntimeFrameView f
     case OP_STORE_LOCAL:case OP_OWN_STORE_LOCAL:FVM_TRY(nvm_file_runtime_frame_store(c));break;
     case OP_REGION_BEGIN:FVM_TRY(nvm_file_runtime_frame_region_begin(c));break;
     case OP_REGION_END:FVM_TRY(nvm_file_runtime_frame_region_end(c));break;
-    case OP_BORROW_LOCAL_EXCLUSIVE:FVM_TRY(nvm_file_runtime_frame_borrow(c));break;
+    case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:FVM_TRY(nvm_file_runtime_frame_borrow(c));break;
     case OP_FILE_END_BORROW:FVM_TRY(nvm_file_runtime_frame_end_reference(c));break;
     case OP_FILE_DROP_LOCAL:
         if(!nvm_file_runtime_frame_local(c,d->operands[0].u16,&src))return fvm_bad(c);
@@ -132,7 +132,7 @@ static NvmFileRuntimeStatus fvm_step(NvmFileRuntime *c,NvmFileRuntimeFrameView f
             FVM_TRY(nvm_file_runtime_result_arm(c,src,&arm));FVM_TRY(nvm_file_runtime_drop(c,src));
             FVM_TRY(nvm_file_runtime_scalar(c,src,TAG_INT,arm==NVM_FILE_FLOW_ARM_ERROR));
         }break;
-    case OP_CALL:case OP_CALL_REF:return nvm_file_runtime_frame_call(c);
+    case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:return nvm_file_runtime_frame_call(c);
     case OP_RET:return nvm_file_runtime_frame_return(c);
     default:return fvm_numeric(c,&f,op);
     }

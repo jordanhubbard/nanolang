@@ -1,0 +1,12 @@
+test_all_operations_and_single_index_evaluation (contract.NanoisaIntrospection.test_all_operations_and_single_index_evaluation) ... ok
+test_ambiguous_module_identity_preserves_output (contract.NanoisaIntrospection.test_ambiguous_module_identity_preserves_output) ... ok
+test_empty_export_sets (contract.NanoisaIntrospection.test_empty_export_sets) ... ok
+test_function_values_and_declared_module_path (contract.NanoisaIntrospection.test_function_values_and_declared_module_path) ... ok
+test_intrinsic_signature_is_required_before_publication (contract.NanoisaIntrospection.test_intrinsic_signature_is_required_before_publication) ... ok
+test_ordinary_function_with_similar_name_keeps_its_body (contract.NanoisaIntrospection.test_ordinary_function_with_similar_name_keeps_its_body) ... ok
+test_repository_metadata_programs (contract.NanoisaIntrospection.test_repository_metadata_programs) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.651s
+
+OK

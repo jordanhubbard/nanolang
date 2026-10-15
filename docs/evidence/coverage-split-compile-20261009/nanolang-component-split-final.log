@@ -1,0 +1,10 @@
+test_default_components_build_and_execute_nanoisa (tests.test_bootstrap_components.BootstrapComponents.test_default_components_build_and_execute_nanoisa) ... ok
+test_failed_component_compile_or_entry_refuses_validation_stamp (tests.test_bootstrap_components.BootstrapComponents.test_failed_component_compile_or_entry_refuses_validation_stamp) ... ok
+test_nested_make_exports_flags_needed_by_instrumented_native_link (tests.test_bootstrap_components.BootstrapComponents.test_nested_make_exports_flags_needed_by_instrumented_native_link) ... ok
+test_profile_uses_diagnostic_seed_and_propagates_failures (tests.test_bootstrap_components.BootstrapComponents.test_profile_uses_diagnostic_seed_and_propagates_failures) ... ok
+test_real_emitter_driver_executes_in_vm_and_sanitized_native (tests.test_bootstrap_components.BootstrapComponents.test_real_emitter_driver_executes_in_vm_and_sanitized_native) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 42.410s
+
+OK

@@ -1,0 +1,9 @@
+test_linker_at_sign_paths_reuse_and_invalidate (tests.test_module_cache_publication.ModuleCachePublication.test_linker_at_sign_paths_reuse_and_invalidate) ... ok
+test_linker_flag_fragments_preserve_literal_paths (tests.test_module_cache_publication.ModuleCachePublication.test_linker_flag_fragments_preserve_literal_paths) ... ok
+test_linker_capture_fallback_and_response_file (tests.test_module_cache_publication.ModuleCachePublication.test_linker_capture_fallback_and_response_file) ... ok
+test_linker_mutation_does_not_cache_unlinked_bytes (tests.test_module_cache_publication.ModuleCachePublication.test_linker_mutation_does_not_cache_unlinked_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 8.428s
+
+OK

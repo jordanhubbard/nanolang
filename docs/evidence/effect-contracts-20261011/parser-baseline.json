@@ -1,0 +1,8 @@
+{
+  "revision": "da452bb61",
+  "inputs": {
+    "parser-before.c": "9680ebe6d14346bfebd3bb3fcb55cd23ca75e8e043e261ced4ad65ba6ed5b595",
+    "test-parser-before.c": "a0694791ad15272730b5e178deb0157b311b95d2c6b12de946ab9af48780be41"
+  },
+  "leak_summary": "488 bytes in 6 allocations, reproduced before these parser changes"
+}

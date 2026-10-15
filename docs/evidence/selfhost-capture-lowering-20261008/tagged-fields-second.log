@@ -1,0 +1,23 @@
+F.
+======================================================================
+FAIL: test_all_word_and_string_arrays_survive_checked_writes (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_all_word_and_string_arrays_survive_checked_writes) (tag=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_array_tagged_fields.py", line 43, in test_all_word_and_string_arrays_survive_checked_writes
+    self.run_module(self.fixture(tag), '', collections=True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 25, in run_module
+    source = self.emit(work, text, stdout)
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 25, in emit
+    self.checked([ROOT / 'bin/nvm2c', module, '-o', source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-closures-c1wdu93d/input.nvm': function 1 at offset 2: I cannot resolve AGG_PACK field 0
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.167s
+
+FAILED (failures=1)

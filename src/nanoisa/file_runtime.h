@@ -51,6 +51,14 @@ bool nvm_file_runtime_current_root(const NvmFileRuntime *,uint32_t *);
 bool nvm_file_runtime_view(const NvmFileRuntime *,uint32_t,NvmFileRuntimeView *);
 /* Destinations must be empty. No operation silently overwrites an owner. */
 NvmFileRuntimeStatus nvm_file_runtime_scalar(NvmFileRuntime *,uint32_t,uint8_t,int64_t);
+/* I copy counted immutable bytes into bounded invocation storage. Strings are
+ * at most 1 MiB, with at most 4096 distinct strings per invocation; repeated
+ * equal strings share storage. Copies and returns retain bytes until finish.
+ * My view stores an invocation-local identity, never a host pointer. */
+NvmFileRuntimeStatus nvm_file_runtime_string(NvmFileRuntime *,uint32_t,const void *,size_t);
+NvmFileRuntimeStatus nvm_file_runtime_string_literal(NvmFileRuntime *,uint32_t);
+NvmFileRuntimeStatus nvm_file_runtime_string_operation(NvmFileRuntime *,uint8_t,uint32_t,uint32_t,uint32_t);
+bool nvm_file_runtime_string_read(const NvmFileRuntime *,uint32_t,void *,size_t,size_t *);
 NvmFileRuntimeStatus nvm_file_runtime_copy(NvmFileRuntime *,uint32_t,uint32_t);
 NvmFileRuntimeStatus nvm_file_runtime_move(NvmFileRuntime *,uint32_t,uint32_t);
 NvmFileRuntimeStatus nvm_file_runtime_drop(NvmFileRuntime *,uint32_t);
@@ -61,6 +69,7 @@ NvmFileRuntimeStatus nvm_file_runtime_take(NvmFileRuntime *,uint32_t,NvmFileFlow
 NvmFileRuntimeStatus nvm_file_runtime_region_begin(NvmFileRuntime *);
 NvmFileRuntimeStatus nvm_file_runtime_region_end(NvmFileRuntime *);
 NvmFileRuntimeStatus nvm_file_runtime_borrow(NvmFileRuntime *,uint32_t owner,uint32_t reference);
+NvmFileRuntimeStatus nvm_file_runtime_borrow_shared(NvmFileRuntime *,uint32_t owner,uint32_t reference);
 NvmFileRuntimeStatus nvm_file_runtime_bind_formal(NvmFileRuntime *,uint32_t source_reference,uint32_t formal_root,uint32_t formal_reference);
 NvmFileRuntimeStatus nvm_file_runtime_end_reference(NvmFileRuntime *,uint32_t);
 /* Exact checked module import, with original core receiver/domain semantics.

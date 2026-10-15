@@ -1,0 +1,314 @@
+[
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-000.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-001.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-002.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-003.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-004.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-005.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-006.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-007.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-008.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-009.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-010.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-011.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-012.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-013.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-014.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-015.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-016.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-017.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-018.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-019.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-020.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-021.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-022.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-023.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-024.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-025.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-026.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-027.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-028.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-029.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-030.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-031.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-032.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-035.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-036.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-037.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-038.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-039.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-040.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-041.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-042.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-043.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-050.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-051.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-052.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-053.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-057.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-058.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-059.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-060.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-061.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-062.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-063.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-064.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-065.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-066.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-067.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-068.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-069.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-070.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-071.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-072.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-073.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-074.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-075.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-076.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-077.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-078.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-079.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-080.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-081.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-082.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-083.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-084.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-085.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-086.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-087.c",
+    "returncode": 0
+  },
+  {
+    "file": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt/instrumented-public-cases/case-088.c",
+    "returncode": 0
+  }
+]

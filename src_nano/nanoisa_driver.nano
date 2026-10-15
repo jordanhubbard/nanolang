@@ -1,0 +1,24 @@
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+from "src_nano/compiler/nanoisa_codegen.nano" import nanoisa_emit_program_nasm, nanoisa_emit_shadows_nasm
+
+fn main() -> int {
+    let source: string = "fn main()->int{return 7} shadow main {assert (== (main) 7)}"
+    let tokens: List<LexerToken> = (tokenize_string source "component-nanoisa.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-nanoisa.nano")
+    assert (not (parser_has_error parsed))
+    assert (== (parser_get_function_count parsed) 1)
+    assert (== parsed.shadows_count 1)
+    let ordinary: string = (nanoisa_emit_program_nasm parsed)
+    assert (str_contains ordinary ".function main ")
+    assert (str_contains ordinary "PUSH_I64 7")
+    assert (not (str_contains ordinary "CALL __nanoisa_shadow_0"))
+    let selected: string = (nanoisa_emit_shadows_nasm parsed 0)
+    assert (str_contains selected "CALL __nanoisa_shadow_0")
+    assert (== (nanoisa_emit_shadows_nasm parsed -1) "")
+    assert (== (nanoisa_emit_shadows_nasm parsed 2) "")
+    (println "I passed my NanoISA emitter entry assertions.")
+    return 0
+}
+
+shadow main { assert (== (main) 0) }

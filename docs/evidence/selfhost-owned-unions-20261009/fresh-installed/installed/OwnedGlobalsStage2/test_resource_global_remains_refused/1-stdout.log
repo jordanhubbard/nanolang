@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I cannot verify ownership: global resource ownership is not supported (/private/tmp/nanolang-selfhost-union-fresh-installed/installed/OwnedGlobalsStage2/test_resource_global_remains_refused/main.nano:3:1)

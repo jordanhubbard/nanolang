@@ -1,0 +1,7 @@
+mkdir -p obj/nanovirt
+mkdir -p obj
+mkdir -p obj/nanovm
+mkdir -p obj/build_bootstrap
+mkdir -p obj/nanoisa
+make: *** No rule to make target 'spec/nanoisa.yaml', needed by 'src/nanoisa/generated_schema.h'.  Stop.
+make: *** Waiting for unfinished jobs....

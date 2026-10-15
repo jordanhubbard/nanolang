@@ -1,0 +1,7 @@
+-- E032 EFFECT SIGNATURE --- docs/evidence/effect-contracts-20261011/row-controls/unknown.nano
+I require declared concrete types in every effect signature.
+
+1| effect Ask{ask:{field:Missing}->int} fn main()->int{return 0} shadow main{assert true}
+   ^^^^^^
+Hint: Declare each referenced type and supply its complete type arguments.
+error: type check failed

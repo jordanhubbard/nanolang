@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nanoisa_emit",
+    "/private/tmp/nanolang-selfhost-globals-final/raw/test_wrong_global_assignment_type_refused/main.nano",
+    "-o",
+    "/private/tmp/nanolang-selfhost-globals-final/raw/test_wrong_global_assignment_type_refused/main.nasm"
+  ],
+  "exit": 1
+}

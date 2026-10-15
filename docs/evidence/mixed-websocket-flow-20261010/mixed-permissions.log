@@ -1,0 +1,6 @@
+test_repeated_single_catalog_permissions (tests.test_mixed_service_drivers.MixedServiceDrivers.test_repeated_single_catalog_permissions) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.022s
+
+OK

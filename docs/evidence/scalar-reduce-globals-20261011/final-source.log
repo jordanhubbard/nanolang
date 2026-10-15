@@ -1,0 +1,21 @@
+test_boolean_results_and_empty (tests.test_scalar_reduce_source.ScalarReduce.test_boolean_results_and_empty) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ar8ciuox
+ok
+test_bound_reduce_function_and_local (tests.test_scalar_reduce_source.ScalarReduce.test_bound_reduce_function_and_local) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-bi9w7xye
+ok
+test_checked_signature_refusals_preserve_output (tests.test_scalar_reduce_source.ScalarReduce.test_checked_signature_refusals_preserve_output) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-o2so898z
+ok
+test_conflicting_global_array_results_preserve_output (tests.test_scalar_reduce_source.ScalarReduce.test_conflicting_global_array_results_preserve_output) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-iz5730rs
+ok
+test_float_contexts_and_empty (tests.test_scalar_reduce_source.ScalarReduce.test_float_contexts_and_empty) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-naaptydg
+ok
+test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-nzhfv7ps
+ok
+test_neighbor_helpers (tests.test_scalar_reduce_source.ScalarReduce.test_neighbor_helpers) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-gzcn0el4
+ok
+test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8vdz42ds
+ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 23.882s
+
+OK

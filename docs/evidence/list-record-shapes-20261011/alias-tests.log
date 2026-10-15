@@ -1,0 +1,9 @@
+test_incompatible_scalar_write_is_refused (tests.test_native_list_record_fields.NativeListRecordFields.test_incompatible_scalar_write_is_refused) ... ok
+test_retained_selfhosted_record_and_union_aliases (tests.test_native_list_record_fields.NativeListRecordFields.test_retained_selfhosted_record_and_union_aliases) ... ok
+test_scalar_set_through_record_alias (tests.test_native_list_record_fields.NativeListRecordFields.test_scalar_set_through_record_alias) ... ok
+test_scalar_writes_through_forwarded_record_fields (tests.test_native_list_record_fields.NativeListRecordFields.test_scalar_writes_through_forwarded_record_fields) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.498s
+
+OK

@@ -1,0 +1,4 @@
+{
+  "result": "failed",
+  "error": "1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-lsv56n_v/input.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 0, offset 43: int64_t versus bool at parameter 0 of function 0)\n"
+}

@@ -338,3 +338,9 @@ The formal proofs passed.  The VM ran.  The compiler compiled itself.  The progr
 Sir Reginald knocked the coffee off the desk.  Not out of malice.  Out of a principled refusal to allow the programmer an uncontested moment.
 
 As of this writing, NanoLang has been used in production by exactly one person, who also wrote it.  Sir Reginald continues to withhold his endorsement across the chronicle, citing "procedural concerns," "insufficient tuna," "a general atmosphere of hubris," and, most recently, "aviation."
+
+## Task tracking
+
+I use [GitHub Issues](https://github.com/jordanhubbard/nanolang/issues) for all
+new and resumed work. My [tracking skill](skills/github-issue-tracking/SKILL.md)
+defines ownership, evidence and closure; my roadmap retains product ordering.

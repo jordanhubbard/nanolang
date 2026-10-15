@@ -1,0 +1,14 @@
+F
+======================================================================
+FAIL: test_invalid_capture_preserves_prior_output (tests.test_selfhost_captures.SelfhostCaptures.test_invalid_capture_preserves_prior_output) (source='fn make()->int{return (fn(f:fn()->int)->int{return (f)} fn()->string{return "wrong"})}', compiler=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 166, in test_invalid_capture_preserves_prior_output
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : b"Warning: Function 'make' is missing a shadow test\n"
+
+----------------------------------------------------------------------
+Ran 1 test in 0.161s
+
+FAILED (failures=1)

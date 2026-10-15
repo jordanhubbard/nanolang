@@ -1,0 +1,50 @@
+[
+  {
+    "case": "unknown_parameter",
+    "driver": "c",
+    "returncode": 0,
+    "preserved": false
+  },
+  {
+    "case": "unknown_parameter",
+    "driver": "selfhost",
+    "returncode": 0,
+    "preserved": false
+  },
+  {
+    "case": "unknown_result",
+    "driver": "c",
+    "returncode": 0,
+    "preserved": false
+  },
+  {
+    "case": "unknown_result",
+    "driver": "selfhost",
+    "returncode": 0,
+    "preserved": false
+  },
+  {
+    "case": "duplicate_operation",
+    "driver": "c",
+    "returncode": 0,
+    "preserved": false
+  },
+  {
+    "case": "duplicate_operation",
+    "driver": "selfhost",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "duplicate_declaration",
+    "driver": "c",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "duplicate_declaration",
+    "driver": "selfhost",
+    "returncode": 1,
+    "preserved": true
+  }
+]

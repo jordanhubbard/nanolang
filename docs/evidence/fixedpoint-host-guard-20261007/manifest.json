@@ -1,0 +1,54 @@
+{
+  "root": "/private/tmp/nanolang-5.1-fixedpoint-7dc131e44",
+  "stages": {
+    "seed": {
+      "argv": [
+        "/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/bin/nano_virt",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/private/tmp/nanolang-5.1-fixedpoint-7dc131e44-evidence/seed.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 16.199910750001436
+    },
+    "seed-verify": {
+      "argv": [
+        "/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-5.1-fixedpoint-7dc131e44-evidence/seed.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.0904311669874005
+    },
+    "stage1": {
+      "argv": [
+        "/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/bin/nano_vm",
+        "/private/tmp/nanolang-5.1-fixedpoint-7dc131e44-evidence/seed.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-5.1-fixedpoint-7dc131e44-evidence/stage1.nvm"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 160.82209170798887
+    }
+  },
+  "stage_timeout_seconds": 1800,
+  "boundary": "I execute VM-generation shadows as bytecode and reject NanoLang-generated C compilation. Declared native host artifacts retain their existing build and cache-validation paths; the product still contains its separate legacy C backend.",
+  "source_commit": "7dc131e449342119be3248771348dd1e97e32cfd",
+  "helper_sha256": null,
+  "labels": {
+    "seed": "C-seed NanoVirt output, a different lowering implementation",
+    "stage1": "VM execution of seed compiling the same source",
+    "stage2": "VM execution of stage1 compiling the same source",
+    "comparison": "raw stage1 versus stage2; no normalization"
+  },
+  "host_libraries": {
+    "/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/obj/module_cache/v2-8a2760401bc338ab69e2466cb42dbc5994ac3a3e31cdb09fb4f8a199f734106f/.nano-gen-QZQHfR/libnanoisa.dylib": "2eb49a68b030c518eba90adee3bef8315a5e73ae827d0d843f9f87a22e4cbd12",
+    "/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/obj/module_cache/v2-9b42fd51616d6d1149b3aec590f2a4ba8b9af7b5c2407c4c17358ca3e7753953/.nano-gen-Fz22FI/libstd.dylib": "c3e178c719b103b2445216400072f53c60378dd0cba5c325245d63124e7c597d",
+    "/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/obj/module_cache/v2-ab5057d90f42e0a2672cf4ef001e8efe420502a650d968f477d1f4b627dff767/.nano-gen-IDq9Ce/libcompiler_support.dylib": "758c98d9ae23bf13fb9232df853433893e658c3aff0115b786297763cc08702e"
+  }
+}

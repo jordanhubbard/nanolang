@@ -1,0 +1,12 @@
+test_growing_aliased_graph_has_bounded_lookup_work (tests.test_native_root_scaling.NativeRootScaling.test_growing_aliased_graph_has_bounded_lookup_work) ... ok
+test_allocation_free_loops_and_new_owner_debt (tests.test_native_collection_debt.NativeCollectionDebt.test_allocation_free_loops_and_new_owner_debt) ... ok
+test_forced_drops_and_current_mutable_edges (tests.test_native_collection_debt.NativeCollectionDebt.test_forced_drops_and_current_mutable_edges) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.283s
+
+OK
+roots=1024 comparisons=4425 seconds=0.000159
+roots=2048 comparisons=8693 seconds=0.000151
+roots=4096 comparisons=17669 seconds=0.000315
+scans=0 peak=3

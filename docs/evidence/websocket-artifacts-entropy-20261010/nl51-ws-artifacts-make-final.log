@@ -1,0 +1,12 @@
+python3 scripts/embed_binary64_parser.py --check
+NANO_NATIVE_TEST_CC="/opt/homebrew/opt/llvm/bin/clang" LDFLAGS="-lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib" python3 -m unittest -v tests.test_websocket_artifacts.WebSocketArtifacts
+I retain WebSocket artifact evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-artifacts-iqmj8jbp
+test_native_refuses_wrong_abi_without_replacing_output (tests.test_websocket_artifacts.WebSocketArtifacts.test_native_refuses_wrong_abi_without_replacing_output) ... ok
+test_seed_vm_and_native (tests.test_websocket_artifacts.WebSocketArtifacts.test_seed_vm_and_native) ... ok
+test_updated_nano_refuses_wrong_abi_without_replacing_output (tests.test_websocket_artifacts.WebSocketArtifacts.test_updated_nano_refuses_wrong_abi_without_replacing_output) ... ok
+test_updated_nano_vm_and_native (tests.test_websocket_artifacts.WebSocketArtifacts.test_updated_nano_vm_and_native) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.087s
+
+OK

@@ -1,0 +1,5 @@
+{
+  "src/nanovirt/codegen.c": "b59d47e18c431f8744487c7580b20c7dc8b4d3c925d200035d43c8adf141787b",
+  "tests/test_effect_binding_metadata.py": "60993f5b3da00b31a5561df37007a30a38a25b34c8c612cb19eea15e683b1090",
+  "Makefile.gnu": "b8add316d5bbf2f4314c15ed94247c97533294d4fa0ff4814f4f56ffa40cbff8"
+}

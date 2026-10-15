@@ -1,0 +1,29 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2717, column 9: Unused variable 'rejected'
+Warning at line 3015, column 9: Unused variable 'rejected'
+Warning at line 3019, column 9: Unused variable 'rejected'
+Warning at line 3023, column 9: Unused variable 'rejected'
+Warning at line 3027, column 9: Unused variable 'rejected'
+Warning at line 3034, column 13: Unused variable 'rejected'
+Warning at line 3183, column 9: Unused variable 'rejected'
+Warning at line 3187, column 9: Unused variable 'rejected'
+Warning at line 3194, column 13: Unused variable 'rejected'
+Warning at line 7070, column 17: Unused variable 'imported'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2717, column 9: Unused variable 'rejected'
+Warning at line 3015, column 9: Unused variable 'rejected'
+Warning at line 3019, column 9: Unused variable 'rejected'
+Warning at line 3023, column 9: Unused variable 'rejected'
+Warning at line 3027, column 9: Unused variable 'rejected'
+Warning at line 3034, column 13: Unused variable 'rejected'
+Warning at line 3183, column 9: Unused variable 'rejected'
+Warning at line 3187, column 9: Unused variable 'rejected'
+Warning at line 3194, column 13: Unused variable 'rejected'
+Warning at line 7070, column 17: Unused variable 'imported'
+  Shadow test 'nisa_generic_bind' FAILED: 1 failure(s)
+  First failure at line 126, column 5
+  Shadow test 'nisa_queued_function' FAILED: 1 failure(s)
+  First failure at line 145, column 5
+I will not publish output after failed shadow execution.
+Shadow tests failed

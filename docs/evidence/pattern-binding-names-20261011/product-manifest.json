@@ -1,0 +1,97 @@
+{
+  "revision": "bc81ef6dfa6cc24d805a7ebb9bf66c489171f258",
+  "inputs": {
+    "src/nanovirt/codegen.c": "3a92a155b94471d11b9a7660f75b0c91cae8f2b400ce049a39e14637aac4dc85",
+    "src/nanoisa/nvm2c.c": "eb1c3ebd0aa8ea017e84242993de0d3d55d85e6ceff5398104e84b98bc990515",
+    "src_nano/compiler/nanoisa_codegen.nano": "f63b26f52b2119c88187827a948585851b288da5fb00210471cd707a7aea95d6"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/private/tmp/nl51-pattern-names/seed",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-pattern-names/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 292.651072916924,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-pattern-names/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.1312168330186978,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-pattern-names/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-pattern-names/compiler.c"
+      ],
+      "returncode": 0,
+      "seconds": 10.307995292008854,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-pattern-names/compiler.c",
+        "-o",
+        "/private/tmp/nl51-pattern-names/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "returncode": 0,
+      "seconds": 6.529454500065185,
+      "log": "product-03.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-pattern-names/compiler",
+        "--help"
+      ],
+      "returncode": 0,
+      "seconds": 0.012403042055666447,
+      "log": "product-04.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_local_binding_metadata",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 6.5945842089131474,
+      "log": "product-05.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_native_nominal_order",
+        "tests.test_selfhost_union_storage",
+        "tests.test_selfhost_layout_validation",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 5.606302125030197,
+      "log": "product-06.log"
+    }
+  ],
+  "inputs_unchanged": true
+}

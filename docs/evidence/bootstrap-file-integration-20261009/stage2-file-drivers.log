@@ -1,0 +1,16 @@
+test_cyclic_and_overlapping_owner_refusals_preserve_output (tests.test_nano_service_driver.NanoServiceDriver.test_cyclic_and_overlapping_owner_refusals_preserve_output) ... ok
+test_cyclic_owners_helpers_and_selected_shadows (tests.test_nano_service_driver.NanoServiceDriver.test_cyclic_owners_helpers_and_selected_shadows) ... ok
+test_generated_shadows_byte_parity_and_native_runtime_grant (tests.test_nano_service_driver.NanoServiceDriver.test_generated_shadows_byte_parity_and_native_runtime_grant) ... ok
+test_grant_failure_aliases_and_compiler_failure_preserve_output (tests.test_nano_service_driver.NanoServiceDriver.test_grant_failure_aliases_and_compiler_failure_preserve_output) ... ok
+test_multiple_borrow_shadow_failure_preserves_output (tests.test_nano_service_driver.NanoServiceDriver.test_multiple_borrow_shadow_failure_preserves_output) ... ok
+test_multiple_borrows_with_owned_operand (tests.test_nano_service_driver.NanoServiceDriver.test_multiple_borrows_with_owned_operand) ... ok
+test_multiple_forwarded_reordered_file_borrows (tests.test_nano_service_driver.NanoServiceDriver.test_multiple_forwarded_reordered_file_borrows) ... ok
+test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse (tests.test_nano_service_driver.NanoServiceDriver.test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse) ... ok
+test_required_import_shadows_and_root_only_selection (tests.test_nano_service_driver.NanoServiceDriver.test_required_import_shadows_and_root_only_selection) ... ok
+test_shared_aliases_and_forwarded_loans (tests.test_nano_service_driver.NanoServiceDriver.test_shared_aliases_and_forwarded_loans) ... ok
+test_shared_borrow_shadow_failure_preserves_output (tests.test_nano_service_driver.NanoServiceDriver.test_shared_borrow_shadow_failure_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 211.231s
+
+OK

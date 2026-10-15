@@ -1,0 +1,37 @@
+I retain Json artifact evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-pufyve6w
+test_real_artifact_ownership_vm_and_native (tests.test_selfhost_json_artifacts.JsonArtifacts.test_real_artifact_ownership_vm_and_native) ... 
+  test_real_artifact_ownership_vm_and_native (tests.test_selfhost_json_artifacts.JsonArtifacts.test_real_artifact_ownership_vm_and_native) (compiler='/private/tmp/nanolang-array-types-20261008/bin/nano_virt') ... FAIL
+  test_real_artifact_ownership_vm_and_native (tests.test_selfhost_json_artifacts.JsonArtifacts.test_real_artifact_ownership_vm_and_native) (compiler='/private/tmp/nanolang-json-compiler-free') ... FAIL
+
+======================================================================
+FAIL: test_real_artifact_ownership_vm_and_native (tests.test_selfhost_json_artifacts.JsonArtifacts.test_real_artifact_ownership_vm_and_native) (compiler='/private/tmp/nanolang-array-types-20261008/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_json_artifacts.py", line 74, in test_real_artifact_ownership_vm_and_native
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_json_artifacts.py", line 61, in command
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nvm2c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-pufyve6w/nano_virt.nvm'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-pufyve6w/nano_virt.c')): 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-pufyve6w/nano_virt.nvm': import 0 (nl_json_parse) is artifact-backed and requires an exact library binding and typed value adapter; nvm2c refuses CALL_EXTERN
+
+
+======================================================================
+FAIL: test_real_artifact_ownership_vm_and_native (tests.test_selfhost_json_artifacts.JsonArtifacts.test_real_artifact_ownership_vm_and_native) (compiler='/private/tmp/nanolang-json-compiler-free')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_json_artifacts.py", line 70, in test_real_artifact_ownership_vm_and_native
+    self.command(compiler, source, "--emit-nvm", "-o", module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_json_artifacts.py", line 61, in command
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-json-compiler-free'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-pufyve6w/ownership.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-pufyve6w/nanolang-json-compiler-free.nvm')): 1
+I cannot lower this checked program: unsupported extern result or symbol nl_json_object_set
+
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.065s
+
+FAILED (failures=2)

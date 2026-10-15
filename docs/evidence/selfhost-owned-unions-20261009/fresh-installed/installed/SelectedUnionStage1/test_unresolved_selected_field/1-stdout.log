@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I cannot verify ownership: resource remains live at scope exit: right (/private/tmp/nanolang-selfhost-union-fresh-installed/installed/SelectedUnionStage1/test_unresolved_selected_field/main.nano:6:20)

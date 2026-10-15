@@ -1,0 +1,32 @@
+[
+  {
+    "case": "nested-only",
+    "route": "c",
+    "exit": 0,
+    "diagnostic": "Warning at line 2, column 38: Unused variable 'p'\nWarning at line 7, column 44: Unused variable 'p'\n",
+    "aot_exit": 0,
+    "aot_diagnostic": ""
+  },
+  {
+    "case": "nested-only",
+    "route": "selfhost",
+    "exit": 1,
+    "diagnostic": "I cannot lower this checked program: unsupported local type Box<Box<int>>\n"
+  },
+  {
+    "case": "multiple-only",
+    "route": "c",
+    "exit": 0,
+    "diagnostic": "Warning at line 2, column 38: Unused variable 'p'\nWarning at line 7, column 44: Unused variable 'p'\n",
+    "aot_exit": 1,
+    "aot_diagnostic": "I cannot translate '/private/tmp/nl51-generic-union-parameters/multiple-only-c.nvm': I reject RET with a known incompatible variant scalar payload\n"
+  },
+  {
+    "case": "multiple-only",
+    "route": "selfhost",
+    "exit": 0,
+    "diagnostic": "",
+    "aot_exit": 1,
+    "aot_diagnostic": "I cannot translate '/private/tmp/nl51-generic-union-parameters/multiple-only-selfhost.nvm': I reject RET with a known incompatible variant scalar payload\n"
+  }
+]

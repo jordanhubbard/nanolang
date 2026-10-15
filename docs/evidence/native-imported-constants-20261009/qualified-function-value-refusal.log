@@ -1,0 +1,41 @@
+test_call_argument_order (tests.test_native_imported_constants.NativeImportedConstants.test_call_argument_order) ... ok
+test_distinct_module_literals (tests.test_native_imported_constants.NativeImportedConstants.test_distinct_module_literals) ... ok
+test_local_record_receiver (tests.test_native_imported_constants.NativeImportedConstants.test_local_record_receiver) ... ok
+test_transitive_import_retains_callee_source (tests.test_native_imported_constants.NativeImportedConstants.test_transitive_import_retains_callee_source) ... FAIL
+
+======================================================================
+FAIL: test_transitive_import_retains_callee_source (tests.test_native_imported_constants.NativeImportedConstants.test_transitive_import_retains_callee_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_imported_constants.py", line 66, in test_transitive_import_retains_callee_source
+            self.check('''module "b.nano" as source
+            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    module "bridge.nano" as bridge
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    shadow read { assert (== (read) 41) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    '''})
+    ^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_imported_constants.py", line 35, in check
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-imported-constants-rg9nrjzz/main.nano
+I cannot find a variable named `bridge`.
+
+8|     let read: fn() -> int = bridge.read
+                               ^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-imported-constants-rg9nrjzz/main.nano
+Field access requires a struct value.
+
+8|     let read: fn() -> int = bridge.read
+                                     ^
+Hint: Ensure the object before '.' is a struct type.
+Type checking failed
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 4.714s
+
+FAILED (failures=1)

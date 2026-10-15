@@ -1,0 +1,13 @@
+test_generic_payload (tests.test_callable_union_storage.CallableUnionStorage.test_generic_payload) ... ok
+test_generic_signature_field (tests.test_callable_union_storage.CallableUnionStorage.test_generic_signature_field) ... ok
+test_incompatible_payload_preserves_output (tests.test_callable_union_storage.CallableUnionStorage.test_incompatible_payload_preserves_output) ... ok
+test_nested_generic_signature (tests.test_callable_union_storage.CallableUnionStorage.test_nested_generic_signature) ... ok
+test_ordinary_payload (tests.test_callable_union_storage.CallableUnionStorage.test_ordinary_payload) ... ok
+test_recursive_callable_signature (tests.test_callable_union_storage.CallableUnionStorage.test_recursive_callable_signature) ... ok
+test_returned_union_and_multiple_signatures (tests.test_callable_union_storage.CallableUnionStorage.test_returned_union_and_multiple_signatures) ... ok
+test_unannotated_nested_and_global_checker_contexts (tests.test_callable_union_storage.CallableUnionStorage.test_unannotated_nested_and_global_checker_contexts) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 17.244s
+
+OK

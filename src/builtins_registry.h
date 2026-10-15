@@ -30,7 +30,7 @@ typedef enum {
 
 typedef struct {
     const char *name;          /* nanolang name: "str_length" */
-    const char *c_name;        /* C runtime name for transpiler: "strlen" */
+    const char *c_name;        /* C runtime name for transpiler: "nl_cstr_length" */
     uint8_t arity;
     Type param_types[4];
     Type return_type;
@@ -44,6 +44,9 @@ extern const int builtin_registry_count;
 /* Lookup functions */
 const BuiltinEntry *builtin_find(const char *name);
 const char *builtin_c_name(const char *name);
+/* I retain source spelling while sharing checked array operations. */
+const char *builtin_array_operation(const char *name);
+bool builtin_is_array_operation(const char *name);
 bool builtin_is_known(const char *name);
 
 #endif /* BUILTINS_REGISTRY_H */

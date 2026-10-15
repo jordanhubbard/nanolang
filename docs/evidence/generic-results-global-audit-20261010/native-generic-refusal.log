@@ -1,0 +1,29 @@
+test_generic_record_arguments_and_results (tests.test_native_record_names.NativeRecordNames.test_generic_record_arguments_and_results) ... FAIL
+
+======================================================================
+FAIL: test_generic_record_arguments_and_results (tests.test_native_record_names.NativeRecordNames.test_generic_record_arguments_and_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_names.py", line 68, in test_generic_record_arguments_and_results
+    self.execute(source,root/'native')
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_names.py", line 19, in execute
+    self.command([compiler,source,'-o',destination])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_names.py", line 14, in command
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmprtbberv0/generic.nano:6:182: error: passing '__nl_record_NSType' (aka 'struct __nl_record_NSType') to parameter of incompatible type 'void *'
+    6 |     __nl_record_NSType nested = ({ __auto_type __nl_arg_4_0 = ({ __auto_type __nl_arg_5_0 = (__nl_record_NSType){.value = 43LL}; nl_identity_NSType(__nl_arg_5_0); }); nl_identity_T(__nl_arg_4_0); });
+      |                                                                                                                                                                                      ^~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_22272_native.c:1823:34: note: passing argument to parameter 'value' here
+ 1823 | static void* nl_identity_T(void* value);
+      |                                  ^
+1 error generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.351s
+
+FAILED (failures=1)

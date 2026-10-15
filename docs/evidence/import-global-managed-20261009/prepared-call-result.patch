@@ -1,0 +1,88 @@
+--- a/src_nano/typecheck.nano
++++ b/src_nano/typecheck.nano
+@@ -4585,6 +4585,45 @@
+     assert (== (list_CompilerDiagnostic_length diags) 0)
+ }
+ 
++fn check_callable_value_call(parser: Parser, signature: string, name: string, arg_start: int, arg_count: int, line: int, column: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
++    let params: array<NSType> = (fn_type_params_with_parser parser signature)
++    if (!= arg_count (array_length params)) {
++        let msg: string = (+ "The function value `" (+ name (+ "` expects " (+ (int_to_string (array_length params)) (+ " argument(s), but I see " (+ (int_to_string arg_count) "."))))))
++        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name line column))
++        (Diagnostics.diag_list_add diags diag)
++    } else { (print "") }
++    let mut argument_index: int = 0
++    while (< argument_index arg_count) {
++        if (< argument_index (array_length params)) {
++            let argument: ASTStmtRef = (parser_get_call_arg parser (+ arg_start argument_index))
++            let expected: NSType = (at params argument_index)
++            let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
++            let hinted: NSType = (apply_value_type_hint parser argument.node_id argument.node_type raw expected)
++            let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type hinted expected symbols diags file_name)
++            if (not (types_equal actual expected)) {
++                let message: string = (+ "I require the declared callback argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
++                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name line column)))
++            }
++        }
++        set argument_index (+ argument_index 1)
++    }
++    return (type_from_string_with_parser parser (type_to_string (fn_type_return_type signature)))
++}
++shadow check_callable_value_call {
++    let parser: Parser = (resource_test_parser "fn main()->int{return (first.apply 7)}")
++    let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser 0)
++    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
++    let result: NSType = (check_callable_value_call parser "fn(int)->int" "first.apply" call.arg_start call.arg_count call.line call.column [] diags "call.nano")
++    assert (== result.kind TypeKind.TYPE_INT)
++    assert (== (list_CompilerDiagnostic_length diags) 0)
++    let invalid: NSType = (check_callable_value_call parser "fn(string)->bool" "first.apply" call.arg_start call.arg_count call.line call.column [] diags "call.nano")
++    assert (== invalid.kind TypeKind.TYPE_BOOL)
++    assert (> (list_CompilerDiagnostic_length diags) 0)
++    let arity_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
++    let wrong_arity: NSType = (check_callable_value_call parser "fn()->int" "first.apply" call.arg_start call.arg_count call.line call.column [] arity_diags "call.nano")
++    assert (> (list_CompilerDiagnostic_length arity_diags) 0)
++}
++
+ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+     if (== node_type ParseNodeType.PNODE_BLOCK) {
+         let expected: NSType = (type_from_string_with_parser parser tc_enclosing_return)
+@@ -4851,28 +4890,7 @@
+                 } else {
+                     /* Variable being called - if it's a function type, extract return type */
+                     if (== sym.sym_type.kind TypeKind.TYPE_FUNCTION) {
+-                        let params: array<NSType> = (fn_type_params_with_parser parser sym.sym_type.name)
+-                        if (!= call_node.arg_count (array_length params)) {
+-                            let msg: string = (+ "The function value `" (+ fn_name (+ "` expects " (+ (int_to_string (array_length params)) (+ " argument(s), but I see " (+ (int_to_string call_node.arg_count) "."))))))
+-                            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
+-                            (Diagnostics.diag_list_add diags diag)
+-                        } else { (print "") }
+-                        let mut argument_index: int = 0
+-                        while (< argument_index call_node.arg_count) {
+-                            if (< argument_index (array_length params)) {
+-                                let argument: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start argument_index))
+-                                let expected: NSType = (at params argument_index)
+-                                let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+-                                let hinted: NSType = (apply_value_type_hint parser argument.node_id argument.node_type raw expected)
+-                                let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type hinted expected symbols diags file_name)
+-                                if (not (types_equal actual expected)) {
+-                                    let message: string = (+ "I require the declared callback argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
+-                                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name call_node.line call_node.column)))
+-                                }
+-                            }
+-                            set argument_index (+ argument_index 1)
+-                        }
+-                        return (type_from_string_with_parser parser (type_to_string (fn_type_return_type sym.sym_type.name)))
++                        return (check_callable_value_call parser sym.sym_type.name fn_name call_node.arg_start call_node.arg_count call_node.line call_node.column symbols diags file_name)
+                     } else {
+                         return sym.sym_type
+                     }
+@@ -4928,6 +4946,9 @@
+                 }
+                 return sym.return_type
+             } else {
++                if (== sym.sym_type.kind TypeKind.TYPE_FUNCTION) {
++                    return (check_callable_value_call parser sym.sym_type.name qualified_name mqc_node.arg_start mqc_node.arg_count mqc_node.line mqc_node.column symbols diags file_name)
++                }
+                 return sym.sym_type
+             }
+         } else {

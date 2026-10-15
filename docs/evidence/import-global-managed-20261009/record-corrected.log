@@ -1,0 +1,12 @@
+/private/tmp/nanolang-map-nano-virt qualified_string_array PASS
+/private/tmp/nanolang-map-nano-virt selective_string_array PASS
+/private/tmp/nanolang-map-nano-virt qualified_map PASS
+/private/tmp/nanolang-map-nano-virt selective_map PASS
+/private/tmp/nanolang-map-nano-virt qualified_record PASS
+/private/tmp/nanolang-map-nano-virt selective_record PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- qualified_string_array PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- selective_string_array PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- qualified_map PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- selective_map PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- qualified_record PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- selective_record PASS

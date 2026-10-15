@@ -111,7 +111,7 @@ fn nos_scan(parser: Parser, id: int, kind: int, depth: int) -> bool {
     }
     if (== kind ParseNodeType.PNODE_BLOCK) {
         let block: ASTBlock = (parser_get_block parser id)
-        if (or block.is_par block.is_flow) { return false }
+        if (or block.is_legacy_par (or block.is_par block.is_flow)) { return false }
         let saved: int = nos_name_count let mut ok: bool = true let mut i: int = 0
         while (and ok (< i (list_ASTStmtRef_length block.statements))) {
             let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements i)

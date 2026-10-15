@@ -1,0 +1,13 @@
+let mut calls:int = 0
+fn make()->List<string> {
+ set calls (+ calls 1)
+ let names:List<string> = (list_string_new)
+ (list_string_push names (str_concat "temporary-" (int_to_string calls)))
+ return names
+}
+fn main()->int {
+ (list_string_free (make))
+ assert (== calls 1)
+ return 0
+}
+shadow main { assert true }

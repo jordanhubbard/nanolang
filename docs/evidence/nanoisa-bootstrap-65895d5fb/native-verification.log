@@ -1,0 +1,33 @@
+python3 scripts/embed_binary64_parser.py --check
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+
+
+==========================================
+Verifying Bootstrap Artifacts
+==========================================
+✓ Found stage compilers:
+-rwxr-xr-x  1 jordanh  wheel    13M Oct  7 20:45 bin/nanoc_stage1
+-rwxr-xr-x  1 jordanh  wheel    13M Oct  7 20:50 bin/nanoc_stage2
+
+Smoke test: stage1 compiles + runs nl_hello.nano...
+Hello from NanoLang!
+✓ stage1 ok
+Smoke test: stage2 compiles + runs nl_hello.nano...
+Hello from NanoLang!
+✓ stage2 ok

@@ -1,0 +1,1 @@
+I cannot assemble '/private/tmp/nanolang-selfhost-globals-final/raw/test_uninitialized_global_read_in_initializer_refused/shadows.nasm': Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[0] at 67: I require global initialization before reads and no repeated immutable store

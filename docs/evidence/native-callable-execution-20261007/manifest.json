@@ -1,0 +1,84 @@
+{
+  "created_utc": "2026-10-08T05:08:18.273275+00:00",
+  "base_commit": "ef8e12cbea9001ef59307a422d5951423d9742c5",
+  "terminals": {
+    "seed-containers": {
+      "command": [
+        "/Users/jordanh/Src/nanolang/bin/nano_virt",
+        "/Users/jordanh/Src/nanolang/docs/evidence/native-callable-execution-20261007/function-containers.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jordanh/Src/nanolang/docs/evidence/native-callable-execution-20261007/function-containers.nvm"
+      ],
+      "exit_code": 0
+    },
+    "vm-containers": {
+      "command": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "/Users/jordanh/Src/nanolang/docs/evidence/native-callable-execution-20261007/function-containers.nvm"
+      ],
+      "exit_code": 0
+    },
+    "native-containers": {
+      "command": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/Users/jordanh/Src/nanolang/docs/evidence/native-callable-execution-20261007/function-containers.nvm",
+        "-o",
+        "/private/tmp/nanolang-container-probe.c"
+      ],
+      "exit_code": 1
+    },
+    "selfhost-containers": {
+      "command": [
+        "/private/tmp/nanolang-computed-calls-final",
+        "/Users/jordanh/Src/nanolang/docs/evidence/native-callable-execution-20261007/function-containers.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-container-selfhost.nvm"
+      ],
+      "exit_code": 1
+    },
+    "seed-qualified": {
+      "command": [
+        "/Users/jordanh/Src/nanolang/bin/nano_virt",
+        "/Users/jordanh/Src/nanolang/docs/evidence/native-callable-execution-20261007/qualified-field-call.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-qualified-field-call.nvm"
+      ],
+      "exit_code": 1
+    }
+  },
+  "source_sha256": {
+    "src/nanoisa/nvm2c.c": "7a65d5344dbfae067f2832d81034063365b7ec709f45f1e37116d84b6b475866",
+    "src/nanoisa/nvm2c_shape.c": "9ca479b55ac0391cf5efac59f31d9586be2f3147587138a25864e4e36b8ac8a0",
+    "tests/nanoisa/test_nvm2c_shape.c": "108168033f9a509280e10c978b3bf76d7540dd70fcbe8c64451c4d26e46f1875",
+    "tests/test_native_callables.py": "42090673d7909f3515f1a6744c3840d30279359cbd90aa9c45ffd8070d9475a0",
+    "tests/test_selfhost_function_values.py": "73492fcf104b4a0c77f7740b409e3ed1fed92157582ba5763d137f7651602c1d",
+    "Makefile.gnu": "32445bb19ab3ce62136e0d15282389941f13dcdede3edf90fde5b8371354a125"
+  },
+  "qualified_methods": 22,
+  "native_checks": 2431,
+  "shape_checks": 2535,
+  "logs": {
+    "return-shape-first.log": "6d0282a1ae27163736fe7c51e952d8930ae9ee090fd687afd5d88c5d5a170331",
+    "vm-containers.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native.log": "7b35174849c6aba2c9907c2af1e55ae6986b156483738dbb472f5439b5acff87",
+    "seed-qualified.log": "939e70a32462fc24114160562b968424bb59448358a9bbf1c2a7bdefec9ae555",
+    "shape-sanitized.log": "5493bcd42dae84e9e54b5a494186c7e14546d2369ad7129bee1a97624a2269e0",
+    "tagged-locals-first.log": "8b14f5c32e38b6961d85388098633e7d239b8e7ca6fedf6bb44ad3ca3fdfd36b",
+    "many-targets-first.log": "9ce4a24878149a16faf4e56b05fb6f3ca46ed8a63f4c50f6bbfcc1b37f30c281",
+    "seed-containers.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-containers.log": "9ce5122fa1e7eac71c67bf9797817984b810ecada01e4beebaf60f6e2e6ff184",
+    "qualified.log": "f5b62dedf5ae761392095501a3786831a520d0c7fce435811a31fab1942c0d59",
+    "selfhost-containers.log": "1c34631ada6c4d0eb5e544f9938d487e8507bce586a398efc5626a1b15717493"
+  },
+  "source_producer": {
+    "path": "/private/tmp/nanolang-computed-calls-final",
+    "sha256": "ee90babd2ae876b062573ccb1e2e416237fae11a80551b3fef53bfe215aca50d",
+    "source_pin": "4f56b353ced394c13317a3df14fafffe1dfd28ff"
+  },
+  "focused_terminal": 0,
+  "native_terminal": 0,
+  "shape_sanitized_terminal": 0
+}

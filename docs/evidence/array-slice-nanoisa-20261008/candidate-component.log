@@ -1,0 +1,218 @@
+I retain slice qualification at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds
+test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) ... 
+  test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) (case='order', producer='seed') ... FAIL
+  test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) (case='order', producer='selfhost') ... FAIL
+test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) ... 
+  test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) (case='bits', producer='seed') ... FAIL
+  test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) (case='bits', producer='selfhost') ... FAIL
+test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) ... 
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='original', producer='seed') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='original', producer='selfhost') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='bounds', producer='seed') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='bounds', producer='selfhost') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='leaves', producer='seed') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='leaves', producer='selfhost') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='seed') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='selfhost') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='record', producer='seed') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='record', producer='selfhost') ... FAIL
+test_unchecked_emitter_refuses_invalid_operands (tests.test_nanoisa_array_slice.NanoISASlice.test_unchecked_emitter_refuses_invalid_operands) ... ok
+
+======================================================================
+FAIL: test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) (case='order', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/order-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/order-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/order-seed.nvm': I cannot classify unsupported opcode ARR_SLICE (0x56) in function 3 at offset 164
+
+
+======================================================================
+FAIL: test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) (case='order', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/order-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/order-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/order-selfhost.nvm': I cannot classify unsupported opcode ARR_SLICE (0x56) in function 0 at offset 164
+
+
+======================================================================
+FAIL: test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) (case='bits', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/bits-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/bits-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/bits-seed.nvm': I cannot classify unsupported opcode ARR_SLICE (0x56) in function 0 at offset 262
+
+
+======================================================================
+FAIL: test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) (case='bits', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 46, in qualify
+    assembly.write_text(self.run_checked(self.driver, source, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-slice-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/bits.nano', 'program']: 1
+
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='original', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/original-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/original-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/original-seed.nvm': I cannot classify unsupported opcode ARR_SLICE (0x56) in function 0 at offset 190
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='original', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/original-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/original-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/original-selfhost.nvm': I cannot classify unsupported opcode ARR_SLICE (0x56) in function 0 at offset 190
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='bounds', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/bounds-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/bounds-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/bounds-seed.nvm': I cannot classify unsupported opcode ARR_SLICE (0x56) in function 0 at offset 190
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='bounds', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/bounds-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/bounds-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/bounds-selfhost.nvm': I cannot classify unsupported opcode ARR_SLICE (0x56) in function 0 at offset 190
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='leaves', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/leaves-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/leaves-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/leaves-seed.nvm': I cannot classify unsupported opcode ARR_SLICE (0x56) in function 0 at offset 169
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='leaves', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/leaves-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/leaves-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/leaves-selfhost.nvm': I cannot classify unsupported opcode ARR_SLICE (0x56) in function 0 at offset 169
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/nested-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/nested-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/nested-seed.nvm': I cannot classify unsupported opcode ARR_SLICE (0x56) in function 0 at offset 191
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 46, in qualify
+    assembly.write_text(self.run_checked(self.driver, source, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-slice-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/nested.nano', 'program']: 1
+
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='record', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/record-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/record-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/record-seed.nvm': I cannot classify unsupported opcode ARR_SLICE (0x56) in function 0 at offset 213
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='record', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 51, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 33, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/record-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/record-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-nejv20ds/record-selfhost.nvm': I cannot classify unsupported opcode ARR_SLICE (0x56) in function 0 at offset 213
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.603s
+
+FAILED (failures=14)

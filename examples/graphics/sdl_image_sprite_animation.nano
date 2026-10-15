@@ -12,7 +12,7 @@
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
-unsafe module "modules/sdl_image/sdl_image.nano"
+unsafe module "modules/sdl_image/sdl_image.nano" as image
 
 let FRAME_WIDTH: int = 32
 let FRAME_HEIGHT: int = 32
@@ -46,7 +46,7 @@ fn main() -> int {
         (println (+ "SDL initialization failed: " (SDL_GetError)))
         return 1
     }
-    if (== (IMG_Init IMG_INIT_PNG) 0) {
+    if (== (image.IMG_Init image.IMG_INIT_PNG) 0) {
         (println "SDL_image PNG initialization failed")
         (SDL_Quit)
         return 1
@@ -60,18 +60,18 @@ fn main() -> int {
         (println (+ "SDL setup failed: " (SDL_GetError)))
         if (!= renderer 0) { (SDL_DestroyRenderer renderer) }
         if (!= window 0) { (SDL_DestroyWindow window) }
-        (IMG_Quit)
+        (image.IMG_Quit)
         (SDL_Quit)
         return 1
     }
 
-    let sheet: int = (nl_img_load_png_texture renderer
+    let sheet: int = (image.nl_img_load_png_texture renderer
         "examples/graphics/assets/orb_sprite_sheet.png")
     if (== sheet 0) {
         (println "Could not load examples/graphics/assets/orb_sprite_sheet.png")
         (SDL_DestroyRenderer renderer)
         (SDL_DestroyWindow window)
-        (IMG_Quit)
+        (image.IMG_Quit)
         (SDL_Quit)
         return 1
     }
@@ -98,16 +98,16 @@ fn main() -> int {
         let frame: int = (animation_frame (SDL_GetTicks))
         (SDL_SetRenderDrawColor renderer 18 20 30 255)
         (SDL_RenderClear renderer)
-        (nl_img_render_texture_sprite renderer sheet
+        (image.nl_img_render_texture_sprite renderer sheet
             (* frame FRAME_WIDTH) 0 FRAME_WIDTH FRAME_HEIGHT
             x y 64 64)
         (SDL_RenderPresent renderer)
     }
 
-    (nl_img_destroy_texture sheet)
+    (image.nl_img_destroy_texture sheet)
     (SDL_DestroyRenderer renderer)
     (SDL_DestroyWindow window)
-    (IMG_Quit)
+    (image.IMG_Quit)
     (SDL_Quit)
     return 0
 }

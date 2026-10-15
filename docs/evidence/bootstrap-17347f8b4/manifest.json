@@ -1,0 +1,16 @@
+{
+  "source_commit": "17347f8b4014868eb3e36ead6b19f3663816d85a",
+  "root": "/private/tmp/nanolang-capture-ae92c0488-cow",
+  "command": [
+    "make",
+    "-j2",
+    "bootstrap",
+    "CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "initial_status": "clean",
+  "exit_code": 0,
+  "seconds": 635.7090941670467,
+  "log_sha256": "d4a3945b2e58b312e0907b63b23cc10906ea5d4af497b082ea56005913ffe482",
+  "final_status": "",
+  "head_unchanged": true
+}

@@ -1,0 +1,12 @@
+test_cyclic_and_overlapping_owner_refusals_preserve_output (tests.test_service_drivers.ServiceDrivers.test_cyclic_and_overlapping_owner_refusals_preserve_output) ... ok
+test_cyclic_owners_helpers_and_selected_shadows (tests.test_service_drivers.ServiceDrivers.test_cyclic_owners_helpers_and_selected_shadows) ... ok
+test_generated_shadows_byte_parity_and_native_runtime_grant (tests.test_service_drivers.ServiceDrivers.test_generated_shadows_byte_parity_and_native_runtime_grant) ... ok
+test_grant_failure_aliases_and_compiler_failure_preserve_output (tests.test_service_drivers.ServiceDrivers.test_grant_failure_aliases_and_compiler_failure_preserve_output) ... ok
+test_multiple_forwarded_reordered_file_borrows (tests.test_service_drivers.ServiceDrivers.test_multiple_forwarded_reordered_file_borrows) ... ok
+test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse (tests.test_service_drivers.ServiceDrivers.test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse) ... ok
+test_required_import_shadows_and_root_only_selection (tests.test_service_drivers.ServiceDrivers.test_required_import_shadows_and_root_only_selection) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 123.976s
+
+OK

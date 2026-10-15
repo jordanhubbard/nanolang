@@ -1,0 +1,33 @@
+test_all_fields_overridden (tests.test_selfhost_record_spreads.RecordSpreads.test_all_fields_overridden) ... ok
+test_inherited_fields_and_unchanged_source (tests.test_selfhost_record_spreads.RecordSpreads.test_inherited_fields_and_unchanged_source) ... ok
+test_invalid_sources_and_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_invalid_sources_and_overrides) ... 
+  test_invalid_sources_and_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_invalid_sources_and_overrides) (driver='bin/nanoc_c', body='let q:Point={..7,x:1} return 7') ... FAIL
+test_nested_array_and_callable_fields (tests.test_selfhost_record_spreads.RecordSpreads.test_nested_array_and_callable_fields) ... ok
+test_no_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_no_overrides) ... ok
+test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) ... 
+  test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) (driver='bin/nanoc_c') ... FAIL
+
+======================================================================
+FAIL: test_invalid_sources_and_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_invalid_sources_and_overrides) (driver='bin/nanoc_c', body='let q:Point={..7,x:1} return 7')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 40, in check
+    self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : Warning at line 2, column 16: Unused variable 'q'
+
+
+======================================================================
+FAIL: test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) (driver='bin/nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 36, in check
+    self.assertEqual(ran.returncode, 7, ran.stdout+ran.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 7 : Contract violation at line 2: (== ... 11)
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 7.879s
+
+FAILED (failures=2)

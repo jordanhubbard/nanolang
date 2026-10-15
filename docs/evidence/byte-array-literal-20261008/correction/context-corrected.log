@@ -1,0 +1,24 @@
+test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) ... 
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='argument', backend='vm') ... FAIL
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='argument', backend='vm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 34, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Type error
+  Function 0 returned u8, expected int
+Stack trace (most recent call first):
+  #0   read  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-byte-literal-ygbsbhjy/argument.nano:1:33
+  #1   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-byte-literal-ygbsbhjy/argument.nano:1:72
+I could not execute the module: Type error
+  Function 0 returned u8, expected int
+
+
+----------------------------------------------------------------------
+Ran 1 test in 7.849s
+
+FAILED (failures=1)

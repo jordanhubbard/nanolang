@@ -1,0 +1,23 @@
+I check real NUL/bidirectional/EOF/would-block and exact Socket identity.
+I check rights, interrupted calls and byte output retention.
+I check pair atomicity, aliased transfer capacity, generations and reuse.
+I check every platform setup step and complete pair rollback.
+I inject acquisition step 0/10.
+I inject acquisition step 1/10.
+I inject acquisition step 2/10.
+I inject acquisition step 3/10.
+I inject acquisition step 4/10.
+I inject acquisition step 5/10.
+I inject acquisition step 6/10.
+I inject acquisition step 7/10.
+I inject acquisition step 8/10.
+I inject acquisition step 9/10.
+I inject acquisition step 10/10.
+I distinguish real close, injected reports and deliberately unclosed fault descriptors.
+PASS real IPv4 TCP transfer/NUL/byte/EOF/refusal/close
+PASS real IPv6 TCP transfer/NUL/byte/EOF/refusal/close
+I refuse invalid TCP addresses and exhausted authority before host calls.
+I check TCP setup rollback and unchanged output/adjacent owners.
+I preserve pending/failed state through transfer and never reread a consumed error.
+I check immediate publication and full-capacity pending TCP transfer rollback.
+PASS 9878 Socket checks; real opens=514 closes=514; adapter close attempts=514; harness-only recovery closes=2

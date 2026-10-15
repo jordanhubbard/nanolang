@@ -1,0 +1,19 @@
+I retain this audit at /private/tmp/nl51-functional-product-kcfeo416
+test_selfhost_emitted_compiler_to_native_nanoisa_product (__main__.Audit.test_selfhost_emitted_compiler_to_native_nanoisa_product)
+I execute my canonical emitter before translating its compiler product. ... I run step 00: /Users/jordanh/Src/nanolang/bin/nanoc_c /Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano -o /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/seed
+I run step 01: /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/seed /Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano --emit-nvm -o /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler.nvm
+I run step 02: /Users/jordanh/Src/nanolang/bin/nvm2c /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler.nvm -o /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler.c
+I run step 03: /usr/bin/cc -std=c11 -Wall -Wextra -Werror -O0 /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler.c -o /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler /Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o -lm
+I run step 04: /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler --help
+I run step 05: /opt/homebrew/opt/python@3.14/bin/python3.14 -m unittest tests.test_selfhost_captures tests.test_native_mutable_record_arrays tests.test_genenv_scope
+I run step 06: /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler /Users/jordanh/Src/nanolang/examples/language/nl_hello.nano --emit-nvm -o /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/hello.nvm
+I run step 07: /Users/jordanh/Src/nanolang/bin/nano_vm /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/hello.nvm
+I run step 08: /Users/jordanh/Src/nanolang/bin/nvm2c /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/hello.nvm -o /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/hello.c
+I run step 09: /usr/bin/cc -std=c11 -Wall -Wextra -Werror /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/hello.c -o /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/hello
+I run step 10: /private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/hello
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 523.927s
+
+OK

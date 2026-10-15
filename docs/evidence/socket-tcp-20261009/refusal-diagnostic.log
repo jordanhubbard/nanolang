@@ -1,0 +1,22 @@
+I check real NUL/bidirectional/EOF/would-block and exact Socket identity.
+I check rights, interrupted calls and byte output retention.
+I check pair atomicity, aliased transfer capacity, generations and reuse.
+I check every platform setup step and complete pair rollback.
+I inject acquisition step 0/10.
+I inject acquisition step 1/10.
+I inject acquisition step 2/10.
+I inject acquisition step 3/10.
+I inject acquisition step 4/10.
+I inject acquisition step 5/10.
+I inject acquisition step 6/10.
+I inject acquisition step 7/10.
+I inject acquisition step 8/10.
+I inject acquisition step 9/10.
+I inject acquisition step 10/10.
+I distinguish real close, injected reports and deliberately unclosed fault descriptors.
+CONNECT fd=4 family=2 port=63996 rc=-1 errno=36 pending=0
+POLL fd=4 rc=0 revents=0 errno=0
+POLL fd=4 rc=1 revents=4 errno=0
+CONNECT fd=4 family=2 port=63998 rc=-1 errno=36 pending=0
+POLL fd=4 rc=0 revents=0 errno=0
+FAIL line 48: !"I exceeded my bounded connection wait"

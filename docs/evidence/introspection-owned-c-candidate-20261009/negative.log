@@ -1,0 +1,3 @@
+{"case": "leak", "exit": 1, "preserved": true, "stdout": "", "stderr": "I cannot verify affine ownership at line 6, column 110: resource remains live at scope exit \u2014 h\nWarning at line 6, column 20: Unused variable 'h'\nerror: type check failed\n"}
+{"case": "moved", "exit": 1, "preserved": true, "stdout": "", "stderr": "I cannot verify affine ownership at line 6, column 155: I cannot use a moved value \u2014 h\nerror: type check failed\n"}
+{"case": "signature", "exit": 1, "preserved": true, "stdout": "", "stderr": "I could not compile shadows at line 9: I require the declared module introspection signature in my source borrow profile\n"}

@@ -1,0 +1,581 @@
+python3 scripts/embed_binary64_parser.py --check
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -o obj/test_service_bodies_sanitize tests/test_service_bodies.c src/parser.c obj/lexer.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_BODY_C_RUNNER="/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize" python3 -m unittest -v tests.test_service_bodies
+test_complete_calls_fields_helpers_and_generated_shadows (tests.test_service_bodies.ServiceBodies.test_complete_calls_fields_helpers_and_generated_shadows) ... FAIL
+test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) ... 
+  test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) (case=0) ... FAIL
+  test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) (case=1) ... FAIL
+  test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) (case=2) ... FAIL
+  test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) (case=3) ... FAIL
+  test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) (case=4) ... FAIL
+test_local_bound (tests.test_service_bodies.ServiceBodies.test_local_bound) ... FAIL
+test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) ... 
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='fabricated-file') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='wrong-result') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='method-arity') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='borrow-mode') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='immutable-root') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='borrow-escape') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='unknown-field') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='file-field') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='pure-service') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='wrong-return') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='missing-return') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='missing-arm') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='duplicate-arm') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='wrong-payload') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='missing-payload') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='wrong-helper') ... FAIL
+  test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='shadow-body') ... FAIL
+test_unsupported_is_not_checked_and_later_bodies_still_checked (tests.test_service_bodies.ServiceBodies.test_unsupported_is_not_checked_and_later_bodies_still_checked) ... FAIL
+
+======================================================================
+FAIL: test_complete_calls_fields_helpers_and_generated_shadows (tests.test_service_bodies.ServiceBodies.test_complete_calls_fields_helpers_and_generated_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 95, in test_complete_calls_fields_helpers_and_generated_shadows
+    self.check(DECL+POSITIVE,0)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '0']
+exit=-6
+STATUS 0 FUNCTIONS 3 SHADOWS 1 FACTS 78
+CALL write_byte 4 0
+CALL temp 3 0
+CALL pass 0 0
+CALL helper 4 0
+CALL rewind 5 0
+CALL read_byte 6 0
+CALL close 7 0
+
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) (case=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 153, in test_imported_helper_aliases_and_distinct_nominal_bodies
+    self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/root.nano'), '0']
+exit=-6
+STATUS 0 FUNCTIONS 3 SHADOWS 0 FACTS 10
+CALL keep 0 0
+
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) (case=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 153, in test_imported_helper_aliases_and_distinct_nominal_bodies
+    self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/root.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 3 SHADOWS 0 FACTS 10
+I require the exact nominal type and borrow mode.
+CALL keep 0 0
+
+I cannot type-check File service bodies: I require the exact nominal type and borrow mode.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) (case=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 153, in test_imported_helper_aliases_and_distinct_nominal_bodies
+    self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/root.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 1 FACTS 9
+I require the exact nominal type and borrow mode.
+
+I cannot type-check File service bodies: I require the exact nominal type and borrow mode.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) (case=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 153, in test_imported_helper_aliases_and_distinct_nominal_bodies
+    self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/root.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 3 SHADOWS 0 FACTS 10
+I require the exact nominal type and borrow mode.
+CALL keep 0 0
+
+I cannot type-check File service bodies: I require the exact nominal type and borrow mode.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) (case=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 153, in test_imported_helper_aliases_and_distinct_nominal_bodies
+    self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/root.nano'), '0']
+exit=-6
+STATUS 0 FUNCTIONS 4 SHADOWS 0 FACTS 14
+CALL temp 3 0
+CALL write_byte 4 0
+
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_local_bound (tests.test_service_bodies.ServiceBodies.test_local_bound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 133, in test_local_bound
+    self.check(DECL+f'fn many({parameters})->void {{ return }} fn main()->int{{return 0}}\n',3)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '3']
+exit=-6
+STATUS 3 FUNCTIONS 2 SHADOWS 0 FACTS 5
+I exceeded my checked service local bound.
+
+I cannot type-check File service bodies: I exceeded my checked service local bound.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='fabricated-file')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 1 SHADOWS 0 FACTS 5
+I require the exact nominal type and borrow mode.
+
+I cannot type-check File service bodies: I require the exact nominal type and borrow mode.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='wrong-result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 1 SHADOWS 0 FACTS 5
+I require the exact nominal type and borrow mode.
+CALL temp 3 0
+
+I cannot type-check File service bodies: I require the exact nominal type and borrow mode.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='method-arity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 1 SHADOWS 0 FACTS 4
+I require the catalog method argument count.
+
+I cannot type-check File service bodies: I require the catalog method argument count.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='borrow-mode')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 8
+I require the exact nominal type and borrow mode.
+CALL write_byte 4 0
+
+I cannot type-check File service bodies: I require the exact nominal type and borrow mode.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='immutable-root')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 7
+I require a mutable File root for an exclusive borrow.
+CALL write_byte 4 0
+
+I cannot type-check File service bodies: I require a mutable File root for an exclusive borrow.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='borrow-escape')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 6
+I require the exact nominal type and borrow mode.
+
+I cannot type-check File service bodies: I require the exact nominal type and borrow mode.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='unknown-field')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 4
+I require a declared catalog record field.
+
+I cannot type-check File service bodies: I require a declared catalog record field.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='file-field')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 4
+I require a declared catalog record field.
+
+I cannot type-check File service bodies: I require a declared catalog record field.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='pure-service')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 3
+I cannot call a File service from a pure function.
+
+I cannot type-check File service bodies: I cannot call a File service from a pure function.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='wrong-return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 6
+I require the exact nominal type and borrow mode.
+CALL temp 3 0
+
+I cannot type-check File service bodies: I require the exact nominal type and borrow mode.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='missing-return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 9
+I require a return on every service helper path.
+
+I cannot type-check File service bodies: I require a return on every service helper path.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='missing-arm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 5
+I require both catalog Result arms.
+
+I cannot type-check File service bodies: I require both catalog Result arms.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='duplicate-arm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 5
+I require distinct catalog Result arms.
+
+I cannot type-check File service bodies: I require distinct catalog Result arms.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='wrong-payload')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 4
+I require the exact catalog Result payload arity.
+
+I cannot type-check File service bodies: I require the exact catalog Result payload arity.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='missing-payload')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 4
+I require the exact catalog Result payload arity.
+
+I cannot type-check File service bodies: I require the exact catalog Result payload arity.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='wrong-helper')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 9
+I require the exact nominal type and borrow mode.
+CALL helper 0 0
+
+I cannot type-check File service bodies: I require the exact nominal type and borrow mode.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) (case='shadow-body')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 124, in test_nominal_refusals
+    with self.subTest(case=name):self.check(DECL+body+'\n',1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '1']
+exit=-6
+STATUS 1 FUNCTIONS 1 SHADOWS 1 FACTS 6
+I require the exact nominal type and borrow mode.
+
+I cannot type-check File service bodies: I require the exact nominal type and borrow mode.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+======================================================================
+FAIL: test_unsupported_is_not_checked_and_later_bodies_still_checked (tests.test_service_bodies.ServiceBodies.test_unsupported_is_not_checked_and_later_bodies_still_checked)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 127, in test_unsupported_is_not_checked_and_later_bodies_still_checked
+    self.check(DECL+'struct Ordinary { field:int }\nfn main()->int { return 0 }\n',2)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: ['/Users/jordanh/Src/nanolang/obj/test_service_bodies_sanitize', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-njdt4epv/body.nano'), '2']
+exit=-6
+STATUS 2 FUNCTIONS 1 SHADOWS 0 FACTS 3
+I have not checked this declaration beside service bodies.
+
+I have not resolved File service declarations for this consumer.
+Assertion failed: (candidate && candidate->status==check->status), function main, file test_service_bodies.c, line 44.
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 38.248s
+
+FAILED (failures=25)
+make: *** [test-service-bodies-sanitize] Error 1

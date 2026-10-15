@@ -1,0 +1,7 @@
+test_tcp_catalog_strings (tests.test_service_strings.ServiceStrings.test_tcp_catalog_strings) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-rxtgynus
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 6.542s
+
+OK

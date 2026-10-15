@@ -1,0 +1,10 @@
+I run step 0 ['python3', '-m', 'unittest', '-v', 'tests.test_owned_union_boundaries.UnionBoundaryProducer', 'tests.test_owned_union_boundaries.UnionBoundaryC'] with log /private/tmp/nanolang-selfhost-union-final/0.log
+I finish step 0 with exit 0 unchanged sources True
+I run step 1 ['make', 'bootstrap', 'nanoisa_emit', 'CC=/opt/homebrew/opt/llvm/bin/clang'] with log /private/tmp/nanolang-selfhost-union-final/1.log
+I finish step 1 with exit 0 unchanged sources True
+I run step 2 ['python3', '-m', 'unittest', '-v', 'tests.test_owned_union_installed', 'tests.test_owned_global_installed', 'tests.test_owned_union_boundaries.UnionBoundaryStage1', 'tests.test_owned_union_boundaries.UnionBoundaryStage2'] with log /private/tmp/nanolang-selfhost-union-final/2.log
+I finish step 2 with exit 0 unchanged sources True
+I run step 3 ['python3', '-m', 'unittest', '-v', 'tests.test_owned_union_producer', 'tests.test_owned_global_producer', 'tests.test_owned_union_c_source', 'tests.test_owned_global_source'] with log /private/tmp/nanolang-selfhost-union-final/3.log
+I finish step 3 with exit 0 unchanged sources True
+I run step 4 ['python3', '-m', 'unittest', '-v', 'tests.test_affine_scalar_union_source', 'tests.test_canonical_match_guards', 'tests.test_nanoisa_match_guards'] with log /private/tmp/nanolang-selfhost-union-final/4.log
+I finish step 4 with exit 1 unchanged sources True

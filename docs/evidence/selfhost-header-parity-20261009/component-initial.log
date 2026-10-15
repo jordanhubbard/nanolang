@@ -1,0 +1,19 @@
+test_compiler_support_query_preserves_snapshot_and_literal_contract (tests.test_header_constant_functions.HeaderConstantValues.test_compiler_support_query_preserves_snapshot_and_literal_contract) ... ok
+test_header_values_keep_lexical_bindings_in_shadows_vm_and_native (tests.test_header_constant_functions.HeaderConstantValues.test_header_values_keep_lexical_bindings_in_shadows_vm_and_native) ... 
+  test_header_values_keep_lexical_bindings_in_shadows_vm_and_native (tests.test_header_constant_functions.HeaderConstantValues.test_header_values_keep_lexical_bindings_in_shadows_vm_and_native) (refusal='let invalid:int = (HEADER_VALUE)') ... FAIL
+test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) ... ok
+test_real_sqlite_header_value (tests.test_header_constant_functions.HeaderConstantValues.test_real_sqlite_header_value) ... skipped 'I require SQLite headers.'
+
+======================================================================
+FAIL: test_header_values_keep_lexical_bindings_in_shadows_vm_and_native (tests.test_header_constant_functions.HeaderConstantValues.test_header_values_keep_lexical_bindings_in_shadows_vm_and_native) (refusal='let invalid:int = (HEADER_VALUE)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 213, in test_header_values_keep_lexical_bindings_in_shadows_vm_and_native
+    self.assertIn('type check failed' if self.compiler == 'nano_virt' else 'NSType checking failed', result.stdout + result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'NSType checking failed' not found in 'I cannot lower this checked program: undefined function HEADER_VALUE\n'
+
+----------------------------------------------------------------------
+Ran 4 tests in 7.225s
+
+FAILED (failures=1, skipped=1)

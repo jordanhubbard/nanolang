@@ -1,0 +1,7 @@
+test_conflicting_global_array_results_preserve_output (tests.test_scalar_reduce_source.ScalarReduce.test_conflicting_global_array_results_preserve_output) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8i6cckvu
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.038s
+
+OK

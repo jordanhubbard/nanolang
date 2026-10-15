@@ -1,0 +1,17 @@
+struct Item { value:int, text:string }
+fn main()->int {
+ let xs:List<Item> = (list_Item_new)
+ let alias:List<Item> = xs
+ (list_Item_push xs Item { value:1099511627776, text:"first" })
+ (list_Item_push xs Item { value:9, text:"middle" })
+ (list_Item_push xs Item { value:11, text:"last" })
+ (list_Item_remove xs 1)
+ assert (== (list_Item_length alias) 2)
+ let item:Item = (list_Item_pop xs)
+ assert (== item.value 11) assert (== item.text "last")
+ assert (== (list_Item_length alias) 1)
+ let first:Item = (list_Item_get alias 0)
+ assert (== first.value 1099511627776) assert (== first.text "first")
+ return 0
+}
+shadow main { assert (== (main) 0) }

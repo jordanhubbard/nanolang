@@ -1,0 +1,3 @@
+from "values.nano" import answer as selected
+fn main() -> int { assert (== selected 41) return 0 }
+shadow main { assert (== (main) 0) }

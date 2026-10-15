@@ -1,0 +1,9 @@
+test_independent_bytes_execute_with_explicit_grants (tests.test_service_wire.ServiceWire.test_independent_bytes_execute_with_explicit_grants) ... I finish native compilation in 0.006s
+I finish native compilation in 0.281s
+ok
+test_ungranted_and_damaged_modules_refuse (tests.test_service_wire.ServiceWire.test_ungranted_and_damaged_modules_refuse) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.948s
+
+OK

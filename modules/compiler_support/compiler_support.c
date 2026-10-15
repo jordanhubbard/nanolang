@@ -7,6 +7,50 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <inttypes.h>
+
+const char *nlc_module_header_constants(const char *source_path) {
+    static _Thread_local char *snapshot;
+    char *source = NULL;
+    ModuleBuildMetadata *metadata = NULL;
+    bool failed = false;
+    size_t length = 0;
+    struct stat st;
+    free(snapshot);
+    snapshot = NULL;
+    if (!source_path || !source_path[0] || !(source = realpath(source_path, NULL)) ||
+        stat(source, &st) != 0 || !S_ISREG(st.st_mode)) goto done;
+    char *slash = strrchr(source, '/');
+    if (!slash) goto done;
+    if (slash == source) slash[1] = '\0';
+    else *slash = '\0';
+    metadata = module_load_metadata(source);
+    if (!metadata) goto done;
+    for (size_t i = 0; i < metadata->headers_count && !failed; ++i) {
+        char *path = module_find_header(metadata->headers[i]);
+        if (!path) continue;
+        int count = 0;
+        ConstantDef *constants = parse_c_header_constants(path, &count);
+        free(path);
+        for (int j = 0; j < count; ++j) {
+            int extra = snprintf(NULL, 0, "%s=%" PRId64 "\n", constants[j].name, constants[j].value);
+            if (extra < 0 || (size_t)extra >= SIZE_MAX - length) { failed = true; break; }
+            char *grown = realloc(snapshot, length + (size_t)extra + 1);
+            if (!grown) { failed = true; break; }
+            snapshot = grown;
+            snprintf(snapshot + length, (size_t)extra + 1, "%s=%" PRId64 "\n",
+                     constants[j].name, constants[j].value);
+            length += (size_t)extra;
+        }
+        for (int j = 0; j < count; ++j) free(constants[j].name);
+        free(constants);
+    }
+done:
+    free(source);
+    module_metadata_free(metadata);
+    if (failed) { free(snapshot); snapshot = NULL; }
+    return snapshot ? snapshot : "";
+}
 
 const char *nlc_module_artifact(const char *source_path) {
     static _Thread_local char *snapshot;

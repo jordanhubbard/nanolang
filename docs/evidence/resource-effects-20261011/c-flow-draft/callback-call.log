@@ -1,0 +1,3 @@
+I cannot verify affine ownership at line 7, column 77: I cannot abandon a suspended resource across an effectful call
+Warning at line 7, column 45: Unused variable 'values'
+AFFINE_C_FRONTEND_REFUSED:typecheck

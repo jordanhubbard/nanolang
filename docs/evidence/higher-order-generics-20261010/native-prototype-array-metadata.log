@@ -1,0 +1,62 @@
+test_argument_order (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_argument_order) ... ok
+test_callback_result_inference (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_callback_result_inference) ... ok
+test_dependent_callbacks_reach_fixed_point (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_dependent_callbacks_reach_fixed_point) ... ok
+test_imported_callback_alias (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_imported_callback_alias) ... ok
+test_nested_array_and_record_binding (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_nested_array_and_record_binding) ... ok
+test_refusals_preserve_output (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_refusals_preserve_output) ... ok
+test_structural_callback_result (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_structural_callback_result) ... FAIL
+test_callback_argument (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_callback_argument) ... ok
+test_distinct_nominal_tuple_contexts (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_distinct_nominal_tuple_contexts) ... ok
+test_imported_alias_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_imported_alias_callback) ... ok
+test_inconsistent_context_preserves_output (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_inconsistent_context_preserves_output) ... ok
+test_local_multiple_instances (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_local_multiple_instances) ... ok
+test_nested_tuple_callable_dependencies (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nested_tuple_callable_dependencies) ... ok
+test_nominal_and_tuple_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nominal_and_tuple_context) ... ok
+test_reassigned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_reassigned_callback) ... ok
+test_returned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_returned_callback) ... ok
+test_structural_array_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_structural_array_context) ... ok
+test_tail_and_indirect_callback_arguments (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_tail_and_indirect_callback_arguments) ... ok
+
+======================================================================
+FAIL: test_structural_callback_result (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_structural_callback_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 32, in test_structural_callback_result
+            self.execute('''struct Box {value:int}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn wrap(value:T)->array<T>{return [value]}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+     return 0
+     ^^^^^^^^
+    }''')
+    ^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 12, in execute
+    context.ContextualGenericFunctions().execute(context.PRELUDE+body+context.SHADOW, files=files)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 26, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-l_7isxbd/main.nano:11:19: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const char *' [-Wint-conversion]
+   11 |     if (!((strcmp(nl_array_at_int(({ __auto_type __nl_arg_1_0 = "kept"; __auto_type __nl_arg_1_1 = nl___contextual_2; nl___contextual_3(__nl_arg_1_0, __nl_arg_1_1); }), 0LL), "kept") == 0))) { fputs("Contract violation at line 11: (== (at (apply \"kept\" wrap) 0) \"kept\")\n", stderr); exit(1); }
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_string.h:89:25: note: passing argument to parameter '__s1' here
+   89 | int      strcmp(const char *__s1, const char *__s2);
+      |                             ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-l_7isxbd/main.nano:13:28: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'DynArray *' [-Wint-conversion]
+   13 |     if (!((nl_array_at_int(nl_array_at_int(({ __auto_type __nl_arg_3_0 = dynarray_literal_int(1, (int64_t)(9LL)); __auto_type __nl_arg_3_1 = nl___contextual_6; nl___contextual_7(__nl_arg_3_0, __nl_arg_3_1); }), 0LL), 0LL)) == (9LL))) { fputs("Contract violation at line 13: (== (at (at (apply ... wrap) 0) 0) 9)\n", stderr); exit(1); }
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_14132_main.c:1300:42: note: passing argument to parameter 'arr' here
+ 1300 | static int64_t nl_array_at_int(DynArray* arr, int64_t idx) {
+      |                                          ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-l_7isxbd/main.nano:14:12: error: initializing 'nl_Box' (aka 'struct nl_Box') with an expression of incompatible type 'int64_t' (aka 'long long')
+   14 |     nl_Box record = nl_array_at_int(({ __auto_type __nl_arg_4_0 = (nl_Box){.value = 11LL}; __auto_type __nl_arg_4_1 = nl___contextual_8; nl___contextual_9(__nl_arg_4_0, __nl_arg_4_1); }), 0LL);
+      |            ^        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3 errors generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 18 tests in 22.032s
+
+FAILED (failures=1)

@@ -1,0 +1,24 @@
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==40160==ERROR: AddressSanitizer: stack-overflow on address 0x00016eb8f7a0 (pc 0x00010a8a1674 bp 0x00016ee292b0 sp 0x00016eb8f7e0 T0)
+    #0 0x00010a8a1674 in calloc+0x0 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x55674)
+    #1 0x000101923a0c in nl_parse_expression_recursive nanolang-loader-decoupled.c:63253
+    #2 0x00010198e930 in nl_parse_expression nanolang-loader-decoupled.c:64826
+    #3 0x00010175c8bc in nl_parse_primary nanolang-loader-decoupled.c:54763
+    #4 0x000101923a0c in nl_parse_expression_recursive nanolang-loader-decoupled.c:63253
+    #5 0x00010198e930 in nl_parse_expression nanolang-loader-decoupled.c:64826
+    #6 0x00010202b42c in nl_parse_let_body nanolang-loader-decoupled.c:77295
+    #7 0x000102069538 in nl_parse_let_statement nanolang-loader-decoupled.c:78416
+    #8 0x00010214330c in nl_parse_statement nanolang-loader-decoupled.c:81166
+    #9 0x000101f949a4 in nl_parse_block_recursive nanolang-loader-decoupled.c:75576
+    #10 0x000101f9e4c4 in nl_parse_block nanolang-loader-decoupled.c:75745
+    #11 0x000102587af8 in nl_parse_function_definition nanolang-loader-decoupled.c:90421
+    #12 0x0001027b6ae0 in nl_parse_definition nanolang-loader-decoupled.c:101389
+    #13 0x0001027cc4d4 in nl_parse_program nanolang-loader-decoupled.c:101820
+    #14 0x0001074309fc in nl_compile_program nanolang-loader-decoupled.c:539350
+    #15 0x0001075e7f18 in nl_main nanolang-loader-decoupled.c:550699
+    #16 0x0001009a88dc in main nanolang-loader-decoupled.c:605509
+    #17 0x0001828804e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: stack-overflow nanolang-loader-decoupled.c:63253 in nl_parse_expression_recursive
+==40160==ABORTING

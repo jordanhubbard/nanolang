@@ -1,0 +1,7 @@
+test_enum_and_byte_array_storage_conversions (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_enum_and_byte_array_storage_conversions) ... ok
+test_callable_for_loop_bindings (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callable_for_loop_bindings) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.383s
+
+OK

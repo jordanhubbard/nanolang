@@ -1,7 +1,7 @@
 # I retain source-level module facts before the compiler flattens imports.
 import "src_nano/compiler/lexer.nano"
 
-struct ModuleIntrospection {
+pub struct ModuleIntrospection {
     name: string,
     path: string,
     functions: array<string>,
@@ -177,4 +177,83 @@ fn mi_emit(info: ModuleIntrospection) -> string {
 shadow mi_emit {
     let info: ModuleIntrospection = (mi_scan "module p" "p.nano" "p")
     assert (str_contains (mi_emit info) "___module_path_p")
+}
+
+# I retain facts from the same source bytes that my driver merges.
+let mut mi_facts: array<ModuleIntrospection> = []
+
+fn mi_path_name(path: string) -> string {
+    let mut begin: int = 0
+    let mut end: int = (str_length path)
+    let mut i: int = 0
+    while (< i (str_length path)) {
+        if (== (char_at path i) 47) { set begin (+ i 1) set end (str_length path) }
+        if (== (char_at path i) 46) { set end i }
+        set i (+ i 1)
+    }
+    if (< end begin) { set end (str_length path) }
+    return (str_substring path begin (- end begin))
+}
+shadow mi_path_name {
+    assert (== (mi_path_name "/a.b/probe.nano") "probe")
+    assert (== (mi_path_name "/a.b/probe") "probe")
+}
+
+pub fn mi_capture(source: string, path: string) -> bool {
+    let info: ModuleIntrospection = (mi_scan source path (mi_path_name path))
+    let mut i: int = 0
+    while (< i (array_length mi_facts)) {
+        let previous: ModuleIntrospection = (at mi_facts i)
+        if (== previous.path path) { return true }
+        set i (+ i 1)
+    }
+    set mi_facts (array_push mi_facts info)
+    return true
+}
+shadow mi_capture {
+    set mi_facts []
+    assert (mi_capture "module probe pub fn visible() -> int { return 1 }" "/probe.nano")
+    assert (mi_capture "module probe" "/probe.nano")
+    assert (== (array_length mi_facts) 1)
+    assert (== (array_length (at mi_facts 0).functions) 1)
+    assert (mi_capture "module probe" "/other.nano")
+    assert (== (array_length mi_facts) 2)
+    assert (not (mi_fact "probe").ok)
+    set mi_facts []
+}
+
+pub fn mi_fact(name: string) -> ModuleIntrospection {
+    let mut result: ModuleIntrospection = (mi_scan "" "" name)
+    let mut found: bool = false
+    let mut i: int = 0
+    while (< i (array_length mi_facts)) {
+        let info: ModuleIntrospection = (at mi_facts i)
+        if (== info.name name) {
+            if found {
+                return ModuleIntrospection { name: name, path: "", functions: [], structs: [],
+                    unsafe_imports: [], is_unsafe: false, has_ffi: false, ok: false }
+            }
+            set result info set found true
+        }
+        set i (+ i 1)
+    }
+    return result
+}
+shadow mi_fact {
+    set mi_facts []
+    assert (mi_capture "unsafe module probe extern fn host() -> int pub struct Visible { value: int }" "/probe.nano")
+    assert (mi_fact "probe").is_unsafe
+    assert (mi_fact "probe").has_ffi
+    assert (== (array_length (mi_fact "probe").structs) 1)
+    assert (== (mi_fact "missing").path "")
+    assert (mi_capture "module probe" "/second/probe.nano")
+    assert (not (mi_fact "probe").ok)
+    set mi_facts []
+}
+
+pub fn mi_reset() -> void { set mi_facts [] }
+shadow mi_reset {
+    assert (mi_capture "module reset_probe" "/reset_probe.nano")
+    (mi_reset)
+    assert (== (array_length mi_facts) 0)
 }

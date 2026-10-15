@@ -13,13 +13,13 @@ void file_frame_set_generation(NlFileValues *,NlFileValue *,uint64_t);
 #define realloc file_test_realloc
 #define free file_test_free
 #endif
-/* Negative types are scalar: -1 INT, -2 BOOL, -3 VOID. Others are exact catalog
+/* Negative types are scalar: -1 INT, -2 BOOL, -3 VOID, -4 FUNCTION. Others are exact catalog
  * ordinals. Borrow bits are formal parameter modes, not inferred tag authority. */
 typedef struct {uint16_t parameters,locals;int types[8],result;uint8_t borrowed;Body code;} FrameSpec;
 static void fi(Body *c,int64_t v){op(c,OP_PUSH_I64);for(unsigned i=0;i<8;i++)op(c,(uint8_t)((uint64_t)v>>(8*i)));}
 static void fc(Body *c,uint32_t fn){op(c,OP_CALL);u32(c,fn);}
 static void fcr(Body *c,uint32_t fn,uint16_t ref){op(c,OP_CALL_REF);u32(c,fn);u16(c,ref);}
-static uint8_t ftag(int t){return t==-1?TAG_INT:t==-2?TAG_BOOL:t==-3?TAG_VOID:t<3?TAG_STRUCT:TAG_UNION;}
+static uint8_t ftag(int t){return t==-1?TAG_INT:t==-2?TAG_BOOL:t==-3?TAG_VOID:t==-4?TAG_FUNCTION:t<3?TAG_STRUCT:TAG_UNION;}
 static NvmModule *frame_module(FrameSpec *spec,unsigned count,NvmFileNominalBindings *b,bool permute,int init){
  NvmModule *m=fixture(permute,b);CHECK(count && count<=64);
  for(unsigned f=1;f<count;f++){NvmFunctionEntry copy=m->functions[0];CHECK(nvm_add_function(m,&copy)==f);}

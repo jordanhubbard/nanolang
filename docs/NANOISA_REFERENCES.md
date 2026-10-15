@@ -223,6 +223,30 @@ success alone does not satisfy `nvm_verify` or install runtime semantics.
 Executable eligibility additionally requires the standalone contract below.
 Source borrow producers remain disabled.
 
+### Selected resource-union transfers
+
+I execute complete resource-union declarations in the standalone owned
+profile. `AGG_PACK AGG_VARIANT` consumes the selected variant's exact payload
+owners. `OWN_MOVE_LOCAL` and `OWN_STORE_LOCAL` preserve a known arm;
+`LOAD_LOCAL`, `DUP`, `POP`, `AGG_TAG` and ordinary projections cannot copy or
+silently discard a resource-union token.
+
+`MATCH_TAG` refines the tested operand on its true edge. Its false edge excludes
+that arm; joins retain only exclusions established on every incoming path.
+I can therefore prove the final arm of an exhaustive match, including after
+an outer union or record unpack yields an inner union with unknown selection.
+`OWN_UNPACK_LOCAL` consumes only a proven selected variant and pushes its
+payload in declaration order. Empty variants still carry and discharge the
+union's ownership obligation. I retain prior-layout nominal identities at
+constructors, consuming parameters and returned aggregates.
+
+My native emitter uses converged analysis facts for reachability, stack depth,
+receiver tag and exact unpack count. VM and native allocation failure preserve
+or release every owner. [Runtime evidence](evidence/owned-union-runtime-20261009)
+covers direct, nested and record-wrapped variants, calls, joins, loops and
+refusals. This does not establish either source frontend's complete union
+lowering, linked-module admission, Linux qualification or the 5.1 release.
+
 ### Concrete transfer connection
 
 My transfer instructions are `OWN_MOVE_LOCAL U16` (invalidate the named
@@ -257,8 +281,9 @@ My four transfer operands use existing little-endian codecs: `OWN_MOVE_LOCAL`
 (0x0b, u16 source), `OWN_STORE_LOCAL` (0x0c, u16 destination), `OWN_PACK`
 (0x0d, u32 retained-layout index), and `OWN_UNPACK_LOCAL` (0x0e, u16 source).
 Pack consumes exactly the layout's ordered fields, with the last field on top;
-unpack pushes fields in declaration order. Only checked complete record
-layouts can carry ownership. A resource field must arrive as an owned token,
+unpack pushes fields in declaration order. Checked complete records and
+resource unions can carry ownership. Union construction uses the selected
+`AGG_PACK AGG_VARIANT` descriptor; union unpack requires an exact proven arm. A resource field must arrive as an owned token,
 not an observation; scalar fields must have exact tags. Whole-record unpack
 invalidates the source and creates every field obligation atomically.
 
@@ -303,3 +328,76 @@ I require sanitizer-backed cleanup tests and unchanged prior outputs for
 excluded modules before enabling this subset. Caller alias substitution,
 shared/exclusive references, owned call/results and source producer admission
 remain separate acceptance obligations.
+
+
+## Typed global declarations
+
+My version-3 ownership envelope reserves extension kind 3, `GLOBALS`, revision 1
+for exact global declarations. Its payload is a little-endian `u32` count from
+1 through 256 followed by that many eight-byte rows. A row contains `u8` value
+tag, `u8` mutability (0 immutable, 1 mutable), zero `u16` reserved bits, and a
+`u32` retained layout index. Row order is the global slot index. I omit the
+extension when there are no declared globals.
+
+I require `NO_INDEX` for int, u8, float, bool and string slots. Record and union
+slots require their exact complete retained layout and matching kind; resource
+identity remains part of that layout. I refuse untyped aggregates, void,
+reference modes, arrays and other undeclared representations. These are value
+storage declarations, not permission to copy or discard an owner.
+
+`nvm_ownership_globals` validates the complete ownership payload before copying
+rows or publishing the count. It preserves every output on failure. A NULL row
+buffer with zero capacity requests only the count; a supplied buffer must fit
+all rows. Older envelopes and absent metadata report zero declared globals.
+Binary and non-executing text reconstruction retain the declarations.
+
+My affine bytecode analysis carries global initialization through branches,
+loops and the bounded acyclic value-call graph. Each global has a four-bit
+relation between its initialization state at function entry and at the current
+instruction. Joins union those possibilities. Reads require initialized input;
+immutable stores require unwritten input. Stores preserve exact declared types
+and never accept an owner or observation escape. Scalar, string and copyable
+union flow is analyzed; record/resource storage still requires an explicit
+global transfer and lifetime contract.
+
+Each helper retains its input requirements and returning relations. A call
+composes them into the caller; I do not assume a helper's globals are already
+initialized. Entry-zero analysis requires the complete graph to be valid from
+uninitialized slots. A successful standalone helper analysis remains
+conditional on its input requirements. I validate global indices even in
+unreachable instructions. Cached summaries avoid repeated expansion of the
+acyclic graph, and the worklist bound includes global relation changes.
+
+The standalone owned verifier now admits scalar, string and copyable-union
+globals after entry-zero analysis. Each entry invocation owns one initially
+uninitialized global table. Direct helpers share it. Native helpers receive the
+table explicitly; I use no process-global storage. Entry success or failure
+releases its roots. The VM also collects deferred cycle suspects after global
+overwrite and invocation cleanup, so repeated entries do not accumulate union
+shells. Repeated entries start fresh; ordinary modules without this declaration
+contract retain their existing global behavior.
+
+My four public VM entry routes use that same scope. I refuse host entry into a
+helper, indirect captured entry and low-level resumption without an active
+scoped proof. A failed native entry preserves its caller's result storage.
+Private array/mixed profiles still refuse this extension. My C source ownership
+route emits exact global declarations and source-ordered initializers once at
+normal or shadow entry. Helpers share those slots; local/parameter bindings
+shadow global names. Named and generic union annotations retain exact identity
+through the C checker and lowering. The unchanged selected-owner corpus and
+additional global source cases execute through VM and sanitized native C.
+
+My self-hosted ownership producer emits that same GLOBALS contract for declared
+int/bool/float/string globals and exact scalar-payload unions. It initializes each slot once
+at normal or selected-shadow entry; helper calls share it, and local bindings
+retain precedence. I preserve the mandatory empty path-count subpayload when
+GLOBALS is the only v3 extension. The unchanged twelve global sources pass in
+raw program and selected-shadow modes through VM and sanitized native C. Fresh
+Stage1 and Stage2 pass those same sources and failed-shadow publication controls
+(26 methods), after a byte-identical module bootstrap. I retain independent
+checker/lowerer diagnostic expectations for each frontend.
+
+Record/resource global transfers, self-hosted resource-union lowering and final
+platform qualification remain open under #981. These copyable-global gates do
+not establish those remaining requirements. My checkpoint evidence is in
+[evidence/selfhost-owned-globals-20261009](evidence/selfhost-owned-globals-20261009).

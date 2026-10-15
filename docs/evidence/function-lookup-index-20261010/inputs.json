@@ -1,0 +1,6 @@
+{
+  "src/env.c": "dd0b1dd846aa27262853dd5c09ccea62a2e5175690ced453ad56a24c81a2b50c",
+  "src/nanolang.h": "3795a817fd9f8ba0ee1b930a882229176122a498778c997973df6dc649e1a2f0",
+  "tests/test_env_symbol_index.c": "d93316fa58ba765942ada08780f68061df59daa266846dd9d24039b79d5f2e28",
+  "bin/nanoc_c": "2a3d48c01f5d25b7f931673dcc05fa6e87a52400f0102d7350eba6fe2bf36eb9"
+}

@@ -1,0 +1,7 @@
+test_graph_namespace_and_driver_refusals (tests.test_service_namespace.ServiceNamespace.test_graph_namespace_and_driver_refusals) ... ok
+test_independent_nano_identity_and_native_catalog_bridge (tests.test_service_namespace.ServiceNamespace.test_independent_nano_identity_and_native_catalog_bridge) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 109.082s
+
+OK

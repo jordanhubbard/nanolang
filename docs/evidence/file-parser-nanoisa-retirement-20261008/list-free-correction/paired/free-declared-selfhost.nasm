@@ -1,0 +1,21 @@
+.types 0 0 0
+.entry 0
+
+.function main 0 0 0 int 1
+  PUSH_I64 9
+  CALL list_Custom_free
+  PUSH_I64 10
+  I64_EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.end
+
+.function list_Custom_free 1 1 0 int 1
+.local_begin 0 "value"
+  LOAD_LOCAL 0
+  PUSH_I64 1
+  I64_ADD
+  RET
+.end
+

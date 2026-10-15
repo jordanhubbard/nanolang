@@ -1,0 +1,2 @@
+install -d "/Users/jordanh/Src/nanolang/obj/mixed-service-test-install/lib"
+install -m 644 "lib/libnano_services_runtime.a" "/Users/jordanh/Src/nanolang/obj/mixed-service-test-install/lib/libnano_services_runtime.a"

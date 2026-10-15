@@ -1,0 +1,80 @@
+{
+  "started": 652,
+  "completed": 651,
+  "completed_seconds": 291.508265,
+  "failures": 0,
+  "last": {
+    "event": "shadow-start",
+    "name": "nisa_emit_function",
+    "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+    "line": 6361,
+    "elapsed_seconds": 0.0,
+    "failures": 0
+  },
+  "slowest": [
+    {
+      "event": "shadow-complete",
+      "name": "parse_block_recursive",
+      "source": "/home/runner/work/nanolang/nanolang/src_nano/parser.nano",
+      "line": 5330,
+      "elapsed_seconds": 28.733772,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "parse_unsafe_block_recursive",
+      "source": "/home/runner/work/nanolang/nanolang/src_nano/parser.nano",
+      "line": 5491,
+      "elapsed_seconds": 28.582326,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nb_owner_array_mutation_fixture",
+      "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+      "line": 3306,
+      "elapsed_seconds": 17.103566,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nb_ordinary",
+      "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+      "line": 1923,
+      "elapsed_seconds": 8.412408,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nb_owner_array_fixture",
+      "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+      "line": 3279,
+      "elapsed_seconds": 8.279274,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nb_concrete_tag",
+      "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+      "line": 503,
+      "elapsed_seconds": 6.480396,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nb_owner_field_tag",
+      "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+      "line": 272,
+      "elapsed_seconds": 5.429867,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nb_mixed_fixture",
+      "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+      "line": 3255,
+      "elapsed_seconds": 4.837624,
+      "failures": 0
+    }
+  ]
+}

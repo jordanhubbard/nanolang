@@ -639,7 +639,7 @@ Replace `T` with the concrete type: `List_int_new`, `List_string_push`, `List_Po
 | `stdlib/process.nano` | Process management |
 | `std/regex/regex.nano` | Regular expressions |
 | `stdlib/ast.nano` | AST manipulation utilities |
-| `stdlib/mac.nano` | MAC task ledger integration |
+| `stdlib/mac.nano` | Optional external MAC client; not project task tracking |
 | `stdlib/StringBuilder.nano` | Efficient string building |
 
 ---
@@ -964,7 +964,7 @@ translator fallback; recovered `if`/`while` is not this subset.
 | `compiler/lexer.nano` | Lexer implementation |
 | `parser.nano` | Parser implementation |
 | `typecheck.nano` | Type checker |
-| `transpiler.nano` | C code generator |
+| `compiler/nanoisa_codegen.nano` | NanoISA program and selected-shadow lowering |
 | `compiler/nanoisa_codegen.nano` | 5.0 Cut A: AST → `.nasm` (pinned i64 + string subset) |
 | `nanoisa_emit.nano` | Driver for that emitter |
 | `compiler/module_loader.nano` | Module loading/resolution |
@@ -981,7 +981,7 @@ translator fallback; recovered `if`/`while` is not this subset.
 | `file_io.nano` | File I/O operations |
 | `parser_driver.nano` | Parser test driver |
 | `typecheck_driver.nano` | Type checker test driver |
-| `transpiler_driver.nano` | Transpiler test driver |
+| `nanoisa_driver.nano` | NanoISA program and selected-shadow test driver |
 
 ### 10.7 Schema Generation
 
@@ -1223,17 +1223,28 @@ shadow divide {
 
 ---
 
-## 17. ISSUE TRACKING (MAC)
+## 17. ISSUE TRACKING (GITHUB)
 
-NanoLang uses the **MAC hub task ledger** (`mac task`) for issue tracking, not
-bd/beads. Do NOT use `bd`, TodoWrite, TaskCreate, or markdown TODO lists.
+I track all new and resumed project work in [GitHub Issues](https://github.com/jordanhubbard/nanolang/issues).
+GitHub Issues is my task ledger; `docs/ROADMAP.md` remains my ordered product
+contract and evidence index. I do not use MAC, bd/beads, or local TODO files as
+an alternative task ledger. Historical MAC IDs remain provenance only.
 
 ```bash
-mac task ready --limit 10            # find available work
-mac task show <id>                   # view an issue
-mac task claim <id> <agent_id>       # claim work
-mac task close <id> --reason="..."   # complete work
+gh issue list --repo jordanhubbard/nanolang --state open
+gh issue view <number> --repo jordanhubbard/nanolang --comments
+gh issue edit <number> --repo jordanhubbard/nanolang --add-assignee @me
+gh issue create --repo jordanhubbard/nanolang --title "<title>" --body-file /tmp/issue.md
+gh issue comment <number> --repo jordanhubbard/nanolang --body-file /tmp/update.md
+gh issue close <number> --repo jordanhubbard/nanolang --reason completed
 ```
+
+I search before creating an issue, record branch/file ownership in an issue
+comment, and link commits, PRs and test evidence before closing it. Assignment
+is not an atomic worker lease; I coordinate overlapping work explicitly. When
+resuming an old MAC task, I create or reuse a GitHub issue and link the old ID.
+If GitHub is unavailable, I preserve my work and report the unfiled issue; I do
+not fall back to MAC or claim that tracking succeeded.
 
 ---
 

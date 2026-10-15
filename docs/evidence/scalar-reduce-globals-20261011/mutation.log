@@ -1,0 +1,471 @@
+test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg
+
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_c'), element='int') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='int') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='int') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), element='int') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='int') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='int') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_c'), element='float') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='float') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='float') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), element='float') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='float') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='float') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_c'), element='bool') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='bool') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='bool') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), element='bool') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='bool') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='bool') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_c'), element='string') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='string') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='string') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), element='string') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='string') ... FAIL
+  test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='string') ... FAIL
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_c'), element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nanoc_c command=['/Users/jordanh/Src/nanolang/bin/nanoc_c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/nanoc_c-legacy']
+
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano
+Assignment expects array but got void.
+
+9|  set values (array_set values 0 9)
+    ^
+Hint: Convert the value to the variable's type before assignment.
+Type checking failed
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-native-tuple-order/seed command=['/private/tmp/nl51-native-tuple-order/seed', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/seed-legacy']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<int>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-list-record/compiler-final command=['/private/tmp/nl51-list-record/compiler-final', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/compiler-final-legacy']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<int>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nano_virt command=['/Users/jordanh/Src/nanolang/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/nano_virt.nvm']
+
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano
+Assignment expects array but got void.
+
+9|  set values (array_set values 0 9)
+    ^
+Hint: Convert the value to the variable's type before assignment.
+error: type check failed
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-native-tuple-order/seed command=['/private/tmp/nl51-native-tuple-order/seed', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/seed.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<int>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-list-record/compiler-final command=['/private/tmp/nl51-list-record/compiler-final', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/compiler-final.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<int>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_c'), element='float')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nanoc_c command=['/Users/jordanh/Src/nanolang/bin/nanoc_c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/nanoc_c-legacy']
+
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano
+Assignment expects array but got void.
+
+9|  set values (array_set values 0 3.0)
+    ^
+Hint: Convert the value to the variable's type before assignment.
+Type checking failed
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='float')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-native-tuple-order/seed command=['/private/tmp/nl51-native-tuple-order/seed', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/seed-legacy']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<float>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='float')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-list-record/compiler-final command=['/private/tmp/nl51-list-record/compiler-final', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/compiler-final-legacy']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<float>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), element='float')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nano_virt command=['/Users/jordanh/Src/nanolang/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/nano_virt.nvm']
+
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano
+Assignment expects array but got void.
+
+9|  set values (array_set values 0 3.0)
+    ^
+Hint: Convert the value to the variable's type before assignment.
+error: type check failed
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='float')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-native-tuple-order/seed command=['/private/tmp/nl51-native-tuple-order/seed', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/seed.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<float>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='float')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-list-record/compiler-final command=['/private/tmp/nl51-list-record/compiler-final', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/compiler-final.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<float>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_c'), element='bool')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nanoc_c command=['/Users/jordanh/Src/nanolang/bin/nanoc_c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/nanoc_c-legacy']
+
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano
+Assignment expects array but got void.
+
+9|  set values (array_set values 0 false)
+    ^
+Hint: Convert the value to the variable's type before assignment.
+Type checking failed
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='bool')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-native-tuple-order/seed command=['/private/tmp/nl51-native-tuple-order/seed', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/seed-legacy']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<bool>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='bool')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-list-record/compiler-final command=['/private/tmp/nl51-list-record/compiler-final', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/compiler-final-legacy']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<bool>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), element='bool')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nano_virt command=['/Users/jordanh/Src/nanolang/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/nano_virt.nvm']
+
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano
+Assignment expects array but got void.
+
+9|  set values (array_set values 0 false)
+    ^
+Hint: Convert the value to the variable's type before assignment.
+error: type check failed
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='bool')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-native-tuple-order/seed command=['/private/tmp/nl51-native-tuple-order/seed', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/seed.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<bool>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='bool')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-list-record/compiler-final command=['/private/tmp/nl51-list-record/compiler-final', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/compiler-final.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<bool>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_c'), element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nanoc_c command=['/Users/jordanh/Src/nanolang/bin/nanoc_c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/nanoc_c-legacy']
+
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano
+Assignment expects array but got void.
+
+9|  set values (array_set values 0 "new")
+    ^
+Hint: Convert the value to the variable's type before assignment.
+Type checking failed
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-native-tuple-order/seed command=['/private/tmp/nl51-native-tuple-order/seed', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/seed-legacy']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<string>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (legacy=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-list-record/compiler-final command=['/private/tmp/nl51-list-record/compiler-final', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/compiler-final-legacy']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<string>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nano_virt command=['/Users/jordanh/Src/nanolang/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/nano_virt.nvm']
+
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano
+Assignment expects array but got void.
+
+9|  set values (array_set values 0 "new")
+    ^
+Hint: Convert the value to the variable's type before assignment.
+error: type check failed
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-native-tuple-order/seed'), element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-native-tuple-order/seed command=['/private/tmp/nl51-native-tuple-order/seed', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/seed.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<string>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+======================================================================
+FAIL: test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) (canonical=PosixPath('/private/tmp/nl51-list-record/compiler-final'), element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/private/tmp/nl51-list-record/compiler-final command=['/private/tmp/nl51-list-record/compiler-final', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/compiler-final.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Assignment to values: I expected a value of type `array<string>`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-8qcss3wg/ordinary.nano:9:2)
+
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.408s
+
+FAILED (failures=24)

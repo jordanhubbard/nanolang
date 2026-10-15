@@ -1,0 +1,3 @@
+pub union Box<T> {Some {value:T}, None {}}
+pub fn make()->Box<int>{return Box<int>.None {}}
+shadow make {assert true}

@@ -1,0 +1,268 @@
+['/private/tmp/nanolang-match-guards-20261009/bin/match_program_driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-5nbxyiz7/named-union.nano', 'program']
+.types 0 0 1
+.entry 0
+
+.function main 0 10 0 int 1
+  PUSH_I64 0
+  STORE_GLOBAL 0
+  CALL selected
+  PUSH_I64 4
+  I64_EQ
+  ASSERT
+  LOAD_GLOBAL 0
+  PUSH_I64 1234
+  I64_EQ
+  ASSERT
+  PUSH_I64 23
+  STORE_LOCAL 0
+.local_begin 0 "payload"
+  PUSH_I64 7
+  STORE_LOCAL 1
+  LOAD_LOCAL 1
+  AGG_PACK 1 0 0 1
+  STORE_LOCAL 2
+  LOAD_LOCAL 2
+  DUP
+  AGG_TAG
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L1
+  DUP
+  STORE_LOCAL 3
+  LOAD_LOCAL 3
+  AGG_GET 0
+  PUSH_I64 0
+  I64_LT_S
+  JMP_FALSE L1
+  POP
+  PUSH_I64 99
+  JMP L0
+L1:
+  DUP
+  AGG_TAG
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L2
+  DUP
+  STORE_LOCAL 4
+  POP
+  LOAD_LOCAL 4
+  AGG_GET 0
+  JMP L0
+L2:
+  DUP
+  AGG_TAG
+  PUSH_I64 1
+  EQ
+  JMP_FALSE L3
+  DUP
+  STORE_LOCAL 5
+  POP
+  PUSH_I64 0
+  JMP L0
+L3:
+  POP
+  PUSH_BOOL 0
+  ASSERT
+  HALT
+L0:
+  STORE_LOCAL 6
+.local_begin 6 "n"
+  LOAD_LOCAL 6
+  PUSH_I64 7
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 0
+  PUSH_I64 23
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 2
+  DUP
+  AGG_TAG
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L5
+  DUP
+  STORE_LOCAL 7
+  PUSH_BOOL 0
+  JMP_FALSE L5
+  POP
+  PUSH_BOOL 0
+  ASSERT
+  JMP L4
+L5:
+  DUP
+  AGG_TAG
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L6
+  DUP
+  STORE_LOCAL 8
+  POP
+  LOAD_LOCAL 8
+  AGG_GET 0
+  PUSH_I64 7
+  I64_EQ
+  ASSERT
+  JMP L4
+L6:
+  DUP
+  AGG_TAG
+  PUSH_I64 1
+  EQ
+  JMP_FALSE L7
+  DUP
+  STORE_LOCAL 9
+  POP
+  PUSH_BOOL 0
+  ASSERT
+  JMP L4
+L7:
+  POP
+  PUSH_BOOL 0
+  ASSERT
+  HALT
+L4:
+  LOAD_LOCAL 0
+  PUSH_I64 23
+  I64_EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.local_end 0
+.local_end 6
+.end
+
+.function selected 0 5 0 int 1
+  CALL fresh
+  DUP
+  AGG_TAG
+  PUSH_I64 1
+  EQ
+  JMP_FALSE L9
+  DUP
+  STORE_LOCAL 0
+  PUSH_I64 9
+  PUSH_BOOL 1
+  CALL gate
+  JMP_FALSE L9
+  POP
+  PUSH_I64 9
+  CALL mark
+  JMP L8
+L9:
+  DUP
+  AGG_TAG
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L10
+  DUP
+  STORE_LOCAL 1
+  PUSH_I64 2
+  PUSH_BOOL 0
+  CALL gate
+  JMP_FALSE L10
+  POP
+  PUSH_I64 8
+  CALL mark
+  JMP L8
+L10:
+  DUP
+  AGG_TAG
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L11
+  DUP
+  STORE_LOCAL 2
+  LOAD_LOCAL 2
+  AGG_GET 0
+  PUSH_I64 7
+  I64_EQ
+  DUP
+  JMP_FALSE L12
+  POP
+  PUSH_I64 3
+  PUSH_BOOL 1
+  CALL gate
+L12:
+  JMP_FALSE L11
+  POP
+  PUSH_I64 4
+  CALL mark
+  JMP L8
+L11:
+  DUP
+  AGG_TAG
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L13
+  DUP
+  STORE_LOCAL 3
+  POP
+  PUSH_I64 8
+  CALL mark
+  JMP L8
+L13:
+  DUP
+  AGG_TAG
+  PUSH_I64 1
+  EQ
+  JMP_FALSE L14
+  DUP
+  STORE_LOCAL 4
+  POP
+  PUSH_I64 9
+  CALL mark
+  JMP L8
+L14:
+  POP
+  PUSH_BOOL 0
+  ASSERT
+  HALT
+L8:
+  RET
+.end
+
+.function fresh 0 2 0 union 1
+  PUSH_I64 1
+  CALL mark
+  STORE_LOCAL 0
+.local_begin 0 "ignored"
+  PUSH_I64 7
+  STORE_LOCAL 1
+  LOAD_LOCAL 1
+  AGG_PACK 1 0 0 1
+  RET
+.local_end 0
+.end
+
+.function gate 2 3 0 bool 1
+.local_begin 0 "n"
+.local_begin 1 "answer"
+  LOAD_LOCAL 0
+  CALL mark
+  STORE_LOCAL 2
+.local_begin 2 "ignored"
+  LOAD_LOCAL 1
+  RET
+.local_end 2
+.end
+
+.function mark 1 1 0 int 1
+.local_begin 0 "n"
+  LOAD_GLOBAL 0
+  PUSH_I64 10
+  I64_MUL
+  LOAD_LOCAL 0
+  I64_ADD
+  STORE_GLOBAL 0
+  LOAD_LOCAL 0
+  RET
+.end
+
+.function __init__ 0 0 0 void 0
+  PUSH_I64 0
+  STORE_GLOBAL 0
+  RET
+.end
+

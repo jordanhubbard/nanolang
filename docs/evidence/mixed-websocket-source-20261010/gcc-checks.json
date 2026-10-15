@@ -1,0 +1,19 @@
+{
+  "compiler": "/opt/homebrew/bin/gcc-16",
+  "flags": [
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-D_GNU_SOURCE",
+    "-Isrc",
+    "-c"
+  ],
+  "sources": [
+    "src/runtime/service_policy.c",
+    "src/runtime/service_product.c",
+    "src/runtime/service_shadows.c"
+  ],
+  "status": 0,
+  "scope": "Compilation only, without sanitizer execution"
+}

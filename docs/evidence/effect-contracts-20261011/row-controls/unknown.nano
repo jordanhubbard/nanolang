@@ -1,0 +1,1 @@
+effect Ask{ask:{field:Missing}->int} fn main()->int{return 0} shadow main{assert true}

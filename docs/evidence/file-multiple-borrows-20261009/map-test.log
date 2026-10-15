@@ -1,0 +1,7 @@
+test_multiple_forwarded_reference_maps (tests.test_service_lowering.ServiceLowering.test_multiple_forwarded_reference_maps) ... I finish native compilation in 36.583s
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 37.169s
+
+OK

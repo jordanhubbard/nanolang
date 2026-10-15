@@ -1,0 +1,22 @@
+Error at line 4, column 14: Expected field name
+Error at line 4, column 14: Expected '}' after struct fields (got HANDLE)
+Error at line 4, column 20: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 21: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 27: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 28: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 33: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 34: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 39: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 40: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 43: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 44: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 57: Expected field name in struct literal
+Error at line 5, column 57: Expected '}' at end of struct literal (got HANDLE)
+Error at line 5, column 63: Unexpected token in expression: COLON (type=14)
+Error at line 5, column 79: Unexpected token in expression: COMMA (type=13)
+Error at line 5, column 85: Unexpected token in expression: COLON (type=14)
+Error at line 5, column 90: Expected 'with' after handle body (got RPAREN)
+Error at line 5, column 90: Unexpected token in expression: RPAREN (type=8)
+Error at line 5, column 93: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+error: parser failed

@@ -1,0 +1,66 @@
+PRODUCER /private/tmp/nanolang-map-nano-virt
+test_captured_local_shadows_imported_alias (expanded_imports.ImportedGlobals.test_captured_local_shadows_imported_alias) ... ok
+test_conflicting_aliases_preserve_output (expanded_imports.ImportedGlobals.test_conflicting_aliases_preserve_output) ... ok
+test_diamond_initialization_runs_once (expanded_imports.ImportedGlobals.test_diamond_initialization_runs_once) ... ok
+test_immutable_public_value_in_pure_function (expanded_imports.ImportedGlobals.test_immutable_public_value_in_pure_function) ... ok
+test_imported_call_snapshot_before_argument (expanded_imports.ImportedGlobals.test_imported_call_snapshot_before_argument) ... ok
+test_imported_callable_globals (expanded_imports.ImportedGlobals.test_imported_callable_globals) ... ok
+test_imported_closure_global_capture (expanded_imports.ImportedGlobals.test_imported_closure_global_capture) ... ok
+test_imported_integer_arrays (expanded_imports.ImportedGlobals.test_imported_integer_arrays) ... ok
+test_imported_qualified_map (expanded_imports.ImportedGlobals.test_imported_qualified_map) ... ok
+test_imported_qualified_record (expanded_imports.ImportedGlobals.test_imported_qualified_record) ... ok
+test_imported_qualified_string_array (expanded_imports.ImportedGlobals.test_imported_qualified_string_array) ... ok
+test_imported_record_module_identity (expanded_imports.ImportedGlobals.test_imported_record_module_identity) ... ok
+test_imported_selective_map (expanded_imports.ImportedGlobals.test_imported_selective_map) ... ok
+test_imported_selective_record (expanded_imports.ImportedGlobals.test_imported_selective_record) ... ok
+test_imported_selective_string_array (expanded_imports.ImportedGlobals.test_imported_selective_string_array) ... ok
+test_legacy_plain_import_keeps_immutable_constants (expanded_imports.ImportedGlobals.test_legacy_plain_import_keeps_immutable_constants) ... ok
+test_mutable_aliases_share_storage (expanded_imports.ImportedGlobals.test_mutable_aliases_share_storage) ... ok
+test_private_missing_wrong_type_and_immutable_write_preserve_output (expanded_imports.ImportedGlobals.test_private_missing_wrong_type_and_immutable_write_preserve_output) ... ok
+test_qualified_distinct_types_and_dependency_shadows (expanded_imports.ImportedGlobals.test_qualified_distinct_types_and_dependency_shadows) ... ok
+test_qualified_map_type_refusals (expanded_imports.ImportedGlobals.test_qualified_map_type_refusals) ... ok
+test_qualified_write_refusals_preserve_output (expanded_imports.ImportedGlobals.test_qualified_write_refusals_preserve_output) ... ok
+test_qualified_writes_share_alias_storage (expanded_imports.ImportedGlobals.test_qualified_writes_share_alias_storage) ... ok
+test_relative_spellings_share_canonical_storage (expanded_imports.ImportedGlobals.test_relative_spellings_share_canonical_storage) ... ok
+test_repeated_alias_keeps_identity (expanded_imports.ImportedGlobals.test_repeated_alias_keeps_identity) ... ok
+test_selective_aliases_and_lexical_shadowing (expanded_imports.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) ... ok
+test_transitive_selective_import_keeps_declaring_context (expanded_imports.ImportedGlobals.test_transitive_selective_import_keeps_declaring_context) ... ok
+test_wildcard_public_globals (expanded_imports.ImportedGlobals.test_wildcard_public_globals) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 9.773s
+
+OK
+PRODUCER bin/nano_vm /private/tmp/nanolang-qualified-result-driver.nvm --
+test_captured_local_shadows_imported_alias (expanded_imports.ImportedGlobals.test_captured_local_shadows_imported_alias) ... ok
+test_conflicting_aliases_preserve_output (expanded_imports.ImportedGlobals.test_conflicting_aliases_preserve_output) ... ok
+test_diamond_initialization_runs_once (expanded_imports.ImportedGlobals.test_diamond_initialization_runs_once) ... ok
+test_immutable_public_value_in_pure_function (expanded_imports.ImportedGlobals.test_immutable_public_value_in_pure_function) ... ok
+test_imported_call_snapshot_before_argument (expanded_imports.ImportedGlobals.test_imported_call_snapshot_before_argument) ... ok
+test_imported_callable_globals (expanded_imports.ImportedGlobals.test_imported_callable_globals) ... ok
+test_imported_closure_global_capture (expanded_imports.ImportedGlobals.test_imported_closure_global_capture) ... ok
+test_imported_integer_arrays (expanded_imports.ImportedGlobals.test_imported_integer_arrays) ... ok
+test_imported_qualified_map (expanded_imports.ImportedGlobals.test_imported_qualified_map) ... ok
+test_imported_qualified_record (expanded_imports.ImportedGlobals.test_imported_qualified_record) ... ok
+test_imported_qualified_string_array (expanded_imports.ImportedGlobals.test_imported_qualified_string_array) ... ok
+test_imported_record_module_identity (expanded_imports.ImportedGlobals.test_imported_record_module_identity) ... ok
+test_imported_selective_map (expanded_imports.ImportedGlobals.test_imported_selective_map) ... ok
+test_imported_selective_record (expanded_imports.ImportedGlobals.test_imported_selective_record) ... ok
+test_imported_selective_string_array (expanded_imports.ImportedGlobals.test_imported_selective_string_array) ... ok
+test_legacy_plain_import_keeps_immutable_constants (expanded_imports.ImportedGlobals.test_legacy_plain_import_keeps_immutable_constants) ... ok
+test_mutable_aliases_share_storage (expanded_imports.ImportedGlobals.test_mutable_aliases_share_storage) ... ok
+test_private_missing_wrong_type_and_immutable_write_preserve_output (expanded_imports.ImportedGlobals.test_private_missing_wrong_type_and_immutable_write_preserve_output) ... ok
+test_qualified_distinct_types_and_dependency_shadows (expanded_imports.ImportedGlobals.test_qualified_distinct_types_and_dependency_shadows) ... ok
+test_qualified_map_type_refusals (expanded_imports.ImportedGlobals.test_qualified_map_type_refusals) ... ok
+test_qualified_write_refusals_preserve_output (expanded_imports.ImportedGlobals.test_qualified_write_refusals_preserve_output) ... ok
+test_qualified_writes_share_alias_storage (expanded_imports.ImportedGlobals.test_qualified_writes_share_alias_storage) ... ok
+test_relative_spellings_share_canonical_storage (expanded_imports.ImportedGlobals.test_relative_spellings_share_canonical_storage) ... ok
+test_repeated_alias_keeps_identity (expanded_imports.ImportedGlobals.test_repeated_alias_keeps_identity) ... ok
+test_selective_aliases_and_lexical_shadowing (expanded_imports.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) ... ok
+test_transitive_selective_import_keeps_declaring_context (expanded_imports.ImportedGlobals.test_transitive_selective_import_keeps_declaring_context) ... ok
+test_wildcard_public_globals (expanded_imports.ImportedGlobals.test_wildcard_public_globals) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 19.172s
+
+OK

@@ -1,0 +1,14 @@
+
+resource struct Handle { fd: int }
+let counter: int = 1
+fn read() -> int { return counter }
+shadow read { assert (== (read) 99) }
+
+fn main() -> int {
+    let local_owner: Handle = Handle { fd: 7 }
+    let Handle { fd } = local_owner
+    assert (== fd 7)
+    assert (== counter 1)
+    return 0
+}
+shadow main { assert (== (main) 0) }

@@ -1,0 +1,14 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2571, column 9: Unused variable 'rejected'
+Warning at line 2827, column 9: Unused variable 'rejected'
+Warning at line 2831, column 9: Unused variable 'rejected'
+Warning at line 2835, column 9: Unused variable 'rejected'
+Warning at line 2839, column 9: Unused variable 'rejected'
+Warning at line 2846, column 13: Unused variable 'rejected'
+Warning at line 2992, column 9: Unused variable 'rejected'
+Warning at line 2996, column 9: Unused variable 'rejected'
+Warning at line 3003, column 13: Unused variable 'rejected'
+Warning at line 6861, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Error: Failed to combine objects for module file_product
+I could not build foreign support for /Users/jordanh/Src/nanolang/modules/file_product/file_product.nano

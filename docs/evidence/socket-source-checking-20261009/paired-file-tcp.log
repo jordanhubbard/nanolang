@@ -1,0 +1,20 @@
+test_endpoint_calls_results_and_shadows (tests.test_socket_service_source.SocketBodies.test_endpoint_calls_results_and_shadows) ... ok
+test_exact_constructor_and_nominal_refusals (tests.test_socket_service_source.SocketBodies.test_exact_constructor_and_nominal_refusals) ... ok
+test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) ... ok
+test_lowering_does_not_reinterpret_tcp_as_file (tests.test_socket_service_source.SocketOwnership.test_lowering_does_not_reinterpret_tcp_as_file) ... ok
+test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) ... ok
+test_complete_calls_fields_helpers_and_generated_shadows (tests.test_service_bodies.ServiceBodies.test_complete_calls_fields_helpers_and_generated_shadows) ... ok
+test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) ... ok
+test_local_bound (tests.test_service_bodies.ServiceBodies.test_local_bound) ... ok
+test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) ... ok
+test_unsupported_is_not_checked_and_later_bodies_still_checked (tests.test_service_bodies.ServiceBodies.test_unsupported_is_not_checked_and_later_bodies_still_checked) ... ok
+test_imported_owners_and_borrowed_aliases (tests.test_service_ownership.ServiceOwnership.test_imported_owners_and_borrowed_aliases) ... ok
+test_interleaved_shadows_preserve_fact_identity (tests.test_service_ownership.ServiceOwnership.test_interleaved_shadows_preserve_fact_identity) ... ok
+test_invalid_ownership_in_called_uncalled_and_shadow_bodies (tests.test_service_ownership.ServiceOwnership.test_invalid_ownership_in_called_uncalled_and_shadow_bodies) ... ok
+test_moves_branches_loops_and_borrows (tests.test_service_ownership.ServiceOwnership.test_moves_branches_loops_and_borrows) ... ok
+test_published_binding_keeps_all_five_shadow_bodies (tests.test_service_ownership.ServiceOwnership.test_published_binding_keeps_all_five_shadow_bodies) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 186.622s
+
+OK

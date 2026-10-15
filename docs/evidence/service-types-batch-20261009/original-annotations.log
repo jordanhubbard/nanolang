@@ -1,0 +1,43 @@
+FF
+======================================================================
+FAIL: test_graph_namespace_and_driver_refusals (tests.test_service_namespace.ServiceNamespace.test_graph_namespace_and_driver_refusals) (case='annotations')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_namespace.py", line 59, in test_graph_namespace_and_driver_refusals
+    self.assertEqual(report.returncode, 0, report.stdout + report.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -11 != 0 : TRACE annotation files.File 8 /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-namespace-nrhgx05_/root.nano
+TRACE annotation files.File 8 /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-namespace-nrhgx05_/root.nano
+TRACE annotation files.File 8 /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-namespace-nrhgx05_/root.nano
+TRACE annotation files.File 8 /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-namespace-nrhgx05_/root.nano
+TRACE annotation files.File 8 /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-namespace-nrhgx05_/root.nano
+TRACE annotation files.File 19 /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-namespace-nrhgx05_/root.nano
+TRACE annotation files.File 8 /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-namespace-nrhgx05_/root.nano
+TRACE annotation files.File 19 /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-namespace-nrhgx05_/root.nano
+I have not resolved File service declarations for this consumer.
+
+
+======================================================================
+FAIL: test_graph_namespace_and_driver_refusals (tests.test_service_namespace.ServiceNamespace.test_graph_namespace_and_driver_refusals) (case='reexported-annotations')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_namespace.py", line 59, in test_graph_namespace_and_driver_refusals
+    self.assertEqual(report.returncode, 0, report.stdout + report.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : PLAN 13
+NAME bridge.files.File 8 /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-namespace-nrhgx05_/one/binding.nano File
+MISSING Handle
+MISSING files.File
+MISSING other.File
+MISSING files.Missing
+TRACE annotation bridge.files 8 /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-namespace-nrhgx05_/root.nano
+TRACE annotation bridge.files.File 8 /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-namespace-nrhgx05_/root.nano
+TRACE annotation bridge.files.File 8 /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-namespace-nrhgx05_/root.nano
+I have not resolved File service declarations for this consumer.
+Assertion failed: (parameter && parameter->service_declaration), function main, file test_service_namespace.c, line 105.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.476s
+
+FAILED (failures=2)

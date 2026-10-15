@@ -1,0 +1,25 @@
+test_artifact_report_collisions (tests.test_selfhost_cli.SelfhostCliTests.test_artifact_report_collisions) ... ok
+test_dangling_report_is_rejected_without_creating_target (tests.test_selfhost_cli.SelfhostCliTests.test_dangling_report_is_rejected_without_creating_target) ... ok
+test_default_source_path_and_option_order (tests.test_selfhost_cli.SelfhostCliTests.test_default_source_path_and_option_order) ... ok
+test_destination_probe_lifecycle_and_failures (tests.test_selfhost_cli.SelfhostCliTests.test_destination_probe_lifecycle_and_failures) ... ok
+test_diagnostic_alias_is_rejected_before_parse_error (tests.test_selfhost_cli.SelfhostCliTests.test_diagnostic_alias_is_rejected_before_parse_error) ... ok
+test_distinct_artifact_and_report (tests.test_selfhost_cli.SelfhostCliTests.test_distinct_artifact_and_report) ... ok
+test_explicit_native_target (tests.test_selfhost_cli.SelfhostCliTests.test_explicit_native_target) ... ok
+test_help (tests.test_selfhost_cli.SelfhostCliTests.test_help) ... ok
+test_input_cannot_be_output (tests.test_selfhost_cli.SelfhostCliTests.test_input_cannot_be_output) ... ok
+test_invalid_arguments_preserve_outputs (tests.test_selfhost_cli.SelfhostCliTests.test_invalid_arguments_preserve_outputs) ... ok
+test_missing_destination_filesystem_name_equivalence (tests.test_selfhost_cli.SelfhostCliTests.test_missing_destination_filesystem_name_equivalence) ... ok
+test_missing_input (tests.test_selfhost_cli.SelfhostCliTests.test_missing_input) ... ok
+test_option_delimiter_allows_hyphen_input (tests.test_selfhost_cli.SelfhostCliTests.test_option_delimiter_allows_hyphen_input) ... ok
+test_output_collision_precedes_parse_diagnostics (tests.test_selfhost_cli.SelfhostCliTests.test_output_collision_precedes_parse_diagnostics) ... ok
+test_output_write_failure (tests.test_selfhost_cli.SelfhostCliTests.test_output_write_failure) ... ok
+test_source_aliases_are_rejected_before_writes (tests.test_selfhost_cli.SelfhostCliTests.test_source_aliases_are_rejected_before_writes) ... ok
+test_source_output_without_native_compiler (tests.test_selfhost_cli.SelfhostCliTests.test_source_output_without_native_compiler) ... ok
+test_string_search_emitted_c (tests.test_selfhost_cli.SelfhostCliTests.test_string_search_emitted_c) ... ok
+test_string_search_native_stages (tests.test_selfhost_cli.SelfhostCliTests.test_string_search_native_stages) ... ok
+test_uncheckable_destination_identity_fails_closed (tests.test_selfhost_cli.SelfhostCliTests.test_uncheckable_destination_identity_fails_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 8.416s
+
+OK

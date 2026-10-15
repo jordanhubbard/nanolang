@@ -1,0 +1,23 @@
+test_indirect_affine_results_and_multiple_exclusive_borrows (tests.test_service_drivers.ServiceDrivers.test_indirect_affine_results_and_multiple_exclusive_borrows) ... FAIL
+
+======================================================================
+FAIL: test_indirect_affine_results_and_multiple_exclusive_borrows (tests.test_service_drivers.ServiceDrivers.test_indirect_affine_results_and_multiple_exclusive_borrows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_drivers.py", line 117, in test_indirect_affine_results_and_multiple_exclusive_borrows
+    self.check_indirect_source(generated+fixture,2,9)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_drivers.py", line 79, in check_indirect_source
+    run=self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',bytecode])
+  File "/Users/jordanh/Src/nanolang/tests/test_service_drivers.py", line 34, in run_command
+    self.assertEqual(run.returncode,expected,run.stdout+run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot verify File service ownership: I require every File owner to be consumed before scope exit.
+I have not resolved File service declarations for this consumer.
+Module loading failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.020s
+
+FAILED (failures=1)

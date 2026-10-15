@@ -1,0 +1,53 @@
+runTest (__main__.FailedCases.runTest) ... 
+  runTest (__main__.FailedCases.runTest) (style='wa-paired', placement='common', external=False, shared=False) ... ERROR
+  runTest (__main__.FailedCases.runTest) (style='wa-paired', placement='common', external=True, shared=True) ... ERROR
+  runTest (__main__.FailedCases.runTest) (style='wa-paired', placement='platform', external=True, shared=True) ... ERROR
+  runTest (__main__.FailedCases.runTest) (style='wa-paired', placement='package', external=False, shared=False) ... ERROR
+  runTest (__main__.FailedCases.runTest) (style='wa-paired', placement='package', external=False, shared=True) ... ERROR
+  runTest (__main__.FailedCases.runTest) (style='wa-paired', placement='package', external=True, shared=False) ... ERROR
+  runTest (__main__.FailedCases.runTest) (style='wa-paired', placement='package', external=True, shared=False) ... ERROR
+  runTest (__main__.FailedCases.runTest) (style='wa-joined', placement='common', external=False, shared=True) ... ERROR
+
+======================================================================
+ERROR: runTest (__main__.FailedCases.runTest) (style='wa-paired', placement='common', external=False, shared=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_source_snapshots.py", line 1443, in assembler_search_order_phases_and_recovery
+    self.assertEqual(build(baseline + 2), recovered, self.support.last_build_diagnostics)
+                     ~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_source_snapshots.py", line 1395, in build
+    generation = self.support.probe_path("directory", module, env)
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_module_cache_publication.py", line 38, in probe_path
+    result = subprocess.run([str(self.probe), mode, str(module)], cwd=ROOT,
+                            env=env, capture_output=True, timeout=timeout)
+  File "/private/tmp/nanolang-snapshot-failed-cases-20261009.py", line 23, in run
+    (out/f'{n:04d}-{label}.log').write_bytes(data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 796, in write_bytes
+    with self.open(mode='wb') as f:
+         ~~~~~~~~~^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 28] No space left on device: '/private/tmp/nanolang-snapshot-failed-cases-20261009/0047-stdout.log'
+
+======================================================================
+ERROR: runTest (__main__.FailedCases.runTest) (style='wa-paired', placement='common', external=True, shared=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_source_snapshots.py", line 1322, in assembler_search_order_phases_and_recovery
+    module, _, env = self.support.support.foreign_build_fixture(directory)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_bytecode_shadows.py", line 315, in foreign_build_fixture
+    module_dir.mkdir()
+    ~~~~~~~~~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 1011, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+OSError: [Errno 28] No space left on device: '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-as-search-vu6iw9gh/foreign'
+
+======================================================================
+ERROR: runTest (__main__.FailedCases.runTest) (style='wa-paired', placement='platform', external=True, shared=True)
+----------------------------------------------------------------------
+object address  : 0x10a693240
+object repr     : 

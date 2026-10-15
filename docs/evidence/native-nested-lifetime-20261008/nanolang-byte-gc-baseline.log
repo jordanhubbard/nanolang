@@ -1,0 +1,87 @@
+I retain byte-array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-byte-arrays-hoj24312
+test_byte_roots_survive_collection (tests.test_native_byte_arrays.NativeByteArrays.test_byte_roots_survive_collection) ... FAIL
+
+======================================================================
+FAIL: test_byte_roots_survive_collection (tests.test_native_byte_arrays.NativeByteArrays.test_byte_roots_survive_collection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 112, in test_byte_roots_survive_collection
+    self.paired('collected-bytes', body, '.string a "a"\n.string b "b"\n' + CHURN,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                collections=True)
+                ^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 50, in paired
+    native = self.command(binary)
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 26, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : =================================================================
+==155==ERROR: AddressSanitizer: heap-use-after-free on address 0x603000001c08 at pc 0x000100ec1c6c bp 0x00016ef490d0 sp 0x00016ef490c8
+READ of size 8 at 0x603000001c08 thread T0
+    #0 0x000100ec1c68 in nvalue_array_len+0x4b8 (collected-bytes.native:arm64+0x10000dc68)
+    #1 0x000100ec2264 in nvalue_array_get+0x248 (collected-bytes.native:arm64+0x10000e264)
+    #2 0x000100eb78ac in nl_main+0x1398 (collected-bytes.native:arm64+0x1000038ac)
+    #3 0x000100eb4864 in fixture_main+0xc (collected-bytes.native:arm64+0x100000864)
+    #4 0x000100ec8c60 in main+0x10 (collected-bytes.native:arm64+0x100014c60)
+    #5 0x0001828804e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+0x603000001c08 is located 8 bytes inside of 24-byte region [0x603000001c00,0x603000001c18)
+freed by thread T0 here:
+    #0 0x0001015454fc in free+0x74 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x554fc)
+    #1 0x000100edd7dc in nagg_sweep+0x83c (collected-bytes.native:arm64+0x1000297dc)
+    #2 0x000100ec5834 in nmap_collect+0x7e8 (collected-bytes.native:arm64+0x100011834)
+    #3 0x000100ec5cec in nmap_collect_if_needed+0x60 (collected-bytes.native:arm64+0x100011cec)
+    #4 0x000100eb63c4 in nl_churn+0x1264 (collected-bytes.native:arm64+0x1000023c4)
+    #5 0x000100eb7540 in nl_main+0x102c (collected-bytes.native:arm64+0x100003540)
+    #6 0x000100eb4864 in fixture_main+0xc (collected-bytes.native:arm64+0x100000864)
+    #7 0x000100ec8c60 in main+0x10 (collected-bytes.native:arm64+0x100014c60)
+    #8 0x0001828804e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+previously allocated by thread T0 here:
+    #0 0x0001015456ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000100ec5f78 in narr_new+0x30 (collected-bytes.native:arm64+0x100011f78)
+    #2 0x000100ed1fac in narr_lit+0xcc (collected-bytes.native:arm64+0x10001dfac)
+    #3 0x000100eb6b0c in nl_main+0x5f8 (collected-bytes.native:arm64+0x100002b0c)
+    #4 0x000100eb4864 in fixture_main+0xc (collected-bytes.native:arm64+0x100000864)
+    #5 0x000100ec8c60 in main+0x10 (collected-bytes.native:arm64+0x100014c60)
+    #6 0x0001828804e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: heap-use-after-free (collected-bytes.native:arm64+0x10000dc68) in nvalue_array_len+0x4b8
+Shadow bytes around the buggy address:
+  0x603000001980: fa fa 00 00 00 00 fa fa 00 00 00 00 fa fa 00 00
+  0x603000001a00: 00 00 fa fa 00 00 00 00 fa fa 00 00 00 00 fa fa
+  0x603000001a80: 00 00 00 00 fa fa 00 00 00 00 fa fa 00 00 00 00
+  0x603000001b00: fa fa 00 00 00 00 fa fa 00 00 00 00 fa fa 00 00
+  0x603000001b80: 00 00 fa fa 00 00 00 00 fa fa 00 00 00 00 fa fa
+=>0x603000001c00: fd[fd]fd fa fa fa fd fd fd fa fa fa fd fd fd fa
+  0x603000001c80: fa fa fd fd fd fa fa fa fd fd fd fa fa fa fd fd
+  0x603000001d00: fd fa fa fa fd fd fd fa fa fa fd fd fd fa fa fa
+  0x603000001d80: fd fd fd fa fa fa fd fd fd fa fa fa fd fd fd fa
+  0x603000001e00: fa fa fd fd fd fa fa fa fd fd fd fa fa fa fd fd
+  0x603000001e80: fd fa fa fa fd fd fd fa fa fa fd fd fd fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==155==ABORTING
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.255s
+
+FAILED (failures=1)

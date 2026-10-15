@@ -1,0 +1,20 @@
+test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) ... 
+  test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nano_virt') ... FAIL
+
+======================================================================
+FAIL: test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 43, in test_native_and_vm_module_consumers
+    self.checked([ROOT / "bin/nvm2c", product, "-o", source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-input-bridge-li1v4n0v/nano_virt.nvm': import 0 (nl_source_inputs_new) is artifact-backed and requires an exact library binding and typed value adapter; nvm2c refuses CALL_EXTERN
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.542s
+
+FAILED (failures=1)

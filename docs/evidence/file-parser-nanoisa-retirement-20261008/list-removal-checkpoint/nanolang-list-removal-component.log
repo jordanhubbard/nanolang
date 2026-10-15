@@ -1,0 +1,193 @@
+I retain list insertion evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq
+test_evaluation_order_once (tests.test_nanoisa_list_remove.ListRemoval.test_evaluation_order_once) ... ok
+test_invalid_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_invalid_bounds_trap) ... ok
+test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_remove.ListRemoval.test_positions_aliases_and_record_payloads) ... ok
+test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) ... 
+  test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='pop-empty', producer='seed') ... FAIL
+  test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='pop-empty', producer='selfhost') ... FAIL
+  test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='remove-empty', producer='seed') ... FAIL
+  test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='remove-empty', producer='selfhost') ... FAIL
+  test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='remove-negative', producer='seed') ... FAIL
+  test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='remove-negative', producer='selfhost') ... FAIL
+  test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='remove-huge', producer='seed') ... FAIL
+  test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='remove-huge', producer='selfhost') ... FAIL
+test_remove_and_pop_preserve_aliases_and_values (tests.test_nanoisa_list_remove.ListRemoval.test_remove_and_pop_preserve_aliases_and_values) ... 
+  test_remove_and_pop_preserve_aliases_and_values (tests.test_nanoisa_list_remove.ListRemoval.test_remove_and_pop_preserve_aliases_and_values) (case='remove-int', producer='seed') ... FAIL
+  test_remove_and_pop_preserve_aliases_and_values (tests.test_nanoisa_list_remove.ListRemoval.test_remove_and_pop_preserve_aliases_and_values) (case='remove-int', producer='selfhost') ... FAIL
+  test_remove_and_pop_preserve_aliases_and_values (tests.test_nanoisa_list_remove.ListRemoval.test_remove_and_pop_preserve_aliases_and_values) (case='remove-record', producer='seed') ... FAIL
+  test_remove_and_pop_preserve_aliases_and_values (tests.test_nanoisa_list_remove.ListRemoval.test_remove_and_pop_preserve_aliases_and_values) (case='remove-record', producer='selfhost') ... FAIL
+test_unchecked_emitter_refuses_invalid_types (tests.test_nanoisa_list_remove.ListRemoval.test_unchecked_emitter_refuses_invalid_types) ... ok
+test_unchecked_removal_operand_refusals (tests.test_nanoisa_list_remove.ListRemoval.test_unchecked_removal_operand_refusals) ... ok
+
+======================================================================
+FAIL: test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='pop-empty', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/pop-empty-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/pop-empty-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/pop-empty-seed.nvm': I cannot classify unsupported opcode ARR_POP (0x52) in function 0 at offset 35
+
+
+======================================================================
+FAIL: test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='pop-empty', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/pop-empty-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/pop-empty-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/pop-empty-selfhost.nvm': I cannot classify unsupported opcode ARR_POP (0x52) in function 0 at offset 29
+
+
+======================================================================
+FAIL: test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='remove-empty', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-empty-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-empty-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-empty-seed.nvm': I cannot classify unsupported opcode ARR_REMOVE (0x57) in function 0 at offset 65
+
+
+======================================================================
+FAIL: test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='remove-empty', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-empty-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-empty-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-empty-selfhost.nvm': I cannot classify unsupported opcode ARR_REMOVE (0x57) in function 0 at offset 59
+
+
+======================================================================
+FAIL: test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='remove-negative', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-negative-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-negative-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-negative-seed.nvm': I cannot classify unsupported opcode ARR_REMOVE (0x57) in function 0 at offset 65
+
+
+======================================================================
+FAIL: test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='remove-negative', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-negative-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-negative-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-negative-selfhost.nvm': I cannot classify unsupported opcode ARR_REMOVE (0x57) in function 0 at offset 59
+
+
+======================================================================
+FAIL: test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='remove-huge', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-huge-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-huge-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-huge-seed.nvm': I cannot classify unsupported opcode ARR_REMOVE (0x57) in function 0 at offset 65
+
+
+======================================================================
+FAIL: test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) (case='remove-huge', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-huge-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-huge-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-huge-selfhost.nvm': I cannot classify unsupported opcode ARR_REMOVE (0x57) in function 0 at offset 59
+
+
+======================================================================
+FAIL: test_remove_and_pop_preserve_aliases_and_values (tests.test_nanoisa_list_remove.ListRemoval.test_remove_and_pop_preserve_aliases_and_values) (case='remove-int', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-int-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-int-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-int-seed.nvm': I cannot classify unsupported opcode ARR_REMOVE (0x57) in function 0 at offset 113
+
+
+======================================================================
+FAIL: test_remove_and_pop_preserve_aliases_and_values (tests.test_nanoisa_list_remove.ListRemoval.test_remove_and_pop_preserve_aliases_and_values) (case='remove-int', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-int-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-int-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-int-selfhost.nvm': I cannot classify unsupported opcode ARR_REMOVE (0x57) in function 0 at offset 107
+
+
+======================================================================
+FAIL: test_remove_and_pop_preserve_aliases_and_values (tests.test_nanoisa_list_remove.ListRemoval.test_remove_and_pop_preserve_aliases_and_values) (case='remove-record', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-record-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-record-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-record-seed.nvm': I cannot classify unsupported opcode ARR_REMOVE (0x57) in function 0 at offset 151
+
+
+======================================================================
+FAIL: test_remove_and_pop_preserve_aliases_and_values (tests.test_nanoisa_list_remove.ListRemoval.test_remove_and_pop_preserve_aliases_and_values) (case='remove-record', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-record-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-record-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6bh7dnlq/remove-record-selfhost.nvm': I cannot classify unsupported opcode ARR_REMOVE (0x57) in function 0 at offset 145
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 4.112s
+
+FAILED (failures=12)

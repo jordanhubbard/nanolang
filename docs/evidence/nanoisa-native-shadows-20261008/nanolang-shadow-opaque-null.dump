@@ -1,0 +1,32 @@
+.string "is_null"
+.string "main"
+.string "/private/tmp/nanolang-shadow-opaque-null.nano"
+.string "nano.source_file"
+
+.metadata 3 2
+
+.flag debug_info
+
+.debug 0 2 41
+.debug 14 4 20
+.debug 29 4 39
+
+.entry 1
+
+.function is_null 1 1 0 bool 1
+  LOAD_LOCAL 0
+  PUSH_I64 0
+  EQ
+  RET
+.end
+
+.parameters 0 opaque
+
+.function main 0 0 0 int 1
+  PUSH_I64 0
+  CALL 0
+  ASSERT
+  PUSH_I64 0
+  RET
+.end
+

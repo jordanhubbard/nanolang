@@ -1,0 +1,12 @@
+resource struct Unused{value:int}
+fn consume(h:Unused)->int{let Unused{value}=h return value}
+shadow consume{assert (== (consume Unused{value:7}) 7)}
+union Box<T> { Some { value: T }, Other { value: T }, None {} }
+fn read(boxed: Box<int>) -> int { match boxed {
+ Some(payload) => { let Box.Some { value } = payload return value }
+ Other(payload) => { return 0 }
+ None(payload) => { let Box.None {} = payload return 0 }
+} }
+shadow read { let boxed: Box<int> = Box.Some { value: 7 } assert (== (read boxed) 7) let empty: Box<int> = Box.None {} assert (== (read empty) 0) }
+fn main() -> int { let boxed: Box<int> = Box.Some { value: 7 } return (- (read boxed) 7) }
+shadow main { assert (== (main) 0) }

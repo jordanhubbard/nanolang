@@ -90,31 +90,76 @@ static void fn_variant(Fne *b,const NvmFileCyclicHostedPlan *p,uint32_t f,uint16
         NvmFileFlowReference reference;
         if(!nvm_file_cyclic_hosted_input_reference(p,f,i,v,n,&reference)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
         if(!reference.live) {
-            if(reference.formal || reference.local || reference.owner || reference.identity || reference.region) {
+            if(reference.formal || reference.local || reference.owner || reference.identity || reference.region || reference.shared) {
                 b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;
             }
             continue;
         }
         fn_text(b,"case %u:\n",n);
 #define REF(m) FN_FIELD(b,"reference.",reference,m)
-        REF(live);REF(formal);REF(local);REF(owner);REF(identity);REF(region);
+        REF(live);REF(formal);REF(local);REF(owner);REF(identity);REF(region);REF(shared);
 #undef REF
         fn_text(b,"break;\n");
     }
-    fn_text(b,"default:if(reference.live || reference.formal || reference.local || reference.owner || reference.identity || reference.region)return false;break;}}\n");
+    fn_text(b,"default:if(reference.live || reference.formal || reference.local || reference.owner || reference.identity || reference.region || reference.shared)return false;break;}}\n");
     for(uint16_t n=0;n<variant.input.regions;n++) {
         uint64_t region;
         if(!nvm_file_cyclic_hosted_input_region(p,f,i,v,n,&region)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
         fn_text(b,"if(!nvm_file_cyclic_hosted_input_region(p,%u,%u,%u,%u,&region) || region!=UINT64_C(%" PRIu64 "))return false;\n",f,i,v,n,region);
     }
 }
+static void fn_instruction_agreement(Fne *b,const NvmFileCyclicHostedPlan *p,uint32_t index,uint16_t j) {
+    fn_text(b,"static bool nf_agrees_%u_%u(const NvmFileCyclicHostedPlan *p){\n"
+        "NvmFileCodeInstruction in;NvmFileCyclicVariant variant;\n"
+        "NvmFileFlowValue value;NvmFileFlowReference reference;\n"
+        "uint32_t ordinal;uint16_t component;uint8_t count;uint64_t region;\n"
+        "(void)variant;(void)value;(void)reference;(void)ordinal;(void)region;\n",index,j);
+    NvmFileCodeInstruction in;uint8_t count;uint16_t component;
+    if(!nvm_file_cyclic_hosted_instruction(p,index,j,&in) ||
+       !nvm_file_cyclic_hosted_variant_count(p,index,j,&count) ||
+       !nvm_file_cyclic_hosted_component(p,index,j,&component)) {b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
+    fn_text(b,"if(!nvm_file_cyclic_hosted_instruction(p,%u,%u,&in) || !nvm_file_cyclic_hosted_variant_count(p,%u,%u,&count) || count!=%u || !nvm_file_cyclic_hosted_component(p,%u,%u,&component) || component!=%u)return false;\n",index,j,index,j,count,index,j,component);
+#define IN(m) FN_FIELD(b,"in.",in,m)
+    IN(byte_offset);IN(decoded.opcode);IN(decoded.operand_count);IN(decoded.byte_length);
+    IN(successor_count);IN(catalog_ordinal);
+#undef IN
+    for(uint8_t k=0;k<in.successor_count;k++)fn_text(b,"if(in.successors[%u]!=%u)return false;\n",k,in.successors[k]);
+    for(uint8_t k=0;k<in.decoded.operand_count;k++) {
+        const char *member=NULL;uint64_t value=0;
+        switch(in.decoded.operand_types[k]) {
+        case OPERAND_U8:member="u8";value=in.decoded.operands[k].u8;break;
+        case OPERAND_U16:member="u16";value=in.decoded.operands[k].u16;break;
+        case OPERAND_U32:member="u32";value=in.decoded.operands[k].u32;break;
+        case OPERAND_I32:member="i32";value=(uint64_t)(int64_t)in.decoded.operands[k].i32;break;
+        case OPERAND_I64:member="i64";value=(uint64_t)in.decoded.operands[k].i64;break;
+        default:b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;
+        }
+        fn_text(b,"if(in.decoded.operand_types[%u]!=%u || (uint64_t)in.decoded.operands[%u].%s!=UINT64_C(%" PRIu64 "))return false;\n",k,in.decoded.operand_types[k],k,member,value);
+    }
+    if(in.decoded.opcode==OP_CALL || in.decoded.opcode==OP_CALL_REF || in.decoded.opcode==OP_FILE_CALL_REFS) {
+        NvmFileCyclicHostedFunction callee;
+        if(!nvm_file_cyclic_hosted_function(p,in.decoded.operands[0].u32,&callee)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
+        for(uint16_t k=0;k<callee.code.declaration.parameters;k++)
+            fn_text(b,"if(in.call_references[%u]!=%u)return false;\n",k,in.call_references[k]);
+    }
+    for(uint8_t v=0;v<count;v++)fn_variant(b,p,index,j,v);
+    if(in.decoded.opcode==OP_FILE_SERVICE) {
+        uint32_t original;
+        if(!nvm_file_cyclic_hosted_import(p,in.catalog_ordinal,&original)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
+        fn_text(b,"if(!nvm_file_cyclic_hosted_import(p,%u,&ordinal) || ordinal!=%u)return false;\n",in.catalog_ordinal,original);
+    }
+    fn_text(b,"return true;}\n");
+}
 static void fn_agreement(Fne *b,const NvmFileCyclicHostedPlan *p,NvmFileCyclicHostedStartup start) {
+    for(uint32_t f=0;f<start.functions;f++) {
+        NvmFileCyclicHostedFunction function;
+        if(!nvm_file_cyclic_hosted_function(p,f,&function)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
+        for(uint16_t i=0;i<function.code.instruction_count;i++)fn_instruction_agreement(b,p,f,i);
+    }
     fn_text(b,"static bool nf_agrees(const NvmFileCyclicHostedPlan *p){\n"
         "NvmFileCyclicHostedStartup s;NvmFileCyclicHostedFunction f;NvmFileFlowDeclaration l;\n"
-        "NvmFileCodeInstruction in;NvmFileNominalLayout t;NvmFileCyclicVariant variant;\n"
-        "NvmFileFlowValue value;NvmFileFlowReference reference;\n"
-        "uint32_t ordinal;uint16_t component;uint8_t count,byte;uint64_t region;\n"
-        "(void)l;(void)value;(void)reference;(void)region;(void)variant;\n"
+        "NvmFileNominalLayout t;uint32_t ordinal;uint8_t byte;\n"
+        "(void)l;\n"
         "if(!nvm_file_cyclic_hosted_startup(p,&s))return false;\n");
 #define START(m) FN_FIELD(b,"s.",start,m)
     START(revision);START(entry);START(initializer);START(functions);START(features);
@@ -156,36 +201,8 @@ static void fn_agreement(Fne *b,const NvmFileCyclicHostedPlan *p,NvmFileCyclicHo
             fn_text(b,"if(!nvm_file_cyclic_hosted_local(p,%u,%u,&l))return false;\n",index,j);
             fn_declaration(b,"l.",l);
         }
-        for(uint16_t j=0;j<f.code.instruction_count;j++) {
-            NvmFileCodeInstruction in;uint8_t count;uint16_t component;
-            if(!nvm_file_cyclic_hosted_instruction(p,index,j,&in) ||
-               !nvm_file_cyclic_hosted_variant_count(p,index,j,&count) ||
-               !nvm_file_cyclic_hosted_component(p,index,j,&component)) {b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
-            fn_text(b,"if(!nvm_file_cyclic_hosted_instruction(p,%u,%u,&in) || !nvm_file_cyclic_hosted_variant_count(p,%u,%u,&count) || count!=%u || !nvm_file_cyclic_hosted_component(p,%u,%u,&component) || component!=%u)return false;\n",index,j,index,j,count,index,j,component);
-#define IN(m) FN_FIELD(b,"in.",in,m)
-            IN(byte_offset);IN(decoded.opcode);IN(decoded.operand_count);IN(decoded.byte_length);
-            IN(successor_count);IN(catalog_ordinal);
-#undef IN
-            for(uint8_t k=0;k<in.successor_count;k++)fn_text(b,"if(in.successors[%u]!=%u)return false;\n",k,in.successors[k]);
-            for(uint8_t k=0;k<in.decoded.operand_count;k++) {
-                const char *member=NULL;uint64_t value=0;
-                switch(in.decoded.operand_types[k]) {
-                case OPERAND_U8:member="u8";value=in.decoded.operands[k].u8;break;
-                case OPERAND_U16:member="u16";value=in.decoded.operands[k].u16;break;
-                case OPERAND_U32:member="u32";value=in.decoded.operands[k].u32;break;
-                case OPERAND_I32:member="i32";value=(uint64_t)(int64_t)in.decoded.operands[k].i32;break;
-                case OPERAND_I64:member="i64";value=(uint64_t)in.decoded.operands[k].i64;break;
-                default:b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;
-                }
-                fn_text(b,"if(in.decoded.operand_types[%u]!=%u || (uint64_t)in.decoded.operands[%u].%s!=UINT64_C(%" PRIu64 "))return false;\n",k,in.decoded.operand_types[k],k,member,value);
-            }
-            for(uint8_t v=0;v<count;v++)fn_variant(b,p,index,j,v);
-            if(in.decoded.opcode==OP_FILE_SERVICE) {
-                uint32_t original;
-                if(!nvm_file_cyclic_hosted_import(p,in.catalog_ordinal,&original)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
-                fn_text(b,"if(!nvm_file_cyclic_hosted_import(p,%u,&ordinal) || ordinal!=%u)return false;\n",in.catalog_ordinal,original);
-            }
-        }
+        for(uint16_t j=0;j<f.code.instruction_count;j++)
+            fn_text(b,"if(!nf_agrees_%u_%u(p))return false;\n",index,j);
     }
     fn_text(b,"return true;}\n");
 }
@@ -268,7 +285,7 @@ static void fn_instruction(Fne *b,uint32_t function,const NvmFileCodeInstruction
     case OP_STORE_LOCAL:case OP_OWN_STORE_LOCAL:fn_text(b,"NF_TRY(nvm_file_runtime_frame_store(c));\n");break;
     case OP_REGION_BEGIN:fn_text(b,"NF_TRY(nvm_file_runtime_frame_region_begin(c));\n");break;
     case OP_REGION_END:fn_text(b,"NF_TRY(nvm_file_runtime_frame_region_end(c));\n");break;
-    case OP_BORROW_LOCAL_EXCLUSIVE:fn_text(b,"NF_TRY(nvm_file_runtime_frame_borrow(c));\n");break;
+    case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:fn_text(b,"NF_TRY(nvm_file_runtime_frame_borrow(c));\n");break;
     case OP_FILE_END_BORROW:fn_text(b,"NF_TRY(nvm_file_runtime_frame_end_reference(c));\n");break;
     case OP_FILE_DROP_LOCAL:
         fn_text(b,"if(!nvm_file_runtime_frame_local(c,%u,&src))return nf_bad(c);\nNF_TRY(nvm_file_runtime_drop(c,src));\n",d->operands[0].u16);break;
@@ -309,7 +326,7 @@ static void fn_instruction(Fne *b,uint32_t function,const NvmFileCodeInstruction
             "NF_TRY(nvm_file_runtime_result_arm(c,src,&arm));\nNF_TRY(nvm_file_runtime_drop(c,src));\n"
             "NF_TRY(nvm_file_runtime_scalar(c,src,TAG_INT,arm==NVM_FILE_FLOW_ARM_ERROR));\n");
         break;
-    case OP_CALL:case OP_CALL_REF:
+    case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:
         if(in->successor_count!=1){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
         fn_text(b,"NF_TRY(nvm_file_runtime_frame_call(c));\nNF_TRY(nf_function_%u(c));\ngoto nf_label_%u;\n",d->operands[0].u32,in->successors[0]);return;
     case OP_RET:fn_text(b,"return nvm_file_runtime_frame_return(c);\n");return;

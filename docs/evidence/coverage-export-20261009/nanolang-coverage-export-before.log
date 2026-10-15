@@ -1,0 +1,37 @@
+make -f Makefile.before-export -f coverage_env_probe.mk probe-leaf
+make[1]: Entering directory '/work'
+NANO_BUILD_CACHE=/work/coverage-env-probe/cache python3 coverage_env_probe.py
+LDFLAGS: None
+test_real_emitter_driver_executes_in_vm_and_sanitized_native (tests.test_bootstrap_components.BootstrapComponents.test_real_emitter_driver_executes_in_vm_and_sanitized_native) ... FAIL
+
+======================================================================
+FAIL: test_real_emitter_driver_executes_in_vm_and_sanitized_native (tests.test_bootstrap_components.BootstrapComponents.test_real_emitter_driver_executes_in_vm_and_sanitized_native)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/test_bootstrap_components.py", line 69, in test_real_emitter_driver_executes_in_vm_and_sanitized_native
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : /usr/bin/ld: /work/coverage-env-probe/runtime.o: in function `_sub_I_00100_0':
+dyn_array.c:(.text+0x47fc): undefined reference to `__gcov_init'
+/usr/bin/ld: /work/coverage-env-probe/runtime.o: in function `_sub_D_00100_1':
+dyn_array.c:(.text+0x4810): undefined reference to `__gcov_exit'
+/usr/bin/ld: /work/coverage-env-probe/runtime.o: in function `_sub_I_00100_0':
+gc.c:(.text+0x63b0): undefined reference to `__gcov_init'
+/usr/bin/ld: /work/coverage-env-probe/runtime.o: in function `_sub_D_00100_1':
+gc.c:(.text+0x63c4): undefined reference to `__gcov_exit'
+/usr/bin/ld: /work/coverage-env-probe/runtime.o: in function `_sub_I_00100_0':
+gc_struct.c:(.text+0x72fc): undefined reference to `__gcov_init'
+/usr/bin/ld: /work/coverage-env-probe/runtime.o: in function `_sub_D_00100_1':
+gc_struct.c:(.text+0x7310): undefined reference to `__gcov_exit'
+/usr/bin/ld: /work/coverage-env-probe/runtime.o:(.data.rel+0x20): undefined reference to `__gcov_merge_add'
+/usr/bin/ld: /work/coverage-env-probe/runtime.o:(.data.rel+0x90): undefined reference to `__gcov_merge_add'
+/usr/bin/ld: /work/coverage-env-probe/runtime.o:(.data.rel+0x100): undefined reference to `__gcov_merge_add'
+collect2: error: ld returned 1 exit status
+
+
+----------------------------------------------------------------------
+Ran 1 test in 94.865s
+
+FAILED (failures=1)
+make[1]: Leaving directory '/work'
+make[1]: *** [coverage_env_probe.mk:2: probe-leaf] Error 1
+make: *** [coverage_env_probe.mk:4: probe-nested] Error 2

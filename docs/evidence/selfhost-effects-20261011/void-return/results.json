@@ -1,0 +1,11 @@
+[
+  {
+    "driver": "c",
+    "compile": 0,
+    "run": 7
+  },
+  {
+    "driver": "selfhost",
+    "compile": 1
+  }
+]

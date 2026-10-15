@@ -1,0 +1,6 @@
+unsafe module "modules/sqlite/sqlite.nano" as sqlite
+fn main()->int {
+ let SQLITE_OK: int = 7
+ return (SQLITE_OK)
+}
+shadow main { assert true }

@@ -1,0 +1,44 @@
+F..F.
+======================================================================
+FAIL: test_immediate_zero_capture_identity_and_scope_restore (tests.test_selfhost_captures.SelfhostCaptures.test_immediate_zero_capture_identity_and_scope_restore) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 25, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 17, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-captured-scope-zzttopmc/input.nano
+I cannot determine this function value's signature.
+
+17|     assert (== (fn()->int { return n }) 42)
+                   ^
+Hint: Declare the function value's parameter and return types.
+error: type check failed
+
+
+======================================================================
+FAIL: test_mutable_instances_containers_and_forwarded_callable (tests.test_selfhost_captures.SelfhostCaptures.test_mutable_instances_containers_and_forwarded_callable) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 25, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 17, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 19, column 24: Unused variable 'temporary'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-captured-values-lnru2o0w/input.nano
+Function parameter expects a function name.
+
+10| shadow relay { let middle:fn()->fn()->int = (relay (counter 40)) let f:fn()->int = (middle) assert (== (f) 41) }
+                                                       ^
+Hint: Pass a function identifier or a function-typed variable.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.275s
+
+FAILED (failures=2)

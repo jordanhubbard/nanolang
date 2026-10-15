@@ -1,0 +1,2 @@
+COMMAND ['/private/tmp/nanolang-introspection-owned-c-20261009/nano_virt', '/private/tmp/nanolang-introspection-owned-c-20261009/owned_all.nano', '--emit-nvm', '-o', '/private/tmp/nanolang-introspection-owned-c-20261009/program.nvm'] EXIT 1  I could not compile shadows at line 18: I require a known module introspection operation in my source borrow profile
+

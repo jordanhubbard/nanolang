@@ -3,7 +3,7 @@
 # Replaces gen_compiler_schema.py for Python-free bootstrap
 
 from "std/fs.nano" import read, write, join, delete
-from "modules/std/json/json.nano" import parse, free, get, is_string, is_object, is_array, array_size, get_index, as_string, as_int, as_bool, object_has, keys, new_object, new_array, new_string, object_set, json_array_push
+from "modules/std/json/json.nano" import parse, free, get, is_string, is_object, is_array, array_size, get_index, as_string, as_int, as_bool, object_has, keys, new_object, new_array, new_string, object_set, json_array_push, get_string, get_bool
 
 let HEADER_COMMENT: string = "/* AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY. */"
 let C_GUARD: string = "NANOLANG_GENERATED_COMPILER_SCHEMA_H"
@@ -38,6 +38,21 @@ shadow get_token_count {
     (free empty)
 }
 
+# I copy indexed text and release the owned Json getter result.
+fn schema_index_string(items: Json, index: int) -> string {
+    let value: Json = (get_index items index)
+    let text: string = (as_string value)
+    (free value)
+    return text
+}
+
+shadow schema_index_string {
+    let items: Json = (parse "[\"owned\"]")
+    let text: string = (schema_index_string items 0)
+    (free items)
+    assert (== text "owned")
+}
+
 # Generate NanoLang schema enums
 fn gen_nano_schema(schema: Json) -> string {
     let mut output: string = (+ HEADER_COMMENT "\n\n")
@@ -52,7 +67,7 @@ fn gen_nano_schema(schema: Json) -> string {
         let token: Json = (get_index tokens_json i)
         let name: string = (cond
             ((is_string token) (as_string token))
-            (else (as_string (get token "name")))
+            (else (get_string token "name"))
         )
         let value: int = i
         let suffix: string = (cond
@@ -61,6 +76,7 @@ fn gen_nano_schema(schema: Json) -> string {
         )
         set output (+ output (+ "    " (+ name (+ " = " (+ (int_to_string value) (+ suffix "\n"))))))
         set i (+ i 1)
+        (free token)
     }
     set output (+ output "}\n\n")
     
@@ -79,9 +95,12 @@ fn gen_nano_schema(schema: Json) -> string {
         )
         set output (+ output (+ "    " (+ name (+ " = " (+ (int_to_string i) (+ suffix "\n"))))))
         set i (+ i 1)
+        (free node)
     }
     set output (+ output "}\n")
     
+    (free nodes_json)
+    (free tokens_json)
     return output
 }
 
@@ -89,15 +108,21 @@ shadow gen_nano_schema {
     # Test with minimal schema
     let schema: Json = (new_object)
     let tokens: Json = (new_array)
-    (json_array_push tokens (new_string "TOKEN_EOF"))
+    let tokens_item: Json = (new_string "TOKEN_EOF")
+    (json_array_push tokens tokens_item)
     (object_set schema "tokens" tokens)
     let nodes: Json = (new_array)
-    (json_array_push nodes (new_string "NODE_EXPR"))
+    let nodes_item: Json = (new_string "NODE_EXPR")
+    (json_array_push nodes nodes_item)
     (object_set schema "parse_nodes" nodes)
     
     let result: string = (gen_nano_schema schema)
     assert (> (str_length result) 0)
     (free schema)
+    (free nodes_item)
+    (free nodes)
+    (free tokens_item)
+    (free tokens)
 }
 
 # Generate NanoLang AST types
@@ -115,13 +140,13 @@ fn gen_nano_ast(schema: Json) -> string {
         while (< i enum_count) {
             let enum_obj: Json = (get_index enums i)
             let is_contract: bool = (cond
-                ((object_has enum_obj "contracts") (as_bool (get enum_obj "contracts")))
+                ((object_has enum_obj "contracts") (get_bool enum_obj "contracts"))
                 (else false)
             )
             if is_contract {
                 # Contract enums are emitted in compiler_contracts.nano
             } else {
-                let enum_name: string = (as_string (get enum_obj "name"))
+                let enum_name: string = (get_string enum_obj "name")
                 let values: Json = (get enum_obj "values")
                 let value_count: int = (array_size values)
                 
@@ -137,11 +162,15 @@ fn gen_nano_ast(schema: Json) -> string {
                     )
                     set output (+ output (+ "    " (+ val_name (+ suffix "\n"))))
                     set j (+ j 1)
+                    (free val)
                 }
                 set output (+ output "}\n\n")
+                (free values)
             }
             set i (+ i 1)
+            (free enum_obj)
         }
+        (free enums)
     } else {}
     
     # Generate structs if they exist
@@ -153,13 +182,13 @@ fn gen_nano_ast(schema: Json) -> string {
         while (< i struct_count) {
             let struct_obj: Json = (get_index structs i)
             let is_contract: bool = (cond
-                ((object_has struct_obj "contracts") (as_bool (get struct_obj "contracts")))
+                ((object_has struct_obj "contracts") (get_bool struct_obj "contracts"))
                 (else false)
             )
             if is_contract {
                 # Contract structs are emitted in compiler_contracts.nano
             } else {
-                let struct_name: string = (as_string (get struct_obj "name"))
+                let struct_name: string = (get_string struct_obj "name")
                 let fields: Json = (get struct_obj "fields")
                 let field_count: int = (array_size fields)
                 
@@ -167,7 +196,7 @@ fn gen_nano_ast(schema: Json) -> string {
                 let prefix: string = (cond
                     ((object_has struct_obj "emit_c") 
                         (cond
-                            ((as_bool (get struct_obj "emit_c")) "extern ")
+                            ((get_bool struct_obj "emit_c") "extern ")
                             (else "")
                         )
                     )
@@ -179,19 +208,23 @@ fn gen_nano_ast(schema: Json) -> string {
                 let mut j: int = 0
                 while (< j field_count) {
                     let field: Json = (get_index fields j)
-                    let field_name: string = (as_string (get_index field 0))
-                    let field_type: string = (as_string (get_index field 1))
+                    let field_name: string = (schema_index_string field 0)
+                    let field_type: string = (schema_index_string field 1)
                     let suffix: string = (cond
                         ((< j (- field_count 1)) ",")
                         (else "")
                     )
                     set output (+ output (+ "    " (+ field_name (+ ": " (+ field_type (+ suffix "\n"))))))
                     set j (+ j 1)
+                    (free field)
                 }
                 set output (+ output "}\n\n")
+                (free fields)
             }
             set i (+ i 1)
+            (free struct_obj)
         }
+        (free structs)
     } else {}
     
     return (str_substring output 0 (- (str_length output) 1))
@@ -218,11 +251,11 @@ fn gen_contracts(schema: Json) -> string {
         while (< i enum_count) {
             let enum_obj: Json = (get_index enums i)
             let is_contract: bool = (cond
-                ((object_has enum_obj "contracts") (as_bool (get enum_obj "contracts")))
+                ((object_has enum_obj "contracts") (get_bool enum_obj "contracts"))
                 (else false)
             )
             if is_contract {
-                let enum_name: string = (as_string (get enum_obj "name"))
+                let enum_name: string = (get_string enum_obj "name")
                 let values: Json = (get enum_obj "values")
                 let value_count: int = (array_size values)
 
@@ -238,12 +271,16 @@ fn gen_contracts(schema: Json) -> string {
                     )
                     set output (+ output (+ "    " (+ val_name (+ suffix "\n"))))
                     set j (+ j 1)
+                    (free val)
                 }
 
                 set output (+ output "}\n\n")
+                (free values)
             } else {}
             set i (+ i 1)
+            (free enum_obj)
         }
+        (free enums)
     } else {}
 
     # Contract structs
@@ -255,18 +292,18 @@ fn gen_contracts(schema: Json) -> string {
         while (< i struct_count) {
             let struct_obj: Json = (get_index structs i)
             let is_contract: bool = (cond
-                ((object_has struct_obj "contracts") (as_bool (get struct_obj "contracts")))
+                ((object_has struct_obj "contracts") (get_bool struct_obj "contracts"))
                 (else false)
             )
             if is_contract {
-                let struct_name: string = (as_string (get struct_obj "name"))
+                let struct_name: string = (get_string struct_obj "name")
                 let fields: Json = (get struct_obj "fields")
                 let field_count: int = (array_size fields)
 
                 let prefix: string = (cond
                     ((object_has struct_obj "emit_c")
                         (cond
-                            ((as_bool (get struct_obj "emit_c")) "extern ")
+                            ((get_bool struct_obj "emit_c") "extern ")
                             (else "")
                         )
                     )
@@ -278,20 +315,24 @@ fn gen_contracts(schema: Json) -> string {
                 let mut j: int = 0
                 while (< j field_count) {
                     let field: Json = (get_index fields j)
-                    let field_name: string = (as_string (get_index field 0))
-                    let field_type: string = (as_string (get_index field 1))
+                    let field_name: string = (schema_index_string field 0)
+                    let field_type: string = (schema_index_string field 1)
                     let suffix: string = (cond
                         ((< j (- field_count 1)) ",")
                         (else "")
                     )
                     set output (+ output (+ "    " (+ field_name (+ ": " (+ field_type (+ suffix "\n"))))))
                     set j (+ j 1)
+                    (free field)
                 }
 
                 set output (+ output "}\n\n")
+                (free fields)
             } else {}
             set i (+ i 1)
+            (free struct_obj)
         }
+        (free structs)
     } else {}
 
     return (str_substring output 0 (- (str_length output) 1))
@@ -443,14 +484,18 @@ fn gen_c(schema: Json) -> string {
             let mut j: int = 0
             while (< j (array_size fields)) {
                 let field: Json = (get_index fields j)
-                let field_type: string = (as_string (get_index field 1))
+                let field_type: string = (schema_index_string field 1)
                 if (schema_prefix_matches field_type "List<") {
                     (schema_insert_name list_names (extract_between field_type "List<" ">"))
                 }
                 set j (+ j 1)
+                (free field)
             }
             set i (+ i 1)
+            (free fields)
+            (free struct_obj)
         }
+        (free structs)
     }
     if (> (list_string_length list_names) 0) {
         set output (+ output "/* Forward declare List types */\n")
@@ -475,9 +520,9 @@ fn gen_c(schema: Json) -> string {
         while (< i enum_count) {
             let enum_obj: Json = (get_index enums i)
             if (object_has enum_obj "emit_c") {
-                let emit_c: bool = (as_bool (get enum_obj "emit_c"))
+                let emit_c: bool = (get_bool enum_obj "emit_c")
                 if emit_c {
-                    let enum_name: string = (as_string (get enum_obj "name"))
+                    let enum_name: string = (get_string enum_obj "name")
                     let values: Json = (get enum_obj "values")
                     let value_count: int = (array_size values)
                     
@@ -495,14 +540,18 @@ fn gen_c(schema: Json) -> string {
                         )
                         set output (+ output (+ "    " (+ enum_name (+ "_" (+ val_name (+ suffix "\n"))))))
                         set j (+ j 1)
+                        (free val)
                     }
                     
                     set output (+ output (+ "} " (+ enum_name ";\n")))
                     set output (+ output "#endif\n\n")
+                    (free values)
                 } else {}
             } else {}
             set i (+ i 1)
+            (free enum_obj)
         }
+        (free enums)
     } else {}
     
     # TokenType enum
@@ -515,7 +564,7 @@ fn gen_c(schema: Json) -> string {
         let token: Json = (get_index tokens_json i)
         let name: string = (cond
             ((is_string token) (as_string token))
-            (else (as_string (get token "name")))
+            (else (get_string token "name"))
         )
         let suffix: string = (cond
             ((< i (- token_count 1)) ",")
@@ -523,6 +572,7 @@ fn gen_c(schema: Json) -> string {
         )
         set output (+ output (+ "    " (+ name (+ " = " (+ (int_to_string i) (+ suffix "\n"))))))
         set i (+ i 1)
+        (free token)
     }
     set output (+ output "} TokenType;\n\n")
     
@@ -541,6 +591,7 @@ fn gen_c(schema: Json) -> string {
         )
         set output (+ output (+ "    " (+ name (+ " = " (+ (int_to_string i) (+ suffix "\n"))))))
         set i (+ i 1)
+        (free node)
     }
     set output (+ output "} ParseNodeType;\n\n")
     
@@ -553,9 +604,9 @@ fn gen_c(schema: Json) -> string {
         while (< i struct_count) {
             let struct_obj: Json = (get_index structs i)
             if (object_has struct_obj "emit_c") {
-                let emit_c: bool = (as_bool (get struct_obj "emit_c"))
+                let emit_c: bool = (get_bool struct_obj "emit_c")
                 if emit_c {
-                    let struct_name: string = (as_string (get struct_obj "name"))
+                    let struct_name: string = (get_string struct_obj "name")
                     let c_struct_name: string = (+ "nl_" struct_name)
                     let fields: Json = (get struct_obj "fields")
                     let field_count: int = (array_size fields)
@@ -567,17 +618,19 @@ fn gen_c(schema: Json) -> string {
                     let mut j: int = 0
                     while (< j field_count) {
                         let field: Json = (get_index fields j)
-                        let field_name: string = (as_string (get_index field 0))
-                        let field_type: string = (as_string (get_index field 1))
+                        let field_name: string = (schema_index_string field 0)
+                        let field_type: string = (schema_index_string field 1)
                         let mut c_type: string = (map_type_to_c field_type)
                         if (object_has struct_obj "c_field_types") {
                             let overrides: Json = (get struct_obj "c_field_types")
                             if (object_has overrides field_name) {
-                                set c_type (as_string (get overrides field_name))
+                                set c_type (get_string overrides field_name)
                             }
+                            (free overrides)
                         }
                         set output (+ output (+ "    " (+ c_type (+ " " (+ field_name ";\n")))))
                         set j (+ j 1)
+                        (free field)
                     }
                     
                     set output (+ output (+ "} " (+ c_struct_name ";\n")))
@@ -592,23 +645,30 @@ fn gen_c(schema: Json) -> string {
                     } else {}
                     
                     set output (+ output "#endif\n\n")
+                    (free fields)
                 } else {}
             } else {}
             set i (+ i 1)
+            (free struct_obj)
         }
+        (free structs)
     } else {}
     
     set output (+ output (+ "#endif /* " (+ C_GUARD " */\n")))
+    (free nodes_json)
+    (free tokens_json)
     return output
 }
 
 shadow gen_c {
     let schema: Json = (new_object)
     let tokens: Json = (new_array)
-    (json_array_push tokens (new_string "TOKEN_EOF"))
+    let tokens_item: Json = (new_string "TOKEN_EOF")
+    (json_array_push tokens tokens_item)
     (object_set schema "tokens" tokens)
     let nodes: Json = (new_array)
-    (json_array_push nodes (new_string "NODE_EXPR"))
+    let nodes_item: Json = (new_string "NODE_EXPR")
+    (json_array_push nodes nodes_item)
     (object_set schema "parse_nodes" nodes)
     
     let result: string = (gen_c schema)
@@ -619,6 +679,10 @@ shadow gen_c {
     assert (str_contains counted_c "int64_t value_bytes;")
     (free counted)
 
+    (free nodes_item)
+    (free nodes)
+    (free tokens_item)
+    (free tokens)
 }
 
 fn main() -> int {

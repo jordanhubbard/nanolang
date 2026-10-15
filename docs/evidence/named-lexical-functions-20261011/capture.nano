@@ -1,0 +1,2 @@
+fn main()->int {let offset:int=4 fn helper(value:int)->int{return (+ value offset)} return (helper 3)}
+shadow main {assert true}

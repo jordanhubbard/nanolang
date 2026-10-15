@@ -1,0 +1,7 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nanolang-selfhost-union-final/installed/OwnedGlobalSource/test_wrong_global_assignment_type_refused/main.nano
+Assignment expects int but got bool.
+
+9|     set counter true
+       ^
+Hint: Convert the value to the variable's type before assignment.
+error: type check failed

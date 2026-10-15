@@ -47,6 +47,15 @@ export DEBIAN_FRONTEND=noninteractive
 APT_ATTEMPT='
   set -euo pipefail
   export DEBIAN_FRONTEND=noninteractive
+  attempt="$1"
+  shift
+  if [ "$attempt" -gt 1 ]; then
+    echo "I recover pending dpkg configuration before retrying installation"
+    # I may still lack dependencies after interrupted unpacking. I retain that
+    # diagnostic and let apt repair them within this same attempt deadline.
+    sudo -E dpkg --configure -a || echo "dpkg configuration needs dependency repair" >&2
+    sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 --fix-broken install -y
+  fi
   sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 update -qq
   sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 install -y "$@"
 '
@@ -54,9 +63,9 @@ APT_ATTEMPT='
 install_once() {
   if [ -n "$TIMEOUT_BIN" ]; then
     "$TIMEOUT_BIN" --foreground --signal=KILL "$ATTEMPT_TIMEOUT" \
-      bash -c "$APT_ATTEMPT" ci-apt "$@"
+      bash -c "$APT_ATTEMPT" ci-apt "$attempt" "$@"
   else
-    bash -c "$APT_ATTEMPT" ci-apt "$@"
+    bash -c "$APT_ATTEMPT" ci-apt "$attempt" "$@"
   fi
 }
 

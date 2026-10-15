@@ -1,0 +1,8 @@
+{
+  "bin/nano_virt": "57da19f2c34babc8e0a33b350860aed0b6a8ea93d606cced6d890c828e5110e4",
+  "/private/tmp/nl51-effect-globals/product/final-compiler": "f7da91a164a4092bd6926b0caeb10c6a6c3f5c05fa6c39f325087cb9c3f8d09a",
+  "/private/tmp/nl51-effect-collections/lexical.nano": "84dfff885c725105ac4e973585de270739ca43e2b13ac137aa5ebed92520728c",
+  "/private/tmp/nl51-effect-collections/payload.nano": "07c659289b40dc6ae83e80bd13244455a6c026b3d59c6dfb3bd3cc7189b19c41",
+  "/private/tmp/nl51-effect-collections/scalar.nano": "96faee380ef5120470c13fcd4e94991dc0b9dd7750e58428860dc1c282622a28",
+  "/private/tmp/nl51-effect-collections/wrong_element.nano": "d20a1517039f42c254739750f609894ffc87b2189467491f6c92e71e7b28192b"
+}

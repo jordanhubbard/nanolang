@@ -1,0 +1,73 @@
+.string before "before"
+.string after "after"
+.string suffix "-owned"
+.entry main
+.function main 0 2 0 int 1
+CALL make_before
+STORE_GLOBAL 0
+LOAD_GLOBAL 0
+STORE_LOCAL 0
+PUSH_I64 0
+STORE_LOCAL 1
+loop:
+LOAD_LOCAL 1
+PUSH_I64 4096
+I64_LT_S
+JMP_FALSE done
+CALL make_after
+STORE_GLOBAL 0
+LOAD_LOCAL 1
+PUSH_I64 1
+I64_ADD
+STORE_LOCAL 1
+JMP loop
+done:
+LOAD_LOCAL 0
+AGG_GET 0
+PUSH_STR before
+PUSH_STR suffix
+STR_CONCAT
+STR_EQ
+ASSERT
+LOAD_LOCAL 0
+AGG_GET 1
+PUSH_I64 0
+ARR_GET
+PUSH_STR before
+PUSH_STR suffix
+STR_CONCAT
+STR_EQ
+ASSERT
+LOAD_GLOBAL 0
+AGG_GET 0
+PUSH_STR after
+PUSH_STR suffix
+STR_CONCAT
+STR_EQ
+ASSERT
+PUSH_VOID
+STORE_GLOBAL 0
+LOAD_LOCAL 0
+AGG_GET 0
+PRINTLN
+PUSH_I64 0
+RET
+.end
+.function make_before 0 0 0 struct 1
+PUSH_STR before
+PUSH_STR suffix
+STR_CONCAT
+DUP
+ARR_LITERAL 5 1
+AGG_PACK 0 0 0 2
+RET
+.end
+.function make_after 0 0 0 struct 1
+PUSH_STR after
+PUSH_STR suffix
+STR_CONCAT
+DUP
+ARR_LITERAL 5 1
+AGG_PACK 0 0 0 2
+RET
+.end

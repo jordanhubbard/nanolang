@@ -1,0 +1,13 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -UNDEBUG -o obj/test_resource_flow_allocations tests/test_resource_flow_allocations.c
+Undefined symbols for architecture arm64:
+  "_effect_get_op", referenced from:
+      _own_type in test_resource_flow_allocations-d4de1a.o
+      _own_expr_info in test_resource_flow_allocations-d4de1a.o
+      _own_node in test_resource_flow_allocations-d4de1a.o
+  "_env_get_effect", referenced from:
+      _own_type in test_resource_flow_allocations-d4de1a.o
+      _own_expr_info in test_resource_flow_allocations-d4de1a.o
+      _own_node in test_resource_flow_allocations-d4de1a.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+make: *** [test-resource-flow-allocations] Error 1

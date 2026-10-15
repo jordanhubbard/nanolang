@@ -30,7 +30,7 @@ fn main() -> int {
     (println "  - import lexer_main.nano as Lexer")
     (println "  - import parser.nano as Parser")
     (println "  - import typecheck.nano as TC")
-    (println "  - import transpiler.nano as Trans")
+    (println "  - import compiler/nanoisa_codegen.nano as Emit")
     (println "")
     (println "TRUE SELF-HOSTING is now possible!")
     (println "")

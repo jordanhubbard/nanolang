@@ -1,0 +1,11 @@
+python3 scripts/embed_binary64_parser.py --check
+I run seed-final-verify; I retain its log at /private/tmp/nanolang-bootstrap-65895d5fb/obj/bootstrap-nanoisa/run-fck8k2jq/14-seed-final-verify.log.
+I run stage1-final-verify; I retain its log at /private/tmp/nanolang-bootstrap-65895d5fb/obj/bootstrap-nanoisa/run-fck8k2jq/15-stage1-final-verify.log.
+I run stage2-final-verify; I retain its log at /private/tmp/nanolang-bootstrap-65895d5fb/obj/bootstrap-nanoisa/run-fck8k2jq/16-stage2-final-verify.log.
+I compared raw Stage 1 and Stage 2 modules: they are byte-identical in this build.
+I have not established reproducibility across clean environments or proved compiler semantic correctness.
+I installed bin/nanoc from the verified Stage 2 module.
+Hello from NanoLang!
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+✅ bin/nanoc succeeded with bin/nanoc_c removed

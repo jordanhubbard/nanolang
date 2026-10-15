@@ -1,0 +1,7154 @@
+{
+  "artifacts": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt",
+  "modes": {
+    "instrumented": {
+      "private-capture-run": {
+        "count": 1164,
+        "sha256": "8a1372a06c352a88507d41dd12bdf71a13de67ed630ef33071919875e2d3cbb6"
+      },
+      "public-capture-run": {
+        "count": 1164,
+        "sha256": "8a1372a06c352a88507d41dd12bdf71a13de67ed630ef33071919875e2d3cbb6"
+      },
+      "O0-run": {
+        "count": 1164,
+        "sha256": "8a1372a06c352a88507d41dd12bdf71a13de67ed630ef33071919875e2d3cbb6"
+      },
+      "O2-run": {
+        "count": 1164,
+        "sha256": "8a1372a06c352a88507d41dd12bdf71a13de67ed630ef33071919875e2d3cbb6"
+      }
+    },
+    "linked": {
+      "private-capture-run": {
+        "count": 1158,
+        "sha256": "51dfcedd163f6f59c12b7e895ad8e85116dfa8719ad59a2df5568575c8a69978"
+      },
+      "public-capture-run": {
+        "count": 1158,
+        "sha256": "51dfcedd163f6f59c12b7e895ad8e85116dfa8719ad59a2df5568575c8a69978"
+      },
+      "O0-run": {
+        "count": 1158,
+        "sha256": "51dfcedd163f6f59c12b7e895ad8e85116dfa8719ad59a2df5568575c8a69978"
+      },
+      "O2-run": {
+        "count": 1158,
+        "sha256": "51dfcedd163f6f59c12b7e895ad8e85116dfa8719ad59a2df5568575c8a69978"
+      }
+    }
+  },
+  "commands": {
+    "linked-O2-7-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.413102,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76429,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-refused-old-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006766,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76710,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-29-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.317033,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76454,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-78-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.24896,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76670,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-refused-default-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.005974,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76709,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-23-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.186396,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76283,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-72-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.142405,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76363,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-17-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.190174,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75173,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-30-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.361054,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76455,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-3-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.294715,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76223,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-81-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.195253,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76374,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-3-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.00687,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76911,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-61-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.259806,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76648,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-refused-old-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007344,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76906,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-file_indirect_public_vm-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.140575,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76194,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-tamper-reference-map-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.185254,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 77048,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-nvm_v2_functions-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.141856,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76175,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-28-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.308984,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76453,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-79-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.298733,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76671,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-6-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.422854,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76428,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-public-capture-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 1.427831,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76207,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-header-c99-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.081394,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76702,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-nvm_v2_imports-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.195687,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76176,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-7-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006592,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76915,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-2-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.26002,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76222,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-80-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.200065,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76373,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-16-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.204201,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75172,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-31-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.362559,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76456,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-60-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.196915,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76641,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-22-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.184389,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76282,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-73-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.192014,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76364,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-private-capture-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 5.915943,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75080,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-57-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.535515,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75376,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-70-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.210499,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76360,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-file_indirect_public_native-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.195195,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75060,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-21-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.200089,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76281,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-63-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.247857,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76654,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-83-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.139403,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76376,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-1-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.128921,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76220,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-32-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.403519,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76457,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-15-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.190975,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75171,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-69-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.200239,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76357,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-38-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.362942,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76298,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-file_public_vm-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.137418,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76190,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-5-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.396656,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76427,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-installed-O0-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.242655,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76749,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-62-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.247624,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76653,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-install-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 300,
+      "elapsed_seconds": 3.962178,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 74857,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-14-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.135042,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75170,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-82-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.199225,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76375,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-0-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.081096,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76219,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-71-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.136849,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76362,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-20-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.201611,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76280,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-service_bindings_module-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.189773,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76169,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-8-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007322,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76720,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-installed-O0-symbols-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.022921,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76750,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-4-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.135928,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76426,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-public-capture-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 3.62137,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76212,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-68-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.194234,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76349,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-39-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.358497,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76299,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-88-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.136734,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76681,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-nvm_v2_module-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.190408,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75047,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-77-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.142777,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76370,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-50-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.572582,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75354,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-26-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.204695,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76286,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-64-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.252277,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76655,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-43-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.357587,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75201,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-6-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.241383,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76236,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-84-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.190114,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76377,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-12-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.247489,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75168,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-35-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 1.889979,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76459,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-maximum-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.012672,
+      "returncode": 42,
+      "status": 42,
+      "cleanup": {
+        "pid": 76903,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-retained_layouts-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.752185,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75049,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-tamper-abi-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.18422,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 77010,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-18-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.297059,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75326,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-header-c++17-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.045829,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76902,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-2-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.544517,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76406,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-nsi_file_values-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.135275,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76183,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-private-capture-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 1.384507,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76197,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-65-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.255493,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76656,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-42-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.2958,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75200,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-13-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.137484,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75169,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-7-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.230498,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76237,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-85-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.130833,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76378,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-76-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.132647,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76368,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-51-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.679728,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75355,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-27-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.192608,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76288,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-tamper-size-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 2.097522,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 77012,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-file_cyclic_public_vm-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.131726,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75064,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-nvm_v2_constants-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.077615,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75041,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-install-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 300,
+      "elapsed_seconds": 3.852274,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75919,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-3-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.493787,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76413,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-19-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.353065,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75327,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-tamper-size-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.197145,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 77030,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-0-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.141337,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76404,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-58-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.29831,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75210,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-24-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.198293,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76284,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-52-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.678617,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75356,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-75-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.12623,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76367,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-37-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.607708,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76461,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-10-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.203811,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75166,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-86-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.137223,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76379,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-installed-O2-symbols-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.044191,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76758,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-4-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.125074,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76234,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-41-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.353241,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75199,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-66-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.252345,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76657,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-service_file_nominal_plan-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.139498,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75037,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-0-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006758,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76908,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-ownership_contracts-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.365868,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75050,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-59-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.138613,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75211,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-1-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.150228,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76405,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-installed-vm-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.193198,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76742,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-nvm_v2_convert-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.258432,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75048,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-installed-O2-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.190143,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76983,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-4-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007584,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76912,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-87-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.190936,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76380,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-5-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.194223,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76235,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-36-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.584316,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76460,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-11-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.195874,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75167,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-40-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.364087,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75198,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-67-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.29797,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76658,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-25-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.236751,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76285,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-53-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.201389,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75369,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-74-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.14045,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76366,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-17-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006524,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76729,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-79-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.197778,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76372,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-ownership_contracts-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.347376,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76180,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-28-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.187476,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76289,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-file_host_grant-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.077514,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75059,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-8-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.239467,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76238,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-73-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.238751,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76664,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-22-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.323914,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76445,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-60-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.136798,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76316,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-80-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.298369,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76672,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-16-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.297181,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75324,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-31-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.200759,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76292,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-emitter-invalid-2-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007335,
+      "returncode": 2,
+      "status": 2,
+      "cleanup": {
+        "pid": 76733,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-9-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.195785,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76251,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-78-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.131306,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76371,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-29-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.180218,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76290,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-emitter-invalid-2-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.193432,
+      "returncode": 2,
+      "status": 2,
+      "cleanup": {
+        "pid": 76929,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-13-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006204,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76725,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-installed-O0-symbols-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.023278,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76967,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-vm_ffi-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 1.034867,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75055,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-61-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.140884,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76317,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-17-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.348112,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75325,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-30-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.196784,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76291,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-81-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.310678,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76673,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-72-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.193853,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76663,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-23-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.297168,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76446,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-installed-vm-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.202063,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76937,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-20-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.423494,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76443,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-71-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.199766,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76662,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-14-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.199647,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75322,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-82-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.313608,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76674,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-62-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.133871,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76318,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-1-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006419,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76713,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-17-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006664,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76925,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-vm_ffi-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 1.061749,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76185,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-39-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.68565,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76470,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-88-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.085756,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76381,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-68-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.303544,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76659,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-installed-O2-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.200681,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76757,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-83-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.250388,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76675,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-32-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.241529,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76293,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-15-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.313838,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75323,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-63-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.138904,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76319,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-21-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.31279,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76444,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-link-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.907375,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76382,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-57-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.304189,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75208,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-70-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.302339,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76661,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-tamper-reference-map-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 2.074204,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 77033,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-zero-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006815,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76904,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-38-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.681373,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76462,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-69-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.306794,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76660,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-13-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006958,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76921,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-5-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007138,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76717,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-file_runtime-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.738476,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76184,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-9-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.369623,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76431,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-27-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.306393,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76452,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-76-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.251342,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76667,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-51-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.358529,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75203,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-installed-O2-symbols-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.018787,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76984,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-13-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.195417,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75312,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-85-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.203368,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76677,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-65-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.194256,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76322,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-42-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.562408,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75351,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-19-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.193352,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75177,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-zero-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007093,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76707,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-14-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006763,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76922,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-2-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006947,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76714,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-84-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.295912,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76676,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-12-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.414103,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75310,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-35-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.702285,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76294,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-64-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.146992,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76321,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-43-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.611912,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75353,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-26-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.407079,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76451,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-77-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.2398,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76669,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-50-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.35476,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75202,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-8-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.411807,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76430,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-nvm_v2_layouts-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.146091,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76174,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-header-c11-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.048707,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76900,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-6-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007203,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76718,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-10-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006447,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76918,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-link-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 1.04968,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75264,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-18-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.19957,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75174,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-nvm2c_file_indirect_private-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.199779,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75056,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-14-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007282,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76726,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-59-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.243207,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75422,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-53-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.146919,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75206,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-74-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.254833,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76665,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-header-c++11-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.077742,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76704,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-25-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.369731,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76449,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-emitter-invalid-1-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006815,
+      "returncode": 2,
+      "status": 2,
+      "cleanup": {
+        "pid": 76732,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-40-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.595406,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75349,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-67-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.190126,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76343,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-87-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.298127,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76680,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-36-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.354893,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76295,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-11-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.363739,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75300,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-58-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.509884,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75391,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-file_indirect_public_abi-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.046915,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75061,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-10-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007082,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76722,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-emitter-invalid-1-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.136319,
+      "returncode": 2,
+      "status": 2,
+      "cleanup": {
+        "pid": 76928,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-file_cyclic_public_vm-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.137581,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76196,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-service_file_nominal_plan-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.137197,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76168,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-installed-O0-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.203424,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76961,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-41-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.60753,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75350,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-66-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.194857,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76336,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-9-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006822,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76917,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-37-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.305461,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76296,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-10-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.396998,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75299,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-86-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.23745,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76679,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-52-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.351954,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75205,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-75-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.252365,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76666,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-24-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.360119,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76447,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 3.741142,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76387,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-68-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.307639,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75507,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-2-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.476175,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75288,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-88-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.07896,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75263,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-39-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.637039,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75348,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-file_indirect_public_vm-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.144723,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75062,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-11-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007153,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76919,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-7-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006704,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76719,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-6-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.238826,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75140,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-file_indirect_public_abi-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.04371,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76193,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-62-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.140834,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75214,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-82-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.288155,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75647,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-14-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.186287,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76436,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-71-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.192578,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75544,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-20-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.409963,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75328,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-tamper-abi-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 2.015315,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76985,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-3-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006717,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76715,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-15-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007071,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76923,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-nvm_v2_module-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.237586,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76177,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-file_vm_indirect_private-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.146837,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76187,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-link-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 1.867215,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76682,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-3-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.515384,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75289,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-69-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.312195,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75520,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-38-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.663212,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75347,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-70-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.303871,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75531,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-57-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.260688,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76311,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-21-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.299309,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75330,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-63-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.13906,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75215,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-15-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.327678,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76437,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-32-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.243125,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75191,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-83-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.237918,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75659,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-installed-O0-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.94595,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76744,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-7-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.251736,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75142,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-31-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.200857,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75190,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-16-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.302404,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76438,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-80-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.28908,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75617,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-emitter-invalid-4-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007009,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76735,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-60-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.137466,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75212,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-8-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006785,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76916,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-22-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.309594,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75331,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-73-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.248933,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75555,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-4-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.079957,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75137,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-emitter-invalid-0-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006947,
+      "returncode": 2,
+      "status": 2,
+      "cleanup": {
+        "pid": 76927,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-0-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.151294,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75286,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-28-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.17979,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75186,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-11-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006693,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76723,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-79-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.198463,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75244,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-installed-O2-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 2.041544,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76751,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-nvm_v2_convert-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.256531,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76178,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-5-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.204987,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75138,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-23-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.300823,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75332,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-members-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.023885,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76138,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-72-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.190421,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75550,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-81-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.299839,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75632,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-30-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.197048,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75189,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-17-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.363624,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76439,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-emitter-invalid-0-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.13699,
+      "returncode": 2,
+      "status": 2,
+      "cleanup": {
+        "pid": 76731,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-61-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.128076,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75213,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-29-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.176601,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75188,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-15-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007297,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76727,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-78-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.132185,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75243,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-private-capture-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 2.471099,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75066,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-nsi_file_values-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.147769,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75054,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-1-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.144793,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75287,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 5.326366,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75783,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-service_bindings_module-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.204845,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75039,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-emitter-invalid-4-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007002,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76931,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-11-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.402251,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76433,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-36-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.348235,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75193,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-87-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.294707,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75689,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-67-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.191496,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75219,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-40-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.666805,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76481,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-25-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.365794,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75334,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-74-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.239194,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75563,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-53-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.135485,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76310,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-header-c++17-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.040521,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76705,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-3-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.296842,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75124,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-header-c11-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.045467,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76703,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-12-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007112,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76724,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-installed-vm-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.452889,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76736,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-7-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.366665,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75296,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-emitter-invalid-3-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006847,
+      "returncode": 2,
+      "status": 2,
+      "cleanup": {
+        "pid": 76930,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-59-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.204656,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76636,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-emitter-invalid-3-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007011,
+      "returncode": 2,
+      "status": 2,
+      "cleanup": {
+        "pid": 76734,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-public-capture-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 2.407845,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75102,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-nvm_v2_imports-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.197844,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75045,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-2-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.258175,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75123,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-24-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.315273,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75333,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-75-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.249012,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75572,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-52-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.366759,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76307,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-86-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.253721,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75678,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-10-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.413883,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76432,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-37-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.35088,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75194,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-nsi_file-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.084451,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75053,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-66-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.13501,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75218,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-41-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.674696,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76497,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-refused-cyclic-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007192,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76907,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-58-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.543305,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76620,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-6-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.364754,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75294,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-members-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.024457,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 74996,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-16-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006971,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76728,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-file_cyclic_public_native-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.194077,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75063,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-5-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.410729,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75293,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-19-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.205375,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76279,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-4-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007271,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76716,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-nsi_cap-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.142654,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76181,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-12-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007025,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76920,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-refused-default-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.005971,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76905,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-1-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.123993,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75122,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-file_public_vm-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.139471,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75058,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-42-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.619886,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76516,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-65-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.131484,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75217,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-85-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.203581,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75673,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-13-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.198287,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76435,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-51-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.403761,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76306,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-76-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.254931,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75579,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-27-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.294006,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75336,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-nvm2c_file_indirect_private-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.188494,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76188,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-16-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006948,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76924,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-0-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006599,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76712,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-4-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.135884,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75292,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-private-capture-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 3.522968,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76205,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-18-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.19005,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76278,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-50-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.311218,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76304,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-77-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.243251,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75588,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-26-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.402381,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75335,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-43-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.57474,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76533,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-64-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.133575,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75216,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-35-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.711706,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75192,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-12-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.422786,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76434,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-84-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.311034,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75670,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-link-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 2.863903,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75703,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-0-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.074833,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75121,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-38-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.361382,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75196,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-69-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.200372,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75221,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 3.680823,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76688,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-header-c99-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.041547,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76899,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-file_indirect_public_native-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.191909,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76192,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-15-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.186022,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76274,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-32-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.415363,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75342,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-83-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.139858,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75249,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-file_flow-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 1.906679,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76139,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-63-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.239027,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75458,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-9-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.400562,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75298,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-21-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.192041,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75179,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-70-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.189169,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75222,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-57-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.533016,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76607,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-installed-O0-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.940969,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76956,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-file_public_native-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.138196,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75057,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-nvm_v2_layouts-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.138725,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75043,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-nvm_v2_signatures-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.087475,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75042,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-88-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.140318,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75698,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-39-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.345915,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75197,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-68-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.188415,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75220,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-20-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.194897,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75178,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-71-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.137937,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75223,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-82-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.1909,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75247,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-14-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.127712,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76273,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-8-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.372024,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75297,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-62-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.246902,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75449,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-61-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.239827,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75436,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-81-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.180736,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75246,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-30-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.364616,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75340,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-17-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.188371,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76277,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-72-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.1283,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75237,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-23-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.187695,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75181,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-5-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.0073,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76913,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-file_public_native-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.140569,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76189,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-emit-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.021869,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76730,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-78-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.253129,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75597,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-29-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.304898,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75339,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-1-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007081,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76909,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-73-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.137721,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75238,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-nvm_format-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.411361,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75040,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-22-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.195395,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75180,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-60-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.196946,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75429,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-31-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.34794,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75341,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-16-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.195552,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76275,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-80-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.142016,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75245,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-79-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.264166,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75606,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-nsi_file-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.139456,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76182,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-28-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.309811,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75338,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-installed-O2-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 2.107628,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76968,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-nvm_v2_functions-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.1395,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75044,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 10.854741,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75269,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-66-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.235736,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75483,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-41-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.35552,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76301,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-6-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006904,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76914,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-86-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.143957,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75261,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-installed-vm-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.197449,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76932,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-10-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.245695,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76257,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-37-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.567013,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75346,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-75-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.140253,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75240,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-52-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.640617,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76583,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-24-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.195778,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75182,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-maximum-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.025599,
+      "returncode": 42,
+      "status": 42,
+      "cleanup": {
+        "pid": 76706,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-file_cyclic_public_native-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.187843,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76195,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-8-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.241956,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75153,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-58-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.265631,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76312,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-nvm_format-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.400367,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76170,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-74-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.139704,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75239,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-53-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.239314,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76600,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-25-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.185028,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75183,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-refused-cyclic-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.00685,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76711,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-67-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.297198,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75492,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-40-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.362403,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76300,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-invalid-2-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.006846,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76910,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-11-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.203693,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76258,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-36-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.568058,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75345,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-87-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.189087,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75262,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-59-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.126469,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76314,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-cli-emit-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.011559,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76926,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-9-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.254885,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75165,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-18-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.288853,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76440,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "corrected-header-c++11-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.045782,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76901,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-public-capture-run-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 5.705434,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75116,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-retained_layouts-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.743056,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76179,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-cli-invalid-9-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.007277,
+      "returncode": 1,
+      "status": 1,
+      "cleanup": {
+        "pid": 76721,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-file_flow-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 1.934499,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 74997,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-nvm_v2_signatures-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.078325,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76173,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-35-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 1.79004,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75343,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-12-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.208228,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76259,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-84-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.191742,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75250,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-43-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.313851,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76303,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-64-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.255578,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75463,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-26-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.253748,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75184,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-50-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.639843,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76548,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-77-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.133531,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75242,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-file_host_grant-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.048021,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76191,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-19-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.351495,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76442,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-nsi_cap-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.139711,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75052,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-nvm_v2_constants-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.075614,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76172,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-27-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.196722,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75185,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O2-51-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.737226,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76564,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-76-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.138657,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75241,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O0-85-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.193235,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75256,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-13-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.128232,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76271,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "linked-O0-42-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.35783,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 76302,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    },
+    "instrumented-O2-65-build-terminal.json": {
+      "timed_out": false,
+      "timeout_seconds": 240,
+      "elapsed_seconds": 0.25262,
+      "returncode": 0,
+      "status": 0,
+      "cleanup": {
+        "pid": 75474,
+        "errors": [],
+        "reaped": true,
+        "group_gone": true,
+        "confirmed": true
+      },
+      "exception": null
+    }
+  },
+  "instrumentation": "Listed providers/generated C rebuilt with ASan/UBSan; common objects and installed archive use ordinary Make build. CLI binaries staged from that Make build."
+}

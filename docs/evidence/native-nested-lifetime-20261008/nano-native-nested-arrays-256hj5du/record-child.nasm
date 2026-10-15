@@ -1,0 +1,45 @@
+.entry main
+.string a "a"
+.string b "b"
+.string ab "ab"
+.function churn 0 1 0 void 0
+PUSH_I64 0
+STORE_LOCAL 0
+loop:
+LOAD_LOCAL 0
+PUSH_I64 8000
+LT
+JMP_FALSE done
+PUSH_STR a
+PUSH_STR b
+STR_CONCAT
+POP
+LOAD_LOCAL 0
+PUSH_I64 1
+I64_ADD
+STORE_LOCAL 0
+JMP loop
+done:
+RET
+.end
+.function main 0 3 0 int 1
+PUSH_STR a
+PUSH_STR b
+STR_CONCAT
+AGG_PACK 0 0 0 1
+ARR_LITERAL 8 1
+ARR_LITERAL 7 1
+STORE_LOCAL 0
+CALL churn
+LOAD_LOCAL 0
+PUSH_I64 0
+ARR_GET
+PUSH_I64 0
+ARR_GET
+AGG_GET 0
+PUSH_STR ab
+STR_EQ
+ASSERT
+PUSH_I64 0
+RET
+.end

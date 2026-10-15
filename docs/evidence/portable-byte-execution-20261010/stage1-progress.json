@@ -1,0 +1,123 @@
+{
+  "phase_at_observation": "stage1",
+  "artifacts": {
+    "nanoc_seed.nvm": "2be7909d2a6d1f9f7e9e6daf0b55b376bc123ed8955fb6759b23dd20eec734a2",
+    "nanoc_stage1.nvm": "ce2fe0396581d4cd8fe994a26734d43c4d83d6c0171e8296c0d76245f3a2c52c",
+    "nanoc_stage1": "803461ee80daab1a248e57f325c91a1b2401f42393ca35559e4d16c77125413a"
+  },
+  "completed_steps": [
+    {
+      "label": "seed",
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_virt",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/seed.nvm"
+      ],
+      "log": "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/00-seed.log",
+      "exit_code": 0,
+      "elapsed_seconds": 66.42745716701029,
+      "log_sha256": "732321f6ebff1faba9dc80768664604d3f73ed63b969aa674650e8132d29fc30"
+    },
+    {
+      "label": "seed-verify",
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/seed.nvm"
+      ],
+      "log": "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/01-seed-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.0848191250115633,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1",
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "/Users/jordanh/Src/nanolang/bin/nanoc_seed.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/stage1.nvm"
+      ],
+      "log": "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/02-stage1.log",
+      "exit_code": 0,
+      "elapsed_seconds": 554.135644791997,
+      "log_sha256": "9c8ba3bfd45f666e07ad8c74b507d7473caf7daf0787569dd2c6f90b1c465abd"
+    },
+    {
+      "label": "stage1-verify",
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/stage1.nvm"
+      ],
+      "log": "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/03-stage1-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.08031124999979511,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-translate",
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/Users/jordanh/Src/nanolang/bin/nanoc_stage1.nvm",
+        "-o",
+        "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/stage1.c"
+      ],
+      "log": "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/04-stage1-translate.log",
+      "exit_code": 0,
+      "elapsed_seconds": 5.205016500025522,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-native",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O1",
+        "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/stage1.c",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm",
+        "-lm",
+        "-lcrypto",
+        "-lffi",
+        "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+        "-o",
+        "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/stage1"
+      ],
+      "log": "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/05-stage1-native.log",
+      "exit_code": 0,
+      "elapsed_seconds": 20.000330207985826,
+      "log_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3"
+    },
+    {
+      "label": "stage1-hello-compile",
+      "argv": [
+        "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/stage1",
+        "examples/language/nl_hello.nano",
+        "-o",
+        "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/stage1-hello"
+      ],
+      "log": "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/06-stage1-hello-compile.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.3714762090239674,
+      "log_sha256": "dc7fa7a02885bb10463608f0ad1bc16a3b0ecdeb24dd2c9bd8a27a9c1c576322"
+    },
+    {
+      "label": "stage1-hello-execute",
+      "argv": [
+        "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/stage1-hello"
+      ],
+      "log": "/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-mi9we72o/07-stage1-hello-execute.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.01183954201405868,
+      "log_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    }
+  ],
+  "changed_source_inputs": []
+}

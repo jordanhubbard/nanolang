@@ -1,0 +1,6 @@
+test_malformed_qualified_constructors_preserve_output (tests.test_module_union_owners.ModuleUnionOwners.test_malformed_qualified_constructors_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.049s
+
+OK

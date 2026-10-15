@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "make",
+    "-j1",
+    "test-canonical-match-guards",
+    "test-nanoisa-match-guards",
+    "test-selfhost-native-array-slice",
+    "test-selfhost-array-literal-context",
+    "test-native-array-identity",
+    "test-affine-state",
+    "test-affine-bytecode",
+    "test-ownership-contracts",
+    "test-nvm2c",
+    "CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "exit": 0,
+  "seconds": 1463.5189783329843,
+  "sanitizers": {
+    "clang": "detect_leaks=1",
+    "gcc": "detect_leaks=0"
+  }
+}

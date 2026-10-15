@@ -1,0 +1,29 @@
+{
+  "base_revision": "bac57d794d74e33bbe1ab600b428b2c226dcf61b",
+  "files": {
+    "src/builtins_registry.c": "bc14b5350ef68ba2263a3942b5d37e18391beb673ac5012086ed573de15f02d8",
+    "src/builtins_registry.h": "a1a80c99c9d74739a0584d9dd9e7c8f9f5a02bf658da9302046778330833c520",
+    "src/env.c": "8cb08e6625167146288aec9f394df44b6ac55eda06beb09fd1452d3d41dc6556",
+    "src/eval.c": "1cb3310f871279c75a7116514ef0ee1e7cdff7b7ab3388621eedeb64d99fafe2",
+    "src/nanolang.h": "5978e13f69ed250e0a8b5860185cb99b96b7f20cd0b972fd267e109672a24a76",
+    "src/typechecker.c": "689962ba861b6bcb72e5f14a3cd996e8ef5f4b9d22d5ba3775e9c55b6ee9e042",
+    "src/transpiler_iterative_v3_twopass.c": "740f8dccd78b01170b9353b7585c3f9f91d3f513cf28ba66057ad6738d5065e9",
+    "src/nanovirt/codegen.c": "0ee0fcf1882d9677ea5cab68602c4c6f50f999132e4b543a1f177d2ca21f490a",
+    "src_nano/compiler/nanoisa_codegen.nano": "deaa42fb1d2f922b4b16e00ef95d9aa59bbc48ca4998ccab7c5431798c30bca8",
+    "src/resource_flow.c": "1a7972180e95a3d0622783394acb4d0febcc3a52862b5790b1c8b52dfe8b4293",
+    "src/resource_effect_summary.inc": "494ce46ba95abc475d89a6068d021f8341133bfee4b7434c935f3c82e40a7879",
+    "tests/test_array_builtin_aliases.py": "4c8aa9c6fff787a5390e491d322c026faa7ed956ba4b0666bd9589dce9adef9b",
+    "tests/test_array_declaration_priority.py": "d7ef6fbaba440fa9c353eb4cd319c98244e04fdf2225df5ddb4c3111fe591655",
+    "tests/test_resource_effect_frontend.py": "5b01f71b244e90e2e461b5672ed56dac3196173b485b0237d0ff1a9b32447b40",
+    "tests/test_resource_flow_allocations.c": "70adc7f30ce05960e5c6ef8610167262ff74800784dc8d7865801b88633bce78"
+  },
+  "compiler_product_audit": "Eight stages passed before subsequent C declaration-priority fixes; self-hosted emitter source has not changed since that audit. The corrected C code and unchanged native compiler product pass the expanded eleven-method matrix.",
+  "scope": "C source/native resource ownership checkpoint; full self-hosted/verified resource-effect ownership remains open.",
+  "final_seed": {
+    "sha256": "a44a97b0b97802d321fe9b309975d63a750dffd9b542c5785de349c49d2c0aad",
+    "shadow_tests": 1151,
+    "array_methods": 11,
+    "vm_and_sanitized_native": true
+  },
+  "protected_user_file_sha256": "c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976"
+}

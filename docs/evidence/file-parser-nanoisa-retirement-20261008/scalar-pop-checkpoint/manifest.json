@@ -1,0 +1,13 @@
+{
+  "base": "4be2415f9e0dd20eb7e72630ee3a9c6a30bc42c8",
+  "source_state": "dirty checkpoint; hashes observed after terminal regression",
+  "regression_exit_code": 0,
+  "component_exit_code": 1,
+  "remaining_component_failures": 2,
+  "sha256": {
+    "src/nanoisa/nvm2c.c": "ed5fd77794758267e192a19724ce46d99aba8800f97e7f2107cee7314c7394a9",
+    "src/nanoisa/nvm2c_callables.c": "a6c725752a05bdb8b902b81adddf0290160a1530332934109a84c701221b80ec",
+    "tests/test_native_array_pop.py": "1a36cc368685fa14b97224001c630a310111da27bde05d1f79ee50d7ba5d86e2",
+    "bin/nvm2c": "cbc60522969801fa44882f58f409aefc9136e50c2f65fb764634468e7241821f"
+  }
+}

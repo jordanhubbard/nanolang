@@ -1,0 +1,340 @@
+test_ambiguous_imported_operations (tests.test_owned_effect_c_source.OwnedEffectCSource.test_ambiguous_imported_operations) ... FAIL
+test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) ... 
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='ordered_arguments') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='nested_transfer') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='capture_mutation') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='parameter_shadow') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='arm_prefix_destructure') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='destructure_before_perform') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_resume') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_perform_return') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_handle_return') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='float_resume') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='string_resume') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='body_return') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='body_break') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='owned_union') ... FAIL
+test_imported_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_imported_resource_effects) ... FAIL
+test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) ... 
+  test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) (case='test_transfer') ... FAIL
+  test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) (case='test_consumed_handler_argument') ... FAIL
+  test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) (case='test_forwarded_resource') ... FAIL
+  test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) (case='test_lexical_exit_consumes_argument') ... FAIL
+  test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) (case='test_callee_contains_its_effect') ... FAIL
+  test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) (case='test_forward_declared_callee_contains_its_effect') ... FAIL
+
+======================================================================
+FAIL: test_ambiguous_imported_operations (tests.test_owned_effect_c_source.OwnedEffectCSource.test_ambiguous_imported_operations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 94, in test_ambiguous_imported_operations
+    self.check('module "left.nano" as left\nmodule "right.nano" as right',
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'let h:left.Handle=handle {perform left.E.pass(left.Handle{value:7})} with {pass value->{value}} let left.Handle{value}=h return value',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        False,files=files,diagnostic='cannot infer a unique effect')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 23, in check
+    self.assertIn(diagnostic,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot infer a unique effect' not found in 'NSType checking failed\nDiagnostics:\n  [E0040] I require handler operations to identify one declared effect. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-io6thu14/main.nano:6:34)\n  [E0001] Variable h: I expected a value of type `__nano_module_0_type_Handle`, but found `void`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-io6thu14/main.nano:6:16)\n  [E0036] I cannot verify ownership: I require a resolved handler ownership signature (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-io6thu14/main.nano:6:34)\n'
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='ordered_arguments')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a resource constructor, exact owner move or destructive pattern in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='nested_transfer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a resource constructor, exact owner move or destructive pattern in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='capture_mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a resource constructor, exact owner move or destructive pattern in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='parameter_shadow')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a resource constructor, exact owner move or destructive pattern in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='arm_prefix_destructure')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require straight-line scalar expressions and one borrowed helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='destructure_before_perform')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require straight-line scalar expressions and one borrowed helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_resume')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require straight-line let/set/assert/call/return statements in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_perform_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require straight-line let/set/assert/call/return statements in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_handle_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a zero-value void return in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='float_resume')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require straight-line scalar expressions and one borrowed helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='string_resume')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require straight-line scalar expressions and one borrowed helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='body_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require straight-line let/set/assert/call/return statements in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='body_break')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require straight-line let/set/assert/call/return statements in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='owned_union')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require straight-line scalar expressions and one borrowed helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_imported_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_imported_resource_effects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 88, in test_imported_resource_effects
+    self.check('module "left.nano" as left\nmodule "right.nano" as right',
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'let first:left.Handle=handle {perform left.E.left_pass(left.Handle{value:3})} with {left_pass value->{value}} let a:int=(left.take first) '
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'let second:right.Handle=handle {perform right.E.right_pass(right.Handle{value:4})} with {right_pass value->{value}} return (+ a (right.take second))',True,files=files)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a resource constructor, exact owner move or destructive pattern in my source borrow profile
+
+
+======================================================================
+FAIL: test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) (case='test_transfer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 50, in test_source_resource_effects
+    with self.subTest(case=name):getattr(frontend.ResourceEffectFrontend,name)(self)
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 41, in test_transfer
+    self.check('effect Transfer{pass:Handle->Handle}', 'let h:Handle=Handle{value:7} let k:Handle=handle {perform Transfer.pass(h)} with {pass value->{value}} return (consume k)', True)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a resource constructor, exact owner move or destructive pattern in my source borrow profile
+
+
+======================================================================
+FAIL: test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) (case='test_consumed_handler_argument')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 50, in test_source_resource_effects
+    with self.subTest(case=name):getattr(frontend.ResourceEffectFrontend,name)(self)
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 44, in test_consumed_handler_argument
+    self.check('effect Transfer{take:Handle->int}', 'let h:Handle=Handle{value:7} return handle {perform Transfer.take(h)} with {take value->{(consume value)}}', True)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require straight-line scalar expressions and one borrowed helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) (case='test_forwarded_resource')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 50, in test_source_resource_effects
+    with self.subTest(case=name):getattr(frontend.ResourceEffectFrontend,name)(self)
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 47, in test_forwarded_resource
+    self.check('effect Transfer{pass:Handle->Handle} fn send(h:Handle)->Handle{return perform Transfer.pass(h)} shadow send{assert true}', 'let h:Handle=Handle{value:7} let k=handle {(send h)} with {pass value->{value}} return (consume k)', True)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a resource constructor, exact owner move or destructive pattern in my source borrow profile
+
+
+======================================================================
+FAIL: test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) (case='test_lexical_exit_consumes_argument')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 50, in test_source_resource_effects
+    with self.subTest(case=name):getattr(frontend.ResourceEffectFrontend,name)(self)
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 50, in test_lexical_exit_consumes_argument
+    self.check('effect Transfer{pass:Handle->Handle}', 'let h:Handle=Handle{value:7} let k:Handle=handle {perform Transfer.pass(h)} with {pass value->{return (consume value)}} return (consume k)', True)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a resource constructor, exact owner move or destructive pattern in my source borrow profile
+
+
+======================================================================
+FAIL: test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) (case='test_callee_contains_its_effect')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 50, in test_source_resource_effects
+    with self.subTest(case=name):getattr(frontend.ResourceEffectFrontend,name)(self)
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 80, in test_callee_contains_its_effect
+    self.check('effect Transfer{tick:int->int} fn tick()->int{return handle {perform Transfer.tick(7)} with {tick n->{n}}} shadow tick{assert true}', 'let h:Handle=Handle{value:7} let n:int=(tick) return (consume h)', True)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require straight-line scalar expressions and one borrowed helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) (case='test_forward_declared_callee_contains_its_effect')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 50, in test_source_resource_effects
+    with self.subTest(case=name):getattr(frontend.ResourceEffectFrontend,name)(self)
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 89, in test_forward_declared_callee_contains_its_effect
+    self.check('effect Transfer{tick:int->int} fn carrier()->int{let h:Handle=Handle{value:7} let n:int=(tick) return (consume h)} shadow carrier{assert true} fn tick()->int{return handle {perform Transfer.tick(7)} with {tick n->{n}}} shadow tick{assert true}', 'return (carrier)', True)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require straight-line scalar expressions and one borrowed helper in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.641s
+
+FAILED (failures=22)

@@ -1,0 +1,38 @@
+{
+  "/usr/bin/clang": {
+    "resolved": "/usr/bin/clang",
+    "sha256": "5b1ddb7e9c11b87a034fc88b212e8ac243cfe2b4db696d767aa44c79595fc09a"
+  },
+  "/opt/homebrew/opt/llvm/bin/clang": {
+    "resolved": "/opt/homebrew/Cellar/llvm/23.1.3/bin/clang-23",
+    "sha256": "06793e4ad680ffa8f678c839107ae8bba4e4ca04feaf5ebbb36dd2ad241dbb82"
+  },
+  "/opt/homebrew/bin/gcc-16": {
+    "resolved": "/opt/homebrew/Cellar/gcc/16.2.0/bin/gcc-16",
+    "sha256": "3f088afcf8c0e60aacb6a8a11d1e2d987cf3eddd8bfcd7d7fa3ded93b1a7b49e"
+  },
+  "initial-binary:obj/test_nsi_socket_values_instrumented": {
+    "sha256": "3ee23e6405d284e8fc02af475c90c237e952695885565dd68846a5abd5a24321"
+  },
+  "initial-binary:obj/test_nsi_socket_values_linked": {
+    "sha256": "91239915ad026fe59265672f15bd450cad39b6dd68d0e6831963fef4d0f6fe53"
+  },
+  "initial-binary:obj/test_nsi_socket_instrumented": {
+    "sha256": "d6852fb9f6ea0607c6e7597558eb9ebb6378cfe2d559dc47c3258b656512721e"
+  },
+  "initial-binary:obj/test_nsi_socket_linked": {
+    "sha256": "9bebdde395a26e43e6f1e4ef51243d0d8e8ae5b3b2db14f3a40cf9078285e1ed"
+  },
+  "initial-binary:obj/test_nsi_file_values_instrumented": {
+    "sha256": "d3089db2aed3063256ffa8aa19c0c47e77096853f1d0ca749fb44395f8d188d5"
+  },
+  "initial-binary:obj/test_nsi_file_values_linked": {
+    "sha256": "818b92650b4406d8fb568ed727b5374ecad221d98e09e22d64be01b06ce0c6d0"
+  },
+  "initial-binary:obj/test_nsi_file_instrumented": {
+    "sha256": "e43dea095c122f2269c918313ea0612a64d2401f23f1b4402abb49bacef320a9"
+  },
+  "initial-binary:obj/test_nsi_file_linked": {
+    "sha256": "1a47e90aa8bbc05fd11a619ae1a0a82a7db7bec4e25aec2cafb7e3287808cb01"
+  }
+}

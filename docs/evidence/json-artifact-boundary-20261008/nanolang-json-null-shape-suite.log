@@ -1,0 +1,48 @@
+I retain Json artifact evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-n6iibhsl
+test_actual_schema_generator_outputs (tests.test_selfhost_json_artifacts.JsonArtifacts.test_actual_schema_generator_outputs) ... ok
+test_native_wrong_import_signatures_preserve_output (tests.test_selfhost_json_artifacts.JsonArtifacts.test_native_wrong_import_signatures_preserve_output) ... ok
+test_nonzero_integer_cannot_reach_opaque_string_provider (tests.test_selfhost_json_artifacts.JsonArtifacts.test_nonzero_integer_cannot_reach_opaque_string_provider) ... ok
+test_nonzero_opaque_returns_are_rejected (tests.test_selfhost_json_artifacts.JsonArtifacts.test_nonzero_opaque_returns_are_rejected) ... 
+  test_nonzero_opaque_returns_are_rejected (tests.test_selfhost_json_artifacts.JsonArtifacts.test_nonzero_opaque_returns_are_rejected) (raw_return=0) ... FAIL
+  test_nonzero_opaque_returns_are_rejected (tests.test_selfhost_json_artifacts.JsonArtifacts.test_nonzero_opaque_returns_are_rejected) (raw_return=7) ... FAIL
+test_real_artifact_ownership_vm_and_native (tests.test_selfhost_json_artifacts.JsonArtifacts.test_real_artifact_ownership_vm_and_native) ... ok
+test_wrong_artifact_abi_preserves_output (tests.test_selfhost_json_artifacts.JsonArtifacts.test_wrong_artifact_abi_preserves_output) ... ok
+
+======================================================================
+FAIL: test_nonzero_opaque_returns_are_rejected (tests.test_selfhost_json_artifacts.JsonArtifacts.test_nonzero_opaque_returns_are_rejected) (raw_return=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_json_artifacts.py", line 154, in test_nonzero_opaque_returns_are_rejected
+    self.command(self.native(module), success=integer == 0)
+                 ~~~~~~~~~~~^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_json_artifacts.py", line 92, in native
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_json_artifacts.py", line 87, in command
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nvm2c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-n6iibhsl/return.nvm'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-n6iibhsl/return.c')): 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-n6iibhsl/return.nvm': entry function must return a single int
+
+
+======================================================================
+FAIL: test_nonzero_opaque_returns_are_rejected (tests.test_selfhost_json_artifacts.JsonArtifacts.test_nonzero_opaque_returns_are_rejected) (raw_return=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_json_artifacts.py", line 154, in test_nonzero_opaque_returns_are_rejected
+    self.command(self.native(module), success=integer == 0)
+                 ~~~~~~~~~~~^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_json_artifacts.py", line 92, in native
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_json_artifacts.py", line 87, in command
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nvm2c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-n6iibhsl/return.nvm'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-n6iibhsl/return.c')): 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-n6iibhsl/return.nvm': entry function must return a single int
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 6.091s
+
+FAILED (failures=2)

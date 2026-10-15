@@ -1,0 +1,12 @@
+[
+  {
+    "driver": "c",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "driver": "nano",
+    "returncode": 0,
+    "preserved": false
+  }
+]

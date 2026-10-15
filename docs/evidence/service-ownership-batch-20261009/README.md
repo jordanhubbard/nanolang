@@ -1,0 +1,25 @@
+# I retain File ownership through both source checkers
+
+I implement this batch under #989 from `27a48703e`. My actual C loader and Nano driver consume complete nominal body facts in independent File ownership passes. I keep the full 5.1 scope open.
+
+I retain lexical binding IDs and bind/move/borrow/end-borrow/Result-refinement facts for the subsequent lowerers. File and affine OpenResult owners must be consumed before normal scope and function exit. A Result match transfers its successful File payload and gives its Error arm no owner. Branches that continue must agree on ownership; loop conditions and backedges preserve outer owners. A returned branch does not constrain the continuing branch. I check argument evaluation in order, hold borrows through the whole call, permit compatible shared borrows, and reject overlapping exclusive borrows or consumption during a borrow.
+
+My facts are source facts, not bytecode or runtime handles. I still require independent lowering, consumer validation, exception-path cleanup, explicit grants, shadow supervision and staged publication. Indirect calls, richer source forms and the full File/Socket/backend/release requirements remain open. I do not enable service execution in this batch.
+
+## My evidence
+
+- `NANO_SERVICE_OWNERSHIP_DRIVER_MODULE=/private/tmp/nanolang-service-ownership-driver-final.nvm NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang make -f Makefile.gnu CC=/opt/homebrew/opt/llvm/bin/clang test-service-ownership-sanitize` passes four methods in 166.182 seconds. Eleven valid bodies cover the lifecycle, branch consumption and returns, lexical shadowing, borrow-preserving loops, loop-local owners, reinitialization after consumption, shared arguments, reversed Result arms and terminal arguments. Sixteen invalid bodies cover double consumption, use after move, leaks, discarded affine results, live overwrite, branch disagreement, early-return leaks, loop edges, duplicate owners/references and ordered nested borrow conflicts. Two imported-body cases retain re-exported identity and check an uncalled invalid helper.
+- Both producers compile the independent Nano checker probe; NanoVM and LLVM-sanitized native products execute it. I compare complete ordered action/binding/mode sequences against the C checker for the single-source fixtures. The C seed, NanoVirt and component Nano driver all refuse executable publication and preserve an existing output. Imported graphs use actual-driver checks and the C ownership probe; I do not claim normalized cross-module action-ID equivalence from the single-source comparison.
+- The C harness includes and instruments `service_ownership.c` with ASan/UBSan/LSan. It injects every allocation-failure prefix through the first success for each valid fixture, checks that the original environment facts stay intact, and exercises fact, lexical-local, total-binding and nesting limits. Other common objects remain ordinary objects. Nano shadows exercise binding/nesting limits; I do not claim recoverable Nano OOM.
+- I preserve the publisher's exact generated text and all five shadow bodies. A final dedicated invocation reuses both producers' already-qualified VM/native probes and reruns the corrected generated-binding test without rebuilding them. `unchanged-generated-binding.log` records success through all four probes, the instrumented C checker and three actual drivers. The earlier full matrix had moved the declaration ahead of its comment while retaining every body; the final test leaves the generated text unchanged and only appends the test entry.
+- The existing paired nominal-body matrix and eighteen-case namespace graph pass together: six methods in 153.655 seconds with the new component driver. All five C and nine Python wrapper tests pass after adding the new ownership object to their explicit link closure.
+
+I build the component driver with `bin/nano_virt src_nano/nanoc_v06.nano --emit-nvm -o /private/tmp/nanolang-service-ownership-driver-final.nvm`. This is development evidence, not a fresh Stage1/Stage2 fixed point or exact-candidate platform qualification. Final source comments document the fact modes; they do not change checker behavior.
+
+## My retained failures
+
+My first fixture set accidentally used the reserved word `use` as a function name. Both parsers refuse it; I correct the fixture name to `exercise` and retain the failure separately from product defects.
+
+A meaningful paired failure occurs when an earlier call argument returns from both Result arms after closing its File. Both ownership passes initially inspect a later, unreachable borrow and report use after move. I stop argument evaluation and binding/branch transfer on terminal paths. The retained reproducer now passes with identical ordered ownership facts; I keep the source in the positive matrix.
+
+My user's guide file remains untouched at SHA256 `c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976`. CI 37981932867 and 37985913016 still have live platform/memory jobs when inspected; the older run's coverage job is cancelled. I claim no completed platform gate from those runs.

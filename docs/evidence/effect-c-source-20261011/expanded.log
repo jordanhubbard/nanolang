@@ -1,0 +1,92 @@
+test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) ... 
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_resume') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='body_return') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='body_break') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='owned_union') ... FAIL
+test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) ... ok
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_resume')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 79, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 20, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E032 EFFECT SIGNATURE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-_qglehhj/main.nano
+I require declared concrete types in every effect signature.
+
+4| effect Transfer{tick:()->void}
+   ^^^^^^
+Hint: Declare each referenced type and supply its complete type arguments.
+error: type check failed
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='body_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 79, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 20, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-ttndw0td/main.nano
+Return type mismatch: got void, expected int.
+
+5| fn main()->int{return handle {return 7} with {tick n->{n}}}
+                  ^
+Hint: Ensure the returned value matches the function's declared return type.
+error: type check failed
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='body_break')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 79, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 37, in check
+    self.assertEqual(compiled.returncode,0,compiled.stdout+compiled.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-2z561ijh/main.c:58:12: error: unused function 'nown_effect_call' [-Werror,-Wunused-function]
+   58 | static int nown_effect_call(nown_handler *handler,nown_value *argument,uint64_t *sequence,nown_value *result,nown_effects *effects){
+      |            ^~~~~~~~~~~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='owned_union')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 79, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 20, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require every record or selected variant field exactly once in an owned pattern at line 4.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-3f1q21fv/main.nano
+I cannot find a variable named `__owned$88`.
+
+4| union Choice{Some{item:Handle},None{}} effect Transfer{pass:Choice->Choice} fn take(c:Choice)->int{match c{Some(value)=>{let Choice.Some{item}=value return (consume item)} None(value)=>{return 0}}} shadow take{assert true}
+                                                                                                                            ^^^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-3f1q21fv/main.nano
+Field access requires a struct value.
+
+4| union Choice{Some{item:Handle},None{}} effect Transfer{pass:Choice->Choice} fn take(c:Choice)->int{match c{Some(value)=>{let Choice.Some{item}=value return (consume item)} None(value)=>{return 0}}} shadow take{assert true}
+                                                                                                                            ^
+Hint: Ensure the object before '.' is a struct type.
+Warning at line 4, column 100: Unused variable 'value'
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 6.463s
+
+FAILED (failures=4)

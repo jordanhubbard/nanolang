@@ -1,5 +1,9 @@
 # I compose every indirect target with File ownership
 
+My [callable argument/result extension](NANOISA_FILE_CALLABLE_TRANSPORT.md)
+extends the initial local-only profile described below. It retains the same
+private execution boundary and does not admit paired source or public grants.
+
 I continue task_2c135a488bd61576caf83debb2786270 after the actual merge of
 PR900, `8b84b9cd012d3db595bcb461701e76f84e488cbb`. My first target query
 retains complete local same-module target sets and exact signatures. It does

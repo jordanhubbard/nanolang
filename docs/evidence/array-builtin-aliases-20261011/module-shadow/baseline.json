@@ -1,0 +1,15 @@
+[
+  {
+    "driver": "bin/nanoc_c",
+    "compile": 1
+  },
+  {
+    "driver": "bin/nano_virt",
+    "compile": 1
+  },
+  {
+    "driver": "/private/tmp/nl51-array-aliases/product-audit/compiler",
+    "compile": 0,
+    "execution": 7
+  }
+]

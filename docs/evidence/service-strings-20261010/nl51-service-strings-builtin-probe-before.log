@@ -1,0 +1,25 @@
+test_string_length_builtin_facts (tests.test_service_bodies.ServiceBodies.test_string_length_builtin_facts) ... FAIL
+
+======================================================================
+FAIL: test_string_length_builtin_facts (tests.test_service_bodies.ServiceBodies.test_string_length_builtin_facts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 104, in test_string_length_builtin_facts
+    reports=self.check(DECL+'fn main()->int { return (str_length "abc") }\n',0)
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 71, in check
+    reports=[self.run_command([os.environ.get('NANO_SERVICE_BODY_C_RUNNER',ROOT/'obj/test_service_bodies'),path,str(status)])]
+             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_bodies'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-4zaapp4a/body.nano'), '0']
+exit=-6
+STATUS 0 FUNCTIONS 1 SHADOWS 0 FACTS 4
+
+I have not resolved File service declarations for this consumer.
+Assertion failed: (row), function main, file test_service_bodies.c, line 35.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 38.513s
+
+FAILED (failures=1)

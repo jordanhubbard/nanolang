@@ -1,0 +1,6 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -iquote src/nanovm -c /private/tmp/nanolang-bootstrap-profile-20261009/vm-profile.c -o /private/tmp/nanolang-bootstrap-profile-20261009/vm-profile.o
+/private/tmp/nanolang-bootstrap-profile-20261009/vm-profile.c:1222:49: error: no member named 'function_count' in 'NvmHeader'
+ 1222 |     for (uint32_t i=0;i<vm->root_module->header.function_count && i<65536;i++)
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~ ^
+1 error generated.
+make: *** [profile-candidate] Error 1

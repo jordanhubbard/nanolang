@@ -1,0 +1,99 @@
+--- a/src_nano/compiler/module_bindings.nano
++++ b/src_nano/compiler/module_bindings.nano
+@@ -4,6 +4,7 @@
+ let mut mb_global_import_names: array<string> = []
+ let mut mb_global_import_targets: array<string> = []
+ let mut mb_global_import_definitions: array<int> = []
++let mut mb_binding_indices: HashMap<string, int> = (map_new)
+ let mut mb_enabled: bool = false
+ let mut mb_file_starts: array<int> = []
+ let mut mb_owners: array<int> = []
+@@ -63,6 +64,7 @@
+ }
+ 
+ pub fn mb_reset(starts: array<int>) -> void {
++    set mb_binding_indices (map_new)
+     set mb_global_import_owners []
+     set mb_global_import_names []
+     set mb_global_import_targets []
+@@ -104,14 +106,43 @@
+     assert (== (mb_owner 1) (- 0 1))
+ }
+ 
++fn mb_binding_key(owner: int, name: string) -> string {
++    return (+ (int_to_string owner) (+ ":" name))
++}
++shadow mb_binding_key {
++    assert (!= (mb_binding_key 1 "2:x") (mb_binding_key 12 "x"))
++    assert (!= (mb_binding_key -1 "x") (mb_binding_key 1 "x"))
++    assert (== (mb_binding_key 0 "") "0:")
++}
++
++fn mb_binding_index(owner: int, name: string) -> int {
++    let key: string = (mb_binding_key owner name)
++    if (map_has mb_binding_indices key) { return (map_get mb_binding_indices key) }
++    return -1
++}
++shadow mb_binding_index {
++    (mb_reset [1, 8])
++    assert (== (mb_binding_index 0 "answer") -1)
++    (mb_add_target 0 "answer" "first" 1)
++    (mb_add_target 1 "answer" "second" 0)
++    assert (== (mb_binding_index 0 "answer") 0)
++    assert (== (mb_binding_index 1 "answer") 1)
++    (mb_add_target 0 "answer" "ignored" 0)
++    assert (== (mb_lookup 0 "answer") "first")
++    assert (== (mb_target_owner 0 "answer") 1)
++    (mb_reset [1])
++    assert (== (mb_binding_index 0 "answer") -1)
++    (mb_add_target 0 "answer" "fresh" 0)
++    assert (== (mb_lookup 0 "answer") "fresh")
++    assert (== (mb_target_owner 0 "answer") 0)
++    (mb_reset [])
++}
++
+ pub fn mb_add_target(owner: int, name: string, target: string, definition_owner: int) -> void {
+     if (not (mb_active)) { return }
+     # I install local declarations before imports, so local definitions win.
+-    let mut i: int = 0
+-    while (< i (array_length mb_names)) {
+-        if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) { return }
+-        set i (+ i 1)
+-    }
++    if (>= (mb_binding_index owner name) 0) { return }
++    (map_put mb_binding_indices (mb_binding_key owner name) (array_length mb_names))
+     set mb_owners (array_push mb_owners owner)
+     set mb_names (array_push mb_names name)
+     set mb_targets (array_push mb_targets target)
+@@ -174,13 +205,8 @@
+ 
+ pub fn mb_lookup(owner: int, name: string) -> string {
+     if (not (mb_active)) { return name }
+-    let mut i: int = 0
+-    while (< i (array_length mb_names)) {
+-        if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) {
+-            return (at mb_targets i)
+-        }
+-        set i (+ i 1)
+-    }
++    let index: int = (mb_binding_index owner name)
++    if (>= index 0) { return (at mb_targets index) }
+     return name
+ }
+ shadow mb_lookup {
+@@ -213,13 +239,8 @@
+ # I retain import provenance separately from the C-linkage spelling.
+ pub fn mb_target_owner(owner: int, name: string) -> int {
+     if (not (mb_active)) { return -1 }
+-    let mut i: int = 0
+-    while (< i (array_length mb_names)) {
+-        if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) {
+-            return (at mb_definition_owners i)
+-        }
+-        set i (+ i 1)
+-    }
++    let index: int = (mb_binding_index owner name)
++    if (>= index 0) { return (at mb_definition_owners index) }
+     return owner
+ }
+ shadow mb_target_owner {

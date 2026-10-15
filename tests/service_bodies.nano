@@ -1,0 +1,61 @@
+# I expose independent nominal body facts without executing service programs.
+import "src_nano/compiler/service_bodies.nano"
+import "src_nano/compiler/service_namespace.nano"
+import "src_nano/compiler/service_origins.nano"
+import "src_nano/compiler/service_inputs.nano"
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+import "modules/file_source_inputs/file_source_inputs.nano"
+extern fn file_read(path: string) -> string
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn probe(path: string, expected: int) -> int {
+    unsafe {
+        let source: string = (file_read path)
+        let tokens: List<LexerToken> = (tokenize_string source path (list_CompilerDiagnostic_new))
+        let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) path)
+        assert (not parser.has_error)
+        let mut sources: array<string> = [path]
+        let mut lines: array<int> = [1]
+        let mut line: int = 1 let mut i: int = 0
+        while (< i (str_length source)) {
+            if (== (char_at source i) 10) { set line (+ line 1) set sources (array_push sources path) set lines (array_push lines line) }
+            set i (+ i 1)
+        }
+        let origins: ServiceOrigins = (bind_service_origins parser [path] sources lines)
+        assert origins.ok
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        let inputs: ServiceInputs = (acquire_service_inputs parser [path] origins context)
+        assert inputs.ok
+        let space: ServiceNamespace = (resolve_service_namespace parser [path] sources [] origins inputs context)
+        assert (== space.status 0)
+        let checked: ServiceBodyCheck = (check_service_bodies parser [path] sources space)
+        (println (+ "STATUS " (+ (int_to_string checked.status) (+ " FUNCTIONS " (+ (int_to_string checked.functions) (+ " SHADOWS " (int_to_string checked.shadows)))))))
+        if (!= checked.diagnostic "") { (println checked.diagnostic) }
+        assert (== checked.status expected)
+        set i 0
+        while (< i (array_length checked.facts)) {
+            let fact: ServiceBodyFact = (at checked.facts i)
+            if (== fact.declaration -1) {
+                assert (and (== fact.type.kind 1) (== fact.borrow_mode 0))
+                (println "CALL str_length 0 0")
+            } else if (> fact.declaration 0) {
+                let row: ServiceName = (at space.names (- fact.declaration 1))
+                let mut ordinal: int = 0 if (> fact.type.declaration 0) { set ordinal fact.type.ordinal }
+                (println (+ "CALL " (+ row.name (+ " " (+ (int_to_string ordinal) (+ " " (int_to_string fact.borrow_mode)))))))
+            }
+            set i (+ i 1)
+        }
+        (nl_source_inputs_free context)
+    }
+    return 0
+}
+shadow probe { assert (== (service_origin_file ["/body"] "/body") 0) }
+fn main() -> int {
+    unsafe {
+        if (!= (get_argc) 3) { return 2 }
+        return (probe (get_argv 1) (string_to_int (get_argv 2)))
+    }
+}
+shadow main { assert true }

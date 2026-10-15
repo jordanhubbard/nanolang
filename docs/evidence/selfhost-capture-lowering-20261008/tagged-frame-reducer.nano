@@ -1,0 +1,24 @@
+struct Frame { names: array<string> }
+let mut names: array<string> = []
+let mut frames: array<Frame> = []
+fn save(depth: int) -> void {
+    let saved: array<string> = names
+    (array_set frames 0 Frame { names: saved })
+    if (> depth 0) { (work (- depth 1)) }
+    set names saved
+}
+shadow save { assert true }
+fn work(depth: int) -> void {
+    set names ["inner"]
+    (save depth)
+}
+shadow work { assert true }
+fn main() -> int {
+    set names ["outer"]
+    set frames [Frame { names: [] }]
+    (save 3)
+    assert (== (at names 0) "outer")
+    assert (== (at (at frames 0).names 0) "inner")
+    return 0
+}
+shadow main { assert (== (main) 0) }

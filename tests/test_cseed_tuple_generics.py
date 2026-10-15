@@ -1,0 +1,240 @@
+"""I preserve recursive tuple identities through generic source execution."""
+import subprocess
+import tempfile
+from pathlib import Path
+from tests import test_cseed_generic_functions as base
+
+IDENTITY = 'fn identity(value:T)->T{return value}\nshadow identity {assert (== (identity 1) 1)}\n'
+MAIN_SHADOW = '\nshadow main {assert (== (main) 0)}\n'
+
+
+class TupleGenerics(base.CseedGenericFunctions):
+    def test_tuple_byte_element(self):
+        self.execute(IDENTITY+'''fn main()->int {
+    let bytes:array<u8> = [7]
+    let bundle:(u8,bool) = (identity ((at bytes 0),true))
+    assert (== bundle.0 7)
+    assert bundle.1
+    return 0
+}'''+MAIN_SHADOW)
+
+    def test_tuple_identity_and_destructuring(self):
+        self.execute(IDENTITY+'''fn main()->int {
+    let (number, flag) = (identity (identity (7, true)))
+    assert (== number 7)
+    assert flag
+    return 0
+}'''+MAIN_SHADOW)
+
+    def test_nested_tuple_and_array_results(self):
+        self.execute(IDENTITY+'''fn make()->((int,bool),array<string>){return ((7,true),["kept"])}
+shadow make {let value = (make) assert (value.0).1}
+fn main()->int {
+    let value:((int,bool),array<string>) = (identity (make))
+    assert (== (value.0).0 7)
+    assert (value.0).1
+    assert (== (at value.1 0) "kept")
+    return 0
+}'''+MAIN_SHADOW)
+
+    def test_structural_tuple_parameter(self):
+        self.execute('''fn first(value:(T,E))->T{return value.0}
+shadow first {assert (== (first (7,true)) 7)}
+fn main()->int {
+    assert (== (first (7,true)) 7)
+    assert (== (first ("kept",[9])) "kept")
+    return 0
+}'''+MAIN_SHADOW)
+
+    def test_tuple_nominal_and_callback_elements(self):
+        self.execute(IDENTITY+'''enum Shade {Dark=2}
+struct Box {value:int}
+fn increment(value:int)->int{return (+ value 1)}
+shadow increment {assert (== (increment 4) 5)}
+fn main()->int {
+    let value:(Box,Shade,fn(int)->int) = (identity (Box {value:7},Shade.Dark,increment))
+    assert (== value.0.value 7)
+    assert (== (identity value.1) 2)
+    let callback:fn(int)->int = value.2
+    assert (== (callback 4) 5)
+    return 0
+}'''+MAIN_SHADOW)
+
+    def test_tuple_binding_mismatches_preserve_output(self):
+        for left,right in [('(1,true)','(1,2)'),('((1,true),3)','((1,2),3)'),
+                           ('([1],true)','([false],true)'),('(1,true)','(1,true,3)')]:
+            with self.subTest(left=left,right=right), tempfile.TemporaryDirectory() as tmp:
+                source,output = Path(tmp)/'main.nano',Path(tmp)/'main.nvm'
+                output.write_bytes(b'prior')
+                source.write_text('fn choose(a:T,b:T)->T{return a}\nshadow choose {assert (== (choose 1 2) 1)}\n'
+                    +f'fn main()->int{{let result = (choose {left} {right}) return 0}}'+MAIN_SHADOW)
+                result=subprocess.run([str(base.COMPILER),str(source),*base.MODE,'-o',str(output)],
+                                      cwd=base.ROOT,capture_output=True,text=True,timeout=120)
+                self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+                self.assertIn('one concrete identity',result.stdout+result.stderr)
+                self.assertEqual(output.read_bytes(),b'prior')
+
+    def test_declared_tuple_shapes_preserve_output(self):
+        programs = [
+            'fn bad()->(int,bool){return (1,2)}\nshadow bad {assert true}\nfn main()->int{return 0}',
+            'fn main()->int{let value:(int,bool)=(1,2) return 0}',
+            'fn main()->int{let mut value:(int,bool)=(1,true) set value (1,2) return 0}',
+            'fn take(value:(int,bool))->int{return 0}\nshadow take {assert true}\nfn main()->int{return (take (1,2))}',
+        ]
+        for program in programs:
+            with self.subTest(program=program), tempfile.TemporaryDirectory() as tmp:
+                source,output=Path(tmp)/'main.nano',Path(tmp)/'main.nvm'
+                output.write_bytes(b'prior')
+                source.write_text(program+'\nshadow main {assert true}\n')
+                result=subprocess.run([str(base.COMPILER),str(source),*base.MODE,'-o',str(output)],
+                                      cwd=base.ROOT,capture_output=True,text=True,timeout=120)
+                self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+                self.assertRegex(result.stdout+result.stderr, r'one complete tuple shape|expected a value of type `\(int,bool\)`, but found `\(int,int\)`|expected \(int,bool\), got \(int,int\)')
+                self.assertEqual(output.read_bytes(),b'prior')
+
+    def test_structural_tuple_result_substitution(self):
+        self.execute('''fn swap(value:(T,E))->(E,T){return (value.1,value.0)}
+shadow swap {let value=(swap (7,true)) assert value.0 assert (== value.1 7)}
+fn main()->int {
+    let value:(int,string) = (swap ("kept",7))
+    assert (== value.0 7)
+    assert (== value.1 "kept")
+    let nested:(bool,array<int>) = (swap ([9],true))
+    assert nested.0
+    assert (== (at nested.1 0) 9)
+    return 0
+}'''+MAIN_SHADOW)
+
+    def test_imported_tuple_result(self):
+        self.execute('module "pair.nano" as pair\n'+IDENTITY+'''fn main()->int {
+    let value = (identity (pair.make))
+    assert value.1
+    assert (== value.0.value 7)
+    return 0
+}'''+MAIN_SHADOW, files={'pair.nano': '''pub struct Box {value:int}
+pub fn make()->(Box,bool){return (Box {value:7},true)}
+shadow make {let value = (make) assert value.1}
+'''})
+
+    def test_tuple_projection_bounds_preserve_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source,output=Path(tmp)/'main.nano',Path(tmp)/'main.nvm'
+            output.write_bytes(b'prior')
+            source.write_text('fn pair()->(int,bool){return (1,true)}\nshadow pair {assert true}\n'
+                'fn main()->int{let value=(pair).2 return 0}\nshadow main {assert true}\n')
+            result=subprocess.run([str(base.COMPILER),str(source),*base.MODE,'-o',str(output)],
+                                  cwd=base.ROOT,capture_output=True,text=True,timeout=120)
+            self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+            self.assertEqual(output.read_bytes(),b'prior')
+
+    def test_tuple_array_alias_is_preserved(self):
+        self.execute(IDENTITY+'''fn main()->int {
+    let values:array<int> = [1]
+    let bundle = (identity (values,true))
+    (array_set bundle.0 0 9)
+    assert (== (at values 0) 9)
+    return 0
+}'''+MAIN_SHADOW)
+
+    def test_tuple_recursive_callback_signature(self):
+        self.execute(IDENTITY+'''struct Ops {op:fn(Ops)->(int,bool)}
+fn answer(value:Ops)->(int,bool){return (7,true)}
+shadow answer {let value=(answer Ops {op:answer}) assert value.1}
+fn main()->int {
+    let bundle:(Ops,bool) = (identity (Ops {op:answer},true))
+    let callback:fn(Ops)->(int,bool) = bundle.0.op
+    let value = (callback bundle.0)
+    assert (== value.0 7)
+    assert value.1
+    return 0
+}'''+MAIN_SHADOW)
+
+    def test_resource_tuple_preserves_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source,output=Path(tmp)/'main.nano',Path(tmp)/'main.nvm'
+            output.write_bytes(b'prior')
+            source.write_text('resource struct Handle {value:int}\n'+IDENTITY+
+                'fn main()->int{let owned:Handle=Handle {value:1} let tuple=(identity (owned,true)) return 0}\n'
+                'shadow main {assert true}\n')
+            result=subprocess.run([str(base.COMPILER),str(source),*base.MODE,'-o',str(output)],
+                                  cwd=base.ROOT,capture_output=True,text=True,timeout=120)
+            self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+            self.assertEqual(output.read_bytes(),b'prior')
+
+    def test_imported_tuple_signatures_and_aliases(self):
+        self.execute('module "pair.nano" as pair\nfrom "pair.nano" import flip as other\n'+IDENTITY+'''fn main()->int {
+    let value:(int,bool) = (pair.make)
+    let reversed:(bool,int) = (pair.flip value)
+    let flip:fn((int,bool))->(bool,int) = pair.flip
+    let maker:fn()->(int,bool) = pair.make
+    assert reversed.0
+    assert (== reversed.1 7)
+    assert (== (other (maker)).1 7)
+    assert (== (flip (identity value)).1 7)
+    return 0
+}'''+MAIN_SHADOW, files={'pair.nano': '''pub fn make()->(int,bool){return (7,true)}
+shadow make {assert (== (make).0 7)}
+pub fn flip(value:(int,bool))->(bool,int){return (value.1,value.0)}
+shadow flip {assert (== (flip (3,true)).1 3)}
+'''})
+
+    def test_generic_tuple_literals_in_nested_results(self):
+        self.execute(IDENTITY+'''fn wrap(value:T)->((T,bool),T){return ((value,true),value)}
+shadow wrap {let value=(wrap 3) assert (== (value.0).0 3) assert (value.0).1}
+fn plus(value:int)->int{return (+ value 1)}
+shadow plus {assert (== (plus 1) 2)}
+fn main()->int {
+    let number:((int,bool),int) = (wrap 7)
+    let text:((string,bool),string) = (wrap "kept")
+    let decimal:((float,bool),float) = (wrap 1.5)
+    let function:((fn(int)->int,bool),fn(int)->int) = (wrap plus)
+    let mut callback:fn(int)->int = (function.0).0
+    let retained:fn(int)->int = function.1
+    set callback plus
+    let projected:fn(int)->int = (function.0).0
+    assert (== (retained 8) 9)
+    assert (== (projected 9) 10)
+    let source:array<int> = [9]
+    let arrays:((array<int>,bool),array<int>) = (wrap source)
+    (array_set (arrays.0).0 0 11)
+    assert (== number.1 7)
+    assert (== (text.0).0 "kept")
+    assert (== decimal.1 1.5)
+    assert (== (callback 7) 8)
+    assert (== (at arrays.1 0) 11)
+    assert (== (at source 0) 11)
+    return 0
+}'''+MAIN_SHADOW)
+
+    def test_qualified_generic_tuple_callbacks_and_shadowing(self):
+        self.execute('module "pair.nano" as pair\n'+IDENTITY+'''struct Holder {keep:fn(int)->int}
+fn apply(value:T,callback:fn(T)->T)->T{return (callback value)}
+shadow apply {assert (== (apply 7 identity) 7)}
+fn local(value:int)->int{return (+ value 1)}
+shadow local {assert (== (local 1) 2)}
+fn main()->int {
+    let keep:fn((int,bool))->(int,bool) = pair.keep
+    let value:(int,bool) = (keep (7,true))
+    assert (== value.0 7)
+    assert (apply true pair.keep)
+    let pair:Holder = Holder {keep:local}
+    let shadowed:fn(int)->int = pair.keep
+    assert (== (shadowed 7) 8)
+    return 0
+}'''+MAIN_SHADOW, files={'pair.nano': 'pub fn keep(value:T)->T{return value}\nshadow keep {assert (== (keep 1) 1)}\n'})
+
+    def test_qualified_tuple_signature_refusals(self):
+        for signature in ('fn((int,bool))->(int,bool)', 'fn()->(bool,int)', 'fn((string,bool))->(bool,int)'):
+            with self.subTest(signature=signature), tempfile.TemporaryDirectory() as tmp:
+                directory = Path(tmp)
+                (directory/'pair.nano').write_text('pub fn flip(value:(int,bool))->(bool,int){return (value.1,value.0)}\n'
+                    'shadow flip {assert (== (flip (7,true)).1 7)}\n')
+                source, output = directory/'main.nano', directory/'output'
+                source.write_text('module "pair.nano" as pair\nfn unused()->int{let wrong:'+signature+' = pair.flip return 0}\n'
+                    'shadow unused {assert true}\nfn main()->int{return 0}'+MAIN_SHADOW)
+                output.write_bytes(b'prior artifact')
+                result = subprocess.run([base.COMPILER, source, *base.MODE, '-o', output], cwd=base.ROOT,
+                                        capture_output=True, text=True, timeout=120)
+                self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+                self.assertEqual(output.read_bytes(), b'prior artifact')
+                self.assertNotIn('C compilation failed', result.stdout+result.stderr)

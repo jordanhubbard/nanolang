@@ -1,0 +1,7 @@
+{
+  "src/nanoisa/services_host_grant.c": "3ff49b4f6db6b474e45bf95915649e3e9d311a0dceaec8ba19221dadc9d4dd09",
+  "src/nanoisa/services_host_grant.h": "e57cb9c48ce0179f239a9abcfe04b3fb018b75a0cb0789d45b0415e82d9d3dc7",
+  "src/nanoisa/services_host_grant_internal.h": "60f8891785384322d3dcdde3ec43bc95ea4a516bbabd30ae28705e9f78da9502",
+  "tests/nanoisa/test_mixed_websocket_flow.c": "95ee62108e8bd930f2520a96934f83b3c20a7c107a5b9882749c0c47da5ba635",
+  "tests/test_services_flow.py": "ed78e8257e408867b8d8719d8df3663ded840ffa52dc62bc046d7d39ada63917"
+}

@@ -45,6 +45,7 @@ typedef struct {
     bool live, formal;
     uint16_t local;
     uint64_t owner, identity, region;
+    bool shared;
 } NvmFileFlowReference;
 typedef struct {
     uint16_t stack, regions, owners, references;
@@ -114,7 +115,8 @@ NvmFileFlowStatus nvm_file_flow_take_result(NvmFileFlowState *, uint16_t local, 
  * takes no values; close consumes File from stack. Other modes require NO_REFERENCE. */
 NvmFileFlowStatus nvm_file_flow_service(NvmFileFlowState *, uint32_t site, uint32_t import,
                                       uint16_t reference);
-/* Exact per-parameter reference vector: mode2 uses a live exclusive slot;
+/* Exact per-parameter reference vector: mode1 uses a live shared slot,
+ * mode2 uses a live exclusive slot;
  * mode0 uses NO_REFERENCE and takes a value from the ordered stack suffix.
  * Success records a pending callee-body/cleanup obligation, not a body proof. */
 NvmFileFlowStatus nvm_file_flow_call(NvmFileFlowState *, uint32_t site, uint32_t function,
@@ -128,6 +130,7 @@ NvmFileFlowStatus nvm_file_flow_drop_stack(NvmFileFlowState *);
 NvmFileFlowStatus nvm_file_flow_region_begin(NvmFileFlowState *);
 NvmFileFlowStatus nvm_file_flow_region_end(NvmFileFlowState *);
 NvmFileFlowStatus nvm_file_flow_borrow(NvmFileFlowState *, uint16_t local, uint16_t reference);
+NvmFileFlowStatus nvm_file_flow_borrow_shared(NvmFileFlowState *,uint16_t local,uint16_t reference);
 NvmFileFlowStatus nvm_file_flow_end_borrow(NvmFileFlowState *, uint16_t reference);
 /* I check the exact declared result on the stack and complete owner/region
  * obligations without consuming it. Borrowed formals stay caller-owned.

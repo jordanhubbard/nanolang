@@ -1,0 +1,74 @@
+I retain byte-array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-byte-arrays-_o6biqld
+test_alias_mutation_slice_independence_and_empty (tests.test_native_byte_arrays.NativeByteArrays.test_alias_mutation_slice_independence_and_empty) ... ok
+test_byte_roots_survive_collection (tests.test_native_byte_arrays.NativeByteArrays.test_byte_roots_survive_collection) ... ok
+test_calls_globals_records_and_absent_reads (tests.test_native_byte_arrays.NativeByteArrays.test_calls_globals_records_and_absent_reads) ... ok
+test_literal_tags_and_integer_narrowing (tests.test_native_byte_arrays.NativeByteArrays.test_literal_tags_and_integer_narrowing) ... ok
+test_tagged_integer_pop_keeps_integer_identity (tests.test_native_byte_arrays.NativeByteArrays.test_tagged_integer_pop_keeps_integer_identity) ... ok
+test_tagged_record_pop_preserves_owned_child (tests.test_native_byte_arrays.NativeByteArrays.test_tagged_record_pop_preserves_owned_child) ... ok
+I retain nested array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-256hj5du
+test_nested_record_child (tests.test_native_nested_arrays.NativeNestedArrays.test_nested_record_child) ... FAIL
+test_self_cycle_survives_collection_and_pop (tests.test_native_nested_arrays.NativeNestedArrays.test_self_cycle_survives_collection_and_pop) ... FAIL
+test_slice_retains_children_after_outer_release (tests.test_native_nested_arrays.NativeNestedArrays.test_slice_retains_children_after_outer_release) ... FAIL
+
+======================================================================
+FAIL: test_nested_record_child (tests.test_native_nested_arrays.NativeNestedArrays.test_nested_record_child)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_nested_arrays.py", line 44, in test_nested_record_child
+    self.paired('record-child', body,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                '.string a "a"\n.string b "b"\n.string ab "ab"\n' + CHURN,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                collections=True)
+                ^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 38, in paired
+    self.command(ROOT / 'bin/nvm2c', module, '-o', native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 26, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-256hj5du/record-child.nvm': function 1: OP_STR_EQ requires two string operands
+
+
+======================================================================
+FAIL: test_self_cycle_survives_collection_and_pop (tests.test_native_nested_arrays.NativeNestedArrays.test_self_cycle_survives_collection_and_pop)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_nested_arrays.py", line 36, in test_self_cycle_survives_collection_and_pop
+    self.paired('cycle', body, '.string a "a"\n.string b "b"\n' + CHURN,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                collections=True)
+                ^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 38, in paired
+    self.command(ROOT / 'bin/nvm2c', module, '-o', native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 26, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-256hj5du/cycle.nvm': I require preserved runtime tags to compare this value with a tagged lookup
+
+
+======================================================================
+FAIL: test_slice_retains_children_after_outer_release (tests.test_native_nested_arrays.NativeNestedArrays.test_slice_retains_children_after_outer_release)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_nested_arrays.py", line 27, in test_slice_retains_children_after_outer_release
+    self.paired('retained', body,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                '.string a "a"\n.string b "b"\n.string ab "ab"\n' + CHURN,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                collections=True)
+                ^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 38, in paired
+    self.command(ROOT / 'bin/nvm2c', module, '-o', native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 26, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-256hj5du/retained.nvm': I found invalid aggregate shape constraints during ARR_SLICE in function 1 at offset 57: I found conflicting aggregate shape kinds optional/array at nodes 41/48
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 2.570s
+
+FAILED (failures=3)

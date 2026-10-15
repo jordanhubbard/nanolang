@@ -1,0 +1,18 @@
+{
+  "stage1": {
+    "commands": 154,
+    "workdirs": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-_jl_rcap",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-2k_ca59n",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9x_wwcs3"
+    ]
+  },
+  "stage2": {
+    "commands": 154,
+    "workdirs": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-newyfkhl",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9lthw5ty",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-xvper464"
+    ]
+  }
+}

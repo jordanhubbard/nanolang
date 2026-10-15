@@ -1,0 +1,18 @@
+test_different_raw_modules_always_refuse_installation (tests.test_bootstrap_messages.BootstrapMessages.test_different_raw_modules_always_refuse_installation) ... ok
+test_equal_modules_allow_different_native_bytes_without_correctness_claim (tests.test_bootstrap_messages.BootstrapMessages.test_equal_modules_allow_different_native_bytes_without_correctness_claim) ... ok
+test_failed_installed_dependency_check_does_not_stamp_success (tests.test_bootstrap_messages.BootstrapMessages.test_failed_installed_dependency_check_does_not_stamp_success) ... ok
+test_actual_helper_edit_and_source_membership_changes (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_actual_helper_edit_and_source_membership_changes) ... ok
+test_artifacts_and_documentation_are_not_source_inputs (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_artifacts_and_documentation_are_not_source_inputs) ... ok
+test_cache_payload_changes_do_not_invalidate_bootstrap (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_cache_payload_changes_do_not_invalidate_bootstrap) ... ok
+test_missing_index_is_generated_before_bootstrap_snapshot (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_missing_index_is_generated_before_bootstrap_snapshot) ... ok
+test_missing_raw_modules_or_receipt_invalidate_bootstrap (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_missing_raw_modules_or_receipt_invalidate_bootstrap) ... ok
+test_missing_stage_one_invalidates_later_stages (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_missing_stage_one_invalidates_later_stages) ... ok
+test_missing_stage_two_invalidates_validation (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_missing_stage_two_invalidates_validation) ... ok
+test_runtime_inputs_invalidate_all_selfhost_stages (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_runtime_inputs_invalidate_all_selfhost_stages) ... ok
+test_unrelated_program_does_not_invalidate_bootstrap (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_unrelated_program_does_not_invalidate_bootstrap) ... ok
+test_up_to_date_and_source_invalidation (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_up_to_date_and_source_invalidation) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 90.840s
+
+OK

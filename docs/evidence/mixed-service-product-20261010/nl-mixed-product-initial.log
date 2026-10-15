@@ -1,0 +1,23 @@
+test_dependency_shadow_selection (tests.test_mixed_service_drivers.MixedServiceDrivers.test_dependency_shadow_selection) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i4frrxdt
+ok
+test_network_publication_and_raw_routes (tests.test_mixed_service_drivers.MixedServiceDrivers.test_network_publication_and_raw_routes) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qr3ub31_
+ok
+test_shadow_failure_aliases_and_nonexecuting_publication (tests.test_mixed_service_drivers.MixedServiceDrivers.test_shadow_failure_aliases_and_nonexecuting_publication) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-m3cvfuh7
+ok
+test_vm_and_generated_native_tcp (tests.test_socket_dispatch.SocketDispatch.test_vm_and_generated_native_tcp) ... I retain TCP execution artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-socket-dispatch-i16pctly
+ERROR
+
+======================================================================
+ERROR: test_vm_and_generated_native_tcp (tests.test_socket_dispatch.SocketDispatch.test_vm_and_generated_native_tcp)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_dispatch.py", line 77, in test_vm_and_generated_native_tcp
+    ordinary = shlex.split(os.environ["SOCKET_DISPATCH_OBJECTS"])
+                           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'SOCKET_DISPATCH_OBJECTS'
+
+----------------------------------------------------------------------
+Ran 4 tests in 36.055s
+
+FAILED (errors=1)

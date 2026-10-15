@@ -1,0 +1,19 @@
+Warning at line 6091, column 9: Unused variable 'checked_body'
+Error at line 7316, column 34: I cannot call private function 'parse_row_type_string' from module 'parser'.
+Hint: Call an exported function, or declare this function pub in its owning module.
+Error at line 7317, column 32: I cannot call private function 'parser_is_at_end' from module 'parser'.
+Hint: Call an exported function, or declare this function pub in its owning module.
+Error at line 7317, column 27: `not` requires a bool operand.
+Hint: Convert the operand to bool before using not.
+Error at line 7318, column 27: I cannot call private function 'parser_advance' from module 'parser'.
+Hint: Call an exported function, or declare this function pub in its owning module.
+Error at line 7320, column 17: I cannot call private function 'parser_expect' from module 'parser'.
+Hint: Call an exported function, or declare this function pub in its owning module.
+Error at line 7321, column 38: I cannot call private function 'parse_type_string' from module 'parser'.
+Hint: Call an exported function, or declare this function pub in its owning module.
+Error at line 7324, column 86: I cannot call private function 'parser_advance' from module 'parser'.
+Hint: Call an exported function, or declare this function pub in its owning module.
+Warning at line 7315, column 5: Unused variable 'initial'
+Error: Type checking failed for module '/Users/jordanh/Src/nanolang/src_nano/typecheck.nano'
+Error at line 19, column 1: Failed to load module '/Users/jordanh/Src/nanolang/src_nano/typecheck.nano'
+Module loading failed

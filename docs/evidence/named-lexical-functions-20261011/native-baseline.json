@@ -1,0 +1,32 @@
+[
+  {
+    "case": "basic",
+    "compile": 1,
+    "stdout": "",
+    "stderr": "/private/tmp/nl51-named-functions/basic.nano:1:47: error: call to undeclared function 'nl_helper'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n    1 |     return ({ __auto_type __nl_arg_0_0 = 6LL; nl_helper(__nl_arg_0_0); });\n      |                                               ^\n1 error generated.\nC compilation failed\n"
+  },
+  {
+    "case": "capture",
+    "compile": 1,
+    "stdout": "",
+    "stderr": "/private/tmp/nl51-named-functions/capture.nano:1:47: error: call to undeclared function 'nl_helper'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n    1 |     return ({ __auto_type __nl_arg_0_0 = 3LL; nl_helper(__nl_arg_0_0); });\n      |                                               ^\n1 error generated.\nC compilation failed\n"
+  },
+  {
+    "case": "recursive",
+    "compile": 1,
+    "stdout": "",
+    "stderr": "/private/tmp/nl51-named-functions/recursive.nano:1:47: error: call to undeclared function 'nl_sum'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n    1 |     return ({ __auto_type __nl_arg_0_0 = 3LL; nl_sum(__nl_arg_0_0); });\n      |                                               ^\n/private/tmp/nl51-named-functions/recursive.nano:1:47: note: did you mean 'nl_sin'?\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_15647_recursive-native.c:1140:15: note: 'nl_sin' declared here\n    1 | static double nl_sin(double x) { return sin(x); }\n      |               ^\n1 error generated.\nC compilation failed\n"
+  },
+  {
+    "case": "recursive_capture",
+    "compile": 1,
+    "stdout": "",
+    "stderr": "/private/tmp/nl51-named-functions/recursive_capture.nano:1:47: error: call to undeclared function 'nl_sum'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n    1 |     return ({ __auto_type __nl_arg_0_0 = 3LL; nl_sum(__nl_arg_0_0); });\n      |                                               ^\n/private/tmp/nl51-named-functions/recursive_capture.nano:1:47: note: did you mean 'nl_sin'?\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_15735_recursive_capture-native.c:1140:15: note: 'nl_sin' declared here\n    1 | static double nl_sin(double x) { return sin(x); }\n      |               ^\n1 error generated.\nC compilation failed\n"
+  },
+  {
+    "case": "scopes",
+    "compile": 1,
+    "stdout": "",
+    "stderr": "/private/tmp/nl51-named-functions/scopes.nano:1:19: error: call to undeclared function 'nl_helper'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n    1 |         if (!((({ nl_helper(); })) == (3LL))) { fputs(\"Contract violation at line 1: (== (helper) 3)\\n\", stderr); exit(1); }\n      |                   ^\n/private/tmp/nl51-named-functions/scopes.nano:1:15: error: call to undeclared function 'nl_helper'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n    1 |     return ({ nl_helper(); });\n      |               ^\n2 errors generated.\nC compilation failed\n"
+  }
+]

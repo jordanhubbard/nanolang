@@ -1,0 +1,83 @@
+I retain record-field transport evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-field-transport-d_iwjlfm
+test_scalar_write_matrix (tests.test_native_record_field_transport.RecordFieldTransport.test_scalar_write_matrix) ... 
+  test_scalar_write_matrix (tests.test_native_record_field_transport.RecordFieldTransport.test_scalar_write_matrix) (kind='bool', tagged_destination=False, operation='ARR_SET') ... FAIL
+  test_scalar_write_matrix (tests.test_native_record_field_transport.RecordFieldTransport.test_scalar_write_matrix) (kind='bool', tagged_destination=False, operation='ARR_PUSH') ... FAIL
+  test_scalar_write_matrix (tests.test_native_record_field_transport.RecordFieldTransport.test_scalar_write_matrix) (kind='bool', tagged_destination=True, operation='ARR_SET') ... FAIL
+  test_scalar_write_matrix (tests.test_native_record_field_transport.RecordFieldTransport.test_scalar_write_matrix) (kind='bool', tagged_destination=True, operation='ARR_PUSH') ... FAIL
+
+======================================================================
+FAIL: test_scalar_write_matrix (tests.test_native_record_field_transport.RecordFieldTransport.test_scalar_write_matrix) (kind='bool', tagged_destination=False, operation='ARR_SET')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_record_field_transport.py", line 36, in test_scalar_write_matrix
+    self.paired(f'{name}-{tagged_destination}-{operation}', body,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                '.string a "a"\n.string b "b"\n')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 34, in paired
+    self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 26, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-field-transport-d_iwjlfm/bool-False-ARR_SET.nasm': Expected u8 operand
+
+
+======================================================================
+FAIL: test_scalar_write_matrix (tests.test_native_record_field_transport.RecordFieldTransport.test_scalar_write_matrix) (kind='bool', tagged_destination=False, operation='ARR_PUSH')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_record_field_transport.py", line 36, in test_scalar_write_matrix
+    self.paired(f'{name}-{tagged_destination}-{operation}', body,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                '.string a "a"\n.string b "b"\n')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 34, in paired
+    self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 26, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-field-transport-d_iwjlfm/bool-False-ARR_PUSH.nasm': Expected u8 operand
+
+
+======================================================================
+FAIL: test_scalar_write_matrix (tests.test_native_record_field_transport.RecordFieldTransport.test_scalar_write_matrix) (kind='bool', tagged_destination=True, operation='ARR_SET')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_record_field_transport.py", line 36, in test_scalar_write_matrix
+    self.paired(f'{name}-{tagged_destination}-{operation}', body,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                '.string a "a"\n.string b "b"\n')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 34, in paired
+    self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 26, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-field-transport-d_iwjlfm/bool-True-ARR_SET.nasm': Expected u8 operand
+
+
+======================================================================
+FAIL: test_scalar_write_matrix (tests.test_native_record_field_transport.RecordFieldTransport.test_scalar_write_matrix) (kind='bool', tagged_destination=True, operation='ARR_PUSH')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_record_field_transport.py", line 36, in test_scalar_write_matrix
+    self.paired(f'{name}-{tagged_destination}-{operation}', body,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                '.string a "a"\n.string b "b"\n')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 34, in paired
+    self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 26, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-field-transport-d_iwjlfm/bool-True-ARR_PUSH.nasm': Expected u8 operand
+
+
+----------------------------------------------------------------------
+Ran 1 test in 4.731s
+
+FAILED (failures=4)

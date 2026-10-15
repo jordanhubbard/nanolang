@@ -1,0 +1,6 @@
+fn identity(x:T)->T{return x}
+shadow identity {assert (== (identity 1) 1)}
+fn apply(f:fn(bool)->bool)->bool{return (f true)}
+shadow apply {assert (apply identity)}
+fn main()->int{let values:array<bool> = (map [identity] apply) assert (at values 0) return 0}
+shadow main {assert (== (main) 0)}

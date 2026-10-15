@@ -1,0 +1,156 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:88:5: error: redefinition of enumerator 'TYPE_INT'
+   88 |     TYPE_INT,
+      |     ^
+src/nanovirt/../builtins_registry.h:16:5: note: previous definition is here
+   16 |     TYPE_INT = 0, TYPE_U8, TYPE_FLOAT, TYPE_BOOL, TYPE_STRING, TYPE_BSTRING,
+      |     ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:89:5: error: redefinition of enumerator 'TYPE_U8'
+   89 |     TYPE_U8,          /* Unsigned 8-bit integer (byte) */
+      |     ^
+src/nanovirt/../builtins_registry.h:16:19: note: previous definition is here
+   16 |     TYPE_INT = 0, TYPE_U8, TYPE_FLOAT, TYPE_BOOL, TYPE_STRING, TYPE_BSTRING,
+      |                   ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:90:5: error: redefinition of enumerator 'TYPE_FLOAT'
+   90 |     TYPE_FLOAT,
+      |     ^
+src/nanovirt/../builtins_registry.h:16:28: note: previous definition is here
+   16 |     TYPE_INT = 0, TYPE_U8, TYPE_FLOAT, TYPE_BOOL, TYPE_STRING, TYPE_BSTRING,
+      |                            ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:91:5: error: redefinition of enumerator 'TYPE_BOOL'
+   91 |     TYPE_BOOL,
+      |     ^
+src/nanovirt/../builtins_registry.h:16:40: note: previous definition is here
+   16 |     TYPE_INT = 0, TYPE_U8, TYPE_FLOAT, TYPE_BOOL, TYPE_STRING, TYPE_BSTRING,
+      |                                        ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:92:5: error: redefinition of enumerator 'TYPE_STRING'
+   92 |     TYPE_STRING,
+      |     ^
+src/nanovirt/../builtins_registry.h:16:51: note: previous definition is here
+   16 |     TYPE_INT = 0, TYPE_U8, TYPE_FLOAT, TYPE_BOOL, TYPE_STRING, TYPE_BSTRING,
+      |                                                   ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:93:5: error: redefinition of enumerator 'TYPE_BSTRING'
+   93 |     TYPE_BSTRING,      /* Binary string (nl_string_t*) - length-explicit, UTF-8 */
+      |     ^
+src/nanovirt/../builtins_registry.h:16:64: note: previous definition is here
+   16 |     TYPE_INT = 0, TYPE_U8, TYPE_FLOAT, TYPE_BOOL, TYPE_STRING, TYPE_BSTRING,
+      |                                                                ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:94:5: error: redefinition of enumerator 'TYPE_VOID'
+   94 |     TYPE_VOID,
+      |     ^
+src/nanovirt/../builtins_registry.h:17:5: note: previous definition is here
+   17 |     TYPE_VOID, TYPE_ARRAY, TYPE_STRUCT, TYPE_ENUM, TYPE_UNION,
+      |     ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:95:5: error: redefinition of enumerator 'TYPE_ARRAY'
+   95 |     TYPE_ARRAY,
+      |     ^
+src/nanovirt/../builtins_registry.h:17:16: note: previous definition is here
+   17 |     TYPE_VOID, TYPE_ARRAY, TYPE_STRUCT, TYPE_ENUM, TYPE_UNION,
+      |                ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:96:5: error: redefinition of enumerator 'TYPE_STRUCT'
+   96 |     TYPE_STRUCT,
+      |     ^
+src/nanovirt/../builtins_registry.h:17:28: note: previous definition is here
+   17 |     TYPE_VOID, TYPE_ARRAY, TYPE_STRUCT, TYPE_ENUM, TYPE_UNION,
+      |                            ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:97:5: error: redefinition of enumerator 'TYPE_ENUM'
+   97 |     TYPE_ENUM,
+      |     ^
+src/nanovirt/../builtins_registry.h:17:41: note: previous definition is here
+   17 |     TYPE_VOID, TYPE_ARRAY, TYPE_STRUCT, TYPE_ENUM, TYPE_UNION,
+      |                                         ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:98:5: error: redefinition of enumerator 'TYPE_UNION'
+   98 |     TYPE_UNION,
+      |     ^
+src/nanovirt/../builtins_registry.h:17:52: note: previous definition is here
+   17 |     TYPE_VOID, TYPE_ARRAY, TYPE_STRUCT, TYPE_ENUM, TYPE_UNION,
+      |                                                    ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:99:5: error: redefinition of enumerator 'TYPE_GENERIC'
+   99 |     TYPE_GENERIC,      /* Generic type (e.g., List<T> before instantiation) */
+      |     ^
+src/nanovirt/../builtins_registry.h:18:5: note: previous definition is here
+   18 |     TYPE_GENERIC, TYPE_LIST_INT, TYPE_LIST_STRING, TYPE_LIST_TOKEN,
+      |     ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:100:5: error: redefinition of enumerator 'TYPE_LIST_INT'
+  100 |     TYPE_LIST_INT,
+      |     ^
+src/nanovirt/../builtins_registry.h:18:19: note: previous definition is here
+   18 |     TYPE_GENERIC, TYPE_LIST_INT, TYPE_LIST_STRING, TYPE_LIST_TOKEN,
+      |                   ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:101:5: error: redefinition of enumerator 'TYPE_LIST_STRING'
+  101 |     TYPE_LIST_STRING,
+      |     ^
+src/nanovirt/../builtins_registry.h:18:34: note: previous definition is here
+   18 |     TYPE_GENERIC, TYPE_LIST_INT, TYPE_LIST_STRING, TYPE_LIST_TOKEN,
+      |                                  ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:102:5: error: redefinition of enumerator 'TYPE_LIST_TOKEN'
+  102 |     TYPE_LIST_TOKEN,
+      |     ^
+src/nanovirt/../builtins_registry.h:18:52: note: previous definition is here
+   18 |     TYPE_GENERIC, TYPE_LIST_INT, TYPE_LIST_STRING, TYPE_LIST_TOKEN,
+      |                                                    ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:103:5: error: redefinition of enumerator 'TYPE_LIST_GENERIC'
+  103 |     TYPE_LIST_GENERIC, /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
+      |     ^
+src/nanovirt/../builtins_registry.h:19:5: note: previous definition is here
+   19 |     TYPE_LIST_GENERIC, TYPE_HASHMAP, TYPE_FUNCTION, TYPE_TUPLE, TYPE_OPAQUE,
+      |     ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:104:5: error: redefinition of enumerator 'TYPE_HASHMAP'
+  104 |     TYPE_HASHMAP,      /* Generic HashMap<K,V> */
+      |     ^
+src/nanovirt/../builtins_registry.h:19:24: note: previous definition is here
+   19 |     TYPE_LIST_GENERIC, TYPE_HASHMAP, TYPE_FUNCTION, TYPE_TUPLE, TYPE_OPAQUE,
+      |                        ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:105:5: error: redefinition of enumerator 'TYPE_FUNCTION'
+  105 |     TYPE_FUNCTION,     /* Function type: fn(int, int) -> int */
+      |     ^
+src/nanovirt/../builtins_registry.h:19:38: note: previous definition is here
+   19 |     TYPE_LIST_GENERIC, TYPE_HASHMAP, TYPE_FUNCTION, TYPE_TUPLE, TYPE_OPAQUE,
+      |                                      ^
+In file included from src/nanovirt/codegen.c:13:
+In file included from src/nanovirt/../checked_loop_binding.h:4:
+src/nanovirt/../nanolang.h:106:5: error: redefinition of enumerator 'TYPE_TUPLE'
+  106 |     TYPE_TUPLE,        /* Tuple type: (int, string, bool) */
+      |     ^
+src/nanovirt/../builtins_registry.h:19:53: note: previous definition is here
+   19 |     TYPE_LIST_GENERIC, TYPE_HASHMAP, TYPE_FUNCTION, TYPE_TUPLE, TYPE_OPAQUE,
+      |                                                     ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+make: *** [obj/nanovirt/codegen.o] Error 1

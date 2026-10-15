@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nano_vm",
+    "--verify-only",
+    "/private/tmp/nanolang-selfhost-globals-final/installed/OwnedGlobalsStage1/test_generic_union_global_and_alias/main.nvm"
+  ],
+  "exit": 0
+}

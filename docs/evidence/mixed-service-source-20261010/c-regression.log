@@ -1,0 +1,44 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -DNVM_FILE_PUBLIC_ENGINE -o obj/test_service_lowering_sanitize tests/test_service_lowering.c src/runtime/service_shadows.c src/nanoisa/file_flow.c src/nanoisa/file_runtime.c obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o lib/libnano_file_runtime.a lib/libnano_socket_runtime.a lib/libnano_services_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_LOWERING_RUNNER="/Users/jordanh/Src/nanolang/obj/test_service_lowering_sanitize" python3 -m unittest -v tests.test_service_lowering
+I retain source lowering artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-6woeqc5r
+test_assertion_drains_live_file (tests.test_service_lowering.ServiceLowering.test_assertion_drains_live_file) ... I finish native compilation in 1.190s
+ok
+test_failed_selected_shadow_drains_live_file (tests.test_service_lowering.ServiceLowering.test_failed_selected_shadow_drains_live_file) ... I finish native compilation in 0.465s
+ok
+test_helpers_loops_fields_and_result_values (tests.test_service_lowering.ServiceLowering.test_helpers_loops_fields_and_result_values) ... I finish native compilation in 2.874s
+ok
+test_limits_preserve_outputs (tests.test_service_lowering.ServiceLowering.test_limits_preserve_outputs) ... ok
+test_multiple_borrow_assertion_drains_owners (tests.test_service_lowering.ServiceLowering.test_multiple_borrow_assertion_drains_owners) ... I finish native compilation in 18.979s
+I finish native compilation in 18.792s
+ok
+test_multiple_forwarded_reference_maps (tests.test_service_lowering.ServiceLowering.test_multiple_forwarded_reference_maps) ... I finish native compilation in 19.184s
+REFERENCE MAPS 2: malformed lengths, slots, value sentinels, overlap and owned copies checked
+EXEC 0 VALUE 129 FUNCTIONS 12 BYTES 7936
+
+ok
+test_nested_argument_borrows_keep_branch_state (tests.test_service_lowering.ServiceLowering.test_nested_argument_borrows_keep_branch_state) ... I finish native compilation in 1.459s
+ok
+test_qualified_reexported_helper (tests.test_service_lowering.ServiceLowering.test_qualified_reexported_helper) ... I finish native compilation in 0.914s
+ok
+test_shared_alias_assertion_cleanup (tests.test_service_lowering.ServiceLowering.test_shared_alias_assertion_cleanup) ... I finish native compilation in 4.823s
+ok
+test_shared_aliases_forwarding_and_loan_release (tests.test_service_lowering.ServiceLowering.test_shared_aliases_forwarding_and_loan_release) ... I finish native compilation in 4.449s
+I finish native compilation in 4.492s
+ok
+test_short_circuit_skips_effects (tests.test_service_lowering.ServiceLowering.test_short_circuit_skips_effects) ... I finish native compilation in 0.648s
+ok
+test_terminal_operands_release_pending_values (tests.test_service_lowering.ServiceLowering.test_terminal_operands_release_pending_values) ... I finish native compilation in 0.723s
+I finish native compilation in 0.787s
+I finish native compilation in 0.865s
+ok
+test_unchanged_generated_binding_and_all_shadows (tests.test_service_lowering.ServiceLowering.test_unchanged_generated_binding_and_all_shadows) ... I finish native compilation in 8.255s
+I finish native compilation in 8.443s
+I finish native compilation in 8.745s
+I finish native compilation in 8.377s
+I finish native compilation in 8.241s
+ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 133.326s
+
+OK

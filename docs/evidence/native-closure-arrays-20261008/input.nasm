@@ -1,0 +1,18 @@
+.entry main
+.function read 0 0 1 int 1
+LOAD_UPVALUE 0 0
+RET
+.end
+.function main 0 0 0 int 1
+PUSH_I64 42
+CLOSURE_NEW read 1
+ARR_LITERAL 11 1
+PUSH_I64 0
+ARR_GET
+CALL_INDIRECT 0 1
+PUSH_I64 42
+EQ
+ASSERT
+PUSH_I64 0
+RET
+.end

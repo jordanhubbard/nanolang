@@ -1,0 +1,76 @@
+{
+  "exact_vm_native_output": true,
+  "output_sha256": "4104c938ba3e0d58fe0334e513b6fe66383427772aba3b5d4061024a75a1d5f4",
+  "native_stderr": "",
+  "profiles": {
+    "uncached": {
+      "retired": 63561,
+      "calls": {
+        "direct": 3412,
+        "indirect": 0,
+        "extern": 1742,
+        "module": 0
+      },
+      "heap": {
+        "allocation_calls": 8345,
+        "allocated_bytes": 4047013,
+        "freed_bytes": 4044415,
+        "live_objects": 56,
+        "retain_calls": 6784,
+        "release_calls": 15197
+      },
+      "ffi": {
+        "request_bytes": 77958,
+        "response_bytes": 30264,
+        "elapsed_ns": 6626000,
+        "failures": 0
+      }
+    },
+    "cached": {
+      "retired": 32068,
+      "calls": {
+        "direct": 1712,
+        "indirect": 0,
+        "extern": 873,
+        "module": 0
+      },
+      "heap": {
+        "allocation_calls": 4206,
+        "allocated_bytes": 2031109,
+        "freed_bytes": 2016198,
+        "live_objects": 63,
+        "retain_calls": 3437,
+        "release_calls": 7641
+      },
+      "ffi": {
+        "request_bytes": 39015,
+        "response_bytes": 15150,
+        "elapsed_ns": 3711000,
+        "failures": 0
+      }
+    },
+    "balanced": {
+      "retired": 66904,
+      "calls": {
+        "direct": 3371,
+        "indirect": 0,
+        "extern": 873,
+        "module": 0
+      },
+      "heap": {
+        "allocation_calls": 3638,
+        "allocated_bytes": 248177,
+        "freed_bytes": 198579,
+        "live_objects": 326,
+        "retain_calls": 7586,
+        "release_calls": 10962
+      },
+      "ffi": {
+        "request_bytes": 39015,
+        "response_bytes": 15150,
+        "elapsed_ns": 4387000,
+        "failures": 0
+      }
+    }
+  }
+}

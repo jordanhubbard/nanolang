@@ -1,0 +1,24 @@
+.string op "Ask.ask"
+.entry main
+.function main 0 1 0 int 1
+HANDLER_PUSH op arm 0 1
+PUSH_I64 7
+PERFORM op 1
+CAST_INT
+PUSH_I64 7
+EQ
+ASSERT
+PUSH_I64 255
+CAST_U8
+PERFORM op 1
+CAST_INT
+PUSH_I64 255
+EQ
+ASSERT
+HANDLER_POP 1
+PUSH_I64 0
+RET
+arm:
+LOAD_LOCAL 0
+EFFECT_RESUME
+.end

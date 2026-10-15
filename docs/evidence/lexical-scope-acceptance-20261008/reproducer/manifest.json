@@ -1,0 +1,41 @@
+[
+  {
+    "name": "baseline",
+    "command": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nanolang-lexical-evidence-20261008/shadowed-function.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-lexical-evidence-20261008/baseline.nvm"
+    ],
+    "returncode": 0,
+    "preserved": false,
+    "tool_sha": "85a4d16888594c7a476175648f15f397d5972db0e6551049c286fa70e2ab88bb"
+  },
+  {
+    "name": "corrected",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_virt",
+      "/private/tmp/nanolang-lexical-evidence-20261008/shadowed-function.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-lexical-evidence-20261008/corrected.nvm"
+    ],
+    "returncode": 1,
+    "preserved": true,
+    "tool_sha": "78f9916a2e58b669c4d147fe591ee11c324e07a0d8392998f77b351a8dcbe442"
+  },
+  {
+    "name": "selfhost",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage2",
+      "/private/tmp/nanolang-lexical-evidence-20261008/shadowed-function.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-lexical-evidence-20261008/selfhost.nvm"
+    ],
+    "returncode": 1,
+    "preserved": true,
+    "tool_sha": "9314d0eee50daaaaf55315a4022d4a44544fb272c4de64ad02be6a6ec2e7e2fb"
+  }
+]

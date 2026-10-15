@@ -1,4 +1,4 @@
-# I bind colliding record declarations before checking and native emission.
+# I bind module-owned nominal declarations before checking and emission.
 import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/compiler/module_bindings.nano"
@@ -67,9 +67,39 @@ pub fn nb_register(parser: Parser, prefix: string) -> bool {
         (mb_add owner (nb_key def.name) target)
         set i (+ i 1)
     }
+    set i 0
+    while (< i parser.enums_count) {
+        let def: ASTEnum = (parser_get_enum parser i)
+        let owner: int = (mb_owner def.line)
+        let mut collision: bool = false
+        let mut j: int = 0
+        while (< j parser.enums_count) {
+            let other: ASTEnum = (parser_get_enum parser j)
+            if (and (!= i j) (== def.name other.name)) {
+                if (== owner (mb_owner other.line)) {
+                    (println (+ "I cannot define an enum twice in one module: " def.name))
+                    return false
+                }
+                set collision true
+            }
+            set j (+ j 1)
+        }
+        let mut target: string = def.name
+        if collision { set target (+ prefix (+ (int_to_string owner) (+ "_type_" def.name))) }
+        (mb_add owner (nb_key def.name) target)
+        set i (+ i 1)
+    }
     return true
 }
 shadow nb_register {
+    let enum_tokens: List<LexerToken> = (tokenize_string "enum Shade { Light = 1 }\nenum Shade { Dark = 2 }" "nominal-enum.nano" (list_CompilerDiagnostic_new))
+    let enums: Parser = (parse_program enum_tokens (list_LexerToken_length enum_tokens) "nominal-enum.nano")
+    (mb_reset [1, 2])
+    assert (nb_register enums "__test_")
+    assert (!= (mb_lookup 0 (nb_key "Shade")) (mb_lookup 1 (nb_key "Shade")))
+    (mb_reset [1])
+    assert (not (nb_register enums "__test_"))
+    (mb_reset [])
     let tokens: List<LexerToken> = (tokenize_string "struct Handle { plain: int }\nresource struct Handle { fd: int }" "nominal.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "nominal.nano")
     (mb_reset [1, 2])
@@ -116,6 +146,31 @@ pub fn nb_import(parser: Parser, imp: ASTImport, target_owner: int) -> void {
     set i 0
     while (< i parser.unions_count) {
         let def: ASTUnion = (parser_get_union parser i)
+        if (== (mb_owner def.line) target_owner) {
+            let target: string = (mb_lookup target_owner (nb_key def.name))
+            if (and imp.is_selective (not imp.is_wildcard)) {
+                let mut j: int = 0
+                while (< j imp.import_symbol_count) {
+                    if (== (at imp.import_symbols j) def.name) {
+                        let mut alias: string = def.name
+                        if (< j (array_length imp.import_aliases)) {
+                            if (!= (at imp.import_aliases j) "") { set alias (at imp.import_aliases j) }
+                        }
+                        (mb_add owner (nb_key alias) target)
+                    }
+                    set j (+ j 1)
+                }
+            } else {
+                let mut name: string = def.name
+                if (!= imp.module_name "") { set name (+ imp.module_name (+ "." name)) }
+                (mb_add owner (nb_key name) target)
+            }
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i parser.enums_count) {
+        let def: ASTEnum = (parser_get_enum parser i)
         if (== (mb_owner def.line) target_owner) {
             let target: string = (mb_lookup target_owner (nb_key def.name))
             if (and imp.is_selective (not imp.is_wildcard)) {
@@ -237,6 +292,12 @@ shadow nb_types {
 }
 
 pub fn nb_rewrite(parser: Parser) -> void {
+    let mut enums_index: int = 0
+    while (< enums_index parser.enums_count) {
+        let item: ASTEnum = (list_ASTEnum_get parser.enums enums_index)
+        (list_ASTEnum_set parser.enums enums_index (ASTEnum { node_type: item.node_type, line: item.line, column: item.column, name: (nb_type item.name item.line), variant_count: item.variant_count, variant_names: item.variant_names, variant_values: item.variant_values }))
+        set enums_index (+ enums_index 1)
+    }
     let mut structs_index: int = 0
     while (< structs_index parser.structs_count) {
         let item: ASTStruct = (list_ASTStruct_get parser.structs structs_index)
@@ -252,13 +313,13 @@ pub fn nb_rewrite(parser: Parser) -> void {
     let mut lets_index: int = 0
     while (< lets_index parser.lets_count) {
         let item: ASTLet = (list_ASTLet_get parser.lets lets_index)
-        (list_ASTLet_set parser.lets lets_index (ASTLet { node_type: item.node_type, line: item.line, column: item.column, name: item.name, var_type: (nb_type item.var_type item.line), value: item.value, value_type: item.value_type, is_mut: item.is_mut, is_destructure: item.is_destructure, is_destructure_projection: item.is_destructure_projection, destructure_names: item.destructure_names }))
+        (list_ASTLet_set parser.lets lets_index (ASTLet { node_type: item.node_type, line: item.line, column: item.column, name: item.name, var_type: (nb_type item.var_type item.line), value: item.value, value_type: item.value_type, is_mut: item.is_mut, is_pub: item.is_pub, is_generated: item.is_generated, is_destructure: item.is_destructure, is_destructure_projection: item.is_destructure_projection, destructure_names: item.destructure_names }))
         set lets_index (+ lets_index 1)
     }
     let mut functions_index: int = 0
     while (< functions_index parser.functions_count) {
         let item: ASTFunction = (list_ASTFunction_get parser.functions functions_index)
-        (list_ASTFunction_set parser.functions functions_index (ASTFunction { node_type: item.node_type, line: item.line, column: item.column, name: item.name, param_start: item.param_start, param_count: item.param_count, return_type: (nb_type item.return_type item.line), body: item.body, is_pure: item.is_pure }))
+        (list_ASTFunction_set parser.functions functions_index (ASTFunction { node_type: item.node_type, line: item.line, column: item.column, name: item.name, param_start: item.param_start, param_count: item.param_count, return_type: (nb_type item.return_type item.line), body: item.body, is_pure: item.is_pure, self_name: item.self_name }))
         set functions_index (+ functions_index 1)
     }
     let mut array_literals_index: int = 0
@@ -281,6 +342,23 @@ pub fn nb_rewrite(parser: Parser) -> void {
     }
 }
 shadow nb_rewrite {
+    let enum_tokens: List<LexerToken> = (tokenize_string "enum Shade { Light = 1 }\nenum Shade { Dark = 2 }\nfn color() -> Shade { return Shade.Dark }" "nominal-enum.nano" (list_CompilerDiagnostic_new))
+    let enums: Parser = (parse_program enum_tokens (list_LexerToken_length enum_tokens) "nominal-enum.nano")
+    (mb_reset [1, 2])
+    assert (nb_register enums "__test_")
+    (nb_rewrite enums)
+    assert (!= (parser_get_enum enums 0).name (parser_get_enum enums 1).name)
+    assert (== (parser_get_function enums 0).return_type (parser_get_enum enums 1).name)
+    assert (== (at (parser_get_enum enums 1).variant_values 0) 2)
+    (mb_reset [])
+    let public_tokens: List<LexerToken> = (tokenize_string "struct PublicRecord { value: int }\npub let exported: PublicRecord = PublicRecord { value: 7 }" "public-record.nano" (list_CompilerDiagnostic_new))
+    let public_parser: Parser = (parse_program public_tokens (list_LexerToken_length public_tokens) "public-record.nano")
+    (mb_reset [1])
+    assert (nb_register public_parser "__visibility_")
+    (nb_rewrite public_parser)
+    assert (parser_get_let public_parser 0).is_pub
+    assert (== (parser_get_let public_parser 0).var_type (parser_get_struct_def public_parser 0).name)
+    (mb_reset [])
     let tokens: List<LexerToken> = (tokenize_string "struct Handle { plain: int }\nresource struct Handle { fd: int }\nfn take(value: Handle) -> Handle { return value }" "nominal.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "nominal.nano")
     (mb_reset [1, 2])

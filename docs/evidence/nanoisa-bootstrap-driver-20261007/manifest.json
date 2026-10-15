@@ -1,0 +1,18 @@
+{
+  "source_sha256": {
+    "Makefile.gnu": "2e61c3aeaab1b255421d33aace43cfeeede3d7dad4f13de239403459fa588f2a",
+    "scripts/bootstrap_nanoisa.py": "4946de27b06e13831d164f7eb4905d9dffb2c32f94200394ee4de14b55b764f2",
+    "tests/test_bootstrap_messages.py": "782a5ac406ef8b33a0d883165cc902d59237043978d1e563e1ed965405285cd4",
+    "tests/test_bootstrap_source_dependencies.py": "aef7edefae94fb16831d5ec7315cade34362a962597700eac6065548dd8690f1",
+    "tests/test_bootstrap_nanoisa.py": "452c9e33601ce587355174dd67a9e6bf8c000f8bb1cbf284009b592b31513f1a",
+    "tests/test_bootstrap_tools.py": "d0286b2e57fc920c95a8ac689852c235dc5aa4a103a109cf6a4797c57bbeb782",
+    "tests/bootstrap_native_guard.py": "317950b44bcabf69210b9ec27a7ae501ae92eac989b260080931448c2f9f5754"
+  },
+  "logs": {
+    "initial-dependency-fixture.log": "d142ebc472fc572e253c5ccd783a6f0a1bdb34bdd32ed7efdf479f18c50caaaf",
+    "guard-controls.log": "ee34b12a205deebeca691bd8cf2dae99b05b43afc95a3c0838a7f5d2fec34d64",
+    "initial-message-fixture.log": "bedc24d5f9057baea3ebb773c62ccbb9c59ecbf312279cdb17d1d61e14d8b513",
+    "make-controls.log": "896fc2985458262bee82ef06481ad057a1d02304fdfd436841157fb9a120e254"
+  },
+  "qualification": "I retain real-Make control tests. Full clean bootstrap remains pending."
+}

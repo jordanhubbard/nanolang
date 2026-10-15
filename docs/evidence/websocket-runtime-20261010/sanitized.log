@@ -1,0 +1,36 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -g -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_GNU_SOURCE -Wall -Wextra -Werror tests/nanoisa/test_websocket_runtime.c src/nanoisa/websocket_flow.c src/nanoisa/websocket_codec.c src/nanoisa/service_websocket_nominal.c src/nanoisa/service_websocket_nominal_plan.c src/nsi_websocket_plan.c src/nsi_websocket_values.c src/nsi_websocket_transport.c src/nsi_websocket_protocol.c src/nsi_socket.c src/nsi_socket_resolver.c src/nsi_cap.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib src/nanoisa/websocket_runtime.c -o /private/tmp/nl51-websocket-runtime-sanitized/test_websocket_runtime -O1 -fsanitize=address,undefined -fno-omit-frame-pointer
+exit=0
+python3 -m unittest -v tests.test_websocket_runtime
+test_close_consumes_invalid_deadline (tests.test_websocket_runtime.WebSocketRuntime.test_close_consumes_invalid_deadline) ... ok
+test_finish_reclaims_borrowed_connection (tests.test_websocket_runtime.WebSocketRuntime.test_finish_reclaims_borrowed_connection) ... ok
+test_finish_reclaims_unhandled_connect_result (tests.test_websocket_runtime.WebSocketRuntime.test_finish_reclaims_unhandled_connect_result) ... ok
+test_move_borrow_counted_message_and_close (tests.test_websocket_runtime.WebSocketRuntime.test_move_borrow_counted_message_and_close) ... ok
+test_native_storage_and_permuted_imports (tests.test_websocket_runtime.WebSocketRuntime.test_native_storage_and_permuted_imports) ... ok
+test_receive_allocation_failure_drains_connection (tests.test_websocket_runtime.WebSocketRuntime.test_receive_allocation_failure_drains_connection) ... skipped 'I inject private runtime allocation and accounting failures.'
+test_receive_storage_limit_drains_connection (tests.test_websocket_runtime.WebSocketRuntime.test_receive_storage_limit_drains_connection) ... skipped 'I inject private runtime allocation and accounting failures.'
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.978s
+
+OK (skipped=2)
+exit=0
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -g -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_GNU_SOURCE -Wall -Wextra -Werror tests/nanoisa/test_websocket_runtime.c src/nanoisa/websocket_flow.c src/nanoisa/websocket_codec.c src/nanoisa/service_websocket_nominal.c src/nanoisa/service_websocket_nominal_plan.c src/nsi_websocket_plan.c src/nsi_websocket_values.c src/nsi_websocket_transport.c src/nsi_websocket_protocol.c src/nsi_socket.c src/nsi_socket_resolver.c src/nsi_cap.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib -DWS_RUNTIME_INSTRUMENT -o /private/tmp/nl51-websocket-runtime-sanitized/test_websocket_runtime_instrumented -O1 -fsanitize=address,undefined -fno-omit-frame-pointer
+exit=0
+python3 -m unittest -v tests.test_websocket_runtime
+test_close_consumes_invalid_deadline (tests.test_websocket_runtime.WebSocketRuntime.test_close_consumes_invalid_deadline) ... ok
+test_finish_reclaims_borrowed_connection (tests.test_websocket_runtime.WebSocketRuntime.test_finish_reclaims_borrowed_connection) ... ok
+test_finish_reclaims_unhandled_connect_result (tests.test_websocket_runtime.WebSocketRuntime.test_finish_reclaims_unhandled_connect_result) ... ok
+test_move_borrow_counted_message_and_close (tests.test_websocket_runtime.WebSocketRuntime.test_move_borrow_counted_message_and_close) ... ok
+test_native_storage_and_permuted_imports (tests.test_websocket_runtime.WebSocketRuntime.test_native_storage_and_permuted_imports) ... ok
+test_receive_allocation_failure_drains_connection (tests.test_websocket_runtime.WebSocketRuntime.test_receive_allocation_failure_drains_connection) ... ok
+test_receive_storage_limit_drains_connection (tests.test_websocket_runtime.WebSocketRuntime.test_receive_storage_limit_drains_connection) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.347s
+
+OK
+exit=0
+/opt/homebrew/opt/llvm/bin/clang -std=c11 -D_GNU_SOURCE -Wall -Wextra -Werror -g -O1 -fsanitize=address,undefined -fno-omit-frame-pointer tests/test_nsi_websocket_values.c -o /private/tmp/nl51-websocket-runtime-sanitized/value-controls
+exit=0
+/private/tmp/nl51-websocket-runtime-sanitized/value-controls
+exit=0

@@ -1,0 +1,25 @@
+resource struct Handle { fd: int }
+union Result<T, E> { Ok { value: T }, Err { error: E } }
+union Box<T> { Some { value: T }, None {} }
+fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
+shadow close_handle { assert (== (close_handle Handle { fd: 7 }) 7) }
+fn consume(result: Result<Handle, string>) -> int {
+ match result {
+  Ok(payload) => { let Result.Ok { value } = payload return (close_handle value) }
+  Err(payload) => { let Result.Err { error } = payload assert (== error "empty") return 0 }
+ }
+}
+shadow consume {
+ let owner: Handle = Handle { fd: 7 }
+ let value: Result<Handle, string> = Result.Ok { value: owner }
+ assert (== (consume value) 7)
+ let empty: Result<Handle, string> = Result.Err { error: "empty" }
+ assert (== (consume empty) 0)
+}
+fn outer(boxed: Box<Result<Handle,string>>) -> int { match boxed {
+ Some(payload) => { let Box.Some { value } = payload return (consume value) }
+ None(payload) => { return 0 }
+} }
+shadow outer { let owner: Handle = Handle { fd: 7 } let result: Result<Handle,string> = Result.Ok { value: owner } let boxed: Box<Result<Handle,string>> = Box.Some { value: result } assert (== (outer boxed) 7) }
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }

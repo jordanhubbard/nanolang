@@ -1,0 +1,440 @@
+test_argument_order (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_argument_order) ... 
+  test_argument_order (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_argument_order) (params='value:T,callback:fn(T)->T') ... FAIL
+  test_argument_order (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_argument_order) (params='callback:fn(T)->T,value:T') ... FAIL
+test_callback_result_inference (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_callback_result_inference) ... FAIL
+test_dependent_callbacks_reach_fixed_point (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_dependent_callbacks_reach_fixed_point) ... FAIL
+test_imported_callback_alias (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_imported_callback_alias) ... FAIL
+test_nested_array_and_record_binding (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_nested_array_and_record_binding) ... FAIL
+test_refusals_preserve_output (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_refusals_preserve_output) ... ok
+test_structural_callback_result (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_structural_callback_result) ... FAIL
+
+======================================================================
+FAIL: test_argument_order (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_argument_order) (params='value:T,callback:fn(T)->T')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 18, in test_argument_order
+                    self.execute(f'''fn apply({params})->T{{return (callback value)}}
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow apply {{assert (== (apply {args}) 7)}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int{{assert (== (apply {args}) 7) return 0}}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 12, in execute
+    context.ContextualGenericFunctions().execute(context.PRELUDE+body+context.SHADOW, files=files)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 26, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9699_main.c:1782:45: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+ 1782 | static int64_t nl_apply_int(int64_t value,  callback);
+      |                                             ^
+      |                                             int
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-4gfktsw6/main.nano:5:120: error: incompatible pointer to integer conversion passing 'int64_t (*)(int64_t)' (aka 'long long (*)(long long)') to parameter of type 'int' [-Wint-conversion]
+    5 |     if (!((({ __auto_type __nl_arg_0_0 = 7LL; __auto_type __nl_arg_0_1 = nl___contextual_0; nl_apply_int(__nl_arg_0_0, __nl_arg_0_1); })) == (7LL))) { fputs("Contract violation at line 5: (== (apply 7 identity) 7)\n", stderr); exit(1); }
+      |                                                                                                                        ^~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9699_main.c:1782:45: note: passing argument to parameter 'callback' here
+ 1782 | static int64_t nl_apply_int(int64_t value,  callback);
+      |                                             ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-4gfktsw6/main.nano:4:45: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    4 | static int64_t nl_apply_int(int64_t value,  callback) {
+      |                                             ^
+      |                                             int
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-4gfktsw6/main.nano:3:100: error: called object type 'int' is not a function or function pointer
+    3 |     return ({ __auto_type __nl_callee_1 = callback; __auto_type __nl_arg_1_0 = value; __nl_callee_1(__nl_arg_1_0); });
+      |                                                                                       ~~~~~~~~~~~~~^
+4 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_argument_order (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_argument_order) (params='callback:fn(T)->T,value:T')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 18, in test_argument_order
+                    self.execute(f'''fn apply({params})->T{{return (callback value)}}
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow apply {{assert (== (apply {args}) 7)}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int{{assert (== (apply {args}) 7) return 0}}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 12, in execute
+    context.ContextualGenericFunctions().execute(context.PRELUDE+body+context.SHADOW, files=files)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 26, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9767_main.c:1782:40: error: unexpected type name 'int64_t': expected identifier
+ 1782 | static int64_t nl_apply_int( callback, int64_t value);
+      |                                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9767_main.c:1782:48: error: expected ')'
+ 1782 | static int64_t nl_apply_int( callback, int64_t value);
+      |                                                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9767_main.c:1782:28: note: to match this '('
+ 1782 | static int64_t nl_apply_int( callback, int64_t value);
+      |                            ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9767_main.c:1782:30: error: a parameter list without types is only allowed in a function definition
+ 1782 | static int64_t nl_apply_int( callback, int64_t value);
+      |                              ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-w26aup20/main.nano:4:40: error: unexpected type name 'int64_t': expected identifier
+    4 | static int64_t nl_apply_int( callback, int64_t value) {
+      |                                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-w26aup20/main.nano:4:48: error: expected ')'
+    4 | static int64_t nl_apply_int( callback, int64_t value) {
+      |                                                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-w26aup20/main.nano:4:28: note: to match this '('
+    4 | static int64_t nl_apply_int( callback, int64_t value) {
+      |                            ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-w26aup20/main.nano:4:40: error: parameter 'int64_t' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    4 | static int64_t nl_apply_int( callback, int64_t value) {
+      |                                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-w26aup20/main.nano:4:30: error: parameter 'callback' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    4 | static int64_t nl_apply_int( callback, int64_t value) {
+      |                              ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-w26aup20/main.nano:3:80: error: use of undeclared identifier 'value'
+    3 |     return ({ __auto_type __nl_callee_1 = callback; __auto_type __nl_arg_1_0 = value; __nl_callee_1(__nl_arg_1_0); });
+      |                                                                                ^~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-w26aup20/main.nano:4:16: error: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+    4 | static int64_t nl_apply_int( callback, int64_t value) {
+      |                ^
+9 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_callback_result_inference (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_callback_result_inference)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 23, in test_callback_result_inference
+            self.execute('''fn apply(value:T,callback:fn(T)->E)->E{return (callback value)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow apply {assert (== (apply 1 identity) 1)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+     return 0
+     ^^^^^^^^
+    }''')
+    ^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 12, in execute
+    context.ContextualGenericFunctions().execute(context.PRELUDE+body+context.SHADOW, files=files)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 26, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9822_main.c:1782:49: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+ 1782 | static int64_t nl_apply_int_int(int64_t value,  callback);
+      |                                                 ^
+      |                                                 int
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9822_main.c:1784:63: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+ 1784 | static const char* nl_apply_string_string(const char* value,  callback);
+      |                                                               ^
+      |                                                               int
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-a9pymha2/main.nano:6:124: error: incompatible pointer to integer conversion passing 'int64_t (*)(int64_t)' (aka 'long long (*)(long long)') to parameter of type 'int' [-Wint-conversion]
+    6 |     if (!((({ __auto_type __nl_arg_0_0 = 7LL; __auto_type __nl_arg_0_1 = nl___contextual_0; nl_apply_int_int(__nl_arg_0_0, __nl_arg_0_1); })) == (7LL))) { fputs("Contract violation at line 6: (== (apply 7 identity) 7)\n", stderr); exit(1); }
+      |                                                                                                                            ^~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9822_main.c:1782:49: note: passing argument to parameter 'callback' here
+ 1782 | static int64_t nl_apply_int_int(int64_t value,  callback);
+      |                                                 ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-a9pymha2/main.nano:7:140: error: incompatible pointer to integer conversion passing 'const char *(*)(const char *)' to parameter of type 'int' [-Wint-conversion]
+    7 |     if (!((strcmp(({ __auto_type __nl_arg_1_0 = "kept"; __auto_type __nl_arg_1_1 = nl___contextual_2; nl_apply_string_string(__nl_arg_1_0, __nl_arg_1_1); }), "kept") == 0))) { fputs("Contract violation at line 7: (== (apply \"kept\" identity) \"kept\")\n", stderr); exit(1); }
+      |                                                                                                                                            ^~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9822_main.c:1784:63: note: passing argument to parameter 'callback' here
+ 1784 | static const char* nl_apply_string_string(const char* value,  callback);
+      |                                                               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-a9pymha2/main.nano:4:49: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    4 | static int64_t nl_apply_int_int(int64_t value,  callback) {
+      |                                                 ^
+      |                                                 int
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-a9pymha2/main.nano:3:100: error: called object type 'int' is not a function or function pointer
+    3 |     return ({ __auto_type __nl_callee_2 = callback; __auto_type __nl_arg_2_0 = value; __nl_callee_2(__nl_arg_2_0); });
+      |                                                                                       ~~~~~~~~~~~~~^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-a9pymha2/main.nano:4:63: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    4 | static const char* nl_apply_string_string(const char* value,  callback) {
+      |                                                               ^
+      |                                                               int
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-a9pymha2/main.nano:3:100: error: called object type 'int' is not a function or function pointer
+    3 |     return ({ __auto_type __nl_callee_3 = callback; __auto_type __nl_arg_3_0 = value; __nl_callee_3(__nl_arg_3_0); });
+      |                                                                                       ~~~~~~~~~~~~~^
+8 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_dependent_callbacks_reach_fixed_point (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_dependent_callbacks_reach_fixed_point)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 43, in test_dependent_callbacks_reach_fixed_point
+            self.execute('''fn chain(second:fn(E)->R,first:fn(T)->E,value:T)->R{return (second (first value))}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow chain {assert (== (chain identity identity 1) 1)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+     return 0
+     ^^^^^^^^
+    }''')
+    ^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 12, in execute
+    context.ContextualGenericFunctions().execute(context.PRELUDE+body+context.SHADOW, files=files)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 26, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9879_main.c:1783:54: error: unexpected type name 'int64_t': expected identifier
+ 1783 | static int64_t nl_chain_int_int_int( second,  first, int64_t value);
+      |                                                      ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9879_main.c:1783:62: error: expected ')'
+ 1783 | static int64_t nl_chain_int_int_int( second,  first, int64_t value);
+      |                                                              ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9879_main.c:1783:36: note: to match this '('
+ 1783 | static int64_t nl_chain_int_int_int( second,  first, int64_t value);
+      |                                    ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9879_main.c:1783:38: error: a parameter list without types is only allowed in a function definition
+ 1783 | static int64_t nl_chain_int_int_int( second,  first, int64_t value);
+      |                                      ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9879_main.c:1785:54: error: expected identifier
+ 1785 | static bool nl_chain_bool_bool_bool( second,  first, bool value);
+      |                                                      ^
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/21/include/stdbool.h:24:14: note: expanded from macro 'bool'
+   24 | #define bool _Bool
+      |              ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:7:162: error: passing arguments to 'nl_chain_bool_bool_bool' without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+    7 |     if (!(({ __auto_type __nl_arg_1_0 = nl___contextual_2; __auto_type __nl_arg_1_1 = nl___contextual_2; __auto_type __nl_arg_1_2 = true; nl_chain_bool_bool_bool(__nl_arg_1_0, __nl_arg_1_1, __nl_arg_1_2); }))) { fputs("Contract violation at line 7: (chain identity identity true)\n", stderr); exit(1); }
+      |                                                                                                                                                                  ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:4:54: error: unexpected type name 'int64_t': expected identifier
+    4 | static int64_t nl_chain_int_int_int( second,  first, int64_t value) {
+      |                                                      ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:4:62: error: expected ')'
+    4 | static int64_t nl_chain_int_int_int( second,  first, int64_t value) {
+      |                                                              ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:4:36: note: to match this '('
+    4 | static int64_t nl_chain_int_int_int( second,  first, int64_t value) {
+      |                                    ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:4:54: error: parameter 'int64_t' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    4 | static int64_t nl_chain_int_int_int( second,  first, int64_t value) {
+      |                                                      ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:4:47: error: parameter 'first' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    4 | static int64_t nl_chain_int_int_int( second,  first, int64_t value) {
+      |                                               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:4:38: error: parameter 'second' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    4 | static int64_t nl_chain_int_int_int( second,  first, int64_t value) {
+      |                                      ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:3:143: error: use of undeclared identifier 'value'
+    3 |     return ({ __auto_type __nl_callee_2 = second; __auto_type __nl_arg_2_0 = ({ __auto_type __nl_callee_3 = first; __auto_type __nl_arg_3_0 = value; __nl_callee_3(__nl_arg_3_0); }); __nl_callee_2(__nl_arg_2_0); });
+      |                                                                                                                                               ^~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:4:16: error: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+    4 | static int64_t nl_chain_int_int_int( second,  first, int64_t value) {
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:4:54: error: expected identifier
+    4 | static bool nl_chain_bool_bool_bool( second,  first, bool value) {
+      |                                                      ^
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/21/include/stdbool.h:24:14: note: expanded from macro 'bool'
+   24 | #define bool _Bool
+      |              ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:3:43: error: use of undeclared identifier 'second'
+    3 |     return ({ __auto_type __nl_callee_4 = second; __auto_type __nl_arg_4_0 = ({ __auto_type __nl_callee_5 = first; __auto_type __nl_arg_5_0 = value; __nl_callee_5(__nl_arg_5_0); }); __nl_callee_4(__nl_arg_4_0); });
+      |                                           ^~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:3:109: error: use of undeclared identifier 'first'
+    3 |     return ({ __auto_type __nl_callee_4 = second; __auto_type __nl_arg_4_0 = ({ __auto_type __nl_callee_5 = first; __auto_type __nl_arg_5_0 = value; __nl_callee_5(__nl_arg_5_0); }); __nl_callee_4(__nl_arg_4_0); });
+      |                                                                                                             ^~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-65i500d_/main.nano:3:143: error: use of undeclared identifier 'value'
+    3 |     return ({ __auto_type __nl_callee_4 = second; __auto_type __nl_arg_4_0 = ({ __auto_type __nl_callee_5 = first; __auto_type __nl_arg_5_0 = value; __nl_callee_5(__nl_arg_5_0); }); __nl_callee_4(__nl_arg_4_0); });
+      |                                                                                                                                               ^~~~~
+16 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_imported_callback_alias (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_imported_callback_alias)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 52, in test_imported_callback_alias
+            self.execute('''from "callback.nano" import keep as retained
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn apply(callback:fn(T)->E,value:T)->E{return (callback value)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow apply {assert (== (apply identity 1) 1)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int{assert (== (apply retained 7) 7) return 0}''', files={'callback.nano':
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                'pub fn keep(value:U)->U{return value}\nshadow keep {assert (== (keep 1) 1)}\n'})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 12, in execute
+    context.ContextualGenericFunctions().execute(context.PRELUDE+body+context.SHADOW, files=files)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 26, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9935_main.c:1819:44: error: unexpected type name 'int64_t': expected identifier
+ 1819 | static int64_t nl_apply_int_int( callback, int64_t value);
+      |                                            ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9935_main.c:1819:52: error: expected ')'
+ 1819 | static int64_t nl_apply_int_int( callback, int64_t value);
+      |                                                    ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9935_main.c:1819:32: note: to match this '('
+ 1819 | static int64_t nl_apply_int_int( callback, int64_t value);
+      |                                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9935_main.c:1819:34: error: a parameter list without types is only allowed in a function definition
+ 1819 | static int64_t nl_apply_int_int( callback, int64_t value);
+      |                                  ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-kz4vtosb/main.nano:4:44: error: unexpected type name 'int64_t': expected identifier
+    4 | static int64_t nl_apply_int_int( callback, int64_t value) {
+      |                                            ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-kz4vtosb/main.nano:4:52: error: expected ')'
+    4 | static int64_t nl_apply_int_int( callback, int64_t value) {
+      |                                                    ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-kz4vtosb/main.nano:4:32: note: to match this '('
+    4 | static int64_t nl_apply_int_int( callback, int64_t value) {
+      |                                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-kz4vtosb/main.nano:4:44: error: parameter 'int64_t' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    4 | static int64_t nl_apply_int_int( callback, int64_t value) {
+      |                                            ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-kz4vtosb/main.nano:4:34: error: parameter 'callback' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    4 | static int64_t nl_apply_int_int( callback, int64_t value) {
+      |                                  ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-kz4vtosb/main.nano:4:80: error: use of undeclared identifier 'value'
+    4 |     return ({ __auto_type __nl_callee_1 = callback; __auto_type __nl_arg_1_0 = value; __nl_callee_1(__nl_arg_1_0); });
+      |                                                                                ^~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-kz4vtosb/main.nano:4:16: error: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+    4 | static int64_t nl_apply_int_int( callback, int64_t value) {
+      |                ^
+9 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_nested_array_and_record_binding (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_nested_array_and_record_binding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 59, in test_nested_array_and_record_binding
+            self.execute('''struct Box {value:int}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn keep(values:array<U>)->array<U>{return values}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+     return 0
+     ^^^^^^^^
+    }''')
+    ^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 12, in execute
+    context.ContextualGenericFunctions().execute(context.PRELUDE+body+context.SHADOW, files=files)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 26, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9998_main.c:1824:52: error: unexpected type name 'int64_t': expected identifier
+ 1824 | static int64_t nl_apply_unknown_unknown( callback, int64_t value);
+      |                                                    ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9998_main.c:1824:60: error: expected ')'
+ 1824 | static int64_t nl_apply_unknown_unknown( callback, int64_t value);
+      |                                                            ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9998_main.c:1824:40: note: to match this '('
+ 1824 | static int64_t nl_apply_unknown_unknown( callback, int64_t value);
+      |                                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9998_main.c:1824:42: error: a parameter list without types is only allowed in a function definition
+ 1824 | static int64_t nl_apply_unknown_unknown( callback, int64_t value);
+      |                                          ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9998_main.c:1828:44: error: unexpected type name 'int64_t': expected identifier
+ 1828 | static int64_t nl_apply_int_int( callback, int64_t value);
+      |                                            ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9998_main.c:1828:52: error: expected ')'
+ 1828 | static int64_t nl_apply_int_int( callback, int64_t value);
+      |                                                    ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9998_main.c:1828:32: note: to match this '('
+ 1828 | static int64_t nl_apply_int_int( callback, int64_t value);
+      |                                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_9998_main.c:1828:34: error: a parameter list without types is only allowed in a function definition
+ 1828 | static int64_t nl_apply_int_int( callback, int64_t value);
+      |                                  ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:7:52: error: unexpected type name 'int64_t': expected identifier
+    7 | static int64_t nl_apply_unknown_unknown( callback, int64_t value) {
+      |                                                    ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:7:60: error: expected ')'
+    7 | static int64_t nl_apply_unknown_unknown( callback, int64_t value) {
+      |                                                            ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:7:40: note: to match this '('
+    7 | static int64_t nl_apply_unknown_unknown( callback, int64_t value) {
+      |                                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:7:52: error: parameter 'int64_t' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    7 | static int64_t nl_apply_unknown_unknown( callback, int64_t value) {
+      |                                                    ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:7:42: error: parameter 'callback' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    7 | static int64_t nl_apply_unknown_unknown( callback, int64_t value) {
+      |                                          ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:6:80: error: use of undeclared identifier 'value'
+    6 |     return ({ __auto_type __nl_callee_2 = callback; __auto_type __nl_arg_2_0 = value; __nl_callee_2(__nl_arg_2_0); });
+      |                                                                                ^~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:7:16: error: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+    7 | static int64_t nl_apply_unknown_unknown( callback, int64_t value) {
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:4:44: error: unexpected type name 'int64_t': expected identifier
+    4 | static int64_t nl_apply_int_int( callback, int64_t value) {
+      |                                            ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:4:52: error: expected ')'
+    4 | static int64_t nl_apply_int_int( callback, int64_t value) {
+      |                                                    ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:4:32: note: to match this '('
+    4 | static int64_t nl_apply_int_int( callback, int64_t value) {
+      |                                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:4:44: error: parameter 'int64_t' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    4 | static int64_t nl_apply_int_int( callback, int64_t value) {
+      |                                            ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:4:34: error: parameter 'callback' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    4 | static int64_t nl_apply_int_int( callback, int64_t value) {
+      |                                  ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:6:80: error: use of undeclared identifier 'value'
+    6 |     return ({ __auto_type __nl_callee_3 = callback; __auto_type __nl_arg_3_0 = value; __nl_callee_3(__nl_arg_3_0); });
+      |                                                                                ^~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-bmkyxxe8/main.nano:4:16: error: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+    4 | static int64_t nl_apply_int_int( callback, int64_t value) {
+      |                ^
+18 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_structural_callback_result (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_structural_callback_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 32, in test_structural_callback_result
+            self.execute('''fn wrap(value:T)->array<T>{return [value]}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow wrap {assert (== (at (wrap 1) 0) 1)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+     return 0
+     ^^^^^^^^
+    }''')
+    ^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 12, in execute
+    context.ContextualGenericFunctions().execute(context.PRELUDE+body+context.SHADOW, files=files)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 26, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_10056_main.c:1782:53: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+ 1782 | static int64_t nl_apply_int_unknown(int64_t value,  callback);
+      |                                                     ^
+      |                                                     int
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-8b8l_d6n/main.nano:8:140: error: incompatible pointer to integer conversion passing 'DynArray *(*)(int64_t)' (aka 'DynArray *(*)(long long)') to parameter of type 'int' [-Wint-conversion]
+    8 |     DynArray* values = ({ __auto_type __nl_arg_0_0 = 7LL; __auto_type __nl_arg_0_1 = nl___contextual_0; nl_apply_int_unknown(__nl_arg_0_0, __nl_arg_0_1); });
+      |                                                                                                                                            ^~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_10056_main.c:1782:53: note: passing argument to parameter 'callback' here
+ 1782 | static int64_t nl_apply_int_unknown(int64_t value,  callback);
+      |                                                     ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-8b8l_d6n/main.nano:8:15: error: incompatible integer to pointer conversion initializing 'DynArray *' with an expression of type 'int64_t' (aka 'long long') [-Wint-conversion]
+    8 |     DynArray* values = ({ __auto_type __nl_arg_0_0 = 7LL; __auto_type __nl_arg_0_1 = nl___contextual_0; nl_apply_int_unknown(__nl_arg_0_0, __nl_arg_0_1); });
+      |               ^        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-8b8l_d6n/main.nano:6:53: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    6 | static int64_t nl_apply_int_unknown(int64_t value,  callback) {
+      |                                                     ^
+      |                                                     int
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-8b8l_d6n/main.nano:5:100: error: called object type 'int' is not a function or function pointer
+    5 |     return ({ __auto_type __nl_callee_2 = callback; __auto_type __nl_arg_2_0 = value; __nl_callee_2(__nl_arg_2_0); });
+      |                                                                                       ~~~~~~~~~~~~~^
+5 errors generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 9.696s
+
+FAILED (failures=7)

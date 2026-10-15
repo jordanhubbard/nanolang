@@ -1,0 +1,11 @@
+{
+  "src/nanoisa/ownership_contracts.h": "ca4438ff720b7c01b6e61b90f6cea95451139fe3d084c03f762b01d8c3228207",
+  "src/nanoisa/ownership_contracts.c": "eb23fcb360a1520a451fc3b7c3ef2a8623a9fc2a4a4c3dae3fb596f550c226f2",
+  "src/nanoisa/ownership_effects.inc": "6f716206426b5513399d15c551fdab1f7d4a27c87b7258ca5e5f277c98d9e518",
+  "src/nanoisa/affine_bytecode.c": "a29d1be9a5c4eeec24879d182410aa0c1ccbc1e53a7e5249b03195e24019cc96",
+  "src/nanoisa/affine_state.c": "a305a2ffc9e5d662e8bed4c2ed27c40e6536399e2cc242a87f4ce3bce1265a70",
+  "tests/nanoisa/test_ownership_contracts.c": "f12a2db263c86280dbd5893b9f0885191d0c16083f99e43793cfaa4c83cb8f55",
+  "tests/nanoisa/test_effect_array_contracts.inc": "00fb38286a0d9246e2a2c27b4cc28627103353e32a9e4250ad0c1208d5b67860",
+  "bin/nano_vm": "c04775cfd5d7fb714b032ad22dec993b2a9c4d59d06db9dfc6aebd93d14778b3",
+  "bin/nvm2c": "8a34d5ad1a2ca0ea957aab58762b5c0fac768efa707fc834cd774fe92472c749"
+}

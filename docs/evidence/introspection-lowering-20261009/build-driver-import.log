@@ -1,0 +1,17 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2571, column 9: Unused variable 'rejected'
+Warning at line 2783, column 9: Unused variable 'rejected'
+Warning at line 2787, column 9: Unused variable 'rejected'
+Warning at line 2794, column 13: Unused variable 'rejected'
+Warning at line 2911, column 9: Unused variable 'rejected'
+Warning at line 2915, column 9: Unused variable 'rejected'
+Warning at line 2922, column 13: Unused variable 'rejected'
+Warning at line 6735, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+-- E024 UNDEFINED VARIABLE -------- src_nano/nanoc_v06.nano
+I cannot find a variable named `mi_facts`.
+
+1294|     set mi_facts []
+          ^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+error: type check failed

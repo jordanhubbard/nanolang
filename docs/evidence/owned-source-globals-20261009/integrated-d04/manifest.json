@@ -1,0 +1,676 @@
+{
+  "command": [
+    "make",
+    "-j2",
+    "test-owned-union-c-source",
+    "test-owned-global-source",
+    "test-owned-global-runtime",
+    "CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "exit_code": 0,
+  "seconds": 20.779731417016592,
+  "before": {
+    "head": "d04d9cde32d3085c941766bc4c5c8ce7b125a4a1",
+    "status": "?? tests/user_guide/refresh_language_pure_function.nano\n",
+    "files": {
+      "src/nanovirt/borrow_codegen.inc": "4e6cd09d9121f66b9e5792463bb05d4da237404fc33d9bf2639a00595e4a748c",
+      "src/typechecker.c": "03a36e2ac2cd82b52074c1334ab6cf3b2e8937a8bc8127b7cfde40d2f60bd460",
+      "src/nanoisa/ownership_contracts.c": "deee022c581486b11d97a66567676371004adfc5ccd74a6948909d3613740d9e",
+      "src/nanoisa/affine_bytecode.c": "8792662d9e459ed3028907a873c441d45a3f2aac07a1741bc617766b6cef865e",
+      "src/nanoisa/nvm2c_owned.h": "422de7a5e55a33b0ebcc6429d212d4ff1ea276971edfc7ec3fc745fde526ae15",
+      "src/nanovm/vm.c": "304e7bd032df3a2103ca97d4fda5ade4aada0b1db6a6c090642fa1b6e19b2e52",
+      "tests/user_guide/refresh_language_pure_function.nano": "c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976"
+    }
+  },
+  "after": {
+    "head": "d04d9cde32d3085c941766bc4c5c8ce7b125a4a1",
+    "status": "?? tests/user_guide/refresh_language_pure_function.nano\n",
+    "files": {
+      "src/nanovirt/borrow_codegen.inc": "4e6cd09d9121f66b9e5792463bb05d4da237404fc33d9bf2639a00595e4a748c",
+      "src/typechecker.c": "03a36e2ac2cd82b52074c1334ab6cf3b2e8937a8bc8127b7cfde40d2f60bd460",
+      "src/nanoisa/ownership_contracts.c": "deee022c581486b11d97a66567676371004adfc5ccd74a6948909d3613740d9e",
+      "src/nanoisa/affine_bytecode.c": "8792662d9e459ed3028907a873c441d45a3f2aac07a1741bc617766b6cef865e",
+      "src/nanoisa/nvm2c_owned.h": "422de7a5e55a33b0ebcc6429d212d4ff1ea276971edfc7ec3fc745fde526ae15",
+      "src/nanovm/vm.c": "304e7bd032df3a2103ca97d4fda5ade4aada0b1db6a6c090642fa1b6e19b2e52",
+      "tests/user_guide/refresh_language_pure_function.nano": "c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976"
+    }
+  },
+  "unchanged": true,
+  "binary_inventory": [
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_compatible_outer_join/native",
+      "sha256": "91db3363b1f7f1eab30d058973bfbbd1fd393019597b100615639dd2e6063e1e",
+      "size": 136664
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_compatible_outer_join/main.nvm",
+      "sha256": "77a0c9192f2b363827d48d59c2d9a726c7caebfdf40e2d85b67536938f65407d",
+      "size": 1812
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_scrutinee_call_evaluates_once/native",
+      "sha256": "cb915d2a5edc9205a2e0fc0f796de7ffc315b8ac8f828d37d4cab0d29c3e608c",
+      "size": 103496
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_scrutinee_call_evaluates_once/main.nvm",
+      "sha256": "bbf6df171da9edee981cb502f2169218d683b7f074dd9af5a0a5efb1b8ab7675",
+      "size": 1184
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_loop_cannot_reconsume_outer_scrutinee/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_ordinary_call_match_expression_and_statement/native",
+      "sha256": "f3a8634f4a156c91782c37c4626fad51d260f841a27e218b7701c278c6e6849f",
+      "size": 305944
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_ordinary_call_match_expression_and_statement/main.nvm",
+      "sha256": "6d5f6f32c62d583155ef4e2f0a0f289f0fe7109828dbe39538e029f252e91f07",
+      "size": 1300
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_original_scrutinee_after_match/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_duplicate_selected_field_consumption/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_nested_resource_record/native",
+      "sha256": "1a3c53f68707a1517b908e68c7341a9315542ea0a8261e09f683c5e694736405",
+      "size": 103640
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_nested_resource_record/main.nvm",
+      "sha256": "6f7dc39e1ca59811d2fac28cc522bbbe3d9f4dfc9729f497f84dce9b7ab06c39",
+      "size": 1536
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_guarded_owned_match_remains_rejected/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_incompatible_outer_join/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_use_payload_after_destructure/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_unresolved_selected_field/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_partial_resource_field_move/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_ignored_selected_payload/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_two_resources_and_ordinary_sibling_arms/native",
+      "sha256": "79141a7368b7d1475e047000d14440029715dbaa38ec4ceac217821bbb18f1e4",
+      "size": 136680
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_two_resources_and_ordinary_sibling_arms/main.nvm",
+      "sha256": "d381416d1c719dcb28818cc9abeb3cdcc136205301e6b9a7c847019db34319bd",
+      "size": 1664
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_ignored_resource_binding/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_wildcard_cannot_hide_owned_payload/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_two_resources_and_ordinary_sibling_arms/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_two_resources_and_ordinary_sibling_arms/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "073e3f2e99981af481d8e4a5591ff680b1cbe314268d63aa5057f9ace173375b",
+      "size": 37626
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_two_resources_and_ordinary_sibling_arms/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "765354547d2761fc686797f417fe9006081ef1303a1fd27853e76a1555a7e3ff",
+      "size": 208
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_nested_resource_record/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_nested_resource_record/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "9909b079538dde7dc2e0d6cc4f92321ac84c6cc3704e1ad107f19997869fb2ec",
+      "size": 34960
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_nested_resource_record/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "1b774fa42caae65e4915e8686bcc3483195aaf4be97c641e65a9f2ede98fccce",
+      "size": 191
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_ordinary_call_match_expression_and_statement/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_ordinary_call_match_expression_and_statement/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "6314d907a05f2caebb69cbe27e12cb252e799ca9eedcc9789451efabb193c433",
+      "size": 106844
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_ordinary_call_match_expression_and_statement/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "30542e7cea5bc0ae5cf089af67772b2c8379d202b30314840bf4328ff271305f",
+      "size": 213
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_scrutinee_call_evaluates_once/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_scrutinee_call_evaluates_once/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "6e974377c50d94dd91fc5cc247622befafe8e309de387dac397fa4c5b866ec21",
+      "size": 31816
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_scrutinee_call_evaluates_once/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "4bc96790dc2e34785b592de315cfe421a968c4469e8e794f80de9759ac29a523",
+      "size": 198
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_compatible_outer_join/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_compatible_outer_join/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "5ca5f39d518555d4465c6a929feba08e3cef9d1b39e6907a513a121b1c0e4b0f",
+      "size": 39521
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_compatible_outer_join/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "33c234c98fd7d78ca3fc3ab93fe2d53edd5b8d2c8cba23d4fee1d9871f3c94c5",
+      "size": 190
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_return_and_alias_transfer/native",
+      "sha256": "0cfbf1d0eca169226b13abd9528dfbc11c2d453056ebdcb3d07a3cf17e98dd5e",
+      "size": 103752
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_return_and_alias_transfer/main.nvm",
+      "sha256": "1e7a1d61f1f55de9433d632c081d5b12f4a20fe797f1a23ba9644141b171914d",
+      "size": 1632
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_duplicate_consume_rejected/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_constructor_argument/native",
+      "sha256": "3f53f576ce8e4910bd0abb4622cbe6412c93dedac40eb5159b973f4fc8bd5767",
+      "size": 103656
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_constructor_argument/main.nvm",
+      "sha256": "ce5f42a5c61315915d0c07d41f1a48d64c60a420cac762187633c1177713bb2d",
+      "size": 1396
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_drop_selected_field_rejected/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_unresolved_tuple_still_rejected/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_branch_join_consumes_outer_owner/native",
+      "sha256": "422299c6e7e1edb50fbec9578133764591e95c26e31508b118439fb847f61b6d",
+      "size": 103752
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_branch_join_consumes_outer_owner/main.nvm",
+      "sha256": "faeb88c9af37613f64f70a7f82e35278e91b818476777ffd1b759e8a7cce4f2b",
+      "size": 1828
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_drop_union_rejected/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_ordinary_selected_arm_can_be_ignored/native",
+      "sha256": "479cb3950ebacce9dbf8603ba2ff8cf4e9c01413e2b5985cc4e9496fbaaeba3c",
+      "size": 87000
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_ordinary_selected_arm_can_be_ignored/main.nvm",
+      "sha256": "710bce44642f6d9c3d1e2ca0106764d3a6db0bcbdeaafe4bcd3e8bcf6a01ec1f",
+      "size": 1368
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_constructor_return/native",
+      "sha256": "e28ae2a10ec5093c0811cc03f18e6b746503b40000c88852b408c854da7ceb2f",
+      "size": 103752
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_constructor_return/main.nvm",
+      "sha256": "a45e73364fdf780169b2963b69017779fb8af85d5d9c36afc7b7881945df220c",
+      "size": 1468
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_match_constructor_return/native",
+      "sha256": "2d67acde50936eb0c5ce8159c5638546675f5a54ea8a64bfc855837c81518b1e",
+      "size": 103736
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_match_constructor_return/main.nvm",
+      "sha256": "bc4c4fa87f894e5f131ff00997ffda8caa3a4548c4642f470ff9ab9939e56617",
+      "size": 1764
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_partial_move_rejected/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_join_mismatch_rejected/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_incomplete_match_rejected/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_conditional_constructor_return/native",
+      "sha256": "e6e038233bf68785e604a32dd571b1ea95db9d72b86f731350939f0be9051837",
+      "size": 103752
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_conditional_constructor_return/main.nvm",
+      "sha256": "5cad482a16a527288b6be0f13139a28d6325ae56b0bebe413628717f13fd610a",
+      "size": 1564
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_match_then_reuse_rejected/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_empty_arm_has_no_obligation/native",
+      "sha256": "a05ab0244c6cdbdb83e492c8c77334b43243d10ef4f1f4aaafdf14f306227595",
+      "size": 87000
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_empty_arm_has_no_obligation/main.nvm",
+      "sha256": "209da3f585c60bbb3f81e22ec383221dd7be497375d6db9707bb1bd8b45f4380",
+      "size": 1152
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_nested_generic_transfer/native",
+      "sha256": "4b63753c3939cdaa028c1971e46886f7a73a7535b898dfac624250a425502ff2",
+      "size": 103736
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_nested_generic_transfer/main.nvm",
+      "sha256": "755ee2a3abf0c13166d113991f9c756ea11b2a07f32242b1b88223c4983fd861",
+      "size": 1720
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_resource_and_ordinary_selected_arms/native",
+      "sha256": "b93b5d5cb14b211056907d4669b80f58be24b572c1a603dc5d1c45aec1c33e42",
+      "size": 103656
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_resource_and_ordinary_selected_arms/main.nvm",
+      "sha256": "11317ce5413b5d7ad327dda4429107b5d7bfc28d96fa30b0b104f34ec2e510ce",
+      "size": 1448
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_resource_collection_still_rejected/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_resource_and_ordinary_selected_arms/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_resource_and_ordinary_selected_arms/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "136af0726ce035efa9f22bd6390a9ffecf97aee079653aec4632f50307394965",
+      "size": 31930
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_resource_and_ordinary_selected_arms/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "64d52108c697b445e4bda04cacbc45f781999d41feaadd57d8e5b9c98dab70bb",
+      "size": 211
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_nested_generic_transfer/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_nested_generic_transfer/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "e4385fcf8ee2da743374d521f231988185b92839e34b755cc31fe6602e197dbc",
+      "size": 32156
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_nested_generic_transfer/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "eba284f6e0ebe948e629a88ce4ebf403638fc1f70de1db8aaf2cef1befc0e9c2",
+      "size": 199
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_empty_arm_has_no_obligation/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_empty_arm_has_no_obligation/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "666fde17366e25d21622238a05fcb0a87fa6d5b9c2050b81b8139232ca53267c",
+      "size": 26545
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_empty_arm_has_no_obligation/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "a30ad0843391bfdaad63ea2267c4915c13aafd75d93c08fe4c780ae2e8fc409a",
+      "size": 203
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_conditional_constructor_return/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_conditional_constructor_return/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "0ee98f2fb5da53d0f52fdc60da5ab6f57399d3194376fd67a68b1399b8c9fcde",
+      "size": 35711
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_conditional_constructor_return/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "5df95526768a8a0d848853232c0fed79af7ff8b43b1f58fa91aeb38c2bd6dcc4",
+      "size": 206
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_match_constructor_return/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_match_constructor_return/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "54064e3ce5f0daf1ec18afbcb816e609c56952f3b36fefc27bf40413754e8e94",
+      "size": 34916
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_match_constructor_return/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "ba533f33f9a736b9c0e01124ef64a515994eaf0d98ae2dab27eb35f1df677726",
+      "size": 200
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_constructor_return/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_constructor_return/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "e067e9f0ae188aace1abff70b1bac520b5f0b3a35ac543699b8ea299ec610135",
+      "size": 32711
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_constructor_return/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "4dd60e325bc5827cf937f71cb7a5f309eba6e647ce1b4050013699e39ccaf095",
+      "size": 203
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_ordinary_selected_arm_can_be_ignored/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_ordinary_selected_arm_can_be_ignored/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "523eb08e3c44fa01626ee681eca658c312fcce462b383e354a78281fe177134e",
+      "size": 30109
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_ordinary_selected_arm_can_be_ignored/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "1c9011e686e35da37eb844a8220d30ceb6df766c8c1e9ad4ad96adec21c803fc",
+      "size": 212
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_branch_join_consumes_outer_owner/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_branch_join_consumes_outer_owner/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "873e611a87657bc88b9ef372b918e65d96846be1cd1e3ea1d2b04c23676b887d",
+      "size": 35335
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_branch_join_consumes_outer_owner/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "8e46ef4111ca88c43ca358532f523b49406dbe38efa7818deb0e2b854bcef8d9",
+      "size": 208
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_constructor_argument/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_constructor_argument/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "53ac4366d538fa19084d8d356bafb4820c0f64b3dfa64bff38de1d649b970e5b",
+      "size": 31458
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_constructor_argument/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "f550177297eae7b6221c304dbf4d247e356863ed5d2a6509fab26b7e8cae038b",
+      "size": 205
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_return_and_alias_transfer/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_return_and_alias_transfer/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "cb6d4e1bee9ed3efb64b43d7973a0663454b5fe298170784e8ed547b2bfdde49",
+      "size": 34029
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/GenericSelectedUnionCSource/test_declared_return_and_alias_transfer/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "55d665b6044e7dfb479f4b181d840ec1d19e3e8bb8d1b49df02b8fde9bfe9eb8",
+      "size": 210
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_wrong_global_assignment_type_refused/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_uninitialized_global_read_in_initializer_refused/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_local_and_parameter_shadowing/native",
+      "sha256": "c4fc581d16dbb0c15cf91c5b6479b4bb369dfd025870a6711a479314cf5016df",
+      "size": 103496
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_local_and_parameter_shadowing/main.nvm",
+      "sha256": "82d45714647c9530fac3f7e328c354b4da5684303c08cb177f014c5bbf14e37d",
+      "size": 1052
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_generic_union_global_and_alias/native",
+      "sha256": "505e568bed8b1daf37aae34e1e69a2a477222c7b6297be16a5812cc0abd60366",
+      "size": 86600
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_generic_union_global_and_alias/main.nvm",
+      "sha256": "a8bb35c876c48d63df5ef5e92c697ef365ae0471166707633b62ff4ae7ee129e",
+      "size": 1020
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_copyable_union_global/native",
+      "sha256": "4176881fc1b9a9760687dcffecce696f31026b0b92fa0a2173ec654919be2f89",
+      "size": 103112
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_copyable_union_global/main.nvm",
+      "sha256": "dc9f657bf3f2affe3efd6d326ef234c4c022645dd62f5d5cf8107a2b69782ec6",
+      "size": 1172
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_same_shape_wrong_union_assignment_refused/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_wrong_generic_union_global_alias_refused/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_initializer_order_and_once_only_helper_effects/native",
+      "sha256": "6582cc37514d342f738441b5bff86abd25b33e7b2d495841b8699a9c240a1e6c",
+      "size": 86904
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_initializer_order_and_once_only_helper_effects/main.nvm",
+      "sha256": "60e3336df559f06e17c4e768db6496dfb847c3383df09c85b3457bd71189b40f",
+      "size": 860
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_same_shape_wrong_union_initializer_refused/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_immutable_assignment_refused/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_scalar_kinds_and_mutation/native",
+      "sha256": "fd896b381c11a47656969e65aabb6d61e4dbf72e005f31e276608030586e36d9",
+      "size": 103944
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_scalar_kinds_and_mutation/main.nvm",
+      "sha256": "2ae09d7ca91e07957a39aa3f2526f12554d9bbe9155820d92ca463559cb47ccf",
+      "size": 908
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_resource_global_remains_refused/main.nvm",
+      "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+      "size": 14
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_scalar_kinds_and_mutation/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_scalar_kinds_and_mutation/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "fc661b4170831e67c061386a99bfd26d9e98897ab1e08f527b2d78de6d85411c",
+      "size": 34269
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_scalar_kinds_and_mutation/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "a853327178274fe2f3e0c91225e67c53b2dd685438697f2bd043b0afd6cef8bb",
+      "size": 191
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_initializer_order_and_once_only_helper_effects/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_initializer_order_and_once_only_helper_effects/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "c2f1341267480b798b386620c85ee89ae2a64f8de92037ea4f2d5e7b6c3df11d",
+      "size": 30294
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_initializer_order_and_once_only_helper_effects/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "2cfaacefafbfc07419c9cfdedb47e0bc34abd0dde14daf82f21b46c188800516",
+      "size": 212
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_copyable_union_global/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_copyable_union_global/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "5a082af130fb38780ed6e04bac88bae81616ba09ced3477dbc72173d6d1aa05b",
+      "size": 32574
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_copyable_union_global/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "74270ab1e18d49e626793631bcf3865363ea72863dc2f6a52fea3d7dd6dd42be",
+      "size": 187
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_generic_union_global_and_alias/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_generic_union_global_and_alias/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "4b4656033ecebf055c73427c7247aecbe243124d1e7c504e3d6291c20560260c",
+      "size": 29892
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_generic_union_global_and_alias/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "491c4e73885f9f9169b561b13449c029a37ae0351bb320e1ce55817a8c063925",
+      "size": 196
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_local_and_parameter_shadowing/native.dSYM/Contents/Info.plist",
+      "sha256": "b1345982181d5016342efed705fce55dca5e1d642543ed7d69f3c56a1da49c22",
+      "size": 635
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_local_and_parameter_shadowing/native.dSYM/Contents/Resources/DWARF/native",
+      "sha256": "1c11a7df5d83e46a10f695fac47a115985473cdae9a465b44ce494a612e42edc",
+      "size": 32145
+    },
+    {
+      "path": "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_local_and_parameter_shadowing/native.dSYM/Contents/Resources/Relocations/aarch64/native.yml",
+      "sha256": "5210ddfc81f84fb43b6950b0e162a755abb6d172ca302dc6991bc41670d04e4e",
+      "size": 195
+    }
+  ]
+}

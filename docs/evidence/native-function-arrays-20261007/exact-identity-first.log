@@ -1,0 +1,21 @@
+test_function_identity_comparisons_preserve_tags (tests.test_native_callables.NativeCallables.test_function_identity_comparisons_preserve_tags) ... FAIL
+
+======================================================================
+FAIL: test_function_identity_comparisons_preserve_tags (tests.test_native_callables.NativeCallables.test_function_identity_comparisons_preserve_tags)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 126, in test_function_identity_comparisons_preserve_tags
+    source = self.emit(work, text)
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 25, in emit
+    self.checked([ROOT / 'bin/nvm2c', module, '-o', source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-identity-tsgtnd_c/input.nvm': function 2: EQ has incompatible operand types
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.036s
+
+FAILED (failures=1)

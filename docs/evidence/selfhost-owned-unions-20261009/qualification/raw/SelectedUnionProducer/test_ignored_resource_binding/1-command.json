@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nanoisa_emit",
+    "/private/tmp/nanolang-selfhost-union-final/raw/SelectedUnionProducer/test_ignored_resource_binding/main.nano",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-final/raw/SelectedUnionProducer/test_ignored_resource_binding/main.nasm"
+  ],
+  "exit": 1
+}

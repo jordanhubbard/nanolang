@@ -1,0 +1,18 @@
+{
+  "source_commit": "7b9d9ecb7628136e2abfcd40419f848984225835",
+  "root": "/Users/jordanh/Src/nanolang",
+  "command": [
+    "make",
+    "-j2",
+    "test-one-ir-compiler"
+  ],
+  "initial_status": "?? tests/user_guide/refresh_language_pure_function.nano",
+  "tracked_tree_initially_clean": true,
+  "preserved_user_file_sha256": "c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976",
+  "user_file_unchanged": true,
+  "exit_code": 0,
+  "seconds": 889.234842750011,
+  "log_sha256": "fa28d5be7062f4a5780fd39bbb1fbef2529d36d68a4e9830a86d7bfda646699c",
+  "final_status": "?? tests/user_guide/refresh_language_pure_function.nano\n",
+  "head_unchanged": true
+}

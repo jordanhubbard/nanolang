@@ -1,0 +1,7 @@
+test_returned_global_array_storage (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_returned_global_array_storage) ... ok
+test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.251s
+
+OK

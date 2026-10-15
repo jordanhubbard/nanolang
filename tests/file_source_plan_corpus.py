@@ -101,10 +101,10 @@ def expected_rows(c):
     for r,q in enumerate(c['requests']):
         for b in q['bindings']:
             k,o=b['kind'],b['ordinal']
-            category=5 if k else 1 if o==0 else 2 if o==3 else 3 if o<3 else 4
+            category=5 if k else 1 if o==0 else 2 if o==3 else 3 if o<3 or (q.get("identity",1)==2 and o==8) else 4
             rows.append([q['module'],b['name'],b['id'],b['id'],r,k,o,category,
-                         [0,1,1,1,2][o] if k else NO_INDEX,
-                         3+o if k else NO_INDEX,NO_INDEX,NO_INDEX,q['line'],q['column']])
+                         ([0,1,1,2] if q.get("identity",1)==3 else [0,1,1,1,2])[o] if k else NO_INDEX,
+                         3+o if k else NO_INDEX,NO_INDEX,NO_INDEX,q['line'],q['column'],q.get("identity",1)])
     bases={r[2]:r for r in rows}
     for a in c['aliases']:
         r=deepcopy(bases[a['target']]);r[:4]=[a['module'],a['name'],a['id'],a['target']];rows.append(r)
@@ -122,10 +122,10 @@ def expected(cases):
             out.extend(('|'.join(map(str,r[2:]))+'\n').encode())
     return bytes(out)
 
-def generate_c(cases):
-    out=['#include <stdio.h>\n#include <stdlib.h>\n#include <stdint.h>\n#include "src/nanoisa/file_source_plan.h"\n']
-    out.append('static char catalog[32768];static size_t catalog_size;\n')
-    out.append('static void emit(unsigned n,NlFileSourceStatus s,NlFileSourcePlan *p){printf("CASE %u %u %zu\\n",n,(unsigned)s,nl_file_source_plan_count(p));for(size_t i=0;i<nl_file_source_plan_count(p);i++){NlFileSourceRow r;if(!nl_file_source_plan_row(p,i,&r))abort();printf("%zu:%.*s|%zu:%.*s|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u\\n",r.module.size,(int)r.module.size,r.module.data,r.name.size,(int)r.name.size,r.name.data,r.id,r.target,r.request,r.kind,r.ordinal,r.category,r.input_mode,r.result_ordinal,r.global_layout,r.import_index,r.line,r.column);}nl_file_source_plan_free(p);}\n')
+def generate_c(cases, services=False):
+    out=['#include <stdio.h>\n#include <stdlib.h>\n#include <stdint.h>\n#include "src/nanoisa/file_source_plan.h"\n#include "src/nanoisa/service_source_catalog.h"\n']
+    out.append('static char catalog[32768],socket_catalog[32768],websocket_catalog[32768];static size_t catalog_size,socket_catalog_size,websocket_catalog_size;\n')
+    out.append('static void emit(unsigned n,NlFileSourceStatus s,NlFileSourcePlan *p){printf("CASE %u %u %zu\\n",n,(unsigned)s,nl_file_source_plan_count(p));for(size_t i=0;i<nl_file_source_plan_count(p);i++){NlFileSourceRow r;if(!nl_file_source_plan_row(p,i,&r))abort();printf("%zu:%.*s|%zu:%.*s|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u\\n",r.module.size,(int)r.module.size,r.module.data,r.name.size,(int)r.name.size,r.name.data,r.id,r.target,r.request,r.kind,r.ordinal,r.category,r.input_mode,r.result_ordinal,r.global_layout,r.import_index,r.line,r.column,r.catalog);}nl_file_source_plan_free(p);}\n')
     for n,c in enumerate(cases):
         out.append(f'static void case_{n}(void){{\n')
         for j,q in enumerate(c['requests']):
@@ -134,7 +134,7 @@ def generate_c(cases):
         if c['requests']:
             qs=[]
             for j,q in enumerate(c['requests']):
-                cat='{catalog,catalog_size-1}' if q['catalog'] is None else c_span(q['catalog'])
+                cat=('{websocket_catalog,websocket_catalog_size-1}' if q.get('identity',1)==3 else '{socket_catalog,socket_catalog_size-1}' if q.get('identity',1)==2 else '{catalog,catalog_size-1}') if q['catalog'] is None else c_span(q['catalog'])
                 qs.append('{%s,%s,%s,%d,%d,%d,b%d,%d}'%(c_span(q['module']),c_span(q['interface']),cat,q['version'],q['line'],q['column'],j,len(q['bindings'])))
             out.append('NlFileSourceRequest q[]={'+','.join(qs)+'};\n')
         for key,typ in [('aliases','NlFileSourceAlias'),('ordinary','NlFileSourceOrdinary')]:
@@ -143,19 +143,20 @@ def generate_c(cases):
                 out.append(typ+' '+key+'[]={'+','.join(values)+'};\n')
         args=[('q' if c['requests'] else 'NULL'),str(len(c['requests']))]
         for key in ('aliases','ordinary'):args.extend([key if c[key] else 'NULL',str(len(c[key]))])
-        out.append('NlFileSourcePlan *p=(NlFileSourcePlan *)(uintptr_t)1;NlFileSourceStatus s=nl_file_source_plan_build('+','.join(args)+',&p);\n')
+        builder='nl_service_source_plan_build' if services and not c.get('legacy') else 'nl_file_source_plan_build'
+        out.append('NlFileSourcePlan *p=(NlFileSourcePlan *)(uintptr_t)1;NlFileSourceStatus s='+builder+'('+','.join(args)+',&p);\n')
         out.append(f'if(s!={c["status"]}) {{ abort(); }}\n')
         out.append('if(s) {\n if(p!=(NlFileSourcePlan *)(uintptr_t)1) { abort(); }\n p=NULL;\n}\n')
         out.append(f'emit({n},s,p);\n}}\n')
-    out.append('int main(void){if(!nl_file_source_catalog_view(catalog,sizeof catalog,&catalog_size))abort();printf("CAT:%s\\n",catalog);')
+    out.append('int main(void){if(!nl_service_source_catalog_view(3,websocket_catalog,sizeof websocket_catalog,&websocket_catalog_size))abort();if(!nl_service_source_catalog_view(2,socket_catalog,sizeof socket_catalog,&socket_catalog_size))abort();if(!nl_file_source_catalog_view(catalog,sizeof catalog,&catalog_size))abort();printf("CAT:%s\\n",catalog);')
     out.extend(f'case_{i}();' for i in range(len(cases)));out.append('return 0;}\n')
     return ''.join(out)
 
-def generate_nano(cases):
+def generate_nano(cases, services=False):
     out=['module "src_nano/compiler/file_source_plan.nano" as Plan\n']
     # Imported type names are the actual declarations, not copied definitions.
     out.append('fn emit(index: int, plan: FileSourcePlan) -> void {\n (println (+ "CASE " (+ (int_to_string index) (+ " " (+ (int_to_string plan.status) (+ " " (int_to_string (array_length plan.rows))))))))\n let mut i: int = 0\n while (< i (array_length plan.rows)) {\n let row: FileSourceRow = (at plan.rows i)\n let mut line: string = (+ (int_to_string (str_length row.module_id)) (+ ":" (+ row.module_id (+ "|" (+ (int_to_string (str_length row.name)) (+ ":" (+ row.name "|")))))))\n')
-    fields=['id','target','request','kind','ordinal','category','input_mode','result_ordinal','global_layout','import_index','line','column']
+    fields=['id','target','request','kind','ordinal','category','input_mode','result_ordinal','global_layout','import_index','line','column','catalog']
     for j,f in enumerate(fields):
         out.append(' set line (+ line '+('(int_to_string row.'+f+')' if j==0 else '(+ "|" (int_to_string row.'+f+'))')+')\n')
     out.append(' (println line) set i (+ i 1)\n }\n}\nshadow emit { let rows: array<FileSourceRow> = [] (emit -1 FileSourcePlan { status: 1, rows: rows, logical_bytes: 0 }) assert (== (array_length rows) 0) }\n')
@@ -167,15 +168,18 @@ def generate_nano(cases):
                 out.append(f' set b{j} (array_push b{j} FileSourceBinding {{ id: {b["id"]}, kind: {b["kind"]}, ordinal: {b["ordinal"]}, name: {nano_span(b["name"])} }})\n')
         out.append(' let mut requests: array<FileSourceRequest> = []\n')
         for j,q in enumerate(c['requests']):
-            cat='FileSourceText { data: catalog, size: (str_length catalog) }' if q['catalog'] is None else nano_span(q['catalog'])
+            view=f"(Plan.service_source_catalog_view {q['identity']})" if q.get('identity',1)>1 else 'catalog'
+            cat='FileSourceText { data: '+view+', size: (str_length '+view+') }' if q['catalog'] is None else nano_span(q['catalog'])
             out.append(' set requests (array_push requests FileSourceRequest { module_id: '+nano_span(q['module'])+', interface_id: '+nano_span(q['interface'])+', catalog_view: '+cat+f', catalog_version: {q["version"]}, line: {q["line"]}, column: {q["column"]}, bindings: b{j}'+ ' })\n')
         for key,typ in [('aliases','FileSourceAlias'),('ordinary','FileSourceOrdinary')]:
             out.append(f' let mut {key}: array<{typ}> = []\n')
             for a in c[key]:
                 out.append(f' set {key} (array_push {key} {typ} {{ module_id: '+nano_span(a['module'])+', name: '+nano_span(a['name'])+f', id: {a["id"]}'+(f', target: {a["target"]}' if key=='aliases' else '')+' })\n')
-        out.append(' return (Plan.file_source_plan requests aliases ordinary)\n}\n')
+        builder='service_source_plan' if services and not c.get('legacy') else 'file_source_plan'
+        out.append(' return (Plan.'+builder+' requests aliases ordinary)\n}\n')
         out.append(f'shadow case_{n} {{ assert (== (case_{n}).status {c["status"]}) }}\n')
     out.append(NANO_BOUNDARIES)
+    if services: out.append(socket_boundaries())
     out.append('fn main() -> int { (println (+ "CAT:" (Plan.file_source_catalog_view)))\n')
     out.extend(f' (emit {i} (case_{i}))\n' for i in range(len(cases)));out.append(' return 0\n}\n')
     return ''.join(out)
@@ -251,3 +255,78 @@ shadow nano_budget_case {
     assert (== (nano_budget_case 1) 2)
 }
 '''
+
+
+def service_corpus():
+    names=['Conn','SocketError','ReadByte','ConnectResult','SendResult','ConnectStatus',
+           'ReceiveResult','CloseResult','Endpoint','begin_connect','send_byte',
+           'finish_connect','receive_byte','close']
+    def tcp(module='network',base=101):
+        q=request(module,base)
+        q.update(identity=2,interface=span('nsi:nanolang/net'),bindings=[
+            dict(id=base+i,kind=int(i>=9),ordinal=i-9 if i>=9 else i,name=span(name))
+            for i,name in enumerate(names)])
+        return q
+    cases=[]
+    def add(name,status=0,mutate=None):
+        c=dict(name=name,status=status,requests=[request(),tcp()],aliases=[],ordinary=[])
+        if mutate:mutate(c)
+        cases.append(c)
+    add('mixed')
+    add('tcp_only',mutate=lambda c:c.update(requests=[tcp()]))
+    add('reordered',mutate=lambda c:c['requests'].reverse())
+    add('reordered_bindings',mutate=lambda c:c['requests'][1]['bindings'].reverse())
+    add('counted_tcp_prefix',mutate=lambda c:c['requests'][1].update(interface=span('nsi:nanolang/net_suffix',16)))
+    add('private_socket_refused',1,lambda c:c['requests'][1]['bindings'][0].update(name=span('Socket')))
+    add('file_view_for_tcp',4,lambda c:c['requests'][1].update(identity=1))
+    add('tcp_view_for_file',4,lambda c:c['requests'][0].update(identity=2))
+    add('endpoint_missing',1,lambda c:c['requests'][1]['bindings'].pop(8))
+    add('endpoint_ordinal_invalid',1,lambda c:c['requests'][1]['bindings'][8].update(ordinal=9))
+    add('tcp_duplicate_id',1,lambda c:c['requests'][1]['bindings'][0].update(id=1))
+    add('same_module',1,lambda c:c['requests'][1].update(module=span('binding')))
+    def alias(target,name,id):return dict(module=span('user'),name=span(name),id=id,target=target)
+    add('aliases_retain_catalog',mutate=lambda c:c.update(aliases=[alias(1,'FileHandle',500),alias(101,'ConnHandle',501),alias(109,'Address',502),alias(110,'Connect',503)]))
+    add('aliased_shared_spelling',mutate=lambda c:c.update(aliases=[alias(3,'FileByte',500),alias(103,'SocketByte',501)]))
+    add('alias_collision',1,lambda c:c.update(aliases=[alias(1,'Handle',500),alias(101,'Handle',501)]))
+    add('maximum_mixed',mutate=lambda c:c.update(requests=[tcp('n'+str(i),1+14*i) if i%2 else request('f'+str(i),1+14*i) for i in range(16)]))
+    add('legacy_tcp_refused',1,lambda c:c.update(requests=[tcp()],legacy=True))
+    return cases
+
+
+def socket_boundaries():
+    old='"File", "FileError", "ReadByte", "OpenResult", "WriteResult", "PositionResult", "ReadResult", "CloseResult", "temp", "write_byte", "rewind", "read_byte", "close"'
+    new='"Conn", "SocketError", "ReadByte", "ConnectResult", "SendResult", "ConnectStatus", "ReceiveResult", "CloseResult", "Endpoint", "begin_connect", "send_byte", "finish_connect", "receive_byte", "close"'
+    return (NANO_BOUNDARIES.replace(old,new).replace('nano_extent_case','socket_extent_case')
+            .replace('nano_budget_case','socket_budget_case').replace('(< i 13)','(< i 14)')
+            .replace('(>= i 8)','(>= i 9)').replace('(- i 8)','(- i 9)')
+            .replace('Plan.file_source_catalog_view','Plan.service_source_catalog_view 2')
+            .replace('Plan.file_source_plan','Plan.service_source_plan')
+            .replace('nsi:nanolang/filesystem','nsi:nanolang/net').replace('size: 23','size: 16')
+            .replace('(+ 7 (+ 24','(+ 7 (+ 17'))
+
+
+def websocket_corpus():
+    def alias(target,name,id):return dict(module=span('user'),name=span(name),id=id,target=target)
+    names=['Connection','WebSocketError','Message','ConnectResult','SendResult','ReceiveResult','CloseResult','connect','send','receive','close']
+    def websocket():
+        q=request('websocket',201)
+        q.update(identity=3,interface=span('nsi:nanolang/websocket'),bindings=[
+            dict(id=201+i,kind=int(i>=7),ordinal=i-7 if i>=7 else i,name=span(name))
+            for i,name in enumerate(names)])
+        return q
+    cases=[]
+    def add(name,status=0,mutate=None):
+        c=dict(name=name,status=status,requests=[websocket()],aliases=[],ordinary=[])
+        if mutate:mutate(c)
+        cases.append(c)
+    add('websocket')
+    add('permuted',mutate=lambda c:c['requests'][0]['bindings'].reverse())
+    add('all_catalogs',mutate=lambda c:c['requests'].extend(service_corpus()[0]['requests']))
+    add('aliases',mutate=lambda c:c.update(aliases=[alias(201,'Handle',500),alias(203,'Payload',501),alias(209,'Send',502)]))
+    add('wrong_view',4,lambda c:c['requests'][0].update(identity=2))
+    add('missing_method',1,lambda c:c['requests'][0]['bindings'].pop())
+    add('wrong_method_name',1,lambda c:c['requests'][0]['bindings'][-1].update(name=span('closex')))
+    add('wrong_ordinal',1,lambda c:c['requests'][0]['bindings'][-1].update(ordinal=4))
+    add('legacy_refuses',1,lambda c:c.update(legacy=True))
+    add('wrong_version',4,lambda c:c['requests'][0].update(version=2))
+    return cases

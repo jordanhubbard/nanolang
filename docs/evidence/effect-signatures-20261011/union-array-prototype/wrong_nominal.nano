@@ -1,0 +1,3 @@
+union A{Some{value:int}} union B{Some{value:int}}
+fn main()->int{let values:array<A> = [B.Some{value:7}] return 0}
+shadow main{assert (== (main) 0)}

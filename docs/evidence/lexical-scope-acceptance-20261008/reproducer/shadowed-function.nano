@@ -1,0 +1,4 @@
+fn selected() -> int { return 17 }
+shadow selected { assert (== (selected) 17) }
+fn main() -> int { let selected: int = 2 return (selected) }
+shadow main { assert true }

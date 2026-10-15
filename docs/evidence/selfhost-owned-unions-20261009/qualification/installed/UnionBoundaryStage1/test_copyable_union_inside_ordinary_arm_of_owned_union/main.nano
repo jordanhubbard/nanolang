@@ -1,0 +1,28 @@
+resource struct Handle { fd: int }
+union Box<T> { Some { item: T }, None {} }
+union Choice { Owned { owner: Handle }, Plain { inner: Box<int> } }
+fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
+shadow close_handle { assert (== (close_handle Handle { fd: 7 }) 7) }
+fn consume(value: Choice) -> int {
+    return match value {
+        Owned(payload) => { let Choice.Owned { owner } = payload (close_handle owner) }
+        Plain(payload) => {
+            let Choice.Plain { inner } = payload
+            match inner { Some(item) => item.item None(empty) => 0 }
+        }
+    }
+}
+shadow consume {
+    assert (== (consume Choice.Owned { owner: Handle { fd: 7 } }) 7)
+    let inner: Box<int> = Box.Some { item: 9 }
+    assert (== (consume Choice.Plain { inner: inner }) 9)
+    let empty: Box<int> = Box.None {}
+    assert (== (consume Choice.Plain { inner: empty }) 0)
+}
+fn main() -> int {
+    let inner: Box<int> = Box.Some { item: 9 }
+    assert (== (consume Choice.Plain { inner: inner }) 9)
+    assert (== (consume Choice.Owned { owner: Handle { fd: 7 } }) 7)
+    return 0
+}
+shadow main { assert (== (main) 0) }

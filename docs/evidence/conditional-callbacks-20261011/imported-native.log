@@ -1,0 +1,6 @@
+test_imported_branches_retain_callable_context (tests.test_conditional_generic_callbacks.ConditionalGenericCallbacks.test_imported_branches_retain_callable_context) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.672s
+
+OK

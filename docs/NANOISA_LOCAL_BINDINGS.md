@@ -45,19 +45,44 @@ bindings; unmatched ends and invalid slots are assembly errors. Generic canonica
 `.metadata` output remains the lossless reconstruction form.
 
 I then add paired ordinary C/selfhost producers for parameters and ordinary
-scalar `let` bindings, including nested blocks, if/else and while scopes.
+`let` bindings, including scalar, array, record, tuple, enum, union and
+callback values, nested blocks, if/else and while scopes.
 Parameters begin at function entry; a local begins after its initialization
 store and ends at lexical scope exit. Temporaries without original names are
-omitted. A function return may end an interval at the last emitted instruction.
+omitted. Both parsers explicitly mark generated destructuring owners; a user
+name sharing a temporary prefix remains a source name. A function return may
+end an interval at the last emitted instruction.
 The record describes lexical bytecode positions, not path-sensitive liveness.
 
 My C producer uses its current function index and code offsets; my selfhosted
 text producer uses the assembler markers rather than duplicating opcode widths.
+My C producer publishes function bodies in function-table order, relocating
+absolute DEBUG locations before publishing passive metadata. Local-name
+intervals stay function-relative. Canonical assembly retains dotted generic
+specialization names without merging distinct functions.
 I preserve source ownership task505's specialized producer and entry dispatch.
-Closures/upvalues, effects and other declaration forms remain explicit later
-producer work unless independently implemented and tested. My specialized
+I retain nested-function parameters and ordinary local names in both producers,
+including anonymous functions with captures. Child intervals belong to the child
+function; restoring a parent keeps its bindings intact. Captured upvalue names use the separate convention below. Effects and other
+declaration forms remain open unless independently implemented and tested. My specialized
 borrowed profile and its scalar pattern projections are described below. No existing executable source is refused just because
 its original local names are absent.
+
+I retain legacy `par-let` binding names in both ordinary producers. A binding
+begins after its initializer store and remains visible through the enclosing
+scope, including after the discarded body expression. I preserve literal `_`
+names and same-spelling outer bindings as separate slots. The parser retains a
+distinct legacy-group flag so the typechecker checks sibling independence before
+lowering the group to ordered initializers and a discarded body value. Restricted
+passive and borrowed profiles do not treat this group as an ordinary lexical block.
+
+I retain named nested-function bindings in both ordinary NanoISA producers.
+Their parent binding starts after closure initialization; child parameter and
+capture names remain in the child's table. The selfhost AST retains a separate
+recursive self spelling, and its generated self-closure slot stays unnamed.
+I preserve unambiguous C function labels and disambiguate collisions without
+reserving source spellings. Direct recursive C-produced calls retain their active
+capture environment in both VM execution and native translation.
 
 ## Required acceptance
 
@@ -91,3 +116,51 @@ when names repeat. Moving an owner does not shorten its lexical name interval;
 these intervals never promise runtime liveness. A failed lowering publishes no
 module or partial table. Stripping names leaves instructions, layouts and
 ownership unchanged and must preserve verified VM/native execution.
+
+## Captured upvalue names
+
+I use `nano.upvalue.v1` for names in a closure environment. Its byte layout is
+identical to `nano.local.v1`, but the slot is an upvalue index, checked against
+that function's declared `upvalue_count`. The beginning must be zero and the
+end must equal the function's code length. I reject duplicate function/index
+entries when interpreting the table, including empty-function duplicates.
+I keep local and capture tables independent: slot zero can describe one local
+and one capture without a conflict. Unknown versions remain opaque metadata.
+
+The assembler accepts `.upvalue_name <index> "<name>"` inside a function and
+publishes a full-function interval at `.end`. Canonical text uses raw `.metadata`
+records, retaining exact bytes even if the optional convention is malformed.
+My C emitter records the resolved capture order after compiling a nested body;
+my selfhost emitter emits names from its completed capture frame. Grandparent
+captures therefore retain their source names in each intervening environment.
+
+I expose separate `nvm_upvalue_names_validate`, `nvm_upvalue_name_at`, and
+`nvm_add_upvalue_binding` APIs. They reuse the borrowed `NvmLocalBinding` record
+shape but interpret the index only as an upvalue. Invalid capture tables supply
+no names and never alter verifier admission or VM/native semantics. A lookup
+at the exclusive function end returns absent. This metadata identifies a name
+in the closure environment; it does not identify an outer declaration, prove
+ownership, grant mutation rights or describe a live stack location.
+
+## Iteration and match bindings
+
+I begin an iteration variable's interval after its element initialization store
+and end it at loop scope exit. Generated array/index/length temporaries stay
+unnamed. Nested blocks, `continue`, `break`, and a later same-spelling loop do
+not merge those lexical intervals. The interval describes code scope, not which
+iterations execute.
+
+I begin a union match-arm binding after storing the selected scrutinee, before
+its optional guard. I end it before another arm's code. A false guard can leave
+that interval without making it a liveness guarantee. Wildcard bindings remain
+unnamed; an outer variable with the same spelling retains its own slot/interval.
+
+## Effect-handler parameters
+
+My C producer begins an effect-handler parameter name at that arm's entry and
+ends it after the arm's resume. The VM installs performed arguments before
+entering that interval. Sibling arms and nested handlers retain separate slots;
+an outer same-spelling binding retains its own interval. Zero-argument arms
+invent no parameter names. A lexical return may exit before the interval's end;
+these names carry no liveness or execution authority. Self-hosted effects and
+canonical native effect translation remain separate implementation gaps.

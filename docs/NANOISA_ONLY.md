@@ -77,9 +77,36 @@ not prove compiler semantic correctness.
 My canonical `--emit-nvm` driver executes verified bytecode shadows. At
 `e35d8f55`, two full compiler generations match raw 365,976-byte modules with
 the same immutable host closure; see [my cutover evidence](evidence/canonical-vm-shadow-cutover.md).
-My default native product remains a separate cutover. Native execution of compiler
+My product driver now emits a module by default and translates explicit native output
+through `nvm2c` and `cc`; see [my driver checkpoint](evidence/native-driver-cutover-20261007/README.md).
+My Make bootstrap now uses this sequence and records source, tool, host-library and
+artifact hashes in `bin/nanoc_bootstrap.json`. My [clean Darwin Make bootstrap](evidence/nanoisa-bootstrap-65895d5fb/README.md)
+passes both raw generations, native installation, and installed CLI/publication
+checks at `65895d5fb`. Exact final-release and complete language qualification
+remain open. Native execution of compiler
 bytecode through `nvm2c` and `cc` is a separate route; my measured VM fixed
 point does not claim completion of native full-source bootstrap.
+
+I run `make bootstrap1` to emit the seed module, execute its first self-hosted
+VM generation, translate that generation with `nvm2c` and `cc`, and exercise
+the resulting native compiler. `make bootstrap2` executes the second VM
+generation over the same source and host closure, requires raw byte equality,
+and separately translates and exercises its native compiler. `make bootstrap3`
+rechecks module verification and the recorded hashes before installing Stage 2.
+A failed attempted stage clears its stamp and downstream stamps. Each command
+retains its logs under `obj/bootstrap-nanoisa/run-*`; a receipt is published
+only after the requested stage succeeds. `BOOTSTRAP_NANOISA_TIMEOUT` defaults
+to 1,800 seconds per command. `NANO_CFLAGS` and `NANO_LDFLAGS` configure the
+separate native translation; module equality is always required.
+
+My bootstrap harness gives the complete compiler shadow suite a separate
+30-second deadline. I accept `NANO_SHADOW_TIMEOUT_SECONDS` or the script's
+`--shadow-timeout` option from 1 to 300 seconds; the explicit option takes
+precedence. I record that setting in the receipt and require the same setting
+when continuing or verifying a stage. Ordinary compiler and File-publication
+invocations retain their existing defaults. My declared bootstrap host closure
+includes `file_product`; I still refuse generated NanoLang C during VM
+generations and pin the exact host-library bytes.
 
 The seed `nvm2c` stays C, the way `cc` stays C. I may later write
 `nvm2c` in myself and lower it through NanoISA. The seed translator
@@ -95,8 +122,9 @@ CLI, generated AST/schema. Those do not care what the last pass emits.
 to be a compiler phase. Its dual with `src/transpiler.c` is the tax. The
 last pass becomes a dual of `nanovirt/codegen.c`: typed AST → `NvmModule`
 → `.nvm`. My `compiler/nanoisa_codegen.nano` emitter now lowers the full compiler
-program closure, and the VM bootstrap above exercises it. My driver still
-retains the legacy C native product route; the NanoISA-only product cutover remains open.
+program closure, and the VM bootstrap above exercises it. My driver now uses that emitter for every product and no longer imports the legacy
+C emitter. Remaining bootstrap and product dependency removal keep the complete
+NanoISA-only cutover open.
 
 **Driver.** `nanoc_v06.nano` stops emitting `.c` and invoking `cc` as a
 language backend. Default output is `.nvm`. `-o binary` is the tool
@@ -156,15 +184,16 @@ failed. Canonical disassembly is a different test.
 | Translator | Job | Not |
 | --- | --- | --- |
 | `nvm2c` | Canonical AOT portability. C11. Locals, arithmetic, calls, control, runtime ABI. | VM wrapper |
-| `nvm2llvm` | Required for my full-roadmap v5.1 release. Same module, LLVM IR. | NanoLang AST backend |
-| `nvm2wasm` | Required for my full-roadmap v5.1 release. Same module, Wasm. | NanoLang AST backend |
+| `nvm2llvm` | Optional for 5.1 (demoted 2026-10-13). Same module, LLVM IR. | NanoLang AST backend |
+| `nvm2wasm` | Optional for 5.1 (demoted 2026-10-13). Same module, Wasm. | NanoLang AST backend |
 | `nvm2riscv` | Optional. Same module, assembly. | AST `riscv_backend` as a second IR |
 | GPU (SPIR-V / PTX / Metal / OpenCL) | Restricted profile only | Pretending general NanoISA is a kernel language |
 | JVM / others | Evaluate; accept only as translators of verified NanoISA | New AST backends |
 
-My general architecture permits optional translators, but my selected full-roadmap
-v5.1 scope includes the Phase 20 LLVM and WebAssembly implementation rows.
-I require both translators for that release. Evaluating JVM and the listed GPU
+My general architecture permits optional translators. My earlier full-roadmap v5.1 scope
+required the Phase 20 LLVM and WebAssembly implementation rows; on 2026-10-13 my user demoted both
+translators to optional for 5.1. They remain in the tree as translators of verified NanoISA
+and I do not expose them as release targets. Evaluating JVM and the listed GPU
 targets does not require shipping every evaluated target.
 
 I reintroduce LLVM and Wasm only behind these translators, with the same
@@ -383,8 +412,9 @@ NanoISA emitter in `src_nano` until it compiles `src_nano`.
 3. Stage 1 and Stage 2 `.nvm` files match.
 4. A pinned suite gives the same answers on `nano_vm` and on AOT C.
 5. `transpiler.nano` is gone from the product compiler (history keeps it).
-6. LLVM and Wasm are implemented as translators of the same module, with
-   full applicable-language coverage and pinned VM/AOT/translator equivalence.
+6. LLVM and Wasm are implemented as translators of the same module. They are optional
+   for 5.1 (2026-10-13); full applicable-language coverage and pinned translator equivalence
+   are not release gates. The pinned suite in item 4 covers `nano_vm` and AOT C.
 7. `docs/NANOISA_HL_ROUNDTRIP.md` states sufficient / insufficient /
    blocked from evidence, not aspiration.
 

@@ -1,0 +1,13 @@
+test_binary_aliases_mutation_and_independent_reads (tests.test_portable_bytes_execution.PortableBytesExecution.test_binary_aliases_mutation_and_independent_reads) ... ok
+test_empty_missing_and_exact_bound (tests.test_portable_bytes_execution.PortableBytesExecution.test_empty_missing_and_exact_bound) ... ok
+test_native_allocation_prefixes_and_recovery (tests.test_portable_bytes_execution.PortableBytesExecution.test_native_allocation_prefixes_and_recovery) ... ok
+test_oversize_cleanup (tests.test_portable_bytes_execution.PortableBytesExecution.test_oversize_cleanup) ... ok
+test_seed_source_product (tests.test_portable_bytes_execution.PortableBytesExecution.test_seed_source_product) ... ok
+test_text_and_byte_calls_share_workspace_without_sharing_grants (tests.test_portable_bytes_execution.PortableBytesExecution.test_text_and_byte_calls_share_workspace_without_sharing_grants) ... ok
+test_text_only_and_unknown_imports_refuse (tests.test_portable_bytes_execution.PortableBytesExecution.test_text_only_and_unknown_imports_refuse) ... ok
+test_wrong_array_write_is_refused_before_publication (tests.test_portable_bytes_execution.PortableBytesExecution.test_wrong_array_write_is_refused_before_publication) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 8.070s
+
+OK

@@ -1,0 +1,96 @@
+test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) ... 
+  test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='mutation', driver='/private/tmp/nl51-union-arrays/seed') ... FAIL
+  test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='array_payload', driver='/private/tmp/nl51-union-arrays/seed') ... FAIL
+  test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='mixed_variants', driver='/private/tmp/nl51-union-arrays/seed') ... FAIL
+  test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='generic_alias', driver='/private/tmp/nl51-union-arrays/seed') ... FAIL
+  test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='filled', driver='/private/tmp/nl51-union-arrays/seed') ... FAIL
+  test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='ordinary_union', driver='/private/tmp/nl51-union-arrays/seed') ... FAIL
+  test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='effect_boundary', driver='/private/tmp/nl51-union-arrays/seed') ... FAIL
+  test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='mixed_variant_mutation', driver='/private/tmp/nl51-union-arrays/seed') ... FAIL
+
+======================================================================
+FAIL: test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='mutation', driver='/private/tmp/nl51-union-arrays/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_arrays.py", line 56, in test_construction_and_retained_payloads
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0001] Variable saved: I expected a value of type `Box<string>`, but found `Box<string>`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp24i00l0d/source.nano:2:82)
+
+
+======================================================================
+FAIL: test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='array_payload', driver='/private/tmp/nl51-union-arrays/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_arrays.py", line 56, in test_construction_and_retained_payloads
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: array element does not match my declared type
+
+
+======================================================================
+FAIL: test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='mixed_variants', driver='/private/tmp/nl51-union-arrays/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_arrays.py", line 56, in test_construction_and_retained_payloads
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: array element does not match my declared type
+
+
+======================================================================
+FAIL: test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='generic_alias', driver='/private/tmp/nl51-union-arrays/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_arrays.py", line 56, in test_construction_and_retained_payloads
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: array element does not match my declared type
+
+
+======================================================================
+FAIL: test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='filled', driver='/private/tmp/nl51-union-arrays/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_arrays.py", line 56, in test_construction_and_retained_payloads
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a supported typed container for element access
+
+
+======================================================================
+FAIL: test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='ordinary_union', driver='/private/tmp/nl51-union-arrays/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_arrays.py", line 56, in test_construction_and_retained_payloads
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: array element does not match my declared type
+
+
+======================================================================
+FAIL: test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='effect_boundary', driver='/private/tmp/nl51-union-arrays/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_arrays.py", line 56, in test_construction_and_retained_payloads
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: array element does not match my declared type
+
+
+======================================================================
+FAIL: test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='mixed_variant_mutation', driver='/private/tmp/nl51-union-arrays/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_arrays.py", line 56, in test_construction_and_retained_payloads
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: array element does not match my declared type
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.653s
+
+FAILED (failures=8)

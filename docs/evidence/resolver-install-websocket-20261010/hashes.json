@@ -1,0 +1,16 @@
+{
+  "Makefile.gnu": "e95c3c22b7f25283f267d976bbb68b38667de7f5347c716c08db7acf768e2437",
+  "modules/websocket/module.json": "44242f0cfc8a55c2346ab32aaf6a1ca33fbc9c45bdc34c5e6939ac2ed42e595a",
+  "modules/websocket/websocket_helpers.c": "095738db2e6efc011cc7ffa4fe8760706332f58043dad0fe5f2edd07b677006e",
+  "src/nsi_socket_resolver.c": "239323a32e6171385136cfb05f60ad70c123320af849985814dee5884819778d",
+  "src/nsi_socket_resolver.h": "b19d174e746f5682b78c29c00dbd0b37f8a700fd95be912dfdbafefc839d9f52",
+  "tests/test_websocket_client.py": "eb573e1001fe13875d0e2af2d6bb7611e4455ee0b6c8f8afacf7d9ad0f0d9a10",
+  "tests/test_websocket_artifacts.py": "771024d5f21f2c08f8d71ebcaa26b87c63288ff16caac46b3cc1564d739fef97",
+  "tests/test_socket_resolver_install.py": "1d0b9dc6bf6ddab4535696d371deeb5bc0896398f41b81a382a5d1b877ee8cc6",
+  "tests/socket_resolver_path_probe.c": "060ef1b0ca37f8e34740e414d8cef84d166b04c451a144c148cc7c827135cbf7",
+  "bin/nano-resolver": "2ff55d3de3d604099d50f3fb565339a083222df3b5c829ca7869eeac40b74967",
+  "bin/nano_vm": "9242dcb06f0307e81ab2c4d4fea410c3539c3f86b62f6be0015a2d8ae199e5e8",
+  "bin/nano_virt": "e457cb3ecb4760f089db3f2c1d46066f999a46b4d011d849605175a8c13c3397",
+  "bin/nvm2c": "a7f11fb0e0dd30a953367d2806148d40c955425e4d33e65db996aa96961cd327",
+  "/private/tmp/nl51-string-compiler-final.nvm": "4285a00781bc832363c820f44a949f5e370e7b8de843f4a201ac87bb5890ab3f"
+}

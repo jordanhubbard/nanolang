@@ -1,0 +1,100 @@
+...F..FFFF.......
+======================================================================
+FAIL: test_aliases_after_churn_and_mutation (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_aliases_after_churn_and_mutation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_variant_array_carriers.py", line 73, in test_aliases_after_churn_and_mutation
+            self.paired(HEADER+'''.function main 0 3 0 int 1
+            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ARR_NEW 1
+    ^^^^^^^^^
+    ...<60 lines>...
+    .end
+    ^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 22, in paired
+    self.checked([ROOT/'bin/nvm2c',module,'-o',source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 13, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-optional-array-pxu7epkv/input.nvm': I found invalid aggregate shape constraints during ARR_GET in function 0 at offset 136: I found conflicting aggregate shape kinds variant-int-array/array at nodes 25/65
+
+
+======================================================================
+FAIL: test_scalar_array_instances_both_orders (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_scalar_array_instances_both_orders) (reverse=False, variant=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_variant_array_carriers.py", line 18, in test_scalar_array_instances_both_orders
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 22, in paired
+    self.checked([ROOT/'bin/nvm2c',module,'-o',source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 13, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-optional-array-utztphds/input.nvm': I found invalid aggregate shape constraints during ARR_GET in function 0 at offset 82: I found conflicting aggregate shape kinds variant-int-array/array at nodes 21/47
+
+
+======================================================================
+FAIL: test_scalar_array_instances_both_orders (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_scalar_array_instances_both_orders) (reverse=False, variant=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_variant_array_carriers.py", line 18, in test_scalar_array_instances_both_orders
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 22, in paired
+    self.checked([ROOT/'bin/nvm2c',module,'-o',source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 13, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-optional-array-nc1bi4rl/input.nvm': I found invalid aggregate shape constraints during ARR_GET in function 0 at offset 82: I found conflicting aggregate shape kinds variant-int-array/array at nodes 21/47
+
+
+======================================================================
+FAIL: test_scalar_array_instances_both_orders (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_scalar_array_instances_both_orders) (reverse=True, variant=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_variant_array_carriers.py", line 18, in test_scalar_array_instances_both_orders
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 22, in paired
+    self.checked([ROOT/'bin/nvm2c',module,'-o',source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 13, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-optional-array-k7s890k5/input.nvm': I found invalid aggregate shape constraints during ARR_GET in function 0 at offset 44: I found conflicting aggregate shape kinds variant-int-array/array at nodes 25/32
+
+
+======================================================================
+FAIL: test_scalar_array_instances_both_orders (tests.test_native_variant_array_carriers.VariantArrayCarriers.test_scalar_array_instances_both_orders) (reverse=True, variant=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_variant_array_carriers.py", line 18, in test_scalar_array_instances_both_orders
+    self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 22, in paired
+    self.checked([ROOT/'bin/nvm2c',module,'-o',source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 13, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-optional-array-hbtk8_qi/input.nvm': I found invalid aggregate shape constraints during ARR_GET in function 0 at offset 44: I found conflicting aggregate shape kinds variant-int-array/array at nodes 25/32
+
+
+----------------------------------------------------------------------
+Ran 14 tests in 19.161s
+
+FAILED (failures=5)

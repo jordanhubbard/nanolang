@@ -1,0 +1,10 @@
+{
+  "src/nanoisa/affine_state.c": "46a3707bcb2d2d08f85d9760553f66c0d68a5431ffdf655a20e359bd01d182aa",
+  "src/nanoisa/affine_state.h": "5d4310a08e626642c0c450224a5009b15e9d49a6c05495024840c8b0faa8003f",
+  "src/nanoisa/affine_bytecode.c": "258ea84893eaaf66c3f26687f90adf604e62c47e6696c7e50744448bba0df2a0",
+  "tests/nanoisa/test_affine_state.c": "d9c4aae1468ac99a5ec61299d757795d5bbc8a8940c6941d8e96c6abee536e0d",
+  "tests/nanoisa/test_affine_array_state.inc": "99949dbeb9db165ad9c063ce572b8a3702a1fa23f3cf9261da29fd82674e7ea1",
+  "tests/nanoisa/test_effect_array_contracts.inc": "6d53016ff46ccfc7cb6fc58017c8b320a7e3a74ed0bf18ff3cae725f73b79c98",
+  "bin/nano_vm": "1684c805ee1342e7c6b26c27e6dac19a198cec288dbf307eb81ea6f9e96bad92",
+  "bin/nvm2c": "43d5af4bfaa250163d75fd4a168ece8ac76efcedb387517efc2dab0379b13154"
+}

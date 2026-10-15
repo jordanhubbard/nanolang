@@ -1,0 +1,221 @@
+test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) ...
+  test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) (producer='product') ... FAIL
+  test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) (producer='whole') ... FAIL
+  test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) (producer='program') ... FAIL
+  test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) (producer='raw') ... FAIL
+test_callback_variable_is_captured_once (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_variable_is_captured_once) ... FAIL
+test_incompatible_tagged_parameter_preserves_output (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_incompatible_tagged_parameter_preserves_output) ... ok
+test_invalid_unused_callbacks_preserve_output (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_invalid_unused_callbacks_preserve_output) ...
+  test_invalid_unused_callbacks_preserve_output (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_invalid_unused_callbacks_preserve_output) (expression='(map [identity] wrong)') ... FAIL
+test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) ...
+  test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='whole', source='test_filter_retains_value_before_predicate_mutation.nano') ... FAIL
+  test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='program', source='test_filter_retains_value_before_predicate_mutation.nano') ... FAIL
+  test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='raw', source='test_filter_retains_value_before_predicate_mutation.nano') ... FAIL
+  test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='whole', source='test_map_retains_callable_argument_result.nano') ... FAIL
+  test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='program', source='test_map_retains_callable_argument_result.nano') ... FAIL
+  test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='raw', source='test_map_retains_callable_argument_result.nano') ... FAIL
+  test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='whole', source='test_map_callable_identity.nano') ... FAIL
+  test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='program', source='test_map_callable_identity.nano') ... FAIL
+  test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='raw', source='test_map_callable_identity.nano') ... FAIL
+
+======================================================================
+FAIL: test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) (producer='product')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 33, in execute
+    runner.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpaqum0p6w/input.nvm': function 0: only void or a single supported value result is supported
+
+
+======================================================================
+FAIL: test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) (producer='whole')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 33, in execute
+    runner.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpaqum0p6w/input.nvm': function 0: only void or a single supported value result is supported
+
+
+======================================================================
+FAIL: test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) (producer='program')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 33, in execute
+    runner.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpaqum0p6w/input.nvm': function 1: only void or a single supported value result is supported
+
+
+======================================================================
+FAIL: test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) (producer='raw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 33, in execute
+    runner.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpaqum0p6w/input.nvm': function 8: only void or a single supported value result is supported
+
+
+======================================================================
+FAIL: test_callback_variable_is_captured_once (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_variable_is_captured_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 88, in test_callback_variable_is_captured_once
+    self.execute(source, work)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 21, in execute
+    runner.checked([checker, source])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 :
+
+======================================================================
+FAIL: test_invalid_unused_callbacks_preserve_output (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_invalid_unused_callbacks_preserve_output) (expression='(map [identity] wrong)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 121, in test_invalid_unused_callbacks_preserve_output
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : Warning at line 3, column 1: Unused variable 'x'
+Warning at line 5, column 1: Unused variable 'a'
+Warning at line 7, column 1: Unused variable 'x'
+Warning at line 9, column 18: Unused variable 'callbacks'
+
+
+======================================================================
+FAIL: test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='whole', source='test_filter_retains_value_before_predicate_mutation.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 29, in execute
+    assembly.write_text(runner.checked([emitter, source, '0', producer]).stdout)
+                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require a replacement value matching the element type
+
+
+======================================================================
+FAIL: test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='program', source='test_filter_retains_value_before_predicate_mutation.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 29, in execute
+    assembly.write_text(runner.checked([emitter, source, '0', producer]).stdout)
+                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require a replacement value matching the element type
+
+
+======================================================================
+FAIL: test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='raw', source='test_filter_retains_value_before_predicate_mutation.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 29, in execute
+    assembly.write_text(runner.checked([emitter, source, '0', producer]).stdout)
+                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower shadow replace at merged line 15: I require a replacement value matching the element type
+
+
+======================================================================
+FAIL: test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='whole', source='test_map_retains_callable_argument_result.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 29, in execute
+    assembly.write_text(runner.checked([emitter, source, '0', producer]).stdout)
+                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require a replacement value matching the element type
+
+
+======================================================================
+FAIL: test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='program', source='test_map_retains_callable_argument_result.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 29, in execute
+    assembly.write_text(runner.checked([emitter, source, '0', producer]).stdout)
+                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require a replacement value matching the element type
+
+
+======================================================================
+FAIL: test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='raw', source='test_map_retains_callable_argument_result.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 29, in execute
+    assembly.write_text(runner.checked([emitter, source, '0', producer]).stdout)
+                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower shadow main at merged line 17: I require a replacement value matching the element type
+
+
+======================================================================
+FAIL: test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='whole', source='test_map_callable_identity.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 29, in execute
+    assembly.write_text(runner.checked([emitter, source, '0', producer]).stdout)
+                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require a replacement value matching the element type
+
+
+======================================================================
+FAIL: test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='program', source='test_map_callable_identity.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 29, in execute
+    assembly.write_text(runner.checked([emitter, source, '0', producer]).stdout)
+                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require a replacement value matching the element type
+
+
+======================================================================
+FAIL: test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) (producer='raw', source='test_map_callable_identity.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 29, in execute
+    assembly.write_text(runner.checked([emitter, source, '0', producer]).stdout)
+                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower shadow main at merged line 13: I require a replacement value matching the element type
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 24.079s
+
+FAILED (failures=15)

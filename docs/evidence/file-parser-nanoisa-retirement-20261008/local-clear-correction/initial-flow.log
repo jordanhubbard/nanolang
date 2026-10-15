@@ -1,0 +1,58 @@
+test_dead_clear_and_reassignment_across_control_flow (tests.test_native_local_clear.NativeLocalClear.test_dead_clear_and_reassignment_across_control_flow) ... 
+  test_dead_clear_and_reassignment_across_control_flow (tests.test_native_local_clear.NativeLocalClear.test_dead_clear_and_reassignment_across_control_flow) (case='branch') ... FAIL
+test_observable_clear_is_not_erased (tests.test_native_local_clear.NativeLocalClear.test_observable_clear_is_not_erased) ... 
+  test_observable_clear_is_not_erased (tests.test_native_local_clear.NativeLocalClear.test_observable_clear_is_not_erased) (case='branch') ... FAIL
+  test_observable_clear_is_not_erased (tests.test_native_local_clear.NativeLocalClear.test_observable_clear_is_not_erased) (case='join_store') ... FAIL
+
+======================================================================
+FAIL: test_dead_clear_and_reassignment_across_control_flow (tests.test_native_local_clear.NativeLocalClear.test_dead_clear_and_reassignment_across_control_flow) (case='branch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_local_clear.py", line 37, in test_dead_clear_and_reassignment_across_control_flow
+    work=Path(tmp);module=self.module(work,body)
+                          ~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_local_clear.py", line 24, in module
+    self.checked(ROOT/'bin/nanoisa', 'asm', assembly, '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_local_clear.py", line 18, in checked
+    self.assertEqual(p.returncode, 0, p.stdout+p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-local-clear-uevu9oee/input.nasm': Expected u8 operand
+
+
+======================================================================
+FAIL: test_observable_clear_is_not_erased (tests.test_native_local_clear.NativeLocalClear.test_observable_clear_is_not_erased) (case='branch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_local_clear.py", line 55, in test_observable_clear_is_not_erased
+    work=Path(tmp);module=self.module(work,body);c=work/'native.c'
+                          ~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_local_clear.py", line 24, in module
+    self.checked(ROOT/'bin/nanoisa', 'asm', assembly, '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_local_clear.py", line 18, in checked
+    self.assertEqual(p.returncode, 0, p.stdout+p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-observed-clear-axf2wd3u/input.nasm': Expected u8 operand
+
+
+======================================================================
+FAIL: test_observable_clear_is_not_erased (tests.test_native_local_clear.NativeLocalClear.test_observable_clear_is_not_erased) (case='join_store')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_local_clear.py", line 55, in test_observable_clear_is_not_erased
+    work=Path(tmp);module=self.module(work,body);c=work/'native.c'
+                          ~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_local_clear.py", line 24, in module
+    self.checked(ROOT/'bin/nanoisa', 'asm', assembly, '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_local_clear.py", line 18, in checked
+    self.assertEqual(p.returncode, 0, p.stdout+p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-observed-clear-3jd0zj4l/input.nasm': Expected u8 operand
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.591s
+
+FAILED (failures=3)

@@ -1,0 +1,554 @@
+PASS lifecycle /Users/jordanh/Src/nanolang/obj/test_service_ownership
+PASS lifecycle /Users/jordanh/Src/nanolang/bin/nano_vm
+FAIL branch-close [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 17: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 21: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 22: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 26: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 27: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 29: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 34: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 36: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 39: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 43: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 76: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 78: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 83: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 116: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL branch-close [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL early-return [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 17: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 21: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 22: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 26: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 27: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 29: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 33: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 35: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 38: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 42: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 75: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 82: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 84: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 117: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL early-return [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL loop-borrow [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 17: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 20: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 67: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 73: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 74: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 76: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 78: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 79: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 81: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 127: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 131: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 133: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 134: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL loop-borrow [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL loop-owner [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 9: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 11: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 16: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 34: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 40: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 41: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 43: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 45: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 46: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 48: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 74: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 80: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 82: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 84: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 86: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 87: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 88: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL loop-owner [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL reinitialize [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 17: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 23: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 24: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 28: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 29: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 31: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 36: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 94: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 98: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 104: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 142: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL reinitialize [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL shared-call [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 44: Expected function name
+Error at line 2, column 50: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 51: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 55: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 56: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 60: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 61: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 63: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 68: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 133: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL shared-call [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL lexical-shadow [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 17: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 20: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 27: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 30: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 35: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 52: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 59: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 60: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 63: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 68: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 69: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 71: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 104: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL lexical-shadow [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+PASS branch-return /Users/jordanh/Src/nanolang/obj/test_service_ownership
+PASS branch-return /Users/jordanh/Src/nanolang/bin/nano_vm
+FAIL double-close [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 17: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 20: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 89: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL double-close [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL use-after-move [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 17: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 20: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 78: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 85: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 91: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL use-after-move [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+PASS parameter-leak /Users/jordanh/Src/nanolang/obj/test_service_ownership
+PASS parameter-leak /Users/jordanh/Src/nanolang/bin/nano_vm
+FAIL result-leak [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 9: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 11: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 16: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 47: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL result-leak [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL unbound-result [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 9: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 11: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 16: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 19: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 23: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL unbound-result [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL overwrite [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 17: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 23: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 24: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 28: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 29: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 31: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 36: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 62: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 66: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 72: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 110: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL overwrite [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL branch-disagreement [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 17: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 21: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 22: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 26: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 27: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 29: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 34: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 36: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 39: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 43: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 76: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 109: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL branch-disagreement [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL return-leak [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 17: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 21: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 22: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 26: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 27: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 29: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 33: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 35: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 38: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 42: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 44: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 51: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 53: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 86: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL return-leak [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL loop-consume [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 17: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 21: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 22: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 26: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 27: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 29: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 34: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 36: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 42: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 46: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 79: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 112: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL loop-consume [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL loop-condition [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 77: Expected function name
+Error at line 2, column 83: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 84: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 88: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 89: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 93: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 94: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 96: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 101: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 103: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 109: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 110: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 119: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 123: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 125: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 126: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 128: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL loop-condition [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL duplicate-owner [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 88: Expected function name
+Error at line 2, column 94: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 95: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 99: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 100: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 104: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 105: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 107: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 112: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 113: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 114: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 119: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 124: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 128: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 129: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL duplicate-owner [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL duplicate-exclusive [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 122: Expected function name
+Error at line 2, column 128: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 129: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 133: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 134: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 138: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 139: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 141: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 146: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 171: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 172: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 177: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 178: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 182: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 188: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 189: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 193: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 198: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 231: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL duplicate-exclusive [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL consume-during-borrow [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 155: Expected function name
+Error at line 2, column 161: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 162: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 166: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 167: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 171: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 172: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 174: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 179: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 205: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 206: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 211: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 212: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 216: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 222: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 223: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 232: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 237: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 238: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 272: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL consume-during-borrow [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL borrow-after-consume [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 155: Expected function name
+Error at line 2, column 161: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 162: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 166: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 167: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 171: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 172: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 174: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 179: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 205: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 206: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 211: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 212: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 221: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 226: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 228: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 229: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 233: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 238: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 272: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL borrow-after-consume [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+FAIL payload-leak [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership')] -6  Error at line 2, column 1: Expected function name
+Error at line 2, column 7: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 9: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 11: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 16: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 41: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 47: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 49: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 50: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 52: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 53: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 54: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 55: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 57: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 58: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 60: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 65: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 66: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 67: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+Assertion failed: (root), function main, file test_service_ownership.c, line 23.
+
+FAIL payload-leak [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:19:9
+I could not execute the module: Assertion failed
+  Assertion failed
+
+PASS shadow-leak /Users/jordanh/Src/nanolang/obj/test_service_ownership
+PASS shadow-leak /Users/jordanh/Src/nanolang/bin/nano_vm
+FAILURES 42

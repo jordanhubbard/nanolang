@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../src/native_type_key.h"
 
 #define TEST(name) printf("  Testing %s...", #name); test_##name(); printf(" ✓\n")
 #define ASSERT(cond) \
@@ -355,6 +356,29 @@ void test_parse_constants(void) {
     free_ast(prog);
 }
 
+void test_parse_public_globals(void) {
+    ASTNode *prog = parse_ok(
+        "pub let answer: int = 41\n"
+        "pub let mut counter: int = 0\n"
+        "let hidden: int = 9\n");
+    ASSERT_NOT_NULL(prog);
+    ASSERT_EQ(prog->as.program.count, 3);
+    for (int i = 0; i < 3; ++i) {
+        ASSERT_EQ(prog->as.program.items[i]->type, AST_LET);
+        ASSERT_EQ(prog->as.program.items[i]->as.let.is_pub, i < 2);
+        ASSERT_EQ(prog->as.program.items[i]->as.let.is_mut, i == 1);
+    }
+    free_ast(prog);
+    suppress_stderr();
+    prog = parse_ok("fn main() -> int { pub let local: int = 1 return local }");
+    restore_stderr();
+    ASSERT_NULL(prog);
+    suppress_stderr();
+    prog = parse_ok("pub let (left, right) = (1, 2)");
+    restore_stderr();
+    ASSERT_NULL(prog);
+}
+
 void test_parse_pub_functions(void) {
     ASTNode *prog = parse_ok(
         "pub fn add(a: int, b: int) -> int { return (+ a b) }\n"
@@ -556,6 +580,74 @@ void test_parse_effect_decl(void) {
         "fn main() -> int { return 0 }");
     ASSERT_NOT_NULL(prog);
     free_ast(prog);
+}
+
+void test_effect_result_annotations(void) {
+    ASTNode *program = parse_ok(
+        "effect Shapes { rows : int -> array<array<Point>>, "
+        "pair : int -> (int,Point), callback : int -> fn(Point)->array<Point> } "
+        "struct Point { x:int } fn main()->int{return 0}");
+    ASSERT_NOT_NULL(program);
+    ASTNode *effect = program->as.program.items[0];
+    ASSERT_EQ(effect->type, AST_EFFECT_DECL);
+    ASSERT_EQ(effect->as.effect_decl.op_count, 3);
+    TypeInfo **results = effect->as.effect_decl.op_return_type_infos;
+    ASSERT_NOT_NULL(results);
+    ASSERT_EQ(results[0]->base_type, TYPE_ARRAY);
+    ASSERT_EQ(results[0]->element_type->base_type, TYPE_ARRAY);
+    ASSERT(!strcmp(results[0]->element_type->element_type->generic_name, "Point"));
+    ASSERT_EQ(results[1]->base_type, TYPE_TUPLE);
+    ASSERT_EQ(results[1]->tuple_element_count, 2);
+    ASSERT_EQ(results[2]->base_type, TYPE_FUNCTION);
+    ASSERT_NOT_NULL(results[2]->fn_sig);
+    ASSERT_EQ(results[2]->fn_sig->param_count, 1);
+    ASSERT_EQ(results[2]->fn_sig->return_type_info->base_type, TYPE_ARRAY);
+    free_ast(program);
+}
+
+void test_complete_row_annotations(void) {
+    ASTNode *program = parse_ok("effect Shapes { get : int -> {rows:array<array<Point>>, callback:fn(int)->Point, nested:{value:Point}|rest} } struct Point{x:int} fn main()->int{return 0}");
+    ASSERT_NOT_NULL(program);
+    TypeInfo *row = program->as.program.items[0]->as.effect_decl.op_return_type_infos[0];
+    ASSERT_EQ(row->base_type, TYPE_OPEN_RECORD);
+    ASSERT_EQ(row->row_field_count, 3);
+    ASSERT_EQ(row->tuple_element_count, 0);
+    ASSERT(row->is_open_row && !strcmp(row->row_var_name, "rest"));
+    ASSERT(!strcmp(row->row_field_names[0], "rows"));
+    TypeInfo *copy = copy_payload_type_info(row);
+    ASSERT(type_infos_equal(row, copy));
+    TypeInfo *leaf = copy->row_field_type_info[0]->element_type->element_type;
+    ASSERT(leaf != row->row_field_type_info[0]->element_type->element_type);
+    ASSERT_EQ(copy->row_field_type_info[1]->fn_sig->return_type, TYPE_STRUCT);
+    ASSERT_EQ(copy->row_field_type_info[2]->row_field_type_info[0]->base_type, TYPE_STRUCT);
+    char *before = native_structural_type_key(row);
+    free(leaf->generic_name);
+    leaf->generic_name = strdup("Other");
+    ASSERT(!type_infos_equal(row, copy));
+    char *after = native_structural_type_key(copy);
+    ASSERT(strcmp(before, after));
+    free(before); free(after);
+    free_type_info(copy);
+    free_ast(program);
+    program = parse_ok("union Box<T>{Some{value:{items:array<T>,callback:fn(T)->T}}} fn main()->int{return 0}");
+    ASSERT_NOT_NULL(program);
+    ASTNode *declaration = program->as.program.items[0];
+    UnionDef definition = {.variant_count = declaration->as.union_def.variant_count,
+        .variant_field_counts = declaration->as.union_def.variant_field_counts,
+        .variant_field_type_info = declaration->as.union_def.variant_field_type_info,
+        .generic_param_count = declaration->as.union_def.generic_param_count,
+        .generic_params = declaration->as.union_def.generic_params};
+    TypeInfo string = {.base_type = TYPE_STRING};
+    TypeInfo *arguments[] = {&string};
+    TypeInfo application = {.type_params = arguments, .type_param_count = 1};
+    TypeInfo *resolved = resolve_union_payload_type_info(&definition, 0, 0, &application);
+    ASSERT_NOT_NULL(resolved);
+    ASSERT_EQ(resolved->row_field_type_info[0]->element_type->base_type, TYPE_STRING);
+    ASSERT_EQ(resolved->row_field_type_info[1]->fn_sig->param_types[0], TYPE_STRING);
+    ASSERT_EQ(resolved->row_field_type_info[1]->fn_sig->return_type, TYPE_STRING);
+    ASSERT(!strcmp(definition.variant_field_type_info[0][0]->row_field_type_info[0]->element_type->generic_name, "T"));
+    free_type_info(resolved);
+    free_ast(program);
 }
 
 void test_parse_handle_expr(void) {
@@ -1012,6 +1104,24 @@ static void test_owned_generic_function_annotations(void) {
     free_payload_type_info(copy);
 }
 
+static void test_recursive_tuple_annotations(void) {
+    ASTNode *program = parse_ok("fn pass(value: ((int,bool),array<string>,fn(int)->bool)) -> (array<int>,(bool,string)) { return value }");
+    ASSERT_NOT_NULL(program);
+    TypeInfo *info = program->as.program.items[0]->as.function.params[0].type_info;
+    ASSERT_NOT_NULL(info);
+    ASSERT_EQ(info->tuple_element_count,3);
+    ASSERT_EQ(info->tuple_elements[0]->tuple_elements[1]->base_type,TYPE_BOOL);
+    ASSERT_EQ(info->tuple_elements[1]->element_type->base_type,TYPE_STRING);
+    ASSERT_EQ(info->tuple_elements[2]->fn_sig->return_type,TYPE_BOOL);
+    TypeInfo *copy = copy_payload_type_info(info);
+    ASSERT(type_infos_equal(info,copy));
+    copy->tuple_elements[0]->tuple_elements[1]->base_type = TYPE_INT;
+    ASSERT(!type_infos_equal(info,copy));
+    free_ast(program);
+    ASSERT_EQ(copy->tuple_elements[1]->element_type->base_type,TYPE_STRING);
+    free_payload_type_info(copy);
+}
+
 static void test_borrow_annotation_retention(void) {
     ASTNode *program = parse_ok("extern fn observe(a: &owned.Handle, b: &mut Box<array<int>>, callback: &fn(array<int>)->string) -> int");
     ASSERT_NOT_NULL(program);
@@ -1074,7 +1184,25 @@ static void test_exclusive_field_place_retention(void) {
     free_ast(program);
 }
 
+void test_reexported_call_paths(void) {
+    ASTNode *program = parse_ok("fn main()->int { (api.files.temp) return (api.files.write_byte value 1) }");
+    ASSERT_NOT_NULL(program);
+    ASTNode *body = program->as.program.items[0]->as.function.body;
+    ASTNode *empty = body->as.block.statements[0];
+    ASTNode *args = body->as.block.statements[1]->as.return_stmt.value;
+    ASSERT_EQ(empty->type, AST_MODULE_QUALIFIED_CALL);
+    ASSERT_EQ(args->type, AST_MODULE_QUALIFIED_CALL);
+    ASSERT(strcmp(empty->as.module_qualified_call.module_alias, "api.files") == 0);
+    ASSERT(strcmp(empty->as.module_qualified_call.function_name, "temp") == 0);
+    ASSERT_EQ(empty->as.module_qualified_call.arg_count, 0);
+    ASSERT(strcmp(args->as.module_qualified_call.module_alias, "api.files") == 0);
+    ASSERT(strcmp(args->as.module_qualified_call.function_name, "write_byte") == 0);
+    ASSERT_EQ(args->as.module_qualified_call.arg_count, 2);
+    free_ast(program);
+}
+
 int main(void) {
+    TEST(reexported_call_paths);
     printf("=== Parser Tests ===\n");
 
     printf("\n--- Valid programs ---\n");
@@ -1104,6 +1232,7 @@ int main(void) {
     TEST(parse_let_mut);
     TEST(parse_constants);
     TEST(parse_pub_functions);
+    TEST(parse_public_globals);
     TEST(parse_extern_fn);
     TEST(parse_pure_fn);
     TEST(parse_pub_pure_fn);
@@ -1120,6 +1249,8 @@ int main(void) {
     TEST(parse_hashmap);
     TEST(parse_opaque_type);
     TEST(parse_effect_decl);
+    TEST(effect_result_annotations);
+    TEST(complete_row_annotations);
     TEST(parse_handle_expr);
     TEST(parse_unary_operators);
     TEST(parse_nested_function_calls);
@@ -1154,6 +1285,7 @@ int main(void) {
     TEST(parse_infix_operators);
     TEST(parse_type_annotations);
     TEST(owned_generic_function_annotations);
+    TEST(recursive_tuple_annotations);
 
     printf("\n✓ All parser tests passed!\n");
     return 0;

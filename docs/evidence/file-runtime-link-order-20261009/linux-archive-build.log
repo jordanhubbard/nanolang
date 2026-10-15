@@ -1,0 +1,4 @@
+2026-10-10T02:42:17.7400055Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_snapshot.c -o obj/nanoisa/file_source_snapshot.o
+2026-10-10T02:42:17.8202937Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_plan.c -o obj/nanoisa/file_source_plan.o
+2026-10-10T02:42:17.9568532Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_catalog.c -o obj/nanoisa/file_source_catalog.o
+2026-10-10T02:42:18.9754954Z ar rcs lib/libnano_compiler_inputs.a obj/nanoisa/file_source_snapshot.o obj/nanoisa/file_source_plan.o obj/nanoisa/file_source_catalog.o obj/nsi_file_binding.o obj/nsi.o obj/nsi_file_plan.o

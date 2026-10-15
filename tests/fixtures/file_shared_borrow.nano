@@ -1,0 +1,30 @@
+# I forward same-owner shared loans, then recover exclusive access after return.
+fn observe(a:&File,n:int,b:&File)->int {return (+ n 1)}
+shadow observe {assert (== (exercise) 43)}
+fn forward(a:&File,b:&File)->int {return (observe &b 42 &a)}
+shadow forward {assert (== (exercise) 43)}
+fn mixed(a:&File,b:&mut File)->int {
+ match (write_byte &mut b 43) {Ok(n)=>{assert (== n 1)} Error(e)=>{assert false}}
+ return 43
+}
+shadow mixed {assert (== (exercise) 43)}
+fn exercise()->int {
+ match (temp) {Error(e)=>{return -1} Ok(first)=>{
+  let mut file:File=first
+  match (temp) {Error(e)=>{let c:CloseResult=(close file) return -2} Ok(other)=>{
+   let mut second:File=other
+   assert (== (mixed &file &mut second) 43)
+   match (close second) {Ok()=>{} Error(e)=>{assert false}}
+  }}
+  let mut i:int=0
+  while (< i 3) {assert (== (forward &file &file) 43) set i (+ i 1)}
+  match (write_byte &mut file 43) {Ok(n)=>{assert (== n 1)} Error(e)=>{assert false}}
+  match (rewind &mut file) {Ok()=>{} Error(e)=>{assert false}}
+  let value:int=(match (read_byte &mut file) {Ok(octet)=>{octet.value} Error(e)=>{0}})
+  match (close file) {Ok()=>{} Error(e)=>{assert false}}
+  return value
+ }}
+}
+shadow exercise {assert (== (exercise) 43)}
+fn main()->int {return (exercise)}
+shadow main {assert (== (main) 43)}

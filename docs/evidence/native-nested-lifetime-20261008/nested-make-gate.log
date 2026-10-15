@@ -1,0 +1,11 @@
+python3 scripts/embed_binary64_parser.py --check
+ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_native_nested_arrays
+I retain nested array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-g7ff3s17
+test_nested_record_child (tests.test_native_nested_arrays.NativeNestedArrays.test_nested_record_child) ... ok
+test_self_cycle_survives_collection_and_pop (tests.test_native_nested_arrays.NativeNestedArrays.test_self_cycle_survives_collection_and_pop) ... ok
+test_slice_retains_children_after_outer_release (tests.test_native_nested_arrays.NativeNestedArrays.test_slice_retains_children_after_outer_release) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.187s
+
+OK

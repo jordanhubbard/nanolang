@@ -1,0 +1,11 @@
+{
+  "bootstrap_exported_ldflags": [
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib"
+  ],
+  "diagnostic_ldflags": null,
+  "cache": "/private/tmp/nanolang-match-guards-20261009/obj/module_cache",
+  "note": "I matched the cache root but omitted the Make-exported linker flags. My library references and library bytes differ; I do not claim identical host closure."
+}

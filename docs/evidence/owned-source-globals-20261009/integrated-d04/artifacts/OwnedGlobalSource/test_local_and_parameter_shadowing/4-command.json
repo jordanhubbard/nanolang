@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/Users/jordanh/Src/nanolang/bin/nvm2c",
+    "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_local_and_parameter_shadowing/main.nvm",
+    "-o",
+    "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_local_and_parameter_shadowing/main.c"
+  ],
+  "exit": 0
+}

@@ -1,0 +1,3 @@
+I cannot verify affine ownership at line 22, column 19: I cannot use a moved value — value
+Warning: Function 'reuse' is missing a shadow test
+error: type check failed

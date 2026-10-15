@@ -12,14 +12,14 @@ description: >-
 When ending a work session you MUST complete ALL steps below. Work is NOT
 complete until `git push` succeeds.
 
-1. **File follow-up issues** via `mac task create` (see the mac-task-tracking
+1. **File follow-up issues** via `gh issue create --body-file <path>` (see the github-issue-tracking
    skill) **and add matching `docs/ROADMAP.md` checkboxes** for any defect or
    remaining work discovered this session. If you promised a follow-up, file it
-   now — or state plainly that you could not because the hub was unauthenticated.
+   now — or state plainly that you could not because GitHub was unavailable.
 2. **Run quality gates** (if code changed) — tests, linters, builds. For this
    repo that typically means the relevant `make test*` target, and for NanoLang
    changes, confirming shadow tests pass.
-3. **Update task status** via `mac task close <id> --reason="..."`.
+3. **Update issue status** with evidence via `gh issue comment`; use `gh issue close <number> --reason completed` only when all acceptance criteria pass.
 4. **PUSH TO REMOTE — MANDATORY:**
    ```bash
    git pull --rebase

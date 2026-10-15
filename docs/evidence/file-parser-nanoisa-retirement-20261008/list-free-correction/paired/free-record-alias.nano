@@ -1,0 +1,15 @@
+struct Item { value:int, text:string }
+fn main()->int {
+ let values:List<Item> = (list_Item_new)
+ (list_Item_push values Item { value:7, text:(str_concat "retained" "-child") })
+ let alias:List<Item> = values
+ (list_Item_free values)
+ assert (== (list_Item_length alias) 1)
+ let item:Item = (list_Item_get alias 0)
+ assert (== item.value 7)
+ assert (== item.text "retained-child")
+ (list_Item_free alias)
+ assert (== item.text "retained-child")
+ return 0
+}
+shadow main { assert true }

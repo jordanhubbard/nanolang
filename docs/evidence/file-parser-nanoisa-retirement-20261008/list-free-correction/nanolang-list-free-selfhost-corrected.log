@@ -1,0 +1,76 @@
+I retain list insertion evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-cz9amfia
+test_declared_function_retains_precedence (tests.test_nanoisa_list_free.ListFree.test_declared_function_retains_precedence) ... 
+  test_declared_function_retains_precedence (tests.test_nanoisa_list_free.ListFree.test_declared_function_retains_precedence) (case='free-declared', producer='seed') ... FAIL
+test_evaluation_order_once (tests.test_nanoisa_list_free.ListFree.test_evaluation_order_once) ... ok
+test_invalid_bounds_trap (tests.test_nanoisa_list_free.ListFree.test_invalid_bounds_trap) ... ok
+test_named_roots_and_repeated_allocation (tests.test_nanoisa_list_free.ListFree.test_named_roots_and_repeated_allocation) ... 
+  test_named_roots_and_repeated_allocation (tests.test_nanoisa_list_free.ListFree.test_named_roots_and_repeated_allocation) (case='free-roots', producer='seed') ... FAIL
+test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_free.ListFree.test_positions_aliases_and_record_payloads) ... ok
+test_temporary_receiver_evaluated_once (tests.test_nanoisa_list_free.ListFree.test_temporary_receiver_evaluated_once) ... 
+  test_temporary_receiver_evaluated_once (tests.test_nanoisa_list_free.ListFree.test_temporary_receiver_evaluated_once) (case='free-temporary', producer='seed') ... FAIL
+test_unchecked_emitter_refuses_invalid_types (tests.test_nanoisa_list_free.ListFree.test_unchecked_emitter_refuses_invalid_types) ... ok
+test_unchecked_release_refusals (tests.test_nanoisa_list_free.ListFree.test_unchecked_release_refusals) ... ok
+
+======================================================================
+FAIL: test_declared_function_retains_precedence (tests.test_nanoisa_list_free.ListFree.test_declared_function_retains_precedence) (case='free-declared', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_list_insert.py", line 41, in qualify
+    self.command(ROOT / "bin/nano_virt", path, "--emit-nvm", "-o", module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-types-20261008/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-cz9amfia/free-declared.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-cz9amfia/free-declared-seed.nvm']: 1
+
+Error at line 1, column 1: Cannot redefine built-in function 'list_string_free'
+  Built-in functions cannot be shadowed
+  Choose a different function name
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-cz9amfia/free-declared.nano
+Return type mismatch: got int, expected void.
+
+1| fn list_string_free(value:int)->int { return (+ value 1) }
+                                         ^
+Hint: Ensure the returned value matches the function's declared return type.
+Warning: Function 'list_string_free' is missing a shadow test
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-cz9amfia/free-declared.nano
+Equality requires both operands to be the same type (got void and int).
+
+2| fn main()->int { assert (== (list_string_free 9) 10) return 0 }
+                           ^
+Hint: Convert operands to the same type before checking equality.
+error: type check failed
+
+
+======================================================================
+FAIL: test_named_roots_and_repeated_allocation (tests.test_nanoisa_list_free.ListFree.test_named_roots_and_repeated_allocation) (case='free-roots', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_list_insert.py", line 41, in qualify
+    self.command(ROOT / "bin/nano_virt", path, "--emit-nvm", "-o", module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-types-20261008/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-cz9amfia/free-roots.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-cz9amfia/free-roots-seed.nvm']: 1
+
+I could not compile shadows at line 7: undefined function 'list_string_free'
+
+
+======================================================================
+FAIL: test_temporary_receiver_evaluated_once (tests.test_nanoisa_list_free.ListFree.test_temporary_receiver_evaluated_once) (case='free-temporary', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_list_insert.py", line 41, in qualify
+    self.command(ROOT / "bin/nano_virt", path, "--emit-nvm", "-o", module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-types-20261008/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-cz9amfia/free-temporary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-cz9amfia/free-temporary-seed.nvm']: 1
+
+Warning: Function 'make' is missing a shadow test
+I could not compile shadows at line 9: undefined function 'list_string_free'
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 12.530s
+
+FAILED (failures=3)

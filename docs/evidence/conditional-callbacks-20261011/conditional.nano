@@ -1,0 +1,6 @@
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 1) 1)}
+fn other(value:T)->T{return value}
+shadow other {assert (== (other 1) 1)}
+fn main()->int {let f:fn(int)->int = (cond ((> 1 0) identity) (else other)) assert (== (f 7) 7) return 0}
+shadow main {assert (== (main) 0)}

@@ -1,0 +1,73 @@
+test_different_raw_modules_always_refuse_installation (tests.test_bootstrap_messages.BootstrapMessages.test_different_raw_modules_always_refuse_installation) ... 
+  test_different_raw_modules_always_refuse_installation (tests.test_bootstrap_messages.BootstrapMessages.test_different_raw_modules_always_refuse_installation) (deterministic=False) ... ERROR
+  test_different_raw_modules_always_refuse_installation (tests.test_bootstrap_messages.BootstrapMessages.test_different_raw_modules_always_refuse_installation) (deterministic=True) ... ERROR
+test_equal_modules_allow_different_native_bytes_without_correctness_claim (tests.test_bootstrap_messages.BootstrapMessages.test_equal_modules_allow_different_native_bytes_without_correctness_claim) ... ERROR
+test_failed_installed_dependency_check_does_not_stamp_success (tests.test_bootstrap_messages.BootstrapMessages.test_failed_installed_dependency_check_does_not_stamp_success) ... ERROR
+test_native_codegen_marker_and_changed_artifact_are_refused (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_native_codegen_marker_and_changed_artifact_are_refused) ... ok
+test_source_membership_changes_are_refused_but_host_cache_growth_is_allowed (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_source_membership_changes_are_refused_but_host_cache_growth_is_allowed) ... ok
+test_source_tool_and_host_mutation_are_refused (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_source_tool_and_host_mutation_are_refused) ... ok
+
+======================================================================
+ERROR: test_different_raw_modules_always_refuse_installation (tests.test_bootstrap_messages.BootstrapMessages.test_different_raw_modules_always_refuse_installation) (deterministic=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_messages.py", line 70, in test_different_raw_modules_always_refuse_installation
+    status, output, stamped = self.run_branch(False, deterministic)
+                              ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_messages.py", line 28, in run_branch
+    shutil.copyfile(ROOT / name, destination)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/shutil.py", line 313, in copyfile
+    with open(src, 'rb') as fsrc:
+         ~~~~^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jordanh/Src/nanolang/tests/__init__.py'
+
+======================================================================
+ERROR: test_different_raw_modules_always_refuse_installation (tests.test_bootstrap_messages.BootstrapMessages.test_different_raw_modules_always_refuse_installation) (deterministic=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_messages.py", line 70, in test_different_raw_modules_always_refuse_installation
+    status, output, stamped = self.run_branch(False, deterministic)
+                              ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_messages.py", line 28, in run_branch
+    shutil.copyfile(ROOT / name, destination)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/shutil.py", line 313, in copyfile
+    with open(src, 'rb') as fsrc:
+         ~~~~^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jordanh/Src/nanolang/tests/__init__.py'
+
+======================================================================
+ERROR: test_equal_modules_allow_different_native_bytes_without_correctness_claim (tests.test_bootstrap_messages.BootstrapMessages.test_equal_modules_allow_different_native_bytes_without_correctness_claim)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_messages.py", line 60, in test_equal_modules_allow_different_native_bytes_without_correctness_claim
+    status, output, stamped = self.run_branch(True)
+                              ~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_messages.py", line 28, in run_branch
+    shutil.copyfile(ROOT / name, destination)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/shutil.py", line 313, in copyfile
+    with open(src, 'rb') as fsrc:
+         ~~~~^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jordanh/Src/nanolang/tests/__init__.py'
+
+======================================================================
+ERROR: test_failed_installed_dependency_check_does_not_stamp_success (tests.test_bootstrap_messages.BootstrapMessages.test_failed_installed_dependency_check_does_not_stamp_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_messages.py", line 76, in test_failed_installed_dependency_check_does_not_stamp_success
+    status, output, stamped = self.run_branch(True, dependency_verifier='/usr/bin/false')
+                              ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_messages.py", line 28, in run_branch
+    shutil.copyfile(ROOT / name, destination)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/shutil.py", line 313, in copyfile
+    with open(src, 'rb') as fsrc:
+         ~~~~^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jordanh/Src/nanolang/tests/__init__.py'
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.078s
+
+FAILED (errors=4)

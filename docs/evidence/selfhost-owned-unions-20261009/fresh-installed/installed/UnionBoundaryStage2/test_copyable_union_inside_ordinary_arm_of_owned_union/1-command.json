@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nanoc_stage2",
+    "/private/tmp/nanolang-selfhost-union-fresh-installed/installed/UnionBoundaryStage2/test_copyable_union_inside_ordinary_arm_of_owned_union/main.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-fresh-installed/installed/UnionBoundaryStage2/test_copyable_union_inside_ordinary_arm_of_owned_union/main.nvm"
+  ],
+  "exit": 0
+}

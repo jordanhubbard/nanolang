@@ -1,0 +1,46 @@
+{
+  "base_commit": "92a452d051514e6ea611f57b80d08cb699ee5ba2",
+  "sources_sha256": {
+    "modules/nanoisa/nanoisa.c": "5654d227aa2f844ec41c917af59a39c129aa4804d5669aa5256eb7571dbff8a4",
+    "src/nanoisa/verifier.c": "3030aa0920940383a1cd85fde7f5955321ceccf86ec895537d1b5926101ceb72",
+    "src/nanoisa/verifier.h": "8e8a60f957f6fd74cd78621707cf5f77f08f371f81a704236573c283049dd718",
+    "tests/nanoisa/test_verifier.c": "cb9508a7ee7424648952a126c13c11430c9b064594c6ae49d6f388de0599c6b7",
+    "tests/nanoisa/test_verifier_cleanup.c": "54a1e9e4bde362b414e2a32830334cd70aa0f29bde30d09a92ef09acb7805992",
+    "tests/test_vm_bytecode_bootstrap.py": "c1fcd176647166f521d90069d77fcbf578e58fde0c46d778288b803c4dd68ec0"
+  },
+  "binaries_sha256": {
+    "bin/nano_vm": "b459a889a1a63049e0ffa82ec9add0a9a210cc8c10cdce1eeba0e16c6c8e9bfe",
+    "bin/nanoc_c": "50b96f8613056fc619a82e3611a187d8516dd9fde874f10df3b904d9feb22342",
+    "bin/nano_virt": "c2a2a65aaaa41596fe553e1789885a5e50aa0fe10e51ab27684e7cd160bc4d2d",
+    "bin/nvm2c": "cec65ba7186b2f8674b65579ba65ecd220cc0f638e2aed6e0f3d8f6ac697a661"
+  },
+  "logs_sha256": {
+    "shadow-verifier-private.log": "d1f9334cb055b107799e190a12e26653465d98fa11a8a80f837ff96ef425229f",
+    "verifier-final-private-output.log": "a8973cbecf7ff87c957e7d9543bae2cc33ed03f1b7074d4695e5c34066eba8ad",
+    "verifier-sanitizer-run.py": "0831d77910b0f4c6b2323408b997dc19457a2686ecc6d67db35a7581f9deee61",
+    "verifier-depth-output-baseline.log": "8425dfac9c3f1536dd36f2902465a1ac91485ac734da743d2aed50053db21584",
+    "capture-shadow-vm": "325ab46b49e882f2f28d4d1c43906056594917fab39b35c248935fdcfddc4484",
+    "shadow-verifier-final-native.log": "1b8375dab3ef6c944cb831f3ebde3b58e2a1916e180a6a9aa0bea1c3cc70423d",
+    "shadow-verifier-sanitized.log": "4ec136398d74bbcb1fbb055299d7042c38b80f234a9d22b5d9c20043ac61f077",
+    "shadow-verifier-final-core.log": "dee197d1a70a997c704742f176c88a8d4a8f6edc3448350620331da2d39e3daf",
+    "diagnostic.patch": "af1cc3dcaf821384a7e4be3445cfc78c50d1bd4f66b57ff04721ee0b445c1c5e",
+    "capture.json": "934f6e917bb93dd6cd47a212a230f7429cdf3052d1a0272beb88e81c622978a0",
+    "verifier-final-product.log": "e591fdc9716e59aa8e1c8ab0a9fd428236dcd24ced17acdc492ece2771bd3cc5",
+    "shadow-verifier-sanitized-first.log": "86bf7a53beebdada278f76385e6c53aedeb038e90ba4693882181b5843c655ea",
+    "shadow-verifier-sanitized-final.log": "4ec136398d74bbcb1fbb055299d7042c38b80f234a9d22b5d9c20043ac61f077",
+    "README.md": "f3b2c8568b985fab4e1199c8e57af1ae6ffda0a4980ad48c30e6ea9d48af6054",
+    "shadows.nvm.gz": "2e6cfec401a7308083e2e48f37ebcd26fd4299c10a42eae1290ba22359bd28dc",
+    "shadow-verifier-private-corrected.log": "93136cd8bd8ec9bd62fbb1305940c03b2b14d2bff077334a9c010ada5fccbc0a",
+    "shadow-verifier-tests.log": "bc2a919c004f3b5784db1163c67ae0a3e747d08cdfffc5b236f2509e30e2318e",
+    "shadow-verifier-corrected.log": "8df2930f450da13720ce7c1c062655d48dcb0d30609cf1d9a0ceb32d453d52bd",
+    "shadow-verify.log": "6cf6dcfb2b723b66049856b9c0ff793883ad2469002036c6f686931a86a12455",
+    "shadow-verifier-full-product.log": "d9aef1b82a9994bd52cc7f81f0b7974f3785cca70d5097b8e73c9252a8ee9a42",
+    "shadow-phase-trace.log": "2da1464012343d69864c3b089c84ebf0f84e6f22da64048166bee55c832266bf",
+    "selfhost-capture.log": "b5dadf519903ab59717d40558511928e3edee6a2b122138e5ce31d97be8d94b4"
+  },
+  "limits": [
+    "I have not rerun the raw fixed-point gate yet.",
+    "The structured-C 2431-check run precedes the final failure-output correction; the full 81-method product, core verifier/format/fuzz, focused private and sanitizer gates follow it.",
+    "The instrumented verifier and facade link unchanged ordinary dependencies."
+  ]
+}

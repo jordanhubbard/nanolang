@@ -1,0 +1,16 @@
+let mut trace: int = 0
+fn values() -> array<int> { set trace (+ (* trace 10) 1) return [7, 8, 9] }
+shadow values { set trace 0 assert (== (array_length (values)) 3) assert (== trace 1) }
+fn start() -> int { set trace (+ (* trace 10) 2) return 1 }
+shadow start { set trace 0 assert (== (start) 1) assert (== trace 2) }
+fn length() -> int { set trace (+ (* trace 10) 3) return 9223372036854775807 }
+shadow length { set trace 0 assert (> (length) 0) assert (== trace 3) }
+fn main() -> int {
+ set trace 0
+ let copy: array<int> = (array_slice (values) (start) (length))
+ assert (== trace 123)
+ assert (== (array_length copy) 2)
+ assert (== (at copy 0) 8)
+ return 0
+}
+shadow main { assert (== (main) 0) }

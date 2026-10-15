@@ -103,6 +103,8 @@ extern struct ASTLet {
     value: int,
     value_type: int,
     is_mut: bool,
+    is_pub: bool,
+    is_generated: bool,
     is_destructure: bool,
     is_destructure_projection: bool,
     destructure_names: array<string>
@@ -166,7 +168,8 @@ extern struct ASTBlock {
     column: int,
     statements: List<ASTStmtRef>,
     is_par: bool,
-    is_flow: bool
+    is_flow: bool,
+    is_legacy_par: bool
 }
 
 extern struct ASTUnsafeBlock {
@@ -201,7 +204,8 @@ extern struct ASTFunction {
     param_count: int,
     return_type: string,
     body: int,
-    is_pure: bool
+    is_pure: bool,
+    self_name: string
 }
 
 extern struct ASTShadow {
@@ -343,6 +347,43 @@ extern struct ASTTupleIndex {
     index: int
 }
 
+extern struct ASTEffectDecl {
+    node_type: int,
+    line: int,
+    column: int,
+    name: string,
+    is_pub: bool,
+    operation_names: array<string>,
+    parameter_types: array<string>,
+    parameter_starts: array<int>,
+    parameter_counts: array<int>,
+    return_types: array<string>
+}
+
+extern struct ASTEffectPerform {
+    node_type: int,
+    line: int,
+    column: int,
+    effect_name: string,
+    operation_name: string,
+    argument_ids: array<int>,
+    argument_types: array<int>
+}
+
+extern struct ASTEffectHandle {
+    node_type: int,
+    line: int,
+    column: int,
+    body_id: int,
+    body_type: int,
+    operation_names: array<string>,
+    parameter_names: array<string>,
+    parameter_starts: array<int>,
+    parameter_counts: array<int>,
+    arm_ids: array<int>,
+    arm_types: array<int>
+}
+
 extern struct Parser {
     tokens: List<LexerToken>,
     file_name: string,
@@ -420,7 +461,10 @@ extern struct Parser {
     last_expr_node_id: int,
     last_expr_node_type: int,
     services: List<ASTServiceDecl>,
-    services_count: int
+    services_count: int,
+    effects: array<ASTEffectDecl>,
+    performs: array<ASTEffectPerform>,
+    handlers: array<ASTEffectHandle>
 }
 
 extern struct TypeEnvironment {

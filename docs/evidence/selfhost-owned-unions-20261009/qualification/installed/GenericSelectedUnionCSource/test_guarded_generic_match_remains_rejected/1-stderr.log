@@ -1,0 +1,13 @@
+I cannot verify affine ownership at line 7, column 2: I require an exhaustive unguarded owned match with supported concrete payloads
+I cannot verify affine ownership at line 8, column 28: this control-flow boundary needs ownership lowering — __owned$111
+I cannot verify affine ownership at line 8, column 28: this control-flow boundary needs ownership lowering — value
+I cannot verify affine ownership at line 8, column 28: this control-flow boundary needs ownership lowering — __owned$111
+I cannot verify affine ownership at line 8, column 28: this control-flow boundary needs ownership lowering — value
+I cannot verify affine ownership at line 8, column 54: this boundary needs ownership lowering — payload
+I cannot verify affine ownership at line 8, column 28: this control-flow boundary needs ownership lowering — __owned$111
+I cannot verify affine ownership at line 8, column 28: this control-flow boundary needs ownership lowering — value
+I cannot verify affine ownership at line 8, column 83: this boundary needs ownership lowering — value
+I cannot verify affine ownership at line 8, column 62: resource remains live at scope exit — result
+I cannot verify affine ownership at line 9, column 48: this boundary needs ownership lowering — payload
+I cannot verify affine ownership at line 9, column 82: resource remains live at scope exit — result
+error: type check failed

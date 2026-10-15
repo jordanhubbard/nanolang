@@ -1,0 +1,23 @@
+I retain byte-array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-byte-arrays-3wvm1dn7
+test_tagged_integer_pop_keeps_integer_identity (tests.test_native_byte_arrays.NativeByteArrays.test_tagged_integer_pop_keeps_integer_identity) ... FAIL
+
+======================================================================
+FAIL: test_tagged_integer_pop_keeps_integer_identity (tests.test_native_byte_arrays.NativeByteArrays.test_tagged_integer_pop_keeps_integer_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 88, in test_tagged_integer_pop_keeps_integer_identity
+    self.paired('integer-pop', body)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 37, in paired
+    self.command(ROOT / 'bin/nvm2c', module, '-o', native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 25, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-byte-arrays-3wvm1dn7/integer-pop.nvm': I found invalid aggregate shape constraints during ARR_POP in function 0 at offset 23: I found conflicting aggregate shape kinds optional/array at nodes 7/9
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.038s
+
+FAILED (failures=1)

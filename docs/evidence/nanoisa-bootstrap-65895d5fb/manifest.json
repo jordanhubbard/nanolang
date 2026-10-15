@@ -1,0 +1,73 @@
+{
+  "source_commit": "65895d5fb669a7a5f1f96ded1c2f9c5759feb088",
+  "root": "/private/tmp/nanolang-bootstrap-65895d5fb",
+  "steps": [
+    {
+      "name": "stage1",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap1"
+      ],
+      "exit_code": 0,
+      "seconds": 299.3348023330036,
+      "log_sha256": "81273747bdc352555855c5d483d11f7a7985f3c2b3dce600bc495048fc8d7ba6"
+    },
+    {
+      "name": "stage2",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap2"
+      ],
+      "exit_code": 0,
+      "seconds": 269.1541101250041,
+      "log_sha256": "b904a80c9b8985d9131a1b6405b3fda9a357d46d41d172c2668f9ce971c0dd21"
+    },
+    {
+      "name": "stage3",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap3"
+      ],
+      "exit_code": 0,
+      "seconds": 2.122922166978242,
+      "log_sha256": "1d26f6f38d92821b317d4ee2492c2ca28f784a660fe4e71a264197d769f949dc"
+    },
+    {
+      "name": "native-verification",
+      "command": [
+        "make",
+        "verify-bootstrap"
+      ],
+      "exit_code": 0,
+      "seconds": 1.0794357089907862,
+      "log_sha256": "fcd4e0fee86173c26d4b51d04ce4af5e5cedb162d1fb3be563fedb91bd422898"
+    },
+    {
+      "name": "cli",
+      "command": [
+        "make",
+        "test-selfhost-cli"
+      ],
+      "exit_code": 0,
+      "seconds": 5.520926083001541,
+      "log_sha256": "f65bff30fdd11fb49793f6a1fafa6bf694887e6e2e7cfec1d5d8f5106772d4c6"
+    },
+    {
+      "name": "publication",
+      "command": [
+        "make",
+        "test-native-product-pipeline",
+        "NANO_PIPELINE_PRODUCER=nanoc_stage2"
+      ],
+      "exit_code": 0,
+      "seconds": 4.645317209011409,
+      "log_sha256": "1b19b1f9da28501b7fc08e418c1da714cdcbeacd63ccbdaa02d4d8f308b2c686"
+    }
+  ],
+  "initial_status": "clean",
+  "final_status": "",
+  "head_unchanged": true
+}

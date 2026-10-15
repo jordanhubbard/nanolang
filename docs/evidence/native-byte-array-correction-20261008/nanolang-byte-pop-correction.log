@@ -1,0 +1,10 @@
+I retain byte-array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-byte-arrays-yarxy8_h
+test_alias_mutation_slice_independence_and_empty (tests.test_native_byte_arrays.NativeByteArrays.test_alias_mutation_slice_independence_and_empty) ... ok
+test_calls_globals_records_and_absent_reads (tests.test_native_byte_arrays.NativeByteArrays.test_calls_globals_records_and_absent_reads) ... ok
+test_literal_tags_and_integer_narrowing (tests.test_native_byte_arrays.NativeByteArrays.test_literal_tags_and_integer_narrowing) ... ok
+test_tagged_integer_pop_keeps_integer_identity (tests.test_native_byte_arrays.NativeByteArrays.test_tagged_integer_pop_keeps_integer_identity) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.540s
+
+OK

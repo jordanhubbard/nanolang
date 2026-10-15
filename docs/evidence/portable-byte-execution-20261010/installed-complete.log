@@ -1,0 +1,24 @@
+test_binary_aliases_mutation_and_independent_reads (tests.test_portable_bytes_execution.PortableBytesExecution.test_binary_aliases_mutation_and_independent_reads) ... ok
+test_empty_missing_and_exact_bound (tests.test_portable_bytes_execution.PortableBytesExecution.test_empty_missing_and_exact_bound) ... ok
+test_native_allocation_prefixes_and_recovery (tests.test_portable_bytes_execution.PortableBytesExecution.test_native_allocation_prefixes_and_recovery) ... ok
+test_oversize_cleanup (tests.test_portable_bytes_execution.PortableBytesExecution.test_oversize_cleanup) ... ok
+test_seed_source_product (tests.test_portable_bytes_execution.PortableBytesExecution.test_seed_source_product) ... ok
+test_source_products (tests.test_portable_bytes_execution.PortableBytesExecution.test_source_products) ... ok
+test_text_and_byte_calls_share_workspace_without_sharing_grants (tests.test_portable_bytes_execution.PortableBytesExecution.test_text_and_byte_calls_share_workspace_without_sharing_grants) ... ok
+test_text_only_and_unknown_imports_refuse (tests.test_portable_bytes_execution.PortableBytesExecution.test_text_only_and_unknown_imports_refuse) ... ok
+test_wasm_allocation_prefixes_and_recovery (tests.test_portable_bytes_execution.PortableBytesExecution.test_wasm_allocation_prefixes_and_recovery) ... ok
+test_wrong_array_write_is_refused_before_publication (tests.test_portable_bytes_execution.PortableBytesExecution.test_wrong_array_write_is_refused_before_publication) ... ok
+test_default_refusal_and_exact_imports_preserve_output (tests.test_portable_read_execution.PortableReadExecution.test_default_refusal_and_exact_imports_preserve_output) ... ok
+test_native_allocation_prefixes_and_recovery (tests.test_portable_read_execution.PortableReadExecution.test_native_allocation_prefixes_and_recovery) ... ok
+test_native_binding_and_lifecycle (tests.test_portable_read_execution.PortableReadExecution.test_native_binding_and_lifecycle) ... ok
+test_source_vm_c_and_wasm (tests.test_portable_read_execution.PortableReadExecution.test_source_vm_c_and_wasm) ... ok
+test_unused_declared_wasm_import (tests.test_portable_read_execution.PortableReadExecution.test_unused_declared_wasm_import) ... ok
+test_wasm_allocation_prefixes_and_recovery (tests.test_portable_read_execution.PortableReadExecution.test_wasm_allocation_prefixes_and_recovery) ... ok
+test_wasm_permission_repeated_entry_and_type_guard (tests.test_portable_read_execution.PortableReadExecution.test_wasm_permission_repeated_entry_and_type_guard) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 15.472s
+
+OK
+I pass 2 generated Wasm allocation prefixes and recovery; binary=true.
+I pass 2 generated Wasm allocation prefixes and recovery; binary=false.

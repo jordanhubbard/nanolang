@@ -1,0 +1,6 @@
+test_conditions_execute_once_and_only_selected_callback_runs (tests.test_conditional_generic_callbacks.ConditionalGenericCallbacks.test_conditions_execute_once_and_only_selected_callback_runs) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.404s
+
+OK

@@ -1,0 +1,17 @@
+{
+  "Makefile.gnu": "0ba38dc286acec038bcaa2c23b038040563a20c084516c6a47a4073925128a8d",
+  "src/nanoisa/service_dispatch_catalog.inc": "cc1985f36e7a8656fc970556cebd1c5c9e7a10125e3d03dd96963c77096ee6e4",
+  "src/nanoisa/service_indirect_dispatch.inc": "e7330481cbfb854ee655e8887c621deb8f8e69857009438b48e5acde46c26c27",
+  "src/nanoisa/service_indirect_native_emit.inc": "46466918f361fac78b932b08a62ea181a61ac31b271cef01bdf74875fab7a8e2",
+  "src/nanovm/service_vm_indirect_engine.inc": "89d2bbc062344146aa7d8659595c62976520fdfb9a87159f6df68353d0ef7fe9",
+  "src/nanoisa/nvm2c_websocket_indirect_private.c": "e1af9445579a0e3c7ca0187bf2bdde2d2f77608907d9985d386166e922a50522",
+  "src/nanoisa/nvm2c_websocket_indirect_private.h": "ff224e72b90580b9a1909c78128481c9691ec1ed6c9bc0638106b5c4ddbd2030",
+  "src/nanoisa/websocket_dispatch_config.h": "420e6c0c20fbe266ad5281fb538aceb9ff71b463537dce647e28d458449d84d8",
+  "src/nanoisa/websocket_indirect_native_abi.h": "1dc4e02608aa0f5f4435422c6ac8f5ef23e614f483ab0ba50da75c3688ab05cb",
+  "src/nanovm/websocket_vm_indirect_private.c": "e0fd82d7d18e1cee9020b8c21b8ff2cd98337f42205126ca232acd6cd5d5d624",
+  "src/nanovm/websocket_vm_indirect_private.h": "edd838ae7c980347301a4e2f084fa49c8564fb6c99963149d2eaf9d1fc2f3a85",
+  "tests/nanoisa/test_websocket_dispatch.c": "9b60d6111388952244a87723a5711e6e29e08c85679de3beaae33b87b1b96433",
+  "tests/nanoisa/websocket_dispatch_hooks.h": "f6af4128389bccea333b218731fb968cbd05e740e3f7b9bec5c5c6330ae43f0c",
+  "tests/nanoisa/websocket_dispatch_host.h": "6bd899cd6dc4fe1a270a25968c8a40c1ffbc00720ea2309caee5fbcc78b7d531",
+  "tests/test_websocket_dispatch.py": "9d12ef402aead5734b02bacc9d21a6e93f109077593d3ce0f278ba1f1ddac1bf"
+}

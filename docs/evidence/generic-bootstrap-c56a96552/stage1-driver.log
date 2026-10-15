@@ -1,0 +1,5 @@
+I run seed; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-jiilbmse/00-seed.log.
+I run seed-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-jiilbmse/01-seed-verify.log.
+I run stage1; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-jiilbmse/02-stage1.log.
+I run stage1-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-jiilbmse/03-stage1-verify.log.
+I require the exact seed host closure in every generation.

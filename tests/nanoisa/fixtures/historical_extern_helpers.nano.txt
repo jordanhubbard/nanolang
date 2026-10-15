@@ -1,0 +1,1179 @@
+# I freeze only the historical declaration-regression helper closure.
+# I am test data, not a compiler backend. Source provenance is retained in
+# docs/evidence/legacy-extern-retirement-20261009.
+import "src_nano/compiler/ir.nano"
+import "src_nano/compiler/module_bindings.nano"
+
+let mut module_aliases: array<string> = []
+let mut module_alias_targets: array<string> = []
+let mut extern_func_names: array<string> = []
+let mut fn_type_originals: array<string> = []
+let mut fn_type_names: array<string> = []
+
+fn would_collide_with_extern(user_func_name: string) -> bool {
+    let c_name: string = (+ "nl_" (mangle_name user_func_name))
+    let n: int = (array_length extern_func_names)
+    let mut i: int = 0
+    while (< i n) {
+        if (== (array_get extern_func_names i) c_name) {
+            return true
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow would_collide_with_extern {
+    set extern_func_names ["nl_sb_new", "nl_cg_append"]
+    assert (would_collide_with_extern "sb_new")
+    assert (would_collide_with_extern "cg_append")
+    assert (not (would_collide_with_extern "my_func"))
+    set extern_func_names []
+}
+
+fn is_opaque_type(name: string) -> bool {
+    if (== name "NLStringBuilder") { return true } else { (print "") }
+    if (== name "NLStringSet") { return true } else { (print "") }
+    if (== name "NLHashMap") { return true } else { (print "") }
+    if (== name "NlPeg") { return true } else { (print "") }
+    if (== name "Peg2Grammar") { return true } else { (print "") }
+    if (== name "Json") { return true } else { (print "") }
+    if (== name "Regex") { return true } else { (print "") }
+    if (== name "DateTime") { return true } else { (print "") }
+    if (== name "HttpResponse") { return true } else { (print "") }
+    if (== name "HttpServer") { return true } else { (print "") }
+    if (== name "HttpRequest") { return true } else { (print "") }
+    if (== name "SDL_Window") { return true } else { (print "") }
+    if (== name "SDL_Renderer") { return true } else { (print "") }
+    if (== name "SDL_Texture") { return true } else { (print "") }
+    if (== name "SDL_Surface") { return true } else { (print "") }
+    if (== name "SDL_GLContext") { return true } else { (print "") }
+    if (== name "Mix_Chunk") { return true } else { (print "") }
+    if (== name "Mix_Music") { return true } else { (print "") }
+    if (== name "TTF_Font") { return true } else { (print "") }
+    if (== name "GLFWwindow") { return true } else { (print "") }
+    if (== name "GLFWmonitor") { return true } else { (print "") }
+    if (== name "NlQueue") { return true } else { (print "") }
+    if (== name "NlQueueGroup") { return true } else { (print "") }
+    return false
+}
+
+shadow is_opaque_type {
+    assert (is_opaque_type "NLStringBuilder")
+    assert (is_opaque_type "SDL_Window")
+    assert (is_opaque_type "NlQueue")
+    assert (is_opaque_type "NlQueueGroup")
+    assert (not (is_opaque_type "int"))
+    assert (not (is_opaque_type "Point"))
+}
+
+fn reset_module_aliases() -> int {
+    set module_aliases []
+    set module_alias_targets []
+    return 0
+}
+
+shadow reset_module_aliases {
+    (reset_module_aliases)
+    assert (== (array_length module_aliases) 0)
+}
+
+fn add_module_alias(alias: string, module_name: string) -> int {
+    set module_aliases (array_push module_aliases alias)
+    set module_alias_targets (array_push module_alias_targets module_name)
+    return 0
+}
+
+shadow add_module_alias {
+    (reset_module_aliases)
+    let r: int = (add_module_alias "io" "std_io")
+    assert (== r 0)
+    assert (== (array_length module_aliases) 1)
+    (reset_module_aliases)
+}
+
+fn resolve_module_alias(name: string) -> string {
+    let mut i: int = 0
+    let n: int = (array_length module_aliases)
+    while (< i n) {
+        if (== (at module_aliases i) name) {
+            return (at module_alias_targets i)
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return name
+}
+
+shadow resolve_module_alias {
+    (reset_module_aliases)
+    (add_module_alias "io" "std/io")
+    assert (== (resolve_module_alias "io") "std/io")
+    assert (== (resolve_module_alias "unknown") "unknown")
+}
+
+fn reset_fn_types() -> int {
+    set fn_type_originals []
+    set fn_type_names []
+    return 0
+}
+
+shadow reset_fn_types {
+    (reset_fn_types)
+    assert (== (array_length fn_type_originals) 0)
+    assert (== (array_length fn_type_names) 0)
+}
+
+fn is_fn_type(t: string) -> bool {
+    return (transp_str_starts_with t "fn(")
+}
+
+shadow is_fn_type {
+    assert (is_fn_type "fn(int,int)->int")
+    assert (is_fn_type "fn()->void")
+    assert (not (is_fn_type "int"))
+    assert (not (is_fn_type "string"))
+}
+
+fn register_fn_type(t: string) -> string {
+    /* Check if already registered */
+    let mut i: int = 0
+    let n: int = (array_length fn_type_originals)
+    while (< i n) {
+        if (== (at fn_type_originals i) t) {
+            return (at fn_type_names i)
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    # I define nested function-pointer dependencies before their users.
+    let params: array<string> = (parse_fn_type_params t)
+    let mut param_index: int = 0
+    while (< param_index (array_length params)) {
+        let param: string = (at params param_index)
+        if (is_fn_type param) { (register_fn_type param) }
+        set param_index (+ param_index 1)
+    }
+    let result: string = (parse_fn_type_return t)
+    if (is_fn_type result) { (register_fn_type result) }
+    /* Register new function type */
+    let idx: int = (array_length fn_type_originals)
+    let mut name_parts: array<string> = []
+    set name_parts (cg_append name_parts "nl_FnPtr_")
+    set name_parts (cg_append name_parts (int_to_string idx))
+    let name: string = (cg_build name_parts)
+    set fn_type_originals (array_push fn_type_originals t)
+    set fn_type_names (array_push fn_type_names name)
+    return name
+}
+
+shadow register_fn_type {
+    (reset_fn_types)
+    let name1: string = (register_fn_type "fn(int)->int")
+    assert (== name1 "nl_FnPtr_0")
+    let name2: string = (register_fn_type "fn(int)->int")
+    assert (== name2 "nl_FnPtr_0")
+    let name3: string = (register_fn_type "fn(string)->bool")
+    assert (== name3 "nl_FnPtr_1")
+    (reset_fn_types)
+}
+
+fn parse_fn_type_params(t: string) -> array<string> {
+    /* Parse fn(int,int)->int to get parameter types */
+    /* Opening paren is at index 2, scan from index 3 for closing paren */
+    let len: int = (str_length t)
+    let mut depth: int = 0
+    let mut close: int = -1
+    let mut i: int = 3
+    while (< i len) {
+        let ch: string = (str_substring t i 1)
+        if (== ch "(") {
+            set depth (+ depth 1)
+        } else {
+        if (== ch ")") {
+            if (== depth 0) {
+                set close i
+                set i len
+            } else {
+                set depth (- depth 1)
+            }
+        } else { (print "") }
+        }
+        set i (+ i 1)
+    }
+    if (< close 0) {
+        let empty: array<string> = []
+        return empty
+    } else { (print "") }
+    let params_str: string = (str_substring t 3 (- close 3))
+    if (== (str_length params_str) 0) {
+        let empty: array<string> = []
+        return empty
+    } else { (print "") }
+    /* Split by comma (simple - no nested generics for now) */
+    let mut result: array<string> = []
+    let mut start: int = 0
+    let plen: int = (str_length params_str)
+    set i 0
+    set depth 0
+    while (< i plen) {
+        let ch: string = (str_substring params_str i 1)
+        if (and (> i 0) (and (== ch ">") (== (str_substring params_str (- i 1) 1) "-"))) {
+            set i (+ i 1)
+            continue
+        }
+        if (or (== ch "(") (== ch "<")) {
+            set depth (+ depth 1)
+        } else {
+        if (or (== ch ")") (== ch ">")) {
+            set depth (- depth 1)
+        } else {
+        if (and (== ch ",") (== depth 0)) {
+            let param: string = (str_substring params_str start (- i start))
+            set result (array_push result param)
+            set start (+ i 1)
+        } else { (print "") }
+        } }
+        set i (+ i 1)
+    }
+    if (< start plen) {
+        let param: string = (str_substring params_str start (- plen start))
+        set result (array_push result param)
+    } else { (print "") }
+    return result
+}
+
+shadow parse_fn_type_params {
+    let params1: array<string> = (parse_fn_type_params "fn(int,string)->bool")
+    assert (== (array_length params1) 2)
+    assert (== (at params1 0) "int")
+    assert (== (at params1 1) "string")
+    let params2: array<string> = (parse_fn_type_params "fn()->void")
+    assert (== (array_length params2) 0)
+    let nested: array<string> = (parse_fn_type_params "fn(fn(int)->int,string)->bool")
+    assert (== (array_length nested) 2)
+    assert (== (at nested 0) "fn(int)->int")
+    assert (== (at nested 1) "string")
+}
+
+fn parse_fn_type_return(t: string) -> string {
+    /* Parse fn(...)->RetType to get return type */
+    let len: int = (str_length t)
+    let mut i: int = 3
+    let mut depth: int = 0
+    let mut close: int = -1
+    while (< i len) {
+        let ch: string = (str_substring t i 1)
+        if (== ch "(") {
+            set depth (+ depth 1)
+        } else {
+        if (== ch ")") {
+            if (== depth 0) {
+                set close i
+                set i len
+            } else {
+                set depth (- depth 1)
+            }
+        } else { (print "") }
+        }
+        set i (+ i 1)
+    }
+    if (< close 0) {
+        return "void"
+    } else { (print "") }
+    /* After close paren, expect "->RetType" or " -> RetType" */
+    let after: string = (str_substring t (+ close 1) (- len (+ close 1)))
+    /* Find "->" */
+    let alen: int = (str_length after)
+    set i 0
+    while (< i (- alen 1)) {
+        let ch: string = (str_substring after i 1)
+        let ch2: string = (str_substring after (+ i 1) 1)
+        if (and (== ch "-") (== ch2 ">")) {
+            /* Return type starts after "->" possibly with spaces */
+            let mut rstart: int = (+ i 2)
+            while (< rstart alen) {
+                let rch: string = (str_substring after rstart 1)
+                if (== rch " ") {
+                    set rstart (+ rstart 1)
+                } else {
+                    set i alen
+                    let ret: string = (str_substring after rstart (- alen rstart))
+                    return ret
+                }
+            }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return "void"
+}
+
+shadow parse_fn_type_return {
+    assert (== (parse_fn_type_return "fn(int,int)->int") "int")
+    assert (== (parse_fn_type_return "fn()->string") "string")
+    assert (== (parse_fn_type_return "fn()->void") "void")
+}
+
+fn cg_append(parts: array<string>, text: string) -> array<string> {
+    return (array_push parts text)
+}
+
+shadow cg_append {
+    let mut parts: array<string> = []
+    set parts (cg_append parts "hello")
+    set parts (cg_append parts " ")
+    set parts (cg_append parts "world")
+    assert (== (array_length parts) 3)
+    assert (== (at parts 0) "hello")
+    assert (== (at parts 1) " ")
+    assert (== (at parts 2) "world")
+}
+
+fn cg_build(parts: array<string>) -> string {
+    let count: int = (array_length parts)
+    if (== count 0) {
+        return ""
+    } else {
+        if (== count 1) {
+            return (at parts 0)
+        } else {
+            let mut current: array<string> = parts
+            while (> (array_length current) 1) {
+                let mut next: array<string> = []
+                let mut i: int = 0
+                let n: int = (array_length current)
+                while (< i n) {
+                    if (< (+ i 1) n) {
+                        let left: string = (at current i)
+                        let right: string = (at current (+ i 1))
+                        set next (array_push next (+ left right))
+                    } else {
+                        set next (array_push next (at current i))
+                    }
+                    set i (+ i 2)
+                }
+                set current next
+            }
+            return (at current 0)
+        }
+    }
+}
+
+shadow cg_build {
+    let mut parts: array<string> = []
+    set parts (cg_append parts "hello")
+    set parts (cg_append parts " ")
+    set parts (cg_append parts "world")
+    let result: string = (cg_build parts)
+    assert (== result "hello world")
+}
+
+fn mangle_name(name: string) -> string {
+    let mut out: string = ""
+    let len: int = (str_length name)
+    let mut i: int = 0
+
+    while (< i len) {
+        let ch: string = (str_substring name i 1)
+
+        if (and (== ch ":") (< (+ i 1) len)) {
+            let ch2: string = (str_substring name (+ i 1) 1)
+            if (== ch2 ":") {
+                set out (+ out "_")
+                set i (+ i 2)
+            } else {
+                set out (+ out "_")
+                set i (+ i 1)
+            }
+        } else {
+            if (or (or (== ch ".") (== ch "<"))
+                    (or (== ch ">") (== ch ","))) {
+                set out (+ out "_")
+            } else {
+                set out (+ out ch)
+            }
+            set i (+ i 1)
+        }
+    }
+
+    return out
+}
+
+shadow mangle_name {
+    assert (== (mangle_name "std::math::sin") "std_math_sin")
+}
+
+fn transp_str_starts_with(s: string, prefix: string) -> bool {
+    let ls: int = (str_length s)
+    let lp: int = (str_length prefix)
+    if (< ls lp) {
+        return false
+    } else {
+        let mut i: int = 0
+        while (< i lp) {
+            if (!= (char_at s i) (char_at prefix i)) {
+                return false
+            } else { (print "") }
+            set i (+ i 1)
+        }
+        return true
+    }
+}
+
+shadow transp_str_starts_with {
+    assert (transp_str_starts_with "array<int>" "array")
+    assert (not (transp_str_starts_with "int" "array"))
+}
+
+fn transp_str_index_of(s: string, ch: string) -> int {
+    let len: int = (str_length s)
+    let needle_length: int = (str_length ch)
+    let mut i: int = 0
+    
+    while (<= i (- len needle_length)) {
+        let char_at: string = (str_substring s i needle_length)
+        if (== char_at ch) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    
+    return -1
+}
+
+shadow transp_str_index_of {
+    assert (== (transp_str_index_of "array<int>" "<") 5)
+    assert (== (transp_str_index_of "test" "e") 1)
+    assert (== (transp_str_index_of "test" "z") -1)
+    assert (== (transp_str_index_of "array<Point>" "array<") 0)
+    assert (== (transp_str_index_of "ababa" "aba") 0)
+    assert (== (transp_str_index_of "a" "ab") -1)
+    assert (== (transp_str_index_of "" "") 0)
+}
+
+fn is_generic_type(type_str: string) -> bool {
+    return (str_contains type_str "<")
+}
+
+shadow is_generic_type {
+    assert (is_generic_type "Result<int,string>")
+    assert (not (is_generic_type "int"))
+    assert (is_generic_type "List<Point>")
+}
+
+fn extract_base_type_name(type_str: string) -> string {
+    let idx: int = (transp_str_index_of type_str "<")
+    if (< idx 0) {
+        return type_str
+    } else {
+        return (str_substring type_str 0 idx)
+    }
+}
+
+shadow extract_base_type_name {
+    assert (== (extract_base_type_name "Result<int,string>") "Result")
+    assert (== (extract_base_type_name "List<Point>") "List")
+    assert (== (extract_base_type_name "int") "int")
+}
+
+fn extract_type_args(type_str: string) -> array<string> {
+    let lt: int = (transp_str_index_of type_str "<")
+    if (< lt 0) {
+        return []
+    } else {
+        let len: int = (str_length type_str)
+        /* inner = everything between < and > */
+        let inner: string = (str_substring type_str (+ lt 1) (- (- len lt) 2))
+        let inner_len: int = (str_length inner)
+        let mut args: array<string> = []
+        let mut cur: string = ""
+        let mut i: int = 0
+        let mut depth: int = 0
+        while (< i inner_len) {
+            let ch: string = (str_substring inner i 1)
+            if (== ch "<") {
+                set depth (+ depth 1)
+                set cur (+ cur ch)
+            } else {
+                if (== ch ">") {
+                    set depth (- depth 1)
+                    set cur (+ cur ch)
+                } else {
+                    if (and (== ch ",") (== depth 0)) {
+                        /* Trim leading spaces from cur */
+                        let mut trimmed: string = cur
+                        while (and (> (str_length trimmed) 0) (== (str_substring trimmed 0 1) " ")) {
+                            set trimmed (str_substring trimmed 1 (- (str_length trimmed) 1))
+                        }
+                        set args (array_push args trimmed)
+                        set cur ""
+                    } else {
+                        set cur (+ cur ch)
+                    }
+                }
+            }
+            set i (+ i 1)
+        }
+        /* Push last arg */
+        let mut trimmed_last: string = cur
+        while (and (> (str_length trimmed_last) 0) (== (str_substring trimmed_last 0 1) " ")) {
+            set trimmed_last (str_substring trimmed_last 1 (- (str_length trimmed_last) 1))
+        }
+        if (> (str_length trimmed_last) 0) {
+            set args (array_push args trimmed_last)
+        } else { (print "") }
+        return args
+    }
+}
+
+shadow extract_type_args {
+    let args1: array<string> = (extract_type_args "Result<int,string>")
+    assert (== (array_length args1) 2)
+    assert (== (at args1 0) "int")
+    assert (== (at args1 1) "string")
+    let args2: array<string> = (extract_type_args "List<Point>")
+    assert (== (array_length args2) 1)
+    assert (== (at args2 0) "Point")
+}
+
+fn monomorphize_type_name(type_str: string) -> string {
+    let base: string = (extract_base_type_name type_str)
+    let args: array<string> = (extract_type_args type_str)
+    let mut result: string = base
+    let mut i: int = 0
+    let n: int = (array_length args)
+    while (< i n) {
+        set result (+ result "_")
+        let arg: string = (at args i)
+        /* Recursively monomorphize nested generic args */
+        if (str_contains arg "<") {
+            set result (+ result (monomorphize_type_name arg))
+        } else {
+            set result (+ result arg)
+        }
+        set i (+ i 1)
+    }
+    return result
+}
+
+shadow monomorphize_type_name {
+    assert (== (monomorphize_type_name "Result<int,string>") "Result_int_string")
+    assert (== (monomorphize_type_name "List<Point>") "List_Point")
+    assert (== (monomorphize_type_name "Option<int>") "Option_int")
+}
+
+fn last_double_colon_index(s: string) -> int {
+    let len: int = (str_length s)
+    let mut i: int = 0
+    let mut last: int = -1
+    while (< (+ i 1) len) {
+        let c1: string = (str_substring s i 1)
+        let c2: string = (str_substring s (+ i 1) 1)
+        if (and (== c1 ":") (== c2 ":")) {
+            set last i
+            set i (+ i 2)
+        } else {
+            set i (+ i 1)
+        }
+    }
+    return last
+}
+
+shadow last_double_colon_index {
+    assert (== (last_double_colon_index "module::function") 6)
+    assert (== (last_double_colon_index "a::b::c") 4)
+    assert (== (last_double_colon_index "test") -1)
+}
+
+fn last_dot_index(s: string) -> int {
+    let len: int = (str_length s)
+    let mut i: int = 0
+    let mut last: int = -1
+    while (< i len) {
+        if (== (str_substring s i 1) ".") {
+            set last i
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return last
+}
+
+shadow last_dot_index {
+    assert (== (last_dot_index "file.nano") 4)
+    assert (== (last_dot_index "a.b.c") 3)
+    assert (== (last_dot_index "test") -1)
+}
+
+fn mangle_module_ident(name: string) -> string {
+    let mut out: string = ""
+    let len: int = (str_length name)
+    let mut i: int = 0
+
+    while (< i len) {
+        let ch: string = (str_substring name i 1)
+
+        if (and (== ch ":") (< (+ i 1) len)) {
+            let ch2: string = (str_substring name (+ i 1) 1)
+            if (== ch2 ":") {
+                set out (+ out "__")
+                set i (+ i 2)
+            } else {
+                set out (+ out "_")
+                set i (+ i 1)
+            }
+        } else {
+            if (== ch ".") {
+                set out (+ out "__")
+            } else {
+                if (or (or (== ch "<") (== ch ">"))
+                        (or (== ch ",") (== ch "("))) {
+                    set out (+ out "_")
+                } else {
+                    if (== ch ")") {
+                        set out (+ out "_")
+                    } else {
+                        set out (+ out ch)
+                    }
+                }
+            }
+            set i (+ i 1)
+        }
+    }
+
+    return out
+}
+
+shadow mangle_module_ident {
+    assert (== (mangle_module_ident "module::function") "module__function")
+    assert (== (mangle_module_ident "std.io") "std__io")
+    assert (== (mangle_module_ident "List<int>") "List_int_")
+}
+
+fn c_name_for_qualified_function(func_name: string) -> string {
+    let len: int = (str_length func_name)
+    let dc: int = (last_double_colon_index func_name)
+    if (>= dc 0) {
+        let mod_part: string = (str_substring func_name 0 dc)
+        let base: string = (str_substring func_name (+ dc 2) (- len (+ dc 2)))
+        let resolved: string = (resolve_module_alias mod_part)
+        let mm: string = (mangle_module_ident resolved)
+        let mut parts: array<string> = []
+        set parts (cg_append parts mm)
+        set parts (cg_append parts "__")
+        set parts (cg_append parts (mangle_name base))
+        return (cg_build parts)
+    } else {
+        let dot: int = (last_dot_index func_name)
+        if (>= dot 0) {
+            let mod_part: string = (str_substring func_name 0 dot)
+            let base: string = (str_substring func_name (+ dot 1) (- len (+ dot 1)))
+            let resolved: string = (resolve_module_alias mod_part)
+            if (== resolved mod_part) {
+                /* Module alias not found - module was merged, treat as local call */
+                return (+ "nl_" (mangle_name base))
+            } else { (print "") }
+            let mm: string = (mangle_module_ident resolved)
+            let mut parts: array<string> = []
+            set parts (cg_append parts mm)
+            set parts (cg_append parts "__")
+            set parts (cg_append parts (mangle_name base))
+            return (cg_build parts)
+        } else {
+            return func_name
+        }
+    }
+}
+
+shadow c_name_for_qualified_function {
+    (reset_module_aliases)
+    assert (== (c_name_for_qualified_function "std::io::print") "std__io__print")
+    assert (== (c_name_for_qualified_function "file.read") "nl_read")
+    (add_module_alias "file" "std_fs")
+    assert (== (c_name_for_qualified_function "file.read") "std_fs__read")
+    (reset_module_aliases)
+}
+
+fn c_func_name_for_definition(func_name: string) -> string {
+    if (== func_name "array_push") { return "__nl_declared_array_push" }
+    if (or (str_contains func_name "::") (str_contains func_name ".")) {
+        return (c_name_for_qualified_function func_name)
+    } else {
+        if (would_collide_with_extern func_name) {
+            return (+ "nl_wrap_" (mangle_name func_name))
+        } else {
+            return (+ "nl_" (mangle_name func_name))
+        }
+    }
+}
+
+shadow c_func_name_for_definition {
+    set extern_func_names []
+    assert (== (c_func_name_for_definition "my_func") "nl_my_func")
+    assert (== (c_func_name_for_definition "add") "nl_add")
+    assert (== (c_func_name_for_definition "array_push") "__nl_declared_array_push")
+    assert (!= (c_func_name_for_definition "__nl_declared_array_push") "__nl_declared_array_push")
+}
+
+fn is_runtime_declared_extern(name: string) -> bool {
+    /* Module-specific introspection functions need their own declarations. */
+    /* Prefix-based: json module functions */
+    if (transp_str_starts_with name "nl_json_") { return true } else { (print "") }
+    /* Prefix-based: runtime list functions (included via headers) */
+    if (transp_str_starts_with name "list_int_") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_string_") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_token_") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_LexerToken_") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_AST") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_Compiler") { return true } else { (print "") }
+    /* Prefix-based: collections.h (nl_sb_, nl_hm_, nl_set_) */
+    if (transp_str_starts_with name "nl_sb_") { return true } else { (print "") }
+    if (transp_str_starts_with name "nl_hm_") { return true } else { (print "") }
+    if (transp_str_starts_with name "nl_set_") { return true } else { (print "") }
+    /* Prefix-based: nl_os_ functions from cli.c */
+    if (transp_str_starts_with name "nl_os_") { return true } else { (print "") }
+    /* Prefix-based: fs/path/file functions from fs.c */
+    if (transp_str_starts_with name "fs_") { return true } else { (print "") }
+    if (transp_str_starts_with name "path_") { return true } else { (print "") }
+    if (transp_str_starts_with name "file_") { return true } else { (print "") }
+    if (transp_str_starts_with name "dir_") { return true } else { (print "") }
+    /* gen_c_runtime declared: CLI functions */
+    if (== name "get_argc") { return true } else { (print "") }
+    if (== name "get_argv") { return true } else { (print "") }
+    /* eval is a user-provided extern, not runtime — needs forward declaration */
+    if (== name "nl_exec_shell") { return true } else { (print "") }
+    if (== name "nl_exec_capture") { return true } else { (print "") }
+    if (== name "nl_get_time_ms") { return true } else { (print "") }
+    if (== name "nl_env_get") { return true } else { (print "") }
+    if (== name "nl_getenv") { return true } else { (print "") }
+    /* C standard library: <ctype.h> */
+    if (== name "isalpha") { return true } else { (print "") }
+    if (== name "isdigit") { return true } else { (print "") }
+    if (== name "isalnum") { return true } else { (print "") }
+    if (== name "isspace") { return true } else { (print "") }
+    if (== name "isupper") { return true } else { (print "") }
+    if (== name "islower") { return true } else { (print "") }
+    if (== name "isprint") { return true } else { (print "") }
+    if (== name "ispunct") { return true } else { (print "") }
+    if (== name "toupper") { return true } else { (print "") }
+    if (== name "tolower") { return true } else { (print "") }
+    /* C standard library: <string.h> */
+    if (== name "strlen") { return true } else { (print "") }
+    if (== name "strcmp") { return true } else { (print "") }
+    if (== name "strncmp") { return true } else { (print "") }
+    if (== name "strcpy") { return true } else { (print "") }
+    if (== name "strcat") { return true } else { (print "") }
+    if (== name "memcpy") { return true } else { (print "") }
+    if (== name "memset") { return true } else { (print "") }
+    if (== name "strdup") { return true } else { (print "") }
+    if (== name "strndup") { return true } else { (print "") }
+    if (== name "strchr") { return true } else { (print "") }
+    if (== name "strrchr") { return true } else { (print "") }
+    if (== name "strstr") { return true } else { (print "") }
+    if (== name "strtol") { return true } else { (print "") }
+    if (== name "strtod") { return true } else { (print "") }
+    if (== name "strtok") { return true } else { (print "") }
+    /* C standard library: <math.h> + <stdlib.h> */
+    if (== name "abs") { return true } else { (print "") }
+    if (== name "sqrt") { return true } else { (print "") }
+    if (== name "sin") { return true } else { (print "") }
+    if (== name "cos") { return true } else { (print "") }
+    if (== name "tan") { return true } else { (print "") }
+    if (== name "floor") { return true } else { (print "") }
+    if (== name "ceil") { return true } else { (print "") }
+    if (== name "round") { return true } else { (print "") }
+    if (== name "pow") { return true } else { (print "") }
+    if (== name "fmod") { return true } else { (print "") }
+    if (== name "atan") { return true } else { (print "") }
+    if (== name "log") { return true } else { (print "") }
+    if (== name "log2") { return true } else { (print "") }
+    if (== name "log10") { return true } else { (print "") }
+    if (== name "exp") { return true } else { (print "") }
+    if (== name "exp2") { return true } else { (print "") }
+    if (== name "asin") { return true } else { (print "") }
+    if (== name "acos") { return true } else { (print "") }
+    if (== name "atan2") { return true } else { (print "") }
+    if (== name "cbrt") { return true } else { (print "") }
+    if (== name "hypot") { return true } else { (print "") }
+    if (== name "trunc") { return true } else { (print "") }
+    if (== name "rint") { return true } else { (print "") }
+    if (== name "nearbyint") { return true } else { (print "") }
+    if (== name "remainder") { return true } else { (print "") }
+    if (== name "rand") { return true } else { (print "") }
+    if (== name "srand") { return true } else { (print "") }
+    if (== name "exit") { return true } else { (print "") }
+    if (== name "atoi") { return true } else { (print "") }
+    if (== name "atof") { return true } else { (print "") }
+    if (== name "malloc") { return true } else { (print "") }
+    if (== name "calloc") { return true } else { (print "") }
+    if (== name "realloc") { return true } else { (print "") }
+    if (== name "free") { return true } else { (print "") }
+    /* C standard library: <stdio.h> */
+    if (== name "printf") { return true } else { (print "") }
+    if (== name "fprintf") { return true } else { (print "") }
+    if (== name "sprintf") { return true } else { (print "") }
+    if (== name "snprintf") { return true } else { (print "") }
+    if (== name "sscanf") { return true } else { (print "") }
+    if (== name "getchar") { return true } else { (print "") }
+    if (== name "putchar") { return true } else { (print "") }
+    if (== name "puts") { return true } else { (print "") }
+    if (== name "fopen") { return true } else { (print "") }
+    if (== name "fclose") { return true } else { (print "") }
+    if (== name "fread") { return true } else { (print "") }
+    if (== name "fwrite") { return true } else { (print "") }
+    /* C standard library: <time.h> */
+    if (== name "time") { return true } else { (print "") }
+    if (== name "clock") { return true } else { (print "") }
+    /* C standard library: <unistd.h> */
+    if (== name "sleep") { return true } else { (print "") }
+    if (== name "usleep") { return true } else { (print "") }
+    return false
+}
+
+shadow is_runtime_declared_extern {
+    assert (is_runtime_declared_extern "printf")
+    assert (is_runtime_declared_extern "malloc")
+    assert (is_runtime_declared_extern "nl_sb_new")
+    assert (is_runtime_declared_extern "list_int_new")
+    assert (not (is_runtime_declared_extern "my_custom_func"))
+    assert (not (is_runtime_declared_extern "nl_fs_list_files_ci"))
+    assert (not (is_runtime_declared_extern "my_list_int_hook"))
+    assert (not (is_runtime_declared_extern "___module_function_count_probe"))
+}
+
+fn generate_function_prototypes(parser: Parser) -> string {
+    let mut sb: array<string> = []
+    set sb (cg_append sb "\n/* Extern function declarations (not covered by headers) */\n")
+    let n: int = (parser_get_function_count parser)
+    let mut i: int = 0
+    let mut emitted_fns: array<string> = []
+
+    while (< i n) {
+        let f: ASTFunction = (parser_get_function parser i)
+        if (< f.body 0) {
+            if (not (is_runtime_declared_extern f.name)) {
+                let mut fn_dup: bool = false
+                let mut fdi: int = 0
+                while (< fdi (array_length emitted_fns)) {
+                    if (== (at emitted_fns fdi) f.name) { set fn_dup true } else { (print "") }
+                    set fdi (+ fdi 1)
+                }
+                if (not fn_dup) {
+                set emitted_fns (array_push emitted_fns f.name)
+                let mut names: array<string> = []
+                let mut ctypes: array<string> = []
+                let mut j: int = 0
+                while (< j f.param_count) {
+                    let let_node: ASTLet = (parser_get_let parser (+ f.param_start j))
+                    set names (array_push names let_node.name)
+                    set ctypes (array_push ctypes (type_to_c let_node.var_type))
+                    set j (+ j 1)
+                }
+                let c_ret: string = (type_to_c f.return_type)
+                set sb (cg_append sb "extern ")
+                set sb (cg_append sb c_ret)
+                set sb (cg_append sb " ")
+                set sb (cg_append sb f.name)
+                set sb (cg_append sb "(")
+                let mut k: int = 0
+                while (< k (array_length names)) {
+                    if (> k 0) {
+                        set sb (cg_append sb ", ")
+                    } else { (print "") }
+                    set sb (cg_append sb (at ctypes k))
+                    set sb (cg_append sb " ")
+                    set sb (cg_append sb (at names k))
+                    set k (+ k 1)
+                }
+                if (== (array_length names) 0) {
+                    set sb (cg_append sb "void")
+                } else { (print "") }
+                set sb (cg_append sb ");\n")
+                } else { (print "") }
+            } else { (print "") }
+        } else { (print "") }
+        set i (+ i 1)
+    }
+
+    set sb (cg_append sb "\n/* Function prototypes */\n")
+    set i 0
+
+    while (< i n) {
+        let f: ASTFunction = (parser_get_function parser i)
+
+        if (< f.body 0) {
+            set i (+ i 1)
+        } else {
+        let mut fn_dup2: bool = false
+        let mut fdi2: int = 0
+        while (< fdi2 (array_length emitted_fns)) {
+            if (== (at emitted_fns fdi2) f.name) { set fn_dup2 true } else { (print "") }
+            set fdi2 (+ fdi2 1)
+        }
+        if (not fn_dup2) {
+        set emitted_fns (array_push emitted_fns f.name)
+        let mut names: array<string> = []
+        let mut ctypes: array<string> = []
+
+        let mut j: int = 0
+        while (< j f.param_count) {
+            let let_node: ASTLet = (parser_get_let parser (+ f.param_start j))
+            set names (array_push names let_node.name)
+            set ctypes (array_push ctypes (type_to_c let_node.var_type))
+            set j (+ j 1)
+        }
+
+        let sig: string = (gen_function_signature f.name names ctypes f.return_type)
+        set sb (cg_append sb sig)
+        set sb (cg_append sb ";\n")
+        } else { (print "") }
+
+        set i (+ i 1)
+        }
+    }
+
+    set sb (cg_append sb "\n")
+    return (cg_build sb)
+}
+
+shadow generate_function_prototypes {
+    let toks: List<LexerToken> = (tokenize_string "fn f(x: int) -> int { return x }" "t.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let c: string = (generate_function_prototypes p)
+    assert (> (str_length c) 0)
+}
+
+fn is_tuple_type(nano_type: string) -> bool {
+    let len: int = (str_length nano_type)
+    if (< len 2) {
+        return false
+    } else {
+        let first: string = (str_substring nano_type 0 1)
+        let last: string = (str_substring nano_type (- len 1) 1)
+        return (and (== first "(") (== last ")"))
+    }
+}
+
+shadow is_tuple_type {
+    assert (is_tuple_type "(int, string)")
+    assert (is_tuple_type "()")
+    assert (not (is_tuple_type "int"))
+    assert (not (is_tuple_type "("))
+}
+
+fn mangle_type_name(name: string) -> string {
+    let mut out: string = ""
+    let len: int = (str_length name)
+    let mut i: int = 0
+
+    while (< i len) {
+        let ch: string = (str_substring name i 1)
+
+        if (and (== ch ":") (< (+ i 1) len)) {
+            let ch2: string = (str_substring name (+ i 1) 1)
+            if (== ch2 ":") {
+                set out (+ out "_")
+                set i (+ i 2)
+            } else {
+                set out (+ out "_")
+                set i (+ i 1)
+            }
+        } else {
+            if (or (== ch ".")
+                    (or (== ch "<")
+                        (or (== ch ">")
+                            (or (== ch ",")
+                                (or (== ch "(")
+                                    (or (== ch ")")
+                                        (== ch " "))))))) {
+                set out (+ out "_")
+            } else {
+                set out (+ out ch)
+            }
+            set i (+ i 1)
+        }
+    }
+
+    return out
+}
+
+shadow mangle_type_name {
+    assert (== (mangle_type_name "List<Point>") "List_Point_")
+    assert (== (mangle_type_name "Option::Some") "Option_Some")
+    assert (== (mangle_type_name "(int, string)") "_int__string_")
+}
+
+fn tuple_typedef_name(tuple_type: string) -> string {
+    let len: int = (str_length tuple_type)
+    if (< len 2) {
+        return "Tuple"
+    } else {
+        let inner: string = (str_substring tuple_type 1 (- len 2))
+        /* Strip spaces to normalize "(int, int)" and "(int,int)" to same name */
+        let mut stripped: string = ""
+        let slen: int = (str_length inner)
+        let mut si: int = 0
+        while (< si slen) {
+            let ch: string = (str_substring inner si 1)
+            if (!= ch " ") {
+                set stripped (+ stripped ch)
+            } else { (print "") }
+            set si (+ si 1)
+        }
+        return (+ "Tuple_" (mangle_type_name stripped))
+    }
+}
+
+shadow tuple_typedef_name {
+    assert (== (tuple_typedef_name "(int,string)") "Tuple_int_string")
+    assert (== (tuple_typedef_name "(int, string)") "Tuple_int_string")
+}
+
+fn type_to_c(nano_type: string) -> string {
+    if (transp_str_starts_with nano_type "&mut ") {
+        return (+ (type_to_c (str_substring nano_type 5 (str_length nano_type))) "*")
+    }
+    if (transp_str_starts_with nano_type "&") {
+        return (+ "const " (+ (type_to_c (str_substring nano_type 1 (str_length nano_type))) "*"))
+    }
+    /* Function pointer types: fn(int,int)->int */
+    if (is_fn_type nano_type) {
+        return (register_fn_type nano_type)
+    } else { (print "") }
+    /* HashMap opaque types */
+    if (== nano_type "HashMap<string,int>") { return "HashMap_string_int*" } else { (print "") }
+    if (== nano_type "HashMap<string, int>") { return "HashMap_string_int*" } else { (print "") }
+    if (== nano_type "HashMap<string,string>") { return "HashMap_string_string*" } else { (print "") }
+    if (== nano_type "HashMap<string, string>") { return "HashMap_string_string*" } else { (print "") }
+    if (== nano_type "int") {
+        return "int64_t"
+    } else {
+    if (== nano_type "u8") {
+        return "uint8_t"
+    } else {
+    if (== nano_type "int64_t") {
+        return "int64_t"
+    } else {
+        if (== nano_type "float") {
+            return "double"
+        } else {
+            if (== nano_type "bool") {
+                return "bool"
+            } else {
+                if (== nano_type "string") {
+                    return "const char*"
+                } else {
+                    if (== nano_type "void") {
+                        return "void"
+                    } else {
+                        /* Schema enums are not nl_-prefixed in generated/compiler_schema.h */
+                        if (== nano_type "DiagnosticSeverity") { return "DiagnosticSeverity" } else { (print "") }
+                        if (== nano_type "CompilerPhase") { return "CompilerPhase" } else { (print "") }
+                        if (== nano_type "ParseNodeType") { return "ParseNodeType" } else { (print "") }
+                        /* Token enum is named TokenType in C schema; Nano uses LexerTokenType in places */
+                        if (or (== nano_type "LexerTokenType") (== nano_type "TokenType")) { return "TokenType" } else { (print "") }
+
+                        if (transp_str_starts_with nano_type "List<") {
+                            let elem: string = (str_substring nano_type 5 (- (str_length nano_type) 6))
+                            if (== elem "int") {
+                                return "List_int*"
+                            } else {
+                                if (== elem "string") {
+                                    return "List_string*"
+                                } else {
+                                    if (== elem "LexerToken") {
+                                        return "List_LexerToken*"
+                                    } else {
+                                        if (or (== elem "token") (== elem "Token")) {
+                                            return "List_Token*"
+                                        } else {
+                                            let mut list_parts: array<string> = []
+                                            set list_parts (cg_append list_parts "List_")
+                                            set list_parts (cg_append list_parts (mangle_type_name elem))
+                                            set list_parts (cg_append list_parts "*")
+                                            return (cg_build list_parts)
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                        if (transp_str_starts_with nano_type "array<") {
+                            return "DynArray*"
+                        } else {
+                            if (is_tuple_type nano_type) {
+                                return (tuple_typedef_name nano_type)
+                            } else {
+                                if (is_opaque_type nano_type) {
+                                    return nano_type
+                                } else {
+                                if (is_generic_type nano_type) {
+                                    return (+ "nl_" (monomorphize_type_name nano_type))
+                                } else {
+                                    return (+ "nl_" (mangle_name nano_type))
+                                }
+                                }
+                            }
+                        }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    }
+    }
+}
+
+shadow type_to_c {
+    assert (== (type_to_c "int") "int64_t")
+    assert (== (type_to_c "u8") "uint8_t")
+    assert (== (type_to_c "bool") "bool")
+    assert (== (type_to_c "MyStruct") "nl_MyStruct")
+    assert (== (type_to_c "Result<int,string>") "nl_Result_int_string")
+}
+
+fn gen_function_signature(name: string, params: array<string>, param_types: array<string>, return_type: string) -> string {
+    let mut parts: array<string> = []
+    
+    /* Convert return type using helper */
+    let c_ret_type: string = (type_to_c return_type)
+    
+    set parts (cg_append parts c_ret_type)
+    set parts (cg_append parts " ")
+    set parts (cg_append parts (c_func_name_for_definition name))
+    set parts (cg_append parts "(")
+    
+    /* Add parameters */
+    let param_count: int = (array_length params)
+    let mut i: int = 0
+    
+    while (< i param_count) {
+        if (> i 0) {
+            set parts (cg_append parts ", ")
+        } else {
+            (print "")
+        }
+        
+        /* Use param type directly - caller should pre-convert to C types */
+        /* This avoids array<string> type inference issues */
+        set parts (cg_append parts (at param_types i))
+        set parts (cg_append parts " nl_")
+        /* Use param name directly */
+        set parts (cg_append parts (mangle_name (at params i)))
+        
+        set i (+ i 1)
+    }
+    
+    set parts (cg_append parts ")")
+    return (cg_build parts)
+}
+
+shadow gen_function_signature {
+    let params: array<string> = []
+    let mut types: array<string> = []
+    /* Note: types should be pre-converted to C types */
+    set types (array_push types "int64_t")
+    set types (array_push types "int")
+    let sig: string = (gen_function_signature "add" params types "int")
+    /* Just verify it generates something */
+    assert (== 1 1)
+}

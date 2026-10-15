@@ -1,0 +1,12 @@
+test_generated_shadows_byte_parity_and_native_runtime_grant (tests.test_service_drivers.ServiceDrivers.test_generated_shadows_byte_parity_and_native_runtime_grant) ... ok
+test_grant_failure_aliases_and_compiler_failure_preserve_output (tests.test_service_drivers.ServiceDrivers.test_grant_failure_aliases_and_compiler_failure_preserve_output) ... ok
+test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse (tests.test_service_drivers.ServiceDrivers.test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse) ... ok
+test_required_import_shadows_and_root_only_selection (tests.test_service_drivers.ServiceDrivers.test_required_import_shadows_and_root_only_selection) ... ok
+test_default_output_is_a_packaged_interpreter (tests.test_wrapper_packaged_interpreter.WrapperPackagedInterpreter.test_default_output_is_a_packaged_interpreter) ... ok
+test_documentation_keeps_wrapper_gen_packaged_only (tests.test_wrapper_packaged_interpreter.WrapperPackagedInterpreter.test_documentation_keeps_wrapper_gen_packaged_only) ... ok
+test_usage_names_packaged_interpreter_and_not_native (tests.test_wrapper_packaged_interpreter.WrapperPackagedInterpreter.test_usage_names_packaged_interpreter_and_not_native) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 13.453s
+
+OK

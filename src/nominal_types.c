@@ -1,20 +1,57 @@
-/* I retain source names while binding module-owned record identities. */
+/* I retain source names while binding module-owned nominal identities. */
 #include "nanolang.h"
+#include "service_namespace.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
+static bool service_annotation(Environment *env, Type *type, const char *name,
+                               TypeInfo **slot, char **formals, int count) {
+    if (!env->service_namespace || !name || !slot ||
+        (*type != TYPE_STRUCT && *type != TYPE_UNION && *type != TYPE_OPAQUE)) return true;
+    for (int i = 0; i < count; ++i) if (!strcmp(name, formals[i])) return true;
+    TypeInfo resolved;
+    if (!nl_service_type(env->service_namespace, env_current_file(env), name, &resolved))
+        return !*slot || !(*slot)->service_declaration;
+    if (*slot && ((*slot)->type_param_count || (*slot)->element_type || (*slot)->fn_sig)) return false;
+    if (!*slot) {
+        *slot = calloc(1, sizeof **slot);
+        if (!*slot) return false;
+    }
+    (*slot)->base_type = resolved.base_type;
+    (*slot)->service_declaration = resolved.service_declaration;
+    (*slot)->service_module = resolved.service_module;
+    (*slot)->service_ordinal = resolved.service_ordinal;
+    (*slot)->service_category = resolved.service_category;
+    *type = resolved.base_type;
+    return true;
+}
+
 static const char *nominal_name(ASTNode *program, Environment *env, const char *name) {
     if (!name) return NULL;
+    TypeInfo service;
+    if (env->service_namespace && nl_service_type(env->service_namespace, env_current_file(env), name, &service)) return name;
     for (int i = 0; i < program->as.program.count; ++i) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_STRUCT_DEF &&
             (!strcmp(item->as.struct_def.name, name) ||
              (item->as.struct_def.original_name && !strcmp(item->as.struct_def.original_name, name))))
             return item->as.struct_def.name;
+        if (item->type == AST_ENUM_DEF &&
+            (!strcmp(item->as.enum_def.name, name) ||
+             (item->as.enum_def.original_name && !strcmp(item->as.enum_def.original_name, name))))
+            return item->as.enum_def.name;
+        if (item->type == AST_UNION_DEF &&
+            (!strcmp(item->as.union_def.name, name) ||
+             (item->as.union_def.original_name && !strcmp(item->as.union_def.original_name, name))))
+            return item->as.union_def.name;
     }
     StructDef *record = env_get_struct(env, name);
-    return record ? record->name : name;
+    if (record) return record->name;
+    EnumDef *enumeration = env_get_enum(env, name);
+    if (enumeration) return enumeration->name;
+    UnionDef *variant = env_get_union(env, name);
+    return variant ? variant->name : name;
 }
 
 static bool nominal_slot(ASTNode *program, Environment *env, char **slot) {
@@ -28,51 +65,96 @@ static bool nominal_slot(ASTNode *program, Environment *env, char **slot) {
     return true;
 }
 
+/* I bind a union constructor owner independently of its selected variant. */
+static bool nominal_constructor_slot(ASTNode *program, Environment *env, char **slot) {
+    if (!slot || !*slot) return true;
+    if (!nominal_slot(program, env, slot)) return false;
+    const char *dot = strrchr(*slot, '.');
+    if (!dot) return true;
+    char *prefix = strndup(*slot, (size_t)(dot - *slot));
+    if (!prefix) return false;
+    const char *owner = nominal_name(program, env, prefix);
+    if (!strcmp(owner, prefix)) { free(prefix); return true; }
+    size_t size = strlen(owner) + strlen(dot) + 1;
+    char *bound = malloc(size);
+    if (bound) snprintf(bound, size, "%s%s", owner, dot);
+    free(prefix);
+    if (!bound) return false;
+    free(*slot); *slot = bound;
+    return true;
+}
+
 static bool nominal_scoped_slot(ASTNode *program, Environment *env, char **slot, char **formals, int count) {
     for (int i = 0; slot && *slot && i < count; ++i)
         if (!strcmp(*slot, formals[i])) return true;
     return nominal_slot(program, env, slot);
 }
 /* I resolve parser placeholders from declarations, without changing identity. */
-static Type nominal_union_kind(ASTNode *program, Environment *env, Type type,
+static Type nominal_kind(ASTNode *program, Environment *env, Type type,
                                const char *name, char **formals, int count) {
     if (type != TYPE_STRUCT || !name) return type;
     for (int i = 0; i < count; ++i)
         if (!strcmp(name, formals[i])) return type;
+    TypeInfo service;
+    if (env->service_namespace && nl_service_type(env->service_namespace, env_current_file(env), name, &service)) return service.base_type;
     for (int i = 0; i < program->as.program.count; ++i) {
         ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_UNION_DEF && !strcmp(item->as.union_def.name, name))
+        if (item->type == AST_ENUM_DEF && (!strcmp(item->as.enum_def.name, name) ||
+            (item->as.enum_def.original_name && !strcmp(item->as.enum_def.original_name, name)))) return TYPE_ENUM;
+        if (item->type == AST_UNION_DEF && (!strcmp(item->as.union_def.name, name) ||
+            (item->as.union_def.original_name && !strcmp(item->as.union_def.original_name, name))))
             return TYPE_UNION;
     }
+    if (env_get_enum(env, name)) return TYPE_ENUM;
     return env_get_union(env, name) ? TYPE_UNION : type;
 }
 static bool nominal_scoped_signature(ASTNode *, Environment *, FunctionSignature *, char **, int);
 static bool nominal_scoped_info(ASTNode *program, Environment *env, TypeInfo *info, char **formals, int count) {
     if (!info) return true;
-    info->base_type = nominal_union_kind(program, env, info->base_type, info->generic_name, formals, count);
+    TypeInfo *retained = info;
+    if (!service_annotation(env, &info->base_type, info->generic_name ? info->generic_name : info->opaque_type_name,
+                            &retained, formals, count)) return false;
+    info->base_type = nominal_kind(program, env, info->base_type, info->generic_name, formals, count);
     if (!nominal_scoped_slot(program, env, &info->generic_name, formals, count) ||
         !nominal_scoped_info(program, env, info->element_type, formals, count) ||
         !nominal_scoped_signature(program, env, info->fn_sig, formals, count)) return false;
     for (int i = 0; i < info->type_param_count; ++i)
         if (info->type_params && !nominal_scoped_info(program, env, info->type_params[i], formals, count)) return false;
-    for (int i = 0; i < info->tuple_element_count; ++i)
+    for (int i = 0; i < info->tuple_element_count; ++i) {
+        if (info->tuple_elements && !nominal_scoped_info(program,env,info->tuple_elements[i],formals,count)) return false;
         if (info->tuple_type_names && !nominal_scoped_slot(program, env, &info->tuple_type_names[i], formals, count)) return false;
-    for (int i = 0; i < info->row_field_count; ++i)
+        if (info->tuple_elements && info->tuple_elements[i] && info->tuple_types)
+            info->tuple_types[i] = info->tuple_elements[i]->base_type;
+    }
+    for (int i = 0; i < info->row_field_count; ++i) {
+        if (info->row_field_type_info && !nominal_scoped_info(program, env, info->row_field_type_info[i], formals, count)) return false;
         if (info->row_field_type_names && !nominal_scoped_slot(program, env, &info->row_field_type_names[i], formals, count)) return false;
+        if (info->row_field_type_info && info->row_field_type_info[i] && info->row_field_types)
+            info->row_field_types[i] = info->row_field_type_info[i]->base_type;
+    }
     return true;
 }
 static bool nominal_scoped_signature(ASTNode *program, Environment *env, FunctionSignature *signature, char **formals, int count) {
     if (!signature) return true;
+    if (env->service_namespace && signature->param_count && !signature->param_type_info) {
+        signature->param_type_info = calloc((size_t)signature->param_count, sizeof *signature->param_type_info);
+        if (!signature->param_type_info) return false;
+    }
     for (int i = 0; i < signature->param_count; ++i) {
+        if (signature->param_type_info && !service_annotation(env, &signature->param_types[i],
+                signature->param_struct_names ? signature->param_struct_names[i] : NULL,
+                &signature->param_type_info[i], formals, count)) return false;
         if (signature->param_struct_names && !nominal_scoped_slot(program, env, &signature->param_struct_names[i], formals, count)) return false;
         if (signature->param_type_info && !nominal_scoped_info(program, env, signature->param_type_info[i], formals, count)) return false;
-        signature->param_types[i] = nominal_union_kind(program, env, signature->param_types[i],
+        signature->param_types[i] = nominal_kind(program, env, signature->param_types[i],
             signature->param_struct_names ? signature->param_struct_names[i] : NULL, formals, count);
     }
+    if (!service_annotation(env, &signature->return_type, signature->return_struct_name,
+                            &signature->return_type_info, formals, count)) return false;
     if (!nominal_scoped_slot(program, env, &signature->return_struct_name, formals, count) ||
         !nominal_scoped_info(program, env, signature->return_type_info, formals, count) ||
         !nominal_scoped_signature(program, env, signature->return_fn_sig, formals, count)) return false;
-    signature->return_type = nominal_union_kind(program, env, signature->return_type,
+    signature->return_type = nominal_kind(program, env, signature->return_type,
                                                signature->return_struct_name, formals, count);
     return true;
 }
@@ -83,13 +165,15 @@ static bool nominal_signature(ASTNode *program, Environment *env, FunctionSignat
     return nominal_scoped_signature(program, env, signature, NULL, 0);
 }
 static bool nominal_parameter(ASTNode *program, Environment *env, Parameter *parameter) {
+    if (!service_annotation(env, &parameter->type, parameter->struct_type_name, &parameter->type_info, NULL, 0)) return false;
     if (!nominal_slot(program, env, &parameter->struct_type_name) ||
         !nominal_signature(program, env, parameter->fn_sig) ||
         !nominal_info(program, env, parameter->type_info)) return false;
-    parameter->type = nominal_union_kind(program, env, parameter->type,
+    parameter->type = nominal_kind(program, env, parameter->type,
                                          parameter->struct_type_name, NULL, 0);
     if (parameter->type != TYPE_BORROW_SHARED && parameter->type != TYPE_BORROW_MUT) return true;
     TypeInfo *inner = parameter->type_info ? parameter->type_info->element_type : NULL;
+    if (inner && inner->service_declaration && inner->service_category == 1) return true;
     if (inner && inner->base_type == TYPE_STRUCT && !inner->type_param_count && inner->generic_name) {
         for (int i = 0; i < program->as.program.count; ++i) {
             ASTNode *record = program->as.program.items[i];
@@ -121,15 +205,26 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
                 }
             for (int i = 0; i < node->as.function.param_count; ++i)
                 if (!nominal_parameter(program, env, &node->as.function.params[i])) return false;
+            if (!service_annotation(env, &node->as.function.return_type, node->as.function.return_struct_type_name,
+                                    &node->as.function.return_type_info, NULL, 0)) return false;
             SLOT(node->as.function.return_struct_type_name);
-            node->as.function.return_type = nominal_union_kind(program, env,
+            node->as.function.return_type = nominal_kind(program, env,
                 node->as.function.return_type, node->as.function.return_struct_type_name, NULL, 0);
             if (!nominal_signature(program, env, node->as.function.return_fn_sig) ||
                 !nominal_info(program, env, node->as.function.return_type_info)) return false;
             CHILD(node->as.function.body); break;
         case AST_STRUCT_DEF:
-            for (int i = 0; i < node->as.struct_def.field_count; ++i)
+            if (env->service_namespace && node->as.struct_def.field_count && !node->as.struct_def.field_type_info) {
+                node->as.struct_def.field_type_info = calloc((size_t)node->as.struct_def.field_count, sizeof(TypeInfo *));
+                if (!node->as.struct_def.field_type_info) return false;
+            }
+            for (int i = 0; i < node->as.struct_def.field_count; ++i) {
+                const char *name = node->as.struct_def.field_type_names ? node->as.struct_def.field_type_names[i] : NULL;
+                if (node->as.struct_def.field_type_info &&
+                    (!service_annotation(env, &node->as.struct_def.field_types[i], name, &node->as.struct_def.field_type_info[i], NULL, 0) ||
+                     !nominal_info(program, env, node->as.struct_def.field_type_info[i]))) return false;
                 if (node->as.struct_def.field_type_names) SLOT(node->as.struct_def.field_type_names[i]);
+            }
             break;
         case AST_UNION_DEF:
             for (int i = 0; i < node->as.union_def.variant_count; ++i)
@@ -137,6 +232,9 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
                     if (node->as.union_def.variant_field_type_info && node->as.union_def.variant_field_type_info[i] &&
                         !nominal_scoped_info(program, env, node->as.union_def.variant_field_type_info[i][j],
                                              node->as.union_def.generic_params, node->as.union_def.generic_param_count)) return false;
+                    if (node->as.union_def.variant_field_type_info && node->as.union_def.variant_field_type_info[i] &&
+                        node->as.union_def.variant_field_type_info[i][j])
+                        node->as.union_def.variant_field_types[i][j] = node->as.union_def.variant_field_type_info[i][j]->base_type;
                     if (node->as.union_def.variant_field_type_names && node->as.union_def.variant_field_type_names[i]) {
                         const char *name = node->as.union_def.variant_field_type_names[i][j];
                         bool formal = false;
@@ -147,14 +245,19 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
                 }
             break;
         case AST_STRUCT_LITERAL:
-            SLOT(node->as.struct_literal.struct_name);
+            if (!nominal_constructor_slot(program, env, &node->as.struct_literal.struct_name)) return false;
             CHILDREN(node->as.struct_literal.field_values, node->as.struct_literal.field_count);
             CHILD(node->as.struct_literal.spread_source); break;
         case AST_UNION_CONSTRUCT:
+            SLOT(node->as.union_construct.union_name);
             if (!nominal_info(program, env, node->as.union_construct.type_info)) return false;
             CHILDREN(node->as.union_construct.field_values, node->as.union_construct.field_count); break;
         case AST_LET:
-            SLOT(node->as.let.type_name);
+            if (!service_annotation(env, &node->as.let.var_type, node->as.let.type_name, &node->as.let.type_info, NULL, 0)) return false;
+            if (node->as.let.is_destructure) {
+                if (!nominal_constructor_slot(program, env, &node->as.let.type_name)) return false;
+                if (node->as.let.type_info && !nominal_constructor_slot(program, env, &node->as.let.type_info->generic_name)) return false;
+            } else SLOT(node->as.let.type_name);
             if (!nominal_signature(program, env, node->as.let.fn_sig) || !nominal_info(program, env, node->as.let.type_info)) return false;
             CHILD(node->as.let.value); break;
         case AST_SET: CHILD(node->as.set.value); break;
@@ -192,6 +295,8 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
         case AST_EFFECT_DECL:
             for (int i = 0; i < node->as.effect_decl.op_count; ++i) {
                 if (node->as.effect_decl.op_return_type_names) SLOT(node->as.effect_decl.op_return_type_names[i]);
+                if (node->as.effect_decl.op_return_type_infos &&
+                    !nominal_info(program, env, node->as.effect_decl.op_return_type_infos[i])) return false;
                 if (node->as.effect_decl.op_param_type_names) SLOT(node->as.effect_decl.op_param_type_names[i]);
                 if (node->as.effect_decl.op_params && node->as.effect_decl.op_params[i])
                     for (int j = 0; j < node->as.effect_decl.op_param_counts[i]; ++j)
@@ -251,10 +356,68 @@ bool bind_nominal_records(ASTNode *program, Environment *env) {
             item->as.struct_def.original_name = item->as.struct_def.name;
             item->as.struct_def.name = bound;
         }
+        for (int i = 0; i < program->as.program.count; ++i) {
+            ASTNode *item = program->as.program.items[i];
+            if (item->type != AST_ENUM_DEF || item->as.enum_def.original_name) continue;
+            /* I bind every internal enum, so an earlier source spelling cannot
+             * be mistaken for a later declaration during generic normalization. */
+            const char *source_name = item->as.enum_def.name;
+            EnumDef *existing = env_get_enum(env, source_name);
+            if (!existing && item->as.enum_def.is_extern) continue;
+            bool same_owner = existing && ((!owner && !existing->module_name) ||
+                (owner && existing->module_name && strcmp(owner, existing->module_name) == 0));
+            if (same_owner) continue;
+            if (item->as.enum_def.is_extern || (existing && existing->is_extern)) {
+                fprintf(stderr, "I cannot bind colliding foreign enum declarations without an ABI identity: %s\n", item->as.enum_def.name);
+                return false;
+            }
+            size_t name_length = strlen(item->as.enum_def.name);
+            if (length > (SIZE_MAX - name_length - 32) / 2) return false;
+            char *bound = malloc(2 * length + name_length + 32);
+            if (!bound) return false;
+            strcpy(bound, owner ? "__nano_enum_" : "__nano_root_enum_");
+            size_t offset = strlen(bound);
+            for (size_t j = 0; j < length; ++j) {
+                unsigned char c = (unsigned char)owner[j];
+                bound[offset++] = hex[c >> 4]; bound[offset++] = hex[c & 15];
+            }
+            bound[offset++] = '_'; strcpy(bound + offset, item->as.enum_def.name);
+            item->as.enum_def.original_name = item->as.enum_def.name;
+            item->as.enum_def.name = bound;
+        }
+        for (int i = 0; i < program->as.program.count; ++i) {
+            ASTNode *item = program->as.program.items[i];
+            if (item->type != AST_UNION_DEF || item->as.union_def.original_name) continue;
+            if (item->as.union_def.is_extern) continue;
+            size_t name_length = strlen(item->as.union_def.name);
+            if (length > (SIZE_MAX - name_length - 32) / 2) return false;
+            char *bound = malloc(2 * length + name_length + 32);
+            if (!bound) return false;
+            strcpy(bound, owner ? "__nano_union_" : "__nano_root_union_");
+            size_t offset = strlen(bound);
+            for (size_t j = 0; j < length; ++j) {
+                unsigned char c = (unsigned char)owner[j];
+                bound[offset++] = hex[c >> 4]; bound[offset++] = hex[c & 15];
+            }
+            bound[offset++] = '_'; strcpy(bound + offset, item->as.union_def.name);
+            item->as.union_def.original_name = item->as.union_def.name;
+            item->as.union_def.name = bound;
+        }
     }
     if (!nominal_node(program, env, program)) {
-        fprintf(stderr, "I cannot allocate module-owned record identities\n");
+        fprintf(stderr, "I cannot allocate module-owned nominal identities\n");
         return false;
     }
     return true;
+}
+
+
+/* I use the same full AST annotation walk without ordinary module renaming. */
+bool bind_service_annotations(ASTNode *program, Environment *env, const char *source) {
+    if (!program || program->type != AST_PROGRAM || !env || !env->service_namespace || !source) return false;
+    const char *previous = env_current_file(env);
+    env_set_current_file(env, source);
+    bool ok = nominal_node(program, env, program);
+    env_set_current_file(env, previous);
+    return ok;
 }

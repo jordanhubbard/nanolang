@@ -1,0 +1,12 @@
+I retain Json artifact evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-scwvxybx
+test_actual_schema_generator_outputs (tests.test_selfhost_json_artifacts.JsonArtifacts.test_actual_schema_generator_outputs) ... ok
+test_native_wrong_import_signatures_preserve_output (tests.test_selfhost_json_artifacts.JsonArtifacts.test_native_wrong_import_signatures_preserve_output) ... ok
+test_nonzero_integer_cannot_reach_opaque_string_provider (tests.test_selfhost_json_artifacts.JsonArtifacts.test_nonzero_integer_cannot_reach_opaque_string_provider) ... ok
+test_nonzero_opaque_returns_are_rejected (tests.test_selfhost_json_artifacts.JsonArtifacts.test_nonzero_opaque_returns_are_rejected) ... ok
+test_real_artifact_ownership_vm_and_native (tests.test_selfhost_json_artifacts.JsonArtifacts.test_real_artifact_ownership_vm_and_native) ... ok
+test_wrong_artifact_abi_preserves_output (tests.test_selfhost_json_artifacts.JsonArtifacts.test_wrong_artifact_abi_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 6.128s
+
+OK

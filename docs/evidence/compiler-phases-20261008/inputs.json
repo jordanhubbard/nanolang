@@ -1,0 +1,14 @@
+{
+  "Makefile.gnu": "9aec54043addc6c3865002adb8b390e65413db731327427c68906eee9479d25c",
+  "schema/compiler_schema.json": "da94c51fc32cbb571e1c1e1c1ff1f9299061a49df994f0b4b9ab73baffa60a63",
+  "src/generated/compiler_schema.h": "f05d4d7f7ea1d0e3a992db2391a920e6594b6e6ab23e4359559110492492aad5",
+  "src/main.c": "4c0605816e35ae0a4e00fdfcaf7072c3cd552fa3ef9c9785adc531bbe5925fbd",
+  "src_nano/compiler/diagnostics.nano": "c9c38ba1380da3f22912fab1f19fb42e2cb8018642f3ded908448a4d7ad54460",
+  "src_nano/compiler_modular.nano": "a348f27896fb6f8a42f66a777983b9757be440300fe9cda412dded6604c7139f",
+  "src_nano/generated/compiler_contracts.nano": "2e0a537b8e69e04d48d948dd9e75f27c03ad002a7f2585cf00380cee6cfb5d0b",
+  "src_nano/nanoc_integrated.nano": "1393ab0b95f0e2728e0dcc27473b77ac7a52845a9227f8750fd857f0cc536e8b",
+  "src_nano/transpiler.nano": "a6c79952bde2b0aca99abcebc1c3edbb362870eca813df86d357c412fa2aba4f",
+  "src_nano/typecheck.nano": "529d0df77b78bf6516932d0f77fbecbf40e039bc674901a480780dff4cb52852",
+  "tests/test_error_messages.nano": "538febea9f177a41892c64ea33c3a4fc9b3a5036a90f6070d028c4504b1aed2c",
+  "tests/test_compiler_phases.py": "7ead0dd4c0fe321b2c0aa1bee7072f127cc52687219b8fc8ca824837cd49cd19"
+}

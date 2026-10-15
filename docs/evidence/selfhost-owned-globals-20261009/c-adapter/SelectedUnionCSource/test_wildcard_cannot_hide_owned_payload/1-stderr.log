@@ -1,0 +1,3 @@
+I cannot verify affine ownership at line 5, column 36: I require an exhaustive unguarded owned match with supported concrete payloads — Choice
+I cannot verify affine ownership at line 5, column 57: resource remains live at scope exit — value
+error: type check failed

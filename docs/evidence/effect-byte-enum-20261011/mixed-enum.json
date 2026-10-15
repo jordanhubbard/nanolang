@@ -1,0 +1,4 @@
+{
+  "result": "failed",
+  "error": "1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-xs7zwr79/input.nvm': I found invalid aggregate shape constraints during PERFORM in function 0 at offset 48: I found conflicting aggregate shape kinds optional/int at nodes 13/1\n"
+}

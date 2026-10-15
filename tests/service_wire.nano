@@ -1,0 +1,22 @@
+import "src_nano/compiler/service_wire.nano"
+
+# I print independently serialized bytes for my external consumer tests.
+fn wire_fixture() -> array<int> {
+    let fnc: ServiceWireFunction = ServiceWireFunction {
+        name: "entry_é", arity: 0, result: (service_wire_scalar 1), locals: [],
+        code: [145, 0, 0, 0, 0, 255, 255, 149, 1, 42, 0, 0, 0, 0, 0, 0, 0, 61], max_stack: 1
+    }
+    return (service_wire_serialize [fnc] 0)
+}
+shadow wire_fixture {
+    let bytes: array<int> = (wire_fixture)
+    assert (> (array_length bytes) 304)
+    assert (== (at bytes 8) 130) assert (== (at bytes 9) 3)
+}
+fn main() -> int {
+    let bytes: array<int> = (wire_fixture)
+    let mut i: int = 0
+    while (< i (array_length bytes)) { (println (int_to_string (at bytes i))) set i (+ i 1) }
+    return 0
+}
+shadow main { assert (> (array_length (wire_fixture)) 304) }

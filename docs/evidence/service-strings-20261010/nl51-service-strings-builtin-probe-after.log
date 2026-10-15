@@ -1,0 +1,6 @@
+test_string_length_builtin_facts (tests.test_service_bodies.ServiceBodies.test_string_length_builtin_facts) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 36.517s
+
+OK

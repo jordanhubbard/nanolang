@@ -132,7 +132,7 @@ This integration is Darwin-specific. Other linker formats remain open. Matching
 before/after observations are not an atomic snapshot of the bytes the linker
 read, and I do not yet capture changes that occur and revert during a build.
 The linker binary and arbitrary wrapper inputs also need separate identity.
-The full implementation requirements above remain in my roadmap and MAC task.
+The full implementation requirements above remain in my roadmap and GitHub issue.
 
 ## Linux / GNU ld evidence
 

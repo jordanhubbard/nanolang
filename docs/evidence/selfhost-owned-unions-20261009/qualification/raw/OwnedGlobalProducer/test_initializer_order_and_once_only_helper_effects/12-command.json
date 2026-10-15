@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nvm2c",
+    "/private/tmp/nanolang-selfhost-union-final/raw/OwnedGlobalProducer/test_initializer_order_and_once_only_helper_effects/shadows.nvm",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-final/raw/OwnedGlobalProducer/test_initializer_order_and_once_only_helper_effects/shadows.c"
+  ],
+  "exit": 0
+}

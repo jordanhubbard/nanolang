@@ -1,0 +1,97 @@
+['/private/tmp/nanolang-list-removal-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-yiaapfyv/remove-record.nano', 'program']
+.types 1 0 0
+.entry 0
+
+.string s0 "first"
+.string s1 "middle"
+.string s2 "last"
+
+.function main 0 7 0 int 1
+  ARR_NEW 8
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  STORE_LOCAL 1
+  LOAD_LOCAL 0
+  PUSH_I64 1099511627776
+  PUSH_STR s0
+  AGG_PACK 0 0 0 2
+  ARR_PUSH
+  POP
+  LOAD_LOCAL 0
+  PUSH_I64 9
+  PUSH_STR s1
+  AGG_PACK 0 0 0 2
+  ARR_PUSH
+  POP
+  LOAD_LOCAL 0
+  PUSH_I64 11
+  PUSH_STR s2
+  AGG_PACK 0 0 0 2
+  ARR_PUSH
+  POP
+  LOAD_LOCAL 0
+  STORE_LOCAL 2
+  PUSH_I64 1
+  STORE_LOCAL 3
+  LOAD_LOCAL 3
+  PUSH_I64 0
+  I64_GE_S
+  ASSERT
+  LOAD_LOCAL 3
+  LOAD_LOCAL 2
+  ARR_LEN
+  I64_LT_S
+  ASSERT
+  LOAD_LOCAL 2
+  LOAD_LOCAL 3
+  ARR_REMOVE
+  POP
+  LOAD_LOCAL 1
+  ARR_LEN
+  PUSH_I64 2
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 0
+  STORE_LOCAL 4
+  LOAD_LOCAL 4
+  ARR_LEN
+  PUSH_I64 0
+  I64_GT_S
+  ASSERT
+  LOAD_LOCAL 4
+  ARR_POP
+  STORE_LOCAL 5
+  LOAD_LOCAL 5
+  AGG_GET 0
+  PUSH_I64 11
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 5
+  AGG_GET 1
+  PUSH_STR s2
+  EQ
+  ASSERT
+  LOAD_LOCAL 1
+  ARR_LEN
+  PUSH_I64 1
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 1
+  PUSH_I64 0
+  ARR_GET
+  STORE_LOCAL 6
+  LOAD_LOCAL 6
+  AGG_GET 0
+  PUSH_I64 1099511627776
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 6
+  AGG_GET 1
+  PUSH_STR s0
+  EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.end
+
+

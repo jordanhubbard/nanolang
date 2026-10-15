@@ -1,0 +1,53 @@
+test_instances_aliases_mutation_and_record_global_roots (tests.test_native_closures.NativeClosures.test_instances_aliases_mutation_and_record_global_roots) ... FAIL
+test_managed_captures_and_active_environment_roots (tests.test_native_closures.NativeClosures.test_managed_captures_and_active_environment_roots) ... FAIL
+test_retained_canonical_returned_chain (tests.test_native_closures.NativeClosures.test_retained_canonical_returned_chain) ... ok
+test_callable_tags_and_target_membership_are_checked (tests.test_native_callables.NativeCallables.test_callable_tags_and_target_membership_are_checked) ... ok
+test_function_array_aliases_globals_and_missing_elements (tests.test_native_callables.NativeCallables.test_function_array_aliases_globals_and_missing_elements) ... ok
+test_function_array_writes_check_payload_tags (tests.test_native_callables.NativeCallables.test_function_array_writes_check_payload_tags) ... ok
+test_function_field_tags_and_targets_are_checked (tests.test_native_callables.NativeCallables.test_function_field_tags_and_targets_are_checked) ... ok
+test_function_fields_survive_nested_records_and_record_arrays (tests.test_native_callables.NativeCallables.test_function_fields_survive_nested_records_and_record_arrays) ... ok
+test_function_identity_comparisons_preserve_tags (tests.test_native_callables.NativeCallables.test_function_identity_comparisons_preserve_tags) ... ok
+test_indirect_record_and_array_results_retain_roots (tests.test_native_callables.NativeCallables.test_indirect_record_and_array_results_retain_roots) ... ok
+test_many_targets_share_exclusive_dispatch_temporaries (tests.test_native_callables.NativeCallables.test_many_targets_share_exclusive_dispatch_temporaries) ... ok
+test_retained_source_function_containers (tests.test_native_callables.NativeCallables.test_retained_source_function_containers) ... ok
+
+======================================================================
+FAIL: test_instances_aliases_mutation_and_record_global_roots (tests.test_native_closures.NativeClosures.test_instances_aliases_mutation_and_record_global_roots)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 62, in test_instances_aliases_mutation_and_record_global_roots
+    self.run_module(text, 'closure(1)\n', collections=True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 23, in run_module
+    source = self.emit(work, text, stdout)
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 25, in emit
+    self.checked([ROOT / 'bin/nvm2c', module, '-o', source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-closures-hqrz78ch/input.nvm': I found invalid aggregate shape constraints during AGG_GET in function 2 at offset 155: I found conflicting aggregate shape kinds optional/record at nodes 62/64
+
+
+======================================================================
+FAIL: test_managed_captures_and_active_environment_roots (tests.test_native_closures.NativeClosures.test_managed_captures_and_active_environment_roots)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 74, in test_managed_captures_and_active_environment_roots
+    self.run_module(text, collections=True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 23, in run_module
+    source = self.emit(work, text, stdout)
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 21, in emit
+    self.checked([ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-closures-xyq0pvv4/input.nasm': Undefined constant symbol: a
+
+
+----------------------------------------------------------------------
+Ran 12 tests in 5.968s
+
+FAILED (failures=2)

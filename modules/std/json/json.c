@@ -92,6 +92,15 @@ const char* nl_json_stringify(void* json) {
     return s ? s : nl_strdup_or_empty("");
 }
 
+/* I export cleanup from the same artifact that allocates owned text. */
+void nl_json_stringify__nano_string_release_v1(const char *result) {
+    free((void *)result);
+}
+
+void nl_json_as_string__nano_string_release_v1(const char *result) {
+    free((void *)result);
+}
+
 int64_t nl_json_is_null(void* json) { return json && cJSON_IsNull((cJSON*)json) ? 1 : 0; }
 int64_t nl_json_is_bool(void* json) { return json && cJSON_IsBool((cJSON*)json) ? 1 : 0; }
 int64_t nl_json_is_number(void* json) { return json && cJSON_IsNumber((cJSON*)json) ? 1 : 0; }
@@ -155,6 +164,21 @@ DynArray* nl_json_object_keys(void* obj) {
         }
     }
     return out;
+}
+
+/* I release only the unique owned string-array result of object_keys. */
+bool nl_json_object_keys_release(DynArray *result) {
+    if (!result || !gc_is_managed(result)) return false;
+    GCHeader *header = gc_get_header(result);
+    if (header->type != GC_TYPE_ARRAY || header->ref_count != 1 ||
+        !dyn_array_has_storage(result, ELEM_STRING, sizeof(char *), 0)) return false;
+    for (int64_t i = 0; i < result->length; ++i) {
+        free(((char **)result->data)[i]);
+        ((char **)result->data)[i] = NULL;
+    }
+    result->length = 0;
+    gc_release(result);
+    return true;
 }
 
 int64_t nl_json_array_size(void* arr) {

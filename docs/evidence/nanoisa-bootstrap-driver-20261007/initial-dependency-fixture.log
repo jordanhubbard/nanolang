@@ -1,0 +1,41 @@
+........FFFF
+======================================================================
+FAIL: test_up_to_date_and_source_invalidation (__main__.BootstrapDependencies.test_up_to_date_and_source_invalidation) (target='.stage2.built', changed='scripts/bootstrap_nanoisa.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_source_dependencies.py", line 83, in test_up_to_date_and_source_invalidation
+    self.assertEqual(self.query(target, source), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_up_to_date_and_source_invalidation (__main__.BootstrapDependencies.test_up_to_date_and_source_invalidation) (target='.stage2.built', changed='tests/bootstrap_native_guard.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_source_dependencies.py", line 83, in test_up_to_date_and_source_invalidation
+    self.assertEqual(self.query(target, source), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_up_to_date_and_source_invalidation (__main__.BootstrapDependencies.test_up_to_date_and_source_invalidation) (target='.stage3.built', changed='scripts/bootstrap_nanoisa.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_source_dependencies.py", line 83, in test_up_to_date_and_source_invalidation
+    self.assertEqual(self.query(target, source), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_up_to_date_and_source_invalidation (__main__.BootstrapDependencies.test_up_to_date_and_source_invalidation) (target='.stage3.built', changed='tests/bootstrap_native_guard.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_source_dependencies.py", line 83, in test_up_to_date_and_source_invalidation
+    self.assertEqual(self.query(target, source), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 9 tests in 13.449s
+
+FAILED (failures=4)

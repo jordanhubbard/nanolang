@@ -6,7 +6,7 @@
 #include <string.h>
 
 #if defined(__APPLE__)
-#include <stdlib.h>
+#include <sys/random.h>
 #else
 #include <unistd.h>
 #endif
@@ -66,13 +66,9 @@ static void bounded_copy(char *dest, size_t dest_size, const char *src) {
     dest[n] = '\0';
 }
 
-static void fill_rand(void *buf, size_t n) {
-#if defined(__APPLE__)
-    arc4random_buf(buf, n);
-#else
-    if (getentropy(buf, n) != 0)
-        memset(buf, 0x5a, n);
-#endif
+static bool fill_rand(void *buf, size_t n) {
+    /* I never manufacture a capability secret when host entropy fails. */
+    return getentropy(buf, n) == 0;
 }
 
 static void audit(NlCapTable *t, int kind) {
@@ -122,8 +118,10 @@ static int mint_slot(NlCapTable *t, const char *type_id, const char *service_id,
         if (!t->slots[i].used) break;
     }
     if (i == NL_CAP_SLOTS) return NL_CAP_ERR_FULL;
-    fill_rand(&secret, sizeof(secret));
-    if (secret == 0) secret = 1;
+    for (unsigned attempt = 0; attempt < 4 && !secret; attempt++) {
+        if (!fill_rand(&secret, sizeof(secret))) return NL_CAP_ERR_ENTROPY;
+    }
+    if (!secret) return NL_CAP_ERR_ENTROPY;
     t->next_generation++;
     memset(&t->slots[i], 0, sizeof(t->slots[i]));
     t->slots[i].used = 1;
@@ -302,8 +300,19 @@ int nl_cap_forth_bind(NlCapTable *t, const NlCap *c, uint64_t *cell) {
         if (!t->forth_used[i]) break;
     }
     if (i == NL_CAP_FORTH) return NL_CAP_ERR_FULL;
-    fill_rand(&token, sizeof(token));
-    if (token == 0 || token < 0x10000ull) token += 0x10000ull;
+    bool unique = false;
+    for (unsigned attempt = 0; attempt < 4; attempt++) {
+        if (!fill_rand(&token, sizeof(token))) break;
+        if (token < 0x10000ull) continue;
+        unique = true;
+        for (int j = 0; j < NL_CAP_FORTH; j++)
+            if (t->forth_used[j] && t->forth_secret[j] == token) unique = false;
+        if (unique) break;
+    }
+    if (!unique) {
+        audit(t, NL_CAP_AUDIT_FAIL);
+        return NL_CAP_ERR_ENTROPY;
+    }
     t->forth_used[i] = 1;
     t->forth_secret[i] = token;
     t->forth_slot[i] = c->slot;

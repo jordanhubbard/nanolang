@@ -1,0 +1,9 @@
+test_complete_calls_fields_helpers_and_generated_shadows (tests.test_service_bodies.ServiceBodies.test_complete_calls_fields_helpers_and_generated_shadows) ... ok
+test_local_bound (tests.test_service_bodies.ServiceBodies.test_local_bound) ... ok
+test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) ... ok
+test_unsupported_is_not_checked_and_later_bodies_still_checked (tests.test_service_bodies.ServiceBodies.test_unsupported_is_not_checked_and_later_bodies_still_checked) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 142.071s
+
+OK

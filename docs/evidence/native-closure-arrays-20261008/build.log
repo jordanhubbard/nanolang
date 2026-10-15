@@ -1,0 +1,61 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o
+src/nanoisa/nvm2c.c:2365:86: error: no member named 'result_' in 'NvmFunctionEntry'
+ 2365 |                  fn->result_tag == TAG_STRING || fn->result_tag == TAG_ARRAY || (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE) ||
+      |                                                                                  ~~  ^
+src/nanoisa/nvm2c.c:2365:94: error: use of undeclared identifier 'tag'
+ 2365 |                  fn->result_tag == TAG_STRING || fn->result_tag == TAG_ARRAY || (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE) ||
+      |                                                                                              ^~~
+src/nanoisa/nvm2c.c:2365:117: error: use of undeclared identifier 'tag'
+ 2365 |                  fn->result_tag == TAG_STRING || fn->result_tag == TAG_ARRAY || (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE) ||
+      |                                                                                                                     ^~~
+src/nanoisa/nvm2c.c:2375:26: error: no member named 'result_' in 'NvmFunctionEntry'
+ 2375 |                 if ((fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE)) {
+      |                      ~~  ^
+src/nanoisa/nvm2c.c:2375:34: error: use of undeclared identifier 'tag'
+ 2375 |                 if ((fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE)) {
+      |                                  ^~~
+src/nanoisa/nvm2c.c:2375:57: error: use of undeclared identifier 'tag'
+ 2375 |                 if ((fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE)) {
+      |                                                         ^~~
+src/nanoisa/nvm2c.c:2412:46: error: no member named 'result_' in 'NvmFunctionEntry'
+ 2412 |                 NvmShapeKind declared = (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE) ? NVM_SHAPE_FUNCTION : (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM) ? NVM_SHAPE_OPTIONAL :
+      |                                          ~~  ^
+src/nanoisa/nvm2c.c:2412:54: error: use of undeclared identifier 'tag'
+ 2412 |                 NvmShapeKind declared = (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE) ? NVM_SHAPE_FUNCTION : (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM) ? NVM_SHAPE_OPTIONAL :
+      |                                                      ^~~
+src/nanoisa/nvm2c.c:2412:77: error: use of undeclared identifier 'tag'
+ 2412 |                 NvmShapeKind declared = (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE) ? NVM_SHAPE_FUNCTION : (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM) ? NVM_SHAPE_OPTIONAL :
+      |                                                                             ^~~
+src/nanoisa/nvm2c.c:3319:133: error: no member named 'result_' in 'NvmFunctionEntry'
+ 3319 |         (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM || (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE)) || fn->result_tag == TAG_FLOAT));
+      |                                                                                                                                 ~~  ^
+src/nanoisa/nvm2c.c:3319:141: error: use of undeclared identifier 'tag'
+ 3319 |         (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM || (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE)) || fn->result_tag == TAG_FLOAT));
+      |                                                                                                                                             ^~~
+src/nanoisa/nvm2c.c:3319:164: error: use of undeclared identifier 'tag'
+ 3319 |         (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM || (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE)) || fn->result_tag == TAG_FLOAT));
+      |                                                                                                                                                                    ^~~
+src/nanoisa/nvm2c.c:3328:93: error: no member named 'result_' in 'NvmFunctionEntry'
+ 3328 |     if (fn->result_count && (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM || (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE))) {
+      |                                                                                         ~~  ^
+src/nanoisa/nvm2c.c:3328:101: error: use of undeclared identifier 'tag'
+ 3328 |     if (fn->result_count && (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM || (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE))) {
+      |                                                                                                     ^~~
+src/nanoisa/nvm2c.c:3328:124: error: use of undeclared identifier 'tag'
+ 3328 |     if (fn->result_count && (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM || (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || fn->result_tag == TAG_CLOSURE))) {
+      |                                                                                                                            ^~~
+src/nanoisa/nvm2c.c:3331:17: error: no member named 'result_' in 'NvmFunctionEntry'
+ 3331 |         if (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE))
+      |             ~~  ^
+src/nanoisa/nvm2c.c:3331:25: error: use of undeclared identifier 'tag'
+ 3331 |         if (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE))
+      |                         ^~~
+src/nanoisa/nvm2c.c:3331:48: error: use of undeclared identifier 'tag'
+ 3331 |         if (fn->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE))
+      |                                                ^~~
+src/nanoisa/nvm2c.c:3370:46: error: no member named 'result_' in 'NvmFunctionEntry'
+ 3370 |     } else if (cf->result_count == 1 && (cf->result_(tag == TAG_FUNCTION || tag == TAG_CLOSURE) || cf->result_tag == TAG_CLOSURE)) {
+      |                                          ~~  ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+make: *** [obj/nanoisa/nvm2c.o] Error 1

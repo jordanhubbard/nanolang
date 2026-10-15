@@ -1,0 +1,31 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2571, column 9: Unused variable 'rejected'
+Warning at line 2807, column 9: Unused variable 'rejected'
+Warning at line 2811, column 9: Unused variable 'rejected'
+Warning at line 2815, column 9: Unused variable 'rejected'
+Warning at line 2822, column 13: Unused variable 'rejected'
+Warning at line 2964, column 9: Unused variable 'rejected'
+Warning at line 2968, column 9: Unused variable 'rejected'
+Warning at line 2975, column 13: Unused variable 'rejected'
+Warning at line 6833, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Error at line 63, column 9: Expected variable name
+Error at line 63, column 19: Unexpected token in expression: COLON (type=14)
+Error at line 63, column 31: Unexpected token in expression: ASSIGN (type=17)
+Error at line 64, column 50: Unexpected token in expression: SHADOW (type=38)
+Error at line 64, column 50: Failed to parse function argument
+Error at line 64, column 50: Unexpected token in expression: SHADOW (type=38)
+Error at line 64, column 56: Unexpected token in expression: DOT (type=18)
+Error at line 64, column 61: Unexpected token in expression: RPAREN (type=8)
+Error at line 68, column 71: Unexpected token in expression: SHADOW (type=38)
+Error at line 68, column 71: Failed to parse function argument
+Error at line 68, column 77: Unexpected token in expression: DOT (type=18)
+Error at line 68, column 89: Unexpected token in expression: RPAREN (type=8)
+Error at line 68, column 90: Unexpected token in expression: RPAREN (type=8)
+Error at line 68, column 92: Unexpected token in expression: LBRACE (type=9)
+Error at line 71, column 5: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 71, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 72, column 1: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error: Failed to parse module '/Users/jordanh/Src/nanolang/src_nano/compiler/service_product.nano'
+Error at line 35, column 1: Failed to load module '/Users/jordanh/Src/nanolang/src_nano/compiler/service_product.nano'
+error: module loading failed

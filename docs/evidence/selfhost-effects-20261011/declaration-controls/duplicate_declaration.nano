@@ -1,0 +1,3 @@
+effect Ask{ask:int->int} effect Ask{ask:int->int}
+fn main()->int{return 0}
+shadow main{assert true}

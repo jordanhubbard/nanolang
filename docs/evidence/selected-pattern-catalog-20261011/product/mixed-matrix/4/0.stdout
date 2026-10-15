@@ -1,0 +1,5 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I require every record or selected variant field exactly once in an owned pattern. (/private/tmp/nl51-selected-final/mixed-matrix/4/main.nano:4:21)
+  [E0011] I cannot find this name in the current scope: __owned$4 (/private/tmp/nl51-selected-final/mixed-matrix/4/main.nano:4:21)
+  [E0011] I cannot find this name in the current scope: __owned$4 (/private/tmp/nl51-selected-final/mixed-matrix/4/main.nano:4:21)

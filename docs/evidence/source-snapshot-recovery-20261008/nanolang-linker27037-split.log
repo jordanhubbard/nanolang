@@ -1,0 +1,7 @@
+test_uncaptured_linker_flags_stay_out_of_compile_jobs (tests.test_source_snapshots.SourceSnapshots.test_uncaptured_linker_flags_stay_out_of_compile_jobs) ... ok
+test_split_assembler_search_order_phases_and_recovery (tests.test_source_snapshots.SourceSnapshots.test_split_assembler_search_order_phases_and_recovery) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 103.714s
+
+OK

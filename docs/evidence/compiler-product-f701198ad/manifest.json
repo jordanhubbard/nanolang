@@ -1,0 +1,15 @@
+{
+  "source_commit": "f701198adb3b5eac7909a4ba4ea841bc2b71e616",
+  "root": "/private/tmp/nanolang-native-callables-f701198ad",
+  "command": [
+    "make",
+    "-j2",
+    "test-one-ir-compiler"
+  ],
+  "initial_status": "clean",
+  "exit_code": 0,
+  "seconds": 759.5704573330004,
+  "log_sha256": "c83c003d155c02a569fbfa24811bdd59943b85651630306c068ad9c75911c47f",
+  "final_status": "",
+  "head_unchanged": true
+}

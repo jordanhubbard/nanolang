@@ -1,0 +1,2 @@
+Warning at line 5, column 36: Unused variable 'payload'
+I could not compile shadows at line 11: I require straight-line scalar expressions and one borrowed helper in my source borrow profile

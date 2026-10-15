@@ -1,0 +1,6 @@
+test_retained_origins_snapshots_and_partial_failure (tests.test_service_inputs.ServiceInputs.test_retained_origins_snapshots_and_partial_failure) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 185.029s
+
+OK

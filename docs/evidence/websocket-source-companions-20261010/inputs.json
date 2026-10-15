@@ -1,0 +1,17 @@
+{
+  "Makefile.gnu": "604d3a25bc2fd1cf1fcca2502add8a7b18bd459fc09d378728758551b0d754d5",
+  "docs/NSI_WEBSOCKET_CATALOG.md": "5d5fe3c98a0195d31c620b122230c42ac6a0f8cbd5f2d65188ebcc586a41509f",
+  "docs/ROADMAP.md": "08d8cb28bb681cf4af34de6b770b9d2d381c2b1ee63b911e20f82dcc89264248",
+  "modules/file_source_inputs/module.json": "a9e1ebf1b6b3214f76deea8180b3b655e049e2fd047989bf7391f8df36422206",
+  "src/nanoisa/file_source_snapshot.c": "8e308bc35869ffa52b6200de1bbb590a9cb8f95f2f97968e4224a4bbdd521d9d",
+  "src/nanoisa/service_source_catalog.h": "f0f28cd4127e98d25e1d1e10badee368a767dfbf95ba072225f55c6eff757bfe",
+  "src/nsi_binding_impl.inc": "59ec37b6958b9e1821be2fc9e6a93c83d350b4f3c730d8e146b47e022ff8aed7",
+  "src/nsi_websocket_binding.c": "40c2a13fbcac79a75edf31c84260b572fd6b7e0749876ce3043760fcd8e3448a",
+  "src/nsi_websocket_binding.h": "929fba2a1be3b6182b7c0923a9316ec728f049998797361e343e6bc5cf0f7770",
+  "tests/file_source_inputs.nano": "942a9eb2ebd8b440c8c78838f9d762ac101a9374ea4c6a1c9b11cc56e093cee5",
+  "tests/fixtures/nsi_websocket_binding_expected.nano.txt": "9d91fad93c2fb174a9df08484029f29a8b7eda768033c94e076ce0111520ba24",
+  "tests/test_file_source_inputs.py": "a1b9edad70dd90a552da98fe2f7b7ba5b29b6460e32ade809793fcb668dd0e96",
+  "tests/test_nsi_websocket_binding.c": "0763506bb046f8476aea3f76149fa627a6a5592a616209e9efe07503e62e7ad0",
+  "tests/test_nsi_websocket_binding.py": "18aa7e9d1e52a8481bb452bd4dbab62f041c758417867948f7c3d82ed21f82ee",
+  "tests/test_websocket_source_snapshot.c": "0fa942ba4dd4e9e546f737fef3d5e698f575c907eb4eed66bbf52d08f2442b78"
+}

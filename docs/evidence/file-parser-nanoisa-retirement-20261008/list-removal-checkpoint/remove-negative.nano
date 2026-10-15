@@ -1,0 +1,1 @@
+fn main()->int { let xs:List<int> = (list_int_new) (list_int_remove xs -1) return 0 } shadow main { assert true }

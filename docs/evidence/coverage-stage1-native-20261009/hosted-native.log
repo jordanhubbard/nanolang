@@ -1,0 +1,16 @@
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o: in function `_sub_I_00100_0':
+/home/runner/work/nanolang/nanolang/src/runtime/dyn_array.c:679:(.text.startup+0xc): undefined reference to `__gcov_init'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o: in function `_sub_I_00100_0':
+/home/runner/work/nanolang/nanolang/src/runtime/gc.c:470:(.text.startup+0x1c): undefined reference to `__gcov_init'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o: in function `_sub_I_00100_0':
+/home/runner/work/nanolang/nanolang/src/runtime/gc_struct.c:149:(.text.startup+0x2c): undefined reference to `__gcov_init'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o: in function `_sub_D_00100_1':
+/home/runner/work/nanolang/nanolang/src/runtime/dyn_array.c:679:(.text.exit+0x5): undefined reference to `__gcov_exit'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o: in function `_sub_D_00100_1':
+/home/runner/work/nanolang/nanolang/src/runtime/gc.c:470:(.text.exit+0x15): undefined reference to `__gcov_exit'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o: in function `_sub_D_00100_1':
+/home/runner/work/nanolang/nanolang/src/runtime/gc_struct.c:149:(.text.exit+0x25): undefined reference to `__gcov_exit'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o:(.data.rel+0x20): undefined reference to `__gcov_merge_add'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o:(.data.rel+0xa0): undefined reference to `__gcov_merge_add'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/bin/nano_aot_runtime.o:(.data.rel+0x120): undefined reference to `__gcov_merge_add'
+collect2: error: ld returned 1 exit status

@@ -1,0 +1,79 @@
+test_alternating_chain (tests.test_native_nominal_order.NativeNominalOrder.test_alternating_chain) ... ok
+test_direct_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_direct_record_cycle_preserves_previous_output) ... 
+  test_direct_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_direct_record_cycle_preserves_previous_output) (compiler='nanoc_c') ... FAIL
+test_direct_union_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_direct_union_cycle_preserves_previous_output) ... 
+  test_direct_union_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_direct_union_cycle_preserves_previous_output) (compiler='nanoc_c') ... FAIL
+test_generic_union_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_generic_union_record_cycle_preserves_previous_output) ... 
+  test_generic_union_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_generic_union_record_cycle_preserves_previous_output) (compiler='nanoc_c') ... FAIL
+test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) ... 
+  test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) (compiler='nanoc_c') ... FAIL
+test_pointer_backed_array_is_not_a_layout_cycle (tests.test_native_nominal_order.NativeNominalOrder.test_pointer_backed_array_is_not_a_layout_cycle) ... ok
+test_pointer_backed_list_is_not_a_layout_cycle (tests.test_native_nominal_order.NativeNominalOrder.test_pointer_backed_list_is_not_a_layout_cycle) ... ok
+test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) ... ok
+test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) ... ok
+test_record_contains_union (tests.test_native_nominal_order.NativeNominalOrder.test_record_contains_union) ... ok
+test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) ... 
+  test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) (compiler='nanoc_c') ... FAIL
+test_reverse_record_dependencies (tests.test_native_nominal_order.NativeNominalOrder.test_reverse_record_dependencies) ... ok
+test_tuple_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_tuple_record_cycle_preserves_previous_output) ... 
+  test_tuple_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_tuple_record_cycle_preserves_previous_output) (compiler='nanoc_c') ... FAIL
+test_union_contains_record (tests.test_native_nominal_order.NativeNominalOrder.test_union_contains_record) ... ok
+
+======================================================================
+FAIL: test_direct_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_direct_record_cycle_preserves_previous_output) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 28, in check
+    self.assertIn('cyclic by-value', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cyclic by-value' not found in "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_61899_program.c:1733:13: error: field has incomplete type 'nl_Loop' (aka 'struct nl_Loop')\n 1733 |     nl_Loop next;\n      |             ^\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_61899_program.c:1732:8: note: definition of 'struct nl_Loop' is not complete until the closing '}'\n 1732 | struct nl_Loop {\n      |        ^\n1 error generated.\nC compilation failed\n"
+
+======================================================================
+FAIL: test_direct_union_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_direct_union_cycle_preserves_previous_output) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 28, in check
+    self.assertIn('cyclic by-value', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cyclic by-value' not found in "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_61967_program.c:1731:32: error: field has incomplete type 'nl___nano_root_union__Loop' (aka 'struct nl___nano_root_union__Loop')\n 1731 |     nl___nano_root_union__Loop next;\n      |                                ^\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_61967_program.c:1729:16: note: forward declaration of 'struct nl___nano_root_union__Loop'\n 1729 | typedef struct nl___nano_root_union__Loop nl___nano_root_union__Loop;\n      |                ^\n1 error generated.\nC compilation failed\n"
+
+======================================================================
+FAIL: test_generic_union_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_generic_union_record_cycle_preserves_previous_output) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 28, in check
+    self.assertIn('cyclic by-value', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cyclic by-value' not found in "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_62023_program.c:1734:36: error: field has incomplete type 'nl___nano_root_union__Box_Loop' (aka 'struct nl___nano_root_union__Box_Loop')\n 1734 |     nl___nano_root_union__Box_Loop box;\n      |                                    ^\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_62023_program.c:1730:16: note: forward declaration of 'struct nl___nano_root_union__Box_Loop'\n 1730 | typedef struct nl___nano_root_union__Box_Loop nl___nano_root_union__Box_Loop;\n      |                ^\n1 error generated.\nC compilation failed\n"
+
+======================================================================
+FAIL: test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 28, in check
+    self.assertIn('cyclic by-value', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cyclic by-value' not found in "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_62096_program.c:1734:34: error: field has incomplete type 'nl___nano_root_union__Choice' (aka 'struct nl___nano_root_union__Choice')\n 1734 |     nl___nano_root_union__Choice choice;\n      |                                  ^\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_62096_program.c:1730:16: note: forward declaration of 'struct nl___nano_root_union__Choice'\n 1730 | typedef struct nl___nano_root_union__Choice nl___nano_root_union__Choice;\n      |                ^\n1 error generated.\nC compilation failed\n"
+
+======================================================================
+FAIL: test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 28, in check
+    self.assertIn('cyclic by-value', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cyclic by-value' not found in "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_62569_program.c:1734:14: error: field has incomplete type 'nl_Right' (aka 'struct nl_Right')\n 1734 |     nl_Right right;\n      |              ^\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_62569_program.c:1730:16: note: forward declaration of 'struct nl_Right'\n 1730 | typedef struct nl_Right nl_Right;\n      |                ^\n1 error generated.\nC compilation failed\n"
+
+======================================================================
+FAIL: test_tuple_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_tuple_record_cycle_preserves_previous_output) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 28, in check
+    self.assertIn('cyclic by-value', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cyclic by-value' not found in "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_62683_program.c:1734:20: error: field has incomplete type 'Tuple_int_t1_0' (aka 'struct Tuple_int_t1_0')\n 1734 |     Tuple_int_t1_0 next;\n      |                    ^\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_62683_program.c:1730:16: note: forward declaration of 'struct Tuple_int_t1_0'\n 1730 | typedef struct Tuple_int_t1_0 Tuple_int_t1_0;\n      |                ^\n1 error generated.\nC compilation failed\n"
+
+----------------------------------------------------------------------
+Ran 14 tests in 20.649s
+
+FAILED (failures=6)

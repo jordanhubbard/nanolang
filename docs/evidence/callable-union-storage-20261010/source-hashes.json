@@ -1,0 +1,11 @@
+{
+  "src/env.c": "6c32a39643ffb1f2d287c3e2ae6417636107e817725542e7697151141b050946",
+  "src/typechecker.c": "e5da52813b725d910ead2cc236d565fc1510bfda97c0b84cc4f02370187907db",
+  "src/transpiler.c": "804973da6fbc3f479bc15fd49647a943ca21fcf381ae0e043c89da358962d054",
+  "src/nanoisa/nvm2c_callables.c": "29f4eef3596b2102cfd874058e7850bc88129acde27ad408d416fed259b3ac61",
+  "src_nano/typecheck.nano": "aef0d562b602cfa96829bc12a5730e10aa7f1023efbd9755814f1eeddfe96111",
+  "src_nano/compiler/nanoisa_codegen.nano": "cd0116efd3baf436cdf4293825b6f5b28b8ebf9545ce1d8b5935bb209ead4f6f",
+  "tests/test_callable_union_storage.py": "af81362593b88965b44e95215f6a3dc20c0eab214b83bb5d1fc9e35dadc1d3bf",
+  "tests/nanoisa/test_nvm2c_callables.c": "84263685a23d2c3e50576c499fdf3cbcbefccfc47e25c799dac43ea08ea311d3",
+  "Makefile.gnu": "4293d7d048cb7a5a0542f1ef112390679b1ed4bef722e5642bc5ffc76c165081"
+}

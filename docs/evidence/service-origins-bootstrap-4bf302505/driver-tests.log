@@ -1,0 +1,6 @@
+test_actual_drivers_reject_duplicate_service_origins_before_lowering (tests.test_service_origins.ServiceOrigins.test_actual_drivers_reject_duplicate_service_origins_before_lowering) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.061s
+
+OK

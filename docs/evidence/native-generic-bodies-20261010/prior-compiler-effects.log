@@ -1,0 +1,7 @@
+test_foreign_callback_cannot_escape_its_native_activation (tests.test_native_effect_execution.NativeEffectExecution.test_foreign_callback_cannot_escape_its_native_activation) ... ok
+test_generated_owned_local_is_released_on_handler_return (tests.test_native_effect_execution.NativeEffectExecution.test_generated_owned_local_is_released_on_handler_return) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.762s
+
+OK

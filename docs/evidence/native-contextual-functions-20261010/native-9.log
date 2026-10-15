@@ -1,0 +1,14 @@
+test_callback_argument (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_callback_argument) ... ok
+test_imported_alias_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_imported_alias_callback) ... ok
+test_inconsistent_context_preserves_output (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_inconsistent_context_preserves_output) ... ok
+test_local_multiple_instances (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_local_multiple_instances) ... ok
+test_nominal_and_tuple_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nominal_and_tuple_context) ... ok
+test_reassigned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_reassigned_callback) ... ok
+test_returned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_returned_callback) ... ok
+test_structural_array_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_structural_array_context) ... ok
+test_tail_and_indirect_callback_arguments (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_tail_and_indirect_callback_arguments) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 11.869s
+
+OK

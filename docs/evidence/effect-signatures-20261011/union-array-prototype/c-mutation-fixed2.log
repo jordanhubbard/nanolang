@@ -1,0 +1,6 @@
+test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.282s
+
+OK

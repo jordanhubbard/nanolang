@@ -1,0 +1,27 @@
+I retain checked array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/checked-array-literals-xvdi9bzc
+test_all_byte_destinations (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_all_byte_destinations) ... ok
+test_complete_slice_kind_bit_and_identity_fixture (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_complete_slice_kind_bit_and_identity_fixture) ... FAIL
+test_invalid_elements_and_existing_storage_preserve_output (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_invalid_elements_and_existing_storage_preserve_output) ... ok
+test_nested_literals_keep_context (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_nested_literals_keep_context) ... ok
+
+======================================================================
+FAIL: test_complete_slice_kind_bit_and_identity_fixture (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_complete_slice_kind_bit_and_identity_fixture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_array_literal_context.py", line 56, in test_complete_slice_kind_bit_and_identity_fixture
+    self.qualify('all-kinds', (ROOT / 'tests/nanoisa/fixtures/array_slice_all_kinds.nano.txt').read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_array_literal_context.py", line 43, in qualify
+    self.command(ROOT / 'bin/nano_vm', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_array_literal_context.py", line 32, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}{result.stderr}')
+AssertionError: (PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/checked-array-literals-xvdi9bzc/all-kinds.nvm')): 1
+I could not execute the module: Type error
+  I64_EQ requires two integers
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.025s
+
+FAILED (failures=1)

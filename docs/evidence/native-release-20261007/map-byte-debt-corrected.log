@@ -1,0 +1,9 @@
+test_accounting_rejects_wrap_and_underflow (tests.test_native_map_byte_debt.NativeMapByteDebt.test_accounting_rejects_wrap_and_underflow) ... ok
+test_copied_reads_batch_large_live_graph (tests.test_native_map_byte_debt.NativeMapByteDebt.test_copied_reads_batch_large_live_graph) ... ok
+test_map_storage_growth_replacement_and_forced_release (tests.test_native_map_byte_debt.NativeMapByteDebt.test_map_storage_growth_replacement_and_forced_release) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.194s
+
+OK
+scans=3 visits=30012 map_peak_bytes=65838

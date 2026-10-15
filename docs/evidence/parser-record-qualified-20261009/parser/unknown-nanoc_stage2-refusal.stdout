@@ -1,0 +1,5 @@
+NSType checking failed
+Diagnostics:
+  [E0001] I require a pattern from the exact match domain (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/ordinary-unknown.nano:1:66)
+  [E0001] I require an exact zero-field variant for an empty match binding (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/ordinary-unknown.nano:1:66)
+  [E035] I require unconditional coverage of every match value (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/ordinary-unknown.nano:1:66)

@@ -1,0 +1,19 @@
+test_nested_functions_keep_separate_local_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_nested_functions_keep_separate_local_names) ... 
+  test_nested_functions_keep_separate_local_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_nested_functions_keep_separate_local_names) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt')) ... FAIL
+
+======================================================================
+FAIL: test_nested_functions_keep_separate_local_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_nested_functions_keep_separate_local_names) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_local_binding_metadata.py", line 54, in produce
+    inspect(bindings)
+    ~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_local_binding_metadata.py", line 239, in inspect
+    self.assertEqual(len(outer),1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.727s
+
+FAILED (failures=1)

@@ -1,0 +1,5 @@
+opaque type Handle
+fn invalid()->Handle { return 7 }
+shadow invalid { assert true }
+fn main()->int { let value:Handle = (invalid) return 0 }
+shadow main { assert true }

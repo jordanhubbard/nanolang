@@ -1,0 +1,40 @@
+/* I use the shared checked engines with explicit per-instance catalogs. */
+#include "services_flow.h"
+#define NOMINAL_FN(name) nvm_services_nominal_##name
+#define NOMINAL_CATEGORY_OWNER NVM_SERVICES_CATEGORY_OWNER
+#define NOMINAL_CATEGORY_OWNER_RESULT NVM_SERVICES_CATEGORY_OWNER_RESULT
+#define NOMINAL_CATEGORY_RECORD NVM_SERVICES_CATEGORY_RECORD
+#define NOMINAL_CATEGORY_SCALAR_RESULT NVM_SERVICES_CATEGORY_SCALAR_RESULT
+#define NOMINAL_CATEGORY_UNKNOWN NVM_SERVICES_CATEGORY_UNKNOWN
+#define NOMINAL_DESCRIBED NVM_MULTI_NOMINAL_DESCRIBED
+#define NOMINAL_INVALID NVM_MULTI_NOMINAL_INVALID
+#define NOMINAL_LIMIT NVM_MULTI_NOMINAL_LIMIT
+#define NOMINAL_MEMORY NVM_MULTI_NOMINAL_MEMORY
+#define NOMINAL_MAX_LAYOUTS NVM_MULTI_NOMINAL_MAX_LAYOUTS
+#define NominalPlan NvmServicesNominalPlan
+#define NominalLayout NvmServicesNominalLayout
+#define NominalStatus NvmMultiNominalStatus
+#define FLOW_FN(name) nvm_services_flow_##name
+#define FLOW_TYPE(name) NvmServicesFlow##name
+#define FLOW_CONST(name) NVM_SERVICES_FLOW_##name
+#define FLOW_CATALOG_TYPE(p,i) nvm_services_catalog_type(p,i)
+#define FLOW_CATALOG_METHOD(p,i) nvm_services_catalog_method(p,i)
+#define FLOW_TYPE_BASE(i) ((i)/9*9)
+#define FLOW_TYPE_COUNT(p,i) nvm_services_catalog_types(p,i)
+#define FLOW_IMPORT_COUNT(p) (nvm_multi_nominal_instance_count(p)*5)
+#define FLOW_METHOD_OWNER(i) ((i)/5*9)
+#define FLOW_METHOD_LOCAL(i) ((i)%5)
+#define FLOW_IMPORT_COUNT_VALID(n) ((n)>=4 && (n)<=NVM_MULTI_NOMINAL_MAX_IMPORTS)
+#define FLOW_IS_ENDPOINT(p,i) nvm_services_catalog_endpoint(p,i)
+#define FLOW_ENDPOINT_CHECK NVM_SERVICES_FLOW_CHECK_ENDPOINT
+#define FLOW_TIMEOUT_CHECK NVM_SERVICES_FLOW_CHECK_TIMEOUT
+#define CODE_STRINGS 1
+#define CODE_FN(name) nvm_services_code_##name
+#define CODE_TYPE(name) NvmServicesCode##name
+#define CODE_CONST(name) NVM_SERVICES_CODE_##name
+#define BODY_FN(name) nvm_services_body_##name
+#define BODY_TYPE(name) NvmServicesBody##name
+#define BODY_CONST(name) NVM_SERVICES_BODY_##name
+#define SERVICE_FN(name) nvm_services_##name
+#define SERVICE_TYPE(name) NvmServices##name
+#define SERVICE_CONST(name) NVM_SERVICES_##name

@@ -1,0 +1,11 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c11 -g -O1 -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -Wall -Wextra -Werror tests/test_nsi_websocket_protocol.c src/nsi_websocket_protocol.c src/utf8.c -o /private/tmp/nl51-ws-protocol-sanitized/test_nsi_websocket_protocol -fsanitize=address,undefined -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+PASS nonce/accept known vectors and exact bounded HTTP upgrade
+PASS all stream splits, fragments, interleaved controls, binary/NUL and UTF-8
+PASS masked/RSV/opcode/length/UTF-8/close/fragment/EOF refusals
+PASS masked client frames at every length boundary through 1 MiB
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c11 -g -O1 -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -Wall -Wextra -Werror -DNL_WS_PROTOCOL_INSTRUMENT tests/test_nsi_websocket_protocol.c src/utf8.c -o /private/tmp/nl51-ws-protocol-sanitized/test_nsi_websocket_protocol_instrumented -fsanitize=address,undefined -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+PASS allocation refusal and terminal decoder cleanup
+PASS nonce/accept known vectors and exact bounded HTTP upgrade
+PASS all stream splits, fragments, interleaved controls, binary/NUL and UTF-8
+PASS masked/RSV/opcode/length/UTF-8/close/fragment/EOF refusals
+PASS masked client frames at every length boundary through 1 MiB

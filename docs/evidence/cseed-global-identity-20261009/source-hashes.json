@@ -1,0 +1,5 @@
+{
+  "src/nanovirt/codegen.c": "ae47ae4b2c7b61c1ec1cbe80d15873187f994fb21b55e3abc4bf6c961304e8d9",
+  "src/nanoisa/nvm2c.c": "0c7e867c95fedac8a9fd85eef6965793ec9328042df1d1c56feeb3e1e81bf31e",
+  "tests/test_cseed_global_identity.py": "6726c894f4b7412928896b47159dd54cf24b5ee5965322e719440b35886b0722"
+}

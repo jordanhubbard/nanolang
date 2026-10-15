@@ -1,0 +1,6 @@
+test_record_list_payload_mutates_shared_storage (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_list_payload_mutates_shared_storage) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.121s
+
+OK

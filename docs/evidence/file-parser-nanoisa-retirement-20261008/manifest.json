@@ -1,0 +1,24 @@
+[
+  {
+    "name": "publisher",
+    "command": [
+      "/Users/jordanh/Src/nanolang/bin/nsi-file-binding",
+      "/Users/jordanh/Src/nanolang/tests/fixtures/nsi_file_plan.json",
+      "--file-binding-dir",
+      "/private/tmp/nanolang-parser-retirement-evidence-20261008/published"
+    ],
+    "exit_code": 0,
+    "seconds": 0.0169078329927288
+  },
+  {
+    "name": "nanoc_c-compile",
+    "command": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano",
+      "-o",
+      "/private/tmp/nanolang-parser-retirement-evidence-20261008/nanoc_c"
+    ],
+    "exit_code": 0,
+    "seconds": 85.91068337502657
+  }
+]

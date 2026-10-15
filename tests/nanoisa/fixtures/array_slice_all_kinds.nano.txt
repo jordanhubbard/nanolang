@@ -1,0 +1,41 @@
+struct Pair { number: int, child: array<int> }
+fn main() -> int {
+    let bits: array<int> = [-9223372036854775808, 9221120237041090561, 9218868437227405313, 1]
+    let values: array<float> = [(float_from_bits (at bits 0)), (float_from_bits (at bits 1)), (float_from_bits (at bits 2)), (float_from_bits (at bits 3))]
+    let copy: array<float> = (array_slice values 0 4)
+    for i in (range 0 4) { assert (== (float_to_bits (at copy i)) (at bits i)) }
+    let child: array<int> = [10, 11, 12, 13]
+    assert (== (array_length (array_slice child -9223372036854775808 -9223372036854775808)) 0)
+    assert (== (array_length (array_slice child -9223372036854775808 9223372036854775807)) 4)
+    let integers: array<int> = (array_slice child 1 9223372036854775807)
+    assert (!= integers child)
+    assert (== (array_length integers) 3)
+    assert (== (at integers 0) 11)
+    (array_set integers 0 99)
+    assert (== (at child 1) 11)
+    assert (== (array_length (array_slice child 9223372036854775807 9223372036854775807)) 0)
+    let bytes: array<u8> = [255]
+    assert (== (at (array_slice bytes 0 1) 0) 255)
+    let flags: array<bool> = [true]
+    assert (at (array_slice flags 0 1) 0)
+    let words: array<string> = ["retained"]
+    assert (== (at (array_slice words 0 1) 0) "retained")
+    let nested: array<array<int>> = [child]
+    let nested_copy: array<array<int>> = (array_slice nested 0 1)
+    let retained_child: array<int> = (at nested_copy 0)
+    assert (== retained_child child)
+    let records: array<Pair> = [Pair { number: 42, child: child }]
+    let copied: array<Pair> = (array_slice records 0 1)
+    assert (!= copied records)
+    let retained: Pair = (at copied 0)
+    (array_set child 0 99)
+    assert (== (at retained.child 0) 99)
+    assert (== retained.child child)
+    assert (== (at retained_child 0) 99)
+    (array_set copied 0 Pair { number: 7, child: child })
+    let original: Pair = (at records 0)
+    assert (== original.number 42)
+    assert (== retained.number 42)
+    return 0
+}
+shadow main { assert (== (main) 0) }

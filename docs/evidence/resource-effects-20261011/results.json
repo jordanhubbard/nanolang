@@ -1,0 +1,38 @@
+[
+  {
+    "case": "transfer",
+    "driver": "c",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "transfer",
+    "driver": "nano",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "double_use",
+    "driver": "c",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "double_use",
+    "driver": "nano",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "drop",
+    "driver": "c",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "drop",
+    "driver": "nano",
+    "returncode": 1,
+    "preserved": true
+  }
+]

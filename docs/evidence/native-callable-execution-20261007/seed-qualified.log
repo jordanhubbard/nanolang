@@ -1,0 +1,8 @@
+-- E027 UNDEFINED FUNCTION --- /Users/jordanh/Src/nanolang/docs/evidence/native-callable-execution-20261007/qualified-field-call.nano
+I cannot find a function named `o.op`.
+
+8|     assert (== (o.op 41) 42)
+                  ^^^^
+Hint: Check the module alias and exported functions.
+Warning at line 7, column 5: Unused variable 'o'
+error: type check failed

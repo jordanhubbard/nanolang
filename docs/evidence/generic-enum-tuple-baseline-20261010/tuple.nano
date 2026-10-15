@@ -1,0 +1,4 @@
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 3) 3)}
+fn main()->int{let (number,flag) = (identity (7,true)) assert (== number 7) assert flag return 0}
+shadow main {assert (== (main) 0)}

@@ -1,0 +1,7 @@
+test_import_diamond_order_owners_and_product_separation (tests.test_bytecode_shadows.BytecodeShadows.test_import_diamond_order_owners_and_product_separation) ... ok
+test_failed_shadow_preserves_output (tests.test_bytecode_shadows.BytecodeShadows.test_failed_shadow_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.078s
+
+OK

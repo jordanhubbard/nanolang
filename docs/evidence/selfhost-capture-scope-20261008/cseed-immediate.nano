@@ -1,0 +1,4 @@
+fn make(n:int)->int{return (fn()->int{return n})}
+shadow make { assert (== (make 42) 42) }
+fn main()->int { (println (make 42)) return 0 }
+shadow main { assert (== (main) 0) }

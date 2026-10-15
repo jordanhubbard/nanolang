@@ -1,0 +1,24 @@
+
+resource struct Handle { fd: int }
+let mut counter: int = 4
+fn identity(counter: int) -> int { return counter }
+shadow identity { assert (== (identity 9) 9) }
+fn read() -> int { return counter }
+shadow read { assert (== (read) 4) }
+
+fn main() -> int {
+    let local_owner: Handle = Handle { fd: 7 }
+    let Handle { fd } = local_owner
+    assert (== fd 7)
+    assert (== (identity 9) 9)
+if true {
+    let mut counter: int = 100
+    set counter 101
+    assert (== counter 101)
+}
+assert (== counter 4)
+set counter 5
+assert (== (read) 5)
+    return 0
+}
+shadow main { assert (== (main) 0) }

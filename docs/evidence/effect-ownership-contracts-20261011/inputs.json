@@ -1,0 +1,6 @@
+{
+  "src/nanoisa/ownership_contracts.c": "261164a7eabe0b8aa7e20fd59e2516cc9873ac41265fa34b7f6d6cc0e0cddd04",
+  "src/nanoisa/ownership_contracts.h": "81cf2213e0d55d022020d41aede92ee704e88952583e77da9a1477637996cfaa",
+  "src/nanoisa/ownership_effects.inc": "223742799c2b7fd6868a450b8cb3095cd58d60e6797e1bb47bf0cb40e699573c",
+  "tests/nanoisa/test_ownership_contracts.c": "6356e2323db4850c55509acf1128d7db2705afb50c25264549eb39fc58d1fb10"
+}

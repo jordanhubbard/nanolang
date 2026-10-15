@@ -1,0 +1,152 @@
+[
+  {
+    "path": "stage1.c",
+    "bytes": 12230967,
+    "sha256": "5e4c209f997ef8e2ea41aa08cfb8aecfc2e40e5d5a587a176336697c839ed837",
+    "archived": false
+  },
+  {
+    "path": "16-stage2-final-verify.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "00-seed.log",
+    "bytes": 3009,
+    "sha256": "17c053cba8d70129eadb0bccf82cc2682a6933d271e35c1109a882ae9e06249d",
+    "archived": true
+  },
+  {
+    "path": "11-stage2-native.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "13-stage2-hello-execute.log",
+    "bytes": 21,
+    "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+    "archived": true
+  },
+  {
+    "path": "02-stage1.log",
+    "bytes": 2423,
+    "sha256": "d39c70ce53f0951327030f8a8d8c0818e2794faabe237b9f828b93653f260454",
+    "archived": true
+  },
+  {
+    "path": "05-stage1-native.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "host-cache-probes.log",
+    "bytes": 3884,
+    "sha256": "3653c82875f77041f2164ff1b0f688c4d7a9e7b4664940641fff0fa484ef4427",
+    "archived": true
+  },
+  {
+    "path": "stage2.c",
+    "bytes": 12230967,
+    "sha256": "5e4c209f997ef8e2ea41aa08cfb8aecfc2e40e5d5a587a176336697c839ed837",
+    "archived": false
+  },
+  {
+    "path": "04-stage1-translate.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "01-seed-verify.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "08-stage2.log",
+    "bytes": 2423,
+    "sha256": "3d01b0f5fa39e7d49a23ff19f3b62da4629538ad64e3a128dd68e616799ed753",
+    "archived": true
+  },
+  {
+    "path": "12-stage2-hello-compile.log",
+    "bytes": 21,
+    "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+    "archived": true
+  },
+  {
+    "path": "07-stage1-hello-execute.log",
+    "bytes": 21,
+    "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+    "archived": true
+  },
+  {
+    "path": "14-seed-final-verify.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "09-stage2-verify.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "10-stage2-translate.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "guard-native-compiler",
+    "bytes": 6857,
+    "sha256": "5ef59ef552e4b87d847a34992cfb5fc1e1744188d8fc6d7884a93be93cc3def8",
+    "archived": false
+  },
+  {
+    "path": "15-stage1-final-verify.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "manifest.json",
+    "bytes": 106510,
+    "sha256": "8f465dbacc372c1a9bca11efb0058df12b70362b49aeff9267e0d3631b38c922",
+    "archived": true
+  },
+  {
+    "path": "stage1-hello",
+    "bytes": 8514264,
+    "sha256": "99776831bdbb486c4052e7f48931db3100195e4a6f4248003616a9be972a3e7f",
+    "archived": false
+  },
+  {
+    "path": "03-stage1-verify.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "06-stage1-hello-compile.log",
+    "bytes": 21,
+    "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+    "archived": true
+  },
+  {
+    "path": "retained-host-inputs.json",
+    "bytes": 3428,
+    "sha256": "f1b4e70c5740b8f94cee15911e24561f7edaa7929b6b8ef4af32c48bfb57348f",
+    "archived": true
+  },
+  {
+    "path": "stage2-hello",
+    "bytes": 8514264,
+    "sha256": "99776831bdbb486c4052e7f48931db3100195e4a6f4248003616a9be972a3e7f",
+    "archived": false
+  }
+]

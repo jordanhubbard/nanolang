@@ -1,0 +1,3 @@
+union Box<T>{Some{value:T}}
+fn main()->int{let xs:array<Box<string>> = [Box<string>.Some{value:"retained"}] let ys:array<Box<string>> = xs match (at ys 0){Some(p)=>{assert (== p.value "retained")}} return 7}
+shadow main{assert (== (main) 7)}

@@ -1,0 +1,29 @@
+test_aggregate_and_callable_parameters_and_locals (tests.test_local_binding_metadata.LocalBindingMetadata.test_aggregate_and_callable_parameters_and_locals) ... ok
+test_array_name_is_retained (tests.test_local_binding_metadata.LocalBindingMetadata.test_array_name_is_retained) ... ok
+test_generated_tuple_owner_is_omitted_without_reserving_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_generated_tuple_owner_is_omitted_without_reserving_names) ... ok
+test_parameters_shadowed_bindings_and_loop (tests.test_local_binding_metadata.LocalBindingMetadata.test_parameters_shadowed_bindings_and_loop) ... ok
+test_shadowed_array_intervals (tests.test_local_binding_metadata.LocalBindingMetadata.test_shadowed_array_intervals) ... ok
+test_specialized_array_parameter_keeps_source_name (tests.test_local_binding_metadata.LocalBindingMetadata.test_specialized_array_parameter_keeps_source_name) ... 
+  test_specialized_array_parameter_keeps_source_name (tests.test_local_binding_metadata.LocalBindingMetadata.test_specialized_array_parameter_keeps_source_name) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt')) ... FAIL
+
+======================================================================
+FAIL: test_specialized_array_parameter_keeps_source_name (tests.test_local_binding_metadata.LocalBindingMetadata.test_specialized_array_parameter_keeps_source_name) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_local_binding_metadata.py", line 52, in produce
+    lines=self.run_checked([ROOT/"obj/test_local_bindings",artifact]+(["--require-debug"] if driver.name=="nano_virt" else [])).splitlines()
+          ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_local_binding_metadata.py", line 38, in run_checked
+    self.assertEqual(p.returncode, expected, p.stdout + p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : main 0 21 92 numbers
+main 1 38 92 words
+$generic.1 0 0 4 value
+$generic.2 0 0 4 value
+Assertion failed: (c), function roundtrip, file test_local_bindings.c, line 17.
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.728s
+
+FAILED (failures=1)

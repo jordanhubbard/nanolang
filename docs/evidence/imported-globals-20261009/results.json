@@ -1,0 +1,68 @@
+[
+  {
+    "case": "qualified",
+    "compiler": "nano_virt",
+    "exit": 1,
+    "prior_output_preserved": true,
+    "compiler_sha256": "6d656c1553925cfc72950d5b8a20249c7c03c2dcd4e13447a15dce161f7a4f6c"
+  },
+  {
+    "case": "qualified",
+    "compiler": "nanoc_stage1",
+    "exit": 1,
+    "prior_output_preserved": true,
+    "compiler_sha256": "75c1ab5f9301be80db6c13f8bca8c131b256637bd05710236af60bcd17f7bdea"
+  },
+  {
+    "case": "qualified",
+    "compiler": "nanoc_stage2",
+    "exit": 1,
+    "prior_output_preserved": true,
+    "compiler_sha256": "b501014ac46d0c8244f8f98598bffc6194cf345b484f0f54956f0d96216dff07"
+  },
+  {
+    "case": "selective",
+    "compiler": "nano_virt",
+    "exit": 1,
+    "prior_output_preserved": true,
+    "compiler_sha256": "6d656c1553925cfc72950d5b8a20249c7c03c2dcd4e13447a15dce161f7a4f6c"
+  },
+  {
+    "case": "selective",
+    "compiler": "nanoc_stage1",
+    "exit": 1,
+    "prior_output_preserved": true,
+    "compiler_sha256": "75c1ab5f9301be80db6c13f8bca8c131b256637bd05710236af60bcd17f7bdea"
+  },
+  {
+    "case": "selective",
+    "compiler": "nanoc_stage2",
+    "exit": 1,
+    "prior_output_preserved": true,
+    "compiler_sha256": "b501014ac46d0c8244f8f98598bffc6194cf345b484f0f54956f0d96216dff07"
+  },
+  {
+    "case": "function_control",
+    "compiler": "nano_virt",
+    "exit": 0,
+    "prior_output_preserved": false,
+    "compiler_sha256": "6d656c1553925cfc72950d5b8a20249c7c03c2dcd4e13447a15dce161f7a4f6c",
+    "vm_exit": 0
+  },
+  {
+    "case": "function_control",
+    "compiler": "nanoc_stage1",
+    "exit": 0,
+    "prior_output_preserved": false,
+    "compiler_sha256": "75c1ab5f9301be80db6c13f8bca8c131b256637bd05710236af60bcd17f7bdea",
+    "vm_exit": 0
+  },
+  {
+    "case": "function_control",
+    "compiler": "nanoc_stage2",
+    "exit": 0,
+    "prior_output_preserved": false,
+    "compiler_sha256": "b501014ac46d0c8244f8f98598bffc6194cf345b484f0f54956f0d96216dff07",
+    "vm_exit": 0
+  }
+]

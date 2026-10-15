@@ -1,0 +1,41 @@
+test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) ... ok
+test_callback_variable_is_captured_once (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_variable_is_captured_once) ... ok
+test_declared_map_keeps_its_signature (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_declared_map_keeps_its_signature) ...
+  test_declared_map_keeps_its_signature (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_declared_map_keeps_its_signature) (producer='product') ... FAIL
+test_incompatible_tagged_parameter_preserves_output (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_incompatible_tagged_parameter_preserves_output) ... ok
+test_invalid_unused_callbacks_preserve_output (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_invalid_unused_callbacks_preserve_output) ... ok
+test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) ... ok
+
+======================================================================
+FAIL: test_declared_map_keeps_its_signature (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_declared_map_keeps_its_signature) (producer='product')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 26, in execute
+    runner.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 1, column 1: Cannot redefine built-in function 'map'
+  Built-in functions cannot be shadowed
+  Choose a different function name
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp_npu3zt6/source.nano
+Return type mismatch: got int, expected array.
+
+1| fn map(xs:array<int>,value:int)->int{return value}
+                                        ^
+Hint: Ensure the returned value matches the function's declared return type.
+Warning at line 1, column 1: Unused variable 'xs'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp_npu3zt6/source.nano
+I require a unary callback matching the complete array element type.
+
+3| fn main()->int{assert (== (map [1] 7) 7) return 0}
+                             ^
+Hint: Return a concrete value from the transform.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 33.716s
+
+FAILED (failures=1)

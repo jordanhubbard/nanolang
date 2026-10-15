@@ -1,0 +1,7 @@
+I extend ordinary aggregate union payload admission under #976 on release/5.1-completion-20261007. I now lower record, record-array, primitive-list, tuple, map and alternating record/union payloads through my self-hosted NanoISA emitter. The C parser also retains nominal names in explicit constructor arguments, fixing Box<Item> and Box<array<Item>> parity.
+
+I retain tests for escaping payloads, shared mutation, imported same-named records, nominal mismatch refusals and prior artifacts. The fresh seed passes 47 NanoISA/VM/sanitized-C-AOT methods, 24 native methods, and six resource/layout methods. The C frontend passes 45 corresponding regression methods plus two collection methods; parser/typechecker gates and 19 parser-instrumented methods pass.
+
+I retain separate open gaps: direct legacy C-native Box<(int,string)> definition ordering and ordinary record List<int> C AOT shape resolution. The latter reproduces with the previous compiler; both remain recorded in docs/ROADMAP.md with evidence in docs/evidence/aggregate-union-payloads-20261011. I do not close #976 or claim release qualification.
+
+My eleven-step compiler-product audit passes with unchanged source in 523.927 seconds. Its resulting native self-hosted compiler passes 48 NanoISA/VM/C AOT methods, 25 native methods and six resource/layout refusal methods. I close the aggregate union admission and constructor-argument retention checkpoints only.

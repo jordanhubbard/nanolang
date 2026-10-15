@@ -1,3 +1,4 @@
+#include "eval/call_dispatch.h"
 #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
 
 #include "nanolang.h"
@@ -116,6 +117,19 @@ static void shadow_json_escape(FILE *out, const char *s) {
                 else fputc((int)c, out);
         }
     }
+}
+
+/* I flush each boundary so a killed shadow still identifies its source.
+ * Timing is diagnostic only; the outer supervisor owns the deadline. */
+static void shadow_trace_event(const char *event, const char *name, const char *file,
+                               int line, double elapsed, int failures) {
+    fprintf(stderr, "{\"event\":\"%s\",\"name\":\"", event);
+    shadow_json_escape(stderr, name);
+    fputs("\",\"source\":\"", stderr);
+    shadow_json_escape(stderr, file);
+    fprintf(stderr, "\",\"line\":%d,\"elapsed_seconds\":%.6f,\"failures\":%d}\n",
+            line, elapsed, failures);
+    fflush(stderr);
 }
 
 static bool shadow_write_json_file(const char *path, const ShadowFailure *fails, int fail_len, bool success, int test_count) {
@@ -963,6 +977,20 @@ static Value builtin_println(Value *args) {
  * Array Built-in Functions (With Bounds Checking!)
  * ========================================================================== */
 
+/* I give callable array slots independent names and signature ownership.
+ * Reads copy them so replacement, removal and container reclamation cannot
+ * invalidate an extracted function value. */
+static Value own_function_identifier(ASTNode *, Environment *, Value);
+
+static Value copy_array_callable(Value value) {
+    return create_function(value.as.function_val.function_name,
+                           copy_function_signature(value.as.function_val.signature));
+}
+static void discard_array_callable(Value value) {
+    free(value.as.function_val.function_name);
+    free_function_signature(value.as.function_val.signature);
+}
+
 static Value builtin_at(Value *args) {
     /* at(array, index) -> element */
     if (args[1].type != VAL_INT) {
@@ -985,6 +1013,8 @@ static Value builtin_at(Value *args) {
         
         /* Return element based on type */
         switch (arr->element_type) {
+            case VAL_FUNCTION:
+                return copy_array_callable(((Value *)arr->data)[index]);
             case VAL_ARRAY:
                 return ((Value*)arr->data)[index];
             case VAL_INT:
@@ -1080,6 +1110,9 @@ static Value builtin_array_new(Value *args) {
     /* Initialize all elements with default value */
     for (long long i = 0; i < size; i++) {
         switch (elem_type) {
+            case VAL_FUNCTION:
+                ((Value *)arr.as.array_val->data)[i] = copy_array_callable(args[1]);
+                break;
             case VAL_INT:
                 ((long long*)arr.as.array_val->data)[i] = args[1].as.int_val;
                 break;
@@ -1170,6 +1203,16 @@ static Value builtin_array_set(Value *args) {
     
     /* Set element based on type */
     switch (arr->element_type) {
+        case VAL_FUNCTION: {
+            if (args[2].type != VAL_FUNCTION) {
+                fprintf(stderr, "I require a callable array element.\n");
+                return create_void();
+            }
+            Value copy = copy_array_callable(args[2]);
+            discard_array_callable(((Value *)arr->data)[index]);
+            ((Value *)arr->data)[index] = copy;
+            break;
+        }
         case VAL_ARRAY:
             if (args[2].type != VAL_ARRAY && args[2].type != VAL_DYN_ARRAY) {
                 fprintf(stderr, "I require an array value for a nested array element.\n");
@@ -1253,6 +1296,10 @@ static Value builtin_array_slice(Value *args) {
 
         Value out = create_array(arr->element_type, out_len, out_len);
         switch (arr->element_type) {
+            case VAL_FUNCTION:
+                for (int64_t i = 0; i < out_len; ++i)
+                    ((Value *)out.as.array_val->data)[i] = copy_array_callable(((Value *)arr->data)[start + i]);
+                break;
             case VAL_ARRAY:
                 for (int64_t i = 0; i < out_len; i++)
                     ((Value*)out.as.array_val->data)[i] = ((Value*)arr->data)[start + i];
@@ -1365,7 +1412,8 @@ static void discard_literal_record(StructValue *record);
 
 static size_t static_array_element_width(ValueType type) {
     switch (type) {
-        case VAL_ARRAY: return sizeof(Value);
+        case VAL_ARRAY:
+        case VAL_FUNCTION: return sizeof(Value);
         case VAL_INT: return sizeof(long long);
         case VAL_FLOAT: return sizeof(double);
         case VAL_BOOL: return sizeof(bool);
@@ -1381,7 +1429,8 @@ static size_t static_array_element_width(ValueType type) {
  * keep their shared identity; create_struct clones record/string fields. */
 static void static_array_remove(Array *arr, int index) {
     size_t width = static_array_element_width(arr->element_type);
-    if (arr->element_type == VAL_STRING) free(((char**)arr->data)[index]);
+    if (arr->element_type == VAL_FUNCTION) discard_array_callable(((Value *)arr->data)[index]);
+    else if (arr->element_type == VAL_STRING) free(((char**)arr->data)[index]);
     else if (arr->element_type == VAL_STRUCT)
         discard_literal_record(((StructValue**)arr->data)[index]);
     memmove((char*)arr->data + (size_t)index * width,
@@ -1908,11 +1957,14 @@ static Value builtin_map(Value *args, Environment *env) {
     Function *transform = env_get_function(env, transform_fn_name);
     ValueType result_type = VAL_VOID;
     if (transform) {
-        switch (transform->return_type) {
+        FunctionSignature *signature = args[1].as.function_val.signature;
+        switch (signature ? signature->return_type : transform->return_type) {
             case TYPE_INT: result_type = VAL_INT; break;
             case TYPE_FLOAT: result_type = VAL_FLOAT; break;
             case TYPE_BOOL: result_type = VAL_BOOL; break;
             case TYPE_STRING: result_type = VAL_STRING; break;
+            case TYPE_STRUCT: result_type = VAL_STRUCT; break;
+            case TYPE_FUNCTION: result_type = VAL_FUNCTION; break;
             default: break;
         }
     }
@@ -1948,6 +2000,20 @@ static Value builtin_map(Value *args, Environment *env) {
                 case VAL_STRING:
                     elem.as.string_val = ((char**)input_arr->data)[i];
                     break;
+                case VAL_FUNCTION:
+                    if (i >= input_arr->length) {
+                        discard_partial_owned_array(output_arr, (int)i);
+                        fprintf(stderr, "I require an in-bounds callable map element.\n");
+                        return create_void();
+                    }
+                    elem = copy_array_callable(((Value*)input_arr->data)[i]);
+                    break;
+                case VAL_STRUCT: {
+                    StructValue *record = ((StructValue**)input_arr->data)[i];
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 default:
                     fprintf(stderr, "Error: Unsupported array element type in map\n");
                     return create_void();
@@ -1957,6 +2023,7 @@ static Value builtin_map(Value *args, Environment *env) {
             Value call_args[1];
             call_args[0] = elem;
             Value transformed = call_function(transform_fn_name, call_args, 1, env);
+            if (elem.type == VAL_FUNCTION) discard_array_callable(elem);
             if (transformed.is_return) {
                 discard_partial_owned_array(output_arr, (int)i);
                 return transformed;
@@ -1964,6 +2031,14 @@ static Value builtin_map(Value *args, Environment *env) {
             
             /* Store transformed value in output array */
             switch (output_arr->element_type) {
+                case VAL_FUNCTION:
+                    if (transformed.type != VAL_FUNCTION) {
+                        discard_partial_owned_array(output_arr, (int)i);
+                        fprintf(stderr, "I require a callable result in map.\n");
+                        return create_void();
+                    }
+                    ((Value*)output_arr->data)[i] = transformed;
+                    break;
                 case VAL_INT:
                     if (transformed.type != VAL_INT) {
                         fprintf(stderr, "I require the transform's declared result type in map.\n");
@@ -1992,6 +2067,18 @@ static Value builtin_map(Value *args, Environment *env) {
                     }
                     ((char**)output_arr->data)[i] = strdup(transformed.as.string_val);
                     break;
+                case VAL_STRUCT: {
+                    if (transformed.type != VAL_STRUCT) {
+                        discard_partial_owned_array(output_arr, (int)i);
+                        fprintf(stderr, "I require a record result in map.\n");
+                        return create_void();
+                    }
+                    StructValue *record = transformed.as.struct_val;
+                    Value copy = create_struct(record->struct_name, record->field_names,
+                                               record->field_values, record->field_count);
+                    ((StructValue**)output_arr->data)[i] = copy.as.struct_val;
+                    break;
+                }
                 default:
                     break;
             }
@@ -2064,6 +2151,12 @@ static Value builtin_map(Value *args, Environment *env) {
                     elem.type = VAL_STRING;
                     elem.as.string_val = (char*)dyn_array_get_string(input_arr, i);
                     break;
+                case ELEM_STRUCT: {
+                    StructValue *record = *(StructValue**)dyn_array_get_struct(input_arr, i);
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 case ELEM_ARRAY:
                     elem.type = VAL_DYN_ARRAY;
                     elem.as.dyn_array_val = dyn_array_get_array(input_arr, i);
@@ -2112,6 +2205,18 @@ static Value builtin_map(Value *args, Environment *env) {
                     }
                     dyn_array_push_string_copy(output_arr, transformed.as.string_val);
                     break;
+                case ELEM_STRUCT: {
+                    if (transformed.type != VAL_STRUCT) {
+                        gc_release(output_arr);
+                        fprintf(stderr, "I require a record result in map.\n");
+                        return create_void();
+                    }
+                    StructValue *record = transformed.as.struct_val;
+                    Value copy = create_struct(record->struct_name, record->field_names,
+                                               record->field_values, record->field_count);
+                    dyn_array_push_struct(output_arr, &copy.as.struct_val, sizeof(StructValue*));
+                    break;
+                }
                 case ELEM_ARRAY:
                     if (transformed.type != VAL_DYN_ARRAY) {
                         fprintf(stderr, "I require the transform's declared result type in map.\n");
@@ -2142,13 +2247,40 @@ static Value builtin_filter(Value *args, Environment *env) {
 
     const char *pred_fn_name = args[1].as.function_val.function_name;
 
+    if (args[0].type == VAL_ARRAY && args[0].as.array_val->element_type == VAL_FUNCTION) {
+        Array *input = args[0].as.array_val;
+        int length = input->length;
+        Value result = create_array(VAL_FUNCTION, 0, length);
+        Array *output = result.as.array_val;
+        for (int i = 0; i < length; ++i) {
+            if (i >= input->length) {
+                discard_partial_owned_array(output, output->length);
+                fprintf(stderr, "I require an in-bounds callable filter element.\n");
+                return create_void();
+            }
+            Value element = copy_array_callable(((Value*)input->data)[i]);
+            Value predicate = call_function(pred_fn_name, &element, 1, env);
+            if (predicate.is_return || predicate.type != VAL_BOOL) {
+                discard_array_callable(element);
+                discard_partial_owned_array(output, output->length);
+                if (predicate.is_return) return predicate;
+                fprintf(stderr, "I require a Boolean filter predicate.\n");
+                return create_void();
+            }
+            /* I retain the tested value before the predicate can replace its slot. */
+            if (predicate.as.bool_val) ((Value*)output->data)[output->length++] = element;
+            else discard_array_callable(element);
+        }
+        return result;
+    }
+
     /* Handle static arrays */
     if (args[0].type == VAL_ARRAY) {
         Array *input_arr = args[0].as.array_val;
         int64_t len = input_arr->length;
 
-        bool *keep = (bool*)calloc((size_t)len, sizeof(bool));
-        if (!keep) {
+        bool *keep = len ? (bool*)calloc((size_t)len, sizeof(bool)) : NULL;
+        if (len && !keep) {
             fprintf(stderr, "Error: Out of memory in filter()\n");
             return create_void();
         }
@@ -2174,6 +2306,12 @@ static Value builtin_filter(Value *args, Environment *env) {
                 case VAL_STRING:
                     elem.as.string_val = ((char**)input_arr->data)[i];
                     break;
+                case VAL_STRUCT: {
+                    StructValue *record = ((StructValue**)input_arr->data)[i];
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 default:
                     free(keep);
                     fprintf(stderr, "Error: Unsupported array element type in filter\n");
@@ -2216,6 +2354,13 @@ static Value builtin_filter(Value *args, Environment *env) {
                 case VAL_STRING:
                     ((char**)output_arr->data)[out_i] = strdup(((char**)input_arr->data)[i]);
                     break;
+                case VAL_STRUCT: {
+                    StructValue *record = ((StructValue**)input_arr->data)[i];
+                    Value copy = create_struct(record->struct_name, record->field_names,
+                                               record->field_values, record->field_count);
+                    ((StructValue**)output_arr->data)[out_i] = copy.as.struct_val;
+                    break;
+                }
                 default:
                     break;
             }
@@ -2256,6 +2401,12 @@ static Value builtin_filter(Value *args, Environment *env) {
                     elem.type = VAL_STRING;
                     elem.as.string_val = (char*)dyn_array_get_string(input_arr, i);
                     break;
+                case ELEM_STRUCT: {
+                    StructValue *record = *(StructValue**)dyn_array_get_struct(input_arr, i);
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 case ELEM_ARRAY:
                     elem.type = VAL_DYN_ARRAY;
                     elem.as.dyn_array_val = dyn_array_get_array(input_arr, i);
@@ -2292,6 +2443,13 @@ static Value builtin_filter(Value *args, Environment *env) {
                 case ELEM_STRING:
                     dyn_array_push_string_copy(output_arr, elem.as.string_val);
                     break;
+                case ELEM_STRUCT: {
+                    StructValue *record = elem.as.struct_val;
+                    Value copy = create_struct(record->struct_name, record->field_names,
+                                               record->field_values, record->field_count);
+                    dyn_array_push_struct(output_arr, &copy.as.struct_val, sizeof(StructValue*));
+                    break;
+                }
                 case ELEM_ARRAY:
                     dyn_array_push_array(output_arr, elem.as.dyn_array_val);
                     break;
@@ -2317,7 +2475,7 @@ static Value builtin_reduce(Value *args, Environment *env) {
     }
     
     const char *combine_fn_name = args[2].as.function_val.function_name;
-    Value accumulator = args[1];  /* Initial value */
+    Value accumulator = args[1].type == VAL_FUNCTION ? copy_array_callable(args[1]) : args[1];
     
     /* Handle static arrays */
     if (args[0].type == VAL_ARRAY) {
@@ -2345,6 +2503,20 @@ static Value builtin_reduce(Value *args, Environment *env) {
                 case VAL_STRING:
                     elem.as.string_val = ((char**)arr->data)[i];
                     break;
+                case VAL_FUNCTION:
+                    if (i >= arr->length) {
+                        if (accumulator.type == VAL_FUNCTION) discard_array_callable(accumulator);
+                        fprintf(stderr, "I require an in-bounds callable reduce element.\n");
+                        return create_void();
+                    }
+                    elem = copy_array_callable(((Value*)arr->data)[i]);
+                    break;
+                case VAL_STRUCT: {
+                    StructValue *record = ((StructValue**)arr->data)[i];
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 default:
                     fprintf(stderr, "Error: Unsupported array element type in reduce\n");
                     return create_void();
@@ -2354,7 +2526,10 @@ static Value builtin_reduce(Value *args, Environment *env) {
             Value call_args[2];
             call_args[0] = accumulator;
             call_args[1] = elem;
-            accumulator = call_function(combine_fn_name, call_args, 2, env);
+            Value next = call_function(combine_fn_name, call_args, 2, env);
+            if (elem.type == VAL_FUNCTION) discard_array_callable(elem);
+            if (accumulator.type == VAL_FUNCTION) discard_array_callable(accumulator);
+            accumulator = next;
             if (accumulator.is_return) return accumulator;
         }
         
@@ -2422,6 +2597,12 @@ static Value builtin_reduce(Value *args, Environment *env) {
                     elem.type = VAL_STRING;
                     elem.as.string_val = (char*)dyn_array_get_string(arr, i);
                     break;
+                case ELEM_STRUCT: {
+                    StructValue *record = *(StructValue**)dyn_array_get_struct(arr, i);
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 case ELEM_ARRAY:
                     elem.type = VAL_DYN_ARRAY;
                     elem.as.dyn_array_val = dyn_array_get_array(arr, i);
@@ -3097,9 +3278,10 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
     
     const char *name = bound_name ? bound_name : node->as.call.name;
+    EvalCallName call_name = eval_call_name(name);
 
     /* Special built-in: range (used in for loops only) */
-    if (strcmp(name, "range") == 0) {
+    if (call_name == EVAL_CALL_range) {
         /* This should not be called directly */
         return create_void();
     }
@@ -3109,7 +3291,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     /* spawn(fn_name, arg1, arg2, ...) — spawn an async function as a coroutine.
      * Returns a VAL_COROUTINE value (int_val = coroutine id).
      */
-    if (strcmp(name, "coro_spawn") == 0) {
+    if (call_name == EVAL_CALL_coro_spawn) {
         if (node->as.call.arg_count < 1) {
             fprintf(stderr, "Error: spawn() requires at least a function name argument\n");
             return create_void();
@@ -3163,13 +3345,13 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
 
     /* coro_yield() — cooperatively suspend the current coroutine */
-    if (strcmp(name, "coro_yield") == 0) {
+    if (call_name == EVAL_CALL_coro_yield) {
         nano_coro_yield();
         return create_void();
     }
 
     /* coro_done(handle) — returns true if the coroutine is done */
-    if (strcmp(name, "coro_done") == 0) {
+    if (call_name == EVAL_CALL_coro_done) {
         if (node->as.call.arg_count < 1) return create_void();
         Value h = eval_expression(node->as.call.args[0], env);
         bool done = (h.type == VAL_COROUTINE)
@@ -3179,7 +3361,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
 
     /* coro_result(handle) — returns result of a completed coroutine */
-    if (strcmp(name, "coro_result") == 0) {
+    if (call_name == EVAL_CALL_coro_result) {
         if (node->as.call.arg_count < 1) return create_void();
         Value h = eval_expression(node->as.call.args[0], env);
         return (h.type == VAL_COROUTINE)
@@ -3188,13 +3370,13 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
 
     /* scheduler_run() — drain all pending coroutines */
-    if (strcmp(name, "scheduler_run") == 0) {
+    if (call_name == EVAL_CALL_scheduler_run) {
         nano_scheduler_run_until_done();
         return create_void();
     }
 
     /* scheduler_step() — run one scheduler step */
-    if (strcmp(name, "scheduler_step") == 0) {
+    if (call_name == EVAL_CALL_scheduler_step) {
         bool did_work = nano_scheduler_step();
         return create_bool(did_work);
     }
@@ -3218,96 +3400,96 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
 
     /* File operations */
-    if (strcmp(name, "file_read") == 0) return builtin_file_read(args);
-    if (strcmp(name, "file_read_bytes") == 0) return builtin_file_read_bytes(args);
-    if (strcmp(name, "file_write") == 0) return builtin_file_write(args);
-    if (strcmp(name, "file_append") == 0) return builtin_file_append(args);
-    if (strcmp(name, "file_remove") == 0) return builtin_file_remove(args);
-    if (strcmp(name, "file_rename") == 0) return builtin_file_rename(args);
-    if (strcmp(name, "file_exists") == 0) return builtin_file_exists(args);
-    if (strcmp(name, "file_size") == 0) return builtin_file_size(args);
+    if (call_name == EVAL_CALL_file_read) return builtin_file_read(args);
+    if (call_name == EVAL_CALL_file_read_bytes) return builtin_file_read_bytes(args);
+    if (call_name == EVAL_CALL_file_write) return builtin_file_write(args);
+    if (call_name == EVAL_CALL_file_append) return builtin_file_append(args);
+    if (call_name == EVAL_CALL_file_remove) return builtin_file_remove(args);
+    if (call_name == EVAL_CALL_file_rename) return builtin_file_rename(args);
+    if (call_name == EVAL_CALL_file_exists) return builtin_file_exists(args);
+    if (call_name == EVAL_CALL_file_size) return builtin_file_size(args);
 
     /* Temp helpers */
-    if (strcmp(name, "tmp_dir") == 0) return builtin_tmp_dir(args);
-    if (strcmp(name, "mktemp") == 0) return builtin_mktemp(args);
-    if (strcmp(name, "mktemp_dir") == 0) return builtin_mktemp_dir(args);
+    if (call_name == EVAL_CALL_tmp_dir) return builtin_tmp_dir(args);
+    if (call_name == EVAL_CALL_mktemp) return builtin_mktemp(args);
+    if (call_name == EVAL_CALL_mktemp_dir) return builtin_mktemp_dir(args);
 
     /* Directory operations */
-    if (strcmp(name, "dir_create") == 0) return builtin_dir_create(args);
-    if (strcmp(name, "dir_remove") == 0) return builtin_dir_remove(args);
-    if (strcmp(name, "dir_list") == 0) return builtin_dir_list(args);
-    if (strcmp(name, "dir_exists") == 0) return builtin_dir_exists(args);
-    if (strcmp(name, "getcwd") == 0) return builtin_getcwd(args);
-    if (strcmp(name, "chdir") == 0) return builtin_chdir(args);
-    if (strcmp(name, "fs_walkdir") == 0) return builtin_fs_walkdir(args);
+    if (call_name == EVAL_CALL_dir_create) return builtin_dir_create(args);
+    if (call_name == EVAL_CALL_dir_remove) return builtin_dir_remove(args);
+    if (call_name == EVAL_CALL_dir_list) return builtin_dir_list(args);
+    if (call_name == EVAL_CALL_dir_exists) return builtin_dir_exists(args);
+    if (call_name == EVAL_CALL_getcwd) return builtin_getcwd(args);
+    if (call_name == EVAL_CALL_chdir) return builtin_chdir(args);
+    if (call_name == EVAL_CALL_fs_walkdir) return builtin_fs_walkdir(args);
 
     /* Path operations */
-    if (strcmp(name, "path_isfile") == 0) return builtin_path_isfile(args);
-    if (strcmp(name, "path_isdir") == 0) return builtin_path_isdir(args);
-    if (strcmp(name, "path_join") == 0) return builtin_path_join(args);
-    if (strcmp(name, "path_basename") == 0) return builtin_path_basename(args);
-    if (strcmp(name, "path_dirname") == 0) return builtin_path_dirname(args);
-    if (strcmp(name, "path_normalize") == 0) return builtin_path_normalize(args);
+    if (call_name == EVAL_CALL_path_isfile) return builtin_path_isfile(args);
+    if (call_name == EVAL_CALL_path_isdir) return builtin_path_isdir(args);
+    if (call_name == EVAL_CALL_path_join) return builtin_path_join(args);
+    if (call_name == EVAL_CALL_path_basename) return builtin_path_basename(args);
+    if (call_name == EVAL_CALL_path_dirname) return builtin_path_dirname(args);
+    if (call_name == EVAL_CALL_path_normalize) return builtin_path_normalize(args);
 
     /* Process operations */
-    if (strcmp(name, "system") == 0) return builtin_system(args);
-    if (strcmp(name, "exit") == 0) return builtin_exit(args);
-    if (strcmp(name, "getenv") == 0) return builtin_getenv(args);
-    if (strcmp(name, "setenv") == 0) return builtin_setenv(args);
-    if (strcmp(name, "unsetenv") == 0) return builtin_unsetenv(args);
-    if (strcmp(name, "process_run") == 0) return builtin_process_run(args);
+    if (call_name == EVAL_CALL_system) return builtin_system(args);
+    if (call_name == EVAL_CALL_exit) return builtin_exit(args);
+    if (call_name == EVAL_CALL_getenv) return builtin_getenv(args);
+    if (call_name == EVAL_CALL_setenv) return builtin_setenv(args);
+    if (call_name == EVAL_CALL_unsetenv) return builtin_unsetenv(args);
+    if (call_name == EVAL_CALL_process_run) return builtin_process_run(args);
 
     /* Result helpers */
-    if (strcmp(name, "result_is_ok") == 0) return builtin_result_is_ok(args);
-    if (strcmp(name, "result_is_err") == 0) return builtin_result_is_err(args);
-    if (strcmp(name, "result_unwrap") == 0) return builtin_result_unwrap(args);
-    if (strcmp(name, "result_unwrap_err") == 0) return builtin_result_unwrap_err(args);
-    if (strcmp(name, "result_unwrap_or") == 0) return builtin_result_unwrap_or(args);
-    if (strcmp(name, "result_map") == 0) return builtin_result_map(args, env);
-    if (strcmp(name, "result_and_then") == 0) return builtin_result_and_then(args, env);
+    if (call_name == EVAL_CALL_result_is_ok) return builtin_result_is_ok(args);
+    if (call_name == EVAL_CALL_result_is_err) return builtin_result_is_err(args);
+    if (call_name == EVAL_CALL_result_unwrap) return builtin_result_unwrap(args);
+    if (call_name == EVAL_CALL_result_unwrap_err) return builtin_result_unwrap_err(args);
+    if (call_name == EVAL_CALL_result_unwrap_or) return builtin_result_unwrap_or(args);
+    if (call_name == EVAL_CALL_result_map) return builtin_result_map(args, env);
+    if (call_name == EVAL_CALL_result_and_then) return builtin_result_and_then(args, env);
 
     /* GPU built-in stubs — return 0 in interpreter; real impl is in PTX backend */
-    if (strcmp(name, "thread_id_x") == 0) return create_int(0);
-    if (strcmp(name, "thread_id_y") == 0) return create_int(0);
-    if (strcmp(name, "thread_id_z") == 0) return create_int(0);
-    if (strcmp(name, "block_id_x")  == 0) return create_int(0);
-    if (strcmp(name, "block_id_y")  == 0) return create_int(0);
-    if (strcmp(name, "block_id_z")  == 0) return create_int(0);
-    if (strcmp(name, "block_dim_x") == 0) return create_int(256);
-    if (strcmp(name, "block_dim_y") == 0) return create_int(256);
-    if (strcmp(name, "block_dim_z") == 0) return create_int(1);
-    if (strcmp(name, "grid_dim_x")  == 0) return create_int(1);
-    if (strcmp(name, "grid_dim_y")  == 0) return create_int(1);
-    if (strcmp(name, "grid_dim_z")  == 0) return create_int(1);
-    if (strcmp(name, "global_id_x") == 0) return create_int(0);
-    if (strcmp(name, "global_id_y") == 0) return create_int(0);
-    if (strcmp(name, "gpu_barrier")    == 0) return create_void();
+    if (call_name == EVAL_CALL_thread_id_x) return create_int(0);
+    if (call_name == EVAL_CALL_thread_id_y) return create_int(0);
+    if (call_name == EVAL_CALL_thread_id_z) return create_int(0);
+    if (call_name == EVAL_CALL_block_id_x) return create_int(0);
+    if (call_name == EVAL_CALL_block_id_y) return create_int(0);
+    if (call_name == EVAL_CALL_block_id_z) return create_int(0);
+    if (call_name == EVAL_CALL_block_dim_x) return create_int(256);
+    if (call_name == EVAL_CALL_block_dim_y) return create_int(256);
+    if (call_name == EVAL_CALL_block_dim_z) return create_int(1);
+    if (call_name == EVAL_CALL_grid_dim_x) return create_int(1);
+    if (call_name == EVAL_CALL_grid_dim_y) return create_int(1);
+    if (call_name == EVAL_CALL_grid_dim_z) return create_int(1);
+    if (call_name == EVAL_CALL_global_id_x) return create_int(0);
+    if (call_name == EVAL_CALL_global_id_y) return create_int(0);
+    if (call_name == EVAL_CALL_gpu_barrier) return create_void();
 
     /* Math and utility functions */
-    if (strcmp(name, "abs") == 0) return builtin_abs(args);
-    if (strcmp(name, "min") == 0) return builtin_min(args);
-    if (strcmp(name, "max") == 0) return builtin_max(args);
-    if (strcmp(name, "print") == 0) return builtin_print(args);
-    if (strcmp(name, "println") == 0) return builtin_println(args);
+    if (call_name == EVAL_CALL_abs) return builtin_abs(args);
+    if (call_name == EVAL_CALL_min) return builtin_min(args);
+    if (call_name == EVAL_CALL_max) return builtin_max(args);
+    if (call_name == EVAL_CALL_print) return builtin_print(args);
+    if (call_name == EVAL_CALL_println) return builtin_println(args);
     
     /* Advanced math functions */
-    if (strcmp(name, "sqrt") == 0) return builtin_sqrt(args);
-    if (strcmp(name, "pow") == 0) return builtin_pow(args);
-    if (strcmp(name, "floor") == 0) return builtin_floor(args);
-    if (strcmp(name, "ceil") == 0) return builtin_ceil(args);
-    if (strcmp(name, "round") == 0) return builtin_round(args);
+    if (call_name == EVAL_CALL_sqrt) return builtin_sqrt(args);
+    if (call_name == EVAL_CALL_pow) return builtin_pow(args);
+    if (call_name == EVAL_CALL_floor) return builtin_floor(args);
+    if (call_name == EVAL_CALL_ceil) return builtin_ceil(args);
+    if (call_name == EVAL_CALL_round) return builtin_round(args);
     
     /* Trigonometric functions */
-    if (strcmp(name, "sin") == 0) return builtin_sin(args);
-    if (strcmp(name, "cos") == 0) return builtin_cos(args);
-    if (strcmp(name, "tan") == 0) return builtin_tan(args);
-    if (strcmp(name, "atan2") == 0) return builtin_atan2(args);
+    if (call_name == EVAL_CALL_sin) return builtin_sin(args);
+    if (call_name == EVAL_CALL_cos) return builtin_cos(args);
+    if (call_name == EVAL_CALL_tan) return builtin_tan(args);
+    if (call_name == EVAL_CALL_atan2) return builtin_atan2(args);
     
     /* Type casting functions */
-    if (strcmp(name, "cast_int") == 0) return builtin_cast_int(args);
-    if (strcmp(name, "cast_float") == 0) return builtin_cast_float(args);
-    if (strcmp(name, "float_from_bits") == 0 || strcmp(name, "float_to_bits") == 0) {
-        bool from = strcmp(name, "float_from_bits") == 0;
+    if (call_name == EVAL_CALL_cast_int) return builtin_cast_int(args);
+    if (call_name == EVAL_CALL_cast_float) return builtin_cast_float(args);
+    if (call_name == EVAL_CALL_float_from_bits || call_name == EVAL_CALL_float_to_bits) {
+        bool from = call_name == EVAL_CALL_float_from_bits;
         if (args[0].type != (from ? VAL_INT : VAL_FLOAT)) {
             fputs("I require the exact input type for binary64 bit transport.\n", stderr);
             exit(EXIT_FAILURE);
@@ -3315,13 +3497,13 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return from ? create_float(nl_float_from_bits(args[0].as.int_val))
                     : create_int(nl_float_to_bits(args[0].as.float_val));
     }
-    if (strcmp(name, "cast_bool") == 0) return builtin_cast_bool(args);
-    if (strcmp(name, "cast_string") == 0) return builtin_cast_string(args);
-    if (strcmp(name, "null_opaque") == 0) return builtin_null_opaque(args);
-    if (strcmp(name, "to_string") == 0) return builtin_to_string(args);
+    if (call_name == EVAL_CALL_cast_bool) return builtin_cast_bool(args);
+    if (call_name == EVAL_CALL_cast_string) return builtin_cast_string(args);
+    if (call_name == EVAL_CALL_null_opaque) return builtin_null_opaque(args);
+    if (call_name == EVAL_CALL_to_string) return builtin_to_string(args);
 
     /* Additional type conversion functions */
-    if (strcmp(name, "float_to_string") == 0) {
+    if (call_name == EVAL_CALL_float_to_string) {
         if (args[0].type != VAL_FLOAT && args[0].type != VAL_INT) {
             return create_string("0.0");
         }
@@ -3339,22 +3521,22 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
         return create_string(buffer);
     }
-    if (strcmp(name, "bool_to_string") == 0) {
+    if (call_name == EVAL_CALL_bool_to_string) {
         if (args[0].type == VAL_BOOL) {
             return create_string(args[0].as.bool_val ? "true" : "false");
         }
         return create_string("false");
     }
-    if (strcmp(name, "string_to_float") == 0) {
+    if (call_name == EVAL_CALL_string_to_float) {
         if (args[0].type != VAL_STRING) return create_float(0.0);
         return create_float(nl_binary64_prefix(args[0].as.string_val));
     }
 
     /* get_argc / get_argv for CLI programs */
-    if (strcmp(name, "get_argc") == 0) {
+    if (call_name == EVAL_CALL_get_argc) {
         return create_int(g_argc);
     }
-    if (strcmp(name, "get_argv") == 0) {
+    if (call_name == EVAL_CALL_get_argv) {
         if (args[0].type != VAL_INT) return create_string("");
         int idx = (int)args[0].as.int_val;
         if (idx < 0 || idx >= g_argc || !g_argv[idx]) return create_string("");
@@ -3362,7 +3544,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
 
     /* Timing utilities */
-    if (strcmp(name, "nl_get_time_ms") == 0) {
+    if (call_name == EVAL_CALL_nl_get_time_ms) {
         struct timespec ts;
         if (node->as.call.arg_count != 0 || clock_gettime(CLOCK_REALTIME, &ts) != 0) {
             fprintf(stderr, "I cannot read epoch milliseconds.\n");
@@ -3370,7 +3552,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
         return create_int((long long)ts.tv_sec * 1000LL + ts.tv_nsec / 1000000LL);
     }
-    if (strcmp(name, "nl_timing_get_nanoseconds") == 0) {
+    if (call_name == EVAL_CALL_nl_timing_get_nanoseconds) {
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);
         long long ns = (long long)ts.tv_sec * 1000000000LL + ts.tv_nsec;
@@ -3378,25 +3560,25 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
 
     /* String builder builtins (interpreter-native implementations) */
-    if (strcmp(name, "nl_sb_new") == 0) {
+    if (call_name == EVAL_CALL_nl_sb_new) {
         /* Allocate an EvalSB on the heap; store pointer as int */
         EvalSB *sb = malloc(sizeof(EvalSB));
         *sb = eval_sb_new(256);
         return create_int((long long)(intptr_t)sb);
     }
-    if (strcmp(name, "nl_sb_with_capacity") == 0) {
+    if (call_name == EVAL_CALL_nl_sb_with_capacity) {
         size_t cap = (args[0].type == VAL_INT) ? (size_t)args[0].as.int_val : 256;
         EvalSB *sb = malloc(sizeof(EvalSB));
         *sb = eval_sb_new(cap);
         return create_int((long long)(intptr_t)sb);
     }
-    if (strcmp(name, "nl_sb_append") == 0) {
+    if (call_name == EVAL_CALL_nl_sb_append) {
         EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
         if (sb && args[1].type == VAL_STRING && args[1].as.string_val)
             eval_sb_append_cstr(sb, args[1].as.string_val);
         return create_void();
     }
-    if (strcmp(name, "nl_sb_append_char") == 0) {
+    if (call_name == EVAL_CALL_nl_sb_append_char) {
         EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
         if (sb && args[1].type == VAL_INT) {
             char c = (char)args[1].as.int_val;
@@ -3404,47 +3586,47 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
         return create_void();
     }
-    if (strcmp(name, "nl_sb_clear") == 0) {
+    if (call_name == EVAL_CALL_nl_sb_clear) {
         EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
         if (sb) { sb->len = 0; if (sb->buf) sb->buf[0] = '\0'; }
         return create_void();
     }
-    if (strcmp(name, "nl_sb_length") == 0) {
+    if (call_name == EVAL_CALL_nl_sb_length) {
         EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
         return create_int(sb ? (long long)sb->len : 0);
     }
-    if (strcmp(name, "nl_sb_capacity") == 0) {
+    if (call_name == EVAL_CALL_nl_sb_capacity) {
         EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
         return create_int(sb ? (long long)sb->cap : 0);
     }
-    if (strcmp(name, "nl_sb_to_string") == 0) {
+    if (call_name == EVAL_CALL_nl_sb_to_string) {
         EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
         if (!sb || !sb->buf) return create_string("");
         return create_string(sb->buf);
     }
-    if (strcmp(name, "nl_sb_free") == 0) {
+    if (call_name == EVAL_CALL_nl_sb_free) {
         EvalSB *sb = (EvalSB*)(intptr_t)args[0].as.int_val;
         if (sb) { free(sb->buf); free(sb); }
         return create_void();
     }
     
     /* String operations */
-    if (strcmp(name, "str_length") == 0) return builtin_str_length(args);
-    if (strcmp(name, "str_concat") == 0) return builtin_str_concat(args);
-    if (strcmp(name, "str_substring") == 0) return builtin_str_substring(args);
-    if (strcmp(name, "str_contains") == 0) return builtin_str_contains(args);
-    if (strcmp(name, "str_equals") == 0) return builtin_str_equals(args);
-    if (strcmp(name, "str_starts_with") == 0) return builtin_str_starts_with(args);
-    if (strcmp(name, "str_ends_with") == 0) return builtin_str_ends_with(args);
-    if (strcmp(name, "str_index_of") == 0) return builtin_str_index_of(args);
-    if (strcmp(name, "str_last_index_of") == 0) return builtin_str_last_index_of(args);
-    if (strcmp(name, "str_trim") == 0) return builtin_str_trim(args);
-    if (strcmp(name, "str_trim_left") == 0) return builtin_str_trim_left(args);
-    if (strcmp(name, "str_trim_right") == 0) return builtin_str_trim_right(args);
-    if (strcmp(name, "str_to_lower") == 0) return builtin_str_to_lower(args);
-    if (strcmp(name, "str_to_upper") == 0) return builtin_str_to_upper(args);
-    if (strcmp(name, "str_replace") == 0) return builtin_str_replace(args);
-    if (strcmp(name, "format") == 0) {
+    if (call_name == EVAL_CALL_str_length) return builtin_str_length(args);
+    if (call_name == EVAL_CALL_str_concat) return builtin_str_concat(args);
+    if (call_name == EVAL_CALL_str_substring) return builtin_str_substring(args);
+    if (call_name == EVAL_CALL_str_contains) return builtin_str_contains(args);
+    if (call_name == EVAL_CALL_str_equals) return builtin_str_equals(args);
+    if (call_name == EVAL_CALL_str_starts_with) return builtin_str_starts_with(args);
+    if (call_name == EVAL_CALL_str_ends_with) return builtin_str_ends_with(args);
+    if (call_name == EVAL_CALL_str_index_of) return builtin_str_index_of(args);
+    if (call_name == EVAL_CALL_str_last_index_of) return builtin_str_last_index_of(args);
+    if (call_name == EVAL_CALL_str_trim) return builtin_str_trim(args);
+    if (call_name == EVAL_CALL_str_trim_left) return builtin_str_trim_left(args);
+    if (call_name == EVAL_CALL_str_trim_right) return builtin_str_trim_right(args);
+    if (call_name == EVAL_CALL_str_to_lower) return builtin_str_to_lower(args);
+    if (call_name == EVAL_CALL_str_to_upper) return builtin_str_to_upper(args);
+    if (call_name == EVAL_CALL_str_replace) return builtin_str_replace(args);
+    if (call_name == EVAL_CALL_format) {
         int arg_count = node->as.call.arg_count;
         if (arg_count < 1 || args[0].type != VAL_STRING) {
             fprintf(stderr, "Error: format requires a string template as first argument\n");
@@ -3502,7 +3684,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         free(buf);
         return v;
     }
-    if (strcmp(name, "str_split") == 0) {
+    if (call_name == EVAL_CALL_str_split) {
         if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
             fprintf(stderr, "Error: str_split requires two string arguments\n");
             return create_void();
@@ -3535,7 +3717,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
         return create_dyn_array(result);
     }
-    if (strcmp(name, "str_join") == 0) {
+    if (call_name == EVAL_CALL_str_join) {
         if ((args[0].type != VAL_DYN_ARRAY && args[0].type != VAL_ARRAY) || args[1].type != VAL_STRING) {
             fprintf(stderr, "Error: str_join requires array<string> and string\n");
             return create_void();
@@ -3575,11 +3757,11 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
 
     /* Bytes helpers */
-    if (strcmp(name, "bytes_from_string") == 0) return builtin_bytes_from_string(args);
-    if (strcmp(name, "string_from_bytes") == 0) return builtin_string_from_bytes(args);
+    if (call_name == EVAL_CALL_bytes_from_string) return builtin_bytes_from_string(args);
+    if (call_name == EVAL_CALL_string_from_bytes) return builtin_string_from_bytes(args);
     
     /* Advanced string operations */
-    if (strcmp(name, "char_at") == 0) {
+    if (call_name == EVAL_CALL_char_at) {
         if (args[0].type != VAL_STRING || args[1].type != VAL_INT) {
             fprintf(stderr, "Error: char_at requires string and int\n");
             return create_void();
@@ -3595,7 +3777,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return create_int((unsigned char)str[index]);
     }
     
-    if (strcmp(name, "string_from_char") == 0) {
+    if (call_name == EVAL_CALL_string_from_char) {
         if (args[0].type != VAL_INT) {
             fprintf(stderr, "Error: string_from_char requires int\n");
             return create_void();
@@ -3607,19 +3789,19 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
     
     /* Character classification */
-    if (strcmp(name, "is_digit") == 0) {
+    if (call_name == EVAL_CALL_is_digit) {
         if (args[0].type != VAL_INT) return create_bool(false);
         int c = (int)args[0].as.int_val;
         return create_bool(c >= '0' && c <= '9');
     }
     
-    if (strcmp(name, "is_alpha") == 0) {
+    if (call_name == EVAL_CALL_is_alpha) {
         if (args[0].type != VAL_INT) return create_bool(false);
         int c = (int)args[0].as.int_val;
         return create_bool((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
     }
     
-    if (strcmp(name, "is_alnum") == 0) {
+    if (call_name == EVAL_CALL_is_alnum) {
         if (args[0].type != VAL_INT) return create_bool(false);
         int c = (int)args[0].as.int_val;
         return create_bool((c >= '0' && c <= '9') || 
@@ -3627,26 +3809,26 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                            (c >= 'A' && c <= 'Z'));
     }
     
-    if (strcmp(name, "is_whitespace") == 0) {
+    if (call_name == EVAL_CALL_is_whitespace) {
         if (args[0].type != VAL_INT) return create_bool(false);
         int c = (int)args[0].as.int_val;
         return create_bool(c == ' ' || c == '\t' || c == '\n' || c == '\r');
     }
     
-    if (strcmp(name, "is_upper") == 0) {
+    if (call_name == EVAL_CALL_is_upper) {
         if (args[0].type != VAL_INT) return create_bool(false);
         int c = (int)args[0].as.int_val;
         return create_bool(c >= 'A' && c <= 'Z');
     }
     
-    if (strcmp(name, "is_lower") == 0) {
+    if (call_name == EVAL_CALL_is_lower) {
         if (args[0].type != VAL_INT) return create_bool(false);
         int c = (int)args[0].as.int_val;
         return create_bool(c >= 'a' && c <= 'z');
     }
     
     /* Type conversions */
-    if (strcmp(name, "int_to_string") == 0) {
+    if (call_name == EVAL_CALL_int_to_string) {
         if (args[0].type != VAL_INT) {
             return create_string("0");
         }
@@ -3655,7 +3837,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return create_string(buffer);
     }
     
-    if (strcmp(name, "string_to_int") == 0) {
+    if (call_name == EVAL_CALL_string_to_int) {
         if (args[0].type != VAL_STRING) {
             return create_int(0);
         }
@@ -3663,7 +3845,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return create_int(result);
     }
     
-    if (strcmp(name, "digit_value") == 0) {
+    if (call_name == EVAL_CALL_digit_value) {
         if (args[0].type != VAL_INT) return create_int(-1);
         int c = (int)args[0].as.int_val;
         if (c >= '0' && c <= '9') {
@@ -3672,7 +3854,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return create_int(-1);
     }
     
-    if (strcmp(name, "char_to_lower") == 0) {
+    if (call_name == EVAL_CALL_char_to_lower) {
         if (args[0].type != VAL_INT) return create_int(args[0].as.int_val);
         int c = (int)args[0].as.int_val;
         if (c >= 'A' && c <= 'Z') {
@@ -3681,7 +3863,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return create_int(c);
     }
     
-    if (strcmp(name, "char_to_upper") == 0) {
+    if (call_name == EVAL_CALL_char_to_upper) {
         if (args[0].type != VAL_INT) return create_int(args[0].as.int_val);
         int c = (int)args[0].as.int_val;
         if (c >= 'a' && c <= 'z') {
@@ -3691,149 +3873,152 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
     
     /* Array operations */
-    if (strcmp(name, "at") == 0 || strcmp(name, "array_get") == 0) return builtin_at(args);
-    if (strcmp(name, "array_length") == 0) return builtin_array_length(args);
-    if (strcmp(name, "array_new") == 0) return builtin_array_new(args);
-    if (strcmp(name, "array_set") == 0) return builtin_array_set(args);
-    if (strcmp(name, "array_slice") == 0) return builtin_array_slice(args);
+    if (call_name == EVAL_CALL_at || call_name == EVAL_CALL_array_get) return builtin_at(args);
+    if (call_name == EVAL_CALL_array_length) return builtin_array_length(args);
+    if (call_name == EVAL_CALL_array_new) return builtin_array_new(args);
+    if (call_name == EVAL_CALL_array_set) return builtin_array_set(args);
+    if (call_name == EVAL_CALL_array_slice) return builtin_array_slice(args);
     
     /* Higher-order array functions */
-    if (strcmp(name, "map") == 0 || strcmp(name, "array_map") == 0) return builtin_map(args, env);
-    if (strcmp(name, "filter") == 0 || strcmp(name, "array_filter") == 0) return builtin_filter(args, env);
-    if (strcmp(name, "reduce") == 0 || strcmp(name, "array_fold") == 0) return builtin_reduce(args, env);
+    if ((!named_func || !named_func->body) &&
+        (call_name == EVAL_CALL_map || call_name == EVAL_CALL_array_map)) return builtin_map(args, env);
+    if ((!named_func || !named_func->body) &&
+        (call_name == EVAL_CALL_filter || call_name == EVAL_CALL_array_filter)) return builtin_filter(args, env);
+    if ((!named_func || !named_func->body) &&
+        (call_name == EVAL_CALL_reduce || call_name == EVAL_CALL_array_fold)) return builtin_reduce(args, env);
     
     /* Dynamic array operations (GC-managed) */
-    if (strcmp(name, "array_push") == 0 && (!named_func || !named_func->body))
+    if (call_name == EVAL_CALL_array_push && (!named_func || !named_func->body))
         return builtin_array_push(args);
-    if (strcmp(name, "array_pop") == 0) return builtin_array_pop(args);
-    if (strcmp(name, "array_remove_at") == 0) return builtin_array_remove_at(args);
-    if (strcmp(name, "array_sort") == 0) return builtin_array_sort(args);
-    if (strcmp(name, "array_reverse") == 0) return builtin_array_reverse(args);
-    if (strcmp(name, "array_contains") == 0) return builtin_array_contains(args);
-    if (strcmp(name, "array_index_of") == 0) return builtin_array_index_of(args);
+    if (call_name == EVAL_CALL_array_pop) return builtin_array_pop(args);
+    if (call_name == EVAL_CALL_array_remove_at) return builtin_array_remove_at(args);
+    if (call_name == EVAL_CALL_array_sort) return builtin_array_sort(args);
+    if (call_name == EVAL_CALL_array_reverse) return builtin_array_reverse(args);
+    if (call_name == EVAL_CALL_array_contains) return builtin_array_contains(args);
+    if (call_name == EVAL_CALL_array_index_of) return builtin_array_index_of(args);
     
     /* list_int operations - delegate to C runtime */
-    if (strcmp(name, "list_int_new") == 0) {
+    if (call_name == EVAL_CALL_list_int_new) {
         List_int *list = list_int_new();
         Value result = create_int((long long)list);
         return result;
     }
-    if (strcmp(name, "list_int_with_capacity") == 0) {
+    if (call_name == EVAL_CALL_list_int_with_capacity) {
         List_int *list = list_int_with_capacity(args[0].as.int_val);
         return create_int((long long)list);
     }
-    if (strcmp(name, "list_int_push") == 0) {
+    if (call_name == EVAL_CALL_list_int_push) {
         List_int *list = (List_int*)args[0].as.int_val;
         list_int_push(list, args[1].as.int_val);
         return create_void();
     }
-    if (strcmp(name, "list_int_pop") == 0) {
+    if (call_name == EVAL_CALL_list_int_pop) {
         List_int *list = (List_int*)args[0].as.int_val;
         return create_int(list_int_pop(list));
     }
-    if (strcmp(name, "list_int_get") == 0) {
+    if (call_name == EVAL_CALL_list_int_get) {
         List_int *list = (List_int*)args[0].as.int_val;
         return create_int(list_int_get(list, args[1].as.int_val));
     }
-    if (strcmp(name, "list_int_set") == 0) {
+    if (call_name == EVAL_CALL_list_int_set) {
         List_int *list = (List_int*)args[0].as.int_val;
         list_int_set(list, args[1].as.int_val, args[2].as.int_val);
         return create_void();
     }
-    if (strcmp(name, "list_int_insert") == 0) {
+    if (call_name == EVAL_CALL_list_int_insert) {
         List_int *list = (List_int*)args[0].as.int_val;
         list_int_insert(list, args[1].as.int_val, args[2].as.int_val);
         return create_void();
     }
-    if (strcmp(name, "list_int_remove") == 0) {
+    if (call_name == EVAL_CALL_list_int_remove) {
         List_int *list = (List_int*)args[0].as.int_val;
         return create_int(list_int_remove(list, args[1].as.int_val));
     }
-    if (strcmp(name, "list_int_length") == 0) {
+    if (call_name == EVAL_CALL_list_int_length) {
         List_int *list = (List_int*)args[0].as.int_val;
         return create_int(list_int_length(list));
     }
-    if (strcmp(name, "list_int_capacity") == 0) {
+    if (call_name == EVAL_CALL_list_int_capacity) {
         List_int *list = (List_int*)args[0].as.int_val;
         return create_int(list_int_capacity(list));
     }
-    if (strcmp(name, "list_int_is_empty") == 0) {
+    if (call_name == EVAL_CALL_list_int_is_empty) {
         List_int *list = (List_int*)args[0].as.int_val;
         return create_bool(list_int_is_empty(list));
     }
-    if (strcmp(name, "list_int_clear") == 0) {
+    if (call_name == EVAL_CALL_list_int_clear) {
         List_int *list = (List_int*)args[0].as.int_val;
         list_int_clear(list);
         return create_void();
     }
-    if (strcmp(name, "list_int_free") == 0) {
+    if (call_name == EVAL_CALL_list_int_free) {
         List_int *list = (List_int*)args[0].as.int_val;
         list_int_free(list);
         return create_void();
     }
 
     /* list_string operations - delegate to C runtime */
-    if (strcmp(name, "list_string_new") == 0) {
+    if (call_name == EVAL_CALL_list_string_new) {
         List_string *list = list_string_new();
         Value result = create_int((long long)list);
         return result;
     }
-    if (strcmp(name, "list_string_with_capacity") == 0) {
+    if (call_name == EVAL_CALL_list_string_with_capacity) {
         List_string *list = list_string_with_capacity(args[0].as.int_val);
         return create_int((long long)list);
     }
-    if (strcmp(name, "list_string_push") == 0) {
+    if (call_name == EVAL_CALL_list_string_push) {
         List_string *list = (List_string*)args[0].as.int_val;
         list_string_push(list, args[1].as.string_val);
         return create_void();
     }
-    if (strcmp(name, "list_string_pop") == 0) {
+    if (call_name == EVAL_CALL_list_string_pop) {
         List_string *list = (List_string*)args[0].as.int_val;
         char *str = list_string_pop(list);
         Value result = create_string(str);
         free(str);  /* list_string_pop returns strdup'd string */
         return result;
     }
-    if (strcmp(name, "list_string_get") == 0) {
+    if (call_name == EVAL_CALL_list_string_get) {
         List_string *list = (List_string*)args[0].as.int_val;
         char *str = list_string_get(list, args[1].as.int_val);
         return create_string(str);
     }
-    if (strcmp(name, "list_string_set") == 0) {
+    if (call_name == EVAL_CALL_list_string_set) {
         List_string *list = (List_string*)args[0].as.int_val;
         list_string_set(list, args[1].as.int_val, args[2].as.string_val);
         return create_void();
     }
-    if (strcmp(name, "list_string_insert") == 0) {
+    if (call_name == EVAL_CALL_list_string_insert) {
         List_string *list = (List_string*)args[0].as.int_val;
         list_string_insert(list, args[1].as.int_val, args[2].as.string_val);
         return create_void();
     }
-    if (strcmp(name, "list_string_remove") == 0) {
+    if (call_name == EVAL_CALL_list_string_remove) {
         List_string *list = (List_string*)args[0].as.int_val;
         char *str = list_string_remove(list, args[1].as.int_val);
         Value result = create_string(str);
         free(str);  /* list_string_remove returns strdup'd string */
         return result;
     }
-    if (strcmp(name, "list_string_length") == 0) {
+    if (call_name == EVAL_CALL_list_string_length) {
         List_string *list = (List_string*)args[0].as.int_val;
         return create_int(list_string_length(list));
     }
-    if (strcmp(name, "list_string_capacity") == 0) {
+    if (call_name == EVAL_CALL_list_string_capacity) {
         List_string *list = (List_string*)args[0].as.int_val;
         return create_int(list_string_capacity(list));
     }
-    if (strcmp(name, "list_string_is_empty") == 0) {
+    if (call_name == EVAL_CALL_list_string_is_empty) {
         List_string *list = (List_string*)args[0].as.int_val;
         return create_bool(list_string_is_empty(list));
     }
-    if (strcmp(name, "list_string_clear") == 0) {
+    if (call_name == EVAL_CALL_list_string_clear) {
         List_string *list = (List_string*)args[0].as.int_val;
         list_string_clear(list);
         return create_void();
     }
-    if (strcmp(name, "list_string_free") == 0) {
+    if (call_name == EVAL_CALL_list_string_free) {
         List_string *list = (List_string*)args[0].as.int_val;
         list_string_free(list);
         return create_void();
@@ -3842,16 +4027,16 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     /* list_Token operations - delegate to C runtime */
     /* Note: Token structs are stored as pointers for now */
     /* When we rewrite lexer in nanolang, we'll use proper Token struct values */
-    if (strcmp(name, "nl_list_Token_new") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_new) {
         List_Token *list = nl_list_Token_new();
         Value result = create_int((long long)list);
         return result;
     }
-    if (strcmp(name, "nl_list_Token_with_capacity") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_with_capacity) {
         List_Token *list = nl_list_Token_with_capacity(args[0].as.int_val);
         return create_int((long long)list);
     }
-    if (strcmp(name, "nl_list_Token_push") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_push) {
         List_Token *list = (List_Token*)args[0].as.int_val;
         /* For now, args[1] should be a Token struct pointer */
         /* When we have proper Token struct support, this will change */
@@ -3861,7 +4046,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
         return create_void();
     }
-    if (strcmp(name, "nl_list_Token_pop") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_pop) {
         List_Token *list = (List_Token*)args[0].as.int_val;
         Token token = nl_list_Token_pop(list);
         /* Return token as struct value - for now return pointer */
@@ -3870,7 +4055,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         *token_ptr = token;
         return create_int((long long)token_ptr);
     }
-    if (strcmp(name, "nl_list_Token_get") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_get) {
         List_Token *list = (List_Token*)args[0].as.int_val;
         Token token = nl_list_Token_get(list, args[1].as.int_val);
         /* Return token as struct value - for now return pointer */
@@ -3878,7 +4063,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         *token_ptr = token;
         return create_int((long long)token_ptr);
     }
-    if (strcmp(name, "nl_list_Token_set") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_set) {
         List_Token *list = (List_Token*)args[0].as.int_val;
         Token *token = (Token*)args[2].as.int_val;
         if (token) {
@@ -3886,7 +4071,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
         return create_void();
     }
-    if (strcmp(name, "nl_list_Token_insert") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_insert) {
         List_Token *list = (List_Token*)args[0].as.int_val;
         Token *token = (Token*)args[2].as.int_val;
         if (token) {
@@ -3894,31 +4079,31 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
         return create_void();
     }
-    if (strcmp(name, "nl_list_Token_remove") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_remove) {
         List_Token *list = (List_Token*)args[0].as.int_val;
         Token token = nl_list_Token_remove(list, args[1].as.int_val);
         Token *token_ptr = malloc(sizeof(Token));
         *token_ptr = token;
         return create_int((long long)token_ptr);
     }
-    if (strcmp(name, "nl_list_Token_length") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_length) {
         List_Token *list = (List_Token*)args[0].as.int_val;
         return create_int(nl_list_Token_length(list));
     }
-    if (strcmp(name, "nl_list_Token_capacity") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_capacity) {
         List_Token *list = (List_Token*)args[0].as.int_val;
         return create_int(nl_list_Token_capacity(list));
     }
-    if (strcmp(name, "nl_list_Token_is_empty") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_is_empty) {
         List_Token *list = (List_Token*)args[0].as.int_val;
         return create_bool(nl_list_Token_is_empty(list));
     }
-    if (strcmp(name, "nl_list_Token_clear") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_clear) {
         List_Token *list = (List_Token*)args[0].as.int_val;
         nl_list_Token_clear(list);
         return create_void();
     }
-    if (strcmp(name, "nl_list_Token_free") == 0) {
+    if (call_name == EVAL_CALL_nl_list_Token_free) {
         List_Token *list = (List_Token*)args[0].as.int_val;
         nl_list_Token_free(list);
         return create_void();
@@ -3926,65 +4111,65 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
 
     /* list_bool operations - the interpreter uses the same boolean list
      * runtime as the native C backend so both agree on the element type. */
-    if (strcmp(name, "list_bool_new") == 0) {
+    if (call_name == EVAL_CALL_list_bool_new) {
         List_bool *list = list_bool_new();
         return create_int((long long)list);
     }
-    if (strcmp(name, "list_bool_with_capacity") == 0) {
+    if (call_name == EVAL_CALL_list_bool_with_capacity) {
         List_bool *list = list_bool_with_capacity(args[0].as.int_val);
         return create_int((long long)list);
     }
-    if (strcmp(name, "list_bool_push") == 0) {
+    if (call_name == EVAL_CALL_list_bool_push) {
         List_bool *list = (List_bool*)args[0].as.int_val;
         bool value = (args[1].type == VAL_BOOL)
             ? args[1].as.bool_val : (args[1].as.int_val != 0);
         list_bool_push(list, value);
         return create_void();
     }
-    if (strcmp(name, "list_bool_pop") == 0) {
+    if (call_name == EVAL_CALL_list_bool_pop) {
         List_bool *list = (List_bool*)args[0].as.int_val;
         return create_bool(list_bool_pop(list));
     }
-    if (strcmp(name, "list_bool_get") == 0) {
+    if (call_name == EVAL_CALL_list_bool_get) {
         List_bool *list = (List_bool*)args[0].as.int_val;
         return create_bool(list_bool_get(list, args[1].as.int_val));
     }
-    if (strcmp(name, "list_bool_set") == 0) {
+    if (call_name == EVAL_CALL_list_bool_set) {
         List_bool *list = (List_bool*)args[0].as.int_val;
         bool value = (args[2].type == VAL_BOOL)
             ? args[2].as.bool_val : (args[2].as.int_val != 0);
         list_bool_set(list, args[1].as.int_val, value);
         return create_void();
     }
-    if (strcmp(name, "list_bool_insert") == 0) {
+    if (call_name == EVAL_CALL_list_bool_insert) {
         List_bool *list = (List_bool*)args[0].as.int_val;
         bool value = (args[2].type == VAL_BOOL)
             ? args[2].as.bool_val : (args[2].as.int_val != 0);
         list_bool_insert(list, args[1].as.int_val, value);
         return create_void();
     }
-    if (strcmp(name, "list_bool_remove") == 0) {
+    if (call_name == EVAL_CALL_list_bool_remove) {
         List_bool *list = (List_bool*)args[0].as.int_val;
         return create_bool(list_bool_remove(list, args[1].as.int_val));
     }
-    if (strcmp(name, "list_bool_length") == 0) {
+    if (call_name == EVAL_CALL_list_bool_length) {
         List_bool *list = (List_bool*)args[0].as.int_val;
         return create_int(list_bool_length(list));
     }
-    if (strcmp(name, "list_bool_capacity") == 0) {
+    if (call_name == EVAL_CALL_list_bool_capacity) {
         List_bool *list = (List_bool*)args[0].as.int_val;
         return create_int(list_bool_capacity(list));
     }
-    if (strcmp(name, "list_bool_is_empty") == 0) {
+    if (call_name == EVAL_CALL_list_bool_is_empty) {
         List_bool *list = (List_bool*)args[0].as.int_val;
         return create_bool(list_bool_is_empty(list));
     }
-    if (strcmp(name, "list_bool_clear") == 0) {
+    if (call_name == EVAL_CALL_list_bool_clear) {
         List_bool *list = (List_bool*)args[0].as.int_val;
         list_bool_clear(list);
         return create_void();
     }
-    if (strcmp(name, "list_bool_free") == 0) {
+    if (call_name == EVAL_CALL_list_bool_free) {
         List_bool *list = (List_bool*)args[0].as.int_val;
         list_bool_free(list);
         return create_void();
@@ -4137,10 +4322,10 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
 
     /* External C library functions - provide interpreter implementations */
-    if (strcmp(name, "rand") == 0) {
+    if (call_name == EVAL_CALL_rand) {
         return create_int(rand());
     }
-    if (strcmp(name, "srand") == 0) {
+    if (call_name == EVAL_CALL_srand) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: srand expects 1 int argument\n");
             return create_void();
@@ -4148,16 +4333,16 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         srand((unsigned int)args[0].as.int_val);
         return create_void();
     }
-    if (strcmp(name, "time") == 0) {
+    if (call_name == EVAL_CALL_time) {
         /* Simplified: ignore the argument, just return current time */
         return create_int((long long)time(NULL));
     }
     
     /* C string functions - map to interpreter built-ins */
-    if (strcmp(name, "strlen") == 0) {
+    if (call_name == EVAL_CALL_strlen) {
         return builtin_str_length(args);
     }
-    if (strcmp(name, "strcmp") == 0) {
+    if (call_name == EVAL_CALL_strcmp) {
         if (node->as.call.arg_count < 2 || args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
             fprintf(stderr, "Error: strcmp requires 2 string arguments\n");
             return create_void();
@@ -4165,7 +4350,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         int result = strcmp(args[0].as.string_val, args[1].as.string_val);
         return create_int(result);
     }
-    if (strcmp(name, "strncmp") == 0) {
+    if (call_name == EVAL_CALL_strncmp) {
         if (node->as.call.arg_count < 3 || args[0].type != VAL_STRING || args[1].type != VAL_STRING || args[2].type != VAL_INT) {
             fprintf(stderr, "Error: strncmp requires 2 string arguments and 1 int argument\n");
             return create_void();
@@ -4177,189 +4362,189 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
     
     /* C math functions - provide interpreter implementations */
-    if (strcmp(name, "asin") == 0) {
+    if (call_name == EVAL_CALL_asin) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: asin requires 1 float argument\n");
             return create_void();
         }
         return create_float(asin(args[0].as.float_val));
     }
-    if (strcmp(name, "acos") == 0) {
+    if (call_name == EVAL_CALL_acos) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: acos requires 1 float argument\n");
             return create_void();
         }
         return create_float(acos(args[0].as.float_val));
     }
-    if (strcmp(name, "atan") == 0) {
+    if (call_name == EVAL_CALL_atan) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: atan requires 1 float argument\n");
             return create_void();
         }
         return create_float(atan(args[0].as.float_val));
     }
-    if (strcmp(name, "exp") == 0) {
+    if (call_name == EVAL_CALL_exp) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: exp requires 1 float argument\n");
             return create_void();
         }
         return create_float(exp(args[0].as.float_val));
     }
-    if (strcmp(name, "exp2") == 0) {
+    if (call_name == EVAL_CALL_exp2) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: exp2 requires 1 float argument\n");
             return create_void();
         }
         return create_float(exp2(args[0].as.float_val));
     }
-    if (strcmp(name, "log") == 0) {
+    if (call_name == EVAL_CALL_log) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: log requires 1 float argument\n");
             return create_void();
         }
         return create_float(log(args[0].as.float_val));
     }
-    if (strcmp(name, "log10") == 0) {
+    if (call_name == EVAL_CALL_log10) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: log10 requires 1 float argument\n");
             return create_void();
         }
         return create_float(log10(args[0].as.float_val));
     }
-    if (strcmp(name, "log2") == 0) {
+    if (call_name == EVAL_CALL_log2) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: log2 requires 1 float argument\n");
             return create_void();
         }
         return create_float(log2(args[0].as.float_val));
     }
-    if (strcmp(name, "log1p") == 0) {
+    if (call_name == EVAL_CALL_log1p) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: log1p requires 1 float argument\n");
             return create_void();
         }
         return create_float(log1p(args[0].as.float_val));
     }
-    if (strcmp(name, "expm1") == 0) {
+    if (call_name == EVAL_CALL_expm1) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: expm1 requires 1 float argument\n");
             return create_void();
         }
         return create_float(expm1(args[0].as.float_val));
     }
-    if (strcmp(name, "cbrt") == 0) {
+    if (call_name == EVAL_CALL_cbrt) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: cbrt requires 1 float argument\n");
             return create_void();
         }
         return create_float(cbrt(args[0].as.float_val));
     }
-    if (strcmp(name, "hypot") == 0) {
+    if (call_name == EVAL_CALL_hypot) {
         if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
             fprintf(stderr, "Error: hypot requires 2 float arguments\n");
             return create_void();
         }
         return create_float(hypot(args[0].as.float_val, args[1].as.float_val));
     }
-    if (strcmp(name, "sinh") == 0) {
+    if (call_name == EVAL_CALL_sinh) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: sinh requires 1 float argument\n");
             return create_void();
         }
         return create_float(sinh(args[0].as.float_val));
     }
-    if (strcmp(name, "cosh") == 0) {
+    if (call_name == EVAL_CALL_cosh) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: cosh requires 1 float argument\n");
             return create_void();
         }
         return create_float(cosh(args[0].as.float_val));
     }
-    if (strcmp(name, "tanh") == 0) {
+    if (call_name == EVAL_CALL_tanh) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: tanh requires 1 float argument\n");
             return create_void();
         }
         return create_float(tanh(args[0].as.float_val));
     }
-    if (strcmp(name, "asinh") == 0) {
+    if (call_name == EVAL_CALL_asinh) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: asinh requires 1 float argument\n");
             return create_void();
         }
         return create_float(asinh(args[0].as.float_val));
     }
-    if (strcmp(name, "acosh") == 0) {
+    if (call_name == EVAL_CALL_acosh) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: acosh requires 1 float argument\n");
             return create_void();
         }
         return create_float(acosh(args[0].as.float_val));
     }
-    if (strcmp(name, "atanh") == 0) {
+    if (call_name == EVAL_CALL_atanh) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: atanh requires 1 float argument\n");
             return create_void();
         }
         return create_float(atanh(args[0].as.float_val));
     }
-    if (strcmp(name, "fmod") == 0) {
+    if (call_name == EVAL_CALL_fmod) {
         if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
             fprintf(stderr, "Error: fmod requires 2 float arguments\n");
             return create_void();
         }
         return create_float(fmod(args[0].as.float_val, args[1].as.float_val));
     }
-    if (strcmp(name, "trunc") == 0) {
+    if (call_name == EVAL_CALL_trunc) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: trunc requires 1 float argument\n");
             return create_void();
         }
         return create_float(trunc(args[0].as.float_val));
     }
-    if (strcmp(name, "rint") == 0) {
+    if (call_name == EVAL_CALL_rint) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: rint requires 1 float argument\n");
             return create_void();
         }
         return create_float(rint(args[0].as.float_val));
     }
-    if (strcmp(name, "nearbyint") == 0) {
+    if (call_name == EVAL_CALL_nearbyint) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: nearbyint requires 1 float argument\n");
             return create_void();
         }
         return create_float(nearbyint(args[0].as.float_val));
     }
-    if (strcmp(name, "remainder") == 0) {
+    if (call_name == EVAL_CALL_remainder) {
         if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
             fprintf(stderr, "Error: remainder requires 2 float arguments\n");
             return create_void();
         }
         return create_float(remainder(args[0].as.float_val, args[1].as.float_val));
     }
-    if (strcmp(name, "fmin") == 0) {
+    if (call_name == EVAL_CALL_fmin) {
         if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
             fprintf(stderr, "Error: fmin requires 2 float arguments\n");
             return create_void();
         }
         return create_float(fmin(args[0].as.float_val, args[1].as.float_val));
     }
-    if (strcmp(name, "fmax") == 0) {
+    if (call_name == EVAL_CALL_fmax) {
         if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
             fprintf(stderr, "Error: fmax requires 2 float arguments\n");
             return create_void();
         }
         return create_float(fmax(args[0].as.float_val, args[1].as.float_val));
     }
-    if (strcmp(name, "copysign") == 0) {
+    if (call_name == EVAL_CALL_copysign) {
         if (node->as.call.arg_count < 2 || args[0].type != VAL_FLOAT || args[1].type != VAL_FLOAT) {
             fprintf(stderr, "Error: copysign requires 2 float arguments\n");
             return create_void();
         }
         return create_float(copysign(args[0].as.float_val, args[1].as.float_val));
     }
-    if (strcmp(name, "fabs") == 0) {
+    if (call_name == EVAL_CALL_fabs) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_FLOAT) {
             fprintf(stderr, "Error: fabs requires 1 float argument\n");
             return create_void();
@@ -4368,11 +4553,11 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
     
     /* C character functions */
-    if (strcmp(name, "getchar") == 0) {
+    if (call_name == EVAL_CALL_getchar) {
         int c = getchar();
         return create_int(c);
     }
-    if (strcmp(name, "putchar") == 0) {
+    if (call_name == EVAL_CALL_putchar) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: putchar requires 1 int argument\n");
             return create_void();
@@ -4380,70 +4565,70 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         int c = putchar((int)args[0].as.int_val);
         return create_int(c);
     }
-    if (strcmp(name, "isalpha") == 0) {
+    if (call_name == EVAL_CALL_isalpha) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: isalpha requires 1 int argument\n");
             return create_void();
         }
         return create_bool(nl_ascii_isalpha((int)args[0].as.int_val) != 0);
     }
-    if (strcmp(name, "isdigit") == 0) {
+    if (call_name == EVAL_CALL_isdigit) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: isdigit requires 1 int argument\n");
             return create_void();
         }
         return create_bool(nl_ascii_isdigit((int)args[0].as.int_val) != 0);
     }
-    if (strcmp(name, "isalnum") == 0) {
+    if (call_name == EVAL_CALL_isalnum) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: isalnum requires 1 int argument\n");
             return create_void();
         }
         return create_bool(nl_ascii_isalnum((int)args[0].as.int_val) != 0);
     }
-    if (strcmp(name, "islower") == 0) {
+    if (call_name == EVAL_CALL_islower) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: islower requires 1 int argument\n");
             return create_void();
         }
         return create_bool(nl_ascii_islower((int)args[0].as.int_val) != 0);
     }
-    if (strcmp(name, "isupper") == 0) {
+    if (call_name == EVAL_CALL_isupper) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: isupper requires 1 int argument\n");
             return create_void();
         }
         return create_bool(nl_ascii_isupper((int)args[0].as.int_val) != 0);
     }
-    if (strcmp(name, "tolower") == 0) {
+    if (call_name == EVAL_CALL_tolower) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: tolower requires 1 int argument\n");
             return create_void();
         }
         return create_int(nl_ascii_tolower((int)args[0].as.int_val));
     }
-    if (strcmp(name, "toupper") == 0) {
+    if (call_name == EVAL_CALL_toupper) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: toupper requires 1 int argument\n");
             return create_void();
         }
         return create_int(nl_ascii_toupper((int)args[0].as.int_val));
     }
-    if (strcmp(name, "isspace") == 0) {
+    if (call_name == EVAL_CALL_isspace) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: isspace requires 1 int argument\n");
             return create_void();
         }
         return create_bool(nl_ascii_isspace((int)args[0].as.int_val) != 0);
     }
-    if (strcmp(name, "isprint") == 0) {
+    if (call_name == EVAL_CALL_isprint) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: isprint requires 1 int argument\n");
             return create_void();
         }
         return create_bool(nl_ascii_isprint((int)args[0].as.int_val) != 0);
     }
-    if (strcmp(name, "ispunct") == 0) {
+    if (call_name == EVAL_CALL_ispunct) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: ispunct requires 1 int argument\n");
             return create_void();
@@ -4456,7 +4641,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
 
     /* HashMap<K,V> core built-ins (only when not shadowed by a user-defined function) */
     if (!func) {
-        if (strcmp(name, "map_new") == 0) {
+        if (call_name == EVAL_CALL_map_new) {
             if (node->as.call.arg_count != 0) {
                 fprintf(stderr, "Error: map_new requires 0 arguments\n");
                 return create_void();
@@ -4474,7 +4659,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             return create_int((long long)hm);
         }
 
-        if (strcmp(name, "map_put") == 0 || strcmp(name, "map_set") == 0) {
+        if (call_name == EVAL_CALL_map_put || call_name == EVAL_CALL_map_set) {
             if (node->as.call.arg_count != 3) {
                 fprintf(stderr, "Error: %s requires 3 arguments\n", name);
                 return create_void();
@@ -4540,7 +4725,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             return create_void();
         }
 
-        if (strcmp(name, "map_get") == 0) {
+        if (call_name == EVAL_CALL_map_get) {
             if (node->as.call.arg_count != 2) {
                 fprintf(stderr, "Error: map_get requires 2 arguments\n");
                 return create_void();
@@ -4564,7 +4749,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             return create_int(e->value.i);
         }
 
-        if (strcmp(name, "map_has") == 0) {
+        if (call_name == EVAL_CALL_map_has) {
             if (node->as.call.arg_count != 2) {
                 fprintf(stderr, "Error: map_has requires 2 arguments\n");
                 return create_void();
@@ -4580,7 +4765,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             return create_bool(found);
         }
 
-        if (strcmp(name, "map_remove") == 0) {
+        if (call_name == EVAL_CALL_map_remove) {
             if (node->as.call.arg_count != 2) {
                 fprintf(stderr, "Error: map_remove requires 2 arguments\n");
                 return create_void();
@@ -4602,7 +4787,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             return create_void();
         }
 
-        if (strcmp(name, "map_length") == 0 || strcmp(name, "map_size") == 0) {
+        if (call_name == EVAL_CALL_map_length || call_name == EVAL_CALL_map_size) {
             if (node->as.call.arg_count != 1) {
                 fprintf(stderr, "Error: %s requires 1 argument\n", name);
                 return create_void();
@@ -4615,7 +4800,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             return create_int(hm ? hm->size : 0);
         }
 
-        if (strcmp(name, "map_clear") == 0 || strcmp(name, "map_free") == 0) {
+        if (call_name == EVAL_CALL_map_clear || call_name == EVAL_CALL_map_free) {
             if (node->as.call.arg_count != 1) {
                 fprintf(stderr, "Error: %s requires 1 argument\n", name);
                 return create_void();
@@ -4626,7 +4811,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             }
             NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
             if (!hm) return create_void();
-            if (strcmp(name, "map_free") == 0) {
+            if (call_name == EVAL_CALL_map_free) {
                 eval_hm_free(hm);
             } else {
                 eval_hm_clear(hm);
@@ -4634,7 +4819,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             return create_void();
         }
 
-        if (strcmp(name, "map_keys") == 0 || strcmp(name, "map_values") == 0) {
+        if (call_name == EVAL_CALL_map_keys || call_name == EVAL_CALL_map_values) {
             if (node->as.call.arg_count != 1) {
                 fprintf(stderr, "Error: %s requires 1 argument\n", name);
                 return create_void();
@@ -4646,7 +4831,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
             NLHashMapCore *hm = (NLHashMapCore*)args[0].as.int_val;
             if (!hm) return create_array(VAL_INT, 0, 0);
 
-            bool is_keys = (strcmp(name, "map_keys") == 0);
+            bool is_keys = (call_name == EVAL_CALL_map_keys);
             ValueType elem_type;
             if (is_keys) {
                 elem_type = (hm->key_type == NL_HM_KEY_STRING) ? VAL_STRING : VAL_INT;
@@ -4836,6 +5021,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     g_eval_return_target = &return_boundary;
     char *saved_module_context = env->current_module;
     env->current_module = func->module_name;
+    const char *saved_source_file = env_current_file(env);
+    env_set_current_file(env, func->source_file);
     Value result = create_void();
     for (int i = 0; i < func->body->as.block.count; i++) {
         ASTNode *stmt = func->body->as.block.statements[i];
@@ -4855,6 +5042,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     /* Pop call stack */
     g_eval_return_target = saved_return_target;
     env->current_module = saved_module_context;
+    env_set_current_file(env, saved_source_file);
     tracing_pop_call();
 
     /*
@@ -4950,7 +5138,8 @@ static void discard_literal_record(StructValue *record) {
 
 static void discard_partial_owned_array(Array *array, int initialized) {
     for (int i = 0; i < initialized; i++) {
-        if (array->element_type == VAL_STRING) free(((char **)array->data)[i]);
+        if (array->element_type == VAL_FUNCTION) discard_array_callable(((Value *)array->data)[i]);
+        else if (array->element_type == VAL_STRING) free(((char **)array->data)[i]);
         else if (array->element_type == VAL_STRUCT)
             discard_literal_record(((StructValue **)array->data)[i]);
     }
@@ -5018,21 +5207,17 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* If not a variable, check if it's a function (for first-class function support) */
             Function *func = env_get_function(env, expr->as.identifier);
             if (func) {
-                /* Return a function value - create signature from function's parameters */
-                Type *param_types = NULL;
-                int actual_param_count = 0;
-                if (func->param_count > 0 && func->params) {
-                    param_types = malloc(sizeof(Type) * func->param_count);
-                    for (int i = 0; i < func->param_count; i++) {
-                        param_types[i] = func->params[i].type;
+                FunctionSignature *sig = function_signature_from_function(func);
+                if (expr->contextual_func_name) {
+                    for (int i = 0; i < env->generic_func_instance_count; ++i) {
+                        GenericFuncInstance *instance = &env->generic_func_instances[i];
+                        if (!strcmp(instance->mono_name, expr->contextual_func_name) && instance->signature) {
+                            free_function_signature(sig);
+                            sig = copy_function_signature(instance->signature);
+                            break;
+                        }
                     }
-                    actual_param_count = func->param_count;
                 }
-                FunctionSignature *sig = create_function_signature(
-                    param_types,
-                    actual_param_count,
-                    func->return_type
-                );
                 return create_function(expr->as.identifier, sig);
             }
             
@@ -5086,6 +5271,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (count == 0) {
                 ValueType element = VAL_INT;
                 switch (expr->as.array_literal.element_type) {
+                    case TYPE_FUNCTION: element = VAL_FUNCTION; break;
                     case TYPE_FLOAT: element = VAL_FLOAT; break;
                     case TYPE_BOOL: element = VAL_BOOL; break;
                     case TYPE_STRING: element = VAL_STRING; break;
@@ -5115,6 +5301,14 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 
                 /* Store element in array data */
                 switch (elem_type) {
+                    case VAL_FUNCTION: {
+                        ASTNode *element = expr->as.array_literal.elements[i];
+                        ((Value *)arr.as.array_val->data)[i] = element->type == AST_IDENTIFIER
+                            ? own_function_identifier(element, env, elem) :
+                            (element->type == AST_CALL || element->type == AST_MODULE_QUALIFIED_CALL)
+                                ? elem : copy_array_callable(elem);
+                        break;
+                    }
                     case VAL_ARRAY:
                         if (elem.type != VAL_ARRAY && elem.type != VAL_DYN_ARRAY) {
                             fprintf(stderr, "I require array values in a nested array literal.\n");
@@ -5325,6 +5519,16 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         }
 
         case AST_FIELD_ACCESS: {
+            /* I already know a live record binding denotes a value. Static
+             * source visibility is only needed for enum/import spellings.
+             * I still evaluate the receiver below, preserving read tracing. */
+            ASTNode *receiver = expr->as.field_access.object;
+            Symbol *binding = receiver && receiver->type == AST_IDENTIFIER ?
+                env_get_var(env, receiver->as.identifier) : NULL;
+            bool live_record = binding && binding->def_line == 0 &&
+                binding->value.type == VAL_STRUCT;
+            ASTNode *literal = live_record ? NULL : env_qualified_import_literal(env, expr);
+            if (literal) return eval_expression(literal, env);
             /* Check object is not NULL */
             if (!expr->as.field_access.object) {
                 fprintf(stderr, "Error: NULL object in field access\n");
@@ -5332,7 +5536,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             }
             
             /* Special case: Check if this is an enum variant access */
-            if (expr->as.field_access.object->type == AST_IDENTIFIER) {
+            if (!live_record && expr->as.field_access.object->type == AST_IDENTIFIER &&
+                !env_get_var_visible_at(env, expr->as.field_access.object->as.identifier,
+                    expr->as.field_access.object->line, expr->as.field_access.object->column)) {
                 const char *enum_name = expr->as.field_access.object->as.identifier;
                 assert(enum_name != NULL);
                 if (!enum_name) {
@@ -5588,6 +5794,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 return create_void();
             }
             
+            /* I return an independently owned callable, as array reads do. */
+            if (tv->elements[index].type == VAL_FUNCTION)
+                return copy_array_callable(tv->elements[index]);
             return tv->elements[index];
         }
 
@@ -5937,10 +6146,25 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                             case VAL_FLOAT:  elem = create_float(((double*)arr->data)[idx]); break;
                             case VAL_BOOL:   elem = create_bool(((bool*)arr->data)[idx]); break;
                             case VAL_STRING: elem = create_string(((char**)arr->data)[idx]); break;
+                            case VAL_FUNCTION: elem = copy_array_callable(((Value*)arr->data)[idx]); break;
                             default: break;
                         }
                         env->symbols[loop_var_index].value = elem;
+                        if (elem.type == VAL_FUNCTION)
+                            env->symbols[loop_var_index].type = TYPE_FUNCTION;
                         result = eval_statement(stmt->as.for_stmt.body, env);
+                        if (elem.type == VAL_FUNCTION) {
+                            /* I keep the loop value alive across mutations of its array slot. */
+                            if (result.type == VAL_FUNCTION &&
+                                result.as.function_val.function_name == elem.as.function_val.function_name) {
+                                Value owned = copy_array_callable(result);
+                                owned.is_return = result.is_return;
+                                owned.return_target = result.return_target;
+                                result = owned;
+                            }
+                            discard_array_callable(elem);
+                            env->symbols[loop_var_index].value = create_void();
+                        }
                         if (result.is_return) { env->symbol_count = loop_var_index; return result; }
                         if (result.is_break) { result = create_void(); break; }
                         if (result.is_continue) { result = create_void(); continue; }
@@ -6107,7 +6331,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 return create_void();
             }
             
-            EnumDef edef;
+            EnumDef edef = {0};
             edef.name = strdup(stmt->as.enum_def.name);
             edef.variant_count = stmt->as.enum_def.variant_count;
             
@@ -6161,6 +6385,10 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 }
             }
             
+            edef.original_name = stmt->as.enum_def.original_name ? strdup(stmt->as.enum_def.original_name) : NULL;
+            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.is_pub = stmt->as.enum_def.is_pub;
+            edef.is_extern = stmt->as.enum_def.is_extern;
             env_define_enum(env, edef);
             return create_void();
         }
@@ -6176,6 +6404,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             if (env_get_union(env, stmt->as.union_def.name)) return create_void();
             UnionDef udef = {0};
             udef.name = strdup(stmt->as.union_def.name);
+            udef.original_name = stmt->as.union_def.original_name ? strdup(stmt->as.union_def.original_name) : NULL;
             udef.variant_count = stmt->as.union_def.variant_count;
             
             /* Copy generic parameters */
@@ -6299,6 +6528,7 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
     int failure_cap = 0;
     int test_count = 0;
     const char *shadow_json_path = getenv("NANO_LLM_SHADOW_JSON");
+    bool trace_shadows = getenv("NANO_SHADOW_TRACE") != NULL;
     ASTNode *root_program = program;
     char *root_owner = env->current_module;
     const char *root_file = env_current_file(env);
@@ -6375,7 +6605,19 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
                     }
                 }
 
+                struct timespec trace_start = {0}, trace_end = {0};
+                bool trace_clock = trace_shadows && clock_gettime(CLOCK_MONOTONIC, &trace_start) == 0;
+                if (trace_shadows)
+                    shadow_trace_event("shadow-start", func_name, file, item->line, 0, 0);
                 eval_statement(item->as.shadow.body, env);
+                if (trace_shadows) {
+                    double elapsed = -1;
+                    if (trace_clock && clock_gettime(CLOCK_MONOTONIC, &trace_end) == 0)
+                        elapsed = (double)(trace_end.tv_sec - trace_start.tv_sec) +
+                                  (double)(trace_end.tv_nsec - trace_start.tv_nsec) / 1e9;
+                    shadow_trace_event("shadow-complete", func_name, file, item->line,
+                                       elapsed, g_shadow_current_fail_count);
+                }
 
                 if (!verbose && saved_stdout_fd >= 0) {
                     fflush(stdout);
@@ -6594,6 +6836,7 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
             param_value = create_string(args[i].as.string_val);
         }
 
+        if (param_value.type == VAL_FUNCTION) param_value = copy_array_callable(param_value);
         env_define_var(env, func->params[i].name, func->params[i].type, false, param_value);
     }
 
@@ -6603,9 +6846,12 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     g_eval_return_target = &return_boundary;
     char *saved_module_context = env->current_module;
     env->current_module = func->module_name;
+    const char *saved_source_file = env_current_file(env);
+    env_set_current_file(env, func->source_file);
     Value result = eval_statement(func->body, env);
     g_eval_return_target = saved_return_target;
     env->current_module = saved_module_context;
+    env_set_current_file(env, saved_source_file);
 
     /* Make a copy of the result if it's a string BEFORE cleaning up parameters */
     Value return_value = result;
@@ -6613,6 +6859,8 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
         return_value = create_string(result.as.string_val);
     }
     
+    if (result.type == VAL_FUNCTION) return_value = copy_array_callable(result);
+
     /* I consume only this activation's return, after preserving its value. */
     return_value.is_return = result.is_return && result.return_target &&
         result.return_target != &return_boundary;
@@ -6623,6 +6871,8 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     /* Clean up parameter strings and restore environment */
     for (int i = original_symbol_count; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
+        if (env->symbols[i].value.type == VAL_FUNCTION)
+            discard_array_callable(env->symbols[i].value);
         if (env->symbols[i].value.type == VAL_STRING) {
             /* Release GC-managed string if applicable */
             if (gc_is_managed(env->symbols[i].value.as.string_val)) {

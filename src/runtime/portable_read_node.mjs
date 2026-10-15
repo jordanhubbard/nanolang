@@ -40,10 +40,10 @@ function valueTypes(c) {
     }
     return result;
 }
-function moduleEnvelope(bytes) {
+function moduleEnvelope(bytes, binary = false) {
     const c = new Cursor(bytes);
     if (!c.take(8).equals(Buffer.from([0, 97, 115, 109, 1, 0, 0, 0]))) refuse();
-    let sections = 0, types = null, importType = null, functions = 0, memory = false;
+    let sections = 0, types = null, importTypes = [], functions = 0, memory = false;
     let exports = null; const seen = new Set();
     while (c.pos < bytes.length) {
         if (++sections > SECTION_LIMIT) refuse();
@@ -57,8 +57,14 @@ function moduleEnvelope(bytes) {
                 if (part.u8() !== 0x60) refuse(); types.push([valueTypes(part), valueTypes(part)]);
             }
         } else if (id === 2) {
-            if (part.u32() !== 1 || part.name() !== NAMESPACE || part.name() !== NAME || part.u8() !== 0) refuse();
-            importType = part.u32();
+            const count = part.u32(), names = new Set();
+            if (count !== (binary ? 2 : 1)) refuse();
+            for (let i = 0; i < count; i++) {
+                if (part.name() !== NAMESPACE) refuse();
+                const name = part.name();
+                if ((name !== NAME && !(binary && name === 'read_bytes')) || names.has(name) || part.u8() !== 0) refuse();
+                names.add(name); importTypes.push(part.u32());
+            }
         } else if (id === 3) {
             functions = part.u32(); if (functions >= FUNCTION_LIMIT) refuse();
             for (let i = 0; i < functions; ++i) { const type = part.u32(); if (!types || type >= types.length) refuse(); }
@@ -73,13 +79,16 @@ function moduleEnvelope(bytes) {
         } else { part.pos = part.bytes.length; } // The engine validates other section contents/order.
         part.done();
     }
-    if (!types || importType === null || importType >= types.length || !memory || !exports) refuse();
-    const [params, results] = types[importType];
-    if (params.length !== 5 || params.some(t => t !== 0x7f) || results.length !== 1 || results[0] !== 0x7f) refuse();
+    if (!types || importTypes.length !== (binary ? 2 : 1) || !memory || !exports) refuse();
+    for (const importType of importTypes) {
+        if (importType >= types.length) refuse();
+        const [params, results] = types[importType];
+        if (params.length !== 5 || params.some(t => t !== 0x7f) || results.length !== 1 || results[0] !== 0x7f) refuse();
+    }
     let memories = 0;
     for (const [name, {kind, index}] of exports) {
         if (kind === 2) { if (name !== 'memory' || index !== 0) refuse(); ++memories; }
-        if (kind === 0 && index >= functions + 1) refuse();
+        if (kind === 0 && index >= functions + importTypes.length) refuse();
     }
     if (memories !== 1) refuse();
     return exports;
@@ -98,23 +107,32 @@ function systemError(error) {
     return error instanceof Error && typeof error.code === 'string' && Number.isInteger(error.errno);
 }
 
-export function createReadTextInstance(moduleBytes, paths) {
-    const bytes = bytesCopy(moduleBytes, MODULE_LIMIT), envelope = moduleEnvelope(bytes);
+function createReadInstance(moduleBytes, paths, bytePaths = null) {
+    const binary = bytePaths !== null;
+    const bytes = bytesCopy(moduleBytes, MODULE_LIMIT), envelope = moduleEnvelope(bytes, binary);
     if (!Array.isArray(paths) || paths.length > 64) refuse();
     let allowlist = [];
     for (const path of paths) {
         const copy = bytesCopy(path, PATH_LIMIT); if (!copy.length || copy.includes(0)) refuse(); allowlist.push(copy);
     }
+    let byteAllowlist = [];
+    if (binary) {
+        if (!Array.isArray(bytePaths) || bytePaths.length > 64) refuse();
+        for (const path of bytePaths) {
+            const copy = bytesCopy(path, PATH_LIMIT); if (!copy.length || copy.includes(0)) refuse(); byteAllowlist.push(copy);
+        }
+    }
     let module = new WebAssembly.Module(bytes), instance = null;
     const imports = WebAssembly.Module.imports(module);
-    if (imports.length !== 1 || imports[0].module !== NAMESPACE || imports[0].name !== NAME || imports[0].kind !== 'function') refuse();
+    if (imports.length !== (binary ? 2 : 1) || imports.some(i => i.module !== NAMESPACE ||
+        (i.name !== NAME && !(binary && i.name === 'read_bytes')) || i.kind !== 'function')) refuse();
     const actual = WebAssembly.Module.exports(module);
     if (actual.length !== envelope.size) refuse();
     const kinds = ['function', 'table', 'memory', 'global'];
     for (const {name, kind} of actual) if (!envelope.has(name) || kinds[envelope.get(name).kind] !== kind) refuse();
     let memory = null, ready = false, terminal = false, exportActive = false, callbackActive = false;
     const last = {status: NPR_OK, opened: false, closeAttempted: false, closeError: false, bytesRead: 0};
-    function callback(pathOffset, pathLength, destinationOffset, capacity, lengthOffset) {
+    function callback(readBytes, pathOffset, pathLength, destinationOffset, capacity, lengthOffset) {
         if (!ready || terminal || callbackActive || !exportActive) return NPR_INVALID;
         callbackActive = true;
         let status = NPR_OK, fd = null, opened = false, closeAttempted = false, closeError = false, count = 0;
@@ -124,7 +142,7 @@ export function createReadTextInstance(moduleBytes, paths) {
             const buffer = memory.buffer, size = buffer.byteLength;
             if (buffer instanceof SharedArrayBuffer || !spans(size, p, n, d, cap, out)) return (status = NPR_INVALID);
             const path = Buffer.from(new Uint8Array(buffer, p, n));
-            if (!n || path.includes(0) || !allowlist.some(row => row.equals(path))) return (status = NPR_DENIED);
+            if (!n || path.includes(0) || !(readBytes ? byteAllowlist : allowlist).some(row => row.equals(path))) return (status = NPR_DENIED);
             const data = Buffer.alloc(cap + 1), cell = Buffer.alloc(4);
             let empty = false;
             try {
@@ -153,7 +171,7 @@ export function createReadTextInstance(moduleBytes, paths) {
             }
             if (status !== NPR_OK) return status;
             let length = empty ? 0 : count;
-            if (data.subarray(0, length).includes(0)) length = 0;
+            if (!readBytes && data.subarray(0, length).includes(0)) length = 0;
             // Reacquire after I/O. No callback may grow/reenter this memory.
             const current = memory.buffer;
             if (current !== buffer || current.byteLength !== size || !spans(size, p, n, d, cap, out)) return (status = NPR_INVALID);
@@ -176,11 +194,13 @@ export function createReadTextInstance(moduleBytes, paths) {
         }
     }
     try {
-        instance = new WebAssembly.Instance(module, {[NAMESPACE]: {[NAME]: callback}});
+        const providers = {[NAME]: (...args) => callback(false, ...args)};
+        if (binary) providers.read_bytes = (...args) => callback(true, ...args);
+        instance = new WebAssembly.Instance(module, {[NAMESPACE]: providers});
         memory = instance.exports.memory;
         if (!(memory instanceof WebAssembly.Memory) || memory.buffer instanceof SharedArrayBuffer || memory.buffer.byteLength !== 32 * 65536) refuse();
         ready = true;
-    } catch (error) { terminal = true; instance = memory = module = allowlist = null; throw error; }
+    } catch (error) { terminal = true; instance = memory = module = allowlist = byteAllowlist = null; throw error; }
     return Object.freeze({
         call(name, ...args) {
             if (!ready || terminal || exportActive || callbackActive || typeof name !== 'string' ||
@@ -192,8 +212,16 @@ export function createReadTextInstance(moduleBytes, paths) {
         },
         close() {
             if (exportActive || callbackActive) return NPR_INVALID;
-            ready = false; terminal = true; instance = memory = module = allowlist = null; return NPR_OK;
+            ready = false; terminal = true; instance = memory = module = allowlist = byteAllowlist = null; return NPR_OK;
         },
         report() { return {...last, ready, terminal, exportActive, callbackActive}; },
     });
+}
+
+export function createReadTextInstance(moduleBytes, paths) {
+    return createReadInstance(moduleBytes, paths);
+}
+export function createFileReadInstance(moduleBytes, textPaths, bytePaths) {
+    if (bytePaths === null || bytePaths === undefined) refuse();
+    return createReadInstance(moduleBytes, textPaths, bytePaths);
 }

@@ -1,0 +1,4 @@
+'struct Loop {next:Loop}' exit 0
+
+'union Grow<T> {Some {value:Grow<array<T>>}}' exit 0
+

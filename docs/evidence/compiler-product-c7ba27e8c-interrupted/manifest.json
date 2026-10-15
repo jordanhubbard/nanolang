@@ -1,0 +1,10 @@
+{
+  "source_commit": "c7ba27e8c29906aed9aa18cf0dc1bea3e30fcb3e",
+  "root": "/private/tmp/nanolang-function-arrays-c7ba27e8c",
+  "command": [
+    "make",
+    "-j2",
+    "test-one-ir-compiler"
+  ],
+  "initial_status": "clean"
+}

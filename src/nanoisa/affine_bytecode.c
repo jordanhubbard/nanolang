@@ -1,5 +1,6 @@
 #include "affine_bytecode.h"
 #include "affine_state.h"
+#include "affine_global_flow.h"
 #include "../nanovm/vm_decode.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,13 +13,28 @@ typedef struct {
     bool owned;
     uint32_t layout;
     uint16_t variant;
+    uint64_t excluded[(NVM_OWNERSHIP_MAX_VARIANTS+63u)/64u];
 } Value;
+#define AFFINE_MAX_HANDLERS 64u
+typedef struct { uint32_t key, site; } Handler;
 typedef struct {
     NvmAffineState *locals;
     Value *stack;
     uint16_t count;
     bool visited;
+    uint16_t global_count;
+    /* Four-bit relation: bit (2*input + current) describes initialization.
+     * Input is the state at function entry; current is the state here. */
+    uint8_t globals[NVM_OWNERSHIP_MAX_GLOBALS];
+    uint16_t handler_count, handler_floor;
+    uint32_t activation;
+    Handler handlers[AFFINE_MAX_HANDLERS];
 } Frame;
+static bool observes_owner(const Frame *frame,uint16_t root) {
+    for (uint16_t i=0;i<frame->count;i++)
+        if (frame->stack[i].observation && frame->stack[i].root==root) return true;
+    return false;
+}
 static void frame_free(Frame *frame) {
     if (!frame) return;
     nvm_affine_state_free(frame->locals);free(frame->stack);free(frame);
@@ -29,6 +45,11 @@ static Frame *frame_clone(const Frame *from) {
     out->locals=nvm_affine_state_clone(from->locals);
     if (!out->locals) {frame_free(out);return NULL;}
     out->count=from->count;
+    out->global_count=from->global_count;
+    memcpy(out->globals,from->globals,from->global_count);
+    out->handler_count=from->handler_count;out->handler_floor=from->handler_floor;
+    out->activation=from->activation;
+    memcpy(out->handlers,from->handlers,from->handler_count*sizeof(*from->handlers));
     if (out->count) {
         out->stack=malloc(out->count*sizeof(*out->stack));
         if (!out->stack) {frame_free(out);return NULL;}
@@ -43,12 +64,25 @@ static bool stack_meet(Frame *destination,const Frame *incoming,bool *changed) {
     for (uint16_t i=0;i<destination->count;i++) {
         Value x=destination->stack[i],y=incoming->stack[i];
         if (x.tag!=y.tag || x.observation!=y.observation || x.owned!=y.owned ||
-            (x.owned && x.layout!=y.layout) ||
+            ((x.owned || x.tag==TAG_STRUCT || x.tag==TAG_ARRAY) &&
+             !nvm_affine_types_equal(destination->locals,(NvmAffineType){x.tag,x.layout},(NvmAffineType){y.tag,y.layout})) ||
             (x.observation && x.root!=y.root)) return false;
         if (x.tag==TAG_UNION) {
             if (x.layout!=y.layout) return false;
-            if (x.variant!=y.variant && x.variant!=NVM_AFFINE_UNKNOWN_VARIANT) {
-                destination->stack[i].variant=NVM_AFFINE_UNKNOWN_VARIANT;*changed=true;
+            if (x.variant!=y.variant || x.variant==NVM_AFFINE_UNKNOWN_VARIANT) {
+                for (unsigned w=0;w<(NVM_OWNERSHIP_MAX_VARIANTS+63u)/64u;w++) {
+                    uint64_t a=x.variant==NVM_AFFINE_UNKNOWN_VARIANT?x.excluded[w]:
+                        ~(x.variant/64u==w?UINT64_C(1)<<(x.variant%64u):UINT64_C(0));
+                    uint64_t b=y.variant==NVM_AFFINE_UNKNOWN_VARIANT?y.excluded[w]:
+                        ~(y.variant/64u==w?UINT64_C(1)<<(y.variant%64u):UINT64_C(0));
+                    uint64_t joined=a&b;
+                    if (destination->stack[i].excluded[w]!=joined) {
+                        destination->stack[i].excluded[w]=joined;*changed=true;
+                    }
+                }
+                if (x.variant!=NVM_AFFINE_UNKNOWN_VARIANT) {
+                    destination->stack[i].variant=NVM_AFFINE_UNKNOWN_VARIANT;*changed=true;
+                }
             }
             if (x.root!=y.root && x.root!=UINT16_MAX) {
                 destination->stack[i].root=UINT16_MAX;*changed=true;
@@ -83,9 +117,19 @@ static bool pop_scalar(Frame *f,uint8_t tag) {
     f->count--;return true;
 }
 typedef struct {
-    bool value_graph;
+    bool value_graph, globals_valid, effect_globals;
+    uint32_t global_count;
+    NvmOwnershipGlobal globals[NVM_OWNERSHIP_MAX_GLOBALS];
+    /* Allowed input states and returning state relations, one summary per
+     * acyclic helper. Summaries compose without assuming initialized entry. */
+    uint8_t global_allowed[NVM_OWNED_MAX_FUNCTIONS][NVM_OWNERSHIP_MAX_GLOBALS];
+    uint8_t global_returns[NVM_OWNED_MAX_FUNCTIONS][NVM_OWNERSHIP_MAX_GLOBALS];
+    uint32_t fact_function, fact_capacity;
+    NvmAffineInstructionFact *facts;
     uint8_t status[NVM_OWNED_MAX_FUNCTIONS];
     NvmAffineAnalysis results[NVM_OWNED_MAX_FUNCTIONS];
+    uint16_t escape_count[NVM_OWNED_MAX_FUNCTIONS];
+    uint32_t escapes[NVM_OWNED_MAX_FUNCTIONS][NVM_OWNERSHIP_MAX_EFFECTS];
 } AnalysisCalls;
 
 bool nvm_affine_value_call_graph(const NvmModule *m) {
@@ -127,17 +171,46 @@ bool nvm_affine_value_call_graph(const NvmModule *m) {
     for (uint32_t i=0;i<m->function_count;i++) if (edges[i][i]) return false;
     return true;
 }
+static void analysis_calls_init(AnalysisCalls *calls,const NvmModule *module) {
+    calls->globals_valid=nvm_ownership_globals(module,calls->globals,
+        NVM_OWNERSHIP_MAX_GLOBALS,&calls->global_count)==NVM_V2_OK;
+    calls->value_graph=calls->globals_valid && nvm_affine_value_call_graph(module);
+    if(calls->value_graph && calls->global_count) {
+        for(uint32_t f=0;f<module->function_count;f++) {
+            VmDecodedFunction decoded={0};char error[VM_DECODE_ERROR_SIZE];
+            if(!vm_decode_function(module,f,&decoded,error)){calls->globals_valid=false;return;}
+            for(uint32_t i=0;i<decoded.instruction_count;i++) {
+                uint8_t op=decoded.instructions[i].instruction.opcode;
+                if(op==OP_HANDLER_PUSH || op==OP_HANDLER_POP || op==OP_PERFORM || op==OP_EFFECT_RESUME)
+                    calls->effect_globals=true;
+            }
+            vm_decoded_function_free(&decoded);
+        }
+    }
+}
+/* I collect a precondition for each possible function-entry state. Joins only
+ * add relation bits, so requirements can only become stricter during rechecks. */
+static void global_require(Frame *frame,AnalysisCalls *calls,uint32_t function,
+                           uint32_t slot,uint8_t permitted) {
+    if(calls->effect_globals)return;
+    calls->global_allowed[function][slot]&=
+        nvm_affine_global_require(frame->globals[slot],permitted);
+}
+
 static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                                    const NvmAffineState *caller,uint32_t reference,AnalysisCalls *calls);
 static bool supported(uint8_t op,bool value_graph) {
     switch(op) {
     case OP_HALT: case OP_CALL: case OP_CALL_REF: case OP_MATCH_TAG:
+    case OP_HANDLER_PUSH: case OP_HANDLER_POP: case OP_PERFORM: case OP_EFFECT_RESUME:
     case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
     case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
-    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL:
+    case OP_ARR_NEW: case OP_ARR_LITERAL: case OP_ARR_PUSH: case OP_ARR_POP:
+    case OP_ARR_GET: case OP_ARR_SET: case OP_ARR_LEN: case OP_ARR_SLICE: case OP_ARR_REMOVE:
+    case OP_NOP: case OP_PUSH_VOID: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_AGG_PACK: case OP_AGG_GET: case OP_AGG_TAG: case OP_STRUCT_GET:
     case OP_ADD: case OP_SUB: case OP_MUL:
@@ -148,14 +221,46 @@ static bool supported(uint8_t op,bool value_graph) {
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
     case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+    case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
         return value_graph;
     default:return false;
     }
 }
-static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function,AnalysisCalls *calls) {
+static bool effect_value_matches(const NvmAffineState *state,Value value,
+                                   NvmOwnershipEffectValue declared) {
+    NvmAffineType type={declared.tag,declared.layout};
+    return !value.observation && value.tag==type.tag &&
+        value.owned==nvm_affine_type_is_owned(state,type) &&
+        ((type.tag!=TAG_STRUCT && type.tag!=TAG_UNION && type.tag!=TAG_ARRAY) ||
+         nvm_affine_types_equal(state,(NvmAffineType){value.tag,value.layout},type));
+}
+static bool effect_key_equal(const NvmModule *module,uint32_t a,uint32_t b) {
+    const char *left=nvm_get_string(module,a),*right=nvm_get_string(module,b);
+    return left && right && nvm_get_string_len(module,a)==nvm_get_string_len(module,b) &&
+        !strcmp(left,right);
+}
+static bool effect_escape(AnalysisCalls *calls,const NvmModule *module,
+                            uint32_t function,const Frame *frame,uint32_t key) {
+    for (uint16_t i=0;i<frame->handler_count;i++)
+        if (effect_key_equal(module,key,frame->handlers[i].key)) return true;
+    if (function>=NVM_OWNED_MAX_FUNCTIONS) return false;
+    uint16_t *count=&calls->escape_count[function];
+    for (uint16_t i=0;i<*count;i++)
+        if (effect_key_equal(module,key,calls->escapes[function][i])) return true;
+    if (*count==NVM_OWNERSHIP_MAX_EFFECTS) return false;
+    calls->escapes[function][(*count)++]=key;
+    return true;
+}
+
+#include "affine_array_flow.inc"
+
+static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function,uint32_t pc,AnalysisCalls *calls) {
     uint8_t op=in->opcode,tag=TAG_VOID,mode;
     uint16_t local;
     switch(op) {
+    case OP_ARR_NEW: case OP_ARR_LITERAL: case OP_ARR_PUSH: case OP_ARR_POP:
+    case OP_ARR_GET: case OP_ARR_SET: case OP_ARR_LEN: case OP_ARR_SLICE: case OP_ARR_REMOVE:
+        return array_step(f,in,module,function,pc);
     case OP_NOP: case OP_JMP: case OP_HALT: return NULL;
     case OP_CALL: {
         uint32_t target=in->operands[0].u32;
@@ -172,17 +277,31 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             Value argument=f->stack[f->count-count+p];
             NvmAffineType parameter=parameters[p];
             if (argument.observation || argument.tag!=parameter.tag ||
-                argument.owned!=(parameter.tag==TAG_STRUCT) ||
-                ((argument.owned || argument.tag==TAG_UNION) &&
-                 argument.layout!=parameter.layout))
+                argument.owned!=nvm_affine_type_is_owned(f->locals,parameter) ||
+                ((argument.owned || argument.tag==TAG_UNION || argument.tag==TAG_STRUCT || argument.tag==TAG_ARRAY) &&
+                 !nvm_affine_types_equal(f->locals,(NvmAffineType){argument.tag,argument.layout},parameter)))
                 return "I require exact positional consuming argument types";
         }
         NvmAffineAnalysis call=analyze(module,target,NULL,0,calls);
         if (!call.ok) return "I require complete consuming-helper owner resolution";
+        if (calls->escape_count[target]) {
+            if (!nvm_affine_can_suspend(f->locals))
+                return "I cannot suspend live local owners across an escaping effect call";
+            for (uint16_t i=0;i<f->count-count;i++)
+                if (f->stack[i].owned || f->stack[i].observation)
+                    return "I cannot suspend staged owners across an escaping effect call";
+            for (uint16_t i=0;i<calls->escape_count[target];i++)
+                if (!effect_escape(calls,module,function,f,calls->escapes[target][i]))
+                    return "I cannot retain escaping operation identities";
+        }
+        for (uint32_t g=0;!calls->effect_globals && g<calls->global_count;g++) {
+            global_require(f,calls,function,g,calls->global_allowed[target][g]);
+            f->globals[g]=nvm_affine_global_compose(f->globals[g],calls->global_returns[target][g]);
+        }
         f->count-=count;
         if (result.tag==TAG_VOID) return NULL;
         return push(f,(Value){.tag=result.tag,.root=UINT16_MAX,
-                              .owned=result.tag==TAG_STRUCT,.layout=result.layout,
+                              .owned=nvm_affine_type_is_owned(f->locals,result),.layout=result.layout,
                               .variant=NVM_AFFINE_UNKNOWN_VARIANT})
             ? NULL:"I cannot retain a checked value-call result";
     }
@@ -197,6 +316,37 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             return "I require a single scalar reference-call result";
         break;
     }
+    case OP_HANDLER_PUSH: return NULL; /* I bind both control-flow edges below. */
+    case OP_HANDLER_POP: {
+        uint16_t count=in->operands[0].u16;
+        if (count>f->handler_count-f->handler_floor)
+            return "I cannot pop absent or inherited handlers";
+        f->handler_count-=count;return NULL;
+    }
+    case OP_PERFORM: {
+        NvmOwnershipEffect effect;
+        if (nvm_ownership_effect(module,in->operands[0].u32,&effect)!=NVM_V2_OK ||
+            effect.parameter_count!=in->operands[1].u16 || f->count<effect.parameter_count)
+            return "I require the exact retained performed signature";
+        uint16_t first=f->count-effect.parameter_count;
+        for (uint16_t p=0;p<effect.parameter_count;p++)
+            if (!effect_value_matches(f->locals,f->stack[first+p],effect.parameters[p]))
+                return "I require exact positional effect argument ownership";
+        for (uint16_t p=0;p<first;p++)
+            if (f->stack[p].owned || f->stack[p].observation)
+                return "I cannot abandon a staged owner across an effect";
+        if (!nvm_affine_can_suspend(f->locals))
+            return "I cannot abandon a local owner or borrow across an effect";
+        if (!effect_escape(calls,module,function,f,effect.key_idx))
+            return "I cannot retain escaping operation identities";
+        f->count=first;
+        NvmAffineType type={effect.result.tag,effect.result.layout};
+        return push(f,(Value){.tag=type.tag,.layout=type.layout,.root=UINT16_MAX,
+                              .owned=nvm_affine_type_is_owned(f->locals,type),
+                              .variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:
+            "I cannot retain a resumed effect value";
+    }
+    case OP_PUSH_VOID:tag=TAG_VOID;break;
     case OP_PUSH_I64:tag=TAG_INT;break;
     case OP_PUSH_U8:tag=TAG_U8;break;
     case OP_PUSH_F64:tag=TAG_FLOAT;break;
@@ -229,10 +379,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             nvm_ownership_path(module,in->operands[2].u32,fields,NVM_OWNERSHIP_MAX_PATH_DEPTH,&count)!=NVM_V2_OK)
             return "I require a retained bounded ownership path";
         /* An existing stack observation must not outlive an exclusive hold. */
-        for (uint16_t i=0;i<f->count;i++)
-            if (f->stack[i].observation && f->stack[i].root==in->operands[1].u16 &&
-                exclusive)
-                return "I cannot borrow exclusively while an owner observation is on my stack";
+        if (exclusive && observes_owner(f,in->operands[1].u16))
+            return "I cannot borrow exclusively while an owner observation is on my stack";
         return nvm_affine_borrow(f->locals,in->operands[0].u16,in->operands[1].u16,
             fields,count,exclusive?NVM_REFERENCE_EXCLUSIVE:NVM_REFERENCE_SHARED)?NULL:
             "I require an available scalar-leaf resource owner and reference slot in a live region";
@@ -245,11 +393,14 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             return pop_scalar(f,tag)?NULL:"I require the exact scalar reference field type";
         break;
     case OP_OWN_MOVE_LOCAL: {
-        NvmAffineType type;
+        NvmAffineType type;uint16_t variant=NVM_AFFINE_UNKNOWN_VARIANT;
+        if (observes_owner(f,in->operands[0].u16))
+            return "I cannot move while an owner observation is on my stack";
+        (void)nvm_affine_union_variant(f->locals,in->operands[0].u16,&variant);
         if (!nvm_affine_take_local(f->locals,in->operands[0].u16,&type))
             return "I require a live unheld owner for an explicit move";
         return push(f,(Value){.tag=type.tag,.root=UINT16_MAX,.owned=true,
-                              .layout=type.layout,.variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:
+                              .layout=type.layout,.variant=variant})?NULL:
             "I cannot extend my owned analysis stack";
     }
     case OP_OWN_STORE_LOCAL: {
@@ -258,17 +409,22 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         Value value=f->stack[f->count-1];
         if (!nvm_affine_put_local(f->locals,in->operands[0].u16,(NvmAffineType){value.tag,value.layout}))
             return "I require an exact available owner destination";
+        if (value.tag==TAG_UNION && value.variant!=NVM_AFFINE_UNKNOWN_VARIANT &&
+            !nvm_affine_union_refine(f->locals,in->operands[0].u16,value.variant))
+            return "I require the stored union's exact selected arm";
         f->count--;return NULL;
     }
     case OP_OWN_PACK: {
         NvmAffineType fields[NVM_AFFINE_MAX_STACK];uint16_t count;
         uint32_t layout=in->operands[0].u32;
-        if (!nvm_affine_record_fields(f->locals,layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
+        if (!nvm_affine_type_is_owned(f->locals,(NvmAffineType){TAG_STRUCT,layout}) ||
+            !nvm_affine_record_fields(f->locals,layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
             count>f->count) return "I require every declared field for owned construction";
         for (uint16_t i=0;i<count;i++) {
             Value value=f->stack[f->count-count+i];NvmAffineType field=fields[i];
             if (value.observation || value.tag!=field.tag ||
-                (field.tag==TAG_STRUCT ? (!value.owned || value.layout!=field.layout) : value.owned))
+                (value.owned!=nvm_affine_type_is_owned(f->locals,field)) ||
+                ((field.tag==TAG_STRUCT || field.tag==TAG_UNION) && value.layout!=field.layout))
                 return "I require exact scalar or owned fields in declaration order";
         }
         f->count-=count;
@@ -279,19 +435,38 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     case OP_OWN_UNPACK_LOCAL: {
         NvmAffineType type,fields[NVM_AFFINE_MAX_STACK];uint16_t count;
         uint16_t source=in->operands[0].u16;
+        if (observes_owner(f,source))
+            return "I cannot unpack while an owner observation is on my stack";
         if (!nvm_affine_local_type(f->locals,source,&type) ||
-            !nvm_affine_record_fields(f->locals,type.layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
+            !nvm_affine_owned_local_fields(f->locals,source,fields,NVM_AFFINE_MAX_STACK,&count) ||
             f->count+count>NVM_AFFINE_MAX_STACK || !nvm_affine_take_local(f->locals,source,&type))
             return "I require an intact owner and space for all unpacked fields";
         for (uint16_t i=0;i<count;i++) if (!push(f,(Value){.tag=fields[i].tag,
                                                     .root=UINT16_MAX,
-                                                    .owned=fields[i].tag==TAG_STRUCT,
+                                                    .owned=nvm_affine_type_is_owned(f->locals,fields[i]),
                                                     .layout=fields[i].layout,
                                                     .variant=NVM_AFFINE_UNKNOWN_VARIANT}))
             return "I cannot extend my unpacked analysis stack";
         return NULL;
     }
     case OP_AGG_PACK: {
+        if (in->operands[0].u8==AGG_RECORD) {
+            uint32_t layout=in->operands[1].u32;
+            NvmAffineType fields[NVM_AFFINE_MAX_STACK];uint16_t count=0;
+            if (!calls->value_graph || in->operands[2].u16 ||
+                !nvm_affine_record_is_copyable(f->locals,layout) ||
+                !nvm_affine_record_fields(f->locals,layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
+                count!=in->operands[3].u16 || count>f->count)
+                return "I require an exact complete copyable record constructor";
+            for (uint16_t i=0;i<count;i++) {
+                Value value=f->stack[f->count-count+i];
+                if (value.observation || value.owned || value.tag!=fields[i].tag || value.layout!=fields[i].layout)
+                    return "I require exact copyable record fields without owned authority";
+            }
+            f->count-=count;
+            return push(f,(Value){.tag=TAG_STRUCT,.root=UINT16_MAX,.layout=layout,
+                .variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:"I cannot retain a copyable record";
+        }
         if (in->operands[0].u8!=AGG_VARIANT)
             return "I require explicit owned construction for records";
         NvmUnionVariantFact fact;
@@ -305,27 +480,66 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             return "I require exact scalar-union payload facts";
         for (uint16_t i=0;i<count;i++) {
             Value value=f->stack[f->count-count+i];
-            if (value.observation || value.owned || value.tag!=fields[i].tag)
+            if (value.observation || value.tag!=fields[i].tag ||
+                value.owned!=nvm_affine_type_is_owned(f->locals,fields[i]) ||
+                ((value.tag==TAG_STRUCT || value.tag==TAG_UNION) && value.layout!=fields[i].layout))
                 return "I require exact scalar-union fields in declaration order";
         }
         f->count-=count;
         return push(f,(Value){.tag=TAG_UNION,.root=UINT16_MAX,.layout=fact.layout,
+                              .owned=nvm_affine_type_is_owned(f->locals,(NvmAffineType){TAG_UNION,fact.layout}),
                               .variant=variant})?NULL:
             "I cannot retain a checked scalar-union value";
+    }
+    case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL: {
+        uint32_t index=in->operands[0].u32;
+        if (!calls->value_graph || index>=calls->global_count)
+            return "I require an exact declared global slot";
+        NvmOwnershipGlobal declaration=calls->globals[index];
+        NvmAffineType type={declaration.tag,declaration.layout};
+        if (nvm_affine_type_is_owned(f->locals,type))
+            return "I require explicit global owner transfers and lifetime before resource storage";
+        if (op==OP_LOAD_GLOBAL) {
+            global_require(f,calls,function,index,2u);
+            return push(f,(Value){.tag=type.tag,.root=UINT16_MAX,.layout=type.layout,
+                                  .variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:
+                "I cannot retain a checked global load";
+        }
+        if (!f->count) return "I require a value for a global store";
+        Value value=f->stack[f->count-1];
+        if (value.observation || value.owned || value.tag!=type.tag || value.layout!=type.layout)
+            return "I require the exact global type without an owner or observation escape";
+        if (!declaration.mutable) global_require(f,calls,function,index,1u);
+        f->globals[index]=nvm_affine_global_compose(f->globals[index],10u);
+        f->count--;return NULL;
     }
     case OP_LOAD_LOCAL: {
         local=in->operands[0].u16;
         if (!nvm_affine_local_info(f->locals,local,&tag,&mode))
             return "I require a live checked local";
         uint32_t layout=NVM_V2_NO_INDEX;uint16_t variant=NVM_AFFINE_UNKNOWN_VARIANT;
+        bool observation=tag==TAG_STRUCT;
+        if (tag==TAG_STRUCT && !mode) {
+            NvmAffineType type;
+            if (!nvm_affine_local_type(f->locals,local,&type)) return "I require an exact record local";
+            layout=type.layout;
+            if (nvm_affine_record_is_copyable(f->locals,layout)) observation=false;
+        }
+        if (tag==TAG_ARRAY) {
+            NvmAffineType type;
+            if (!nvm_affine_local_type(f->locals,local,&type)) return "I require an exact array local";
+            layout=type.layout;observation=nvm_affine_type_is_owned(f->locals,type);
+        }
         if (tag==TAG_UNION) {
             NvmAffineType type;
             if (!nvm_affine_local_type(f->locals,local,&type))
                 return "I require an exact scalar-union local";
+            if (nvm_affine_type_is_owned(f->locals,type))
+                return "I require an explicit move of a resource union";
             layout=type.layout;
             (void)nvm_affine_union_variant(f->locals,local,&variant);
         }
-        if (!push(f,(Value){.tag=tag,.observation=tag==TAG_STRUCT,.root=local,
+        if (!push(f,(Value){.tag=tag,.observation=observation,.root=local,
                             .layout=layout,.variant=variant}))
             return "I cannot extend my analysis stack";
         return NULL;
@@ -340,7 +554,11 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         bool defined=scalar(value.tag) ? nvm_affine_scalar_define(f->locals,local) :
             calls->value_graph && value.tag==TAG_STRING ? nvm_affine_string_define(f->locals,local) :
             calls->value_graph && value.tag==TAG_UNION ?
-                nvm_affine_union_define(f->locals,local,value.layout,value.variant) : false;
+                nvm_affine_union_define(f->locals,local,value.layout,value.variant) :
+            calls->value_graph && value.tag==TAG_STRUCT ?
+                nvm_affine_record_define(f->locals,local,value.layout) :
+            calls->value_graph && value.tag==TAG_ARRAY ?
+                nvm_affine_array_define(f->locals,local,value.layout) : false;
         if (!defined ||
             !nvm_affine_local_info(f->locals,local,&tag,&mode) || tag!=value.tag)
             return "I require the exact scalar local type";
@@ -348,7 +566,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     }
     case OP_MATCH_TAG: {
         if (!f->count || f->stack[f->count-1].tag!=TAG_UNION ||
-            f->stack[f->count-1].observation || f->stack[f->count-1].owned)
+            f->stack[f->count-1].observation)
             return "I require an exact scalar-union match source";
         NvmUnionVariantFact fact;
         if (!union_fact_for_layout(module,f->stack[f->count-1].layout,
@@ -363,6 +581,19 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             return "I require an exact scalar-union tag source";
         f->count--;tag=TAG_INT;break;
     case OP_AGG_GET:
+        if (f->count && f->stack[f->count-1].tag==TAG_STRUCT &&
+            !f->stack[f->count-1].observation && !f->stack[f->count-1].owned) {
+            Value value=f->stack[f->count-1];
+            NvmAffineType fields[NVM_AFFINE_MAX_STACK];uint16_t count=0;
+            if (!nvm_affine_record_is_copyable(f->locals,value.layout) ||
+                !nvm_affine_record_fields(f->locals,value.layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
+                in->operands[0].u16>=count) return "I require an exact ordinary record projection";
+            NvmAffineType field=fields[in->operands[0].u16];
+            if (nvm_affine_type_is_owned(f->locals,field)) return "I refuse an owned ordinary projection";
+            f->count--;
+            return push(f,(Value){.tag=field.tag,.root=UINT16_MAX,.layout=field.layout,
+                .variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:"I cannot retain an ordinary projection";
+        }
         if (f->count && f->stack[f->count-1].tag==TAG_UNION &&
             !f->stack[f->count-1].observation && !f->stack[f->count-1].owned) {
             Value value=f->stack[f->count-1];
@@ -373,7 +604,10 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
                                          NVM_AFFINE_MAX_STACK,&count) ||
                 in->operands[0].u16>=count)
                 return "I require an exact scalar-union payload field";
-            tag=fields[in->operands[0].u16].tag;f->count--;break;
+            NvmAffineType field=fields[in->operands[0].u16];
+            if (!scalar(field.tag) && field.tag!=TAG_STRING)
+                return "I require destructive unpack for aggregate payloads";
+            tag=field.tag;f->count--;break;
         }
         /* Resource-record observations retain their established path. */
         /* fall through */
@@ -464,12 +698,25 @@ static bool propagate(Frame **frames,uint32_t target,const Frame *state,Worklist
                        const char **error) {
     bool changed=true;
     if (frames[target]) {
+        if (frames[target]->handler_count!=state->handler_count ||
+            frames[target]->handler_floor!=state->handler_floor ||
+            frames[target]->activation!=state->activation ||
+            memcmp(frames[target]->handlers,state->handlers,state->handler_count*sizeof(*state->handlers))) {
+            *error="I require identical handler context at every control-flow join";return false;
+        }
         bool stack_changed=false,locals_changed=false;
         if (!stack_meet(frames[target],state,&stack_changed) ||
             !nvm_affine_state_meet_initialization(frames[target]->locals,state->locals,&locals_changed)) {
             *error="I require exact ownership and stack provenance at every join";return false;
         }
         changed=stack_changed || locals_changed;
+        if (frames[target]->global_count!=state->global_count) {
+            *error="I require one global declaration domain at every join";return false;
+        }
+        for (uint16_t g=0;g<state->global_count;g++) {
+            uint8_t joined=frames[target]->globals[g]|state->globals[g];
+            if (joined!=frames[target]->globals[g]) {frames[target]->globals[g]=joined;changed=true;}
+        }
     } else {
         frames[target]=frame_clone(state);
         if (!frames[target]) {*error="I cannot allocate an analysis branch";return false;}
@@ -482,10 +729,10 @@ static bool propagate(Frame **frames,uint32_t target,const Frame *state,Worklist
 static bool match_refine(Frame *frame,uint16_t variant) {
     if (!frame || !frame->count) return false;
     Value *value=&frame->stack[frame->count-1];
-    if (value->tag!=TAG_UNION || value->observation || value->owned ||
+    if (value->tag!=TAG_UNION || value->observation ||
         (value->variant!=NVM_AFFINE_UNKNOWN_VARIANT && value->variant!=variant))
         return false;
-    value->variant=variant;
+    value->variant=variant;memset(value->excluded,0,sizeof(value->excluded));
     /* MATCH_TAG proves only this tested value on this successful edge.  I do
      * not turn its source local into a wider fact: a later load is a different
      * receiver and must retain or establish its own exact proof. */
@@ -500,11 +747,15 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
     const char *error="I require checked ownership declarations";
     VmDecodedFunction decoded={0};Frame **frames=NULL;Worklist work={0};
     Frame *current=NULL;
-    if (!m || !m->functions || function>=m->function_count) goto done;
+    if (!m || !m->functions || function>=m->function_count || !calls->globals_valid) goto done;
+    if (calls->global_count && !calls->value_graph) {
+        error="I require a bounded acyclic value graph for global flow";goto done;
+    }
     if (calls->value_graph && !caller) {
         if (calls->status[function]==2) return calls->results[function];
         if (calls->status[function]==1) {error="I refuse recursive owned value analysis";goto done;}
         calls->status[function]=1;
+        memset(calls->global_allowed[function],3,calls->global_count);
     }
     const NvmFunctionEntry *entry=&m->functions[function];
     if (entry->local_count>NVM_AFFINE_MAX_LOCALS ||
@@ -536,15 +787,50 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                 : "I require a connected affine instruction contract";
         goto done;
     }
+    for (uint32_t i=0;i<count;i++) {
+        const DecodedInstruction *in=&decoded.instructions[i].instruction;
+        if (in->opcode==OP_HANDLER_PUSH || in->opcode==OP_PERFORM) {
+            NvmOwnershipEffect effect;
+            uint16_t arity=in->operands[in->opcode==OP_HANDLER_PUSH?3:1].u16;
+            if (nvm_ownership_effect(m,in->operands[0].u32,&effect)!=NVM_V2_OK ||
+                arity!=effect.parameter_count) {
+                nvm_affine_state_free(initial);error="I require a retained exact effect signature at every operation";goto done;
+            }
+            if (in->opcode==OP_HANDLER_PUSH) {
+                uint16_t first=in->operands[2].u16;
+                if ((uint32_t)first+arity>entry->local_count) {
+                    nvm_affine_state_free(initial);error="I require bounded handler parameter slots";goto done;
+                }
+                for (uint16_t p=0;p<arity;p++) {
+                    NvmAffineType type;
+                    if (!nvm_affine_local_type(initial,first+p,&type) ||
+                        !nvm_affine_types_equal(initial,type,(NvmAffineType){effect.parameters[p].tag,effect.parameters[p].layout})) {
+                        nvm_affine_state_free(initial);error="I require exact declared handler parameter types";goto done;
+                    }
+                }
+            }
+        }
+        if ((in->opcode==OP_LOAD_GLOBAL || in->opcode==OP_STORE_GLOBAL) &&
+            in->operands[0].u32>=calls->global_count) {
+            result.byte_offset=decoded.instructions[i].byte_offset;
+            nvm_affine_state_free(initial);error="I require an exact declared global slot";goto done;
+        }
+    }
+    if (calls->facts && !caller && function==calls->fact_function && count!=calls->fact_capacity) {
+        nvm_affine_state_free(initial);error="I require exact instruction fact capacity";goto done;
+    }
     frames=calloc(count,sizeof(*frames));work.capacity=count;
     work.items=malloc(count*sizeof(*work.items));work.queued=calloc(count,sizeof(*work.queued));
     if (!frames || !work.items || !work.queued) {nvm_affine_state_free(initial);error="I cannot allocate analysis state";goto done;}
     frames[0]=calloc(1,sizeof(*frames[0]));
     if (!frames[0]) {nvm_affine_state_free(initial);error="I cannot allocate entry state";goto done;}
     frames[0]->locals=initial;
-    /* Each instruction is first visited once, then only after one or more
-     * of its at most local_count initialized scalar bits decrease. */
-    uint32_t visit_limit=count*((uint32_t)entry->local_count+1u);
+    frames[0]->global_count=(uint16_t)calls->global_count;
+    memset(frames[0]->globals,9,calls->global_count);
+    /* Joins only lose initialized-local, exact-arm/root and excluded-arm
+     * facts. I bound those decreases for every local and stack slot. */
+    uint32_t visit_limit=count*(2u*(uint32_t)entry->local_count+4u*calls->global_count+1u+
+        NVM_AFFINE_MAX_STACK*(NVM_OWNERSHIP_MAX_VARIANTS+1u));
 #ifdef NVM_AFFINE_TEST_VISIT_LIMIT
     visit_limit=NVM_AFFINE_TEST_VISIT_LIMIT(visit_limit);
 #endif
@@ -566,25 +852,62 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
             if (current->count==1 && !current->stack[0].observation) tag=current->stack[0].tag;
             else if (current->count) {error="I refuse an observation escape or extra return operands";goto done;}
             bool exact_value=current->count==1 &&
-                (current->stack[0].owned || current->stack[0].tag==TAG_UNION);
+                (current->stack[0].owned || current->stack[0].tag==TAG_UNION || current->stack[0].tag==TAG_STRUCT || current->stack[0].tag==TAG_ARRAY);
             bool exit_ok=exact_value
                 ? nvm_affine_can_exit_type(current->locals,(NvmAffineType){tag,current->stack[0].layout})
                 : nvm_affine_can_exit_scalar(current->locals,tag);
             if (!exit_ok) {
                 error="I require an exact declared result and no live owned obligations";goto done;
             }
+            for (uint32_t g=0;g<calls->global_count;g++)
+                calls->global_returns[function][g]|=current->globals[g];
+        } else if (op==OP_EFFECT_RESUME) {
+            if (!current->activation || current->count!=1 || current->stack[0].observation ||
+                !nvm_affine_can_resume(current->locals,
+                    (NvmAffineType){current->stack[0].tag,
+                        current->stack[0].tag==TAG_STRUCT || current->stack[0].tag==TAG_UNION || current->stack[0].tag==TAG_ARRAY
+                            ?current->stack[0].layout:NVM_V2_NO_INDEX}) ||
+                current->stack[0].owned!=nvm_affine_type_is_owned(current->locals,
+                    (NvmAffineType){current->stack[0].tag,current->stack[0].layout})) {
+                error="I require the active operation result and resolved arm ownership at resumption";goto done;
+            }
         } else if (op==OP_HALT) {
-            if (current->count) {error="I require an empty stack at my terminal invariant";goto done;}
+            if (current->count || current->activation || !nvm_affine_can_suspend(current->locals)) {
+                error="I require an empty stack and resolved owners at my terminal invariant";goto done;
+            }
         } else {
-            error=step(current,&instruction->instruction,entry->local_count,m,function,calls);
+            error=step(current,&instruction->instruction,entry->local_count,m,function,instruction->byte_offset,calls);
             if (error) goto done;
+            if (op==OP_HANDLER_PUSH) {
+                if (current->handler_count==AFFINE_MAX_HANDLERS) {
+                    error="I exceeded my bounded affine handler depth";goto done;
+                }
+                uint32_t key=instruction->instruction.operands[0].u32;
+                uint16_t first=instruction->instruction.operands[2].u16;
+                current->handlers[current->handler_count++]=(Handler){key,index};
+                Frame *arm=frame_clone(current);
+                if (!arm) {error="I cannot allocate handler control-flow state";goto done;}
+                NvmAffineState *locals=nvm_affine_handler_enter(current->locals,key,first);
+                if (!locals) {frame_free(arm);error="I require a fresh exact handler activation";goto done;}
+                nvm_affine_state_free(arm->locals);arm->locals=locals;
+                free(arm->stack);arm->stack=NULL;arm->count=0;
+                arm->activation=index+1;arm->handler_floor=arm->handler_count;
+                uint32_t relative=instruction->resolved_target-entry->code_offset;
+                const VmDecodedInstruction *target=vm_decoded_function_at(&decoded,relative);
+                if (!target || !propagate(frames,(uint32_t)(target-decoded.instructions),arm,&work,&error)) {
+                    frame_free(arm);if (!error) error="I require a valid handler entry edge";goto done;
+                }
+                frame_free(arm);
+            }
             if (op==OP_MATCH_TAG) {
                 uint32_t relative=instruction->resolved_target-entry->code_offset;
                 const VmDecodedInstruction *target=vm_decoded_function_at(&decoded,relative);
                 uint16_t wanted=instruction->instruction.operands[0].u16;
                 uint16_t known=current->stack[current->count-1].variant;
                 if (!target) {error="I require an instruction at my match target";goto done;}
-                if (known==NVM_AFFINE_UNKNOWN_VARIANT || known==wanted) {
+                Value *tested=&current->stack[current->count-1];
+                bool excluded=(tested->excluded[wanted/64u]&(UINT64_C(1)<<(wanted%64u)))!=0;
+                if ((known==NVM_AFFINE_UNKNOWN_VARIANT && !excluded) || known==wanted) {
                     Frame *matched=frame_clone(current);
                     if (!matched || !match_refine(matched,wanted) ||
                         !propagate(frames,(uint32_t)(target-decoded.instructions),matched,&work,&error)) {
@@ -597,6 +920,17 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                 /* A constructed or previously refined exact variant makes one
                  * edge unreachable.  I do not reject the dead source-order arm. */
                 if (known==wanted) fallthrough=false;
+                else if (known==NVM_AFFINE_UNKNOWN_VARIANT) {
+                    tested->excluded[wanted/64u]|=UINT64_C(1)<<(wanted%64u);
+                    uint16_t remaining=0,last=0;
+                    for (uint16_t v=0;v<NVM_OWNERSHIP_MAX_VARIANTS;v++) {
+                        NvmUnionVariantFact fact;
+                        if (!union_fact_for_layout(m,tested->layout,v,&fact)) break;
+                        if (!(tested->excluded[v/64u]&(UINT64_C(1)<<(v%64u)))) {remaining++;last=v;}
+                    }
+                    if (!remaining) fallthrough=false;
+                    else if (remaining==1) {tested->variant=last;memset(tested->excluded,0,sizeof(tested->excluded));}
+                }
             }
             if (op==OP_JMP || op==OP_JMP_TRUE || op==OP_JMP_FALSE) {
                 uint32_t relative=instruction->resolved_target-entry->code_offset;
@@ -611,6 +945,33 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
         }
         frame_free(current);current=NULL;
     }
+    for (uint32_t g=0;g<calls->global_count;g++) {
+        uint8_t allowed=calls->global_allowed[function][g];
+        if (!allowed || (!function && !(allowed&1u))) {
+            error="I require global initialization before reads and no repeated immutable store";goto done;
+        }
+    }
+    if (calls->facts && !caller && function==calls->fact_function) {
+        NvmAffineInstructionFact *facts=calloc(count,sizeof(*facts));
+        if (!facts) {error="I cannot allocate converged instruction facts";goto done;}
+        for (uint32_t i=0;i<count;i++) {
+            facts[i].byte_offset=decoded.instructions[i].byte_offset;
+            if (!frames[i] || !frames[i]->visited) continue;
+            facts[i].reachable=true;facts[i].stack_depth=frames[i]->count;
+            facts[i].top_tag=frames[i]->count?frames[i]->stack[frames[i]->count-1].tag:TAG_VOID;
+            if (decoded.instructions[i].instruction.opcode==OP_OWN_UNPACK_LOCAL) {
+                NvmAffineType type,fields[NVM_AFFINE_MAX_STACK];uint16_t fields_count=0;
+                uint16_t local=decoded.instructions[i].instruction.operands[0].u16;
+                if (!nvm_affine_local_type(frames[i]->locals,local,&type) ||
+                    !nvm_affine_owned_local_fields(frames[i]->locals,local,fields,
+                                                  NVM_AFFINE_MAX_STACK,&fields_count)) {
+                    free(facts);error="I require exact destructive-unpack facts";goto done;
+                }
+                facts[i].unpack_count=fields_count;
+            }
+        }
+        memcpy(calls->facts,facts,count*sizeof(*facts));free(facts);
+    }
     result.ok=true;result.byte_offset=0;error=NULL;
 done:
     frame_free(current);
@@ -623,7 +984,37 @@ done:
     return result;
 }
 
+#include "affine_effect_globals.inc"
+
 NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t function) {
-    AnalysisCalls calls={0};calls.value_graph=nvm_affine_value_call_graph(m);
-    return analyze(m,function,NULL,0,&calls);
+    AnalysisCalls calls={0};analysis_calls_init(&calls,m);
+    NvmAffineAnalysis result=analyze(m,function,NULL,0,&calls);
+    if(result.ok && calls.effect_globals) {
+        NvmAffineAnalysis globals=effect_global_proof(m,&calls);
+        if(!globals.ok)return globals;
+    }
+    return result;
+}
+
+NvmAffineAnalysis nvm_affine_analyze_instructions(const NvmModule *m,
+    uint32_t function,NvmAffineInstructionFact *facts,uint32_t capacity) {
+    if (!facts || !capacity || capacity>NVM_AFFINE_MAX_INSTRUCTIONS) {
+        NvmAffineAnalysis result={0};
+        snprintf(result.message,sizeof(result.message),"I require a bounded instruction fact buffer");
+        return result;
+    }
+    AnalysisCalls calls={0};analysis_calls_init(&calls,m);
+    NvmAffineInstructionFact *staged=calls.effect_globals?malloc(capacity*sizeof(*staged)):NULL;
+    if(calls.effect_globals && !staged) {
+        NvmAffineAnalysis result={0};
+        snprintf(result.message,sizeof(result.message),"I cannot stage effect/global instruction facts");return result;
+    }
+    calls.fact_function=function;calls.fact_capacity=capacity;calls.facts=staged?staged:facts;
+    NvmAffineAnalysis result=analyze(m,function,NULL,0,&calls);
+    if(result.ok && calls.effect_globals) {
+        NvmAffineAnalysis globals=effect_global_proof(m,&calls);
+        if(!globals.ok)result=globals;
+    }
+    if(result.ok && staged)memcpy(facts,staged,capacity*sizeof(*facts));
+    free(staged);return result;
 }

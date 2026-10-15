@@ -1,0 +1,3 @@
+I have not resolved File service declarations for this consumer.
+SERIALIZE 2 I cannot validate my lowered File bodies.
+Assertion failed: (!result.status), function main, file test_service_lowering.c, line 66.

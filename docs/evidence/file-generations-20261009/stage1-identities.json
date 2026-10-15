@@ -1,0 +1,15 @@
+{
+  "head": "fea341eb09fa7d0149d34b57881e0447c78a4a17",
+  "artifacts": {
+    "nanoc_stage1.nvm": "9f120d47fbe19bec124bf08c7418b2c1d8de19c31709ec15cdc81dddfff7ab96",
+    "nanoc_stage1": "3f962fff76c62df611d9f684eac11868db03a33fa01920ad77fc75661606ad95"
+  },
+  "hosts": {
+    "/private/tmp/nl51-142704d0b/v2-25e22f6f5bfb436f8169942af490416d7afdf733ccdcae23bf09521382400820/.nano-gen-6qGvIc/libfile_product.dylib": "5abc8e51e1e997e2eb6d8b9bccdee7143eaff3a7a0290dc324ce4904a544519c",
+    "/private/tmp/nl51-142704d0b/v2-616efd80512a2778925874a16684652704390c7033e3ec69724ec9d6b2d22d5b/.nano-gen-JaoQUB/libstd.dylib": "f0fcc150e7c38a7a96fea175899b03b13cbbaf7a52a99508411749ac69697926",
+    "/private/tmp/nl51-142704d0b/v2-7f21c4bbf92270f4bade93d5f424b94279e8c361db7ba958741c3541a14c06c1/.nano-gen-njTIb8/libnanoisa.dylib": "ec3aed1e1605e319942df924916037c3cdf58020becd4d79ff6a42bd840ccb50",
+    "/private/tmp/nl51-142704d0b/v2-9a1620749cd96ecbeef20baad0ebb763788a50e59587ed92f68044d043e91fa9/.nano-gen-TVWVke/libfile_source_catalog.dylib": "343898863d390bd9bfa212015ab01d5ed2dfef3d2077ef04b561c55f33f01c6a",
+    "/private/tmp/nl51-142704d0b/v2-9e0ee2ec1ced8082a23f35c144074fe6564dfc2bb25750d9dfc80d4643b5774e/.nano-gen-VGMG24/libfile_source_inputs.dylib": "06cf57f73000071ca8c6cc63d54a323b9c1a9b9f06a3fc9f4c1ac247634b26d4",
+    "/private/tmp/nl51-142704d0b/v2-eac8e28c4db475450cbb3375ccdf9959e1be88c561af16985806c1ce2017169e/.nano-gen-T8bxzy/libcompiler_support.dylib": "d4980660ba1eb535684beab59836896f6a8939657650837def809d1d686b24a1"
+  }
+}

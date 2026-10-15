@@ -1,0 +1,55 @@
+test_c_loader_canonical_origin_lifetime (tests.test_service_origins.ServiceOrigins.test_c_loader_canonical_origin_lifetime) ... ok
+test_paired_merged_source_mapping (tests.test_service_origins.ServiceOrigins.test_paired_merged_source_mapping) ... 
+  test_paired_merged_source_mapping (tests.test_service_origins.ServiceOrigins.test_paired_merged_source_mapping) (compiler='nano_virt') ... FAIL
+  test_paired_merged_source_mapping (tests.test_service_origins.ServiceOrigins.test_paired_merged_source_mapping) (compiler='nanoc_stage1') ... FAIL
+  test_paired_merged_source_mapping (tests.test_service_origins.ServiceOrigins.test_paired_merged_source_mapping) (compiler='nanoc_stage2') ... FAIL
+
+======================================================================
+FAIL: test_paired_merged_source_mapping (tests.test_service_origins.ServiceOrigins.test_paired_merged_source_mapping) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_service_origins.py", line 38, in test_paired_merged_source_mapping
+    self.run_checked([ROOT / "bin" / stage, ROOT / "tests/service_origins.nano", "--emit-nvm", "-o", module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_service_origins.py", line 15, in run_checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 20, column 13: I cannot call private function 'parser_service_utf8' from module 'parser'.
+Hint: Call an exported function, or declare this function pub in its owning module.
+Error at line 20, column 8: `not` requires a bool operand.
+Hint: Convert the operand to bool before using not.
+Error: Type checking failed for module '/private/tmp/nanolang-match-guards-20261009/src_nano/compiler/service_origins.nano'
+Error at line 2, column 1: Failed to load module '/private/tmp/nanolang-match-guards-20261009/src_nano/compiler/service_origins.nano'
+error: module loading failed
+
+
+======================================================================
+FAIL: test_paired_merged_source_mapping (tests.test_service_origins.ServiceOrigins.test_paired_merged_source_mapping) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_service_origins.py", line 38, in test_paired_merged_source_mapping
+    self.run_checked([ROOT / "bin" / stage, ROOT / "tests/service_origins.nano", "--emit-nvm", "-o", module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_service_origins.py", line 15, in run_checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: undefined function parser_get_service
+
+
+======================================================================
+FAIL: test_paired_merged_source_mapping (tests.test_service_origins.ServiceOrigins.test_paired_merged_source_mapping) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_service_origins.py", line 38, in test_paired_merged_source_mapping
+    self.run_checked([ROOT / "bin" / stage, ROOT / "tests/service_origins.nano", "--emit-nvm", "-o", module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_service_origins.py", line 15, in run_checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: undefined function parser_get_service
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 54.855s
+
+FAILED (failures=3)

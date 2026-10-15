@@ -1,0 +1,17 @@
+diff --git a/src/nanoisa/nvm2c.c b/src/nanoisa/nvm2c.c
+index 20d8432f0..afa27d110 100644
+--- a/src/nanoisa/nvm2c.c
++++ b/src/nanoisa/nvm2c.c
+@@ -1189,8 +1189,10 @@ static int classify_direct_call(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
+             uint8_t *fields = facts->fields + at * b->record_width;
+             if (!merge_record_results(b, facts, fields, arg.rec_k) ||
+                 !shape_type(b, parameter, NVM_SHAPE_ARRAY) ||
+-                !shape_record_return(b, shape_child(b, arg.shape, 0),
+-                                     shape_child(b, parameter, 0), arg.rec_k, fields)) return 0;
++                /* I pass the shared mutable array handle, not a converted
++                 * copy. Callee writes constrain the caller's element storage
++                 * as well as caller contents constraining the callee. */
++                !shape_equal(b, arg.shape, parameter)) return 0;
+         } else if ((facts->parameters[at] == NVM2C_VK_STR || facts->parameters[at] == NVM2C_VK_INT ||
+                     facts->parameters[at] == NVM2C_VK_BOOL || facts->parameters[at] == NVM2C_VK_FLOAT) &&
+                    (arg.kind == facts->parameters[at] || arg.kind == NVM2C_VK_UNK)) {

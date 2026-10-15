@@ -1,0 +1,22 @@
+{
+  "asan-env.o": {
+    "sha256": "3abfc4610579b70e3e72f5aa2a035048d3b617d6ee7b738b800fc6957b9ef83b",
+    "asan": true,
+    "ubsan": true
+  },
+  "asan-typechecker.o": {
+    "sha256": "f72276044ecae464f0a81b9d1ce101ccab76a77c56659d0fe1f0fa1b401a264d",
+    "asan": true,
+    "ubsan": true
+  },
+  "asan-eval.o": {
+    "sha256": "a0675fba716830f9fd629e081701db0364085f3015d144e2c7322cb0c6afc934",
+    "asan": true,
+    "ubsan": true
+  },
+  "asan-transpiler.o": {
+    "sha256": "b103ea0b034e09975b13c30a822b9bcdea0e521a9e1ab5e51f3aacdecbf30461",
+    "asan": true,
+    "ubsan": true
+  }
+}

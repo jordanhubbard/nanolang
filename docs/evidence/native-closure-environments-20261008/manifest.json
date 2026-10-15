@@ -1,0 +1,34 @@
+{
+  "base_commit": "55230ffa6e3ec87c28245124d02259c2300df691",
+  "task": "task_f9059876cb0b463a8d51244f759e55c9",
+  "source_sha256": {
+    "src/nanoisa/nvm2c.c": "4bbc2e9689e3c5650c964553b67eb5bfacf0799b0749f9e3e09d276af2d0bf91",
+    "src/nanoisa/nvm2c_map_roots.inc": "ccc6336d5e4f6d4cb37572ddbb3ea643de6717430b9963ae9433982f77fd61d0",
+    "src/nanoisa/nvm2c_callables.c": "844a17926912bee7451fb9516f4208e6dda957d8b72f3bc0ca7f62fa62249377",
+    "tests/test_native_closures.py": "856b2563927fbf4b950d208c9cec87e61e2bed7a4a3aaab077f74549eff9e328",
+    "tests/test_native_callables.py": "0f0860b846da4a001d8e537c970e8e44cb8692795f57ef39b0c5c4c105c9f856",
+    "Makefile.gnu": "aadf943c60939c083bef8bd13c415a0a0b8717ac5d765a9fd56b5313ce4a5e77"
+  },
+  "logs_sha256": {
+    "duplicate-constant.log": "d790055fdf8e8ba002878fc396bb5640837e9a67e38e9da0e0e1cdee3463a0a5",
+    "native.log": "14ae4948ab74a8625656082277c8c06205044d4df811b7929e9ac341a3bb9c83",
+    "first-projection.json": "f6c310baa0a887775ae020712f97e840a1fad0972c2c8cc3d5882a57db14e64b",
+    "unused-helper.log": "43f142614c7691e210e44351e866a55af74da0e5acfddbef72c2c6c16052a294",
+    "qualified.log": "facac7e0618448514488de34ebb9e2b0e3f236ab2c1da23f6d8d17ad4ffa1c64",
+    "parity.log": "2b659ea1483e479654d5362ba345b4378566017ad501e9a18c4b913575a3902a",
+    "first-lifetime.log": "5cceffd99fe2f0948d1a8a21643a22195b1d0dcedda47054ec1421f76ff2bd89",
+    "final-parity.log": "a8c1eb7564138532fdb4cb6b12c6db66a28d2413aba3cb0942bc6464a904ed58",
+    "final-native.log": "4e10481fe65d89afe435f6187f8ac6873b1b8527af75eff916d7dbe1a8141f87"
+  },
+  "terminals": {
+    "first_projection": 1,
+    "first_lifetime": 1,
+    "duplicate_constant": 1,
+    "unused_helper": 1,
+    "qualified": 0,
+    "parity": 0,
+    "native": 0,
+    "final_parity": 0,
+    "final_native": 0
+  }
+}

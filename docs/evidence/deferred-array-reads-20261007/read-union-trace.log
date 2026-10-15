@@ -1,0 +1,6 @@
+EQUAL f=964 pc=17 a=739049 c=739048 kinds=0/0
+EQUAL f=964 pc=18 a=739049 c=739050 kinds=0/0
+EQUAL f=999 pc=1373 a=754715 c=739049 kinds=0/0
+EQUAL f=999 pc=1374 a=754715 c=754716 kinds=0/0
+TYPE f=999 pc=1388 id=754716 kind=6
+I cannot translate '/tmp/nanolang-5.1-20261007/compiler-seed.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained string destination at nodes 739049/218364 (conversion 774861/774863)

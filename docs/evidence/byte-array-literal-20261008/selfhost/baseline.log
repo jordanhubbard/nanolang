@@ -1,0 +1,134 @@
+I retain byte-array qualification at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-26hphvm7
+test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) ... 
+  test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='local') ... FAIL
+  test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='assignment') ... FAIL
+  test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='global') ... FAIL
+  test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='return') ... FAIL
+  test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='argument') ... FAIL
+  test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='field') ... FAIL
+test_mutation_slice_and_outer_independence (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_mutation_slice_and_outer_independence) ... FAIL
+test_wrong_literal_elements_refused (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_wrong_literal_elements_refused) ... ok
+
+======================================================================
+FAIL: test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='local')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 45, in test_contextual_destinations
+    self.execute(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 36, in execute
+    assembly.write_text(self.run_checked(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-byte-array-driver'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-26hphvm7/local.nano'), 'program'): 1
+
+
+
+======================================================================
+FAIL: test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='assignment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 45, in test_contextual_destinations
+    self.execute(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 36, in execute
+    assembly.write_text(self.run_checked(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-byte-array-driver'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-26hphvm7/assignment.nano'), 'program'): 1
+
+
+
+======================================================================
+FAIL: test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='global')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 45, in test_contextual_destinations
+    self.execute(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 36, in execute
+    assembly.write_text(self.run_checked(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-byte-array-driver'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-26hphvm7/global.nano'), 'program'): 1
+
+
+
+======================================================================
+FAIL: test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 45, in test_contextual_destinations
+    self.execute(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 36, in execute
+    assembly.write_text(self.run_checked(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-byte-array-driver'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-26hphvm7/return.nano'), 'program'): 1
+
+
+
+======================================================================
+FAIL: test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='argument')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 45, in test_contextual_destinations
+    self.execute(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 36, in execute
+    assembly.write_text(self.run_checked(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-byte-array-driver'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-26hphvm7/argument.nano'), 'program'): 1
+
+
+
+======================================================================
+FAIL: test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='field')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 45, in test_contextual_destinations
+    self.execute(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 36, in execute
+    assembly.write_text(self.run_checked(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-byte-array-driver'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-26hphvm7/field.nano'), 'program'): 1
+
+
+
+======================================================================
+FAIL: test_mutation_slice_and_outer_independence (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_mutation_slice_and_outer_independence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 48, in test_mutation_slice_and_outer_independence
+            self.execute("slice", """fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     let mut bytes:array<u8> = [300, 255]
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+     return 0
+     ^^^^^^^^
+    }""")
+    ^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 36, in execute
+    assembly.write_text(self.run_checked(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-byte-array-driver'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-26hphvm7/slice.nano'), 'program'): 1
+
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.177s
+
+FAILED (failures=7)

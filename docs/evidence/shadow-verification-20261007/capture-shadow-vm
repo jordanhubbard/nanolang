@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+import os,sys,shutil
+from pathlib import Path
+out=Path('/tmp/nanolang-5.1-20261007/shadow-timeout-capture')
+out.mkdir(exist_ok=True)
+shutil.copy2(sys.argv[-1],out/'shadows.nvm')
+(out/'arguments.txt').write_text(repr(sys.argv[1:])+'\n')
+os.execv('/Users/jordanh/Src/nanolang/bin/nano_vm',['nano_vm',*sys.argv[1:]])

@@ -1,0 +1,63 @@
+I retain nested array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-4nd4fg08
+test_nested_record_child (tests.test_native_nested_arrays.NativeNestedArrays.test_nested_record_child) ... FAIL
+test_self_cycle_survives_collection_and_pop (tests.test_native_nested_arrays.NativeNestedArrays.test_self_cycle_survives_collection_and_pop) ... ok
+test_slice_retains_children_after_outer_release (tests.test_native_nested_arrays.NativeNestedArrays.test_slice_retains_children_after_outer_release) ... FAIL
+
+======================================================================
+FAIL: test_nested_record_child (tests.test_native_nested_arrays.NativeNestedArrays.test_nested_record_child)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_nested_arrays.py", line 44, in test_nested_record_child
+    self.paired('record-child', body,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                '.string a "a"\n.string b "b"\n.string ab "ab"\n' + CHURN,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                collections=True)
+                ^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 47, in paired
+    self.command(*shlex.split(os.environ.get('CC', 'clang')), '-std=c11',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined',
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 '-fno-sanitize-recover=all', native_c, '-lm', '-o', binary)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 26, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-4nd4fg08/record-child.c:1030:15: error: unused function 'narr_lit' [-Werror,-Wunused-function]
+ 1030 | static narr_t narr_lit(const int64_t *elems, size_t n) {
+      |               ^~~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_slice_retains_children_after_outer_release (tests.test_native_nested_arrays.NativeNestedArrays.test_slice_retains_children_after_outer_release)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_nested_arrays.py", line 27, in test_slice_retains_children_after_outer_release
+    self.paired('retained', body,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                '.string a "a"\n.string b "b"\n.string ab "ab"\n' + CHURN,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                collections=True)
+                ^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 47, in paired
+    self.command(*shlex.split(os.environ.get('CC', 'clang')), '-std=c11',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined',
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 '-fno-sanitize-recover=all', native_c, '-lm', '-o', binary)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 26, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-4nd4fg08/retained.c:1030:15: error: unused function 'narr_lit' [-Werror,-Wunused-function]
+ 1030 | static narr_t narr_lit(const int64_t *elems, size_t n) {
+      |               ^~~~~~~~
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.720s
+
+FAILED (failures=2)

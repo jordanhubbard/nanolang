@@ -1,0 +1,26 @@
+[
+  {
+    "case": "wildcard",
+    "driver": "c",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "wildcard",
+    "driver": "nano",
+    "returncode": 0,
+    "preserved": false
+  },
+  {
+    "case": "local",
+    "driver": "c",
+    "returncode": 0,
+    "preserved": false
+  },
+  {
+    "case": "local",
+    "driver": "nano",
+    "returncode": 0,
+    "preserved": false
+  }
+]

@@ -1,0 +1,224 @@
+test_declared_filter_changes_element_type (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_filter_changes_element_type) ... 
+  test_declared_filter_changes_element_type (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_filter_changes_element_type) (driver='bin/nano_virt', name='filter') ... FAIL
+  test_declared_filter_changes_element_type (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_filter_changes_element_type) (driver='bin/nano_virt', name='array_filter') ... FAIL
+test_declared_fold_preserves_initial (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_fold_preserves_initial) ... 
+  test_declared_fold_preserves_initial (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_fold_preserves_initial) (driver='bin/nano_virt', name='reduce') ... FAIL
+test_declared_map_preserves_input (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_map_preserves_input) ... 
+  test_declared_map_preserves_input (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_map_preserves_input) (driver='bin/nano_virt', name='map') ... FAIL
+test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) ... 
+  test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nano_virt', name='map') ... FAIL
+  test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nano_virt', name='filter') ... FAIL
+  test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nano_virt', name='reduce') ... FAIL
+  test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nano_virt', name='array_map') ... FAIL
+  test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nano_virt', name='array_filter') ... FAIL
+  test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nano_virt', name='array_fold') ... FAIL
+
+======================================================================
+FAIL: test_declared_filter_changes_element_type (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_filter_changes_element_type) (driver='bin/nano_virt', name='filter')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 25, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 1, column 21: Unused variable 'n'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpjsuzst1c/main.nano
+I expected array elements of type int, but found struct.
+
+1| struct Point{x:int} fn keep(n:int)->bool{return true} shadow keep{assert true} fn filter(values:array<int>, callback:fn(int)->bool)->array<Point>{return [Point{x:7}]} shadow filter{assert true}
+                                                                                                                                                            ^
+Hint: Use elements matching the array annotation.
+Warning at line 1, column 80: Unused variable 'values'
+Warning at line 1, column 80: Unused variable 'callback'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpjsuzst1c/main.nano
+Field access requires a struct value.
+
+2| fn main()->int{let values = (filter [1] keep) let point = (at values 0) return point.x}
+                                                                                       ^
+Hint: Ensure the object before '.' is a struct type.
+error: type check failed
+
+
+======================================================================
+FAIL: test_declared_filter_changes_element_type (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_filter_changes_element_type) (driver='bin/nano_virt', name='array_filter')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 25, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 1, column 21: Unused variable 'n'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpj3y98qrc/main.nano
+I expected array elements of type int, but found struct.
+
+1| struct Point{x:int} fn keep(n:int)->bool{return true} shadow keep{assert true} fn array_filter(values:array<int>, callback:fn(int)->bool)->array<Point>{return [Point{x:7}]} shadow array_filter{assert true}
+                                                                                                                                                                  ^
+Hint: Use elements matching the array annotation.
+Warning at line 1, column 80: Unused variable 'values'
+Warning at line 1, column 80: Unused variable 'callback'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpj3y98qrc/main.nano
+Field access requires a struct value.
+
+2| fn main()->int{let values = (array_filter [1] keep) let point = (at values 0) return point.x}
+                                                                                             ^
+Hint: Ensure the object before '.' is a struct type.
+error: type check failed
+
+
+======================================================================
+FAIL: test_declared_fold_preserves_initial (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_fold_preserves_initial) (driver='bin/nano_virt', name='reduce')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 25, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 1, column 66: Cannot redefine built-in function 'reduce'
+  Built-in functions cannot be shadowed
+  Choose a different function name
+Warning at line 1, column 66: Unused variable 'values'
+Warning at line 1, column 66: Unused variable 'callback'
+error: type check failed
+
+
+======================================================================
+FAIL: test_declared_map_preserves_input (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_map_preserves_input) (driver='bin/nano_virt', name='map')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 25, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 1, column 62: Cannot redefine built-in function 'map'
+  Built-in functions cannot be shadowed
+  Choose a different function name
+Warning at line 1, column 62: Unused variable 'callback'
+error: type check failed
+
+
+======================================================================
+FAIL: test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nano_virt', name='map')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 25, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 1, column 1: Cannot redefine built-in function 'map'
+  Built-in functions cannot be shadowed
+  Choose a different function name
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpwvoh9mjo/main.nano
+Return type mismatch: got int, expected array.
+
+1| fn map(n:int)->int{return (+ n 1)} shadow map{assert true}
+                      ^
+Hint: Ensure the returned value matches the function's declared return type.
+-- E003 ARITY MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpwvoh9mjo/main.nano
+I require an array and one callback.
+
+2| fn main()->int{return (map 6)}
+                         ^
+Hint: Pass exactly two operands.
+error: type check failed
+
+
+======================================================================
+FAIL: test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nano_virt', name='filter')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 25, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp9zce766x/main.nano
+Return type mismatch: got int, expected array.
+
+1| fn filter(n:int)->int{return (+ n 1)} shadow filter{assert true}
+                         ^
+Hint: Ensure the returned value matches the function's declared return type.
+-- E003 ARITY MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp9zce766x/main.nano
+I require an array and one callback.
+
+2| fn main()->int{return (filter 6)}
+                         ^
+Hint: Pass exactly two operands.
+error: type check failed
+
+
+======================================================================
+FAIL: test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nano_virt', name='reduce')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 25, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 1, column 1: Cannot redefine built-in function 'reduce'
+  Built-in functions cannot be shadowed
+  Choose a different function name
+-- E003 ARITY MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpb1xbwzkh/main.nano
+I require exactly three operands for reduce.
+
+2| fn main()->int{return (reduce 6)}
+                         ^
+Hint: Pass an array, an initializer and a binary callback.
+error: type check failed
+
+
+======================================================================
+FAIL: test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nano_virt', name='array_map')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 25, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp7xtf3j9l/main.nano
+Return type mismatch: got int, expected array.
+
+1| fn array_map(n:int)->int{return (+ n 1)} shadow array_map{assert true}
+                            ^
+Hint: Ensure the returned value matches the function's declared return type.
+-- E003 ARITY MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp7xtf3j9l/main.nano
+I require an array and one callback.
+
+2| fn main()->int{return (array_map 6)}
+                         ^
+Hint: Pass exactly two operands.
+error: type check failed
+
+
+======================================================================
+FAIL: test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nano_virt', name='array_filter')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 25, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp1c2jh03h/main.nano
+Return type mismatch: got int, expected array.
+
+1| fn array_filter(n:int)->int{return (+ n 1)} shadow array_filter{assert true}
+                               ^
+Hint: Ensure the returned value matches the function's declared return type.
+-- E003 ARITY MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp1c2jh03h/main.nano
+I require an array and one callback.
+
+2| fn main()->int{return (array_filter 6)}
+                         ^
+Hint: Pass exactly two operands.
+error: type check failed
+
+
+======================================================================
+FAIL: test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) (driver='bin/nano_virt', name='array_fold')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 25, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E003 ARITY MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp2ckh3f1w/main.nano
+I require exactly three operands for reduce.
+
+2| fn main()->int{return (array_fold 6)}
+                         ^
+Hint: Pass an array, an initializer and a binary callback.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 4.994s
+
+FAILED (failures=10)

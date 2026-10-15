@@ -1,0 +1,9 @@
+{
+  "modules/nanoisa/module.json": "cd815f229ba284a5efb20453e853f6aac309e96283d0658b57ab1a18cd1545b6",
+  "modules/forth_see/module.json": "43b95d9a7ea6188fa7dd14c4436656a3fd75303cf01242710e6e20f3219a6bfd",
+  "src/nanoisa/portable_read_module.c": "ad73cdae734f90455486fc6b5507043da5bb2cc8df13e889b25da10250933e7b",
+  "tests/test_portable_read_execution.py": "f0b3f579e10116f60373bbac2a13851f727302190d26a3000781d02fb61cdb62",
+  "tests/nanoisa/test_portable_read_execution_faults.c": "25bbbe2f86caa26f06772ff218fcf6ea531cbed26099bcc5ae099072008520fe",
+  "tests/test_nanoisa_host_closure.py": "9c3708385471bcf2a4f66493a024f170b715cffd0fa92f110197b30515918ae0",
+  "examples/Makefile": "f2d26a0ef64d97808c977352baf746dedba6c234853685a8ba1a5dc71b53f723"
+}

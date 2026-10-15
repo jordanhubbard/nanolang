@@ -1,0 +1,11 @@
+test_backward_widening_remains_explicitly_refused (tests.test_native_string_joins.NativeStringJoins.test_backward_widening_remains_explicitly_refused) ... ok
+test_conditional_edge_does_not_rewrite_fallthrough_stack (tests.test_native_string_joins.NativeStringJoins.test_conditional_edge_does_not_rewrite_fallthrough_stack) ... ok
+test_direct_and_tagged_boolean_join_preserves_missing_tag (tests.test_native_string_joins.NativeStringJoins.test_direct_and_tagged_boolean_join_preserves_missing_tag) ... ok
+test_join_preserves_string_payload_through_return (tests.test_native_string_joins.NativeStringJoins.test_join_preserves_string_payload_through_return) ... ok
+test_string_and_missing_branches_preserve_tags_and_roots (tests.test_native_string_joins.NativeStringJoins.test_string_and_missing_branches_preserve_tags_and_roots) ... ok
+test_tagged_boolean_short_circuit_preserves_both_edges (tests.test_native_string_joins.NativeStringJoins.test_tagged_boolean_short_circuit_preserves_both_edges) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 8.396s
+
+OK

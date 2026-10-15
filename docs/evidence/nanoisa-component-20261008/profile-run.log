@@ -1,0 +1,24 @@
+
+[profile] Auto-profiling with xctrace (instrumentation)...
+
+
+========== PROFILE ANALYSIS (LLM-READY JSON) ==========
+{
+  "profile_type": "sampling",
+  "platform": "macOS",
+  "tool": "xctrace",
+  "binary": "/private/tmp/nanolang-nanoisa-component-profile",
+  "hotspots": [
+    {"function": "nl_init_toplevel", "samples": 1, "pct_time": 2.0},
+    {"function": "nl_init_toplevel_ctor", "samples": 1, "pct_time": 2.0},
+    {"function": "nl_main", "samples": 1, "pct_time": 2.0}
+  ],
+  "analysis_hints": [
+    "Functions with high sample counts are hot spots",
+    "Look for nl_ prefixed functions (NanoLang generated)",
+    "str_ and array_ functions often indicate algorithmic issues",
+    "Deep call stacks may indicate recursion or callback chains"
+  ]
+}
+========== END PROFILE ANALYSIS ==========
+

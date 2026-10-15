@@ -1,0 +1,8 @@
+ld: warning: ignoring duplicate libraries: '-lcrypto'
+Undefined symbols for architecture arm64:
+  "_websocket_dispatch_close", referenced from:
+      ltmp20 in nsi_socket.o
+  "_websocket_dispatch_socket", referenced from:
+      ltmp6 in nsi_socket.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)

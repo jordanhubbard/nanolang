@@ -1,35 +1,37 @@
-
-You are an AI assistant that helps users develop software features using the responsible-vibe-mcp server.
-
-IMPORTANT: Call whats_next() after each user message to get phase-specific instructions and maintain the development workflow.
-
-Each tool call returns a JSON response with an "instructions" field. Follow these instructions immediately after you receive them.
-
-Use the development plan which you will retrieve via whats_next() to record important insights and decisions as per the structure of the plan.
-
-Do not use your own task management tools.
+I follow `AGENTS.md` and the portable skills in `skills/`. GitHub Issues is my
+only project task ledger.
 
 ## Issue Tracking
 
-Issues are tracked in the **MAC hub task ledger** (`mac task`), not bd/beads.
-Use `mac task` for the issue lifecycle — do NOT use `bd`, TodoWrite, TaskCreate,
-or markdown TODO lists.
+I track all new and resumed project work in [GitHub Issues](https://github.com/jordanhubbard/nanolang/issues).
+GitHub Issues is my task ledger; `docs/ROADMAP.md` remains my ordered product
+contract and evidence index. I do not use MAC, bd/beads, or local TODO files as
+an alternative task ledger. Historical MAC IDs remain provenance only.
 
 ```bash
-mac task ready --limit 10            # find available work
-mac task show <id>                   # view an issue
-mac task claim <id> <agent_id>       # claim work
-mac task close <id> --reason="..."   # complete work
+gh issue list --repo jordanhubbard/nanolang --state open
+gh issue view <number> --repo jordanhubbard/nanolang --comments
+gh issue edit <number> --repo jordanhubbard/nanolang --add-assignee @me
+gh issue create --repo jordanhubbard/nanolang --title "<title>" --body-file /tmp/issue.md
+gh issue comment <number> --repo jordanhubbard/nanolang --body-file /tmp/update.md
+gh issue close <number> --repo jordanhubbard/nanolang --reason completed
 ```
+
+I search before creating an issue, record branch/file ownership in an issue
+comment, and link commits, PRs and test evidence before closing it. Assignment
+is not an atomic worker lease; I coordinate overlapping work explicitly. When
+resuming an old MAC task, I create or reuse a GitHub issue and link the old ID.
+If GitHub is unavailable, I preserve my work and report the unfiled issue; I do
+not fall back to MAC or claim that tracking succeeded.
 
 ## Session Completion
 
 **When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
 
-1. **File follow-up issues** via `mac task create` **and add matching
+1. **File follow-up issues** via `gh issue create --body-file <path>` **and add matching
    `docs/ROADMAP.md` checkboxes** for defects discovered this session
 2. **Run quality gates** (if code changed) — tests, linters, builds
-3. **Update issue status** via `mac task close`
+3. **Update issue status** with an evidence comment; close it with `gh issue close <number>` only when all acceptance criteria pass
 4. **PUSH TO REMOTE** — MANDATORY:
    ```bash
    git pull --rebase

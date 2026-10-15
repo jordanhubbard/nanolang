@@ -99,6 +99,9 @@ fn parser_init_ast_lists() -> Parser {
         matches: matches,
         imports: imports,
         services: services,
+        effects: [],
+        performs: [],
+        handlers: [],
         opaque_types: opaque_types,
         tuple_literals: tuple_literals,
         tuple_indices: tuple_indices,
@@ -196,6 +199,9 @@ pub fn parser_new(tokens: List<LexerToken>, token_count: int, file_name: string)
         matches: init_parser.matches,
         imports: init_parser.imports,
         services: init_parser.services,
+        effects: [],
+        performs: [],
+        handlers: [],
         opaque_types: init_parser.opaque_types,
         tuple_literals: init_parser.tuple_literals,
         tuple_indices: init_parser.tuple_indices,
@@ -316,6 +322,9 @@ fn parser_with_position(p: Parser, new_position: int) -> Parser {
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -513,6 +522,9 @@ fn parser_with_error(p: Parser, error: bool) -> Parser {
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -910,6 +922,7 @@ struct TypeParseResult {
 }
 
 fn is_type_start_token_type(token_type: int) -> bool {
+    if (== token_type LexerTokenType.TOKEN_LBRACE) { return true }
     return (or
         (== token_type (token_identifier))
         (or
@@ -948,6 +961,75 @@ shadow is_type_start_token_type {
     assert (not (is_type_start_token_type (token_plus)))
 }
 
+fn parse_row_type_string(p: Parser) -> TypeParseResult {
+    let mut cur: Parser = (parser_expect p LexerTokenType.TOKEN_LBRACE)
+    let mut text: string = "{"
+    let mut names: array<string> = []
+    while (and (not cur.has_error) (== (parser_current cur).token_type LexerTokenType.TOKEN_IDENTIFIER)) {
+        let name: string = (parser_current cur).value
+        let mut prior: int = 0
+        while (< prior (array_length names)) {
+            if (== name (at names prior)) { return TypeParseResult { p: (parser_with_error cur true), type_name: text, ok: false } }
+            set prior (+ prior 1)
+        }
+        if (> (array_length names) 0) { set text (+ text ",") }
+        set names (array_push names name)
+        set cur (parser_expect (parser_advance cur) LexerTokenType.TOKEN_COLON)
+        if cur.has_error { return TypeParseResult { p: cur, type_name: text, ok: false } }
+        let field: TypeParseResult = (parse_type_string cur)
+        if (not field.ok) { return TypeParseResult { p: (parser_with_error field.p true), type_name: text, ok: false } }
+        set text (+ text (+ name (+ ":" field.type_name)))
+        set cur field.p
+        if (== (parser_current cur).token_type LexerTokenType.TOKEN_COMMA) { set cur (parser_advance cur) }
+    }
+    if (== (parser_current cur).token_type LexerTokenType.TOKEN_BAR) {
+        set cur (parser_advance cur)
+        let variable: LexerToken = (parser_current cur)
+        if (!= variable.token_type LexerTokenType.TOKEN_IDENTIFIER) { return TypeParseResult { p: (parser_with_error cur true), type_name: text, ok: false } }
+        set text (+ text (+ "|" variable.value))
+        set cur (parser_advance cur)
+    }
+    set cur (parser_expect cur LexerTokenType.TOKEN_RBRACE)
+    return TypeParseResult { p: cur, type_name: (+ text "}"), ok: (not cur.has_error) }
+}
+shadow parse_row_type_string {
+    let tokens: List<LexerToken> = (tokenize_string "{point:Point, nested:array<{x:int,y:string}>,callback:fn(int)->Point|rest}" "row.nano" (Diagnostics.diag_list_new))
+    let result: TypeParseResult = (parse_type_string (parser_new tokens (list_LexerToken_length tokens) "row.nano"))
+    assert result.ok
+    assert (== result.type_name "{point:Point,nested:array<{x:int,y:string}>,callback:fn(int)->Point|rest}")
+    let repeated: List<LexerToken> = (tokenize_string "{x:int,x:string}" "row.nano" (Diagnostics.diag_list_new))
+    let bad: TypeParseResult = (parse_type_string (parser_new repeated (list_LexerToken_length repeated) "row.nano"))
+    assert (not bad.ok)
+}
+
+struct RowTypeFields { ok: bool, types: array<string> }
+
+pub fn parser_row_field_types(spelling: string) -> RowTypeFields {
+    let tokens: List<LexerToken> = (tokenize_string spelling "row-type.nano" (Diagnostics.diag_list_new))
+    let initial: Parser = (parser_new tokens (list_LexerToken_length tokens) "row-type.nano")
+    let shape: TypeParseResult = (parse_row_type_string initial)
+    if (or (not shape.ok) (not (parser_is_at_end shape.p))) { return RowTypeFields { ok: false, types: [] } }
+    let mut fields: array<string> = []
+    let mut cur: Parser = (parser_advance initial)
+    while (== (parser_current cur).token_type LexerTokenType.TOKEN_IDENTIFIER) {
+        set cur (parser_expect (parser_advance cur) LexerTokenType.TOKEN_COLON)
+        let field: TypeParseResult = (parse_type_string cur)
+        if (not field.ok) { return RowTypeFields { ok: false, types: [] } }
+        set fields (array_push fields field.type_name)
+        set cur field.p
+        if (== (parser_current cur).token_type LexerTokenType.TOKEN_COMMA) { set cur (parser_advance cur) }
+    }
+    return RowTypeFields { ok: true, types: fields }
+}
+shadow parser_row_field_types {
+    let fields: RowTypeFields = (parser_row_field_types "{point:Point,inner:{x:int,y:string}|r}")
+    assert fields.ok
+    assert (== (array_length fields.types) 2)
+    if (== (array_length fields.types) 2) { assert (== (at fields.types 1) "{x:int,y:string}") }
+    assert (not (parser_row_field_types "{x:int,x:string}").ok)
+    assert (not (parser_row_field_types "{x:int} trailing").ok)
+}
+
 fn parse_type_string(p: Parser) -> TypeParseResult {
     if (not (parser_is_at_end p)) {
         let first: LexerToken = (parser_current p)
@@ -961,6 +1043,7 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
         return TypeParseResult { p: p, type_name: "", ok: false }
     } else {
         let tok: LexerToken = (parser_current p)
+        if (== tok.token_type LexerTokenType.TOKEN_LBRACE) { return (parse_row_type_string p) }
         if (not (is_type_start_token_type tok.token_type)) {
             return TypeParseResult { p: p, type_name: "", ok: false }
         } else {
@@ -984,7 +1067,7 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
                             set type_name (+ type_name ")")
                             set cur2 (parser_advance cur2)
                         } else {
-                            let arg1: TypeParseResult = (parse_type_string cur2)
+                            let arg1: TypeParseResult = (parse_parameter_type cur2)
                             if (not arg1.ok) {
                                 return TypeParseResult { p: arg1.p, type_name: type_name, ok: false }
                             } else {
@@ -998,7 +1081,7 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
                                 if (== tc.token_type (token_comma)) {
                                     set type_name (+ type_name ",")
                                     set cur2 (parser_advance cur2)
-                                    let argn: TypeParseResult = (parse_type_string cur2)
+                                    let argn: TypeParseResult = (parse_parameter_type cur2)
                                     if (not argn.ok) {
                                         return TypeParseResult { p: argn.p, type_name: type_name, ok: false }
                                     } else {
@@ -1163,6 +1246,11 @@ shadow parse_type_string {
     assert qualified_result.ok
     assert (== qualified_result.type_name "array<owned.Handle>")
 
+    let callable_tokens: List<LexerToken> = (tokenize_string "fn(&mut File,fn(&File)->int)->int" "type.nano" (list_CompilerDiagnostic_new))
+    let callable: TypeParseResult = (parse_type_string (parser_new callable_tokens (list_LexerToken_length callable_tokens) "type.nano"))
+    assert callable.ok
+    assert (== callable.type_name "fn(&mut File,fn(&File)->int)->int")
+
 }
 
 /* Helper: Store number node and return node ID */
@@ -1215,6 +1303,9 @@ fn parser_store_number(p: Parser, value: string, line: int, column: int) -> Pars
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1312,6 +1403,9 @@ fn parser_store_string(p: Parser, value: string, line: int, column: int) -> Pars
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1408,6 +1502,9 @@ fn parser_store_bool(p: Parser, value: bool, line: int, column: int) -> Parser {
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1504,6 +1601,9 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1606,6 +1706,9 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1725,6 +1828,9 @@ fn parser_store_call(p: Parser, function_id: int, function_type: int, arg_start:
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1822,6 +1928,9 @@ fn parser_store_module_qualified_call(p: Parser, module_name: string, function_n
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -1936,6 +2045,9 @@ fn parser_store_call_arg(p: Parser, node_id: int, node_type: int) -> Parser {
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -2029,6 +2141,9 @@ fn parser_store_array_element(p: Parser, node_id: int, node_type: int) -> Parser
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -2075,8 +2190,44 @@ shadow parser_store_array_element {
     assert (== 1 1)
 }
 
+# I classify the type component, independently of a module alias's case.
+fn literal_type_spelling(name: string) -> bool {
+    let mut start: int = (+ (str_last_index_of name ".") 1)
+    let colon: int = (str_last_index_of name "::")
+    if (>= colon start) { set start (+ colon 2) }
+    if (>= start (str_length name)) { return false }
+    let first: int = (char_at name start)
+    return (and (>= first 65) (<= first 90))
+}
+shadow literal_type_spelling {
+    assert (literal_type_spelling "tcp.Endpoint")
+    assert (literal_type_spelling "api.files.Endpoint")
+    assert (literal_type_spelling "api::Endpoint")
+    assert (not (literal_type_spelling "tcp.endpoint"))
+    assert (not (literal_type_spelling ""))
+    let sources: array<string> = ["tcp.Endpoint { family: 4 }", "(tcp.Endpoint { family: 4 })", "(take tcp.Endpoint { family: 4 })"]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "literal.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_primary (parser_new tokens (list_LexerToken_length tokens) "literal.nano"))
+        assert (not parsed.has_error) assert (parser_is_at_end parsed)
+        assert (== parsed.struct_literals_count 1)
+        assert (== (parser_get_struct_literal parsed 0).struct_name "tcp.Endpoint")
+        set i (+ i 1)
+    }
+}
+
 /* I distinguish a declared union variant from a qualified record name. */
 fn parse_named_literal(p: Parser, name: string, line: int, column: int) -> Parser {
+    # I retain a qualified Type.Variant path before its import is bound.
+    let dot: int = (str_last_index_of name ".")
+    if (> dot 0) {
+        let owner: string = (str_substring name 0 dot)
+        let variant: string = (str_substring name (+ dot 1) (- (str_length name) (+ dot 1)))
+        if (and (>= (str_last_index_of owner ".") 0) (and (literal_type_spelling owner) (literal_type_spelling variant))) {
+            return (parse_union_construct p owner variant line column)
+        }
+    }
     let mut i: int = 0
     while (< i (parser_get_union_count p)) {
         let definition: ASTUnion = (parser_get_union p i)
@@ -2084,14 +2235,8 @@ fn parse_named_literal(p: Parser, name: string, line: int, column: int) -> Parse
         while (< v definition.variant_count) {
             let selected: string = (+ definition.name (+ "." (at definition.variant_names v)))
             if (== name selected) {
-                let mut matches: int = 0
-                let mut declaration: int = 0
-                while (< declaration (parser_get_union_count p)) {
-                    if (== (parser_get_union p declaration).name definition.name) { set matches (+ matches 1) }
-                    set declaration (+ declaration 1)
-                }
-                if (== matches 1) { return (parse_union_construct p definition.name (at definition.variant_names v) line column) }
-                return (parse_struct_literal p name line column)
+                # I bind the declaration owner after parsing the merged source.
+                return (parse_union_construct p definition.name (at definition.variant_names v) line column)
             }
             set v (+ v 1)
         }
@@ -2100,6 +2245,12 @@ fn parse_named_literal(p: Parser, name: string, line: int, column: int) -> Parse
     return (parse_struct_literal p name line column)
 }
 shadow parse_named_literal {
+    let qualified: List<LexerToken> = (tokenize_string "api.Box.Some { value: 7 }" "qualified.nano" (list_CompilerDiagnostic_new))
+    let selected: Parser = (parse_primary (parser_new qualified (list_LexerToken_length qualified) "qualified.nano"))
+    assert (not (parser_has_error selected))
+    assert (parser_is_at_end selected)
+    assert (== selected.last_expr_node_type ParseNodeType.PNODE_UNION_CONSTRUCT)
+    assert (== (parser_get_union_construct selected selected.last_expr_node_id).union_name "api.Box")
     let tokens: List<LexerToken> = (tokenize_string "union Choice { Some { n: int } } fn f() -> void { (consume (Choice.Some { n: 1 })) }" "constructor.nano" (list_CompilerDiagnostic_new))
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "constructor.nano")
     assert (not (parser_has_error parsed))
@@ -2109,8 +2260,10 @@ shadow parse_named_literal {
     assert (== value.variant_name "Some")
     let ambiguous_tokens: List<LexerToken> = (tokenize_string "union Choice { Some { n: int } } union Choice { Other {} } fn f() -> void { (consume (Choice.Some { n: 1 })) }" "ambiguous.nano" (list_CompilerDiagnostic_new))
     let ambiguous: Parser = (parse_program ambiguous_tokens (list_LexerToken_length ambiguous_tokens) "ambiguous.nano")
-    assert (== (parser_get_union_construct_count ambiguous) 0)
-    assert (== (parser_get_struct_literal_count ambiguous) 1)
+    assert (== (parser_get_union_construct_count ambiguous) 1)
+    assert (== (parser_get_struct_literal_count ambiguous) 0)
+    assert (== (parser_get_union_construct ambiguous 0).union_name "Choice")
+    assert (== (parser_get_union_construct ambiguous 0).variant_name "Some")
 }
 
 /* Parse union construction: UnionName.Variant{field: value} */
@@ -2171,12 +2324,12 @@ shadow parse_union_construct {
 }
 
 /* Parse struct literal: StructName{field1: val1, field2: val2} */
-fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_column: int) -> Parser {
-    /* p should be positioned after the { */
-    let mut field_count: int = 0
-    let mut field_names: array<string> = []
-    let mut field_value_ids: array<int> = []
-    let mut field_value_types: array<int> = []
+fn parse_record_fields(p: Parser, struct_name: string, start_line: int, start_column: int, names: array<string>, ids: array<int>, kinds: array<int>) -> Parser {
+    # I preserve source order, including a leading spread operand.
+    let mut field_count: int = (array_length names)
+    let mut field_names: array<string> = names
+    let mut field_value_ids: array<int> = ids
+    let mut field_value_types: array<int> = kinds
     let mut pcur: Parser = p
     
     /* Parse fields */
@@ -2236,8 +2389,43 @@ fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_c
     return (parser_with_error pcur true)
 }
 
+shadow parse_record_fields {
+    let tokens: List<LexerToken> = (tokenize_string "x:7}" "record.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_record_fields (parser_new tokens (list_LexerToken_length tokens) "record.nano") "Point" 1 1 [] [] [])
+    assert (not p.has_error)
+    assert (== (parser_get_struct_literal p p.last_expr_node_id).field_count 1)
+}
+
+fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_column: int) -> Parser {
+    return (parse_record_fields p struct_name start_line start_column [] [] [])
+}
 shadow parse_struct_literal {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "}" "record.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_struct_literal (parser_new tokens (list_LexerToken_length tokens) "record.nano") "Empty" 1 1)
+    assert (not p.has_error)
+    assert (== (parser_get_struct_literal p p.last_expr_node_id).struct_name "Empty")
+}
+
+# I reserve the impossible field name '..' for one evaluated spread source.
+fn parse_record_spread(p: Parser) -> Parser {
+    let token: LexerToken = (parser_current p)
+    let mut cur: Parser = (parser_advance (parser_advance (parser_advance p)))
+    set cur (parse_expression cur)
+    if cur.has_error { return cur }
+    let source_id: int = cur.last_expr_node_id
+    let source_type: int = cur.last_expr_node_type
+    if (== (parser_current cur).token_type (token_comma)) { set cur (parser_advance cur) }
+    else { if (!= (parser_current cur).token_type (token_rbrace)) { return (parser_with_error cur true) } }
+    return (parse_record_fields cur "" token.line token.column [".."] [source_id] [source_type])
+}
+shadow parse_record_spread {
+    let tokens: List<LexerToken> = (tokenize_string "{..source,x:7}" "record.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_record_spread (parser_new tokens (list_LexerToken_length tokens) "record.nano"))
+    assert (not p.has_error)
+    let literal: ASTStructLiteral = (parser_get_struct_literal p p.last_expr_node_id)
+    assert (== literal.field_count 2)
+    assert (== (at literal.field_names 0) "..")
+    assert (== (at literal.field_value_types 0) ParseNodeType.PNODE_IDENTIFIER)
 }
 
 /* Parse cond expression: (cond ((test) val)+ (else default))
@@ -2653,14 +2841,21 @@ fn parse_primary(p: Parser) -> Parser {
     } else {
         let tok: LexerToken = (parser_current p)
 
-        # I reserve uppercase Type<args>.Variant for explicit union construction.
-        # Lowercase identifiers keep their ordinary infix comparison grammar.
+        if (and (== tok.token_type (token_lbrace)) (and (== (parser_peek p 1) (token_dot)) (== (parser_peek p 2) (token_dot)))) { return (parse_record_spread p) }
+        if (== tok.token_type LexerTokenType.TOKEN_HANDLE) { return (parse_effect_handle p) }
+        if (and (== tok.token_type LexerTokenType.TOKEN_IDENTIFIER) (== tok.value "perform")) { return (parse_effect_perform p false) }
+        if (and (== tok.token_type LexerTokenType.TOKEN_LPAREN) (== (parser_peek p 1) LexerTokenType.TOKEN_IDENTIFIER)) {
+            let operand: Parser = (parser_advance p)
+            if (== (parser_current operand).value "perform") { return (parse_effect_perform operand true) }
+        }
+
+        # I inspect the type component after any module qualifier.
+        # Lowercase fields retain their ordinary comparison grammar.
         if (== tok.token_type (token_identifier)) {
-            let first: int = (char_at tok.value 0)
-            if (and (>= first 65) (<= first 90)) {
-                let after_name: Parser = (parser_advance p)
-                if (not (parser_is_at_end after_name)) {
-                    if (== (parser_current after_name).token_type (token_lt)) {
+            let named: NameParseResult = (parse_call_name p)
+            if (and named.ok (literal_type_spelling named.name)) {
+                if (not (parser_is_at_end named.p)) {
+                    if (== (parser_current named.p).token_type (token_lt)) {
                         let concrete: TypeParseResult = (parse_type_string p)
                         if (not concrete.ok) { return (parser_with_error concrete.p true) }
                         let after_dot: Parser = (parser_expect concrete.p (token_dot))
@@ -2841,6 +3036,14 @@ fn parse_primary(p: Parser) -> Parser {
                 } else {
                     /* Identifier (possibly qualified) or struct literal */
                     if (== tok.token_type (token_identifier)) {
+                        let literal: NameParseResult = (parse_call_name p)
+                        if (and literal.ok (literal_type_spelling literal.name)) {
+                            if (not (parser_is_at_end literal.p)) {
+                                if (== (parser_current literal.p).token_type (token_lbrace)) {
+                                    return (parse_named_literal (parser_advance literal.p) literal.name tok.line tok.column)
+                                }
+                            }
+                        }
                         let name_res: NameParseResult = (parse_qualified_name p)
                         if (not name_res.ok) {
                             return (parser_with_error name_res.p true)
@@ -3127,6 +3330,11 @@ fn parse_primary(p: Parser) -> Parser {
                                                     if (== tok_after.token_type (token_rparen)) {
                                                         /* Regular parenthesized expression */
                                                         let p3: Parser = (parser_expect p2 (token_rparen))
+                                                        if (== p2.last_expr_node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                                            if (>= (parser_lambda_function p2 (parser_get_identifier p2 p2.last_expr_node_id)) 0) {
+                                                                return (parser_store_call p3 p2.last_expr_node_id p2.last_expr_node_type (list_ASTStmtRef_length p3.call_args) 0 tok.line tok.column)
+                                                            }
+                                                        }
                                                         return p3
                                                     } else {
                                                         /* The first expression is itself the callee. */
@@ -3207,7 +3415,7 @@ fn parse_primary(p: Parser) -> Parser {
                                                     /* Hoist lambda as a named function */
                                                     let p_stored: Parser = (parser_store_function p_body lambda_name param_start param_count return_type body_id tok.line tok.column)
                                                     /* Return identifier referencing the lambda */
-                                                    return (parser_store_identifier p_stored lambda_name tok.line tok.column)
+                                                    return (parser_store_identifier (parser_mark_lambda p_stored) lambda_name tok.line tok.column)
                                                 }
                                             }
                                         }
@@ -3229,8 +3437,8 @@ fn parse_primary(p: Parser) -> Parser {
 }
 
 shadow parse_primary {
-    let explicit_sources: array<string> = ["Box<int>.Some { value: 7 }", "Box<array<int>>.None {}", "Choice<int,string>.Right { value: \"ok\" }"]
-    let explicit_names: array<string> = ["Box<int>", "Box<array<int>>", "Choice<int,string>"]
+    let explicit_sources: array<string> = ["Box<int>.Some { value: 7 }", "Box<array<int>>.None {}", "Choice<int,string>.Right { value: \"ok\" }", "api.Box<int>.Some { value: 7 }", "api.Box<array<int>>.None {}"]
+    let explicit_names: array<string> = ["Box<int>", "Box<array<int>>", "Choice<int,string>", "api.Box<int>", "api.Box<array<int>>"]
     let mut explicit_index: int = 0
     while (< explicit_index (array_length explicit_sources)) {
         let tokens: List<LexerToken> = (tokenize_string (at explicit_sources explicit_index) "parser-test.nano" (list_CompilerDiagnostic_new))
@@ -3281,8 +3489,7 @@ fn parse_parenthesized_head(p: Parser) -> Parser {
     if name.ok {
         if (not (parser_is_at_end name.p)) {
             if (== (parser_current name.p).token_type (token_lbrace)) {
-                let first: int = (char_at name.name 0)
-                if (and (>= first 65) (<= first 90)) {
+                if (literal_type_spelling name.name) {
                     let start: LexerToken = (parser_current p)
                     return (parse_named_literal (parser_advance name.p) name.name start.line start.column)
                 }
@@ -3315,8 +3522,7 @@ fn parenthesized_call_start(p: Parser) -> bool {
     if (== next.token_type (token_comma)) { return false }
     # I parse a named literal as an expression before deciding tuple versus group.
     if (== next.token_type (token_lbrace)) {
-        let first: int = (char_at name.name 0)
-        if (and (>= first 65) (<= first 90)) { return false }
+        if (literal_type_spelling name.name) { return false }
     }
     return true
 }
@@ -3548,6 +3754,8 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         value: value_id,
         value_type: value_type,
         is_mut: is_mut,
+        is_pub: false,
+        is_generated: false,
         is_destructure: false,
         is_destructure_projection: false,
         destructure_names: []
@@ -3594,6 +3802,9 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -3636,7 +3847,11 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
     }
 }
 shadow parser_store_let {
-    assert (== 1 1)
+    let p: Parser = (parser_store_let (parser_init_ast_lists) "hidden" "int" -1 -1 true 1 1)
+    let binding: ASTLet = (parser_get_let p 0)
+    assert (== binding.name "hidden")
+    assert binding.is_mut
+    assert (not binding.is_pub)
 }
 
 /* Helper: Store set statement node */
@@ -3694,6 +3909,9 @@ fn parser_store_set(p: Parser, target: string, field_name: string, value_id: int
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -3800,6 +4018,9 @@ fn parser_store_if(p: Parser, condition_id: int, condition_type: int, then_body_
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -3899,6 +4120,9 @@ fn parser_store_while(p: Parser, condition_id: int, condition_type: int, body_id
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -3997,6 +4221,9 @@ fn parser_store_for(p: Parser, var_name: string, iterable_id: int, iterable_type
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4116,6 +4343,9 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4161,6 +4391,8 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
 # I return an empty path for a NUL escape; callers must reject it.
 # I distinguish arm values from statements that transfer control.
 pub fn parser_is_value_expression(node_type: int) -> bool {
+    if (== node_type ParseNodeType.PNODE_HANDLE_EXPR) { return true }
+    if (== node_type ParseNodeType.PNODE_EFFECT_OP) { return true }
     if (== node_type ParseNodeType.PNODE_NUMBER) { return true }
     if (== node_type ParseNodeType.PNODE_STRING) { return true }
     if (== node_type ParseNodeType.PNODE_BOOL) { return true }
@@ -4304,6 +4536,9 @@ fn parser_store_import(p: Parser, module_path: string, module_name: string, is_u
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4395,6 +4630,9 @@ fn parser_store_service(p: Parser, interface_id: string, interface_bytes: int, d
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4486,6 +4724,9 @@ fn parser_store_opaque_type(p: Parser, type_name: string, line: int, column: int
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4579,6 +4820,9 @@ fn parser_store_shadow(p: Parser, target_name: string, body_id: int, line: int, 
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4673,6 +4917,9 @@ fn parser_store_field_access(p: Parser, object_id: int, object_type: int, field_
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4765,6 +5012,9 @@ fn parser_store_float(p: Parser, value: string, line: int, column: int) -> Parse
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4864,6 +5114,9 @@ fn parser_store_return(p: Parser, value_id: int, value_type: int, line: int, col
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -4960,6 +5213,9 @@ fn parser_store_assert(p: Parser, condition_id: int, condition_type: int, line: 
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -5012,7 +5268,7 @@ shadow parser_store_assert {
 /* Helper: Store block node */
 fn parser_store_block(p: Parser, stmts: List<ASTStmtRef>, line: int, column: int) -> Parser {
     let node: ASTBlock = ASTBlock {
-        is_par: false, is_flow: false,
+        is_par: false, is_flow: false, is_legacy_par: false,
         node_type: ParseNodeType.PNODE_BLOCK,
         line: line,
         column: column,
@@ -5060,6 +5316,9 @@ fn parser_store_block(p: Parser, stmts: List<ASTStmtRef>, line: int, column: int
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -5156,11 +5415,30 @@ shadow parser_starts_owned_pattern {
     assert (parser_starts_owned_pattern p)
 }
 
+# I distinguish compiler-owned slots from source names without reserving spellings.
+fn parser_mark_generated(p: Parser, idx: int) -> Parser {
+    let old: ASTLet = (parser_get_let p idx)
+    let marked: ASTLet = ASTLet { node_type: old.node_type, line: old.line, column: old.column,
+        name: old.name, var_type: old.var_type, value: old.value, value_type: old.value_type,
+        is_mut: old.is_mut, is_pub: old.is_pub, is_generated: true,
+        is_destructure: old.is_destructure, is_destructure_projection: old.is_destructure_projection,
+        destructure_names: old.destructure_names }
+    (list_ASTLet_set p.lets idx marked)
+    return p
+}
+shadow parser_mark_generated {
+    let original: Parser = (parser_store_let (parser_init_ast_lists) "__td99" "int" -1 -1 false 1 1)
+    assert (not (parser_get_let original 0).is_generated)
+    let marked: Parser = (parser_mark_generated original 0)
+    assert (parser_get_let marked 0).is_generated
+    assert (== (parser_get_let marked 0).name "__td99")
+}
+
 fn parser_mark_owned(p: Parser, idx: int, whole: bool, projection: bool, names: array<string>) -> Parser {
     let old: ASTLet = (parser_get_let p idx)
     let marked: ASTLet = ASTLet { node_type: old.node_type, line: old.line, column: old.column,
         name: old.name, var_type: old.var_type, value: old.value, value_type: old.value_type,
-        is_mut: old.is_mut, is_destructure: whole, is_destructure_projection: projection,
+        is_mut: old.is_mut, is_pub: old.is_pub, is_generated: (or old.is_generated whole), is_destructure: whole, is_destructure_projection: projection,
         destructure_names: names }
     (list_ASTLet_set p.lets idx marked)
     return p
@@ -5230,6 +5508,8 @@ shadow parse_owned_pattern {
     assert (== (list_ASTStmtRef_length statements) 2)
     let projected: ASTLet = (parser_get_let parsed 1)
     assert projected.is_destructure_projection
+    assert (not projected.is_generated)
+    assert (parser_get_let parsed 0).is_generated
     let qualified_tokens: List<LexerToken> = (tokenize_string "let Choice.Some { item } = payload" "pattern.nano" (list_CompilerDiagnostic_new))
     let qualified: Parser = (parser_new qualified_tokens (list_LexerToken_length qualified_tokens) "pattern.nano")
     assert (parser_starts_owned_pattern qualified)
@@ -5405,6 +5685,9 @@ fn parser_store_unsafe_block(p: Parser, stmts: List<ASTStmtRef>, line: int, colu
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -5660,7 +5943,7 @@ fn parse_tuple_destructure(p: Parser, stmts: List<ASTStmtRef>, is_mut: bool, lin
     let temp_name: string = (str_concat "__td" (int_to_string p4.lets_count))
 
     /* Emit: let temp_name = expr (inferred type) */
-    let p5: Parser = (parser_store_let p4 temp_name "" expr_id expr_type false line column)
+    let p5: Parser = (parser_mark_generated (parser_store_let p4 temp_name "" expr_id expr_type false line column) p4.lets_count)
     let temp_let_id: int = p5.last_expr_node_id
     let temp_stmt: ASTStmtRef = ASTStmtRef { node_id: temp_let_id, node_type: ParseNodeType.PNODE_LET }
     (list_ASTStmtRef_push stmts temp_stmt)
@@ -6008,6 +6291,9 @@ fn parser_with_node(p: Parser, kind: int, node_id: int) -> Parser {
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6070,7 +6356,7 @@ fn parser_mark_passive(p: Parser, is_flow: bool) -> Parser {
     let block: ASTBlock = (parser_get_block p p.last_expr_node_id)
     (list_ASTBlock_set p.blocks p.last_expr_node_id (ASTBlock {
         node_type: block.node_type, line: block.line, column: block.column,
-        statements: block.statements, is_par: (not is_flow), is_flow: is_flow
+        statements: block.statements, is_par: (not is_flow), is_flow: is_flow, is_legacy_par: false
     }))
     return (parser_with_node p ParseNodeType.PNODE_BLOCK p.last_expr_node_id)
 }
@@ -6097,11 +6383,79 @@ shadow parser_mark_par {
     assert (not body.is_par)
 }
 
+# I preserve the group so typechecking can reject sibling dependencies.
+fn parse_legacy_par(p: Parser) -> Parser {
+    let token: LexerToken = (parser_current p)
+    let mut cursor: Parser = (parser_advance (parser_advance (parser_advance p)))
+    let statements: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    while (!= (parser_current cursor).token_type LexerTokenType.TOKEN_IN) {
+        if (or (parser_has_error cursor) (parser_is_at_end cursor)) { return (parser_with_error cursor true) }
+        let name: LexerToken = (parser_current cursor)
+        if (!= name.token_type LexerTokenType.TOKEN_IDENTIFIER) { return (parser_with_error cursor true) }
+        set cursor (parser_expect (parser_advance cursor) LexerTokenType.TOKEN_ASSIGN)
+        if (parser_has_error cursor) { return cursor }
+        set cursor (parse_expression cursor)
+        if (parser_has_error cursor) { return cursor }
+        set cursor (parser_store_let cursor name.value "" cursor.last_expr_node_id cursor.last_expr_node_type false name.line name.column)
+        (list_ASTStmtRef_push statements (ASTStmtRef {node_id:cursor.last_expr_node_id,node_type:ParseNodeType.PNODE_LET}))
+    }
+    set cursor (parse_expression (parser_advance cursor))
+    if (parser_has_error cursor) { return cursor }
+    (list_ASTStmtRef_push statements (ASTStmtRef {node_id:cursor.last_expr_node_id,node_type:cursor.last_expr_node_type}))
+    let result: Parser = (parser_store_block cursor statements token.line token.column)
+    let block: ASTBlock = (parser_get_block result result.last_expr_node_id)
+    (list_ASTBlock_set result.blocks result.last_expr_node_id (ASTBlock {
+        node_type:block.node_type,line:block.line,column:block.column,statements:block.statements,
+        is_par:false,is_flow:false,is_legacy_par:true
+    }))
+    return (parser_with_node result ParseNodeType.PNODE_BLOCK result.last_expr_node_id)
+}
+shadow parse_legacy_par {
+    let tokens: List<LexerToken> = (tokenize_string "par-let left=7 right=8 in (+ left right)" "legacy.nano" (Diagnostics.diag_list_new))
+    let parsed: Parser = (parse_legacy_par (parser_new tokens (list_LexerToken_length tokens) "legacy.nano"))
+    assert (not (parser_has_error parsed))
+    assert (== parsed.last_expr_node_type ParseNodeType.PNODE_BLOCK)
+    let block: ASTBlock = (parser_get_block parsed parsed.last_expr_node_id)
+    assert block.is_legacy_par
+    assert (== (list_ASTStmtRef_length block.statements) 3)
+    assert (== (parser_get_let parsed 0).name "left")
+}
+
+# I bind a named lexical declaration to a closure with an explicit self spelling.
+fn parse_named_function(p: Parser) -> Parser {
+    let parsed: Parser = (parse_function_definition p)
+    if (parser_has_error parsed) { return parsed }
+    let index: int = (- parsed.functions_count 1)
+    let function: ASTFunction = (parser_get_function parsed index)
+    let name: string = (+ "__lambda_" (+ (int_to_string function.line) (+ "_" (int_to_string function.column))))
+    (list_ASTFunction_set parsed.functions index (ASTFunction {
+        node_type: ParseNodeType.PNODE_LAMBDA, line: function.line, column: function.column,
+        name: name, param_start: function.param_start, param_count: function.param_count,
+        return_type: function.return_type, body: function.body, is_pure: function.is_pure,
+        self_name: function.name
+    }))
+    let value: Parser = (parser_store_identifier parsed name function.line function.column)
+    return (parser_store_let value function.name "" value.last_expr_node_id value.last_expr_node_type false function.line function.column)
+}
+shadow parse_named_function {
+    let tokens: List<LexerToken> = (tokenize_string "fn helper(x:int)->int{return x}" "nested.nano" (Diagnostics.diag_list_new))
+    let parsed: Parser = (parse_named_function (parser_new tokens (list_LexerToken_length tokens) "nested.nano"))
+    assert (not parsed.has_error)
+    assert (== parsed.last_expr_node_type ParseNodeType.PNODE_LET)
+    assert (== (parser_get_let parsed parsed.last_expr_node_id).name "helper")
+    assert (== (parser_get_function parsed 0).self_name "helper")
+    assert (== (parser_get_function parsed 0).node_type ParseNodeType.PNODE_LAMBDA)
+}
+
 fn parse_statement(p: Parser) -> Parser {
+    if (and (== (parser_current p).token_type LexerTokenType.TOKEN_FN) (== (parser_peek p 1) LexerTokenType.TOKEN_IDENTIFIER)) { return (parse_named_function p) }
     if (and (== (parser_current p).token_type LexerTokenType.TOKEN_IDENTIFIER) (and (== (parser_current p).value "flow") (== (parser_peek p 1) LexerTokenType.TOKEN_LBRACE))) {
         return (parser_mark_passive (parse_block (parser_advance p)) true)
     }
     if (== (parser_current p).token_type LexerTokenType.TOKEN_PAR) {
+        if (and (== (parser_peek p 1) LexerTokenType.TOKEN_MINUS) (== (parser_peek p 2) LexerTokenType.TOKEN_LET)) {
+            return (parse_legacy_par p)
+        }
         return (parser_mark_par (parse_block (parser_advance p)))
     }
     if (parser_is_at_end p) {
@@ -6190,6 +6544,51 @@ shadow parse_statement {
 
 /* Helper: Store function definition node */
 
+# I distinguish anonymous declarations without changing my shared record layout.
+fn parser_mark_lambda(p: Parser) -> Parser {
+    let index: int = (- p.functions_count 1)
+    let func: ASTFunction = (list_ASTFunction_get p.functions index)
+    (list_ASTFunction_set p.functions index (ASTFunction {
+        node_type: ParseNodeType.PNODE_LAMBDA, line: func.line, column: func.column,
+        name: func.name, param_start: func.param_start, param_count: func.param_count,
+        return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name }))
+    return p
+}
+shadow parser_mark_lambda {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let parser: Parser = (parser_store_function (parser_new tokens 0 "lambda.nano") "__lambda_1_1" 0 0 "int" -1 1 1)
+    let marked: Parser = (parser_mark_lambda parser)
+    assert (== (parser_get_function marked 0).node_type ParseNodeType.PNODE_LAMBDA)
+    assert (== (parser_get_function marked 0).return_type "int")
+}
+
+# I resolve only the creation expression, not a user spelling of a hoisted name.
+pub fn parser_lambda_function(p: Parser, identifier: ASTIdentifier) -> int {
+    if (not (str_starts_with identifier.name "__lambda_")) { return -1 }
+    let mut index: int = 0
+    while (< index p.functions_count) {
+        let func: ASTFunction = (parser_get_function p index)
+        if (and (== func.node_type ParseNodeType.PNODE_LAMBDA) (and (== func.line identifier.line) (== func.column identifier.column))) { return index }
+        set index (+ index 1)
+    }
+    return -1
+}
+shadow parser_lambda_function {
+    let source: string = "fn outer(n:int)->fn()->int{return fn()->int{return n}}"
+    let tokens: List<LexerToken> = (tokenize_string source "lambda.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "lambda.nano")
+    assert (== (parser_get_function parser 0).node_type ParseNodeType.PNODE_LAMBDA)
+    assert (== (parser_get_function parser 1).node_type ParseNodeType.PNODE_FUNCTION)
+    assert (== (parser_lambda_function parser (parser_get_identifier parser 0)) -1)
+    assert (== (parser_lambda_function parser (parser_get_identifier parser 1)) 0)
+    let func: ASTFunction = (parser_get_function parser 0)
+    (list_ASTFunction_set parser.functions 0 (ASTFunction {
+        node_type: func.node_type, line: func.line, column: func.column,
+        name: "__nano_module_0_renamed", param_start: func.param_start, param_count: func.param_count,
+        return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name }))
+    assert (== (parser_lambda_function parser (parser_get_identifier parser 1)) 0)
+}
+
 # I retain a checked annotation; it cannot override the effect summary.
 fn parser_mark_pure(p: Parser) -> Parser {
     if (or (parser_has_error p) (<= p.functions_count 0)) { return p }
@@ -6198,8 +6597,7 @@ fn parser_mark_pure(p: Parser) -> Parser {
     (list_ASTFunction_set p.functions index (ASTFunction {
         node_type: func.node_type, line: func.line, column: func.column,
         name: func.name, param_start: func.param_start, param_count: func.param_count,
-        return_type: func.return_type, body: func.body, is_pure: true
-    }))
+        return_type: func.return_type, body: func.body, is_pure: true, self_name: func.self_name }))
     return p
 }
 shadow parser_mark_pure {
@@ -6222,8 +6620,7 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         param_count: param_count,
         return_type: return_type,
         body: body_id,
-        is_pure: false
-    }
+        is_pure: false, self_name: "" }
     let node_id: int = p.functions_count
     (list_ASTFunction_push p.functions node)
     
@@ -6266,6 +6663,9 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6369,6 +6769,9 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: a
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6475,6 +6878,9 @@ fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, col
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6585,6 +6991,9 @@ fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, co
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6685,6 +7094,9 @@ fn parser_store_union_construct(p: Parser, union_name: string, variant_name: str
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6781,6 +7193,9 @@ fn parser_store_struct_literal(p: Parser, type_name: string, field_names: array<
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6881,6 +7296,9 @@ fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_var
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -6975,6 +7393,9 @@ fn parser_store_tuple_literal(p: Parser, element_ids: array<int>, element_types:
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -7069,6 +7490,9 @@ fn parser_store_tuple_index(p: Parser, tuple_id: int, tuple_type: int, index: in
         matches: p.matches,
         imports: p.imports,
         services: p.services,
+        effects: p.effects,
+        performs: p.performs,
+        handlers: p.handlers,
         opaque_types: p.opaque_types,
         tuple_literals: p.tuple_literals,
         tuple_indices: p.tuple_indices,
@@ -7935,47 +8359,23 @@ shadow parse_union_definition {
 /* Parse import statement: import "path" as name */
 /* Parse import statement: import "path" [as alias] */
 fn parse_import(p: Parser) -> Parser {
-    let tok: LexerToken = (parser_current p)
-    let p1: Parser = (parser_advance p)  /* consume 'import' */
-    
-    if (parser_is_at_end p1) {
-        return (parser_with_error p1 true)
-    } else {
-        let tok2: LexerToken = (parser_current p1)
-        if (== tok2.token_type (token_string)) {
-            let module_path: string = tok2.value
-            let p2: Parser = (parser_advance p1)
-            
-            /* Optional 'as alias' clause */
-            if (and (not (parser_is_at_end p2)) (== (parser_current p2).token_type (token_as))) {
-                let p3: Parser = (parser_advance p2)
-                
-                if (parser_is_at_end p3) {
-                    return (parser_with_error p3 true)
-                } else {
-                    let tok4: LexerToken = (parser_current p3)
-                    if (== tok4.token_type (token_identifier)) {
-                        let module_name: string = tok4.value
-                        let p4: Parser = (parser_advance p3)
-                        return (parser_store_import p4 module_path module_name false false false [] [] 0 tok.line tok.column)
-                    } else {
-                        return (parser_with_error p3 true)
-                    }
-                }
-            } else {
-                /* No 'as' clause - store with empty module_name */
-                return (parser_store_import p2 module_path "" false false false [] [] 0 tok.line tok.column)
-            }
-        } else {
-            if (== tok2.token_type (token_identifier)) {
-                let module_path: string = tok2.value
-                let p2: Parser = (parser_advance p1)
-                return (parser_store_import p2 module_path "" false false false [] [] 0 tok.line tok.column)
-            } else {
-                return (parser_with_error p1 true)
-            }
-        }
+    let start: LexerToken = (parser_current p)
+    let p1: Parser = (parser_advance p)
+    if (parser_is_at_end p1) { return (parser_with_error p1 true) }
+    let path: LexerToken = (parser_current p1)
+    let mut module_path: string = path.value
+    if (== path.token_type (token_identifier)) {
+        set module_path (+ "modules/" (+ path.value (+ "/" (+ path.value ".nano"))))
+    } else if (!= path.token_type (token_string)) { return (parser_with_error p1 true) }
+    let mut next: Parser = (parser_advance p1)
+    let mut alias: string = ""
+    if (and (not (parser_is_at_end next)) (== (parser_current next).token_type (token_as))) {
+        set next (parser_advance next)
+        if (or (parser_is_at_end next) (!= (parser_current next).token_type (token_identifier))) { return (parser_with_error next true) }
+        set alias (parser_current next).value
+        set next (parser_advance next)
     }
+    return (parser_store_import next module_path alias false false false [] [] 0 start.line start.column)
 }
 
 /* Parse module import: module "path" [as alias] */
@@ -8023,7 +8423,11 @@ shadow parse_module_import {
 }
 
 shadow parse_import {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "import bare as selected" "/a" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_import (parser_new tokens (list_LexerToken_length tokens) "/a"))
+    assert (not parser.has_error)
+    assert (== (parser_get_import parser 0).module_path "modules/bare/bare.nano")
+    assert (== (parser_get_import parser 0).module_name "selected")
 }
 
 /* Parse from import: from "path" import sym1, sym2, ... */
@@ -8035,10 +8439,11 @@ fn parse_from_import(p: Parser) -> Parser {
         return (parser_with_error p1 true)
     } else {
         let tok2: LexerToken = (parser_current p1)
-        if (!= tok2.token_type (token_string)) {
+        if (and (!= tok2.token_type (token_string)) (!= tok2.token_type (token_identifier))) {
             return (parser_with_error p1 true)
         } else {
-            let module_path: string = tok2.value
+            let mut module_path: string = tok2.value
+            if (== tok2.token_type (token_identifier)) { set module_path (+ "modules/" (+ tok2.value (+ "/" (+ tok2.value ".nano")))) }
             let p2: Parser = (parser_advance p1)
             
             /* Expect 'import' keyword */
@@ -8104,6 +8509,7 @@ fn parse_from_import(p: Parser) -> Parser {
                     }
                 }
                 
+                if (and (not is_wildcard) (== symbol_count 0)) { return (parser_with_error p_work true) }
                 /* Store selective import */
                 return (parser_store_import p_work module_path "" false true is_wildcard symbols aliases symbol_count tok.line tok.column)
             }
@@ -8112,7 +8518,12 @@ fn parse_from_import(p: Parser) -> Parser {
 }
 
 shadow parse_from_import {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "from bare import File as Handle" "/a" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_from_import (parser_new tokens (list_LexerToken_length tokens) "/a"))
+    assert (not parser.has_error)
+    let imp: ASTImport = (parser_get_import parser 0)
+    assert (== imp.module_path "modules/bare/bare.nano")
+    assert (== (at imp.import_aliases 0) "Handle")
 }
 
 /* Parse opaque type: opaque type TypeName */
@@ -8180,7 +8591,7 @@ shadow parse_shadow {
 }
 
 # I validate RFC3629 bytes independently, after exact decoded extent checks.
-fn parser_service_utf8(text: string) -> bool {
+pub fn parser_service_utf8(text: string) -> bool {
     let size: int = (str_length text)
     let mut i: int = 0
     while (< i size) {
@@ -8247,10 +8658,58 @@ fn parse_service_declaration(p: Parser) -> Parser {
     let path_size: int = (str_length document_path)
     if (or (!= interface_size interface_token.value_bytes) (!= path_size path_token.value_bytes)) { return (parser_with_error p true) }
     if (or (not (parser_service_utf8 interface_id)) (not (parser_service_utf8 document_path))) { return (parser_with_error p true) }
-    if (!= interface_id "nsi:nanolang/filesystem") { return (parser_with_error p true) }
+    if (and (!= interface_id "nsi:nanolang/filesystem") (and (!= interface_id "nsi:nanolang/net") (!= interface_id "nsi:nanolang/websocket"))) { return (parser_with_error p true) }
     if (str_starts_with document_path "/") { return (parser_with_error p true) }
     let next: Parser = (parser_with_position p (+ p.position 6))
     return (parser_store_service next interface_id interface_size document_path path_size start.line start.column)
+}
+
+fn parser_public_let(p: Parser) -> Parser {
+    let mut offset: int = 1
+    if (== (parser_peek p offset) (token_mut)) { set offset 2 }
+    if (!= (parser_peek p offset) (token_identifier)) { return (parser_with_error p true) }
+    let parsed: Parser = (parse_let_statement p)
+    if (or parsed.has_error (!= parsed.last_expr_node_type ParseNodeType.PNODE_LET)) { return (parser_with_error parsed true) }
+    let index: int = parsed.last_expr_node_id
+    let old: ASTLet = (parser_get_let parsed index)
+    if old.is_destructure { return (parser_with_error parsed true) }
+    (list_ASTLet_set parsed.lets index (ASTLet {
+        node_type: old.node_type, line: old.line, column: old.column,
+        name: old.name, var_type: old.var_type, value: old.value, value_type: old.value_type,
+        is_mut: old.is_mut, is_pub: true, is_generated: old.is_generated, is_destructure: old.is_destructure,
+        is_destructure_projection: old.is_destructure_projection, destructure_names: old.destructure_names
+    }))
+    return parsed
+}
+shadow parser_public_let {
+    let tokens: List<LexerToken> = (tokenize_string "let mut value: int = 7" "public.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parser_public_let (parser_new tokens (list_LexerToken_length tokens) "public.nano"))
+    assert (not parsed.has_error)
+    assert (parser_get_let parsed 0).is_pub
+    assert (parser_get_let parsed 0).is_mut
+}
+
+fn parser_public_use(p: Parser) -> Parser {
+    let parsed: Parser = (parse_import p)
+    if (or parsed.has_error (!= parsed.imports_count (+ p.imports_count 1))) { return (parser_with_error parsed true) }
+    let i: int = p.imports_count
+    let node: ASTImport = (parser_get_import parsed i)
+    (list_ASTImport_set parsed.imports i ASTImport {
+        node_type: node.node_type, line: node.line, column: node.column,
+        module_path: node.module_path, module_name: node.module_name,
+        is_unsafe: node.is_unsafe, is_selective: node.is_selective,
+        is_wildcard: node.is_wildcard, is_pub_use: true,
+        import_symbols: node.import_symbols, import_aliases: node.import_aliases,
+        import_symbol_count: node.import_symbol_count
+    })
+    return parsed
+}
+shadow parser_public_use {
+    let tokens: List<LexerToken> = (tokenize_string "use \"dep.nano\" as exported" "/a" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parser_public_use (parser_new tokens (list_LexerToken_length tokens) "/a"))
+    assert (not parsed.has_error)
+    assert (parser_get_import parsed 0).is_pub_use
+    assert (== (parser_get_import parsed 0).module_name "exported")
 }
 
 fn parse_definition(p: Parser) -> Parser {
@@ -8259,6 +8718,7 @@ fn parse_definition(p: Parser) -> Parser {
     } else {
         let mut tok: LexerToken = (parser_current p)
         let mut p_work: Parser = p
+        let is_pub: bool = (== tok.token_type (token_pub))
         
         if (and (== tok.token_type (token_identifier)) (== tok.value "service")) {
             return (parse_service_declaration p)
@@ -8275,6 +8735,15 @@ fn parse_definition(p: Parser) -> Parser {
             (print "")
         }
         
+        if (== tok.token_type LexerTokenType.TOKEN_EFFECT) { return (parse_effect_declaration p_work is_pub) }
+        if (and is_pub (== tok.token_type LexerTokenType.TOKEN_USE)) {
+            return (parser_public_use p_work)
+        }
+        # I retain the declarations following an unsafe module header.
+        if (and (== tok.token_type (token_unsafe)) (and (== (parser_peek p_work 1) LexerTokenType.TOKEN_MODULE) (== (parser_peek p_work 2) (token_identifier)))) {
+            return (parser_with_position p_work (+ p_work.position 3))
+        }
+
         /* Module imports: module "path" ... */
         if (== tok.token_type LexerTokenType.TOKEN_MODULE) {
             if (== (parser_peek p_work 1) (token_string)) {
@@ -8372,6 +8841,7 @@ fn parse_definition(p: Parser) -> Parser {
                                     return (parse_shadow p_work)
                                 } else {
                                     if (== tok.token_type (token_let)) {
+                                        if is_pub { return (parser_public_let p_work) }
                                         return (parse_let_statement p_work)
                                     } else {
                                         return (parser_with_error p_work true)
@@ -8390,7 +8860,18 @@ fn parse_definition(p: Parser) -> Parser {
 }
 
 shadow parse_definition {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "pub let answer: int = 41\nlet hidden: int = 9" "visibility.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "visibility.nano")
+    assert (not p.has_error)
+    assert (parser_get_let p 0).is_pub
+    assert (not (parser_get_let p 1).is_pub)
+    let graph_tokens: List<LexerToken> = (tokenize_string "unsafe module local pub use \"dep.nano\" as bridge pub fn answer() -> int { return 42 }" "graph.nano" (list_CompilerDiagnostic_new))
+    let graph: Parser = (parse_program graph_tokens (list_LexerToken_length graph_tokens) "graph.nano")
+    assert (not graph.has_error)
+    assert (== graph.imports_count 1)
+    assert (parser_get_import graph 0).is_pub_use
+    assert (== graph.functions_count 1)
+
 }
 
 /* =============================================================================
@@ -8538,6 +9019,7 @@ pub fn parser_set_let_var_type(p: Parser, idx: int, var_type: string) -> Parser 
         value: old.value,
         value_type: old.value_type,
         is_mut: old.is_mut,
+        is_pub: old.is_pub, is_generated: old.is_generated,
         is_destructure: old.is_destructure,
         is_destructure_projection: old.is_destructure_projection,
         destructure_names: old.destructure_names
@@ -8547,7 +9029,13 @@ pub fn parser_set_let_var_type(p: Parser, idx: int, var_type: string) -> Parser 
 }
 
 shadow parser_set_let_var_type {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "pub let mut value: int = 7" "backfill.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "backfill.nano")
+    let changed: Parser = (parser_set_let_var_type p 0 "float")
+    let binding: ASTLet = (parser_get_let changed 0)
+    assert (== binding.var_type "float")
+    assert binding.is_pub
+    assert binding.is_mut
 }
 
 /* Get number of identifiers */
@@ -9673,6 +10161,16 @@ shadow parse_service_declaration {
     let node: ASTServiceDecl = (list_ASTServiceDecl_get parsed.services 0)
     assert (== node.document_path "interface.nsi.json")
     assert (== node.catalog_version 1)
+    let tcp_tokens: List<LexerToken> = (tokenize_string "service \"nsi:nanolang/net\" catalog 1 from \"tcp.json\"\n" "tcp.nano" (Diagnostics.diag_list_new))
+    let tcp: Parser = (parse_program tcp_tokens (list_LexerToken_length tcp_tokens) "tcp.nano")
+    assert (not (parser_has_error tcp))
+    assert (== tcp.services_count 1)
+    assert (== (list_ASTServiceDecl_get tcp.services 0).interface_id "nsi:nanolang/net")
+    let ws_tokens: List<LexerToken> = (tokenize_string "service \"nsi:nanolang/websocket\" catalog 1 from \"ws.json\"\n" "ws.nano" (Diagnostics.diag_list_new))
+    let ws: Parser = (parse_program ws_tokens (list_LexerToken_length ws_tokens) "ws.nano")
+    assert (not (parser_has_error ws))
+    assert (== ws.services_count 1)
+    assert (== (list_ASTServiceDecl_get ws.services 0).interface_id "nsi:nanolang/websocket")
 }
 
 shadow parser_get_service_count {
@@ -9689,4 +10187,277 @@ shadow parser_get_service {
     assert (== node.document_path "x")
     assert (== node.line 2)
     assert (== node.column 3)
+}
+
+fn parser_with_effects(p: Parser, effects: array<ASTEffectDecl>, performs: array<ASTEffectPerform>, handlers: array<ASTEffectHandle>, kind: int, index: int) -> Parser {
+    return Parser {
+        tokens: p.tokens,
+        file_name: p.file_name,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        diagnostics: p.diagnostics,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
+        call_args: p.call_args,
+        array_elements: p.array_elements,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        unsafe_blocks: p.unsafe_blocks,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        unsafe_blocks_count: p.unsafe_blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
+        next_node_id: p.next_node_id,
+        last_expr_node_id: index,
+        last_expr_node_type: kind,
+        services: p.services,
+        services_count: p.services_count,
+        effects: effects,
+        performs: performs,
+        handlers: handlers
+    }
+}
+shadow parser_with_effects {
+    let p: Parser = (parser_init_ast_lists)
+    let copied: Parser = (parser_with_effects p p.effects p.performs p.handlers ParseNodeType.PNODE_EFFECT_DECL 3)
+    assert (== copied.last_expr_node_id 3)
+    assert (== (array_length copied.effects) 0)
+}
+
+# I retain effect signatures independently from ordinary callable declarations.
+fn parse_effect_declaration(p: Parser, is_pub: bool) -> Parser {
+    let start: LexerToken = (parser_current p)
+    let mut cur: Parser = (parser_advance p)
+    let name: LexerToken = (parser_current cur)
+    if (!= name.token_type LexerTokenType.TOKEN_IDENTIFIER) { return (parser_with_error cur true) }
+    set cur (parser_expect (parser_advance cur) LexerTokenType.TOKEN_LBRACE)
+    let mut names: array<string> = []
+    let mut types: array<string> = []
+    let mut starts: array<int> = []
+    let mut counts: array<int> = []
+    let mut results: array<string> = []
+    while (and (not cur.has_error) (!= (parser_current cur).token_type LexerTokenType.TOKEN_RBRACE)) {
+        let operation: LexerToken = (parser_current cur)
+        if (!= operation.token_type LexerTokenType.TOKEN_IDENTIFIER) { return (parser_with_error cur true) }
+        set cur (parser_expect (parser_advance cur) LexerTokenType.TOKEN_COLON)
+        let first: int = (array_length types)
+        while (and (not cur.has_error) (!= (parser_current cur).token_type LexerTokenType.TOKEN_ARROW)) {
+            let parsed: TypeParseResult = (parse_type_string cur)
+            if (not parsed.ok) { return (parser_with_error parsed.p true) }
+            set types (array_push types parsed.type_name)
+            set cur parsed.p
+            if (== (parser_current cur).token_type LexerTokenType.TOKEN_COMMA) { set cur (parser_advance cur) }
+        }
+        set cur (parser_expect cur LexerTokenType.TOKEN_ARROW)
+        let result: TypeParseResult = (parse_type_string cur)
+        if (not result.ok) { return (parser_with_error result.p true) }
+        set cur result.p
+        let mut count: int = (- (array_length types) first)
+        if (and (== count 1) (== (at types first) "void")) { set count 0 }
+        set names (array_push names operation.value)
+        set starts (array_push starts first)
+        set counts (array_push counts count)
+        set results (array_push results result.type_name)
+        if (== (parser_current cur).token_type LexerTokenType.TOKEN_COMMA) { set cur (parser_advance cur) }
+    }
+    set cur (parser_expect cur LexerTokenType.TOKEN_RBRACE)
+    if cur.has_error { return cur }
+    let index: int = (array_length cur.effects)
+    let node: ASTEffectDecl = ASTEffectDecl {
+        node_type: ParseNodeType.PNODE_EFFECT_DECL, line: start.line, column: start.column,
+        name: name.value, is_pub: is_pub, operation_names: names, parameter_types: types,
+        parameter_starts: starts, parameter_counts: counts, return_types: results
+    }
+    return (parser_with_effects cur (array_push cur.effects node) cur.performs cur.handlers ParseNodeType.PNODE_EFFECT_DECL index)
+}
+shadow parse_effect_declaration {
+    let tokens: List<LexerToken> = (tokenize_string "pub effect Calc {mix:int string bool->int, tick:void->void}" "effects.nano" (Diagnostics.diag_list_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "effects.nano")
+    assert (not parsed.has_error)
+    assert (== (array_length parsed.effects) 1)
+    let effect_decl: ASTEffectDecl = (at parsed.effects 0)
+    assert effect_decl.is_pub
+    assert (== (at effect_decl.parameter_counts 0) 3)
+    assert (== (at effect_decl.parameter_counts 1) 0)
+    assert (== (at effect_decl.return_types 0) "int")
+    assert (== (at effect_decl.parameter_types 1) "string")
+}
+
+fn parse_effect_perform(p: Parser, prefix: bool) -> Parser {
+    let start: LexerToken = (parser_current p)
+    let mut cur: Parser = (parser_advance p)
+    let owner_token: LexerToken = (parser_current cur)
+    if (!= owner_token.token_type LexerTokenType.TOKEN_IDENTIFIER) { return (parser_with_error cur true) }
+    set cur (parser_expect (parser_advance cur) LexerTokenType.TOKEN_DOT)
+    let mut operation: LexerToken = (parser_current cur)
+    if (!= operation.token_type LexerTokenType.TOKEN_IDENTIFIER) { return (parser_with_error cur true) }
+    set cur (parser_advance cur)
+    let mut owner_name: string = owner_token.value
+    while (== (parser_current cur).token_type LexerTokenType.TOKEN_DOT) {
+        set owner_name (+ owner_name (+ "." operation.value))
+        set cur (parser_advance cur)
+        set operation (parser_current cur)
+        if (!= operation.token_type LexerTokenType.TOKEN_IDENTIFIER) { return (parser_with_error cur true) }
+        set cur (parser_advance cur)
+    }
+    let parenthesized: bool = (== (parser_current cur).token_type LexerTokenType.TOKEN_LPAREN)
+    if parenthesized { set cur (parser_advance cur) }
+    let mut ids: array<int> = []
+    let mut kinds: array<int> = []
+    while (and (not cur.has_error) (and (!= (parser_current cur).token_type LexerTokenType.TOKEN_RPAREN) (and (!= (parser_current cur).token_type LexerTokenType.TOKEN_RBRACE) (not (parser_is_at_end cur))))) {
+        let before: int = cur.position
+        if (or parenthesized prefix) { set cur (parse_expression cur) }
+        else { set cur (parse_primary cur) }
+        if (or cur.has_error (== cur.position before)) { return (parser_with_error cur true) }
+        set ids (array_push ids cur.last_expr_node_id)
+        set kinds (array_push kinds cur.last_expr_node_type)
+        if (not (or parenthesized prefix)) { break }
+        if (== (parser_current cur).token_type LexerTokenType.TOKEN_COMMA) { set cur (parser_advance cur) }
+    }
+    if parenthesized { set cur (parser_expect cur LexerTokenType.TOKEN_RPAREN) }
+    if prefix { set cur (parser_expect cur LexerTokenType.TOKEN_RPAREN) }
+    if cur.has_error { return cur }
+    let index: int = (array_length cur.performs)
+    let node: ASTEffectPerform = ASTEffectPerform {
+        node_type: ParseNodeType.PNODE_EFFECT_OP, line: start.line, column: start.column,
+        effect_name: owner_name, operation_name: operation.value, argument_ids: ids, argument_types: kinds
+    }
+    return (parser_with_effects cur cur.effects (array_push cur.performs node) cur.handlers ParseNodeType.PNODE_EFFECT_OP index)
+}
+shadow parse_effect_perform {
+    let tokens: List<LexerToken> = (tokenize_string "perform Calc.mix(1 (+ 2 3))" "perform.nano" (Diagnostics.diag_list_new))
+    let parsed: Parser = (parse_expression (parser_new tokens (list_LexerToken_length tokens) "perform.nano"))
+    assert (not parsed.has_error)
+    assert (== parsed.last_expr_node_type ParseNodeType.PNODE_EFFECT_OP)
+    assert (== (array_length (at parsed.performs 0).argument_ids) 2)
+    let prefix: List<LexerToken> = (tokenize_string "(perform Calc.tick)" "perform.nano" (Diagnostics.diag_list_new))
+    let zero: Parser = (parse_expression (parser_new prefix (list_LexerToken_length prefix) "perform.nano"))
+    assert (not zero.has_error)
+    assert (== (array_length (at zero.performs 0).argument_ids) 0)
+}
+
+fn parse_effect_handle(p: Parser) -> Parser {
+    let start: LexerToken = (parser_current p)
+    let mut cur: Parser = (parser_advance p)
+    if (== (parser_current cur).token_type LexerTokenType.TOKEN_LBRACE) {
+        set cur (parse_block cur)
+        set cur (parser_with_node cur ParseNodeType.PNODE_BLOCK cur.last_expr_node_id)
+    }
+    else { set cur (parse_expression cur) }
+    let body: int = cur.last_expr_node_id
+    let body_kind: int = cur.last_expr_node_type
+    set cur (parser_expect cur LexerTokenType.TOKEN_WITH)
+    set cur (parser_expect cur LexerTokenType.TOKEN_LBRACE)
+    let mut names: array<string> = []
+    let mut parameters: array<string> = []
+    let mut starts: array<int> = []
+    let mut counts: array<int> = []
+    let mut ids: array<int> = []
+    let mut kinds: array<int> = []
+    while (and (not cur.has_error) (!= (parser_current cur).token_type LexerTokenType.TOKEN_RBRACE)) {
+        let operation: LexerToken = (parser_current cur)
+        if (!= operation.token_type LexerTokenType.TOKEN_IDENTIFIER) { return (parser_with_error cur true) }
+        set cur (parser_advance cur)
+        let first: int = (array_length parameters)
+        if (== (parser_current cur).token_type LexerTokenType.TOKEN_LPAREN) {
+            set cur (parser_expect (parser_advance cur) LexerTokenType.TOKEN_RPAREN)
+        }
+        while (and (not cur.has_error) (!= (parser_current cur).token_type LexerTokenType.TOKEN_ARROW)) {
+            let parameter: LexerToken = (parser_current cur)
+            if (!= parameter.token_type LexerTokenType.TOKEN_IDENTIFIER) { return (parser_with_error cur true) }
+            set parameters (array_push parameters parameter.value)
+            set cur (parser_advance cur)
+        }
+        set starts (array_push starts first)
+        set counts (array_push counts (- (array_length parameters) first))
+        set cur (parser_expect cur LexerTokenType.TOKEN_ARROW)
+        if (== (parser_current cur).token_type LexerTokenType.TOKEN_LBRACE) {
+            set cur (parse_block cur)
+            set cur (parser_with_node cur ParseNodeType.PNODE_BLOCK cur.last_expr_node_id)
+        }
+        else { set cur (parse_expression cur) }
+        if cur.has_error { return cur }
+        set names (array_push names operation.value)
+        set ids (array_push ids cur.last_expr_node_id)
+        set kinds (array_push kinds cur.last_expr_node_type)
+    }
+    set cur (parser_expect cur LexerTokenType.TOKEN_RBRACE)
+    if cur.has_error { return cur }
+    let index: int = (array_length cur.handlers)
+    let node: ASTEffectHandle = ASTEffectHandle {
+        node_type: ParseNodeType.PNODE_HANDLE_EXPR, line: start.line, column: start.column,
+        body_id: body, body_type: body_kind, operation_names: names, parameter_names: parameters,
+        parameter_starts: starts, parameter_counts: counts, arm_ids: ids, arm_types: kinds
+    }
+    return (parser_with_effects cur cur.effects cur.performs (array_push cur.handlers node) ParseNodeType.PNODE_HANDLE_EXPR index)
+}
+shadow parse_effect_handle {
+    let source: string = "effect Ask{ask:int->int,tick:void->int} fn main()->int {return handle {perform Ask.ask(3)} with {ask value -> {handle {perform Ask.tick()} with {tick () -> {value}}}}}"
+    let tokens: List<LexerToken> = (tokenize_string source "handlers.nano" (Diagnostics.diag_list_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "handlers.nano")
+    assert (not parsed.has_error)
+    assert (== (array_length parsed.handlers) 2)
+    assert (== (array_length parsed.performs) 2)
+    assert (== (at parsed.handlers 1).body_type ParseNodeType.PNODE_BLOCK)
+    assert (== (at (at parsed.handlers 1).arm_types 0) ParseNodeType.PNODE_BLOCK)
+    assert (== (at parsed.handlers 0).body_type ParseNodeType.PNODE_BLOCK)
+    assert (== (at (at parsed.handlers 0).arm_types 0) ParseNodeType.PNODE_BLOCK)
+    assert (== (at (at parsed.handlers 1).parameter_names 0) "value")
+    assert (== (at (at parsed.handlers 0).parameter_counts 0) 0)
 }

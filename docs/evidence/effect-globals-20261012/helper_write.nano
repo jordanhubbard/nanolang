@@ -1,0 +1,6 @@
+resource struct Handle{value:int}
+fn consume(h:Handle)->int{let Handle{value}=h return value}
+shadow consume{assert (== (consume Handle{value:7}) 7)}
+let mut total:int=0 effect E{tick:int->int} fn send()->int{return perform E.tick(7)} shadow send{assert true}
+fn main()->int{let n:int=handle {(send)} with {tick value->{set total value value}} assert (== n total) return total}
+shadow main{assert true}

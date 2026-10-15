@@ -1,0 +1,186 @@
+[
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nl51-generic-union-parameters/retained/0/main.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/0/main.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Warning at line 2, column 38: Unused variable 'p'\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/sanitizer/nvm2c",
+      "/private/tmp/nl51-generic-union-parameters/retained/0/main.nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/0/main.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nl51-generic-union-parameters/retained/1/main.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/1/main.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Warning at line 2, column 42: Unused variable 'p'\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/sanitizer/nvm2c",
+      "/private/tmp/nl51-generic-union-parameters/retained/1/main.nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/1/main.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nl51-generic-union-parameters/retained/2/main.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/2/main.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Warning at line 2, column 38: Unused variable 'p'\nWarning at line 7, column 44: Unused variable 'p'\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/sanitizer/nvm2c",
+      "/private/tmp/nl51-generic-union-parameters/retained/2/main.nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/2/main.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nl51-generic-union-parameters/retained/3/main.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/3/main.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/sanitizer/nvm2c",
+      "/private/tmp/nl51-generic-union-parameters/retained/3/main.nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/3/main.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nl51-generic-union-parameters/retained/4/main.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/4/main.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Warning at line 4, column 26: Unused variable 'p'\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/sanitizer/nvm2c",
+      "/private/tmp/nl51-generic-union-parameters/retained/4/main.nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/4/main.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nl51-generic-union-parameters/retained/5/main.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/5/main.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Warning at line 2, column 34: Unused variable 'p'\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/sanitizer/nvm2c",
+      "/private/tmp/nl51-generic-union-parameters/retained/5/main.nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/5/main.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nl51-generic-union-parameters/retained/6/main.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/6/main.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Warning at line 4, column 26: Unused variable 'p'\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/sanitizer/nvm2c",
+      "/private/tmp/nl51-generic-union-parameters/retained/6/main.nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/6/main.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nl51-generic-union-parameters/retained/7/main.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/7/main.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Warning at line 2, column 38: Unused variable 'p'\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/sanitizer/nvm2c",
+      "/private/tmp/nl51-generic-union-parameters/retained/7/main.nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/retained/7/main.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

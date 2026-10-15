@@ -1,0 +1,11 @@
+test_distinct_enum_bindings_refuse_during_checking (__main__.EnumGenerics.test_distinct_enum_bindings_refuse_during_checking) ... ok
+test_enum_array_identity (__main__.EnumGenerics.test_enum_array_identity) ... ok
+test_enum_literal_return_local_and_field (__main__.EnumGenerics.test_enum_literal_return_local_and_field) ... ok
+test_imported_enum_results (__main__.EnumGenerics.test_imported_enum_results) ... ok
+test_qualified_result_annotations_and_selective_alias (__main__.EnumGenerics.test_qualified_result_annotations_and_selective_alias) ... ok
+test_same_named_imported_enums_remain_distinct (__main__.EnumGenerics.test_same_named_imported_enums_remain_distinct) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 3.054s
+
+OK

@@ -1,0 +1,13 @@
+{
+  "src/nsi_services_values.c": "739bea539b0bbef09cb4ba43cbc8209309d99a5fb6ec9af3aed6cea3fcab4097",
+  "src/nsi_services_values.h": "e12316232a11a9986808090ce90cee2a8a61b8da5465f0bed904aeb49ceee471",
+  "src/runtime/service_product.c": "d6c6df7c9c6dc9092ac232f280651a833b55b54aade3048d2527b1ab703bc046",
+  "Makefile.gnu": "39fd2ff839f487e1952390b2768580a87c7f77d75783878a9aa16c7e17542a05",
+  "tests/test_nsi_mixed_websocket_values.c": "6cb13dc1e014acb65a24baf65fbdc307d7631c72f69be695e52ea94b82e8b210",
+  "tests/test_mixed_websocket_values.py": "9cea2ee4cc8e1cf2f90c4b0c177e9437374835c05860e096cbc841d2003a25a0",
+  "tests/mixed_websocket_values_probe.c": "d4a84cbf99364318b31801f36ef94a29b539e3c5bf00cc512fbda4a7bd6dadd8",
+  "tests/mixed_websocket_values_hooks.h": "0f67dde07f76614942b6b0a2e6d4d3cf425340b71d7b4d4dc3c923bb245b3aa0",
+  "tests/test_services_values.py": "52c51b3415a9c59d7f43a7664727f9100086717432802c3359a04baf607a422d",
+  "tests/test_services_dispatch.py": "3f71fd4f420ed65719f37039a387682fc71f91be83ddf40901c6d4081b7f527d",
+  "tests/test_services_public.py": "13829c88246e22fb9e13c0371fcb38496238354befdfb9e20ac60ea16ce2606f"
+}

@@ -1,0 +1,6 @@
+test_graph_namespace_and_driver_refusals (tests.test_service_namespace.ServiceNamespace.test_graph_namespace_and_driver_refusals) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 12.857s
+
+OK

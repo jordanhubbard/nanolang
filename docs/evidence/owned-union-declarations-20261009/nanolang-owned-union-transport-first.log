@@ -1,0 +1,17 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o
+In file included from src/nanoisa/ownership_contracts.c:517:
+src/nanoisa/ownership_declaration_projection.inc:53:108: error: too few arguments to function call, expected 8, have 7
+   53 |         NvmV2Result result=union_facts_read(&cursor,m,&ordinary->layouts,NVM_V2_NO_INDEX,0,NULL,&projection);
+      |                            ~~~~~~~~~~~~~~~~                                                                ^
+src/nanoisa/ownership_contracts.c:240:20: note: 'union_facts_read' declared here
+  240 | static NvmV2Result union_facts_read(NvmV2Cursor *cursor,const NvmModule *module,
+      |                    ^                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  241 |                                     const NvmV2Layouts *layouts,const uint8_t *flags,
+      |                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  242 |                                     uint32_t wanted_union,uint16_t wanted_variant,
+      |                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  243 |                                     NvmUnionVariantFact *selected, OwnershipProjection *projection) {
+      |                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+make: *** [obj/nanoisa/ownership_contracts.o] Error 1

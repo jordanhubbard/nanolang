@@ -190,6 +190,149 @@ bool nvm_add_metadata(NvmModule *mod, uint32_t key, uint32_t value) {
     return true;
 }
 
+static const char purity_key[] = "nano.purity.v1";
+
+/* I leave unknown versions transportable and uninterpreted. */
+static bool purity_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {
+    return mod->string_lengths[entry->key_idx] == sizeof purity_key - 1 &&
+        memcmp(mod->strings[entry->key_idx], purity_key, sizeof purity_key - 1) == 0;
+}
+
+static bool purity_record(const NvmModule *mod, const NvmMetadataEntry *entry,
+                          uint32_t *function, int *declared) {
+    if (mod->string_lengths[entry->value_idx] != 8) return false;
+    const unsigned char *p = (const unsigned char *)mod->strings[entry->value_idx];
+    *function = (uint32_t)p[0] | (uint32_t)p[1] << 8 |
+        (uint32_t)p[2] << 16 | (uint32_t)p[3] << 24;
+    *declared = p[4];
+    return *function < mod->function_count && p[4] <= 1 &&
+        !p[5] && !p[6] && !p[7];
+}
+
+int nvm_function_purity(const NvmModule *mod, uint32_t function) {
+    if (!nvm_metadata_valid(mod) || function >= mod->function_count) return -1;
+    int found = -1;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        const NvmMetadataEntry *entry = &mod->metadata[i];
+        if (!purity_entry(mod, entry)) continue;
+        uint32_t index; int declared;
+        if (!purity_record(mod, entry, &index, &declared)) return -1;
+        if (index == function) {
+            if (found != -1) return -1;
+            found = declared;
+        }
+    }
+    return found;
+}
+
+bool nvm_add_function_purity(NvmModule *mod, uint32_t function, bool declared) {
+    if (!nvm_metadata_valid(mod) || function >= mod->function_count) return false;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        const NvmMetadataEntry *entry = &mod->metadata[i];
+        if (!purity_entry(mod, entry)) continue;
+        uint32_t index; int previous;
+        if (!purity_record(mod, entry, &index, &previous) || index == function)
+            return false;
+    }
+    unsigned char value[8] = {0};
+    for (unsigned i = 0; i < 4; ++i) value[i] = (unsigned char)(function >> (8 * i));
+    value[4] = declared;
+    uint32_t key = nvm_add_string(mod, purity_key, sizeof purity_key - 1);
+    if (key == UINT32_MAX) return false;
+    uint32_t data = nvm_add_string(mod, (const char *)value, sizeof value);
+    return data != UINT32_MAX && nvm_add_metadata(mod, key, data);
+}
+
+static const char generic_key[] = "nano.generic.v1";
+
+static bool generic_metadata_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {
+    return mod->string_lengths[entry->key_idx] == sizeof generic_key - 1 &&
+        memcmp(mod->strings[entry->key_idx], generic_key, sizeof generic_key - 1) == 0;
+}
+
+static bool generic_metadata_record(const NvmModule *mod, const NvmMetadataEntry *entry,
+                                    NvmGenericBinding *out) {
+    uint32_t remaining = mod->string_lengths[entry->value_idx];
+    if (remaining < 20) return false;
+    const uint8_t *p = (const uint8_t *)mod->strings[entry->value_idx];
+    uint32_t function = le_read_u32(p), lengths[4];
+    if (function >= mod->function_count) return false;
+    for (unsigned i = 0; i < 4; ++i) lengths[i] = le_read_u32(p + 4 + 4 * i);
+    p += 20; remaining -= 20;
+    const char *values[4];
+    for (unsigned i = 0; i < 4; ++i) {
+        if (lengths[i] > remaining || (!lengths[i] && i != 1) ||
+            memchr(p, 0, lengths[i])) return false;
+        values[i] = (const char *)p;
+        p += lengths[i]; remaining -= lengths[i];
+    }
+    if (remaining) return false;
+    *out = (NvmGenericBinding){function, values[0], values[1], values[2], values[3],
+        lengths[0], lengths[1], lengths[2], lengths[3]};
+    return true;
+}
+
+static bool generic_text_equal(const char *a, uint32_t na, const char *b, uint32_t nb) {
+    return na == nb && !memcmp(a, b, na);
+}
+
+static bool generic_metadata_distinct(const NvmGenericBinding *a, const NvmGenericBinding *b) {
+    if (a->function != b->function) return true;
+    return generic_text_equal(a->source_name, a->source_name_length, b->source_name, b->source_name_length) &&
+        generic_text_equal(a->source_path, a->source_path_length, b->source_path, b->source_path_length) &&
+        !generic_text_equal(a->variable, a->variable_length, b->variable, b->variable_length);
+}
+
+bool nvm_generic_binding_at(const NvmModule *mod, uint32_t metadata_index,
+                            NvmGenericBinding *out) {
+    if (!out || !nvm_metadata_valid(mod) || metadata_index >= mod->metadata_count) return false;
+    NvmGenericBinding selected;
+    const NvmMetadataEntry *entry = &mod->metadata[metadata_index];
+    if (!generic_metadata_entry(mod, entry) || !generic_metadata_record(mod, entry, &selected)) return false;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        if (i == metadata_index || !generic_metadata_entry(mod, &mod->metadata[i])) continue;
+        NvmGenericBinding other;
+        if (!generic_metadata_record(mod, &mod->metadata[i], &other) ||
+            !generic_metadata_distinct(&selected, &other)) return false;
+    }
+    *out = selected;
+    return true;
+}
+
+bool nvm_add_generic_binding(NvmModule *mod, uint32_t function,
+    const char *source_name, const char *source_path, const char *variable,
+    const char *type) {
+    if (!nvm_metadata_valid(mod) || function >= mod->function_count) return false;
+    const char *values[] = {source_name, source_path, variable, type};
+    uint32_t lengths[4], total = 20;
+    for (unsigned i = 0; i < 4; ++i) {
+        if (!values[i]) return false;
+        size_t length = strlen(values[i]);
+        if ((!length && i != 1) || length > UINT32_MAX - total) return false;
+        lengths[i] = (uint32_t)length; total += lengths[i];
+    }
+    NvmGenericBinding selected = {function, source_name, source_path, variable, type,
+        lengths[0], lengths[1], lengths[2], lengths[3]};
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        if (!generic_metadata_entry(mod, &mod->metadata[i])) continue;
+        NvmGenericBinding other;
+        if (!generic_metadata_record(mod, &mod->metadata[i], &other) ||
+            !generic_metadata_distinct(&selected, &other)) return false;
+    }
+    uint8_t *data = malloc(total);
+    if (!data) return false;
+    le_write_u32(data, function);
+    uint32_t offset = 20;
+    for (unsigned i = 0; i < 4; ++i) {
+        le_write_u32(data + 4 + 4 * i, lengths[i]);
+        memcpy(data + offset, values[i], lengths[i]); offset += lengths[i];
+    }
+    uint32_t key = nvm_add_string(mod, generic_key, sizeof generic_key - 1);
+    uint32_t value = key == UINT32_MAX ? UINT32_MAX : nvm_add_string(mod, (const char *)data, total);
+    free(data);
+    return value != UINT32_MAX && nvm_add_metadata(mod, key, value);
+}
+
 void nvm_call_descriptors_reset(NvmModule *mod) {
     if (!mod) return;
     free(mod->call_descriptors);

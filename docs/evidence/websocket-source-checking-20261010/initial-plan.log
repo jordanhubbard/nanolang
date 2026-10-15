@@ -1,0 +1,25 @@
+I retain descriptive-plan artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-source-plan-8i1kvip1
+test_paired_websocket_catalog_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_websocket_catalog_and_selected_shadows) ... ERROR
+
+======================================================================
+ERROR: test_paired_websocket_catalog_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_websocket_catalog_and_selected_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_file_source_plan.py", line 131, in test_paired_websocket_catalog_and_selected_shadows
+    self.paired(websocket_corpus(), True)
+                ~~~~~~~~~~~~~~~~^^
+  File "/Users/jordanh/Src/nanolang/tests/file_source_plan_corpus.py", line 324, in websocket_corpus
+    add('aliases',mutate=lambda c:c.update(aliases=[alias(201,'Handle',500),alias(203,'Payload',501),alias(209,'Send',502)]))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/file_source_plan_corpus.py", line 319, in add
+    if mutate:mutate(c)
+              ~~~~~~^^^
+  File "/Users/jordanh/Src/nanolang/tests/file_source_plan_corpus.py", line 324, in <lambda>
+    add('aliases',mutate=lambda c:c.update(aliases=[alias(201,'Handle',500),alias(203,'Payload',501),alias(209,'Send',502)]))
+                                                    ^^^^^
+NameError: name 'alias' is not defined
+
+----------------------------------------------------------------------
+Ran 1 test in 0.820s
+
+FAILED (errors=1)

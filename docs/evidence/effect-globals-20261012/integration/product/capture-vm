@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+import os,shutil,sys
+if len(sys.argv)>2 and sys.argv[1]=='--check-shadows':
+    shutil.copyfile(sys.argv[2],'/private/tmp/nl51-effect-globals/product/compiler-shadows.nvm')
+os.execv('/Users/jordanh/Src/nanolang/bin/nano_vm',['nano_vm',*sys.argv[1:]])

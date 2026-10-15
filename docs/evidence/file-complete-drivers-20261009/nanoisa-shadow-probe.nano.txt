@@ -1,0 +1,3 @@
+module "/Users/jordanh/Src/nanolang/modules/nanoisa/nanoisa.nano" as isa
+fn main()->int {return 0}
+shadow main {assert (== (main) 0)}

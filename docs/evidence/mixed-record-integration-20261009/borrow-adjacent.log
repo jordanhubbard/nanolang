@@ -1,0 +1,56 @@
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_virt', '/private/tmp/nanolang-match-guards-20261009/tests/nanoisa/fixtures/source_borrow_shared.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '--verify-only', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c'] EXIT 0
+COMMAND ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+COMMAND ['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+PASS cseed source_borrow_shared.nano
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_virt', '/private/tmp/nanolang-match-guards-20261009/tests/nanoisa/fixtures/source_borrow_exclusive.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '--verify-only', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c'] EXIT 0
+COMMAND ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+COMMAND ['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+PASS cseed source_borrow_exclusive.nano
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_virt', '/private/tmp/nanolang-match-guards-20261009/tests/nanoisa/fixtures/source_borrow_order.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '--verify-only', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c'] EXIT 0
+COMMAND ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+COMMAND ['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+PASS cseed source_borrow_order.nano
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_virt', '/private/tmp/nanolang-match-guards-20261009/tests/nanoisa/fixtures/source_borrow_bool.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '--verify-only', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c'] EXIT 0
+COMMAND ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+COMMAND ['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+PASS cseed source_borrow_bool.nano
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/private/tmp/nanolang-mixed-integrated-compiler.nvm', '--', '/private/tmp/nanolang-match-guards-20261009/tests/nanoisa/fixtures/source_borrow_shared.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '--verify-only', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c'] EXIT 0
+COMMAND ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+COMMAND ['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+PASS selfhost source_borrow_shared.nano
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/private/tmp/nanolang-mixed-integrated-compiler.nvm', '--', '/private/tmp/nanolang-match-guards-20261009/tests/nanoisa/fixtures/source_borrow_exclusive.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '--verify-only', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c'] EXIT 0
+COMMAND ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+COMMAND ['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+PASS selfhost source_borrow_exclusive.nano
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/private/tmp/nanolang-mixed-integrated-compiler.nvm', '--', '/private/tmp/nanolang-match-guards-20261009/tests/nanoisa/fixtures/source_borrow_order.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '--verify-only', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c'] EXIT 0
+COMMAND ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+COMMAND ['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+PASS selfhost source_borrow_order.nano
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/private/tmp/nanolang-mixed-integrated-compiler.nvm', '--', '/private/tmp/nanolang-match-guards-20261009/tests/nanoisa/fixtures/source_borrow_bool.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '--verify-only', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm'] EXIT 0
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c'] EXIT 0
+COMMAND ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/out.c', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+COMMAND ['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplygfpo_e/program'] EXIT 0
+PASS selfhost source_borrow_bool.nano

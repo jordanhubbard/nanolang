@@ -1,0 +1,1 @@
+I could not verify the shadow module: Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[2] at 0: I require effect-aware global flow before combining these contracts

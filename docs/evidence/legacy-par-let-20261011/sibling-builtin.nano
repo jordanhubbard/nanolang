@@ -1,0 +1,2 @@
+fn main()->int {par-let left=(array_length [1]) array_length=7 in left return left}
+shadow main {assert true}

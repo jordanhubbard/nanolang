@@ -1,0 +1,130 @@
+.types 1 0 2
+.entry 0
+.string "Handle"
+.string "fd"
+.string "Result<Handle,string>"
+.string "value"
+.string "error"
+.string "Box<Handle>"
+.string "main"
+.string "close_handle"
+.string "consume"
+.string "rebuild"
+.string "empty"
+.string "Ok"
+.string "Err"
+.string "Some"
+.string "None"
+.layouts "03000000000001000000000001000000ffffffff01000000020002000200000008000000000000000300000005000000ffffffff040000000200010005000000080000000000000003000000"
+.ownership "030000000300000003030300040000000000000001000000ffffffff0300010001000000ffffffff0800000000000000080000000000000001000000ffffffff0700010001000000ffffffff0a000000010000000a00000001000000080000000000000008000000000000000a0000000100000005000000ffffffff05000000ffffffff070001000a000000010000000a000000020000000a000000020000000800000000000000080000000000000008000000000000000a0000000200000005000000ffffffff04000000000000000100000001000100340000000200000001000000020000000b000000000001000c0000000100010002000000020000000d000000000001000e00000001000000"
+.function main 0 0 0 int 1
+  PUSH_I64 0
+  RET
+.end
+.function close_handle 1 3 0 int 1
+  .local_begin 0 "owner"
+  OWN_MOVE_LOCAL 0
+  OWN_STORE_LOCAL 1
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 1 1
+  REF_GET 1 0
+  REGION_END
+  STORE_LOCAL 2
+  .local_begin 2 "fd"
+  LOAD_LOCAL 2
+  OWN_UNPACK_LOCAL 1
+  POP
+  RET
+  .local_end 0
+  .local_end 2
+.end
+.function consume 1 7 0 int 1
+  .local_begin 0 "result"
+  OWN_MOVE_LOCAL 0
+  MATCH_TAG 0 nb_control_1
+  JMP nb_control_2
+  nb_control_1:
+  OWN_STORE_LOCAL 1
+  .local_begin 1 "payload"
+  OWN_UNPACK_LOCAL 1
+  OWN_STORE_LOCAL 2
+  OWN_MOVE_LOCAL 2
+  OWN_STORE_LOCAL 3
+  .local_begin 3 "value"
+  OWN_MOVE_LOCAL 3
+  CALL 1
+  RET
+  .local_end 3
+  .local_end 1
+  nb_control_2:
+  MATCH_TAG 1 nb_control_3
+  JMP nb_control_4
+  nb_control_3:
+  OWN_STORE_LOCAL 4
+  OWN_UNPACK_LOCAL 4
+  STORE_LOCAL 5
+  .local_begin 4 "payload"
+  LOAD_LOCAL 5
+  STORE_LOCAL 6
+  .local_begin 6 "error"
+  LOAD_LOCAL 6
+  PUSH_STR 10
+  EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+  .local_end 6
+  .local_end 4
+  nb_control_4:
+  POP
+  PUSH_BOOL 0
+  ASSERT
+  HALT
+  nb_control_0:
+  .local_end 0
+.end
+.function rebuild 1 7 0 union 1
+  .local_begin 0 "boxed"
+  OWN_MOVE_LOCAL 0
+  MATCH_TAG 0 nb_control_6
+  JMP nb_control_7
+  nb_control_6:
+  OWN_STORE_LOCAL 1
+  .local_begin 1 "payload"
+  OWN_UNPACK_LOCAL 1
+  OWN_STORE_LOCAL 2
+  OWN_MOVE_LOCAL 2
+  OWN_STORE_LOCAL 3
+  .local_begin 3 "value"
+  OWN_MOVE_LOCAL 3
+  OWN_STORE_LOCAL 4
+  OWN_MOVE_LOCAL 4
+  AGG_PACK 1 0 0 1
+  .local_end 1
+  .local_end 3
+  JMP nb_control_5
+  nb_control_7:
+  MATCH_TAG 1 nb_control_8
+  JMP nb_control_9
+  nb_control_8:
+  OWN_STORE_LOCAL 5
+  OWN_UNPACK_LOCAL 5
+  .local_begin 5 "payload"
+  PUSH_STR 10
+  STORE_LOCAL 6
+  LOAD_LOCAL 6
+  AGG_PACK 1 0 1 1
+  .local_end 5
+  JMP nb_control_5
+  nb_control_9:
+  POP
+  PUSH_BOOL 0
+  ASSERT
+  HALT
+  nb_control_5:
+  RET
+  .local_end 0
+.end
+.parameters 1 struct
+.parameters 2 union
+.parameters 3 union

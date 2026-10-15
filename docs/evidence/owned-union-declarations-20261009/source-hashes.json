@@ -1,0 +1,7 @@
+{
+  "src/nanoisa/ownership_contracts.c": "230057aa26c5c4f1ead177560d354251146d893856b51a7b7fd181ff5c196d1e",
+  "src/nanoisa/ownership_contracts.h": "960488578654bc947de776307bcba381cfea7e61be1350b5d86d30f68a0d8db1",
+  "src/nanoisa/ownership_declaration_projection.inc": "91705ef8db6f5e25b52fce3b2b54509d2765d8168617bf1e6ab99f9394e97f4c",
+  "src/nanoisa/affine_state.c": "d011c5385a765d8990307cd502a29d72e10d3649ea1dfff7dfa0479d5490a4ce",
+  "tests/nanoisa/test_ownership_contracts.c": "9551ddfe6d1159351b2c926a220305a36ba1347271a42cdca344f5fcc59f53cd"
+}

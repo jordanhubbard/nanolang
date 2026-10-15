@@ -33,8 +33,9 @@ enum CompilerPhase {
     PHASE_LEXER,
     PHASE_PARSER,
     PHASE_TYPECHECK,
-    PHASE_TRANSPILER,
-    PHASE_RUNTIME
+    PHASE_NANOISA,
+    PHASE_RUNTIME,
+    PHASE_BACKEND
 }
 
 extern struct NSType {

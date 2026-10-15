@@ -1,0 +1,189 @@
+--- a/src/typechecker.c
++++ b/src/typechecker.c
+@@ -1015,7 +1015,7 @@
+             
+         case AST_IDENTIFIER: {
+             Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
+-            if (sym && (sym->type == TYPE_STRUCT || sym->type == TYPE_UNION)) {
++            if (sym && (sym->type == TYPE_STRUCT || sym->type == TYPE_UNION || sym->type == TYPE_ENUM)) {
+                 return sym->struct_type_name;
+             }
+             return NULL;
+@@ -1023,7 +1023,7 @@
+         
+         case AST_MODULE_QUALIFIED_CALL: {
+             TypeInfo *info = try_get_expr_type_info(expr, env);
+-            if (info && (info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION))
++            if (info && (info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION || info->base_type == TYPE_ENUM))
+                 return info->generic_name;
+             FunctionSignature *signature = expr->as.module_qualified_call.checked_signature;
+             return signature ? signature->return_struct_name : NULL;
+@@ -1040,7 +1040,7 @@
+             
+             /* Check if function returns a struct */
+             Function *func = env_get_function(env, expr->as.call.name);
+-            if (func && (func->return_type == TYPE_STRUCT || func->return_type == TYPE_UNION)) {
++            if (func && (func->return_type == TYPE_STRUCT || func->return_type == TYPE_UNION || func->return_type == TYPE_ENUM)) {
+                 return func->return_struct_type_name;
+             }
+             
+@@ -1074,6 +1074,11 @@
+         }
+         
+         case AST_FIELD_ACCESS: {
++            ASTNode *receiver=expr->as.field_access.object;
++            if (receiver && receiver->type==AST_IDENTIFIER) {
++                EnumDef *enumeration=env_get_enum(env,receiver->as.identifier);
++                if (enumeration) return enumeration->name;
++            }
+             /* Get the struct type of the object */
+             const char *object_struct_name = get_struct_type_name(expr->as.field_access.object, env);
+             if (!object_struct_name) return NULL;
+@@ -1128,7 +1133,7 @@
+                             }
+ 
+                             /* Non-generic union (or unresolved generic): return declared struct/union name when available */
+-                            if ((field_type == TYPE_STRUCT || field_type == TYPE_UNION) && field_type_name) {
++                            if ((field_type == TYPE_STRUCT || field_type == TYPE_UNION || field_type == TYPE_ENUM) && field_type_name) {
+                                 free(union_name);
+                                 return strdup(field_type_name);
+                             }
+@@ -1150,7 +1155,7 @@
+                     if (info && info->generic_name && env_get_union(env, info->generic_name))
+                         return info->generic_name;
+                     /* Check if this field is a struct/union type */
+-                    if ((sdef->field_types[i] == TYPE_STRUCT || sdef->field_types[i] == TYPE_UNION) &&
++                    if ((sdef->field_types[i] == TYPE_STRUCT || sdef->field_types[i] == TYPE_UNION || sdef->field_types[i] == TYPE_ENUM) &&
+                         sdef->field_type_names && sdef->field_type_names[i]) {
+                         /* Return the struct type name for this field */
+                         return strdup(sdef->field_type_names[i]);
+@@ -8876,6 +8881,8 @@
+                 f.params[j].fn_sig = item->as.function.params[j].fn_sig;
+             }
+             f.return_type = item->as.function.return_type;
++            if (f.return_type==TYPE_STRUCT && item->as.function.return_struct_type_name &&
++                env_get_enum(env,item->as.function.return_struct_type_name)) f.return_type=TYPE_ENUM;
+             f.return_element_type = item->as.function.return_element_type;
+             f.return_struct_type_name = item->as.function.return_struct_type_name ? 
+                 env_own_checker_allocation(env, strdup(item->as.function.return_struct_type_name)) : NULL;
+@@ -9036,6 +9043,8 @@
+             
+             /* Set current function return type for return statement checking */
+             tc.current_function_return_type = item->as.function.return_type;
++            if (tc.current_function_return_type==TYPE_STRUCT && item->as.function.return_struct_type_name &&
++                env_get_enum(env,item->as.function.return_struct_type_name)) tc.current_function_return_type=TYPE_ENUM;
+             tc.current_function_return_element_type = item->as.function.return_element_type;
+             tc.current_function_return_info = item->as.function.return_type_info;
+             tc.current_function_return_struct_name = item->as.function.return_struct_type_name;
+--- a/src/generic_bindings.h
++++ b/src/generic_bindings.h
+@@ -55,10 +55,44 @@
+     return false;
+ }
+ static inline void generic_bindings_free(GenericBindings *bindings) {
+-    for (int i=0; i<bindings->count; ++i) free_payload_type_info(bindings->types[i]);
++    for (int i=0; i<bindings->count; ++i) { free((char *)bindings->names[i]); free_payload_type_info(bindings->types[i]); }
+     *bindings=(GenericBindings){0};
+ }
+-static inline bool generic_bind(Environment *env, const TypeInfo *formal,
++/* I normalize legacy enum-as-struct annotations before exact generic comparison. */
++static inline bool generic_normalize_nominals(Environment *env, TypeInfo *info, unsigned depth) {
++    if (!info || depth>128) return false;
++    if (info->generic_name && (info->base_type==TYPE_STRUCT || info->base_type==TYPE_ENUM || info->base_type==TYPE_INT)) {
++        EnumDef *enumeration=env_get_enum(env,info->generic_name);
++        if (enumeration) {
++            char *name=strdup(enumeration->name);
++            if (!name) return false;
++            free(info->generic_name);info->generic_name=name;info->base_type=TYPE_ENUM;
++        }
++    }
++    if (info->element_type && !generic_normalize_nominals(env,info->element_type,depth+1)) return false;
++    for (int i=0;i<info->type_param_count;++i)
++        if (!generic_normalize_nominals(env,info->type_params[i],depth+1)) return false;
++    FunctionSignature *sig=info->fn_sig;
++    if (sig) {
++        if (sig->param_count && !sig->param_type_info) sig->param_type_info=calloc((size_t)sig->param_count,sizeof(TypeInfo *));
++        if (sig->param_count && !sig->param_struct_names) sig->param_struct_names=calloc((size_t)sig->param_count,sizeof(char *));
++        if (sig->param_count && (!sig->param_type_info || !sig->param_struct_names)) return false;
++        TypeInfo view;
++        for (int p=0;p<sig->param_count;++p) {
++            if (!sig->param_type_info[p]) sig->param_type_info[p]=copy_payload_type_info(generic_signature_param(sig,p,&view));
++            if (!generic_normalize_nominals(env,sig->param_type_info[p],depth+1)) return false;
++            sig->param_types[p]=sig->param_type_info[p]->base_type;
++            free(sig->param_struct_names[p]);sig->param_struct_names[p]=sig->param_type_info[p]->generic_name?strdup(sig->param_type_info[p]->generic_name):NULL;
++        }
++        if (!sig->return_type_info) sig->return_type_info=copy_payload_type_info(generic_signature_result(sig,&view));
++        if (!generic_normalize_nominals(env,sig->return_type_info,depth+1)) return false;
++        sig->return_type=sig->return_type_info->base_type;
++        free(sig->return_struct_name);sig->return_struct_name=sig->return_type_info->generic_name?strdup(sig->return_type_info->generic_name):NULL;
++        free_function_signature(sig->return_fn_sig);sig->return_fn_sig=copy_function_signature(sig->return_type_info->fn_sig);
++    }
++    return true;
++}
++static inline bool generic_bind_normalized(Environment *env, const TypeInfo *formal,
+         const TypeInfo *actual, GenericBindings *bindings, unsigned depth) {
+     if (!formal || !actual || depth>128 || actual->base_type==TYPE_UNKNOWN) return false;
+     if (generic_variable(env,formal)) {
+@@ -67,29 +101,37 @@
+                 return type_infos_equal(bindings->types[i],actual);
+         if (bindings->count==26) return false;
+         int i=bindings->count++;
+-        bindings->names[i]=formal->generic_name;
++        bindings->names[i]=strdup(formal->generic_name);
+         bindings->types[i]=copy_payload_type_info(actual);
+-        return bindings->types[i]!=NULL;
++        return bindings->names[i] && bindings->types[i];
+     }
+     if (!generic_contains(env,formal,depth)) return type_infos_equal(formal,actual);
+     if (formal->base_type!=actual->base_type || formal->type_param_count!=actual->type_param_count) return false;
+     if (formal->element_type || actual->element_type) {
+-        if (!generic_bind(env,formal->element_type,actual->element_type,bindings,depth+1)) return false;
++        if (!generic_bind_normalized(env,formal->element_type,actual->element_type,bindings,depth+1)) return false;
+     }
+     if (formal->type_param_count) {
+         if (!formal->generic_name || !actual->generic_name || strcmp(formal->generic_name,actual->generic_name)) return false;
+         for (int p=0;p<formal->type_param_count;++p)
+-            if (!generic_bind(env,formal->type_params[p],actual->type_params[p],bindings,depth+1)) return false;
++            if (!generic_bind_normalized(env,formal->type_params[p],actual->type_params[p],bindings,depth+1)) return false;
+     }
+     if (formal->fn_sig || actual->fn_sig) {
+         const FunctionSignature *f=formal->fn_sig,*a=actual->fn_sig;
+         if (!f || !a || f->param_count!=a->param_count) return false;
+         TypeInfo fv,av;
+         for (int p=0;p<f->param_count;++p)
+-            if (!generic_bind(env,generic_signature_param(f,p,&fv),generic_signature_param(a,p,&av),bindings,depth+1)) return false;
+-        if (!generic_bind(env,generic_signature_result(f,&fv),generic_signature_result(a,&av),bindings,depth+1)) return false;
++            if (!generic_bind_normalized(env,generic_signature_param(f,p,&fv),generic_signature_param(a,p,&av),bindings,depth+1)) return false;
++        if (!generic_bind_normalized(env,generic_signature_result(f,&fv),generic_signature_result(a,&av),bindings,depth+1)) return false;
+     }
+     return true;
++}
++static inline bool generic_bind(Environment *env, const TypeInfo *formal,
++        const TypeInfo *actual, GenericBindings *bindings, unsigned depth) {
++    TypeInfo *f=copy_payload_type_info(formal), *a=copy_payload_type_info(actual);
++    bool valid=generic_normalize_nominals(env,f,depth) && generic_normalize_nominals(env,a,depth) &&
++        generic_bind_normalized(env,f,a,bindings,depth);
++    free_payload_type_info(f);free_payload_type_info(a);
++    return valid;
+ }
+ static inline TypeInfo *generic_substitute(Environment *,const TypeInfo *,const GenericBindings *,unsigned);
+ static inline bool generic_substitute_signature(Environment *env, FunctionSignature *sig,
+@@ -133,6 +175,7 @@
+         if (!copy->type_params[p]) { free_payload_type_info(copy); return NULL; }
+     }
+     if (copy->fn_sig && !generic_substitute_signature(env,copy->fn_sig,bindings,depth+1)) { free_payload_type_info(copy); return NULL; }
++    if (!generic_normalize_nominals(env,copy,depth)) { free_payload_type_info(copy); return NULL; }
+     return copy;
+ }
+ #endif
+--- a/src/nanovirt/generic_codegen.inc
++++ b/src/nanovirt/generic_codegen.inc
+@@ -74,6 +74,8 @@
+         return cg_generic_type_supported(cg,generic_signature_result(info->fn_sig,&view));
+     }
+     if (info->base_type == TYPE_ARRAY) return cg_generic_type_supported(cg, info->element_type);
++    if (info->base_type == TYPE_ENUM)
++        return info->generic_name && env_get_enum(cg->env,info->generic_name);
+     if (info->base_type == TYPE_STRUCT)
+         return info->generic_name && env_get_struct(cg->env, info->generic_name);
+     return info->base_type == TYPE_VOID || info->base_type == TYPE_INT || info->base_type == TYPE_U8 ||

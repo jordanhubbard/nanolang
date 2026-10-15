@@ -1,0 +1,17 @@
+F..
+======================================================================
+FAIL: test_declaration_types_and_forward_references (__main__.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/private/tmp/nl51-effect-contracts/seed', declaration='effect Ask{ask:HashMap<string,Point>->int} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 101, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0040] I require a declared concrete effect parameter type. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpl52_bf2n/source.nano:1:1)
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.265s
+
+FAILED (failures=1)

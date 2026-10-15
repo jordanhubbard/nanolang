@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nanoc_stage1",
+    "/private/tmp/nanolang-selfhost-globals-final/installed/OwnedGlobalsStage1/test_same_shape_wrong_union_assignment_refused/main.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-selfhost-globals-final/installed/OwnedGlobalsStage1/test_same_shape_wrong_union_assignment_refused/main.nvm"
+  ],
+  "exit": 1
+}

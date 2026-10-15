@@ -1,0 +1,7 @@
+test_nested_array_calls_and_record_elements (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_nested_array_calls_and_record_elements) ... ok
+test_generic_array_mutation_preserves_aliases_and_empty_types (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_generic_array_mutation_preserves_aliases_and_empty_types) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.653s
+
+OK

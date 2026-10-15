@@ -1,0 +1,148 @@
+I retain byte-array qualification at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-j6r3imil
+test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) ... 
+  test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='local') ... FAIL
+  test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='assignment') ... FAIL
+  test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='global') ... FAIL
+  test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='return') ... FAIL
+  test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='argument') ... FAIL
+  test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='field') ... FAIL
+test_mutation_slice_and_outer_independence (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_mutation_slice_and_outer_independence) ... FAIL
+test_wrong_literal_elements_refused (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_wrong_literal_elements_refused) ... ok
+
+======================================================================
+FAIL: test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='local')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 45, in test_contextual_destinations
+    self.execute(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 40, in execute
+    self.run_checked(ROOT / "bin/nano_vm", module)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nano_vm'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-j6r3imil/local.nvm')): 1
+
+I could not execute the module: Type error
+  I64_EQ requires two integers
+
+
+======================================================================
+FAIL: test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='assignment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 45, in test_contextual_destinations
+    self.execute(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 40, in execute
+    self.run_checked(ROOT / "bin/nano_vm", module)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nano_vm'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-j6r3imil/assignment.nvm')): 1
+
+I could not execute the module: Type error
+  I64_EQ requires two integers
+
+
+======================================================================
+FAIL: test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='global')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 45, in test_contextual_destinations
+    self.execute(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 40, in execute
+    self.run_checked(ROOT / "bin/nano_vm", module)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nano_vm'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-j6r3imil/global.nvm')): 1
+
+I could not execute the module: Type error
+  I64_EQ requires two integers
+
+
+======================================================================
+FAIL: test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 45, in test_contextual_destinations
+    self.execute(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 40, in execute
+    self.run_checked(ROOT / "bin/nano_vm", module)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nano_vm'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-j6r3imil/return.nvm')): 1
+
+I could not execute the module: Type error
+  I64_EQ requires two integers
+
+
+======================================================================
+FAIL: test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='argument')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 45, in test_contextual_destinations
+    self.execute(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 40, in execute
+    self.run_checked(ROOT / "bin/nano_vm", module)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nano_vm'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-j6r3imil/argument.nvm')): 1
+
+I could not execute the module: Type error
+  Function 1 returned u8, expected int
+
+
+======================================================================
+FAIL: test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) (name='field')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 45, in test_contextual_destinations
+    self.execute(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 40, in execute
+    self.run_checked(ROOT / "bin/nano_vm", module)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nano_vm'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-j6r3imil/field.nvm')): 1
+
+I could not execute the module: Type error
+  I64_EQ requires two integers
+
+
+======================================================================
+FAIL: test_mutation_slice_and_outer_independence (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_mutation_slice_and_outer_independence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 48, in test_mutation_slice_and_outer_independence
+            self.execute("slice", """fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     let mut bytes:array<u8> = [300, 255]
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+     return 0
+     ^^^^^^^^
+    }""")
+    ^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 40, in execute
+    self.run_checked(ROOT / "bin/nano_vm", module)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_byte_arrays.py", line 29, in run_checked
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nano_vm'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-j6r3imil/slice.nvm')): 1
+
+I could not execute the module: Type error
+  I64_EQ requires two integers
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.316s
+
+FAILED (failures=7)

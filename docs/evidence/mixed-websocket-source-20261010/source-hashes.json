@@ -1,0 +1,62 @@
+[
+  {
+    "path": "Makefile.gnu",
+    "sha256": "e33bc7d41b220c8ca941d31108d9d7319e69ba7e4aa918cb129f26a5c941f6f9"
+  },
+  {
+    "path": "docs/NSI_WEBSOCKET_CATALOG.md",
+    "sha256": "bfd67e67a12e3e716db41d9651eeac7cdfd884facb51aac89dc7660c8a61b019"
+  },
+  {
+    "path": "docs/ROADMAP.md",
+    "sha256": "e114464c9ff6b5bcb42b316f33b7500015cf0c72923ce7e60582f3c17b8123aa"
+  },
+  {
+    "path": "src/nanovm/main.c",
+    "sha256": "22f917f9916ade5937efba4ad8d2ce42dab8109f7f96bcfb76d729ac2ff1fb3f"
+  },
+  {
+    "path": "src/runtime/service_policy.c",
+    "sha256": "a42d0446d797e47a72318efbda15bc4b2261e9b17d02d742083993b28d3d5452"
+  },
+  {
+    "path": "src/runtime/service_policy.h",
+    "sha256": "52b769f430f64bd762a0a6cf70d6dfc0c8db96d649449f9bd720d6a470467920"
+  },
+  {
+    "path": "src/runtime/service_product.c",
+    "sha256": "74b756f6912923c82b4db2c9b47fefdaa918c5de3b82a66e7918e2f68d3e7dcb"
+  },
+  {
+    "path": "src/runtime/service_shadows.c",
+    "sha256": "9e0d293d3ac89dfc4ac35211a844dfe364cf1b3beb8bdbeef0c3199ef960ef62"
+  },
+  {
+    "path": "src/runtime/service_shadows.h",
+    "sha256": "abae37d07245c47e2429715f4e8ec27062bcc7c2a90332d1403be84e1fc3c6ae"
+  },
+  {
+    "path": "src/service_lowering.c",
+    "sha256": "7ffd71c762c31cd5d56ff436886ed56ec0da310d4b9058c657be671e07c83bb0"
+  },
+  {
+    "path": "src_nano/compiler/service_wire.nano",
+    "sha256": "047cb9aa1d2541a22a7c0bc481e9f6071550bcbfe1484b6fcd679427bd318c42"
+  },
+  {
+    "path": "tests/nanoisa/test_mixed_websocket_flow.c",
+    "sha256": "2f0a1ceedf098749c9403b1d7725180472b17b1e31fe7d2a5693ce39927f1186"
+  },
+  {
+    "path": "tests/test_service_lowering.c",
+    "sha256": "fa2e1b93bb8b15dc09ac557e19113a6ae4ded79eef7b450d991eefe3e5a6bd01"
+  },
+  {
+    "path": "tests/test_service_shadows.c",
+    "sha256": "bd045c210106ff88d48e4a45e3426a4111ed145f0078f34f79acbe7a99b24f77"
+  },
+  {
+    "path": "tests/test_mixed_websocket_source.py",
+    "sha256": "0e94e987416377f99589be813084d1040182877013f81ce387f3cc0d598c64c6"
+  }
+]

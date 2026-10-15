@@ -1,0 +1,3 @@
+CC="/opt/homebrew/opt/llvm/bin/clang"  -m unittest tests.test_services_values -v
+bash: line 1: -m: command not found
+make: *** [test-services-values] Error 127

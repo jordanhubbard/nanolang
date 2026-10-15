@@ -1,0 +1,24 @@
+--- a/src/nanovm/vm.c
++++ b/src/nanovm/vm.c
+@@ -1170,10 +1170,12 @@
+     return vm->stack_size >= base && vm->stack_size - base >= count;
+ }
+ 
++static uint64_t diagnostic_function_counts[65536];
+ static inline void profile_instruction(VmState *vm, uint8_t opcode) {
+     VmProfile *p = &vm->profile;
+     if (!p->enabled) return;
+ 
++    if (vm->module == vm->root_module && vm->current_fn < 65536) diagnostic_function_counts[vm->current_fn]++;
+     p->retired++;
+     p->opcode_counts[opcode]++;
+     if (p->has_previous) {
+@@ -1217,6 +1219,8 @@
+ 
+ bool vm_profile_write_json(const VmState *vm, FILE *out) {
+     if (!vm || !out) return false;
++    for (uint32_t i=0;i<vm->root_module->function_count && i<65536;i++)
++        if(diagnostic_function_counts[i]) fprintf(stderr,"FNCOUNT\t%llu\t%s\n",(unsigned long long)diagnostic_function_counts[i],nvm_get_string(vm->root_module,vm->root_module->functions[i].name_idx));
+     const VmProfile *p = &vm->profile;
+     fprintf(out, "{\n  \"schema\": \"nanoisa.profile.v1\",\n");
+     fprintf(out, "  \"retired\": %llu,\n", (unsigned long long)p->retired);

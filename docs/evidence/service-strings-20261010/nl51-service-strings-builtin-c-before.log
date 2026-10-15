@@ -1,0 +1,4 @@
+exit=-6
+STATUS 0 FUNCTIONS 1 SHADOWS 0 FACTS 4
+I have not resolved File service declarations for this consumer.
+Assertion failed: (row), function main, file test_service_bodies.c, line 35.

@@ -1,0 +1,11 @@
+{
+  "src/nanoisa/nvm2c.c": "89e780f0ca4e4ba9bd6ec80333dfb555f24e43d01ea8c0772659aae5a3379458",
+  "src_nano/compiler/nanoisa_codegen.nano": "6214ca802361eff67adc272c86c9624e12076b53cb289e330cec84f55d385125",
+  "tests/test_selfhost_sqlite_artifacts.py": "11be7c4d68c36d63661a2949f963eaab07cc6e8328aad0401495d67cbe17a39b",
+  "Makefile.gnu": "877b09033e516f605331aa46c0ca7f1e7603a666ccab6bcd523399d3b0125731",
+  "tests/test_bootstrap_components.py": "6875c319597006e632a8f7498644f2c2e2a11323497fa2eed7b16ae3ec115ec7",
+  "tests/bootstrap_native_guard.py": "729032d95246dd1dde89684d874b792b159756422724b1e09483673ad86f79da",
+  "scripts/bootstrap_nanoisa.py": "bd5cb4708333a5e642b0e4299b55b4c8e79635924ada1914d95075fe56503c8b",
+  "tests/test_bootstrap_native_guard.py": "444b31546aec3e70998b1aff45f6939ae55390837c1dd33b3ea852af4b8dca93",
+  ".github/workflows/ci.yml": "cbc6e4710880e7b637f977943ddcafddda698424d64d2b93e89240317c4d86f7"
+}

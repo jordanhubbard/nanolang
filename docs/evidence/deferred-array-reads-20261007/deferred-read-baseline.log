@@ -1,0 +1,8 @@
+case 1: exit 1: I cannot translate '/tmp/nanolang-5.1-20261007/deferred-read-1.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained int destination at nodes 12/56 (conversion 1/22)
+case 2: exit 1: I cannot translate '/tmp/nanolang-5.1-20261007/deferred-read-2.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained int destination at nodes 12/56 (conversion 1/22)
+case 3: exit 1: I cannot translate '/tmp/nanolang-5.1-20261007/deferred-read-3.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained bool destination at nodes 12/56 (conversion 1/22)
+case 4: exit 1: I cannot translate '/tmp/nanolang-5.1-20261007/deferred-read-4.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained bool destination at nodes 12/56 (conversion 1/22)
+case 5: exit 1: I cannot translate '/tmp/nanolang-5.1-20261007/deferred-read-5.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 12/56
+case 6: exit 1: I cannot translate '/tmp/nanolang-5.1-20261007/deferred-read-6.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 12/56
+case 7: exit 1: I cannot translate '/tmp/nanolang-5.1-20261007/deferred-read-7.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained string destination at nodes 12/56 (conversion 1/22)
+case 8: exit 1: I cannot translate '/tmp/nanolang-5.1-20261007/deferred-read-8.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained string destination at nodes 12/56 (conversion 1/22)

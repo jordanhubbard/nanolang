@@ -1,0 +1,86 @@
+{
+  "completed": 1140,
+  "failures": 0,
+  "row_tests": [
+    {
+      "event": "shadow-complete",
+      "name": "token_arrow",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/parser.nano",
+      "line": 680,
+      "elapsed_seconds": 7.8e-05,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "token_larrow",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/parser.nano",
+      "line": 765,
+      "elapsed_seconds": 7.7e-05,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "parse_row_type_string",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/parser.nano",
+      "line": 995,
+      "elapsed_seconds": 0.004523,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "parser_row_field_types",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/parser.nano",
+      "line": 1024,
+      "elapsed_seconds": 0.004701,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "parser_expect_match_arrow",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/parser.nano",
+      "line": 2540,
+      "elapsed_seconds": 0.000394,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "scalar_borrow_shape",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 6307,
+      "elapsed_seconds": 0.002333,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "tc_effect_row_known",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 7323,
+      "elapsed_seconds": 0.008704,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nanoisa_borrow_error",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+      "line": 66,
+      "elapsed_seconds": 0.000144,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nanoisa_has_borrows",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+      "line": 3177,
+      "elapsed_seconds": 0.033058,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nanoisa_borrow_emit",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+      "line": 3201,
+      "elapsed_seconds": 0.041912,
+      "failures": 0
+    }
+  ]
+}

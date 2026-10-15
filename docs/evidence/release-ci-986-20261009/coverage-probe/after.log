@@ -1,0 +1,6 @@
+test_real_emitter_driver_executes_in_vm_and_sanitized_native (tests.test_bootstrap_components.BootstrapComponents.test_real_emitter_driver_executes_in_vm_and_sanitized_native) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 45.982s
+
+OK

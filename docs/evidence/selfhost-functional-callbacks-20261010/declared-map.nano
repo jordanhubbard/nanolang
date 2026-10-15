@@ -1,0 +1,4 @@
+fn map(xs:array<int>,value:int)->int{return value}
+shadow map {assert true}
+fn main()->int{assert (== (map [1] 7) 7) return 0}
+shadow main {assert (== (main) 0)}

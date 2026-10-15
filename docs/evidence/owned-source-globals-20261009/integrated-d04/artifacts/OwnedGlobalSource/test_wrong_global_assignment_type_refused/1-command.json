@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/Users/jordanh/Src/nanolang/bin/nano_virt",
+    "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_wrong_global_assignment_type_refused/main.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_wrong_global_assignment_type_refused/main.nvm"
+  ],
+  "exit": 1
+}

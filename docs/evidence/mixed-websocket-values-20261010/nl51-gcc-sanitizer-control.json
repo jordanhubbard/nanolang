@@ -1,0 +1,24 @@
+[
+  {
+    "name": "build",
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nl51-gcc-sanitizer-control.c",
+      "-o",
+      "/private/tmp/nl51-gcc-sanitizer-control"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "run",
+    "command": [
+      "/private/tmp/nl51-gcc-sanitizer-control"
+    ],
+    "timeout": 10,
+    "stdout": "I entered main\n",
+    "stderr": "==29748==AddressSanitizer: libc interceptors initialized\n|| `[0x107000020000, 0x7fffffffffff]` || HighMem    ||\n|| `[0x027e00024000, 0x10700001ffff]` || HighShadow ||\n|| `[0x007e00024000, 0x027e00023fff]` || ShadowGap  ||\n|| `[0x007000020000, 0x007e00023fff]` || LowShadow  ||\n|| `[0x000000000000, 0x00700001ffff]` || LowMem     ||\nMemToShadow(shadow): 0x007e00024000 0x007fc00247ff 0x00bfc0024800 0x027e00023fff\nredzone=16\nmax_redzone=2048\nquarantine_size_mb=256M\nthread_local_quarantine_size_kb=1024K\nmalloc_context_size=30\nSHADOW_SCALE: 3\nSHADOW_GRANULARITY: 8\nSHADOW_OFFSET: 0x007000020000\n==29748==Installed the sigaction for signal 11\n==29748==Installed the sigaction for signal 10\n==29748==Installed the sigaction for signal 8\n==29748==T0: stack [0x00016c9dc000,0x00016d1d8000) size 0x7fc000; local=0x00016d1d302c\n==29748==AddressSanitizer Init done\n==29748==LeakSanitizer: checking for leaks\n"
+  }
+]

@@ -1,0 +1,3 @@
+I have not resolved File service declarations for this consumer.
+STATUS 0 FUNCTIONS 3 SHADOWS 0 FACTS 4
+Assertion failed: (check->status==(unsigned)atoi(argv[2])), function main, file test_service_ownership.c, line 45.

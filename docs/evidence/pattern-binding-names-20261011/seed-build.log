@@ -1,0 +1,31 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2933, column 9: Unused variable 'rejected'
+Warning at line 3231, column 9: Unused variable 'rejected'
+Warning at line 3235, column 9: Unused variable 'rejected'
+Warning at line 3239, column 9: Unused variable 'rejected'
+Warning at line 3243, column 9: Unused variable 'rejected'
+Warning at line 3250, column 13: Unused variable 'rejected'
+Warning at line 3399, column 9: Unused variable 'rejected'
+Warning at line 3403, column 9: Unused variable 'rejected'
+Warning at line 3410, column 13: Unused variable 'rejected'
+Warning at line 7418, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2933, column 9: Unused variable 'rejected'
+Warning at line 3231, column 9: Unused variable 'rejected'
+Warning at line 3235, column 9: Unused variable 'rejected'
+Warning at line 3239, column 9: Unused variable 'rejected'
+Warning at line 3243, column 9: Unused variable 'rejected'
+Warning at line 3250, column 13: Unused variable 'rejected'
+Warning at line 3399, column 9: Unused variable 'rejected'
+Warning at line 3403, column 9: Unused variable 'rejected'
+Warning at line 3410, column 13: Unused variable 'rejected'
+Warning at line 7418, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+  Shadow test 'nisa_emit_match_cases' FAILED: 2 failure(s)
+  First failure at line 2129, column 5
+  Shadow test 'nisa_emit_for' FAILED: 2 failure(s)
+  First failure at line 6205, column 5
+I will not publish output after failed shadow execution.
+Shadow tests failed

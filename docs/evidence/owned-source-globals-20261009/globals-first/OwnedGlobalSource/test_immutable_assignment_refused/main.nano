@@ -1,0 +1,12 @@
+
+resource struct Handle { fd: int }
+let counter: int = 0
+
+fn main() -> int {
+    let handle: Handle = Handle { fd: 7 }
+    let Handle { fd } = handle
+    assert (== fd 7)
+    set counter 1
+    return 0
+}
+shadow main { assert (== (main) 0) }

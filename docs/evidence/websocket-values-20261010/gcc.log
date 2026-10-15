@@ -1,0 +1,11 @@
+/opt/homebrew/bin/gcc-16 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -Wall -Wextra -Werror tests/test_nsi_websocket_values.c -o /private/tmp/nl51-websocket-values-gcc-obj/test_nsi_websocket_values -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+NANO_WEBSOCKET_CC="/opt/homebrew/bin/gcc-16" NANO_WEBSOCKET_CFLAGS="-Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include" python3 -m unittest -v tests.test_websocket_values
+test_close_consumes_invalid_deadline (tests.test_websocket_values.WebSocketValues.test_close_consumes_invalid_deadline) ... ok
+test_finish_reclaims_borrowed_connection (tests.test_websocket_values.WebSocketValues.test_finish_reclaims_borrowed_connection) ... ok
+test_finish_reclaims_unhandled_connect_result (tests.test_websocket_values.WebSocketValues.test_finish_reclaims_unhandled_connect_result) ... ok
+test_move_borrow_counted_message_and_close (tests.test_websocket_values.WebSocketValues.test_move_borrow_counted_message_and_close) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.396s
+
+OK

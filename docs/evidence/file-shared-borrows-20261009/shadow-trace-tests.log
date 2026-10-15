@@ -1,0 +1,7 @@
+test_selected_shadow_trace_is_opt_in (tests.test_bytecode_shadows.BytecodeShadows.test_selected_shadow_trace_is_opt_in) ... ok
+test_selected_shadow_trace_retains_timeout_target (tests.test_bytecode_shadows.BytecodeShadows.test_selected_shadow_trace_retains_timeout_target) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.518s
+
+OK

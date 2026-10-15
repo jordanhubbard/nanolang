@@ -1,0 +1,83 @@
+--- a/src/nanovirt/codegen.c
++++ b/src/nanovirt/codegen.c
+@@ -78,6 +78,7 @@
+     char *name;
+     uint32_t fn_idx;
+     ASTNode *body; /* I identify a source function independently of its short name. */
++    bool module_intrinsic;
+ } FnEntry;
+ 
+ typedef struct {
+@@ -701,7 +702,25 @@
+         if (param_count != intrinsic_arity || return_tag != intrinsic_result ||
+             (intrinsic_arity && (!param_tags || param_tags[0] != TAG_INT)))
+             cg_error(cg, 0, "I require the declared module introspection signature");
+-        /* These declarations lower to module facts, not external host calls. */
++        if (cg->had_error || fn_find(cg, name) >= 0) return;
++        if (cg->fn_count >= MAX_FUNCTIONS) {
++            cg_error(cg, 0, "I cannot register another module introspection function");
++            return;
++        }
++        NvmFunctionEntry function = {0};
++        function.name_idx = nvm_add_string(cg->module, name, (uint32_t)strlen(name));
++        function.arity = intrinsic_arity;
++        function.result_tag = intrinsic_result;
++        function.result_count = 1;
++        uint32_t index = nvm_add_function(cg->module, &function);
++        if (!nvm_set_function_param_types(cg->module, index, param_tags, intrinsic_arity)) {
++            cg_error(cg, 0, "I could not retain module introspection parameter types");
++            return;
++        }
++        FnEntry *entry = &cg->functions[cg->fn_count++];
++        entry->name = (char *)name;
++        entry->fn_idx = index;
++        entry->module_intrinsic = true;
+         return;
+     }
+     if (param_count > NANO_MAX_FFI_ARGS) {
+@@ -4966,6 +4985,33 @@
+         }
+     }
+ 
++    /* I give metadata declarations ordinary bodies for direct and indirect calls. */
++    for (int i = 0; i < cg.fn_count && !cg.had_error; ++i) {
++        FnEntry *function = &cg.functions[i];
++        if (!function->module_intrinsic) continue;
++        uint32_t index = function->fn_idx;
++        cg.code_size = 0;
++        cg.local_count = 0;
++        cg.local_binding_count = 0;
++        cg.names_enabled = false;
++        cg.current_fn_idx = index;
++        cg.param_count = cg.module->functions[index].arity;
++        if (cg.param_count) {
++            uint16_t slot = local_add(&cg, "", 0);
++            emit_op(&cg, OP_LOAD_LOCAL, (int)slot);
++        }
++        if (!compile_module_introspection(&cg, function->name)) {
++            cg_error(&cg, 0, "I require a known module introspection operation");
++            break;
++        }
++        emit_op(&cg, OP_RET);
++        if (cg.had_error) break;
++        uint32_t offset = nvm_append_code(cg.module, cg.code, cg.code_size);
++        cg.module->functions[index].code_offset = offset;
++        cg.module->functions[index].code_length = cg.code_size;
++        cg.module->functions[index].local_count = cg.local_count;
++    }
++
+     /* ── Pass 1.5: Compile top-level let bindings as globals ─────── */
+     if (cg.global_count > 0) {
+         /* Create an __init__ function to initialize globals */
+--- a/src/module.c
++++ b/src/module.c
+@@ -691,6 +691,9 @@
+             return NULL;
+         }
+     }
++    /* I retain the same physical source under its declared introspection name. */
++    if (identity && strcmp(identity, module_name) != 0)
++        env_register_module(env, identity, module_path, false);
+     free(identity);
+     /* Register module for introspection BEFORE type checking so functions can be tracked */
+     env_register_module(env, module_name, module_path, false);  /* is_unsafe will be updated later */

@@ -30,7 +30,8 @@ class SanitizerDriver(unittest.TestCase):
              patch.object(driver.subprocess, "check_output", return_value="___asan_init\n___ubsan_handle_type_mismatch_v1\n") as nm:
             self.assertEqual(driver.run_sanitizers("make", "cc"), 0)
             self.assertEqual(driver.run_sanitizers("make", "cc"), 0)
-            self.assertEqual(nm.call_count, 4)
+            self.assertEqual(nm.call_count, 6)
+            self.assertTrue(any("nvm2c_callables.o" in str(call) for call in nm.call_args_list))
         self.assertNotEqual(roots[0], roots[1])
         self.assertTrue(all(not root.exists() for root in roots))
 

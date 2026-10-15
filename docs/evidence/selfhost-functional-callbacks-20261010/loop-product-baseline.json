@@ -1,0 +1,18 @@
+[
+  {
+    "producer": "before",
+    "compiler": "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+    "exit": 1,
+    "prior_preserved": true,
+    "stdout": "NSType checking failed\nDiagnostics:\n  [E0001] Return value of select: I expected a value of type `fn(int)->int`, but found `int`. (/private/tmp/nl51-selfhost-functional/test_iteration_value_survives_mutation_and_return.nano:10:1)\n",
+    "stderr": ""
+  },
+  {
+    "producer": "current-seed",
+    "compiler": "/private/tmp/nl51-functional-product-xe9nvqzw/nano-selfhost-native-product-j8qbijou/seed",
+    "exit": 1,
+    "prior_preserved": true,
+    "stdout": "NSType checking failed\nDiagnostics:\n  [E0001] Return value of select: I expected a value of type `fn(int)->int`, but found `int`. (/private/tmp/nl51-selfhost-functional/test_iteration_value_survives_mutation_and_return.nano:10:1)\n",
+    "stderr": ""
+  }
+]

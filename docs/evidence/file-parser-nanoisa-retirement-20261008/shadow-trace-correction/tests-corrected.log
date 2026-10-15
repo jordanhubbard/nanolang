@@ -1,0 +1,14 @@
+test_bound_duplicate_names_and_internal_calls (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_bound_duplicate_names_and_internal_calls) ... ok
+test_marker_refuses_invalid_names_and_context (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_marker_refuses_invalid_names_and_context) ... ok
+test_order_shared_globals_local_scopes_and_callable_main (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_order_shared_globals_local_scopes_and_callable_main) ... ok
+test_reachable_unsupported_shadow_refused (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_reachable_unsupported_shadow_refused) ... ok
+test_suffix_and_empty_selection_keep_initialization (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_suffix_and_empty_selection_keep_initialization) ... ok
+test_synthetic_names_do_not_capture_user_functions (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_synthetic_names_do_not_capture_user_functions) ... ok
+test_trace_reaches_owned_shadow_bodies (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_trace_reaches_owned_shadow_bodies) ... ok
+test_trace_reports_only_reached_selected_shadows (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_trace_reports_only_reached_selected_shadows) ... ok
+test_unused_float_function_still_runs_selected_shadow (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_unused_float_function_still_runs_selected_shadow) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 79.621s
+
+OK

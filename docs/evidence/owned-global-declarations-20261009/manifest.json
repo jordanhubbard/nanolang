@@ -1,0 +1,27 @@
+{
+  "base": "ec005df2d29c3e288a1e5bdb7766e03c1a324a4d",
+  "source_sha256": {
+    "src/nanoisa/ownership_contracts.h": "400ede9ea5c0778363dbeb5e5cbde682dbcf688417a2143a13f73b0c11fe33ca",
+    "src/nanoisa/ownership_contracts.c": "deee022c581486b11d97a66567676371004adfc5ccd74a6948909d3613740d9e",
+    "src/nanoisa/affine_state.c": "1aec3c06f692e503539533d5217dabbeb0399c70ef1a14d2a33207c2a8273034",
+    "tests/nanoisa/test_ownership_contracts.c": "97d850ba2e7ba267393391829c57bdbf082885d0db90ad22e7c9983853a89778"
+  },
+  "terminal_status": {
+    "gate": 2,
+    "corrected": 0,
+    "adjacent": 2,
+    "adjacent-corrected": 0,
+    "final": 0
+  },
+  "contract_checks": 557,
+  "limitations": [
+    "Declarations only; no global execution admission",
+    "Full source once-only counter test remains open",
+    "Self-hosted and final Linux/Darwin candidate gates remain open"
+  ],
+  "initial_failures": [
+    "Global fixture mistakenly declared one function local while its metadata declared none; corrected fixture keeps zero locals",
+    "Unknown-extension controls now use kind4 because kind3 is declared GLOBALS",
+    "First adjacent invocation used nonexistent test-private-declaration-projection; corrected to existing test-ownership-declaration-projection"
+  ]
+}

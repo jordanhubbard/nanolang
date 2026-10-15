@@ -1,0 +1,25 @@
+fallback compile exit 0 preserved False
+
+fallback execution exit 0
+override compile exit 0 preserved False
+
+override execution exit 0
+missing compile exit 1 preserved True
+I could not compile translated C to native output
+I could not publish the requested product: 
+Undefined symbols for architecture arm64:
+  "_llvm_gcda_emit_arcs", referenced from:
+      ___llvm_gcov_writeout in nano_aot_runtime.o
+  "_llvm_gcda_emit_function", referenced from:
+      ___llvm_gcov_writeout in nano_aot_runtime.o
+  "_llvm_gcda_end_file", referenced from:
+      ___llvm_gcov_writeout in nano_aot_runtime.o
+  "_llvm_gcda_start_file", referenced from:
+      ___llvm_gcov_writeout in nano_aot_runtime.o
+  "_llvm_gcda_summary_info", referenced from:
+      ___llvm_gcov_writeout in nano_aot_runtime.o
+  "_llvm_gcov_init", referenced from:
+      ___llvm_gcov_init in nano_aot_runtime.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+

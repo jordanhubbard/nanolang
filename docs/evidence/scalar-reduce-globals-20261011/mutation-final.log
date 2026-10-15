@@ -1,0 +1,7 @@
+test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ikg5ipbt
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 11.116s
+
+OK

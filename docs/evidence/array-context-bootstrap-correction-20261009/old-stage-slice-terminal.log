@@ -1,0 +1,72 @@
+I retain source, logs and generated artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-_t5dahrh
+test_arguments_are_evaluated_once (tests.test_selfhost_native_array_slice.NativeArraySlice.test_arguments_are_evaluated_once) ... ok
+test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) ... 
+  test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) (native='gcc', producer='nano_virt') ... ERROR
+  test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) (producer='nanoc_stage1') ... FAIL
+  test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) (producer='nanoc_stage2') ... FAIL
+test_generated_native_null_boundary (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_native_null_boundary) ... ok
+test_source_and_normal_shadows (tests.test_selfhost_native_array_slice.NativeArraySlice.test_source_and_normal_shadows) ... ok
+
+======================================================================
+ERROR: test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) (native='gcc', producer='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 140, in test_generated_helper_all_kinds_and_bits
+    self.command(NVM2C, module, '-o', generated)
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 66, in command
+    p = subprocess.run(list(map(str, args)), cwd=ROOT, capture_output=True,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       text=True, timeout=900, env=env)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1221, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 2154, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1268, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-_t5dahrh/all-kinds-nano_virt-gcc']' timed out after 900 seconds
+
+======================================================================
+FAIL: test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) (producer='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 129, in test_generated_helper_all_kinds_and_bits
+    source = ROOT / 'tests/nanoisa/fixtures/array_slice_all_kinds.nano.txt'
+            ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 71, in command
+    raise AssertionError(f'{args}: {p.returncode}\n{p.stdout}\n{p.stderr}')
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-_t5dahrh/all-kinds.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-_t5dahrh/all-kinds-nanoc_stage1.nvm')): 1
+NSType checking failed
+Diagnostics:
+  [E0001] Variable bytes: I expected a value of type `array<u8>`, but found `array<int>`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-_t5dahrh/all-kinds.nano:16:5)
+
+
+
+======================================================================
+FAIL: test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) (producer='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 129, in test_generated_helper_all_kinds_and_bits
+    source = ROOT / 'tests/nanoisa/fixtures/array_slice_all_kinds.nano.txt'
+            ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 71, in command
+    raise AssertionError(f'{args}: {p.returncode}\n{p.stdout}\n{p.stderr}')
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-_t5dahrh/all-kinds.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-_t5dahrh/all-kinds-nanoc_stage2.nvm')): 1
+NSType checking failed
+Diagnostics:
+  [E0001] Variable bytes: I expected a value of type `array<u8>`, but found `array<int>`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-_t5dahrh/all-kinds.nano:16:5)
+
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 913.213s
+
+FAILED (failures=2, errors=1)

@@ -1,0 +1,2 @@
+union Choice { Some { number: int }, None {} }
+fn main() -> int { return match Choice.Some { number: 1 } { Some(p) if (> p.number 0) => p.number None(n) => 0 } } shadow main { assert true }

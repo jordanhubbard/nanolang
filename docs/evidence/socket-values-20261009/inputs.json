@@ -1,0 +1,21 @@
+{
+  "src/nsi_socket_values.c": "2718e6c30a955bfe8a060cb3ff4b1ac7bac4616f661e947ebc71a3f06ddf2e50",
+  "src/nsi_socket_values.h": "3dc1e8351d1f94884484ec0a12798471f6f634f464a0a000169fcb0a6e348a1f",
+  "src/nsi_socket.c": "d16949e6926b868b3015ae919bcfcce91cddf09d9c1d15c9bac03afc985302a4",
+  "src/nsi_socket.h": "e2803071f326bf32c1f66d2ad7706184dc3fda9cfe85723b00fd56e55607fa71",
+  "src/nsi_cap.c": "a94dfd27cce4a112d018d541c32ca5cc41927efb0dd7b622b84ef2e787abc353",
+  "src/nsi_cap.h": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+  "src/nsi_cap_private.h": "63d678efc51176823a3c9ddfabddabd9ba5b25232d9e451e77d442f1a25a8fc5",
+  "src/nsi_file_values.c": "13b505b04ec37ae78380c5633ed00f48c601ec9f855f1e23293c5fdc53da9fa2",
+  "src/nsi_file_values.h": "e9859db60cfa1fa352e96244cc3fc6dd026f7eabe7a0972b67a49f6e32fd3bf1",
+  "src/nsi_file.c": "87b11bff744dc0cda8b8d6341917543df106717e0d4e7b3163d189dc8c0a88de",
+  "src/nsi_file.h": "4b76d8e23f366ee5311ffcc2bc38f183a71df5d3318459cb76292898e706613f",
+  "tests/test_nsi_socket_values.c": "6949af4ac2285a762ead8f8ddaca578cee273b418d146743e20a720974003148",
+  "tests/test_nsi_socket_values_linked.c": "eed662098ca35abc4506a35e1191443647efb98bec6fc7ff0d506e3213aae6dd",
+  "tests/socket_values_cases.h": "656d97e55c158d2e2d089930ce33310c430f5a6a03fc2c4e6ab98511b5a23152",
+  "tests/test_nsi_socket.c": "7bd9a88e7695a9f8e0e202c7211afdd6609f79e1401bf72f1f6bb9796963c13c",
+  "tests/test_nsi_socket_linked.c": "535da479fd089329d562c7ff881443d8008f60ea78030ca7d6fa11c0e3d67ac5",
+  "tests/socket_tcp_faults.h": "167eae80ffd4dc3f124730ac9eec2a87259bbd5b6e5a895101dc377a92b3337f",
+  "tests/socket_tcp_fixture.h": "a9577093bf70190f74aa00358f645b132cb132b181feec4fdd2ab3e49ec08e9b",
+  "Makefile.gnu": "af3aba97099d6ffe4dc98f93f6890e58979fbdfb082aa23af2d1bd27b5430a8a"
+}

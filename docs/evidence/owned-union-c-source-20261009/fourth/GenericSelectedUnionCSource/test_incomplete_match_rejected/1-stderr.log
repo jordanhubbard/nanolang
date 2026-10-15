@@ -1,0 +1,18 @@
+-- E035 NON-EXHAUSTIVE MATCH --- /private/tmp/nanolang-owned-union-c-source-fourth/GenericSelectedUnionCSource/test_incomplete_match_rejected/main.nano
+I require this match to cover every variant; I am missing: Err
+
+6| fn consume(value: Result<Handle,string>) -> int { match value { Ok(payload) => { let Result.Ok { value } = payload return (close_handle value) } } }
+                                                     ^^^^^
+Hint: Add unconditional arms for the missing variants or one unconditional wildcard.
+I cannot verify affine ownership at line 6, column 51: I require an exhaustive unguarded owned match with supported concrete payloads
+I cannot verify affine ownership at line 6, column 82: this control-flow boundary needs ownership lowering — __owned$109
+I cannot verify affine ownership at line 6, column 82: this control-flow boundary needs ownership lowering — value
+I cannot verify affine ownership at line 6, column 82: this control-flow boundary needs ownership lowering — __owned$109
+I cannot verify affine ownership at line 6, column 82: this control-flow boundary needs ownership lowering — value
+I cannot verify affine ownership at line 6, column 108: this boundary needs ownership lowering — payload
+I cannot verify affine ownership at line 6, column 82: this control-flow boundary needs ownership lowering — __owned$109
+I cannot verify affine ownership at line 6, column 82: this control-flow boundary needs ownership lowering — value
+I cannot verify affine ownership at line 6, column 137: this boundary needs ownership lowering — value
+I cannot verify affine ownership at line 6, column 116: resource remains live at scope exit — value
+Warning: Function 'consume' is missing a shadow test
+error: type check failed

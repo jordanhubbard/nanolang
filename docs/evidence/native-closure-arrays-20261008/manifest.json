@@ -1,0 +1,52 @@
+[
+  {
+    "name": "assemble",
+    "command": [
+      "bin/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-closure-array-baseline-20261008/input.nasm",
+      "-o",
+      "/private/tmp/nanolang-closure-array-baseline-20261008/input.nvm"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "vm",
+    "command": [
+      "bin/nano_vm",
+      "/private/tmp/nanolang-closure-array-baseline-20261008/input.nvm"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "translate",
+    "command": [
+      "bin/nvm2c",
+      "/private/tmp/nanolang-closure-array-baseline-20261008/input.nvm",
+      "-o",
+      "/private/tmp/nanolang-closure-array-baseline-20261008/input.c"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-closure-array-baseline-20261008/input.c",
+      "-o",
+      "/private/tmp/nanolang-closure-array-baseline-20261008/program"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "native",
+    "command": [
+      "/private/tmp/nanolang-closure-array-baseline-20261008/program"
+    ],
+    "exit_code": -6
+  }
+]

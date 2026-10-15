@@ -1,0 +1,58 @@
+['/private/tmp/nanolang-list-free-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-8w7wknx2/free-record-alias.nano', 'program']
+.types 1 0 0
+.entry 0
+
+.string s0 "retained"
+.string s1 "-child"
+.string s2 "retained-child"
+
+.function main 0 3 0 int 1
+  ARR_NEW 8
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  PUSH_I64 7
+  PUSH_STR s0
+  PUSH_STR s1
+  STR_CONCAT
+  AGG_PACK 0 0 0 2
+  ARR_PUSH
+  POP
+  LOAD_LOCAL 0
+  STORE_LOCAL 1
+  LOAD_LOCAL 0
+  POP
+  PUSH_VOID
+  STORE_LOCAL 0
+  LOAD_LOCAL 1
+  ARR_LEN
+  PUSH_I64 1
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 1
+  PUSH_I64 0
+  ARR_GET
+  STORE_LOCAL 2
+  LOAD_LOCAL 2
+  AGG_GET 0
+  PUSH_I64 7
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 2
+  AGG_GET 1
+  PUSH_STR s2
+  EQ
+  ASSERT
+  LOAD_LOCAL 1
+  POP
+  PUSH_VOID
+  STORE_LOCAL 1
+  LOAD_LOCAL 2
+  AGG_GET 1
+  PUSH_STR s2
+  EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.end
+
+

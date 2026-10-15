@@ -1,0 +1,70 @@
+{
+  "command": [
+    "make",
+    "-j2",
+    "test-affine-bytecode",
+    "test-affine-state",
+    "test-ownership-contracts",
+    "test-owned-union-runtime",
+    "test-ownership-declaration-projection",
+    "test-consuming-calls",
+    "test-multiple-consuming-calls",
+    "CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "exit_code": 0,
+  "seconds": 14.491149250010494,
+  "base": "d95d62633bf356cd5f0be802b55db48bc6cc8521",
+  "before": {
+    "src/nanoisa/affine_bytecode.c": "8792662d9e459ed3028907a873c441d45a3f2aac07a1741bc617766b6cef865e",
+    "src/nanoisa/affine_bytecode.h": "c72c7df5ccae587208357f241c84f8e22243a05d40a97d0a6d5862fda8a9bfab",
+    "src/nanoisa/affine_state.c": "06037ef5aef589b35926cff1ba791d273cfdf37a854de65d5cd05cc430bddcea",
+    "src/nanoisa/verifier.c": "eac473993892c94f3cdf52d158d7486deb1011f6c6a05f284322509651bbd5e3",
+    "tests/nanoisa/test_affine_bytecode.c": "d5b990e06271b4f4779cfd8aa840776414859994073b112de7a03845d25f48b8",
+    "tests/nanoisa/test_affine_globals.inc": "34c96169fcc87b4d64f0e385d9db3d8e1c48969dd2d1acffd9e4845dcdb7e1ad",
+    "tests/nanoisa/test_ownership_contracts.c": "88708c08ffe92fe3178c9fe67549b6bf68d3335c416b066566a4d14e36da0341"
+  },
+  "after": {
+    "src/nanoisa/affine_bytecode.c": "8792662d9e459ed3028907a873c441d45a3f2aac07a1741bc617766b6cef865e",
+    "src/nanoisa/affine_bytecode.h": "c72c7df5ccae587208357f241c84f8e22243a05d40a97d0a6d5862fda8a9bfab",
+    "src/nanoisa/affine_state.c": "06037ef5aef589b35926cff1ba791d273cfdf37a854de65d5cd05cc430bddcea",
+    "src/nanoisa/verifier.c": "eac473993892c94f3cdf52d158d7486deb1011f6c6a05f284322509651bbd5e3",
+    "tests/nanoisa/test_affine_bytecode.c": "d5b990e06271b4f4779cfd8aa840776414859994073b112de7a03845d25f48b8",
+    "tests/nanoisa/test_affine_globals.inc": "34c96169fcc87b4d64f0e385d9db3d8e1c48969dd2d1acffd9e4845dcdb7e1ad",
+    "tests/nanoisa/test_ownership_contracts.c": "88708c08ffe92fe3178c9fe67549b6bf68d3335c416b066566a4d14e36da0341"
+  },
+  "unchanged": true,
+  "earlier_runs": {
+    "first": {
+      "exit_code": 0,
+      "scope": "Initial global-flow cases and ownership transport"
+    },
+    "expanded": {
+      "exit_code": 2,
+      "cause": "New union fixture used AGG_PACK kind2 (tuple), corrected to existing AGG_VARIANT kind1 without changing its acceptance assertions"
+    },
+    "qualified": {
+      "exit_code": 0,
+      "scope": "Expanded union/call/allocator controls before final unreachable-global-index check"
+    }
+  },
+  "counts": {
+    "bytecode": 1150,
+    "bytecode_allocation": 1787,
+    "ownership_contracts": 558,
+    "affine_state": [
+      413,
+      445
+    ],
+    "union_runtime": 2380,
+    "union_vm_allocation": 96,
+    "consuming_calls": 3091,
+    "multiple_consuming_calls": 4542,
+    "multiple_publication_refusals": 65
+  },
+  "limitations": [
+    "Global runtime admission remains refused",
+    "Source once-only scrutinee counter remains required and unresolved",
+    "Record/resource globals require explicit transfers and lifetime",
+    "Both source frontends and final Linux/Darwin release gates remain open"
+  ]
+}

@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0005] Cannot assign to `counter` because it was declared immutable. (/private/tmp/nanolang-selfhost-union-fresh-installed/installed/OwnedGlobalsStage1/test_immutable_assignment_refused/main.nano:9:5)

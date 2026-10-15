@@ -1,0 +1,29 @@
+bin/nano_virt qualified_string_array PASS
+bin/nano_virt selective_string_array PASS
+bin/nano_virt qualified_map FAIL 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-lyz79r5w/main.nano
+I cannot accept this map call: Cannot infer HashMap<K,V> type arguments.
+
+2| fn main()->int{(map_put first.values "key" "kept") assert (== (map_get first.values "key") "kept") return 0}
+                  ^
+Hint: Match the map operation arity and declared key/value types.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-lyz79r5w/main.nano
+I cannot accept this map call: Cannot infer HashMap<K,V> type arguments.
+
+2| fn main()->int{(map_put first.values "key" "kept") assert (== (map_get first.values "key") "kept") return 0}
+                                                                 ^
+Hint: Match the map operation arity and declared key/value types.
+error: type check failed
+
+bin/nano_virt selective_map PASS
+bin/nano_virt qualified_record FAIL 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-xanrrzmm/main.nvm': I cannot yet store an aggregate or unresolved global in function 1 at offset 15
+
+bin/nano_virt selective_record FAIL 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-afxe0ske/main.nvm': I cannot yet store an aggregate or unresolved global in function 1 at offset 15
+
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- qualified_string_array PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- selective_string_array PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- qualified_map PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- selective_map PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- qualified_record FAIL 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-nf3yk8zm/main.nvm': I cannot yet store an aggregate or unresolved global in function 1 at offset 15
+
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- selective_record FAIL 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-eefi6mhj/main.nvm': I cannot yet store an aggregate or unresolved global in function 1 at offset 15
+

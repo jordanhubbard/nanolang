@@ -1,0 +1,158 @@
+test_branch_join_consumes_outer_owner (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_branch_join_consumes_outer_owner) ... ok
+test_conditional_constructor_return (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_conditional_constructor_return) ... ok
+test_declared_constructor_argument (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_declared_constructor_argument) ... ok
+test_declared_constructor_return (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_declared_constructor_return) ... ok
+test_declared_return_and_alias_transfer (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_declared_return_and_alias_transfer) ... ok
+test_drop_selected_field_rejected (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_drop_selected_field_rejected) ... ok
+test_drop_union_rejected (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_drop_union_rejected) ... ok
+test_duplicate_consume_rejected (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_duplicate_consume_rejected) ... ok
+test_empty_arm_has_no_obligation (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_empty_arm_has_no_obligation) ... ok
+test_guarded_generic_match_remains_rejected (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_guarded_generic_match_remains_rejected) ... ok
+test_incomplete_match_rejected (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_incomplete_match_rejected) ... ok
+test_join_mismatch_rejected (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_join_mismatch_rejected) ... ok
+test_match_constructor_return (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_match_constructor_return) ... FAIL
+test_match_then_reuse_rejected (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_match_then_reuse_rejected) ... ok
+test_nested_generic_transfer (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_nested_generic_transfer) ... ok
+test_ordinary_selected_arm_can_be_ignored (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_ordinary_selected_arm_can_be_ignored) ... ok
+test_partial_move_rejected (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_partial_move_rejected) ... ok
+test_resource_and_ordinary_selected_arms (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_resource_and_ordinary_selected_arms) ... ok
+test_resource_collection_still_rejected (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_resource_collection_still_rejected) ... ok
+test_unresolved_tuple_still_rejected (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_unresolved_tuple_still_rejected) ... ok
+test_compatible_outer_join (tests.test_owned_union_c_source.SelectedUnionCSource.test_compatible_outer_join) ... FAIL
+test_duplicate_selected_field_consumption (tests.test_owned_union_c_source.SelectedUnionCSource.test_duplicate_selected_field_consumption) ... ok
+test_guarded_owned_match_remains_rejected (tests.test_owned_union_c_source.SelectedUnionCSource.test_guarded_owned_match_remains_rejected) ... ok
+test_ignored_resource_binding (tests.test_owned_union_c_source.SelectedUnionCSource.test_ignored_resource_binding) ... ok
+test_ignored_selected_payload (tests.test_owned_union_c_source.SelectedUnionCSource.test_ignored_selected_payload) ... ok
+test_incompatible_outer_join (tests.test_owned_union_c_source.SelectedUnionCSource.test_incompatible_outer_join) ... ok
+test_loop_cannot_reconsume_outer_scrutinee (tests.test_owned_union_c_source.SelectedUnionCSource.test_loop_cannot_reconsume_outer_scrutinee) ... ok
+test_nested_resource_record (tests.test_owned_union_c_source.SelectedUnionCSource.test_nested_resource_record) ... FAIL
+test_ordinary_call_match_expression_and_statement (tests.test_owned_union_c_source.SelectedUnionCSource.test_ordinary_call_match_expression_and_statement) ... ok
+test_original_scrutinee_after_match (tests.test_owned_union_c_source.SelectedUnionCSource.test_original_scrutinee_after_match) ... ok
+test_partial_resource_field_move (tests.test_owned_union_c_source.SelectedUnionCSource.test_partial_resource_field_move) ... ok
+test_scrutinee_call_evaluates_once (tests.test_owned_union_c_source.SelectedUnionCSource.test_scrutinee_call_evaluates_once) ... FAIL
+test_two_resources_and_ordinary_sibling_arms (tests.test_owned_union_c_source.SelectedUnionCSource.test_two_resources_and_ordinary_sibling_arms) ... FAIL
+test_unresolved_selected_field (tests.test_owned_union_c_source.SelectedUnionCSource.test_unresolved_selected_field) ... ok
+test_use_payload_after_destructure (tests.test_owned_union_c_source.SelectedUnionCSource.test_use_payload_after_destructure) ... ok
+test_wildcard_cannot_hide_owned_payload (tests.test_owned_union_c_source.SelectedUnionCSource.test_wildcard_cannot_hide_owned_payload) ... ok
+
+======================================================================
+FAIL: test_match_constructor_return (tests.test_owned_union_c_source.GenericSelectedUnionCSource.test_match_constructor_return)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_generic_selected_ownership.py", line 81, in test_match_constructor_return
+            self.check(PREFIX + CONSUME + """fn rebuild(boxed: Box<Handle>) -> Result<Handle,string> {
+            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     return match boxed {
+     ^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    shadow rebuild { let owner: Handle = Handle { fd: 7 } let boxed: Box<Handle> = Box.Some { value: owner } assert (== (consume (rebuild boxed)) 7) let empty: Box<Handle> = Box.None {} assert (== (consume (rebuild empty)) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    """ + ENDING, True)
+    ^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 68, in check
+    self.source_route(source, accepted)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 43, in source_route
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 20, column 9: Unused variable 'payload'
+I could not compile shadows at line 20: I require scalar expressions in value match arms in my source borrow profile
+
+
+======================================================================
+FAIL: test_compatible_outer_join (tests.test_owned_union_c_source.SelectedUnionCSource.test_compatible_outer_join)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_selected_variant_ownership.py", line 177, in test_compatible_outer_join
+            self.program(PREFIX + '''fn consume(value: Choice, extra: Handle) -> int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     let mut total: int = 0
+     ^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''', True)
+    ^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 14, in program
+    self.source_route(source, accepted, diagnostics)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 43, in source_route
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 8, column 22: Unused variable 'label'
+Warning at line 7, column 2: Unused variable 'payload'
+I could not compile shadows at line 5: I require exact mode-zero scalar/owner or separate borrowed parameters in my source borrow profile
+
+
+======================================================================
+FAIL: test_nested_resource_record (tests.test_owned_union_c_source.SelectedUnionCSource.test_nested_resource_record)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_selected_variant_ownership.py", line 103, in test_nested_resource_record
+            self.program('''resource struct Handle { fd: int }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    struct Pair { owner: Handle, label: string }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''', True)
+    ^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 14, in program
+    self.source_route(source, accepted, diagnostics)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 43, in source_route
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 6, column 36: Unused variable 'payload'
+I could not compile shadows at line 6: I require exact mode-zero scalar/owner or separate borrowed parameters in my source borrow profile
+
+
+======================================================================
+FAIL: test_scrutinee_call_evaluates_once (tests.test_owned_union_c_source.SelectedUnionCSource.test_scrutinee_call_evaluates_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_selected_variant_ownership.py", line 132, in test_scrutinee_call_evaluates_once
+            self.program('''resource struct Handle { fd: int }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Choice { Some { owner: Handle }, None {} }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''', True)
+    ^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 14, in program
+    self.source_route(source, accepted, diagnostics)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 43, in source_route
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 6, column 23: Unused variable 'payload'
+I could not compile shadows at line 3: I require only resource records, scalar unions, main, one helper and selected shadows in my source borrow profile
+
+
+======================================================================
+FAIL: test_two_resources_and_ordinary_sibling_arms (tests.test_owned_union_c_source.SelectedUnionCSource.test_two_resources_and_ordinary_sibling_arms)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_selected_variant_ownership.py", line 53, in test_two_resources_and_ordinary_sibling_arms
+    self.check('let Choice.Some { right, label, left } = payload assert (== label "kept") return (+ (close_handle left) (close_handle right))', True)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_selected_variant_ownership.py", line 33, in check
+    self.program(source, accepted)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 14, in program
+    self.source_route(source, accepted, diagnostics)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 43, in source_route
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 5, column 36: Unused variable 'payload'
+I could not compile shadows at line 5: I require exact mode-zero scalar/owner or separate borrowed parameters in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 36 tests in 4.172s
+
+FAILED (failures=5)

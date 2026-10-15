@@ -1,0 +1,8 @@
+test_reused_aliases_and_same_basename (tests.test_selfhost_module_bindings.ModuleBindings.test_reused_aliases_and_same_basename) ... ok
+test_ambiguous_module_identity_preserves_output (tests.test_nanoisa_introspection.NanoisaIntrospection.test_ambiguous_module_identity_preserves_output) ... ok
+test_repository_metadata_programs (tests.test_nanoisa_introspection.NanoisaIntrospection.test_repository_metadata_programs) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.790s
+
+OK

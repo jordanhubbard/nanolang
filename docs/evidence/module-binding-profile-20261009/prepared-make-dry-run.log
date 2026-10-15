@@ -1,0 +1,3 @@
+for compiler in bin/nanoc_stage1 bin/nanoc_stage2; do \
+		NANOLANG_SELFHOST_COMPILER="$compiler" python3 -m unittest -v tests.test_selfhost_module_bindings || exit $?; \
+	done

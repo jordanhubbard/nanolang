@@ -65,7 +65,7 @@ typedef struct LocalMarker {
     uint16_t slot;
     uint32_t begin,end,length;
     char *name;
-    bool closed;
+    bool closed, upvalue;
     struct LocalMarker *next;
 } LocalMarker;
 
@@ -153,7 +153,7 @@ static bool parse_identifier(const char **p, char *out, size_t out_size) {
     skip_whitespace(p);
     size_t i = 0;
     while ((**p >= 'A' && **p <= 'Z') || (**p >= 'a' && **p <= 'z') ||
-           (**p >= '0' && **p <= '9') || **p == '_' || **p == '$') {
+           (**p >= '0' && **p <= '9') || **p == '_' || **p == '$' || **p == '.') {
         if (i + 1 >= out_size) return false;
         out[i++] = *(*p)++;
     }
@@ -320,7 +320,7 @@ static bool operand_symbol_kind(uint8_t opcode, int operand_index, SymbolKind *k
                 *kind = SYMBOL_FUNCTION; return true;
             case OP_CALL_EXTERN:
                 *kind = SYMBOL_IMPORT; return true;
-            case OP_PUSH_STR:
+            case OP_PUSH_STR: case OP_HANDLER_PUSH: case OP_PERFORM:
                 *kind = SYMBOL_CONSTANT; return true;
             case OP_STRUCT_NEW: case OP_STRUCT_LITERAL: case OP_UNION_CONSTRUCT: case OP_ENUM_VAL:
                 *kind = SYMBOL_TYPE; return true;
@@ -872,14 +872,74 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return false;
         }
 
-        if (strcmp(directive,"local_begin")==0 || strcmp(directive,"local_end")==0) {
+        /* I retain shadow names as advisory execution markers, not host calls. */
+        if (strcmp(directive, "shadow") == 0) {
+            if (!state->in_function || state->mod->code_size > UINT32_MAX - state->fn_code_size)
+                return par_error(result, "I require a shadow marker inside a bounded function.");
+            size_t available = strlen(p) + 1;
+            uint32_t length = 0;
+            char *name = malloc(available);
+            if (!name) return par_error(result, "I cannot allocate a shadow name.");
+            bool valid = parse_quoted_string(&p, name, available, &length) && length && require_line_end(p, result);
+            for (uint32_t i = 0; valid && i < length; ++i)
+                if ((unsigned char)name[i] < 32 || (unsigned char)name[i] == 127) valid = false;
+            if (!valid) {
+                free(name);
+                return par_error(result, "I require one nonempty shadow name without control bytes.");
+            }
+            char key[64];
+            snprintf(key, sizeof key, "nanolang.shadow.offset.%u", state->mod->code_size + state->fn_code_size);
+            uint32_t key_index = nvm_add_string(state->mod, key, (uint32_t)strlen(key));
+            uint32_t value_index = nvm_add_string(state->mod, name, length);
+            free(name);
+            if (key_index == UINT32_MAX || value_index == UINT32_MAX ||
+                !nvm_add_metadata(state->mod, key_index, value_index))
+                return par_error(result, "I cannot retain a shadow execution marker.");
+            uint8_t opcode = OP_NOP;
+            fn_emit(state, &opcode, 1);
+            return true;
+        }
+
+        if (strcmp(directive, "generic_binding") == 0) {
+            if (!state->in_function)
+                return par_error(result, "I require generic_binding inside a function.");
+            char *fields[4] = {0};
+            bool valid = true;
+            for (unsigned i = 0; i < 4 && valid; ++i) {
+                size_t capacity = strlen(p) + 1;
+                uint32_t length = 0;
+                fields[i] = malloc(capacity);
+                valid = fields[i] && parse_quoted_string(&p, fields[i], capacity, &length) &&
+                    strlen(fields[i]) == length;
+            }
+            valid = valid && require_line_end(p, result) &&
+                nvm_add_generic_binding(state->mod, state->current_function,
+                    fields[0], fields[1], fields[2], fields[3]);
+            for (unsigned i = 0; i < 4; ++i) free(fields[i]);
+            if (!valid) return par_error(result, "I require four quoted, unambiguous generic binding fields.");
+            return true;
+        }
+
+        if (strcmp(directive, "function_purity") == 0) {
+            uint16_t declared;
+            if (!state->in_function || !parse_uint16(&p, &declared) ||
+                declared > 1 || !require_line_end(p, result))
+                return par_error(result, "I require function_purity 0 or 1 inside a function.");
+            if (!nvm_add_function_purity(state->mod, state->current_function, declared != 0))
+                return par_error(result, "I cannot retain an ambiguous function purity declaration.");
+            return true;
+        }
+
+        if (strcmp(directive,"local_begin")==0 || strcmp(directive,"local_end")==0 || strcmp(directive,"upvalue_name")==0) {
+            bool upvalue=strcmp(directive,"upvalue_name")==0;
             uint16_t slot;
             if(!state->in_function || !parse_uint16(&p,&slot) ||
-               slot>=state->mod->functions[state->current_function].local_count)
+               slot>=(upvalue?state->mod->functions[state->current_function].upvalue_count:
+                              state->mod->functions[state->current_function].local_count))
                 return par_error(result,"I require a declared local slot inside a function.");
             LocalMarker *active=NULL;
             for(LocalMarker *m=state->local_markers;m;m=m->next)
-                if(m->slot==slot && !m->closed)active=m;
+                if(m->upvalue==upvalue && m->slot==slot && !m->closed)active=m;
             if(strcmp(directive,"local_end")==0) {
                 if(!active || !require_line_end(p,result))
                     return par_error(result,"I require an open local-name marker before its end.");
@@ -894,7 +954,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             }
             LocalMarker *m=calloc(1,sizeof *m);
             if(!m){free(name);return par_error(result,"I cannot allocate a local-name marker.");}
-            m->slot=slot;m->begin=state->fn_code_size;m->name=name;m->length=length;
+            m->upvalue=upvalue;m->slot=slot;m->begin=upvalue?0:state->fn_code_size;m->name=name;m->length=length;
             if(state->local_tail)state->local_tail->next=m;else state->local_markers=m;
             state->local_tail=m;return true;
         }
@@ -1322,7 +1382,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                 NvmLocalBinding binding={.function=state->current_function,.slot=m->slot,
                     .begin=m->begin,.end=m->closed?m->end:state->fn_code_size,
                     .name=(const uint8_t *)m->name,.name_size=m->length};
-                if(!nvm_add_local_binding(state->mod,&binding))
+                if(!(m->upvalue?nvm_add_upvalue_binding(state->mod,&binding):nvm_add_local_binding(state->mod,&binding)))
                     return par_error(result,"I cannot retain this lexical local name.");
                 state->local_markers=m->next;free(m->name);free(m);
             }

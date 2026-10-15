@@ -1,0 +1,6 @@
+COMMAND ['/private/tmp/nanolang-introspection-owned-c-20261009/nano_virt', '/private/tmp/nanolang-introspection-routes-20261009/owned_direct.nano', '--emit-nvm', '-o', '/private/tmp/nanolang-introspection-owned-c-20261009/program.nvm'] EXIT 0  
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '--verify-only', '/private/tmp/nanolang-introspection-owned-c-20261009/program.nvm'] EXIT 0  
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nano_vm', '/private/tmp/nanolang-introspection-owned-c-20261009/program.nvm'] EXIT 0  
+COMMAND ['/private/tmp/nanolang-match-guards-20261009/bin/nvm2c', '/private/tmp/nanolang-introspection-owned-c-20261009/program.nvm', '-o', '/private/tmp/nanolang-introspection-owned-c-20261009/program.c'] EXIT 0  
+COMMAND ['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/private/tmp/nanolang-introspection-owned-c-20261009/program.c', '/private/tmp/nanolang-match-guards-20261009/bin/nano_aot_runtime.o', '-lm', '-o', '/private/tmp/nanolang-introspection-owned-c-20261009/program'] EXIT 0  
+COMMAND ['/private/tmp/nanolang-introspection-owned-c-20261009/program'] EXIT 0  

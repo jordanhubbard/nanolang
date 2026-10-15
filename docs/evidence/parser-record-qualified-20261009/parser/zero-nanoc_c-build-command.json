@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-array-types-20261008/bin/nanoc_c",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/ordinary-zero.nano",
+    "-o",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/ordinary-zero-nanoc_c",
+    "--keep-c"
+  ],
+  "cwd": "/private/tmp/nanolang-array-types-20261008",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

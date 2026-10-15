@@ -16,6 +16,23 @@ int g_argc=0; char **g_argv=NULL;
 static unsigned checks;
 #define CHECK(c) do {checks++;assert(c);} while(0)
 #include "owned_fixture.h"
+/* I keep the linked-boundary control valid without resource declarations. */
+static NvmModule *copy_union_link_fixture(void) {
+    AsmResult error;
+    NvmModule *m=asm_assemble_unverified(".types 0 0 1\n.entry 0\n.function main 0 1 0 int 1\n"
+        "PUSH_I64 42\nAGG_PACK 1 0 0 1\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n.end\n",&error);
+    CHECK(m);
+    uint32_t name=nvm_add_string(m,"Copy",4),variant=nvm_add_string(m,"Value",5);
+    NvmV2LayoutField field={TAG_INT,NVM_V2_NO_INDEX,nvm_add_string(m,"value",5)};
+    NvmV2Layout layout={NVM_V2_LAYOUT_UNION,1,name,&field};NvmV2Layouts layouts={&layout,1};
+    CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    m->ownership_size=76;m->ownership_data=calloc(76,1);CHECK(m->ownership_data);
+    uint8_t *p=m->ownership_data;word(p,3);word(p+4,1);p[8]=NVM_LAYOUT_COMPLETE;word(p+12,1);
+    p[16]=1;slot(p+20,TAG_INT,NVM_V2_NO_INDEX);slot(p+28,TAG_UNION,0);
+    word(p+36,4);word(p+44,1);p[48]=NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS;p[50]=1;word(p+52,20);
+    word(p+56,1);p[64]=1;word(p+68,variant);p[74]=1;
+    return m;
+}
 static void write_artifact(NvmModule *m,const char *path) {
     NvmV2Module v2;size_t size;
     CHECK(nvm_v2_from_nvm_module(m,&v2)==NVM_V2_OK);
@@ -112,8 +129,12 @@ int main(int argc,char **argv) {
     refused(floating,argv[1],6);
     NvmModule *linked=fixture(move,false,false);
     const NvmModule *links[]={linked};CHECK(!nvm_verify_linked(linked,links,1).ok);
-    linked->ownership_data[8]=linked->ownership_data[9]=linked->ownership_data[10]=NVM_LAYOUT_COMPLETE;
+    nvm_module_free(linked);linked=copy_union_link_fixture();links[0]=linked;
     CHECK(nvm_verify_owned_module(linked).ok);
+    CHECK(nvm_verify(linked).ok);
+    VmState standalone;vm_init(&standalone,linked);NanoValue scalar=val_void();
+    CHECK(vm_invoke(&standalone,0,NULL,0,&scalar)==VM_OK && scalar.tag==TAG_INT && scalar.as.i64==42);
+    vm_destroy(&standalone);
     AsmResult error;
     NvmModule *root=asm_assemble(".entry 0\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n",&error);CHECK(root);
     CHECK(!nvm_verify_linked(root,links,1).ok);

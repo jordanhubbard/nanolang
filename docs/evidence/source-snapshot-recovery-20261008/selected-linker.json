@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "-dynamiclib",
+    "-undefined",
+    "dynamic_lookup",
+    "-fPIC",
+    "/private/tmp/nanolang-flag-debug-d283fu8w/probe.c",
+    "-Xlinker",
+    "-lm",
+    "-std=c11",
+    "-Werror",
+    "-I",
+    "/private/tmp/nanolang-flag-debug-d283fu8w/foreign/C headers",
+    "-Xlinker",
+    "-lm",
+    "-o",
+    "/private/tmp/nanolang-flag-debug-d283fu8w/probe.dylib",
+    "-Xlinker",
+    "-o",
+    "-Xlinker",
+    "/private/tmp/nanolang-flag-debug-d283fu8w/probe.dylib",
+    "-Wl,-version_details"
+  ],
+  "exit": 0,
+  "stdout": "{\n\t\"version\": \"27037.1\",\n\t\"architectures\": [\n\t\t\"armv6\",\n\t\t\"armv7\",\n\t\t\"armv7s\",\n\t\t\"arm64\",\n\t\t\"arm64e\",\n\t\t\"arm64_32\",\n\t\t\"i386\",\n\t\t\"x86_64\",\n\t\t\"x86_64h\",\n\t\t\"armv6m\",\n\t\t\"armv7k\",\n\t\t\"armv7m\",\n\t\t\"armv7em\",\n\t\t\"armv8m.main\",\n\t\t\"armv8.1m.main\"\n\t],\n\t\"lto\": {\n\t\t\"runtime_api_version\": 30,\n\t\t\"static_api_version\": 30,\n\t\t\"version_string\": \"LLVM version 21.0.0\"\n\t},\n\t\"tapi\": {\n\t\t\"version\": \"21.0.0\",\n\t\t\"version_string\": \"Apple TAPI version 21.0.0 (tapi-2100.3.8.1)\"\n\t}\n}\n",
+  "stderr": "ld: warning: ignoring duplicate libraries: '-lm'\nLibrary search paths:\n\t/usr/local/lib\n\t/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib\n\t/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/swift\nFramework search paths:\n\t/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks\n"
+}

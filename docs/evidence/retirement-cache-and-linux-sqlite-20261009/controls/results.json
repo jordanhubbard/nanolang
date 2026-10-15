@@ -1,0 +1,35 @@
+[
+  {
+    "argv": [
+      "bin/nano_virt",
+      "constant-controls/function-binding.nano",
+      "--emit-nvm",
+      "-o",
+      "constant-controls/function-binding.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "bin/nano_vm",
+      "constant-controls/function-binding.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "bin/nano_virt",
+      "constant-controls/negative.nano",
+      "--emit-nvm",
+      "-o",
+      "constant-controls/refused.nvm"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "-- E001 TYPE MISMATCH ----- constant-controls/negative.nano\nI require a function value for a bound call.\n\n4|  return (SQLITE_OK)\n           ^\nHint: Call the declared function or a function-typed binding.\nerror: type check failed\n"
+  }
+]

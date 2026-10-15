@@ -6,4 +6,5 @@
  * An engine trap invalidates that instance; normal returns release the latch.
  * This private adapter grants no NanoISA import/profile execution authority. */
 NprManagedResult npr_wasm_read_managed(NmsRuntime *, NmsHandle argument);
+NprManagedResult npr_wasm_read_bytes_managed(NmsRuntime *, NmsHandle);
 #endif

@@ -1,0 +1,1 @@
+I could not verify the shadow module: Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[0] at 67: I require global initialization before reads and no repeated immutable store

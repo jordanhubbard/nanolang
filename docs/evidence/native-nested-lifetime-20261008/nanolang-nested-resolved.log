@@ -1,0 +1,25 @@
+I retain nested array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-jn1q7o4m
+test_nested_record_child (tests.test_native_nested_arrays.NativeNestedArrays.test_nested_record_child) ... ok
+test_self_cycle_survives_collection_and_pop (tests.test_native_nested_arrays.NativeNestedArrays.test_self_cycle_survives_collection_and_pop) ... ok
+test_slice_retains_children_after_outer_release (tests.test_native_nested_arrays.NativeNestedArrays.test_slice_retains_children_after_outer_release) ... ok
+I retain byte-array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-byte-arrays-04qrka2j
+test_alias_mutation_slice_independence_and_empty (tests.test_native_byte_arrays.NativeByteArrays.test_alias_mutation_slice_independence_and_empty) ... ok
+test_byte_roots_survive_collection (tests.test_native_byte_arrays.NativeByteArrays.test_byte_roots_survive_collection) ... ok
+test_calls_globals_records_and_absent_reads (tests.test_native_byte_arrays.NativeByteArrays.test_calls_globals_records_and_absent_reads) ... ok
+test_literal_tags_and_integer_narrowing (tests.test_native_byte_arrays.NativeByteArrays.test_literal_tags_and_integer_narrowing) ... ok
+test_tagged_integer_pop_keeps_integer_identity (tests.test_native_byte_arrays.NativeByteArrays.test_tagged_integer_pop_keeps_integer_identity) ... ok
+test_tagged_record_pop_preserves_owned_child (tests.test_native_byte_arrays.NativeByteArrays.test_tagged_record_pop_preserves_owned_child) ... ok
+I retain slice qualification at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-foenh92j
+test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) ... ok
+test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) ... ok
+test_byte_slice (tests.test_nanoisa_array_slice.NanoISASlice.test_byte_slice) ... ok
+test_closure_environment_copy (tests.test_nanoisa_array_slice.NanoISASlice.test_closure_environment_copy) ... ok
+test_nested_contexts_and_mutation (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_contexts_and_mutation) ... ok
+test_nested_element_refusals (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_element_refusals) ... ok
+test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) ... ok
+test_unchecked_emitter_refuses_invalid_operands (tests.test_nanoisa_array_slice.NanoISASlice.test_unchecked_emitter_refuses_invalid_operands) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 11.275s
+
+OK

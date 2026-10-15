@@ -1,0 +1,52 @@
+[
+  {
+    "case": "enum",
+    "step": "verify",
+    "returncode": 0
+  },
+  {
+    "case": "enum",
+    "step": "vm",
+    "returncode": 0
+  },
+  {
+    "case": "enum",
+    "step": "translate",
+    "returncode": 0
+  },
+  {
+    "case": "enum",
+    "step": "native-build",
+    "returncode": 0
+  },
+  {
+    "case": "enum",
+    "step": "native",
+    "returncode": 0
+  },
+  {
+    "case": "tuple",
+    "step": "verify",
+    "returncode": 0
+  },
+  {
+    "case": "tuple",
+    "step": "vm",
+    "returncode": 0
+  },
+  {
+    "case": "tuple",
+    "step": "translate",
+    "returncode": 0
+  },
+  {
+    "case": "tuple",
+    "step": "native-build",
+    "returncode": 0
+  },
+  {
+    "case": "tuple",
+    "step": "native",
+    "returncode": 0
+  }
+]

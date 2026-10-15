@@ -1,0 +1,4 @@
+module "/private/tmp/nanolang-introspection-routes-20261009/probe.nano" as probe
+extern fn ___module_function_count_route_probe() -> int
+fn main() -> int { let count: fn() -> int = ___module_function_count_route_probe assert (== (count) 1) return 0 }
+shadow main { assert (== (main) 0) }

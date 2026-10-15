@@ -1,0 +1,4 @@
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+✓ Bootstrap Stage 0: C reference compiler ready
+make: *** No rule to make target 'tests/bootstrap_native_guard.py', needed by '.bootstrap1.built'.  Stop.

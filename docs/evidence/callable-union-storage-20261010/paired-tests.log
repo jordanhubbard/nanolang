@@ -1,0 +1,122 @@
+FFFF...FFFF
+======================================================================
+FAIL: test_generic_payload (tests.test_callable_union_storage.CallableUnionStorage.test_generic_payload) (producer='whole')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 37, in execute
+    assembly.write_text(self.command([os.environ['NANO_UNION_EMITTER'], source, '0', producer]))
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : unsupported local type Choice<fn(int)->int>
+
+
+======================================================================
+FAIL: test_generic_payload (tests.test_callable_union_storage.CallableUnionStorage.test_generic_payload) (producer='program')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 37, in execute
+    assembly.write_text(self.command([os.environ['NANO_UNION_EMITTER'], source, '0', producer]))
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : unsupported local type Choice<fn(int)->int>
+
+
+======================================================================
+FAIL: test_generic_payload (tests.test_callable_union_storage.CallableUnionStorage.test_generic_payload) (producer='raw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 37, in execute
+    assembly.write_text(self.command([os.environ['NANO_UNION_EMITTER'], source, '0', producer]))
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower shadow main at merged line 6: unsupported local type Choice<fn(int)->int>
+
+
+======================================================================
+FAIL: test_generic_signature_field (tests.test_callable_union_storage.CallableUnionStorage.test_generic_signature_field)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 60, in test_generic_signature_field
+            self.execute('''union Choice<T> {Some {callback:fn(T)->T}}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int {let c:Choice<int> = Choice.Some {callback:identity}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    match c {Some(payload)=>{let f:fn(int)->int=payload.callback assert (== (f 7) 7)}} return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 26, in execute
+    self.command([os.environ.get('NANO_CONTEXTUAL_NATIVE_COMPILER', ROOT/'bin/nanoc_c'), source, '-o', native])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-asyvpoj5/source.nano
+I require the complete declared callback storage signature.
+
+4| fn main()->int {let c:Choice<int> = Choice.Some {callback:identity}
+                                                             ^
+Hint: Match the stored callback parameter and result types.
+Type checking failed
+
+
+======================================================================
+FAIL: test_returned_union_and_multiple_signatures (tests.test_callable_union_storage.CallableUnionStorage.test_returned_union_and_multiple_signatures) (producer='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-uk5breqf/out.nvm': I require compatible indirect-call result signatures
+
+
+======================================================================
+FAIL: test_returned_union_and_multiple_signatures (tests.test_callable_union_storage.CallableUnionStorage.test_returned_union_and_multiple_signatures) (producer='whole')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-uk5breqf/out.nvm': I require compatible indirect-call result signatures
+
+
+======================================================================
+FAIL: test_returned_union_and_multiple_signatures (tests.test_callable_union_storage.CallableUnionStorage.test_returned_union_and_multiple_signatures) (producer='program')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-uk5breqf/out.nvm': I require compatible indirect-call result signatures
+
+
+======================================================================
+FAIL: test_returned_union_and_multiple_signatures (tests.test_callable_union_storage.CallableUnionStorage.test_returned_union_and_multiple_signatures) (producer='raw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-uk5breqf/out.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 1, offset 49: int64_t versus bool at parameter 0 of function 4)
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 8.210s
+
+FAILED (failures=8)

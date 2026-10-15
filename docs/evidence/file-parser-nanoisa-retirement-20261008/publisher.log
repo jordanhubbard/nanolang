@@ -1,0 +1,2 @@
+
+{"status":0,"failed_stage":0,"first_errno":0,"cleanup_errno":0,"published":true,"durable":true,"cleanup_pending":false,"path_encoding":"byte-codepoints-0-255","input":"/Users/jordanh/Src/nanolang/tests/fixtures/nsi_file_plan.json","directory":"/private/tmp/nanolang-parser-retirement-evidence-20261008/published","staging_name":""}

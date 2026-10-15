@@ -1,0 +1,41 @@
+.......F.F..
+======================================================================
+FAIL: test_copy_replace_slice_and_pop (tests.test_native_callable_arrays.NativeCallableArrays.test_copy_replace_slice_and_pop)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_arrays.py", line 20, in test_copy_replace_slice_and_pop
+            self.execute('''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+    let callbacks:array<fn(int)->int> = [identity]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    let retained:fn(int)->int=(at callbacks 0)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== (retained 7) 7) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_arrays.py", line 17, in execute
+    harness.NativeGlobalTypes().execute(PRELUDE + source)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-fomypfgm/main.nano:13:105: error: use of undeclared identifier 'nl_identity'
+   13 |     ({ __auto_type __nl_arg_7_0 = callbacks; __auto_type __nl_arg_7_1 = 0LL; __auto_type __nl_arg_7_2 = nl_identity; FnType_0 _value = __nl_arg_7_2; dyn_array_set_struct(__nl_arg_7_0, __nl_arg_7_1, &_value, sizeof _value); });
+      |                                                                                                         ^~~~~~~~~~~
+1 error generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_incompatible_mutation_preserves_output (tests.test_native_callable_arrays.NativeCallableArrays.test_incompatible_mutation_preserves_output) (operation='(array_push callbacks bad)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_arrays.py", line 67, in test_incompatible_mutation_preserves_output
+    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+----------------------------------------------------------------------
+Ran 12 tests in 15.805s
+
+FAILED (failures=2)

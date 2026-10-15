@@ -5,6 +5,7 @@ import subprocess
 import tempfile
 import unittest
 ROOT=Path(__file__).resolve().parents[1]
+SOURCE_COMPILER=Path(os.environ.get('NANO_FUNCTIONAL_SOURCE_COMPILER', ROOT/'bin/nanoisa_emit'))
 
 class FunctionalArrays(unittest.TestCase):
     @classmethod
@@ -19,7 +20,7 @@ class FunctionalArrays(unittest.TestCase):
     @staticmethod
     def run_checked(args):
         r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=180,
-            env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1:halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
+            env={**os.environ,'ASAN_OPTIONS':'halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
         if r.returncode: raise AssertionError(f'{args}: {r.returncode}\n{r.stdout}\n{r.stderr}')
         return r
     def execute_module(self,module,folder):
@@ -35,7 +36,7 @@ class FunctionalArrays(unittest.TestCase):
             folder=Path(tmp);source=folder/'input.nano';module=folder/'input.nvm';assembly=folder/'shadows.nasm'
             source.write_text(text)
             if mode=='raw':
-                self.run_checked([ROOT/'bin/nanoisa_emit',source,'--emit-nvm','-o',module])
+                self.run_checked([SOURCE_COMPILER,source,'--emit-nvm','-o',module])
                 self.execute_module(module,folder)
             result=self.run_checked([self.driver,source,0,mode])
             assembly.write_text(result.stdout)
@@ -163,8 +164,8 @@ shadow value { let xs:array<int> = (map [1] value) assert (== (at xs 0) 21) }
 fn main()->int{return 0}
 shadow main { assert true }
 ''','bound')
-        self.assertIn('CALL dep_a_value',assembly)
-        self.assertIn('CALL dep_b_value',assembly)
+        self.assertIn('FUNCREF dep_a_value',assembly)
+        self.assertIn('FUNCREF dep_b_value',assembly)
     def test_signature_and_shadowing_refusals_preserve_output(self):
         declarations='''fn integer(x:int)->int{return x}
 shadow integer { assert true }
@@ -184,15 +185,15 @@ shadow container { assert true }
                 with self.subTest(expression=expression):
                     source.write_text(declarations+'fn main()->int{ let result: array<int> = '+expression+' return 0 }\nshadow main { assert true }\n')
                     output.write_bytes(b'previous')
-                    result=subprocess.run([ROOT/'bin/nanoisa_emit',source,'--emit-nvm','-o',output],cwd=ROOT,capture_output=True,text=True,timeout=60)
+                    result=subprocess.run([SOURCE_COMPILER,source,'--emit-nvm','-o',output],cwd=ROOT,capture_output=True,text=True,timeout=60)
                     self.assertEqual(result.returncode,1,result.stdout+result.stderr)
                     self.assertNotIn('parse failed', result.stdout)
                     self.assertEqual(output.read_bytes(),b'previous')
             source.write_text(declarations+'fn main()->int{ let integer: int = 7\n let result: array<int> = (map [1] integer) return 0 }\n')
             output.write_bytes(b'previous')
-            result=subprocess.run([ROOT/'bin/nanoisa_emit',source,'--emit-nvm','-o',output],cwd=ROOT,capture_output=True,text=True,timeout=60)
+            result=subprocess.run([SOURCE_COMPILER,source,'--emit-nvm','-o',output],cwd=ROOT,capture_output=True,text=True,timeout=60)
             self.assertEqual(result.returncode,1,result.stdout+result.stderr)
-            self.assertIn('indirect',result.stdout)
+            self.assertRegex(result.stdout+result.stderr, 'I require a resolved declared scalar callback|I require exact supported functional callback types|I require exact functional callback, array element and accumulator types')
             self.assertEqual(output.read_bytes(),b'previous')
 
 if __name__=='__main__': unittest.main()

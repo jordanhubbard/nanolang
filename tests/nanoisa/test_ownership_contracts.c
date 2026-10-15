@@ -9,6 +9,9 @@
 #include "verifier.h"
 #include "isa.h"
 #include "nvm2c.h"
+#include "affine_state.h"
+#include "affine_bytecode.h"
+#include "ownership_declaration_projection.h"
 
 static unsigned checks;
 #define CHECK(c) do { checks++; assert(c); } while (0)
@@ -151,7 +154,7 @@ static void check_union_transport(void) {
     word(data,36,2);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_INDEX_RANGE);word(data,36,1);
     word(data,16,3);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_RANGE);word(data,16,4);
     word(data,24,0);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_INDEX_RANGE);word(data,24,1);
-    half(data,28,3);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);half(data,28,1);
+    half(data,28,NVM_OWNERSHIP_MAX_EXTENSIONS+1);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);half(data,28,1);
     half(data,30,2);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);half(data,30,1);
     word(data,32,35);data[71]=1;CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_RANGE);
     data[71]=0;CHECK(nvm_ownership_contracts_validate(module,&needs)!=NVM_V2_OK);word(data,32,36);
@@ -163,7 +166,7 @@ static void check_union_transport(void) {
     CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);
     half(data,72,NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS);
     CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_TYPE);
-    half(data,72,3);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);
+    half(data,72,NVM_OWNERSHIP_MAX_EXTENSIONS+1);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);
     module->ownership_size=72;word(data,24,1);
     word(data,0,NVM_OWNERSHIP_PATH_VERSION);
     fact=(NvmUnionVariantFact){99,99,99,99};
@@ -171,6 +174,110 @@ static void check_union_transport(void) {
     CHECK(query!=NVM_V2_OK);
     word(data,0,NVM_OWNERSHIP_EXTENSION_VERSION);
     nvm_module_free(module);
+}
+
+static void check_owned_union_transport(void) {
+    AsmResult error;
+    NvmModule *m=asm_assemble(".function main 0 1 0 int 1\nPUSH_I64 0\nRET\n.end\n",&error);
+    CHECK(m);
+    uint32_t handle=nvm_add_string(m,"Handle",6), box=nvm_add_string(m,"Box<Handle>",11);
+    uint32_t outer=nvm_add_string(m,"Box<Box<Handle>>",16);
+    uint32_t some=nvm_add_string(m,"Some",4), none=nvm_add_string(m,"None",4);
+    uint32_t field=nvm_add_string(m,"value",5);
+    NvmV2LayoutField fields[]={{TAG_INT,NVM_V2_NO_INDEX,field},
+                              {TAG_STRUCT,0,field},{TAG_UNION,1,field}};
+    NvmV2Layout items[]={{NVM_V2_LAYOUT_STRUCT,1,handle,&fields[0]},
+                         {NVM_V2_LAYOUT_UNION,1,box,&fields[1]},
+                         {NVM_V2_LAYOUT_UNION,1,outer,&fields[2]}};
+    NvmV2Layouts layouts={items,3};m->struct_count=1;m->union_count=2;
+    CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    m->ownership_size=108;m->ownership_data=calloc(108,1);CHECK(m->ownership_data);
+    uint8_t *data=m->ownership_data;
+    word(data,0,3);word(data,4,3);data[8]=data[9]=data[10]=3;
+    word(data,12,1);half(data,16,1);
+    slot(data,20,TAG_INT,0,NVM_V2_NO_INDEX);slot(data,28,TAG_UNION,0,2);
+    word(data,36,4);word(data,44,1);
+    half(data,48,NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS);half(data,50,1);word(data,52,52);
+    word(data,56,2);
+    word(data,60,1);half(data,64,2);
+    word(data,68,some);half(data,74,1);word(data,76,none);half(data,80,1);
+    word(data,84,2);half(data,88,2);
+    word(data,92,some);half(data,98,1);word(data,100,none);half(data,104,1);
+    check_status(m,true,true);
+    /* Ordered union and global extensions coexist without losing concrete
+     * nested union identity or granting executable authority. */
+    data=realloc(data,128);CHECK(data);m->ownership_data=data;
+    memset(data+108,0,20);m->ownership_size=128;word(data,44,2);
+    half(data,108,NVM_OWNERSHIP_EXTENSION_GLOBALS);half(data,110,1);word(data,112,12);
+    word(data,116,1);slot(data,120,TAG_UNION,1,2);
+    NvmOwnershipGlobal global;uint32_t globals=0;
+    CHECK(nvm_ownership_globals(m,&global,1,&globals)==NVM_V2_OK && globals==1);
+    CHECK(global.tag==TAG_UNION && global.mutable && global.layout==2);
+    NvmAffineState *global_state=nvm_affine_state_create(m,0,0);CHECK(global_state);
+    nvm_affine_state_free(global_state);CHECK(!nvm_verify(m).ok);
+    slot(data,120,TAG_STRUCT,1,2);check_status(m,false,false);
+    slot(data,120,TAG_UNION,1,0);check_status(m,false,false);
+    slot(data,120,TAG_UNION,1,2);
+    /* I preserve distinct nested union identities in operation transfers. */
+    uint32_t effect_key=nvm_add_string(m,"Wrap.pass",9);
+    data=realloc(data,164);CHECK(data);m->ownership_data=data;
+    memset(data+128,0,36);m->ownership_size=164;word(data,44,3);
+    half(data,128,NVM_OWNERSHIP_EXTENSION_EFFECTS);half(data,130,1);word(data,132,28);
+    word(data,136,1);word(data,140,effect_key);half(data,144,1);
+    slot(data,148,TAG_UNION,0,2);slot(data,156,TAG_UNION,0,1);
+    NvmOwnershipEffect effect,prior_effect;
+    CHECK(nvm_ownership_effect(m,effect_key,&effect)==NVM_V2_OK &&
+          effect.result.tag==TAG_UNION && effect.result.layout==2 &&
+          effect.parameter_count==1 && effect.parameters[0].layout==1);
+    prior_effect=effect;slot(data,156,TAG_UNION,0,0);
+    CHECK(nvm_ownership_effect(m,effect_key,&effect)!=NVM_V2_OK);
+    CHECK(!memcmp(&effect,&prior_effect,sizeof(effect)));slot(data,156,TAG_UNION,0,1);
+    slot(data,120,TAG_UNION,1,0);
+    CHECK(nvm_ownership_effect(m,effect_key,&effect)!=NVM_V2_OK);
+    CHECK(!memcmp(&effect,&prior_effect,sizeof(effect)));
+    slot(data,120,TAG_UNION,1,2);
+    CHECK(nvm_ownership_effect(m,effect_key,&effect)==NVM_V2_OK);
+    m->ownership_size=108;word(data,44,1);
+    NvmLayoutAuthority authority=NVM_LAYOUT_AUTHORITY_UNKNOWN;
+    CHECK(nvm_ownership_layout_authority(m,2,&authority)==NVM_V2_OK &&
+          authority==NVM_LAYOUT_AUTHORITY_RESOURCE);
+    NvmUnionVariantFact fact={99,99,99,99};
+    CHECK(nvm_ownership_union_variant(m,1,1,&fact)==NVM_V2_OK &&
+          fact.layout==2 && fact.field_offset==1 && fact.field_count==0);
+    /* Metadata round trips do not establish the required explicit transfer. */
+    NvmAffineState *state=nvm_affine_state_create(m,0,0);CHECK(state);
+    CHECK(nvm_affine_has_complete_unions(state));nvm_affine_state_free(state);
+    CHECK(!nvm_verify(m).ok);
+    char diagnostic[256];CHECK(nvm2c_emit(m,diagnostic,sizeof diagnostic)==NULL);
+    size_t size;uint8_t *bytes=wire(m,&size,NULL);NvmV2Module decoded;
+    CHECK(nvm_v2_module_deserialize(bytes,size,&decoded)==NVM_V2_OK);
+    NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);
+    CHECK(copy->ownership_size==108 && !memcmp(copy->ownership_data,data,108));
+    CHECK(copy->layout_size==m->layout_size && !memcmp(copy->layout_data,m->layout_data,m->layout_size));
+    check_status(copy,true,true);CHECK(!nvm_verify(copy).ok);
+    nvm_module_free(copy);nvm_v2_module_free(&decoded);free(bytes);
+    char *text=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(text);
+    copy=asm_assemble(text,&error);CHECK(!copy && error.error==ASM_ERR_VERIFY);
+    copy=asm_assemble_unverified(text,&error);CHECK(copy);check_status(copy,true,true);
+    CHECK(!nvm_verify(copy).ok);
+    CHECK(copy->ownership_size==108 && !memcmp(copy->ownership_data,data,108));
+    CHECK(copy->layout_size==m->layout_size && !memcmp(copy->layout_data,m->layout_data,m->layout_size));
+    nvm_module_free(copy);free(text);
+    data[29]=NVM_REFERENCE_SHARED;check_status(m,false,false);data[29]=0;
+    data[9]=1;check_status(m,false,false);data[9]=3;
+    data[8]=0;check_status(m,false,false);data[8]=3;
+    data[10]=0;check_status(m,false,false);data[10]=3;
+    data[10]=2;check_status(m,false,false);data[10]=3;
+    half(data,104,0);check_status(m,false,false);half(data,104,1);
+    fields[2].type_tag=TAG_STRUCT;CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    check_status(m,false,false);fields[2].type_tag=TAG_UNION;
+    CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    word(data,0,2);check_status(m,false,false);word(data,0,3);
+    data[9]=0;fact=(NvmUnionVariantFact){99,99,99,99};
+    CHECK(nvm_ownership_union_variant(m,0,0,&fact)!=NVM_V2_OK && fact.layout==99 &&
+          fact.name_idx==99 && fact.field_offset==99 && fact.field_count==99);
+    data[9]=3;check_status(m,true,true);
+    nvm_module_free(m);
 }
 
 static void check_concrete_union_instances(void) {
@@ -207,9 +314,226 @@ static void check_concrete_union_instances(void) {
     nvm_module_free(module);
 }
 
+static void check_global_transport(void) {
+    AsmResult error;
+    NvmModule *m=asm_assemble(".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n",&error);
+    CHECK(m);
+    uint32_t count=99;
+    CHECK(nvm_ownership_globals(m,NULL,0,&count)==NVM_V2_OK && count==0);
+    NvmV2LayoutField field={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
+    NvmV2Layout records[]={{NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field},
+                          {NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field}};
+    NvmV2Layouts layouts={records,2};m->struct_count=2;
+    CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    const unsigned start=52,slots=7,size=start+slots*8;
+    m->ownership_data=calloc(start+NVM_OWNERSHIP_MAX_GLOBALS*8+4,1);CHECK(m->ownership_data);
+    m->ownership_size=size;uint8_t *data=m->ownership_data;
+    word(data,0,3);word(data,4,2);
+    data[8]=NVM_LAYOUT_COMPLETE;data[9]=NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE;
+    word(data,12,1); /* main: no locals, no parameters, int result */
+    slot(data,20,TAG_INT,0,NVM_V2_NO_INDEX);
+    word(data,28,4);word(data,32,0);word(data,36,1);
+    half(data,40,NVM_OWNERSHIP_EXTENSION_GLOBALS);half(data,42,1);
+    word(data,44,4+slots*8);word(data,48,slots);
+    const uint8_t tags[]={TAG_INT,TAG_U8,TAG_FLOAT,TAG_BOOL,TAG_STRING,TAG_STRUCT,TAG_STRUCT};
+    for (unsigned i=0;i<slots;i++) slot(data,start+i*8,tags[i],i%2,i<5?NVM_V2_NO_INDEX:i-5);
+    check_status(m,true,true);
+    NvmOwnershipGlobal rows[256];memset(rows,0xa5,sizeof(rows));
+    CHECK(nvm_ownership_globals(m,rows,256,&count)==NVM_V2_OK && count==slots);
+    for (unsigned i=0;i<slots;i++) {
+        CHECK(rows[i].tag==tags[i] && rows[i].mutable==(bool)(i%2));
+        CHECK(rows[i].layout==(i<5?NVM_V2_NO_INDEX:i-5));
+    }
+    CHECK(nvm_ownership_globals(m,NULL,0,&count)==NVM_V2_OK && count==slots);
+    NvmAffineState *global_state=nvm_affine_state_create(m,0,0);CHECK(global_state);
+    nvm_affine_state_free(global_state);
+    CHECK(!nvm_verify(m).ok);
+    char diagnostic[256];CHECK(!nvm2c_emit(m,diagnostic,sizeof(diagnostic)));
+    data[9]=NVM_LAYOUT_COMPLETE;check_status(m,true,true);
+    CHECK(!nvm_verify(m).ok && !nvm2c_emit(m,diagnostic,sizeof(diagnostic)));
+    NvmOwnershipDeclarationPlan *plan=NULL;
+    CHECK(nvm_prepare_ownership_declarations(m,&plan).status!=NVM_DECL_PREPARED && !plan);
+    /* The same ordinary module without GLOBALS remains admissible. */
+    word(data,0,1);m->ownership_size=28;
+    CHECK(nvm_verify(m).ok);
+    CHECK(nvm_prepare_ownership_declarations(m,&plan).status==NVM_DECL_PREPARED && plan);
+    nvm_ownership_declarations_free(plan);plan=NULL;
+    word(data,0,3);m->ownership_size=size;data[9]=NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE;
+    size_t bytes_count;uint8_t *bytes=wire(m,&bytes_count,NULL);NvmV2Module decoded;
+    CHECK(nvm_v2_module_deserialize(bytes,bytes_count,&decoded)==NVM_V2_OK);
+    NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);
+    CHECK(copy->ownership_size==size && !memcmp(copy->ownership_data,data,size));
+    CHECK(nvm_ownership_globals(copy,rows,256,&count)==NVM_V2_OK && count==slots);
+    nvm_module_free(copy);nvm_v2_module_free(&decoded);free(bytes);
+    char *text=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(text);
+    copy=asm_assemble(text,&error);CHECK(!copy && error.error==ASM_ERR_VERIFY);
+    copy=asm_assemble_unverified(text,&error);CHECK(copy);
+    CHECK(copy->ownership_size==size && !memcmp(copy->ownership_data,data,size));
+    nvm_module_free(copy);free(text);
+    NvmOwnershipGlobal sentinel[256];memset(sentinel,0xa5,sizeof(sentinel));
+    memcpy(rows,sentinel,sizeof(rows));count=99;
+    CHECK(nvm_ownership_globals(m,rows,slots-1,&count)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(count==99 && !memcmp(rows,sentinel,sizeof(rows)));
+    CHECK(nvm_ownership_globals(m,NULL,1,&count)==NVM_V2_ERR_INDEX_RANGE && count==99);
+    CHECK(nvm_ownership_globals(m,rows,256,NULL)==NVM_V2_ERR_INDEX_RANGE);
+    for (unsigned truncated=0;truncated<size;truncated++) {
+        m->ownership_size=truncated;
+        CHECK(nvm_ownership_globals(m,rows,256,&count)!=NVM_V2_OK);
+        CHECK(count==99 && !memcmp(rows,sentinel,sizeof(rows)));
+    }
+    m->ownership_size=size;
+    /* Invalid later rows must not publish an earlier valid prefix. */
+    data[start+6*8+2]=1;
+    CHECK(nvm_ownership_globals(m,rows,256,&count)==NVM_V2_ERR_RESERVED_FLAGS);
+    CHECK(count==99 && !memcmp(rows,sentinel,sizeof(rows)));
+    data[start+6*8+2]=0;
+    data[start+1]=2;check_status(m,false,false);data[start+1]=0;
+    data[start]=TAG_VOID;check_status(m,false,false);
+    data[start]=TAG_ARRAY;check_status(m,false,false);
+    data[start]=TAG_COUNT;check_status(m,false,false);data[start]=TAG_INT;
+    word(data,start+4,0);check_status(m,false,false);word(data,start+4,NVM_V2_NO_INDEX);
+    word(data,start+5*8+4,NVM_V2_NO_INDEX);check_status(m,false,false);word(data,start+5*8+4,0);
+    data[start+5*8]=TAG_UNION;check_status(m,false,false);data[start+5*8]=TAG_STRUCT;
+    data[8]=0;check_status(m,false,false);data[8]=NVM_LAYOUT_COMPLETE;
+    word(data,48,0);check_status(m,false,false);word(data,48,slots);
+    half(data,42,2);check_status(m,false,false);half(data,42,1);
+    m->ownership_size=size+4;word(data,44,4+slots*8+4);check_status(m,false,false);
+    m->ownership_size=start+256*8;word(data,44,4+256*8);word(data,48,256);
+    for (unsigned i=0;i<256;i++) slot(data,start+i*8,TAG_INT,1,NVM_V2_NO_INDEX);
+    CHECK(nvm_ownership_globals(m,rows,256,&count)==NVM_V2_OK && count==256);
+    CHECK(rows[255].tag==TAG_INT && rows[255].mutable && rows[255].layout==NVM_V2_NO_INDEX);
+    word(data,48,257);check_status(m,false,false);
+    nvm_module_free(m);
+}
+
+#include "test_effect_array_contracts.inc"
+
+static void check_effect_transport(void) {
+    AsmResult error;
+    NvmModule *m=asm_assemble(".string operation \"Transfer.pass\"\n.function main 0 0 0 int 1\nPUSH_I64 0\nPERFORM operation 1\nRET\n.end\n",&error);
+    CHECK(m);
+    uint32_t key=nvm_add_string(m,"Transfer.pass",13);
+    uint32_t other=nvm_add_string(m,"Transfer.notify",15);
+    CHECK(key<other);
+    NvmOwnershipEffect effect,prior;memset(&effect,0xa5,sizeof(effect));prior=effect;
+    CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(!memcmp(&effect,&prior,sizeof(effect)));
+    NvmV2LayoutField field={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
+    NvmV2Layout record={NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field};
+    NvmV2Layouts layouts={&record,1};m->struct_count=1;
+    CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    const unsigned size=108;
+    m->ownership_data=calloc(size+8,1);CHECK(m->ownership_data);
+    m->ownership_size=size;uint8_t *data=m->ownership_data;
+    word(data,0,3);word(data,4,1);data[8]=NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE;
+    word(data,12,1);slot(data,20,TAG_INT,0,NVM_V2_NO_INDEX);
+    word(data,28,4);word(data,32,0);word(data,36,1);
+    half(data,40,NVM_OWNERSHIP_EXTENSION_EFFECTS);half(data,42,1);
+    word(data,44,size-48);word(data,48,2);
+    word(data,52,key);half(data,56,1);
+    slot(data,60,TAG_STRUCT,0,0);slot(data,68,TAG_STRUCT,0,0);
+    word(data,76,other);half(data,80,2);
+    slot(data,84,TAG_VOID,0,NVM_V2_NO_INDEX);
+    slot(data,92,TAG_INT,0,NVM_V2_NO_INDEX);slot(data,100,TAG_STRING,0,NVM_V2_NO_INDEX);
+    check_status(m,true,true);
+    NvmOwnershipEffectTypes element_types;
+    CHECK(nvm_ownership_effect_types(m,&element_types)==NVM_V2_OK && element_types.count==0);
+    CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_OK);
+    CHECK(effect.key_idx==key && effect.parameter_count==1 &&
+          effect.result.tag==TAG_STRUCT && effect.result.layout==0 &&
+          effect.parameters[0].tag==TAG_STRUCT && effect.parameters[0].layout==0);
+    CHECK(nvm_ownership_effect(m,other,&effect)==NVM_V2_OK);
+    CHECK(effect.parameter_count==2 && effect.result.tag==TAG_VOID &&
+          effect.parameters[0].tag==TAG_INT && effect.parameters[1].tag==TAG_STRING);
+    /* I preserve revision-1 rejection and its diagnostic category. */
+    data[60]=TAG_ARRAY;
+    CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_ERR_SECTION_TYPE);
+    data[60]=TAG_STRUCT;
+    /* I do not turn declarations into handler execution authority. */
+    CHECK(!nvm_verify(m).ok);
+    char diagnostic[256];CHECK(!nvm2c_emit(m,diagnostic,sizeof(diagnostic)));
+    size_t length;uint8_t *bytes=wire(m,&length,NULL);NvmV2Module decoded;
+    CHECK(nvm_v2_module_deserialize(bytes,length,&decoded)==NVM_V2_OK);
+    NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);
+    CHECK(copy->ownership_size==size && !memcmp(copy->ownership_data,data,size));
+    CHECK(nvm_ownership_effect(copy,key,&effect)==NVM_V2_OK && effect.result.layout==0);
+    nvm_module_free(copy);nvm_v2_module_free(&decoded);free(bytes);
+    char *text=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(text);
+    copy=asm_assemble(text,&error);CHECK(!copy && error.error==ASM_ERR_VERIFY);
+    copy=asm_assemble_unverified(text,&error);CHECK(copy);
+    CHECK(nvm_ownership_effect(copy,other,&effect)==NVM_V2_OK && effect.parameter_count==2);
+    CHECK(copy->ownership_size==size && !memcmp(copy->ownership_data,data,size));
+    nvm_module_free(copy);free(text);
+    memset(&effect,0xa5,sizeof(effect));prior=effect;
+    for (unsigned n=0;n<size;n++) {
+        m->ownership_size=n;
+        CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);
+        CHECK(!memcmp(&effect,&prior,sizeof(effect)));
+    }
+    m->ownership_size=size;
+    const unsigned corrupt_offsets[]={40,42,44,48,52,56,58,60,61,62,64,68,69,70,72,76,80,82,84,85,86,88,92,93,94,96,100,101,102,104};
+    for (unsigned i=0;i<sizeof(corrupt_offsets)/sizeof(corrupt_offsets[0]);i++) {
+        unsigned offset=corrupt_offsets[i];uint8_t old=data[offset];data[offset]^=255;
+        CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);
+        CHECK(!memcmp(&effect,&prior,sizeof(effect)));data[offset]=old;
+    }
+    word(data,76,key);CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);word(data,76,other);
+    data[8]=0;CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);data[8]=3;
+    data[68]=TAG_VOID;CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);data[68]=TAG_STRUCT;
+    m->ownership_size=size+4;word(data,44,size-48+4);
+    CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);m->ownership_size=size;word(data,44,size-48);
+    CHECK(nvm_ownership_effect(m,UINT32_MAX,&effect)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(nvm_ownership_effect(m,key,NULL)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(!memcmp(&effect,&prior,sizeof(effect)));
+    CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_OK);
+    char saved=m->strings[key][0];m->strings[key][0]=0;
+    CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);m->strings[key][0]=saved;
+    /* I exercise both declared capacity boundaries, not just truncated rows. */
+    unsigned capacity_size=68+8*NVM_OWNERSHIP_MAX_EFFECT_PARAMETERS;
+    data=realloc(data,capacity_size);CHECK(data);m->ownership_data=data;
+    memset(data+48,0,capacity_size-48);m->ownership_size=capacity_size;
+    word(data,44,capacity_size-48);word(data,48,1);word(data,52,key);
+    half(data,56,NVM_OWNERSHIP_MAX_EFFECT_PARAMETERS);slot(data,60,TAG_STRUCT,0,0);
+    for (unsigned i=0;i<NVM_OWNERSHIP_MAX_EFFECT_PARAMETERS;i++)
+        slot(data,68+8*i,TAG_INT,0,NVM_V2_NO_INDEX);
+    CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_OK && effect.parameter_count==256 &&
+          effect.parameters[255].tag==TAG_INT);
+    prior=effect;half(data,56,257);
+    CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(!memcmp(&effect,&prior,sizeof(effect)));
+    capacity_size=52+16*NVM_OWNERSHIP_MAX_EFFECTS;
+    data=realloc(data,capacity_size);CHECK(data);m->ownership_data=data;
+    memset(data+48,0,capacity_size-48);m->ownership_size=capacity_size;
+    word(data,44,capacity_size-48);word(data,48,NVM_OWNERSHIP_MAX_EFFECTS);
+    uint32_t last=0,first=0;
+    for (unsigned i=0;i<NVM_OWNERSHIP_MAX_EFFECTS;i++) {
+        char name[32];int length=snprintf(name,sizeof(name),"Operation.%u",i);
+        last=nvm_add_string(m,name,(uint32_t)length);if (!i) first=last;
+        word(data,52+16*i,last);slot(data,60+16*i,TAG_VOID,0,NVM_V2_NO_INDEX);
+    }
+    CHECK(nvm_ownership_effect(m,last,&effect)==NVM_V2_OK && effect.parameter_count==0 &&
+          effect.result.tag==TAG_VOID);
+    prior=effect;word(data,48,257);
+    CHECK(nvm_ownership_effect(m,last,&effect)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(!memcmp(&effect,&prior,sizeof(effect)));word(data,48,256);
+    char *original=m->strings[last];uint32_t original_length=m->string_lengths[last];
+    m->strings[last]=m->strings[first];m->string_lengths[last]=m->string_lengths[first];
+    CHECK(nvm_ownership_effect(m,first,&effect)==NVM_V2_ERR_SECTION_TYPE);
+    CHECK(!memcmp(&effect,&prior,sizeof(effect)));
+    m->strings[last]=original;m->string_lengths[last]=original_length;
+    CHECK(nvm_ownership_effect(m,last,&effect)==NVM_V2_OK);
+    nvm_module_free(m);
+}
+
 int main(int argc, char **argv) {
+    check_effect_transport();
+    check_effect_array_contracts();
+    check_effect_array_slots();
+    check_effect_array_constructors();
+    check_global_transport();
     check_union_transport();
     check_concrete_union_instances();
+    check_owned_union_transport();
     AsmResult result;
     NvmModule *module = asm_assemble(
         ".types 1 0 0\n.entry 1\n.function read 1 1 0 int 1\n"

@@ -1,0 +1,34 @@
+test_array_and_callable_payloads (tests.test_generic_union_parameters.GenericUnionParameters.test_array_and_callable_payloads) ... ok
+test_imported_union_and_generic_function (tests.test_generic_union_parameters.GenericUnionParameters.test_imported_union_and_generic_function) ... ok
+test_mismatched_instances_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_mismatched_instances_preserve_output) ... ok
+test_nested_and_multiple_parameters (tests.test_generic_union_parameters.GenericUnionParameters.test_nested_and_multiple_parameters) ... ok
+test_ordinary_union_identity (tests.test_generic_union_parameters.GenericUnionParameters.test_ordinary_union_identity) ... ok
+test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) ... ok
+test_scalar_instances_and_empty_variants (tests.test_generic_union_parameters.GenericUnionParameters.test_scalar_instances_and_empty_variants) ... ok
+test_union_result_boundaries_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_union_result_boundaries_preserve_output) ... ok
+test_alternating_record_and_union_results (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_alternating_record_and_union_results) ... ok
+test_array_payload_element_kinds (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_array_payload_element_kinds) ... ok
+test_imported_equal_record_names_keep_payload_identity (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_imported_equal_record_names_keep_payload_identity) ... ok
+test_map_payload_retains_shared_storage (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_map_payload_retains_shared_storage) ... ok
+test_primitive_lists_keep_shared_mutation (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_primitive_lists_keep_shared_mutation) ... ok
+test_record_and_generic_record_results (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_and_generic_record_results) ... ok
+test_record_arrays_escape_and_mutate (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_arrays_escape_and_mutate) ... ok
+test_record_list_payload_mutates_shared_storage (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_list_payload_mutates_shared_storage) ... ok
+test_tuple_payload (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_tuple_payload) ... ok
+test_wrong_nominal_constructor_arguments_preserve_output (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_wrong_nominal_constructor_arguments_preserve_output) ... ok
+test_callback_argument (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_callback_argument) ... ok
+test_distinct_nominal_tuple_contexts (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_distinct_nominal_tuple_contexts) ... ok
+test_imported_alias_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_imported_alias_callback) ... ok
+test_inconsistent_context_preserves_output (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_inconsistent_context_preserves_output) ... ok
+test_local_multiple_instances (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_local_multiple_instances) ... ok
+test_nested_tuple_callable_dependencies (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nested_tuple_callable_dependencies) ... ok
+test_nominal_and_tuple_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nominal_and_tuple_context) ... ok
+test_reassigned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_reassigned_callback) ... ok
+test_returned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_returned_callback) ... ok
+test_structural_array_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_structural_array_context) ... ok
+test_tail_and_indirect_callback_arguments (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_tail_and_indirect_callback_arguments) ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 10.929s
+
+OK

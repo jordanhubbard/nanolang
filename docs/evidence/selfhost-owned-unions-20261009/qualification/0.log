@@ -1,0 +1,9 @@
+test_copyable_union_inside_ordinary_arm_of_owned_union (tests.test_owned_union_boundaries.UnionBoundaryProducer.test_copyable_union_inside_ordinary_arm_of_owned_union) ... ok
+test_phantom_resource_argument_does_not_make_payload_owned (tests.test_owned_union_boundaries.UnionBoundaryProducer.test_phantom_resource_argument_does_not_make_payload_owned) ... ok
+test_copyable_union_inside_ordinary_arm_of_owned_union (tests.test_owned_union_boundaries.UnionBoundaryC.test_copyable_union_inside_ordinary_arm_of_owned_union) ... ok
+test_phantom_resource_argument_does_not_make_payload_owned (tests.test_owned_union_boundaries.UnionBoundaryC.test_phantom_resource_argument_does_not_make_payload_owned) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 72.720s
+
+OK

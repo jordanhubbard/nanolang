@@ -6,6 +6,7 @@
 #include "managed_record_plan.h"
 #include "ownership_contracts.h"
 #include "verifier.h"
+#include "portable_read_catalog.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -41,7 +42,7 @@ typedef struct {
     Value globals[SLOTS];
     GlobalFlow *global_flow;
     Value children[ORIGINS];
-    int graph, records;
+    int graph, records, portable_reads;
     NvmRecordPlan *plan;
     Value *fields;
     uint32_t field_count, checked_field_writes;
@@ -529,6 +530,7 @@ static int walk(Analysis *a,uint32_t fi) {
         if(op==OP_ARR_LITERAL || op==OP_STRUCT_LITERAL){pops=in->operands[1].u16;pushes=1;}
         if(op==OP_AGG_PACK){pops=in->operands[3].u16;pushes=1;}
         if(op==OP_CALL){pops=a->module->functions[in->operands[0].u32].arity;pushes=a->module->functions[in->operands[0].u32].result_count;}
+        if(op==OP_CALL_EXTERN && a->portable_reads){pops=1;pushes=1;}
         if(op==OP_RET) {
             if(a->structure && depth!=entry->result_count)
                 return stop(a,NVM_ARRAY_INVALID,fi,d->byte_offset,"I require the declared result depth at an explicit return.");
@@ -563,6 +565,12 @@ static int walk(Analysis *a,uint32_t fi) {
                 result.relation=(uint16_t)(SLOTS+stack[base].relation);result.relation_tag=in->operands[0].u8;
             }
             break;
+        case OP_CALL_EXTERN:
+            if(!a->portable_reads)return stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I require portable import authority.");
+            if(nvm_portable_file_read_import(a->module,in->operands[0].u32)==1) {
+                result=tag(TAG_STRING);break;
+            }
+            result=tag(TAG_ARRAY);result.origins=UINT64_C(1)<<f->origins[index];break;
         case OP_ARR_NEW: case OP_STR_SPLIT: case OP_ARR_LITERAL:
             result=tag(TAG_ARRAY);result.origins=UINT64_C(1)<<f->origins[index];
             if(op==OP_ARR_LITERAL)for(uint32_t i=base;i<depth;i++) {
@@ -717,7 +725,7 @@ static void destroy(Analysis *a) {
 }
 static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityReport **out,
                                           NvmArrayGraphEligibilityReport **graph_out,
-                                          NvmRecordEligibilityReport **record_out,NvmRecordArrayOrigins **mixed_out,uint16_t *prepared_stacks) {
+                                          NvmRecordEligibilityReport **record_out,NvmRecordArrayOrigins **mixed_out,uint16_t *prepared_stacks, int portable_reads) {
     NvmArrayEligibilityResult early={NVM_ARRAY_INVALID,0,0,"I require a module and report output."};
     if(!m || (!out && !graph_out && !record_out && !mixed_out))return early;
     NvmRecordArrayBudget budget={0};NvmRecordArrayStructure *structure=NULL;
@@ -730,15 +738,19 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
     }
     Analysis *a=allocate(1,sizeof *a);
     if(!a){nvm_record_array_structure_free(structure);early.status=NVM_ARRAY_MEMORY;snprintf(early.message,sizeof early.message,"I could not allocate array analysis state.");return early;}
-    a->module=m;a->structure=structure;a->budget=budget;
+    a->module=m;a->structure=structure;a->budget=budget;a->portable_reads=portable_reads;
     a->records=record_out!=NULL || mixed_out!=NULL;a->graph=graph_out!=NULL || a->records;
     if(!a->structure && !verified(a,nvm_verify(m)))goto done;
     if(m->function_count>FUNCTIONS){stop(a,NVM_ARRAY_LIMIT,0,0,"I reached my array analysis function limit.");goto done;}
     if(!(m->header.flags&NVM_FLAG_HAS_MAIN) || m->functions[m->header.entry_point].arity ||
-       m->import_count || m->module_ref_count || (!a->structure && m->union_count) || m->passive_size ||
+       (!portable_reads && m->import_count) || m->module_ref_count || (!a->structure && m->union_count) || m->passive_size ||
        (!a->records && (m->struct_count || m->ownership_size || m->layout_size))) {
         stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require a closed zero-argument entry without nominal, ownership or host contracts.");goto done;
     }
+    if(portable_reads)for(uint32_t i=0;i<m->import_count;i++)
+        if(!nvm_portable_file_read_import(m,i)) {
+            stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact portable file-read imports.");goto done;
+        }
     if(a->records && !prepare_records(a))goto done;
     if(!global_prepare(a))goto done;
     uint32_t instructions=0;int initializer=-1;
@@ -755,7 +767,7 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
             DecodedInstruction in={0};uint32_t width=isa_decode(m->code+e->code_offset+pc,e->code_length-pc,&in);
             if(!width){stop(a,NVM_ARRAY_INVALID,fi,pc,"I require decodable instructions.");goto done;}
             if(++instructions>INSTRUCTIONS){stop(a,NVM_ARRAY_LIMIT,fi,pc,"I reached my decoded instruction limit.");goto done;}
-            if(!supported(in.opcode) && !(a->records && record_operation(in.opcode))){stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I have no proved transfer for this instruction.");goto done;}
+            if(!supported(in.opcode) && !(a->records && record_operation(in.opcode)) && !(portable_reads && in.opcode==OP_CALL_EXTERN)){stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I have no proved transfer for this instruction.");goto done;}
             if(in.opcode==OP_LOAD_GLOBAL || in.opcode==OP_STORE_GLOBAL) {
                 uint32_t global=in.operands[0].u32;
                 if(global>=SLOTS){stop(a,NVM_ARRAY_LIMIT,fi,pc,"I reached my array analysis global limit.");goto done;}
@@ -784,14 +796,17 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
                 if(!record_site(a,fi,i))goto done;
                 continue;
             }
-            if(op!=OP_ARR_NEW && op!=OP_STR_SPLIT && op!=OP_ARR_LITERAL)continue;
-            uint8_t declared=op==OP_STR_SPLIT?TAG_STRING:d->instruction.operands[0].u8;
+            int bytes=portable_reads && op==OP_CALL_EXTERN &&
+                nvm_portable_file_read_import(m,d->instruction.operands[0].u32)==2;
+            if(op!=OP_ARR_NEW && op!=OP_STR_SPLIT && op!=OP_ARR_LITERAL && !bytes)continue;
+            uint8_t declared=bytes?TAG_U8:op==OP_STR_SPLIT?TAG_STRING:d->instruction.operands[0].u8;
             uint16_t allowed=a->structure?RECORD_ARRAY_LEAVES:LEAVES|(a->graph?BIT(TAG_ARRAY):0);
             if(!(allowed&BIT(declared))){stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I have not qualified this declared array shape.");goto done;}
             if(a->report.origin_count==ORIGINS){stop(a,NVM_ARRAY_LIMIT,fi,d->byte_offset,"I reached my allocation-site origin limit.");goto done;}
             uint32_t origin=a->report.origin_count++;f->origins[i]=(int16_t)origin;
-            a->report.origins[origin]=(NvmArrayOrigin){fi,d->byte_offset,op==OP_STR_SPLIT?BIT(TAG_STRING):0,declared,(uint8_t)packed(declared)};
+            a->report.origins[origin]=(NvmArrayOrigin){fi,d->byte_offset,bytes?BIT(TAG_U8):op==OP_STR_SPLIT?BIT(TAG_STRING):0,declared,(uint8_t)packed(declared)};
             if(op==OP_STR_SPLIT)a->children[origin]=tag(TAG_STRING);
+            if(bytes)a->children[origin]=tag(TAG_U8);
         }
     }
     if(a->field_count) {
@@ -852,18 +867,18 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
 }
 
 NvmArrayEligibilityResult nvm_analyze_managed_arrays(const NvmModule *m,NvmArrayEligibilityReport **out) {
-    return analyze(m,out,NULL,NULL,NULL,NULL);
+    return analyze(m,out,NULL,NULL,NULL,NULL,0);
 }
 NvmArrayEligibilityResult nvm_analyze_managed_array_graphs(const NvmModule *m,NvmArrayGraphEligibilityReport **out) {
-    return analyze(m,NULL,out,NULL,NULL,NULL);
+    return analyze(m,NULL,out,NULL,NULL,NULL,0);
 }
 
 NvmArrayEligibilityResult nvm_analyze_managed_records(const NvmModule *m,NvmRecordEligibilityReport **out) {
-    return analyze(m,NULL,NULL,out,NULL,NULL);
+    return analyze(m,NULL,NULL,out,NULL,NULL,0);
 }
 
 NvmArrayEligibilityResult nvm_analyze_record_array_origins(const NvmModule *m,NvmRecordArrayOrigins **out) {
-    return analyze(m,NULL,NULL,NULL,out,NULL);
+    return analyze(m,NULL,NULL,NULL,out,NULL,0);
 }
 
 NvmArrayEligibilityResult nvm_select_managed_array_mode(const NvmModule *m,int *graph_required) {
@@ -929,3 +944,24 @@ NvmArrayEligibilityResult nvm_select_managed_heap(const NvmModule *m,int mutable
 }
 
 #include "managed_record_array_execution.inc"
+
+NvmArrayEligibilityResult nvm_select_portable_read_heap(const NvmModule *m,NvmManagedHeapPlan **out) {
+    NvmArrayEligibilityResult result={.status=NVM_ARRAY_INVALID};
+    if(!m || !out)return result;
+    NvmArrayEligibilityReport *leaf=NULL;
+    result=analyze(m,&leaf,NULL,NULL,NULL,NULL,1);
+    nvm_array_eligibility_free(leaf);
+    int graph=0;
+    if(result.status==NVM_ARRAY_UNRESOLVED) {
+        NvmArrayGraphEligibilityReport *report=NULL;
+        result=analyze(m,NULL,&report,NULL,NULL,NULL,1);
+        nvm_array_graph_eligibility_free(report);
+        graph=1;
+    }
+    if(result.status!=NVM_ARRAY_ELIGIBLE)return result;
+    NvmManagedHeapPlan *plan=allocate(1,sizeof *plan);
+    if(!plan){result.status=NVM_ARRAY_MEMORY;return result;}
+    plan->mode=graph?NVM_MANAGED_ARRAY_GRAPH:NVM_MANAGED_LEAF;
+    *out=plan;
+    return result;
+}

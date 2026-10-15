@@ -1,0 +1,9 @@
+# My exact header integer checkpoint
+
+At local parent `a1cf3439c`, my unchanged header scanner fails 15 new controls: one positive execution suite detects wrong octal semantics, and 14 unsupported numeric macros are silently imported. I retain the baseline. My corrected scanner reads complete physical lines, recognizes complete decimal/octal/hexadecimal literals in my signed 64-bit range, validates C integer suffixes and trailing comments, and skips unsupported expressions, overflow, malformed suffixes and incomplete comments. I reject negative unsigned literals rather than misrepresenting their C value.
+
+My focused Darwin suite passes checked dependency/root shadows, verified NanoVM and strict C11 native execution with Homebrew Clang ASan/UBSan/LSan. Positive values include signed extrema, hexadecimal, octal, zero, suffix orders and comments. Every unsupported macro control requires type-check refusal and preservation of prior output. I expanded suffix and comment controls after retaining the initial baseline. Four system SQLite tests skip honestly because sqlite3.h is absent from the configured header search directories.
+
+My full `NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang make test-header-constant-functions test-module-metadata` gate completes with exit0 at source pin `e1fa92e03`. The retained `qualified-bootstrap` directory records all 17 successful steps, raw Stage1/Stage2 equality, both native compile/execute smoke controls, unchanged source inventory at completion, module metadata tests and the complete Make terminal. Stage1 takes 342.286 seconds and Stage2 takes 345.480 seconds. I preserve the receipt before changing the bootstrap linker configuration; this is not a receipt for that later script change.
+
+I do not infer a Linux result or full self-hosted header transport from these checks. This remains a literal scanner, not a C preprocessor or expression evaluator.

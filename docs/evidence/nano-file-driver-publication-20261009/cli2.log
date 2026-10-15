@@ -1,0 +1,9 @@
+test_generated_shadows_byte_parity_and_native_runtime_grant (tests.test_nano_service_driver.NanoServiceDriver.test_generated_shadows_byte_parity_and_native_runtime_grant) ... ok
+test_grant_failure_aliases_and_compiler_failure_preserve_output (tests.test_nano_service_driver.NanoServiceDriver.test_grant_failure_aliases_and_compiler_failure_preserve_output) ... ok
+test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse (tests.test_nano_service_driver.NanoServiceDriver.test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse) ... ok
+test_required_import_shadows_and_root_only_selection (tests.test_nano_service_driver.NanoServiceDriver.test_required_import_shadows_and_root_only_selection) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 64.976s
+
+OK

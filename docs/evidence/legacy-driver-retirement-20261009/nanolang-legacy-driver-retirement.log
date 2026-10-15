@@ -1,0 +1,22 @@
+test_cseed_compiler_failure_reports_backend_phase (tests.test_compiler_phases.CompilerPhases.test_cseed_compiler_failure_reports_backend_phase) ... ok
+test_diagnostic_helpers_and_historical_phase_formatters (tests.test_compiler_phases.CompilerPhases.test_diagnostic_helpers_and_historical_phase_formatters) ... ok
+test_generated_schema_and_stable_phase_ordinals (tests.test_compiler_phases.CompilerPhases.test_generated_schema_and_stable_phase_ordinals) ... ok
+test_native_codegen_marker_and_changed_artifact_are_refused (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_native_codegen_marker_and_changed_artifact_are_refused) ... ok
+test_source_membership_changes_are_refused_but_host_cache_growth_is_allowed (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_source_membership_changes_are_refused_but_host_cache_growth_is_allowed) ... ok
+test_source_tool_and_host_mutation_are_refused (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_source_tool_and_host_mutation_are_refused) ... ok
+test_bootstrap_make_dependencies (unittest.loader._FailedTest.test_bootstrap_make_dependencies) ... ERROR
+
+======================================================================
+ERROR: test_bootstrap_make_dependencies (unittest.loader._FailedTest.test_bootstrap_make_dependencies)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_bootstrap_make_dependencies
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+ModuleNotFoundError: No module named 'tests.test_bootstrap_make_dependencies'
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.661s
+
+FAILED (errors=1)

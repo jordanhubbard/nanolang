@@ -1,0 +1,218 @@
+[
+  {
+    "path": "test_copyable_union_global/assembler.log",
+    "sha256": "086ca8ea77ef60609e5833d5a2848b07fcf59efc94b1d50fc236a97fa9edf26b",
+    "bytes": 182,
+    "text_archived": true
+  },
+  {
+    "path": "test_copyable_union_global/emitter.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "test_copyable_union_global/main.nano",
+    "sha256": "0208310d1ff8163c6de7f442001b3db90d12cdf927165318142a6d53ff658985",
+    "bytes": 547,
+    "text_archived": true
+  },
+  {
+    "path": "test_copyable_union_global/main.nasm",
+    "sha256": "8a85cf9655d2cdb46c992648a0346692a02e63451e90c86af4daaa384d5a852f",
+    "bytes": 2018,
+    "text_archived": true
+  },
+  {
+    "path": "test_generic_union_global_and_alias/assembler.log",
+    "sha256": "9395c02da3509fcf01dd07b35e4fdc2dcdf18dfb1ee247e8986253bf4a2e5c47",
+    "bytes": 191,
+    "text_archived": true
+  },
+  {
+    "path": "test_generic_union_global_and_alias/emitter.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "test_generic_union_global_and_alias/main.nano",
+    "sha256": "a80dd387b9231f80a1125c10d2dac861a12f4990653b25ee8b256d33bd1de512",
+    "bytes": 446,
+    "text_archived": true
+  },
+  {
+    "path": "test_generic_union_global_and_alias/main.nasm",
+    "sha256": "534147f6fd9771649babd159fa5bc7f8e9dbf8953b45b9c0b6dc6a1741812e43",
+    "bytes": 1553,
+    "text_archived": true
+  },
+  {
+    "path": "test_immutable_assignment_refused/emitter.log",
+    "sha256": "a20c883b2a4cfb6e0910bdf5d73c6e5671df4292046eb1e03716e7a3d987f4a5",
+    "bytes": 92,
+    "text_archived": true
+  },
+  {
+    "path": "test_immutable_assignment_refused/main.nano",
+    "sha256": "33117ee017ac566778ea443d4bb85109d93a868cbb3be77a799297dc4d6cf940",
+    "bytes": 251,
+    "text_archived": true
+  },
+  {
+    "path": "test_initializer_order_and_once_only_helper_effects/assembler.log",
+    "sha256": "6a7f1e7000b11f6b4fb1c3d565d85f62ec05982382bc06c1117bd3609d8bbc70",
+    "bytes": 207,
+    "text_archived": true
+  },
+  {
+    "path": "test_initializer_order_and_once_only_helper_effects/emitter.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "test_initializer_order_and_once_only_helper_effects/main.nano",
+    "sha256": "793a1b305ee4c73dfee4aa0a743ef75be37ba6087ce703fdc72a99ea0d8c7dd3",
+    "bytes": 455,
+    "text_archived": true
+  },
+  {
+    "path": "test_initializer_order_and_once_only_helper_effects/main.nasm",
+    "sha256": "bd877e09822e4b627fe9b67230995ade47d190ef196c0d67918ad57df4989fd8",
+    "bytes": 1122,
+    "text_archived": true
+  },
+  {
+    "path": "test_local_and_parameter_shadowing/assembler.log",
+    "sha256": "0fdfa11be35b786e3b490c3f7700f5c4d4e0575d839979a8732c107d01e48e4a",
+    "bytes": 190,
+    "text_archived": true
+  },
+  {
+    "path": "test_local_and_parameter_shadowing/emitter.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "test_local_and_parameter_shadowing/main.nano",
+    "sha256": "237a59ba920de94db9094d1cf7858cf37697acc5e864e325c869feb7601fe1cb",
+    "bytes": 588,
+    "text_archived": true
+  },
+  {
+    "path": "test_local_and_parameter_shadowing/main.nasm",
+    "sha256": "7e9469eb0a91d48331a2565069cbd6e80e3badb47403de107742cdf0716d68da",
+    "bytes": 1461,
+    "text_archived": true
+  },
+  {
+    "path": "test_resource_global_remains_refused/emitter.log",
+    "sha256": "4b6169cc5d4ea55cb2a625a511dbc688168f1e3bbceed1d84c95bc97508be381",
+    "bytes": 109,
+    "text_archived": true
+  },
+  {
+    "path": "test_resource_global_remains_refused/main.nano",
+    "sha256": "f62213ef92f13a138c7fe1677c5de41d7f91365aebc92f3c6157c31f5ef7820f",
+    "bytes": 254,
+    "text_archived": true
+  },
+  {
+    "path": "test_same_shape_wrong_union_assignment_refused/emitter.log",
+    "sha256": "8a4f5c3ec964c70958e1066ae01e17900414b6ae81a55315d4728c8a12c51a10",
+    "bytes": 102,
+    "text_archived": true
+  },
+  {
+    "path": "test_same_shape_wrong_union_assignment_refused/main.nano",
+    "sha256": "17b362bdd183d8679cf7b1147b0861936fcaca4ed57c8a280fc3a1dfdf5105d8",
+    "bytes": 378,
+    "text_archived": true
+  },
+  {
+    "path": "test_same_shape_wrong_union_initializer_refused/emitter.log",
+    "sha256": "8a4f5c3ec964c70958e1066ae01e17900414b6ae81a55315d4728c8a12c51a10",
+    "bytes": 102,
+    "text_archived": true
+  },
+  {
+    "path": "test_same_shape_wrong_union_initializer_refused/main.nano",
+    "sha256": "3559da7c2f88a69b13c0ffbca034d075352d675a0facbec2d0a7a2ef84eecdc3",
+    "bytes": 338,
+    "text_archived": true
+  },
+  {
+    "path": "test_scalar_kinds_and_mutation/assembler.log",
+    "sha256": "6ad022594c628e90bd4b02d0ff4ac812b20370f43c06391c4b6da3953505b5fe",
+    "bytes": 186,
+    "text_archived": true
+  },
+  {
+    "path": "test_scalar_kinds_and_mutation/emitter.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "test_scalar_kinds_and_mutation/main.nano",
+    "sha256": "5e2433211ebd4d8355fc6b6afb1a99e5e145eeefe4af475616bb9f10669ce415",
+    "bytes": 536,
+    "text_archived": true
+  },
+  {
+    "path": "test_scalar_kinds_and_mutation/main.nasm",
+    "sha256": "39aa70bc6b0887c2fb404a8d2c856e0daf9ce53db74d8050cd361404c67fad68",
+    "bytes": 1308,
+    "text_archived": true
+  },
+  {
+    "path": "test_uninitialized_global_read_in_initializer_refused/assembler.log",
+    "sha256": "685738892e51773f87f53b05edff97ccb135f43b647f829e85bf97dc020af7df",
+    "bytes": 209,
+    "text_archived": true
+  },
+  {
+    "path": "test_uninitialized_global_read_in_initializer_refused/emitter.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "test_uninitialized_global_read_in_initializer_refused/main.nano",
+    "sha256": "4426819efd8f6beb751e981c3b54dcb9c9cd3c0375c28f5cdd5e9d61cd9e2de4",
+    "bytes": 351,
+    "text_archived": true
+  },
+  {
+    "path": "test_uninitialized_global_read_in_initializer_refused/main.nasm",
+    "sha256": "4ecaeb22f256b091bfb45c7b3c1a85e1ab3caa27735627864741b5ab0dce8d3d",
+    "bytes": 942,
+    "text_archived": true
+  },
+  {
+    "path": "test_wrong_generic_union_global_alias_refused/emitter.log",
+    "sha256": "440d5de65a55625deedbb28dfa68d579d7a6f2e427cd445a42bd9777294913ee",
+    "bytes": 103,
+    "text_archived": true
+  },
+  {
+    "path": "test_wrong_generic_union_global_alias_refused/main.nano",
+    "sha256": "09a03b977aaf6d1dd4c64bc78e3f010754cd280cb8590754b5a484510914d89e",
+    "bytes": 341,
+    "text_archived": true
+  },
+  {
+    "path": "test_wrong_global_assignment_type_refused/emitter.log",
+    "sha256": "68b6b69e572aadf80f961a2a685fc1d6344b8822b7cf830107485cffd1cdb323",
+    "bytes": 99,
+    "text_archived": true
+  },
+  {
+    "path": "test_wrong_global_assignment_type_refused/main.nano",
+    "sha256": "4ee080d93d94b0755cd395cf52e039fcff64dc9bf01ad3f77311f0bdd0ffdb50",
+    "bytes": 258,
+    "text_archived": true
+  }
+]

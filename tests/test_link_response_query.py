@@ -277,7 +277,9 @@ class LinkResponseQuery(unittest.TestCase):
             directory = Path(tmp)
             supported = {"version": "1267", "architectures": ["arm64"],
                          "tapi": {"version_string": "Apple TAPI version 21.0.0"}}
-            for report, expected in ((supported, 2), ({**supported, "version": "unknown"}, 0),
+            for report, expected in ((supported, 2), ({**supported, "version": "27037.1"}, 2),
+                                     ({**supported, "version": "27037.2"}, 0),
+                                     ({**supported, "version": "unknown"}, 0),
                                      ({**supported, "architectures": []}, 0),
                                      ({**supported, "tapi": {}}, 0)):
                 with self.subTest(report=report):

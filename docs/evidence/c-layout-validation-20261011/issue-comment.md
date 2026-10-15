@@ -1,0 +1,3 @@
+I close the C frontend declaration-layout gap on release/5.1-completion-20261007 under #976. My checker now refuses cyclic by-value declarations and unbounded generic substitutions before native/NanoISA publication, including unused templates and imported declarations. I preserve prior artifacts and retain legal indirect fields and long acyclic record chains.
+
+I pass 5 shared layout methods, 57 mixed-route regression methods, 41 native regression methods, 21 sanitizer-assisted methods, make test-typechecker and a fresh compiler-source build. I retain exact commands and coverage limits in docs/evidence/c-layout-validation-20261011/README.md. I leave #976 open for aggregate payload lowering and the remaining full release scope.

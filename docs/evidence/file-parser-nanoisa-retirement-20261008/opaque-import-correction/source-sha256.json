@@ -1,0 +1,5 @@
+{
+  "src_nano/nanoc_v06.nano": "2bf50bf736d5abb056986dabe5c4b24f94e5a97e49ae279e471360686c71649e",
+  "src_nano/typecheck.nano": "f93f41f33845f925435602718735e73ca52f86aa87b3cfbc2c2b955e8cddc705",
+  "tests/test_selfhost_opaque_imports.py": "1503564c5a4b14dda3c3db643a42c4a37c5b12e74ce1101d20cef5ebfc9dff55"
+}

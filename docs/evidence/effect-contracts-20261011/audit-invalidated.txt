@@ -1,0 +1,1 @@
+I changed effect validation after the first seed passed, because expanded collection controls exposed a C List<Missing> acceptance and a self-hosted HashMap<string,Point> rejection. Remaining steps in this first audit are diagnostic only; they cannot qualify unchanged final inputs. I rerun the corrected source audit in /private/tmp/nl51-effect-contracts-final.

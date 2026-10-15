@@ -1,0 +1,47 @@
+.types 2 0 0
+.string text "kept"
+.entry main
+.function read 1 2 0 struct 1
+LOAD_LOCAL 0
+AGG_GET 0
+AGG_GET 0
+PUSH_I64 0
+ARR_GET
+STORE_LOCAL 1
+LOAD_LOCAL 1
+CALL check
+ASSERT
+LOAD_LOCAL 1
+CALL check
+ASSERT
+LOAD_LOCAL 0
+RET
+.end
+.function check 1 1 0 bool 1
+LOAD_LOCAL 0
+TYPE_CHECK 1
+RET
+.end
+.function main 0 0 0 int 1
+PUSH_I64 73
+ARR_LITERAL 1 1
+AGG_PACK 0 0 0 1
+AGG_PACK 0 1 0 1
+CALL read
+AGG_GET 0
+AGG_GET 0
+PUSH_I64 73
+ARR_PUSH
+ARR_LEN
+PUSH_I64 2
+I64_EQ
+ASSERT
+PUSH_I64 73
+ARR_LITERAL 1 1
+PUSH_I64 0
+ARR_GET
+CALL check
+ASSERT
+PUSH_I64 0
+RET
+.end

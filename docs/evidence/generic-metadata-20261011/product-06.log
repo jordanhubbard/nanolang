@@ -1,0 +1,22 @@
+test_arrays_and_tuples (tests.test_generic_binding_metadata.GenericBindingMetadata.test_arrays_and_tuples) ... ok
+test_callable_binding (tests.test_generic_binding_metadata.GenericBindingMetadata.test_callable_binding) ... ok
+test_contextual_callable_reuses_direct_instance (tests.test_generic_binding_metadata.GenericBindingMetadata.test_contextual_callable_reuses_direct_instance) ... ok
+test_imported_callable_result_mismatch_preserves_output (tests.test_generic_binding_metadata.GenericBindingMetadata.test_imported_callable_result_mismatch_preserves_output) ... ok
+test_imported_declaration_origins (tests.test_generic_binding_metadata.GenericBindingMetadata.test_imported_declaration_origins) ... ok
+test_imported_nominal_types_remain_distinct (tests.test_generic_binding_metadata.GenericBindingMetadata.test_imported_nominal_types_remain_distinct) ... ok
+test_imported_specialized_returned_captures (tests.test_generic_binding_metadata.GenericBindingMetadata.test_imported_specialized_returned_captures) ... ok
+test_independent_record_captures_share_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_independent_record_captures_share_specialization) ... ok
+test_multiple_type_variables (tests.test_generic_binding_metadata.GenericBindingMetadata.test_multiple_type_variables) ... ok
+test_nested_body_is_not_a_second_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nested_body_is_not_a_second_specialization) ... ok
+test_nominal_and_generic_union_bindings (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nominal_and_generic_union_bindings) ... ok
+test_scalars_and_reused_instances (tests.test_generic_binding_metadata.GenericBindingMetadata.test_scalars_and_reused_instances) ... ok
+test_specialized_callable_result_mismatch_preserves_output (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_callable_result_mismatch_preserves_output) ... ok
+test_specialized_grandparent_capture (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_grandparent_capture) ... ok
+test_specialized_named_recursive_capture (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_named_recursive_capture) ... ok
+test_specialized_nested_parameters (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_nested_parameters) ... ok
+test_specialized_returned_captures (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_returned_captures) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 8.504s
+
+OK

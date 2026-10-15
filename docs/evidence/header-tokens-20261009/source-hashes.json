@@ -1,0 +1,5 @@
+{
+  "src/module_builder.c": "14270f48512d72b315037416ec0f9cafb7e56981e92aef4e1aeceb983677c49e",
+  "src/module_builder.h": "70052651f0d33500b082021689c8ea291bd648c5e3feb0d249a9c43264a88ff7",
+  "tests/test_header_constant_functions.py": "19a8a8db14c8f0f4b0063b6d8c7abd8e9bd1fb5fca75b85111133990a6e60169"
+}

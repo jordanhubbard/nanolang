@@ -1,0 +1,6 @@
+resource struct Handle{value:int}
+fn consume(h:Handle)->int{let Handle{value}=h return value}
+shadow consume{assert (== (consume Handle{value:7}) 7)}
+struct Batch{token:Handle,items:array<int>} effect E{pass:Batch->Batch}
+fn main()->int{let b:Batch=handle {perform E.pass(Batch{token:Handle{value:7},items:[7]})} with {pass b->{b}} let Batch{token,items}=b assert (== (consume token) 7) return (at items 0)}
+shadow main{assert true}

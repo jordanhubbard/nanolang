@@ -1,0 +1,1058 @@
+test_endpoint_calls_results_and_shadows (tests.test_socket_service_source.SocketBodies.test_endpoint_calls_results_and_shadows) ... ok
+test_exact_constructor_and_nominal_refusals (tests.test_socket_service_source.SocketBodies.test_exact_constructor_and_nominal_refusals) ... ok
+test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) ... 
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='short-circuit-and') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='short-circuit-or') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='double-close') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='use-after-move') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='parameter-leak') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='result-leak') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='overwrite') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='branch-disagreement') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='return-leak') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='loop-consume') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='loop-condition') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='duplicate-owner') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='duplicate-exclusive') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='consume-during-borrow') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='borrow-after-consume') ... FAIL
+  test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='payload-leak') ... FAIL
+test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) ... FAIL
+test_lowering_does_not_reinterpret_tcp_as_file (tests.test_socket_service_source.SocketOwnership.test_lowering_does_not_reinterpret_tcp_as_file) ... ok
+test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) ... 
+  test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='lifecycle') ... FAIL
+  test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='terminal-operator') ... FAIL
+  test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='branch-close') ... FAIL
+  test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='early-return') ... FAIL
+  test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='loop-borrow') ... FAIL
+  test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='loop-owner') ... FAIL
+  test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='reinitialize') ... FAIL
+  test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='shared-call') ... FAIL
+  test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='lexical-shadow') ... FAIL
+  test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='branch-return') ... FAIL
+  test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='error-first') ... FAIL
+  test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='terminal-argument') ... FAIL
+test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) ... FAIL
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='short-circuit-and')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 0', 'FLOW 2 4 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 0', 'FLOW 2 3 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 0', 'FLOW 2 4 0']
+?          ^             ^             ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 0', 'FLOW 2 3 0']
+?          ^             ^             ^             ^
+ : ['STATUS 1 FUNCTIONS 3 SHADOWS 1 FACTS 4\nI require branches and loop edges to agree on File ownership.\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 4 0\nFLOW 2 4 0\n', 'STATUS 1 FUNCTIONS 3 SHADOWS 0\nI require branches and loop edges to agree on File ownership.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 2 3 0\n', 'STATUS 1 FUNCTIONS 3 SHADOWS 0\nI require branches and loop edges to agree on File ownership.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 2 3 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='short-circuit-or')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 0', 'FLOW 2 4 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 0', 'FLOW 2 3 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 0', 'FLOW 2 4 0']
+?          ^             ^             ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 0', 'FLOW 2 3 0']
+?          ^             ^             ^             ^
+ : ['STATUS 1 FUNCTIONS 3 SHADOWS 1 FACTS 4\nI require branches and loop edges to agree on File ownership.\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 4 0\nFLOW 2 4 0\n', 'STATUS 1 FUNCTIONS 3 SHADOWS 0\nI require branches and loop edges to agree on File ownership.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 2 3 0\n', 'STATUS 1 FUNCTIONS 3 SHADOWS 0\nI require branches and loop edges to agree on File ownership.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 2 3 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='double-close')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0']
+?          ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0']
+?          ^             ^
+ : ['STATUS 1 FUNCTIONS 2 SHADOWS 1 FACTS 2\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 2 0\nFLOW 2 2 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 1 0\nFLOW 2 1 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 1 0\nFLOW 2 1 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='use-after-move')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 3 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 2 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 3 0']
+?          ^             ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 2 0']
+?          ^             ^             ^
+ : ['STATUS 1 FUNCTIONS 2 SHADOWS 1 FACTS 3\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 3 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 2 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 2 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='parameter-leak')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0'] != ['FLOW 1 1 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0']
+?          ^
+
++ ['FLOW 1 1 0']
+?          ^
+ : ['STATUS 1 FUNCTIONS 2 SHADOWS 1 FACTS 1\nI require every File owner to be consumed before scope exit.\nFLOW 1 2 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI require every File owner to be consumed before scope exit.\nFLOW 1 1 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI require every File owner to be consumed before scope exit.\nFLOW 1 1 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='result-leak')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0'] != ['FLOW 1 1 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0']
+?          ^
+
++ ['FLOW 1 1 0']
+?          ^
+ : ['STATUS 1 FUNCTIONS 2 SHADOWS 1 FACTS 1\nI require every File owner to be consumed before scope exit.\nFLOW 1 2 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI require every File owner to be consumed before scope exit.\nFLOW 1 1 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI require every File owner to be consumed before scope exit.\nFLOW 1 1 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='overwrite')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 1 3 0', 'FLOW 2 2 0', 'FLOW 1 4 0'] != ['FLOW 1 1 0', 'FLOW 1 2 0', 'FLOW 2 1 0', 'FLOW 1 3 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 1 3 0', 'FLOW 2 2 0', 'FLOW 1 4 0']
+?          ^             ^             ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 1 2 0', 'FLOW 2 1 0', 'FLOW 1 3 0']
+?          ^             ^             ^             ^
+ : ['STATUS 1 FUNCTIONS 2 SHADOWS 1 FACTS 4\nI cannot overwrite a live or borrowed File owner.\nFLOW 1 2 0\nFLOW 1 3 0\nFLOW 2 2 0\nFLOW 1 4 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI cannot overwrite a live or borrowed File owner.\nFLOW 1 1 0\nFLOW 1 2 0\nFLOW 2 1 0\nFLOW 1 3 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI cannot overwrite a live or borrowed File owner.\nFLOW 1 1 0\nFLOW 1 2 0\nFLOW 2 1 0\nFLOW 1 3 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='branch-disagreement')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0']
+?          ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0']
+?          ^             ^
+ : ['STATUS 1 FUNCTIONS 2 SHADOWS 1 FACTS 2\nI require branches and loop edges to agree on File ownership.\nFLOW 1 2 0\nFLOW 2 2 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI require branches and loop edges to agree on File ownership.\nFLOW 1 1 0\nFLOW 2 1 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI require branches and loop edges to agree on File ownership.\nFLOW 1 1 0\nFLOW 2 1 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='return-leak')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0'] != ['FLOW 1 1 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0']
+?          ^
+
++ ['FLOW 1 1 0']
+?          ^
+ : ['STATUS 1 FUNCTIONS 2 SHADOWS 1 FACTS 1\nI require every File owner to be consumed before scope exit.\nFLOW 1 2 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI require every File owner to be consumed before scope exit.\nFLOW 1 1 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI require every File owner to be consumed before scope exit.\nFLOW 1 1 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='loop-consume')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0']
+?          ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0']
+?          ^             ^
+ : ['STATUS 1 FUNCTIONS 2 SHADOWS 1 FACTS 2\nI require branches and loop edges to agree on File ownership.\nFLOW 1 2 0\nFLOW 2 2 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI require branches and loop edges to agree on File ownership.\nFLOW 1 1 0\nFLOW 2 1 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI require branches and loop edges to agree on File ownership.\nFLOW 1 1 0\nFLOW 2 1 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='loop-condition')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 0', 'FLOW 2 4 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 0', 'FLOW 2 3 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 0', 'FLOW 2 4 0']
+?          ^             ^             ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 0', 'FLOW 2 3 0']
+?          ^             ^             ^             ^
+ : ['STATUS 1 FUNCTIONS 3 SHADOWS 1 FACTS 4\nI require branches and loop edges to agree on File ownership.\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 4 0\nFLOW 2 4 0\n', 'STATUS 1 FUNCTIONS 3 SHADOWS 0\nI require branches and loop edges to agree on File ownership.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 2 3 0\n', 'STATUS 1 FUNCTIONS 3 SHADOWS 0\nI require branches and loop edges to agree on File ownership.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 2 3 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='duplicate-owner')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 1 3 0', 'FLOW 2 2 0', 'FLOW 2[29 chars]6 0'] != ['FLOW 1 1 0', 'FLOW 1 2 0', 'FLOW 2 1 0', 'FLOW 2[29 chars]5 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0',
+?          ^
+
++ ['FLOW 1 1 0',
+?          ^
+
+-  'FLOW 1 3 0',
+?          ^
+
++  'FLOW 1 2 0',
+?          ^
+
++  'FLOW 2 1 0',
+   'FLOW 2 2 0',
+-  'FLOW 2 3 0',
+-  'FLOW 1 6 0',
+?          ^
+
++  'FLOW 1 5 0',
+?          ^
+
+-  'FLOW 2 6 0']
+?          ^
+
++  'FLOW 2 5 0']
+?          ^
+ : ['STATUS 1 FUNCTIONS 3 SHADOWS 1 FACTS 6\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 2 0\nFLOW 1 3 0\nFLOW 2 2 0\nFLOW 2 3 0\nFLOW 1 6 0\nFLOW 2 6 0\n', 'STATUS 1 FUNCTIONS 3 SHADOWS 0\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 1 0\nFLOW 1 2 0\nFLOW 2 1 0\nFLOW 2 2 0\nFLOW 1 5 0\nFLOW 2 5 0\n', 'STATUS 1 FUNCTIONS 3 SHADOWS 0\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 1 0\nFLOW 1 2 0\nFLOW 2 1 0\nFLOW 2 2 0\nFLOW 1 5 0\nFLOW 2 5 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='duplicate-exclusive')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 2', 'FLOW 1 3 2', 'FLOW 3 2 2', 'FLOW 4[85 chars]7 2'] != ['FLOW 1 1 2', 'FLOW 1 2 2', 'FLOW 3 1 2', 'FLOW 4[85 chars]6 2']
+
+First differing element 0:
+'FLOW 1 2 2'
+'FLOW 1 1 2'
+
+- ['FLOW 1 2 2',
+?          ^
+
++ ['FLOW 1 1 2',
+?          ^
+
+-  'FLOW 1 3 2',
+?          ^
+
++  'FLOW 1 2 2',
+?          ^
+
++  'FLOW 3 1 2',
++  'FLOW 4 1 2',
+   'FLOW 3 2 2',
+   'FLOW 4 2 2',
+-  'FLOW 3 3 2',
+-  'FLOW 4 3 2',
++  'FLOW 1 5 0',
++  'FLOW 2 5 0',
+   'FLOW 1 6 0',
+-  'FLOW 2 6 0',
+-  'FLOW 1 7 0',
+-  'FLOW 3 7 2']
+?          ^
+
++  'FLOW 3 6 2']
+?          ^
+ : ['STATUS 1 FUNCTIONS 3 SHADOWS 1 FACTS 10\nI cannot overlap an exclusive borrow or borrow a moved File.\nFLOW 1 2 2\nFLOW 1 3 2\nFLOW 3 2 2\nFLOW 4 2 2\nFLOW 3 3 2\nFLOW 4 3 2\nFLOW 1 6 0\nFLOW 2 6 0\nFLOW 1 7 0\nFLOW 3 7 2\n', 'STATUS 1 FUNCTIONS 3 SHADOWS 0\nI cannot overlap an exclusive borrow or borrow a moved File.\nFLOW 1 1 2\nFLOW 1 2 2\nFLOW 3 1 2\nFLOW 4 1 2\nFLOW 3 2 2\nFLOW 4 2 2\nFLOW 1 5 0\nFLOW 2 5 0\nFLOW 1 6 0\nFLOW 3 6 2\n', 'STATUS 1 FUNCTIONS 3 SHADOWS 0\nI cannot overlap an exclusive borrow or borrow a moved File.\nFLOW 1 1 2\nFLOW 1 2 2\nFLOW 3 1 2\nFLOW 4 1 2\nFLOW 3 2 2\nFLOW 4 2 2\nFLOW 1 5 0\nFLOW 2 5 0\nFLOW 1 6 0\nFLOW 3 6 2\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='consume-during-borrow')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 2', 'FLOW 3[71 chars]8 2'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 2', 'FLOW 3[71 chars]7 2']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0',
+?          ^
+
++ ['FLOW 1 1 0',
+?          ^
+
+-  'FLOW 2 2 0',
+?          ^
+
++  'FLOW 2 1 0',
+?          ^
+
+-  'FLOW 1 4 2',
+?          ^
+
++  'FLOW 1 3 2',
+?          ^
+
+-  'FLOW 3 4 2',
+?          ^
+
++  'FLOW 3 3 2',
+?          ^
+
+-  'FLOW 4 4 2',
+?          ^
+
++  'FLOW 4 3 2',
+?          ^
+
++  'FLOW 1 6 0',
++  'FLOW 2 6 0',
+   'FLOW 1 7 0',
+-  'FLOW 2 7 0',
+-  'FLOW 1 8 0',
+-  'FLOW 3 8 2']
+?          ^
+
++  'FLOW 3 7 2']
+?          ^
+ : ['STATUS 1 FUNCTIONS 4 SHADOWS 1 FACTS 9\nI cannot use a moved service owner or consume a borrowed owner.\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 4 2\nFLOW 3 4 2\nFLOW 4 4 2\nFLOW 1 7 0\nFLOW 2 7 0\nFLOW 1 8 0\nFLOW 3 8 2\n', 'STATUS 1 FUNCTIONS 4 SHADOWS 0\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 2\nFLOW 3 3 2\nFLOW 4 3 2\nFLOW 1 6 0\nFLOW 2 6 0\nFLOW 1 7 0\nFLOW 3 7 2\n', 'STATUS 1 FUNCTIONS 4 SHADOWS 0\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 2\nFLOW 3 3 2\nFLOW 4 3 2\nFLOW 1 6 0\nFLOW 2 6 0\nFLOW 1 7 0\nFLOW 3 7 2\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='borrow-after-consume')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 5 2', 'FLOW 3[71 chars]8 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 4 2', 'FLOW 3[71 chars]7 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0',
+?          ^
+
++ ['FLOW 1 1 0',
+?          ^
+
+-  'FLOW 2 2 0',
+?          ^
+
++  'FLOW 2 1 0',
+?          ^
+
+-  'FLOW 1 5 2',
+?          ^
+
++  'FLOW 1 4 2',
+?          ^
+
+-  'FLOW 3 5 2',
+?          ^
+
++  'FLOW 3 4 2',
+?          ^
+
+-  'FLOW 4 5 2',
+?          ^
+
++  'FLOW 4 4 2',
+?          ^
+
++  'FLOW 1 6 0',
++  'FLOW 2 6 0',
+   'FLOW 1 7 0',
+-  'FLOW 2 7 0',
+?              ^
+
++  'FLOW 2 7 0']
+?              ^
+
+-  'FLOW 1 8 0',
+-  'FLOW 2 8 0'] : ['STATUS 1 FUNCTIONS 4 SHADOWS 1 FACTS 9\nI cannot overlap an exclusive borrow or borrow a moved service owner.\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 5 2\nFLOW 3 5 2\nFLOW 4 5 2\nFLOW 1 7 0\nFLOW 2 7 0\nFLOW 1 8 0\nFLOW 2 8 0\n', 'STATUS 1 FUNCTIONS 4 SHADOWS 0\nI cannot overlap an exclusive borrow or borrow a moved File.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 4 2\nFLOW 3 4 2\nFLOW 4 4 2\nFLOW 1 6 0\nFLOW 2 6 0\nFLOW 1 7 0\nFLOW 2 7 0\n', 'STATUS 1 FUNCTIONS 4 SHADOWS 0\nI cannot overlap an exclusive borrow or borrow a moved File.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 4 2\nFLOW 3 4 2\nFLOW 4 4 2\nFLOW 1 6 0\nFLOW 2 6 0\nFLOW 1 7 0\nFLOW 2 7 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) (case='payload-leak')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 87, in test_invalid_ownership_and_constructor_effects
+    with self.subTest(case=name):self.check(tcp(text),1)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 3 0', 'FLOW 5 3 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 2 0', 'FLOW 5 2 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 3 0', 'FLOW 5 3 0']
+?          ^             ^             ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 2 0', 'FLOW 5 2 0']
+?          ^             ^             ^             ^
+ : ['STATUS 1 FUNCTIONS 2 SHADOWS 1 FACTS 4\nI require every service owner to be consumed before scope exit.\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 3 0\nFLOW 5 3 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI require every File owner to be consumed before scope exit.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 2 0\nFLOW 5 2 0\n', 'STATUS 1 FUNCTIONS 2 SHADOWS 0\nI require every File owner to be consumed before scope exit.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 2 0\nFLOW 5 2 0\n']
+
+======================================================================
+FAIL: test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 90, in test_invalid_ownership_and_constructor_effects
+    self.check(prefix+'fn build(value:Conn)->Endpoint{return '+doubled+'}',1)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 0', 'FLOW 2 4 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 0', 'FLOW 2 3 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 0', 'FLOW 2 4 0']
+?          ^             ^             ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 0', 'FLOW 2 3 0']
+?          ^             ^             ^             ^
+ : ['STATUS 1 FUNCTIONS 3 SHADOWS 1 FACTS 4\nI cannot use a moved service owner or consume a borrowed owner.\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 4 0\nFLOW 2 4 0\n', 'STATUS 1 FUNCTIONS 3 SHADOWS 0\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 2 3 0\n', 'STATUS 1 FUNCTIONS 3 SHADOWS 0\nI cannot use a moved File or consume a borrowed owner.\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 2 3 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='lifecycle')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 81, in test_moves_branches_loops_and_borrows
+    with self.subTest(case=name):self.check(tcp(text),0)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 3 2', 'FLOW 3[197 chars]6 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 2 2', 'FLOW 3[197 chars]5 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+Diff is 897 characters long. Set self.maxDiff to None to see it. : ['STATUS 0 FUNCTIONS 4 SHADOWS 2 FACTS 18\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 3 2\nFLOW 3 3 2\nFLOW 4 3 2\nFLOW 1 4 0\nFLOW 2 4 0\nFLOW 1 5 0\nFLOW 5 5 0\nFLOW 2 5 0\nFLOW 1 6 0\nFLOW 3 6 2\nFLOW 4 6 2\nFLOW 3 6 2\nFLOW 4 6 2\nFLOW 3 6 2\nFLOW 4 6 2\nFLOW 2 6 0\n', 'STATUS 0 FUNCTIONS 4 SHADOWS 2\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 2 2\nFLOW 3 2 2\nFLOW 4 2 2\nFLOW 1 3 0\nFLOW 2 3 0\nFLOW 1 4 0\nFLOW 5 4 0\nFLOW 2 4 0\nFLOW 1 5 0\nFLOW 3 5 2\nFLOW 4 5 2\nFLOW 3 5 2\nFLOW 4 5 2\nFLOW 3 5 2\nFLOW 4 5 2\nFLOW 2 5 0\n', 'STATUS 0 FUNCTIONS 4 SHADOWS 2\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 2 2\nFLOW 3 2 2\nFLOW 4 2 2\nFLOW 1 3 0\nFLOW 2 3 0\nFLOW 1 4 0\nFLOW 5 4 0\nFLOW 2 4 0\nFLOW 1 5 0\nFLOW 3 5 2\nFLOW 4 5 2\nFLOW 3 5 2\nFLOW 4 5 2\nFLOW 3 5 2\nFLOW 4 5 2\nFLOW 2 5 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='terminal-operator')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 81, in test_moves_branches_loops_and_borrows
+    with self.subTest(case=name):self.check(tcp(text),0)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0']
+?          ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0']
+?          ^             ^
+ : ['STATUS 0 FUNCTIONS 3 SHADOWS 1 FACTS 2\nFLOW 1 2 0\nFLOW 2 2 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='branch-close')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 81, in test_moves_branches_loops_and_borrows
+    with self.subTest(case=name):self.check(tcp(text),0)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 2 2 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 2 1 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 2 2 0']
+?          ^             ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 2 1 0']
+?          ^             ^             ^
+ : ['STATUS 0 FUNCTIONS 3 SHADOWS 1 FACTS 3\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 2 2 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 2 1 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 2 1 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='early-return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 81, in test_moves_branches_loops_and_borrows
+    with self.subTest(case=name):self.check(tcp(text),0)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 2 2 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 2 1 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 2 2 0']
+?          ^             ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 2 1 0']
+?          ^             ^             ^
+ : ['STATUS 0 FUNCTIONS 3 SHADOWS 1 FACTS 3\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 2 2 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 2 1 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 2 1 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='loop-borrow')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 81, in test_moves_branches_loops_and_borrows
+    with self.subTest(case=name):self.check(tcp(text),0)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 3 0', 'FLOW 3[29 chars]3 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 2 0', 'FLOW 3[29 chars]2 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0',
+?          ^
+
++ ['FLOW 1 1 0',
+?          ^
+
+-  'FLOW 2 2 0',
+?          ^
+
++  'FLOW 2 1 0',
+?          ^
+
+-  'FLOW 1 3 0',
+?          ^
+
++  'FLOW 1 2 0',
+?          ^
+
+-  'FLOW 3 3 2',
+?          ^
+
++  'FLOW 3 2 2',
+?          ^
+
+-  'FLOW 4 3 2',
+?          ^
+
++  'FLOW 4 2 2',
+?          ^
+
+-  'FLOW 2 3 0']
+?          ^
+
++  'FLOW 2 2 0']
+?          ^
+ : ['STATUS 0 FUNCTIONS 3 SHADOWS 1 FACTS 6\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 3 0\nFLOW 3 3 2\nFLOW 4 3 2\nFLOW 2 3 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 2 0\nFLOW 3 2 2\nFLOW 4 2 2\nFLOW 2 2 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 2 0\nFLOW 3 2 2\nFLOW 4 2 2\nFLOW 2 2 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='loop-owner')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 81, in test_moves_branches_loops_and_borrows
+    with self.subTest(case=name):self.check(tcp(text),0)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 3 0', 'FLOW 2 3 0', 'FLOW 1 4 0', 'FLOW 5 4 0', 'FLOW 2 4 0'] != ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 3 0', 'FLOW 5 3 0', 'FLOW 2 3 0']
+
+First differing element 0:
+'FLOW 1 3 0'
+'FLOW 1 2 0'
+
+- ['FLOW 1 3 0', 'FLOW 2 3 0', 'FLOW 1 4 0', 'FLOW 5 4 0', 'FLOW 2 4 0']
+?          ^             ^             ^             ^             ^
+
++ ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 3 0', 'FLOW 5 3 0', 'FLOW 2 3 0']
+?          ^             ^             ^             ^             ^
+ : ['STATUS 0 FUNCTIONS 3 SHADOWS 1 FACTS 5\nFLOW 1 3 0\nFLOW 2 3 0\nFLOW 1 4 0\nFLOW 5 4 0\nFLOW 2 4 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 3 0\nFLOW 5 3 0\nFLOW 2 3 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 3 0\nFLOW 5 3 0\nFLOW 2 3 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='reinitialize')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 81, in test_moves_branches_loops_and_borrows
+    with self.subTest(case=name):self.check(tcp(text),0)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 1 3 0', 'FLOW 2 2 0', 'FLOW 1[57 chars]4 0'] != ['FLOW 1 1 0', 'FLOW 1 2 0', 'FLOW 2 1 0', 'FLOW 1[57 chars]3 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0',
+?          ^
+
++ ['FLOW 1 1 0',
+?          ^
+
++  'FLOW 1 2 0',
++  'FLOW 2 1 0',
+   'FLOW 1 3 0',
++  'FLOW 2 3 0',
+   'FLOW 2 2 0',
+-  'FLOW 1 4 0',
+?          ^
+
++  'FLOW 1 3 0',
+?          ^
+
+-  'FLOW 2 4 0',
+-  'FLOW 2 3 0',
+?              ^
+
++  'FLOW 2 3 0']
+?              ^
+
+-  'FLOW 1 4 0',
+-  'FLOW 2 4 0'] : ['STATUS 0 FUNCTIONS 3 SHADOWS 1 FACTS 8\nFLOW 1 2 0\nFLOW 1 3 0\nFLOW 2 2 0\nFLOW 1 4 0\nFLOW 2 4 0\nFLOW 2 3 0\nFLOW 1 4 0\nFLOW 2 4 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 1 2 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 2 3 0\nFLOW 2 2 0\nFLOW 1 3 0\nFLOW 2 3 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 1 2 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 2 3 0\nFLOW 2 2 0\nFLOW 1 3 0\nFLOW 2 3 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='shared-call')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 81, in test_moves_branches_loops_and_borrows
+    with self.subTest(case=name):self.check(tcp(text),0)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 1', 'FLOW 1 3 1', 'FLOW 1 4 0', 'FLOW 3[57 chars]4 0'] != ['FLOW 1 1 1', 'FLOW 1 2 1', 'FLOW 1 3 0', 'FLOW 3[57 chars]3 0']
+
+First differing element 0:
+'FLOW 1 2 1'
+'FLOW 1 1 1'
+
+- ['FLOW 1 2 1',
+?          ^
+
++ ['FLOW 1 1 1',
+?          ^
+
+-  'FLOW 1 3 1',
+?          ^
+
++  'FLOW 1 2 1',
+?          ^
+
+-  'FLOW 1 4 0',
+?          ^
+
++  'FLOW 1 3 0',
+?          ^
+
+-  'FLOW 3 4 1',
+?          ^
+
++  'FLOW 3 3 1',
+?          ^
+
+-  'FLOW 3 4 1',
+?          ^
+
++  'FLOW 3 3 1',
+?          ^
+
+-  'FLOW 4 4 1',
+?          ^
+
++  'FLOW 4 3 1',
+?          ^
+
+-  'FLOW 4 4 1',
+?          ^
+
++  'FLOW 4 3 1',
+?          ^
+
+-  'FLOW 2 4 0']
+?          ^
+
++  'FLOW 2 3 0']
+?          ^
+ : ['STATUS 0 FUNCTIONS 4 SHADOWS 1 FACTS 8\nFLOW 1 2 1\nFLOW 1 3 1\nFLOW 1 4 0\nFLOW 3 4 1\nFLOW 3 4 1\nFLOW 4 4 1\nFLOW 4 4 1\nFLOW 2 4 0\n', 'STATUS 0 FUNCTIONS 4 SHADOWS 1\nFLOW 1 1 1\nFLOW 1 2 1\nFLOW 1 3 0\nFLOW 3 3 1\nFLOW 3 3 1\nFLOW 4 3 1\nFLOW 4 3 1\nFLOW 2 3 0\n', 'STATUS 0 FUNCTIONS 4 SHADOWS 1\nFLOW 1 1 1\nFLOW 1 2 1\nFLOW 1 3 0\nFLOW 3 3 1\nFLOW 3 3 1\nFLOW 4 3 1\nFLOW 4 3 1\nFLOW 2 3 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='lexical-shadow')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 81, in test_moves_branches_loops_and_borrows
+    with self.subTest(case=name):self.check(tcp(text),0)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0']
+?          ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0']
+?          ^             ^
+ : ['STATUS 0 FUNCTIONS 3 SHADOWS 1 FACTS 2\nFLOW 1 2 0\nFLOW 2 2 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='branch-return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 81, in test_moves_branches_loops_and_borrows
+    with self.subTest(case=name):self.check(tcp(text),0)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 1 3 0', 'FLOW 2 3 0', 'FLOW 2[29 chars]3 0'] != ['FLOW 1 1 0', 'FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 2[29 chars]2 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0',
+?          ^
+
++ ['FLOW 1 1 0',
+?          ^
+
+-  'FLOW 1 3 0',
+?          ^
+
++  'FLOW 1 2 0',
+?          ^
+
+-  'FLOW 2 3 0',
+   'FLOW 2 2 0',
+-  'FLOW 2 2 0',
+?          ^
+
++  'FLOW 2 1 0',
+?          ^
+
+-  'FLOW 2 3 0']
+?          ^   ^
+
++  'FLOW 2 1 0',
+?          ^   ^
+
++  'FLOW 2 2 0'] : ['STATUS 0 FUNCTIONS 3 SHADOWS 1 FACTS 6\nFLOW 1 2 0\nFLOW 1 3 0\nFLOW 2 3 0\nFLOW 2 2 0\nFLOW 2 2 0\nFLOW 2 3 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 2 1 0\nFLOW 2 1 0\nFLOW 2 2 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 2 1 0\nFLOW 2 1 0\nFLOW 2 2 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='error-first')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 81, in test_moves_branches_loops_and_borrows
+    with self.subTest(case=name):self.check(tcp(text),0)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 0', 'FLOW 5 4 1', 'FLOW 2 4 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 0', 'FLOW 5 3 1', 'FLOW 2 3 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 0', 'FLOW 5 4 1', 'FLOW 2 4 0']
+?          ^             ^             ^             ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 0', 'FLOW 5 3 1', 'FLOW 2 3 0']
+?          ^             ^             ^             ^             ^
+ : ['STATUS 0 FUNCTIONS 3 SHADOWS 1 FACTS 5\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 4 0\nFLOW 5 4 1\nFLOW 2 4 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 5 3 1\nFLOW 2 3 0\n', 'STATUS 0 FUNCTIONS 3 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 5 3 1\nFLOW 2 3 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows) (case='terminal-argument')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 81, in test_moves_branches_loops_and_borrows
+    with self.subTest(case=name):self.check(tcp(text),0)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 3 2', 'FLOW 1 4 0', 'FLOW 2 4 0', 'FLOW 1[57 chars]5 0'] != ['FLOW 1 2 2', 'FLOW 1 3 0', 'FLOW 2 3 0', 'FLOW 1[57 chars]4 0']
+
+First differing element 0:
+'FLOW 1 3 2'
+'FLOW 1 2 2'
+
+- ['FLOW 1 3 2',
+?          ^
+
++ ['FLOW 1 2 2',
+?          ^
+
++  'FLOW 1 3 0',
++  'FLOW 2 3 0',
+   'FLOW 1 4 0',
++  'FLOW 3 4 2',
++  'FLOW 4 4 2',
+   'FLOW 2 4 0',
+-  'FLOW 1 5 0',
+-  'FLOW 3 5 2',
+-  'FLOW 4 5 2',
+-  'FLOW 2 5 0',
+-  'FLOW 2 5 0']
+?          ^
+
++  'FLOW 2 4 0']
+?          ^
+ : ['STATUS 0 FUNCTIONS 4 SHADOWS 1 FACTS 8\nFLOW 1 3 2\nFLOW 1 4 0\nFLOW 2 4 0\nFLOW 1 5 0\nFLOW 3 5 2\nFLOW 4 5 2\nFLOW 2 5 0\nFLOW 2 5 0\n', 'STATUS 0 FUNCTIONS 4 SHADOWS 1\nFLOW 1 2 2\nFLOW 1 3 0\nFLOW 2 3 0\nFLOW 1 4 0\nFLOW 3 4 2\nFLOW 4 4 2\nFLOW 2 4 0\nFLOW 2 4 0\n', 'STATUS 0 FUNCTIONS 4 SHADOWS 1\nFLOW 1 2 2\nFLOW 1 3 0\nFLOW 2 3 0\nFLOW 1 4 0\nFLOW 3 4 2\nFLOW 4 4 2\nFLOW 2 4 0\nFLOW 2 4 0\n']
+
+======================================================================
+FAIL: test_moves_branches_loops_and_borrows (tests.test_socket_service_source.SocketOwnership.test_moves_branches_loops_and_borrows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 82, in test_moves_branches_loops_and_borrows
+    self.check('fn close_port(value:Conn)->int{let c:CloseResult=(close value) return 12345} fn build(value:Conn)->Endpoint{return '+ENDPOINT.replace('port: 12345','port: (close_port value)')+'}',0)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 95, in check
+    for actual in facts[1:]: self.assertEqual(facts[0],actual,reports)
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 0', 'FLOW 2 4 0'] != ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 0', 'FLOW 2 3 0']
+
+First differing element 0:
+'FLOW 1 2 0'
+'FLOW 1 1 0'
+
+- ['FLOW 1 2 0', 'FLOW 2 2 0', 'FLOW 1 4 0', 'FLOW 2 4 0']
+?          ^             ^             ^             ^
+
++ ['FLOW 1 1 0', 'FLOW 2 1 0', 'FLOW 1 3 0', 'FLOW 2 3 0']
+?          ^             ^             ^             ^
+ : ['STATUS 0 FUNCTIONS 4 SHADOWS 1 FACTS 4\nFLOW 1 2 0\nFLOW 2 2 0\nFLOW 1 4 0\nFLOW 2 4 0\n', 'STATUS 0 FUNCTIONS 4 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 2 3 0\n', 'STATUS 0 FUNCTIONS 4 SHADOWS 1\nFLOW 1 1 0\nFLOW 2 1 0\nFLOW 1 3 0\nFLOW 2 3 0\n']
+
+----------------------------------------------------------------------
+Ran 5 tests in 96.427s
+
+FAILED (failures=30)

@@ -1,0 +1,21 @@
+test_alternating_record_and_union_results (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_alternating_record_and_union_results) ... ok
+test_array_payload_element_kinds (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_array_payload_element_kinds) ... ok
+test_imported_equal_record_names_keep_payload_identity (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_imported_equal_record_names_keep_payload_identity) ... ok
+test_map_payload_retains_shared_storage (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_map_payload_retains_shared_storage) ... ok
+test_primitive_lists_keep_shared_mutation (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_primitive_lists_keep_shared_mutation) ... ok
+test_record_and_generic_record_results (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_and_generic_record_results) ... ok
+test_record_arrays_escape_and_mutate (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_arrays_escape_and_mutate) ... ok
+test_record_list_payload_mutates_shared_storage (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_list_payload_mutates_shared_storage) ... ok
+test_tuple_payload (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_tuple_payload) ... ok
+test_wrong_nominal_constructor_arguments_preserve_output (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_wrong_nominal_constructor_arguments_preserve_output) ... ok
+test_resource_payloads_preserve_prior_artifacts (tests.test_selfhost_union_storage.SelfhostUnionStorage.test_resource_payloads_preserve_prior_artifacts) ... ok
+test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) ... ok
+test_deep_acyclic_records_do_not_consume_generic_expansion_budget (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_deep_acyclic_records_do_not_consume_generic_expansion_budget) ... ok
+test_expanding_generic_layout_has_a_distinct_diagnostic (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_expanding_generic_layout_has_a_distinct_diagnostic) ... ok
+test_imported_equal_name_owners_keep_the_cycle_local (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_imported_equal_name_owners_keep_the_cycle_local) ... ok
+test_indirect_fields_and_unused_generic_parameters_are_legal (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_indirect_fields_and_unused_generic_parameters_are_legal) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 8.527s
+
+OK

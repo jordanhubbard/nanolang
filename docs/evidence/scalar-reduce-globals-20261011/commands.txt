@@ -1,0 +1,4 @@
+make -j4 nvm2c
+NANOLANG_REDUCE_COMPILERS=/private/tmp/nl51-native-tuple-order/seed:/private/tmp/nl51-reduce-reconcile/compiler-final python3 -m unittest -v tests.test_scalar_reduce_source
+make CC=/opt/homebrew/opt/llvm/bin/clang test-nvm2c
+python3 /private/tmp/nl51-reduce-reconcile/product-check.py

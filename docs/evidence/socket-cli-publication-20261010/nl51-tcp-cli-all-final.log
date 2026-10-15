@@ -1,0 +1,20 @@
+test_dependency_shadow_selection_preserves_outputs (tests.test_socket_service_drivers.SocketServiceDrivers.test_dependency_shadow_selection_preserves_outputs) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ht8ov7mk
+FAIL
+
+======================================================================
+FAIL: test_dependency_shadow_selection_preserves_outputs (tests.test_socket_service_drivers.SocketServiceDrivers.test_dependency_shadow_selection_preserves_outputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_drivers.py", line 128, in test_dependency_shadow_selection_preserves_outputs
+    result = self.run_command([driver, self.source, '--allow-tcp-connections', '--root-shadows-only', '--emit-nvm', '-o', output])
+  File "/Users/jordanh/Src/nanolang/tests/test_service_drivers.py", line 45, in run_command
+    self.assertEqual(run.returncode,expected,run.stdout+run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d6874386f76376d6b2f736f757263652e6e616e6f 6d61696e
+I will not publish after TCP shadow failure (status 5).
+
+
+----------------------------------------------------------------------
+Ran 1 test in 5.213s
+
+FAILED (failures=1)

@@ -1,0 +1,43 @@
+test_imported_enum_results (__main__.EnumGenerics.test_imported_enum_results) ... FAIL
+test_same_named_imported_enums_remain_distinct (__main__.EnumGenerics.test_same_named_imported_enums_remain_distinct) ... FAIL
+
+======================================================================
+FAIL: test_imported_enum_results (__main__.EnumGenerics.test_imported_enum_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nl51-enum-candidate/test_candidate.py", line 47, in test_imported_enum_results
+    self.execute('module "a.nano" as a\nmodule "b.nano" as b\n'
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'fn identity(value:T)->T{return value}\nshadow identity {assert (== (identity 1) 1)}\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        'a.nano':'enum Shade {VALUE=1}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 1)}\n',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'b.nano':'enum Shade {VALUE=2}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 2)}\n'})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 27, in execute
+    self.run_command([COMPILER, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 17, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 2, column 22: Return type mismatch: got enum, expected struct.
+Hint: Ensure the returned value matches the function's declared return type.
+Error: Type checking failed for module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-0duybtur/a.nano'
+Error at line 1, column 1: Failed to load module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-0duybtur/a.nano'
+error: module loading failed
+
+
+======================================================================
+FAIL: test_same_named_imported_enums_remain_distinct (__main__.EnumGenerics.test_same_named_imported_enums_remain_distinct)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nl51-enum-candidate/test_candidate.py", line 65, in test_same_named_imported_enums_remain_distinct
+    self.assertIn('one concrete identity',r.stdout+r.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'one concrete identity' not found in "Error at line 2, column 22: Return type mismatch: got enum, expected struct.\nHint: Ensure the returned value matches the function's declared return type.\nError: Type checking failed for module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpreq2sozb/a.nano'\nError at line 1, column 1: Failed to load module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpreq2sozb/a.nano'\nerror: module loading failed\n"
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.221s
+
+FAILED (failures=2)

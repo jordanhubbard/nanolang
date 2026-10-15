@@ -1,0 +1,17 @@
+test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) ... 
+  test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (target='native', case='filled', driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... FAIL
+
+======================================================================
+FAIL: test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (target='native', case='filled', driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 42, in execute_module
+    self.assertEqual(ran.returncode, expected, ran.stdout+ran.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 7 : I stopped at a native invariant in nl_main at generated C line 1111.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 3.464s
+
+FAILED (failures=1)

@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/Users/jordanh/Src/nanolang/bin/nvm2c",
+    "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_scalar_kinds_and_mutation/main.nvm",
+    "-o",
+    "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_scalar_kinds_and_mutation/main.c"
+  ],
+  "exit": 0
+}

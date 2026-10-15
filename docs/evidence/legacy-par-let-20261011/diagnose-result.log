@@ -1,0 +1,2 @@
+Diagnostics:
+  [E0011] I cannot find this name in the current scope: left (:1:64)

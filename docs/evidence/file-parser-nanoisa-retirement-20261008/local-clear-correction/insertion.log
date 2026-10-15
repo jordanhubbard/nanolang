@@ -1,0 +1,10 @@
+I retain list insertion evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-2m1glrm3
+test_evaluation_order_once (tests.test_nanoisa_list_insert.ListInsert.test_evaluation_order_once) ... ok
+test_invalid_bounds_trap (tests.test_nanoisa_list_insert.ListInsert.test_invalid_bounds_trap) ... ok
+test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_insert.ListInsert.test_positions_aliases_and_record_payloads) ... ok
+test_unchecked_emitter_refuses_invalid_types (tests.test_nanoisa_list_insert.ListInsert.test_unchecked_emitter_refuses_invalid_types) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.377s
+
+OK

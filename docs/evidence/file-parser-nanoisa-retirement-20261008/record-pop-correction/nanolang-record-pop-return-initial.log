@@ -1,0 +1,31 @@
+test_popped_record_crosses_return_and_argument (tests.test_native_array_pop.NativeArrayPop.test_popped_record_crosses_return_and_argument) ... FAIL
+
+======================================================================
+FAIL: test_popped_record_crosses_return_and_argument (tests.test_native_array_pop.NativeArrayPop.test_popped_record_crosses_return_and_argument)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_native_array_pop.py", line 51, in test_popped_record_crosses_return_and_argument
+    self.run_module('.entry main\n'
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+                    '.function take 1 1 0 struct 1\nLOAD_LOCAL 0\nARR_POP\nRET\n.end\n'
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+                    'ARR_LITERAL 8 1\nCALL take\nCALL read\nPUSH_I64 77\nEQ\nASSERT\n'
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    'PUSH_I64 0\nRET\n.end\n', '')
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_native_closures.py", line 25, in run_module
+    source = self.emit(work, text, stdout)
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_native_callables.py", line 25, in emit
+    self.checked([ROOT / 'bin/nvm2c', module, '-o', source])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_native_callables.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-closures-e70fargj/input.nvm': I found invalid aggregate shape constraints during RET in function 0 at offset 4: I found conflicting aggregate shape kinds optional/record at nodes 3/7
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.028s
+
+FAILED (failures=1)

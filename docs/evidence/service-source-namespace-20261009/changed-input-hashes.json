@@ -1,0 +1,17 @@
+{
+  "src/nanoisa/file_source_plan.c": "29651dba13b9dc7864437a1812dd79765c81c18050736bc67ac5507e2625abe0",
+  "src/nanoisa/file_source_plan.h": "9a8d7e9ebe148c334c8ed33ac3a9c4a218427e09d0755399b8ac7b9f6036a37d",
+  "src/service_bodies.c": "4d0ad0af6bd9bd1d256940333dcde2fe807b85f2037bed92f75f8cbf89692680",
+  "src/service_namespace.c": "ad8ac336aa068990a8dc34e637ffe276f563ad6ca77afbc6619562712afff1de",
+  "src/service_namespace.h": "854a39795fdb0e91caadfc34085d3a98b1989eab4ec2b5b9ca175600e3589cdb",
+  "src_nano/compiler/file_source_plan.nano": "52152e5438fd25d699e91c167ddd299d0fdba5a957867d6dc208da8060ad7874",
+  "src_nano/compiler/service_bodies.nano": "b8b74bf4a18223128c245f0a65c9edeba119369f8435e4fc83c36cacf653bbe6",
+  "src_nano/compiler/service_namespace.nano": "d3c196df77916c933e09315a552e91781a2debb9493f5adef67642efc4a60cd1",
+  "src_nano/compiler/service_types.nano": "66aece5afcb25384ff2c277f94370f655280953381ee5eb7caf3b0af33d30b15",
+  "tests/file_source_plan_corpus.py": "e23c5ad44528f8862c0eeccd5e2066b84c2d0d952e8779e7f9a5fd598668cafa",
+  "tests/nanoisa/test_file_source_plan.c": "a0dfeacc41164a199054ff46878c431235ea9b2bae05b08762378067d79b216f",
+  "tests/test_file_source_plan.py": "8713dadc9ad5bac94a5ffe393737b002f7c0eb56e8eddc0946d8514bbb880b81",
+  "tests/test_service_namespace.c": "0bfbe5a349de5daf292bc02ba107be1a6c91613d3577a1cc358c5d4544df0fca",
+  "tests/test_service_namespace.py": "b42f36f372e8c26f403b5bf0650aa3bdad52fde1df7fccb760355dcf61710899",
+  "tests/service_namespace_tcp.nano": "8348ac7eaaaa67b92d6def11b7eabbd33f4cb3874d065768b0761c359c4c4019"
+}

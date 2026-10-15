@@ -1,0 +1,35 @@
+{
+  "base_commit": "5e85cbac2",
+  "sources_sha256": {
+    "src/nanoisa/nvm2c.c": "4a89765f057ada5fffb46fdb710a8867d4cda80152aac56fb94e2adb7e837b2f",
+    "src/module_builder.c": "4aa58bee55a31ff0923be402f5f812b0ab0e0dc003fe23bf50bda0adca40a5c3",
+    "src_nano/compiler/module_loader.nano": "68bb6159238457d3cd0d90dab7858b4c994a9e8c2030cc85ef42138ca69b8ba4",
+    "tests/test_native_record_locals.py": "228ec395e23f6106259911e92edf537ec476f11dd0fbec6ede0195c5aee2279c",
+    "tests/test_one_ir_compiler.py": "c2841b652420fd373d283327083046356405a33660ebe7c5306b9b2cd4a1ecb1",
+    "tests/test_module_cache_publication.py": "09fedfe8bafa2b59da811ca27d5ea0348630eea8a79d7faa7a15f5bd7e2b549f"
+  },
+  "evidence_sha256": {
+    "loader-decoupled-san.log": "7a04da60b4dce750d979df8bc719c72dac6aab340b7d416f4af8b17a1f253252",
+    "fixedpoint-manifest.json": "ff2193bd51d4a0f10ce9b819ba6b19315553f7a5618ca88ae8dde6a2cd2c6fe4",
+    "host-at-corrected.log": "01134267ab7dada73f5da94f19b092c4c2a86f430c23d2d5c500052dd1bbebc0",
+    "record-call-gates.log": "9817bce17bf4b9e07b6c0b60ea0d8349b8220c6f486f7f5ee07c83f85239fa5e",
+    "fixedpoint-stage1.log": "ec2346f1d85acf2e53a3323bfbb398ca3e2d5da6003cdbd16523808c216f77de",
+    "host-cache-probe.c": "2c3048d863d4df38fbd578ac537b7b25724ea635e569eff02a42d27682619292",
+    "host-cache-probe.log": "4abc71aeb03d9737e8ff6566623600540d2ffc443cbb4b5c723a0f2db4a65f4d",
+    "nanolang-record-call-fixed-2026-10-07-191526.ips.json": "83fcf11183ccb2df88612db47671272a542c590cdcc8ff20eea0a2b471f9e871",
+    "host-at-baseline.log": "433313bae77b59a63692030c28e1415c6e8f050fd94619266b019d88d99be4b5",
+    "record-final.su": "9b859644a1d4c58c64bdfa8ebd2e22134cbd5dbf6a9e368c16c46bae37ed42c3",
+    "compiler-seed.nvm.gz": "f783abb131299a7c3b4b8ec33d347d4de7f3d2c4c2fc2f665aea28f8e26f43de",
+    "README.md": "8d94bdfa4e3cd64708f1c7184d6aa696f6efe85bd9954dc4195ff15be5b27ec1",
+    "record-final-focused.log": "04997ee829cb4f7069e4e040434ea08cb3ef13e087552457cb1c0161a0c1457b",
+    "nanolang-loader-decoupled-2026-10-07-190619.ips.json": "1ed4d7c38d385ffb2523dc6c58a461ccbf6805252665f5f3b75531ab62bb11a3",
+    "record-call-frame-baseline.log": "fd8aa1abc2e8eb27c37dbbb22d29bb3130f3e5a28324da622ffd07ea63c52a52",
+    "fixedpoint-stage1-verify.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "record-tail-frame-baseline.log": "4ae9267ccba3d8f34bba57bb6076c405d6d2ecc28bf9fc74496a09c21973d341"
+  },
+  "pending": [
+    "complete native compiler generation",
+    "final full compiler product gate",
+    "corrected raw VM fixed point"
+  ]
+}

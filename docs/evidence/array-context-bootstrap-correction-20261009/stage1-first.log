@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0001] I require each array literal element to match its declared storage type. (/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_borrows.nano:1838:36)

@@ -1,0 +1,92 @@
+test_cross_owner_refusals_preserve_output (tests.test_module_union_owners.ModuleUnionOwners.test_cross_owner_refusals_preserve_output) ... ok
+test_distinct_layouts_and_both_import_orders (tests.test_module_union_owners.ModuleUnionOwners.test_distinct_layouts_and_both_import_orders) ... ok
+test_malformed_qualified_constructors_preserve_output (tests.test_module_union_owners.ModuleUnionOwners.test_malformed_qualified_constructors_preserve_output) ... ok
+test_ordinary_module_unions (tests.test_module_union_owners.ModuleUnionOwners.test_ordinary_module_unions) ... FAIL
+test_root_union_and_qualified_constructors (tests.test_module_union_owners.ModuleUnionOwners.test_root_union_and_qualified_constructors) ... FAIL
+test_same_owner_aliases_and_imported_callbacks (tests.test_module_union_owners.ModuleUnionOwners.test_same_owner_aliases_and_imported_callbacks) ... ok
+test_array_and_callable_payloads (tests.test_generic_union_parameters.GenericUnionParameters.test_array_and_callable_payloads) ... ok
+test_imported_union_and_generic_function (tests.test_generic_union_parameters.GenericUnionParameters.test_imported_union_and_generic_function) ... ok
+test_mismatched_instances_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_mismatched_instances_preserve_output) ... ok
+test_nested_and_multiple_parameters (tests.test_generic_union_parameters.GenericUnionParameters.test_nested_and_multiple_parameters) ... ok
+test_ordinary_union_identity (tests.test_generic_union_parameters.GenericUnionParameters.test_ordinary_union_identity) ... ok
+test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) ... ok
+test_scalar_instances_and_empty_variants (tests.test_generic_union_parameters.GenericUnionParameters.test_scalar_instances_and_empty_variants) ... ok
+test_union_result_boundaries_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_union_result_boundaries_preserve_output) ... ok
+test_array_binding_parity (tests.test_cseed_generic_functions.CseedGenericFunctions.test_array_binding_parity) ... ok
+test_builtin_tail_call_does_not_enter_generic_specialization (tests.test_cseed_generic_functions.CseedGenericFunctions.test_builtin_tail_call_does_not_enter_generic_specialization) ... ok
+test_distinct_record_specializations (tests.test_cseed_generic_functions.CseedGenericFunctions.test_distinct_record_specializations) ... ok
+test_generic_array_contexts_reject_wrong_elements (tests.test_cseed_generic_functions.CseedGenericFunctions.test_generic_array_contexts_reject_wrong_elements) ... ok
+test_generic_array_mutation_preserves_aliases_and_empty_types (tests.test_cseed_generic_functions.CseedGenericFunctions.test_generic_array_mutation_preserves_aliases_and_empty_types) ... ok
+test_generic_global_initializer (tests.test_cseed_generic_functions.CseedGenericFunctions.test_generic_global_initializer) ... ok
+test_growing_array_specializations_preserve_output (tests.test_cseed_generic_functions.CseedGenericFunctions.test_growing_array_specializations_preserve_output) ... ok
+test_imported_generic_array_results_keep_complete_types (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_generic_array_results_keep_complete_types) ... ok
+test_imported_qualified_and_selective_owners (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_qualified_and_selective_owners) ... ok
+test_imported_structural_generic_parameters (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_structural_generic_parameters) ... ok
+test_independent_instances_do_not_consume_recursive_budget (tests.test_cseed_generic_functions.CseedGenericFunctions.test_independent_instances_do_not_consume_recursive_budget) ... ok
+test_nested_array_calls_and_record_elements (tests.test_cseed_generic_functions.CseedGenericFunctions.test_nested_array_calls_and_record_elements) ... ok
+test_primitive_generic_fixture (tests.test_cseed_generic_functions.CseedGenericFunctions.test_primitive_generic_fixture) ... ok
+test_repeated_generic_array_types_must_match (tests.test_cseed_generic_functions.CseedGenericFunctions.test_repeated_generic_array_types_must_match) ... ok
+test_repeated_type_variable_rejects_distinct_records (tests.test_cseed_generic_functions.CseedGenericFunctions.test_repeated_type_variable_rejects_distinct_records) ... ok
+test_retained_record_result_regression (tests.test_cseed_generic_functions.CseedGenericFunctions.test_retained_record_result_regression) ... ok
+test_structural_array_minimum (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_array_minimum) ... ok
+test_structural_array_parameters (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_array_parameters) ... ok
+test_structural_callable_local_and_nominal_letter (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_callable_local_and_nominal_letter) ... ok
+test_structural_callable_parameters (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_callable_parameters) ... ok
+test_structural_generic_refusals_preserve_output (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_generic_refusals_preserve_output) ... ok
+test_typed_locals_transitive_calls_and_recursion (tests.test_cseed_generic_functions.CseedGenericFunctions.test_typed_locals_transitive_calls_and_recursion) ... ok
+test_unbound_structural_result_preserves_output (tests.test_cseed_generic_functions.CseedGenericFunctions.test_unbound_structural_result_preserves_output) ... ok
+
+======================================================================
+FAIL: test_ordinary_module_unions (tests.test_module_union_owners.ModuleUnionOwners.test_ordinary_module_unions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_union_owners.py", line 68, in test_ordinary_module_unions
+            self.execute(IMPORTS+IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let left:a.Box = a.Box.Some {value:7}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+SHADOW, files={'a.nano':a,'b.nano':b})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0001] Return value of __nano_module_1_make: I expected a value of type `__nano_module_1_type_Box`, but found `Box.Some`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-zr_p4z14/b.nano:2:20)
+
+
+======================================================================
+FAIL: test_root_union_and_qualified_constructors (tests.test_module_union_owners.ModuleUnionOwners.test_root_union_and_qualified_constructors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_union_owners.py", line 52, in test_root_union_and_qualified_constructors
+            self.execute(IMPORTS+IDENTITY+'''union Box<T> {Some {value:T}, None {}}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn read(value:Box<int>)->int{match value{Some(p)=>{return p.value} None(p)=>{return 0}}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+SHADOW, files={'a.nano':A,'b.nano':B})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0001] Variable root: I expected a value of type `__nano_module_2_type_Box<int>`, but found `Box.Some`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-6ukulgnx/main.nano:9:5)
+
+
+----------------------------------------------------------------------
+Ran 37 tests in 8.158s
+
+FAILED (failures=2)

@@ -1,0 +1,8 @@
+test_mixed_arrays_preserve_growth_aliases_tags_and_roots (tests.test_native_closure_arrays.NativeClosureArrays.test_mixed_arrays_preserve_growth_aliases_tags_and_roots) ... ok
+test_source_closures_through_returned_function_arrays (tests.test_native_closure_arrays.NativeClosureArrays.test_source_closures_through_returned_function_arrays) ... ok
+test_unreachable_closure_array_cycles_are_collected (tests.test_native_closure_arrays.NativeClosureArrays.test_unreachable_closure_array_cycles_are_collected) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.480s
+
+OK

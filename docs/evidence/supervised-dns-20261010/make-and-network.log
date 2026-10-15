@@ -1,0 +1,16 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror src/nsi_socket_resolver_main.c src/nsi_socket.c src/nsi_cap.c -o bin/nano-resolver -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket_resolver.c src/nsi_socket_resolver.c src/nsi_socket.c src/nsi_cap.c -o obj/test_nsi_socket_resolver -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+/Users/jordanh/Src/nanolang/obj/test_nsi_socket_resolver /Users/jordanh/Src/nanolang/bin/nano-resolver
+PASS supervised localhost, authority, deadline/reaping, worker protocol and preserved socket owners
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DNL_SOCKET_NETWORK_INSTRUMENT tests/test_nsi_socket_network.c src/nsi_cap.c -o obj/test_nsi_socket_network_instrumented -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+PASS counted IPv4/IPv6/hostname resolution and output preservation
+PASS owned buffer partial I/O, NULs, rights, stale tokens and EOF
+PASS localhost resolution to owned TCP and real buffer traffic
+PASS real IPv4 TCP transfer/NUL/byte/EOF/refusal/close
+PASS real IPv6 TCP transfer/NUL/byte/EOF/refusal/close
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket_network.c src/nsi_socket.c src/nsi_cap.c -o obj/test_nsi_socket_network_linked -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+PASS counted IPv4/IPv6/hostname resolution and output preservation
+PASS owned buffer partial I/O, NULs, rights, stale tokens and EOF
+PASS localhost resolution to owned TCP and real buffer traffic
+PASS real IPv4 TCP transfer/NUL/byte/EOF/refusal/close
+PASS real IPv6 TCP transfer/NUL/byte/EOF/refusal/close

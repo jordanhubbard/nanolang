@@ -1,0 +1,208 @@
+test_array_metadata_survives_shadow_scope (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_array_metadata_survives_shadow_scope) ... ok
+test_exited_bindings_are_not_visible (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_exited_bindings_are_not_visible) ... ok
+test_function_parameter_is_not_a_later_function_local (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_function_parameter_is_not_a_later_function_local) ... ok
+test_hashmap_parameter_metadata_survives_emission (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_hashmap_parameter_metadata_survives_emission) ... ok
+test_imported_constants_keep_local_and_global_shadowing (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_imported_constants_keep_local_and_global_shadowing) ... ok
+test_loop_exits_and_string_return (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_loop_exits_and_string_return) ... ok
+test_same_named_array_parameters_keep_function_type (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_same_named_array_parameters_keep_function_type) ... ok
+test_same_named_record_locals_keep_nominal_type (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_same_named_record_locals_keep_nominal_type) ... ok
+test_shadow_restores_outer_type_and_value (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_shadow_restores_outer_type_and_value) ... ok
+test_sibling_branch_cannot_read_other_branch_local (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_sibling_branch_cannot_read_other_branch_local) ... ok
+test_implicit_public_and_opaque_callback_signatures (tests.test_imported_callback_typedefs.ImportedCallbackTypedefs.test_implicit_public_and_opaque_callback_signatures) ... ok
+test_foreign_callback_can_resume_without_nonlocal_return (tests.test_native_effect_execution.NativeEffectExecution.test_foreign_callback_can_resume_without_nonlocal_return) ... ok
+test_foreign_callback_cannot_escape_its_native_activation (tests.test_native_effect_execution.NativeEffectExecution.test_foreign_callback_cannot_escape_its_native_activation) ... FAIL
+test_generated_owned_local_is_released_on_handler_return (tests.test_native_effect_execution.NativeEffectExecution.test_generated_owned_local_is_released_on_handler_return) ... FAIL
+test_handler_installs_nested_handler_with_lexical_return (tests.test_native_effect_execution.NativeEffectExecution.test_handler_installs_nested_handler_with_lexical_return) ... ok
+test_handler_return_transfers_captured_owned_value (tests.test_native_effect_execution.NativeEffectExecution.test_handler_return_transfers_captured_owned_value) ... ok
+test_imported_perform_reaches_callers_handler (tests.test_native_effect_execution.NativeEffectExecution.test_imported_perform_reaches_callers_handler) ... ok
+test_mutable_lexical_capture_and_perform_value (tests.test_native_effect_execution.NativeEffectExecution.test_mutable_lexical_capture_and_perform_value) ... ok
+test_nested_dynamic_handler_restores_outer (tests.test_native_effect_execution.NativeEffectExecution.test_nested_dynamic_handler_restores_outer) ... ok
+test_owned_locals_release_during_nonlocal_return (tests.test_native_effect_execution.NativeEffectExecution.test_owned_locals_release_during_nonlocal_return) ... ok
+test_return_removes_handler (tests.test_native_effect_execution.NativeEffectExecution.test_return_removes_handler) ... ok
+test_wrapper_exports_native_effect_state_to_foreign_modules (tests.test_native_effect_execution.NativeEffectExecution.test_wrapper_exports_native_effect_state_to_foreign_modules) ... FAIL
+
+======================================================================
+FAIL: test_foreign_callback_cannot_escape_its_native_activation (tests.test_native_effect_execution.NativeEffectExecution.test_foreign_callback_cannot_escape_its_native_activation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effect_execution.py", line 143, in test_foreign_callback_cannot_escape_its_native_activation
+            self.run_program('''
+            ~~~~~~~~~~~~~~~~^^^^
+    effect Ask { ask : int -> int }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    shadow main { assert true }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''', expected=1, foreign=True)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effect_execution.py", line 30, in run_program
+    self.assertIn(b"foreign callback boundary" if foreign else b"I cannot perform unhandled effect Ask.ask.", run.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'foreign callback boundary' not found in b''
+
+======================================================================
+FAIL: test_generated_owned_local_is_released_on_handler_return (tests.test_native_effect_execution.NativeEffectExecution.test_generated_owned_local_is_released_on_handler_return)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effect_execution.py", line 175, in test_generated_owned_local_is_released_on_handler_return
+            self.run_program('''
+            ~~~~~~~~~~~~~~~~^^^^
+    effect Exit { leave : void -> void }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<22 lines>...
+    static inline int64_t nl_owned_count(void) { return finalized; }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effect_execution.py", line 27, in run_program
+    self.assertEqual(run.returncode, 0, run.stderr.decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Contract violation at line 16: (== (nl_owned_count) 100)
+
+
+======================================================================
+FAIL: test_wrapper_exports_native_effect_state_to_foreign_modules (tests.test_native_effect_execution.NativeEffectExecution.test_wrapper_exports_native_effect_state_to_foreign_modules)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effect_execution.py", line 66, in test_wrapper_exports_native_effect_state_to_foreign_modules
+    self.assertEqual(built.returncode, 0, built.stderr.decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined symbols for architecture arm64:
+  "_nl_socket_binding_allocation_bound", referenced from:
+      _nl_service_source_snapshot_open in file_source_snapshot.o
+  "_nl_socket_binding_free", referenced from:
+      _nl_file_source_snapshots_free in file_source_snapshot.o
+      _snapshot_dispose in file_source_snapshot.o
+  "_nl_socket_binding_interface_bytes", referenced from:
+      _nl_file_source_snapshot_bytes in file_source_snapshot.o
+  "_nl_socket_binding_prepare", referenced from:
+      _nl_service_source_snapshot_open in file_source_snapshot.o
+  "_nl_socket_binding_source_bytes", referenced from:
+      _nl_file_source_snapshot_bytes in file_source_snapshot.o
+  "_nl_socket_binding_storage_size", referenced from:
+      _nl_service_source_snapshot_open in file_source_snapshot.o
+  "_nl_socket_catalog_interface", referenced from:
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nl_service_source_catalog_id in file_source_catalog.o
+      _nl_service_source_catalog_string in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+  "_nl_socket_catalog_method", referenced from:
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nl_service_source_catalog_string in file_source_catalog.o
+      _nl_service_source_catalog_number in file_source_catalog.o
+      ...
+  "_nl_socket_catalog_type", referenced from:
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      ...
+  "_nl_socket_plan_interface", referenced from:
+      _nvm_socket_nominal_attach in service_bindings_module.o
+  "_nl_socket_plan_method", referenced from:
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+  "_nl_socket_plan_method_count", referenced from:
+      _nvm_socket_nominal_attach in service_bindings_module.o
+  "_nl_socket_plan_type", referenced from:
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      _nvm_socket_nominal_attach in service_bindings_module.o
+      ...
+  "_nl_socket_plan_type_count", referenced from:
+      _nvm_socket_nominal_attach in service_bindings_module.o
+  "_nl_websocket_binding_allocation_bound", referenced from:
+      _nl_service_source_snapshot_open in file_source_snapshot.o
+  "_nl_websocket_binding_free", referenced from:
+      _nl_file_source_snapshots_free in file_source_snapshot.o
+      _snapshot_dispose in file_source_snapshot.o
+  "_nl_websocket_binding_interface_bytes", referenced from:
+      _nl_file_source_snapshot_bytes in file_source_snapshot.o
+  "_nl_websocket_binding_prepare", referenced from:
+      _nl_service_source_snapshot_open in file_source_snapshot.o
+  "_nl_websocket_binding_source_bytes", referenced from:
+      _nl_file_source_snapshot_bytes in file_source_snapshot.o
+  "_nl_websocket_binding_storage_size", referenced from:
+      _nl_service_source_snapshot_open in file_source_snapshot.o
+  "_nl_websocket_catalog_interface", referenced from:
+      _nl_service_source_catalog_id in file_source_catalog.o
+      _nl_service_source_catalog_string in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+  "_nl_websocket_catalog_method", referenced from:
+      _nl_service_source_catalog_string in file_source_catalog.o
+      _nl_service_source_catalog_number in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      ...
+  "_nl_websocket_catalog_type", referenced from:
+      _nl_service_source_catalog_string in file_source_catalog.o
+      _nl_service_source_catalog_number in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      _nl_service_source_catalog_view in file_source_catalog.o
+      ...
+  "_nvm_multi_nominal_catalog_methods", referenced from:
+      _nvm_v2_service_bindings_validate in service_bindings_module.o
+  "_nvm_multi_nominal_catalog_types", referenced from:
+      _nvm_v2_service_bindings_validate in service_bindings_module.o
+  "_nvm_multi_nominal_decode", referenced from:
+      _nvm_v2_service_bindings_validate in service_bindings_module.o
+      _conversion_ownership in nvm_v2_convert.o
+  "_nvm_multi_nominal_plan", referenced from:
+      _nominal_module in service_bindings_module.o
+  "_nvm_multi_nominal_plan_free", referenced from:
+      _nominal_module in service_bindings_module.o
+  "_nvm_socket_nominal_decode", referenced from:
+      _conversion_ownership in nvm_v2_convert.o
+  "_nvm_socket_nominal_encode", referenced from:
+      _nvm_socket_nominal_attach in service_bindings_module.o
+  "_nvm_socket_nominal_plan", referenced from:
+      _nominal_module in service_bindings_module.o
+  "_nvm_socket_nominal_plan_free", referenced from:
+      _nominal_module in service_bindings_module.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+I could not publish the wrapper; I did not replace the destination
+
+
+----------------------------------------------------------------------
+Ran 22 tests in 26.769s
+
+FAILED (failures=3)

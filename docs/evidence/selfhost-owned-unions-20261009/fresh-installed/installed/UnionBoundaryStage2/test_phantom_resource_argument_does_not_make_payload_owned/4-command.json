@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nvm2c",
+    "/private/tmp/nanolang-selfhost-union-fresh-installed/installed/UnionBoundaryStage2/test_phantom_resource_argument_does_not_make_payload_owned/main.nvm",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-fresh-installed/installed/UnionBoundaryStage2/test_phantom_resource_argument_does_not_make_payload_owned/main.c"
+  ],
+  "exit": 0
+}

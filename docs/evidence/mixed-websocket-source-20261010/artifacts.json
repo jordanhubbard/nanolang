@@ -1,0 +1,3452 @@
+[
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/catalog1.json",
+    "bytes": 8381,
+    "sha256": "94ca15393167e556494e52b61626f74d68dd61b0a274854a96413ec5d78d33be"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/catalog2.json",
+    "bytes": 10155,
+    "sha256": "c7535d9e8f2db73175ae3a6fc25a40d32e6487c3ae132f0bbee03ebfb3b90c74"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/lowerer.c",
+    "bytes": 5556206,
+    "sha256": "d696e8ceabee6105d7f1692e68f6d7da36d926cf71e7d7a19bec5120e3b4da06"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/lowerer.native",
+    "bytes": 7301216,
+    "sha256": "6e4bd4899248572228348b39d1a625ba5419546ab2ebd2403d6330544ad8f4f0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/lowerer.nvm",
+    "bytes": 363080,
+    "sha256": "d94e31a822d750b771873025e66495993ad2a970cf49704633e0f72a3ef1e2b3"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/part0.nano",
+    "bytes": 1083,
+    "sha256": "181bc6ca974460a433e7218f4917c211c9a40779125547294e9d9eee863c6d1f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/part1.nano",
+    "bytes": 267,
+    "sha256": "c63c22657e1193429fd3b20ad7b9f54e1e0ee40076be7b06c854b2649dabda4e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/part2.nano",
+    "bytes": 58,
+    "sha256": "6394fdf36aee384adcf1e326a6e81c0f43e68eaced01c309a08b33b88a5b56aa"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/part3.nano",
+    "bytes": 1083,
+    "sha256": "d8f822deac5000a4f9de5cccf3790fd3ec34936cc760cf0c1d596d9a31780a8a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/source.nano",
+    "bytes": 303,
+    "sha256": "7acd3e430d242eb8055b534118467cdf2777b65b0ed722cb54bf753db2dfca43"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/wrapper.c",
+    "bytes": 884,
+    "sha256": "7bcf039a1cf321411c4906049f26c6ca68fa8b52a29852629b0d86f9e88e7215"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/catalog1.json",
+    "bytes": 8381,
+    "sha256": "94ca15393167e556494e52b61626f74d68dd61b0a274854a96413ec5d78d33be"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/catalog2.json",
+    "bytes": 10155,
+    "sha256": "c7535d9e8f2db73175ae3a6fc25a40d32e6487c3ae132f0bbee03ebfb3b90c74"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/command-001.json",
+    "bytes": 370,
+    "sha256": "68762d0ed51ee2c72564e968efac950c29589821923b0f355d2690641ba3be07"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/command-002.json",
+    "bytes": 355,
+    "sha256": "f16d7dc6b959eacebea570f46630ded346d8a567c8418eede5e3f848f917b916"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/command-003.json",
+    "bytes": 2492,
+    "sha256": "5e9de5e0dd3dc188372369b5acf9fbaeb34dca4c19e8736a45ce3a122a01a162"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/command-004.json",
+    "bytes": 374,
+    "sha256": "31e8d0ee4a232c099f6080d4f5561a99128ace73ea7433a672958855525a4283"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/command-005.json",
+    "bytes": 359,
+    "sha256": "86e74408d514f24cfd3ecc9d358cf6a355dfdc2060b583f7ae2005e9463f50ef"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/command-006.json",
+    "bytes": 2496,
+    "sha256": "9f3a4b890c38783b50496d6165c936aaa5f051c4e2f823e42a1cffb58dbd03c4"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/nano_virt.native",
+    "bytes": 1590616,
+    "sha256": "a5efb63d27b02d4c400f9f5932cd973e986ee5b53a129cbc573f40e2f7f6db97"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/nano_virt.nvm",
+    "bytes": 5,
+    "sha256": "e5bade0e979cb8cf6e53303dae696c6631a5c82ce60386d7a602f85fb249fcc0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/nanoc_c.native",
+    "bytes": 1590616,
+    "sha256": "547cd8a77e284295f377b4da7523550a07d47ef5e090f408ee179f4ad9bff5e2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/nanoc_c.nvm",
+    "bytes": 5,
+    "sha256": "e5bade0e979cb8cf6e53303dae696c6631a5c82ce60386d7a602f85fb249fcc0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/part0.nano",
+    "bytes": 1083,
+    "sha256": "181bc6ca974460a433e7218f4917c211c9a40779125547294e9d9eee863c6d1f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/part1.nano",
+    "bytes": 267,
+    "sha256": "c63c22657e1193429fd3b20ad7b9f54e1e0ee40076be7b06c854b2649dabda4e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/part2.nano",
+    "bytes": 58,
+    "sha256": "6394fdf36aee384adcf1e326a6e81c0f43e68eaced01c309a08b33b88a5b56aa"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/part3.nano",
+    "bytes": 1083,
+    "sha256": "d8f822deac5000a4f9de5cccf3790fd3ec34936cc760cf0c1d596d9a31780a8a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps/source.nano",
+    "bytes": 303,
+    "sha256": "7acd3e430d242eb8055b534118467cdf2777b65b0ed722cb54bf753db2dfca43"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/catalog1.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/catalog2.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/catalog4.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-001.json",
+    "bytes": 610,
+    "sha256": "fd8c3d880cacc94e19be29f3db2fc3ec2e28c8f13d105931df206cb68e566e99"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-002.json",
+    "bytes": 516,
+    "sha256": "0ca03ee66e2c537c6a74619e28ed784e772cdfbeef2cc00a0f03f03e28ce8176"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-003.json",
+    "bytes": 4363,
+    "sha256": "6c879aa4e3b7ca9d3f170272151e0c1e5992dca88834be058b89eca134f7ac51"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-004.json",
+    "bytes": 402,
+    "sha256": "52da6b17782e71f13f9d321f7523611038b159665abb0d3662e802092c8a58a2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-005.json",
+    "bytes": 435,
+    "sha256": "1a9b0f77d4a591661a32eb002880cb6dccd781203631c3f03299fd497e5b69e5"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-006.json",
+    "bytes": 4348,
+    "sha256": "7d8dde63196c088529865498f1973ae9fbadf1f0f3c473349274b9ea07159e10"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-007.json",
+    "bytes": 291,
+    "sha256": "74ec4e6529e2c6883bbe617a2279717608dcb27009c602cdff7be1b84711cc3d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-008.json",
+    "bytes": 316,
+    "sha256": "a08f9b01ef326853945e81541454da59c94b07691868020f039fcbfd1d15b1e9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-009.json",
+    "bytes": 328,
+    "sha256": "9a09d00a79fcd9ed9d7c92b3a38d8c0bd301b7986b0b42979767ec2d65ced149"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-010.json",
+    "bytes": 439,
+    "sha256": "27e98f767149c0fb0dda178d64c5bd58f43a5db0bf6c5bdbe0bd196f05036991"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-011.json",
+    "bytes": 323,
+    "sha256": "1a678ec424ad67398199344be46599d7d88fa2b9acddc1c20d36e24771baa856"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-012.json",
+    "bytes": 434,
+    "sha256": "35e8c455acb0b4173c5ad80c3f4275e7665adf455381a6e8ffc62d0a03dbbacd"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-013.json",
+    "bytes": 341,
+    "sha256": "e37cf81befde5d36d00e8914bc7bc8f280222f4b3d38d1cd0dd7779aef6fd711"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-014.json",
+    "bytes": 452,
+    "sha256": "cdc338cc49ce333490896111562ee6a9727a3250c6cfc53204c1e014b0188985"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-015.json",
+    "bytes": 374,
+    "sha256": "e2b6bc211917e532921b534a3d2c5649752333afdf963247b460df7df0e882f2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-016.json",
+    "bytes": 485,
+    "sha256": "9a7a704abb8b563900f40c873432604fe958c5d08d27b9a3ca60388de09f1cc8"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-017.json",
+    "bytes": 339,
+    "sha256": "731a0a7dcd236088e04cba970e53899c260e8b5676f45d1fbf0486f6f03dd06c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-018.json",
+    "bytes": 545,
+    "sha256": "5c100b709532eb6cd510c3c2359924bbb2e3d5da11332d98bd0d8490d92b5c35"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-019.json",
+    "bytes": 614,
+    "sha256": "26ca2e81d38a0f16f7230cf6088b80d2f8e11a3e478d92e7b5361e4532b4d986"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-020.json",
+    "bytes": 520,
+    "sha256": "1d77c13369aaf5abdfb646adf012a0213f375a198e245c7e30b0b5e97db5e968"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-021.json",
+    "bytes": 4367,
+    "sha256": "997520cdbd9cd4e6d353501ef343cc56b973833a6a68ed3ba7745292906533f0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-022.json",
+    "bytes": 404,
+    "sha256": "253b3c8871914943d06b8772817fdfd682144bf3f66dcc41729472b2f843d53d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-023.json",
+    "bytes": 437,
+    "sha256": "035913d174fe4076f7aca94a880397ac750bbe3b10b76dc9283847b477794a19"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-024.json",
+    "bytes": 4352,
+    "sha256": "6f00ef16ebae956ed9f3fea793537e83695fa4be4a4919d408575fe4acecea1c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-025.json",
+    "bytes": 293,
+    "sha256": "90aca605e401930ad85c69c1000b0d0763bc169b9df6feff6825fa49c55d50bd"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-026.json",
+    "bytes": 318,
+    "sha256": "728b945a4cdd56cb9f7a661eb0b429c0d19dba56aef37120b2a5098059889396"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-027.json",
+    "bytes": 330,
+    "sha256": "58741b49eefd7815ed7a13ace62dddfeaf04fca808181f2bb563b8f06db6bf7a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-028.json",
+    "bytes": 441,
+    "sha256": "7344d6bebbf04793c9eba8b63c1abdd276dbb850bd6e269a4f77557abe68ce50"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-029.json",
+    "bytes": 325,
+    "sha256": "5e405f587bc504604dd2e18526e3a5c450e67dae372ca913018e2befe2701f61"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-030.json",
+    "bytes": 436,
+    "sha256": "afb2f1c1a17d0ce4c449d2e6bed4b0c149fa61d6b6a5df4c4c560b4b2371dae8"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-031.json",
+    "bytes": 343,
+    "sha256": "ce0137594bea17519d56be3ab0cd60574a57eddd8780315f151838a10e7eb410"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-032.json",
+    "bytes": 454,
+    "sha256": "df30ef81f7eb2130562ddc9c0cbed3a0ddf96a5ff7a0924848b99badbdd8667b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-033.json",
+    "bytes": 376,
+    "sha256": "8994c8439f69c443e56e694572420db54df1084c58cf6eb838dc7940ef603961"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-034.json",
+    "bytes": 487,
+    "sha256": "6e6823b1b96717048a4888dbe5f4ba1c6620f25d669f60fe7253e66d36a49fc3"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-035.json",
+    "bytes": 341,
+    "sha256": "3af72f65aae0b76a3c1d905fb35d5c8869db2c033866b5e9635fa26e40bf1aaa"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-036.json",
+    "bytes": 547,
+    "sha256": "a833c5b4724b431baa56d21f46e72ba98a03491ebf47f5714e834de1c666404f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-037.json",
+    "bytes": 4244,
+    "sha256": "405d8688fef2ffac0a5aad6f293f4ecf8ee4ba462b5c4586f4ec9186c3889326"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-038.json",
+    "bytes": 454,
+    "sha256": "07c90e5ef0a52b0dfcc8fc18e04e0f681f0c936557b76149c023c55560015bd2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-039.json",
+    "bytes": 454,
+    "sha256": "07c90e5ef0a52b0dfcc8fc18e04e0f681f0c936557b76149c023c55560015bd2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-040.json",
+    "bytes": 7565,
+    "sha256": "5a24cb81031cea81d88d9dd10acb842881ed89801ec5ad1242832b5f99c4fc7b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-041.json",
+    "bytes": 342,
+    "sha256": "e2b93bfbc1a1c8eb1830a47a95b3b9704ee93ab46a5e2b5e60702c00ba7d0432"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-042.json",
+    "bytes": 373,
+    "sha256": "a03819b1422843a8e795754d4405805f7b2a3c775ee84f5eb19ec728edce2e1f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-043.json",
+    "bytes": 7550,
+    "sha256": "05ad0cb9dbd990aeb843ce5f6d959315c498677dacbbd7d83205a4061669e37f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-044.json",
+    "bytes": 231,
+    "sha256": "08cd11eb79d20cb4ecc694aabcac5699c78082355c3988d98d00ef33ebc1a57b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-045.json",
+    "bytes": 254,
+    "sha256": "4ec3a84927094ff35db89437e4cd9951feda439a54c9c224c6795a367a267e22"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-046.json",
+    "bytes": 266,
+    "sha256": "c34c583793ee75c909fe5101d159e40673321248efae22b95ad0cbd9d984e99d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-047.json",
+    "bytes": 377,
+    "sha256": "82cd9a12e9baa2d759c94a08a9ad2f65cef7f0a30941d6fdca72582ffe3b71c1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-048.json",
+    "bytes": 261,
+    "sha256": "d2b701fb56bc40b2075fdf72f2655ad718374b706e0b479e84fb5212227ab768"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-049.json",
+    "bytes": 372,
+    "sha256": "e2d7d0ad2e2c359c392084236e2346fe1ec7788799077ea8658888f8f3821dc9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-050.json",
+    "bytes": 279,
+    "sha256": "fd0d172be8bf5de39b181586d2afa6dfc805e08852b648aa87d9fd56a20d0311"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-051.json",
+    "bytes": 390,
+    "sha256": "c3ad783aef092d593aa4e3cc4420a23d89540469d213ea06afd4286196cdeb06"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-052.json",
+    "bytes": 312,
+    "sha256": "e4edd9c0aabd7ad88a310a755f26122c245025699a91f8922871f3c7b249dd26"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-053.json",
+    "bytes": 423,
+    "sha256": "591cd9ac79907e1feb0be0475cfb9edcf6cca4c091ac8df8a81558235a876bfb"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-054.json",
+    "bytes": 277,
+    "sha256": "151f2a1b89438a8414c43572483fee5fc620aa2aa5f7b7cec1b2a30eb3ceeef7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-055.json",
+    "bytes": 483,
+    "sha256": "cfb1a02b8189384f849ff94f84d56db9938e6656b7dfdfa8681ae4bcfb44639a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-056.json",
+    "bytes": 458,
+    "sha256": "f5055f52818f47a0109aa9b8f4cad54a570a203b4d42a73d148f58714d9f67e2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-057.json",
+    "bytes": 458,
+    "sha256": "f5055f52818f47a0109aa9b8f4cad54a570a203b4d42a73d148f58714d9f67e2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-058.json",
+    "bytes": 7569,
+    "sha256": "9f6bb4e40c4de6e9bc4436d8835c43c50b2fdc563c2109769c1286a457fb19b2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-059.json",
+    "bytes": 344,
+    "sha256": "4c959046ceecf086e64fee3315f119649930babdf81b49b25a5267f321291497"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-060.json",
+    "bytes": 375,
+    "sha256": "02148d6cfab386cce8d61dd01adba46568b23a10addce1f369df9d1bcca85d07"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-061.json",
+    "bytes": 7554,
+    "sha256": "b677c57407265462f6da325eafd0336a15f6127eb776fd6a69b0b5f8f1db6b19"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-062.json",
+    "bytes": 233,
+    "sha256": "62919425d9a37e71cb6f0ce77ec692efc175bdf1f180e132d125b68f23bd4f2c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-063.json",
+    "bytes": 256,
+    "sha256": "90196177cc52f9b35f45f66e9b256c487ff225777c47ede7a187cd5b7d5c1c2a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-064.json",
+    "bytes": 268,
+    "sha256": "007572dea9e0ef8a76e865f4a44c1a8acfa2733e704b13610e0bd1b4672f420d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-065.json",
+    "bytes": 379,
+    "sha256": "ea84bf8c362f186a635ea828703173a986c60ced7ec898a8b5461a1d62ece788"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-066.json",
+    "bytes": 263,
+    "sha256": "98e706e01d84e6c3b4a277b5731b68a2b41009f1ed7e05d90e5011f673a075a9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-067.json",
+    "bytes": 374,
+    "sha256": "f5dc1166942c0d71e12f227993b7684990003ab02737f0a282dec9c3abf2dace"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-068.json",
+    "bytes": 281,
+    "sha256": "ea8d8ba11fca289f90ef3252174bd55afda0fb83ea7a61106644c9f18742e09b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-069.json",
+    "bytes": 392,
+    "sha256": "1bd5e113ed1dd6811389f2d66396394ae9a75b8c64eade46a40b2a03ec1e574e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-070.json",
+    "bytes": 314,
+    "sha256": "73b97a210327026c5c3ec7a871242688d4a62f83b73afe59337c154662de525c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-071.json",
+    "bytes": 425,
+    "sha256": "089c46e5dfb4eed5a05006ab1877441c936924e04fdc355bd4ac4020837a5cb6"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-072.json",
+    "bytes": 279,
+    "sha256": "ceaa7230ed37fd32d987963d415d3f691ffeb34e77fac12ad0691e2a3814ab03"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-073.json",
+    "bytes": 485,
+    "sha256": "9e4552b1bdac520f3671b73703a1e490b98b5cc6a35265c14b92322706648436"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/command-074.json",
+    "bytes": 7448,
+    "sha256": "eceeeb398399e6fa8420ed8f4c33b906fe8155bb27209f896a13300d83c426b0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/nano_virt.native",
+    "bytes": 2879192,
+    "sha256": "afda244a5a48299ee747c0ac29b4ff998547c65d4a8e89bb72575b54d8fb2dc3"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/nano_virt.nvm",
+    "bytes": 11988,
+    "sha256": "a248e0f6478fea7c3ad8abdda9a1bea1c896643fd5e99a8bcf15a21ccc0df810"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/nanoc_c.native",
+    "bytes": 2879192,
+    "sha256": "b7290d26e75b15d58eb752d3879c1a1950d9b60ba5e64503e3b606fdb306ded5"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/nanoc_c.nvm",
+    "bytes": 11988,
+    "sha256": "a248e0f6478fea7c3ad8abdda9a1bea1c896643fd5e99a8bcf15a21ccc0df810"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/part0.nano",
+    "bytes": 1083,
+    "sha256": "181bc6ca974460a433e7218f4917c211c9a40779125547294e9d9eee863c6d1f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/part1.nano",
+    "bytes": 1083,
+    "sha256": "2a87a62d1e7d5e75a642d983b3f01ed7300d4b1d932b2d18c3f9dce50ad13292"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/part2.nano",
+    "bytes": 1083,
+    "sha256": "82c3fbe0b779eaaa470d2e868c316a3dcf9b10f4f817cdda6b78ac20b619156b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/part3.nano",
+    "bytes": 1083,
+    "sha256": "d8f822deac5000a4f9de5cccf3790fd3ec34936cc760cf0c1d596d9a31780a8a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/part4.nano",
+    "bytes": 1083,
+    "sha256": "a9e1b4b18bbbf274bda4575b5f38977e4dc22db2ee9a92784b04a52564b586fc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc/source.nano",
+    "bytes": 401,
+    "sha256": "0f062de021b11685643d3cae23f8e7ab5d5ffa49d1e3dab906d7f9fcd7a25d09"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/catalog1.json",
+    "bytes": 8381,
+    "sha256": "94ca15393167e556494e52b61626f74d68dd61b0a274854a96413ec5d78d33be"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/catalog2.json",
+    "bytes": 10155,
+    "sha256": "c7535d9e8f2db73175ae3a6fc25a40d32e6487c3ae132f0bbee03ebfb3b90c74"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/command-001.json",
+    "bytes": 620,
+    "sha256": "46f51f5f45c5bd7f42b12b39b0b7fd967b12fe7b1d0ea4d7212c7351a46fb5ad"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/command-002.json",
+    "bytes": 4420,
+    "sha256": "a10ca447406f0ba21c30ebb13637e69b87039f949c1b06e2e185b0b2bfb8e3ff"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/command-003.json",
+    "bytes": 294,
+    "sha256": "f77f78bce0cfee8fb3a10598b4c53b66e78116845a1323d65622cd0a23fceb2f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/command-004.json",
+    "bytes": 4424,
+    "sha256": "d165ea076144acbecee2079f5db9fd39c01213fcb8f03a3c9acbdec8c5198091"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/command-005.json",
+    "bytes": 296,
+    "sha256": "eac847ffcebc385d2e10742002abc6645f7ba45ad548439c1ea43104d7b0479d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/part0.nano",
+    "bytes": 1083,
+    "sha256": "181bc6ca974460a433e7218f4917c211c9a40779125547294e9d9eee863c6d1f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/part1.nano",
+    "bytes": 267,
+    "sha256": "c63c22657e1193429fd3b20ad7b9f54e1e0ee40076be7b06c854b2649dabda4e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/part2.nano",
+    "bytes": 58,
+    "sha256": "6394fdf36aee384adcf1e326a6e81c0f43e68eaced01c309a08b33b88a5b56aa"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/part3.nano",
+    "bytes": 1083,
+    "sha256": "d8f822deac5000a4f9de5cccf3790fd3ec34936cc760cf0c1d596d9a31780a8a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc/source.nano",
+    "bytes": 303,
+    "sha256": "7acd3e430d242eb8055b534118467cdf2777b65b0ed722cb54bf753db2dfca43"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cv9zihpf/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/catalog1.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/catalog2.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/catalog4.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/lowerer.c",
+    "bytes": 5556206,
+    "sha256": "d696e8ceabee6105d7f1692e68f6d7da36d926cf71e7d7a19bec5120e3b4da06"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/lowerer.native",
+    "bytes": 7301216,
+    "sha256": "61b2439f53223f8cf476a430e7e9cd17d4166f55a7303cd94aebd5848b14e31f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/lowerer.nvm",
+    "bytes": 363080,
+    "sha256": "d94e31a822d750b771873025e66495993ad2a970cf49704633e0f72a3ef1e2b3"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/part0.nano",
+    "bytes": 1117,
+    "sha256": "24e2a0f7624520cfe9c8292ac57fc3493fae6ff2256df022a44364b89598d334"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/part1.nano",
+    "bytes": 1117,
+    "sha256": "d31613fe4a22e3ffaefb7237989b5b6da439ddeba52d42b7cbb499de4457b5bb"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/part2.nano",
+    "bytes": 1117,
+    "sha256": "f71fb7fa077ff12da0084af702dde59052f57f6300969fc07d2ae5e68665a339"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/part3.nano",
+    "bytes": 1117,
+    "sha256": "050325f418d04f30e8193d0c40d8fc47c7085704973f490bf4cf8b8f9cab78c7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/part4.nano",
+    "bytes": 1117,
+    "sha256": "03b918fcf1f76512b6720fa48215b7088e17718a7f73feb8ca964e4a2cb565cc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/source.c",
+    "bytes": 10440789,
+    "sha256": "d8ffc6201a53ad4ffec99d75c3ca7d3cea7bd2edebe7a55b760b4aa7d758b4dc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/source.c.nvm",
+    "bytes": 12208,
+    "sha256": "5d6bf88222e65e897f971eecb38bc276bbbb32b843725c0225b90487bd572c37"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/source.nano",
+    "bytes": 401,
+    "sha256": "0f062de021b11685643d3cae23f8e7ab5d5ffa49d1e3dab906d7f9fcd7a25d09"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-ajd8ilvx/wrapper.c",
+    "bytes": 884,
+    "sha256": "7bcf039a1cf321411c4906049f26c6ca68fa8b52a29852629b0d86f9e88e7215"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/catalog1.json",
+    "bytes": 8381,
+    "sha256": "94ca15393167e556494e52b61626f74d68dd61b0a274854a96413ec5d78d33be"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/catalog2.json",
+    "bytes": 10155,
+    "sha256": "c7535d9e8f2db73175ae3a6fc25a40d32e6487c3ae132f0bbee03ebfb3b90c74"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/command-001.json",
+    "bytes": 370,
+    "sha256": "1eb40510d44e0d10f86f0230bddaa33ec9b75a315eefb2a0dc1e489a66d7e4e9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/command-002.json",
+    "bytes": 355,
+    "sha256": "30b86b14a1ec9df08f5959caab3ad69ae39e7313a9a17786027b95dfae1da2d0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/command-003.json",
+    "bytes": 2492,
+    "sha256": "8f9322c5d0022ac898c60dbb2ce37a48136b58c5a69143b480e58d80983f07e5"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/command-004.json",
+    "bytes": 374,
+    "sha256": "376631978785a8d23c06f9b135f7524c56b71ad276ec6235f9bd2c13a55edba1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/command-005.json",
+    "bytes": 359,
+    "sha256": "14b06377bf61f41d205d9c15824987152a0e2ae057731f4ce9cbf795f500a73d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/command-006.json",
+    "bytes": 2496,
+    "sha256": "ec962ce4e9c1d1f2cb0c80164690e4e47ffb3b5ddc17fc08c388fbd4b548e596"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/nano_virt.native",
+    "bytes": 1590616,
+    "sha256": "d3b7f53e07a39ddeb4a6e8a76c805c54da55c3bffbf2a60fc1d8caeb09b666dd"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/nano_virt.nvm",
+    "bytes": 5,
+    "sha256": "e5bade0e979cb8cf6e53303dae696c6631a5c82ce60386d7a602f85fb249fcc0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/nanoc_c.native",
+    "bytes": 1590616,
+    "sha256": "99c2b3e344fc2900d9c6334c13527c6ea2405ae096c04a8b60a0c60921faf598"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/nanoc_c.nvm",
+    "bytes": 5,
+    "sha256": "e5bade0e979cb8cf6e53303dae696c6631a5c82ce60386d7a602f85fb249fcc0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/part0.nano",
+    "bytes": 1083,
+    "sha256": "181bc6ca974460a433e7218f4917c211c9a40779125547294e9d9eee863c6d1f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/part1.nano",
+    "bytes": 267,
+    "sha256": "c63c22657e1193429fd3b20ad7b9f54e1e0ee40076be7b06c854b2649dabda4e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/part2.nano",
+    "bytes": 58,
+    "sha256": "6394fdf36aee384adcf1e326a6e81c0f43e68eaced01c309a08b33b88a5b56aa"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/part3.nano",
+    "bytes": 1083,
+    "sha256": "d8f822deac5000a4f9de5cccf3790fd3ec34936cc760cf0c1d596d9a31780a8a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-qdued1i3/source.nano",
+    "bytes": 303,
+    "sha256": "7acd3e430d242eb8055b534118467cdf2777b65b0ed722cb54bf753db2dfca43"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/catalog1.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/catalog2.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/catalog4.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-001.json",
+    "bytes": 610,
+    "sha256": "9c1c97c2b5289eb268d38fa3c360992f2aaa3e973b9353bc1097b7c1b51d0e3a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-002.json",
+    "bytes": 516,
+    "sha256": "b39b7cd37098bf3e2534716d1beabd1554287481f65609f8031cdfcbb3e6c962"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-003.json",
+    "bytes": 4363,
+    "sha256": "f8104358d1e2d5810cd0050c07b6441d087bfa864e509b11ee8d6ab7f1adb2e8"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-004.json",
+    "bytes": 402,
+    "sha256": "6a02aad3f69aeb8404eb6c37080063c09a39fd713466c57e5fd97418cad9fc28"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-005.json",
+    "bytes": 435,
+    "sha256": "c4de56c3aceeba5ef682a9acadf27fc8b62658c8e192cbca196d766661758627"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-006.json",
+    "bytes": 4348,
+    "sha256": "43e623fcb5c65d9adaf08c37dc141fb15ae8c5e60e430d8afce5179f3c28de06"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-007.json",
+    "bytes": 291,
+    "sha256": "f63f63c47b10f928d21ed1c634725dc49648412b11487b5b0a3cee01de7a54bf"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-008.json",
+    "bytes": 316,
+    "sha256": "b6637f33a9d40d78543a45a1653e19fa7a00c5f6f20e2bfa1d48072b0dc3caa3"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-009.json",
+    "bytes": 328,
+    "sha256": "4f3a13ca9ac57a79aedeeec25e9434140a3689804a67f47aceb26e362b327a53"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-010.json",
+    "bytes": 439,
+    "sha256": "3fa780754401baa51994d5d5765ee6b5d48d2c8e521a884fabf5a765b9218a0b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-011.json",
+    "bytes": 323,
+    "sha256": "6559b66a50e4d23b59f5cf95627b94262aa57cb77c44022873517eccf65ce522"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-012.json",
+    "bytes": 434,
+    "sha256": "a4bc90e0e4b6fe74f8dacb3f55a79bb3a565469e9bbc63869e5ad3e46034d398"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-013.json",
+    "bytes": 341,
+    "sha256": "b3f449bf80829c10337de7ac7e41c95cd9e8226e3e83b407cefcf9b7140183e1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-014.json",
+    "bytes": 452,
+    "sha256": "4f0083500b29ce13d69907f34ad0bce6ae0eb61434ad043d58f4714f87863861"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-015.json",
+    "bytes": 374,
+    "sha256": "c8387f1e7583b87db76b4f1d3974fe60ba53828d4817f906dd6b0262b025a8d8"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-016.json",
+    "bytes": 485,
+    "sha256": "793202b2284655bcf914bc914e4bf86501c0f73598a9f53df03680807dcdb389"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-017.json",
+    "bytes": 339,
+    "sha256": "dac669ca4d1b33d0b800e3dd120a0992d183fa54d5ae7a422b6d7dde64ba45a9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-018.json",
+    "bytes": 545,
+    "sha256": "d8829a1075811ecbeac466c68e84d65dc9a2718d7a5cd08128c5dfa1f2e065b7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-019.json",
+    "bytes": 614,
+    "sha256": "d3c834ca2d29a0399ce60e9caf096b241b33d294e93b6ce2c008b67fc23bb0f4"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-020.json",
+    "bytes": 520,
+    "sha256": "6896dba59de3fd74891005579efceac98251b5eda1f683e5cf25d020539c9e0f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-021.json",
+    "bytes": 4367,
+    "sha256": "fae97a8426df41aa9a1a29f5331f64872bfc73d042dc754dc3d15b28a55e608c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-022.json",
+    "bytes": 404,
+    "sha256": "00a7a329565407ecfaff3593d6487e23f02299905890189a297ad5a2a5a0b67f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-023.json",
+    "bytes": 437,
+    "sha256": "2b0d80403851a6cd007e322c98872ee425952b227d86550a7b3c95cb93f910e4"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-024.json",
+    "bytes": 4352,
+    "sha256": "5e9cae64e55d974e24bf2ba740928a6d9f325484f84016a35495eea23bd554a1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-025.json",
+    "bytes": 293,
+    "sha256": "526e366e897d024219c9947882357e3a4c1e2d1a343918b84077862fafe89683"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-026.json",
+    "bytes": 318,
+    "sha256": "f8e7ff85351149e8bac315f1f0c8e1a1f3b0f86fa061a26b7e96f8b0b3cb5e31"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-027.json",
+    "bytes": 330,
+    "sha256": "eb3e1b8cb9091575e6d738c2d4a418f1bfea9d9eb04afe0886ef4e675475ea63"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-028.json",
+    "bytes": 441,
+    "sha256": "d7ffbc9ed17d28773a414f6f04e828276af7488577db35585ab963b1a0d15aff"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-029.json",
+    "bytes": 325,
+    "sha256": "e5515be9f402d9125986b39707284d00c220e8d1007e47b7b7825cdd15ecb48b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-030.json",
+    "bytes": 436,
+    "sha256": "d278fc705f0e8e005a2147737f4bdb2c13ec6df77a21f8d7ab18f1544ee57146"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-031.json",
+    "bytes": 343,
+    "sha256": "5bcb5caeb57f13d54c51123c5c0efce11577248cc0766d90270647643a59e044"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-032.json",
+    "bytes": 454,
+    "sha256": "0c5b25a165abfeba1735b466960a5257e8e6ff3f6b6e818c37426e53213c18fc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-033.json",
+    "bytes": 376,
+    "sha256": "6c337b8b2c333eabd6a813de97963ac0f0af542a4177759d4ac924cad58225ef"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-034.json",
+    "bytes": 487,
+    "sha256": "c7f831abee9e07e97e589e7e45dff22f5f4fadb9b5708e0eac9c7776375da6b8"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-035.json",
+    "bytes": 341,
+    "sha256": "19ea4466ebd42650f71482f851b4b618200b648e40cd98236d2d8ebe8a03c1c2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-036.json",
+    "bytes": 547,
+    "sha256": "81b65b9ed4f5e2c3870d1e662860f8bcb9f97248fa835d68d0e5f062412f839a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-037.json",
+    "bytes": 4244,
+    "sha256": "95faf91d55ad5598624f76bcff1ef1384a8e4c646aaf609b92c4f43aa7426489"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-038.json",
+    "bytes": 454,
+    "sha256": "f5cafcb2c5e49895d137abf0f5f9a8a6ec814afb6d4386c9b8f60c37aca3fb62"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-039.json",
+    "bytes": 454,
+    "sha256": "f5cafcb2c5e49895d137abf0f5f9a8a6ec814afb6d4386c9b8f60c37aca3fb62"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-040.json",
+    "bytes": 7565,
+    "sha256": "653cd7f994595bd30adadf1b33aee8090efa43d49e0e01f0fb444daad23cd5f3"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-041.json",
+    "bytes": 342,
+    "sha256": "79c34c7d344c80d8dcd256d09665dddd18415d25d2747e3f6c0a3716b8f2487d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-042.json",
+    "bytes": 373,
+    "sha256": "904ae39994a17f60a43a0a7ac6451ba6abdf73a1392a9a7f3a2b48f8882195d9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-043.json",
+    "bytes": 7550,
+    "sha256": "c4c084c4f2488906435707dc3a3f3c6c82bfaa4b822a9d9eb3986629d21fb228"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-044.json",
+    "bytes": 231,
+    "sha256": "80d6164b504fe45fc9dc56c443df7208914168bcae1585d376766d83ec69ff4b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-045.json",
+    "bytes": 254,
+    "sha256": "ad35aeec7802a33763dec1053118f7dcd7749a8cf0ab2ee6debcd98ab474c92a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-046.json",
+    "bytes": 266,
+    "sha256": "3c7c92ab89e68a61c9f627b9f31fd64006e4b3ce28e0293e696bba6b7b21f878"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-047.json",
+    "bytes": 377,
+    "sha256": "b89767e7e4ff10bf4ecce9e56f895c56ceefdb6e9dfdc2e3756d34be6b2f33af"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-048.json",
+    "bytes": 261,
+    "sha256": "18a1e4e23c9b05da136fcdcfcd4600c0840f6d29ee49177242d06b494f92f99d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-049.json",
+    "bytes": 372,
+    "sha256": "aad8c67c40b616a20b56047ef60ed49d4bb8df2e48d9fdea376a476b265e5e1b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-050.json",
+    "bytes": 279,
+    "sha256": "4c3ecf856977ad45e9321f3a5bd61baba66b08f777752c332f78f03c1556c1a4"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-051.json",
+    "bytes": 390,
+    "sha256": "34284b47d857fc8e33ff04ffafc680bd59df66e1366ddb3e756eabdd638d69cb"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-052.json",
+    "bytes": 312,
+    "sha256": "7aade934495090bc3aac84a9054232be7b0c438f3fc48ecf04599368acc527dd"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-053.json",
+    "bytes": 423,
+    "sha256": "8f87e33364e61a599cfd067c1c7faa1e4e5e383ea4b51f6461c9a26d4f313dde"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-054.json",
+    "bytes": 277,
+    "sha256": "d84093b467f1057fde5fd71a3da5bedb28bea147c5f0f8c9e7d68a46ac92f70f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-055.json",
+    "bytes": 483,
+    "sha256": "2b0695f1dc5d361b48e7d130ef35c0f725ba1b62035c2a0b2f117c7b943f4226"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-056.json",
+    "bytes": 458,
+    "sha256": "529bc039f0d10a286e83f43170af5b482d2e21cc68bc927655b9965d5d323d81"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-057.json",
+    "bytes": 458,
+    "sha256": "529bc039f0d10a286e83f43170af5b482d2e21cc68bc927655b9965d5d323d81"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-058.json",
+    "bytes": 7569,
+    "sha256": "cbe87a592a6695a09c99b5a129148d8213c18b804ca83cc56fb020e707fcf2bb"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-059.json",
+    "bytes": 344,
+    "sha256": "af98410dd0180eccd712693e4526a9dda663cea3d7eb0fec8699bc2a30df2fb0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-060.json",
+    "bytes": 375,
+    "sha256": "6027bd2e9844d5590a1eab419cc0b33997c828d43f008825ec4d30675329ad73"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-061.json",
+    "bytes": 7554,
+    "sha256": "ea61b4863ffcbc0e1fed43a1717717433e0483f32ff275e3de4195825ffae5ac"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-062.json",
+    "bytes": 233,
+    "sha256": "eaa0447872983ff93fe895c19bdc95be0ce91a0e983e3426dbbc339c1d7b6fa7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-063.json",
+    "bytes": 256,
+    "sha256": "30be4a032b9b413cc3c16226bdaca954124ae7adc096444c4af30073de24be2c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-064.json",
+    "bytes": 268,
+    "sha256": "cb3ef753df499451b6b69fe18a92ece5b3d72cc0508b144810ac04032b092bb1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-065.json",
+    "bytes": 379,
+    "sha256": "a1b763a4fa78df9bef65b707ca75fb882b27e3543273b09d404d619f86a01155"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-066.json",
+    "bytes": 263,
+    "sha256": "9287c905c4ec3a1dd1be70290cb1d575395a848778a2a7d1423a5f0ab83d41ab"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-067.json",
+    "bytes": 374,
+    "sha256": "860a9b5b4009993591aaf71d0dfa31dbc14c332d7ed9a4eb046742f7d5a537ce"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-068.json",
+    "bytes": 281,
+    "sha256": "d888607ae2d6a4e505d569940b1ae85a8fc8b9f27530876fdd06207d476f82a7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-069.json",
+    "bytes": 392,
+    "sha256": "5e3db92f86d67e7d54e2b9022625808a5861ee5651badd41ebbf05cd7d3959a7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-070.json",
+    "bytes": 314,
+    "sha256": "027feedd1934a5b7bc7524f161b86f5508f1e51faa243c0b1ae25c8f3bdbeb27"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-071.json",
+    "bytes": 425,
+    "sha256": "f438c4686be91ea813f6efb2c3fa4312c951b3cda73d0b16b531310808e97a24"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-072.json",
+    "bytes": 279,
+    "sha256": "6632c9ce2973676309cf3b4ef2e033fe5e83573e26dc64eb2cfdb93ca25acc2a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-073.json",
+    "bytes": 485,
+    "sha256": "a64b8d7440d5ea17b4d5678d19347b3c62c8a1879a153ec65aaf05017dc33ab7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/command-074.json",
+    "bytes": 7448,
+    "sha256": "bd026029f540c8d07012011a6b4841f14f120794ebfb18d0ba0b1f3fe61e3866"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/nano_virt.native",
+    "bytes": 2879192,
+    "sha256": "0bba54a2560eff31195baba114529e54882d4ca2a914d41005077c98a1e11326"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/nano_virt.nvm",
+    "bytes": 11988,
+    "sha256": "3929e76cbd8edc2d5a160f9803a61c45a426fc61057aa4055364c919e29dc209"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/nanoc_c.native",
+    "bytes": 2879192,
+    "sha256": "b5abdfb2ef86afe8d9b90222dc32c5999a49819fae56913a985973be07ffcb57"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/nanoc_c.nvm",
+    "bytes": 11988,
+    "sha256": "3929e76cbd8edc2d5a160f9803a61c45a426fc61057aa4055364c919e29dc209"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/part0.nano",
+    "bytes": 1083,
+    "sha256": "181bc6ca974460a433e7218f4917c211c9a40779125547294e9d9eee863c6d1f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/part1.nano",
+    "bytes": 1083,
+    "sha256": "2a87a62d1e7d5e75a642d983b3f01ed7300d4b1d932b2d18c3f9dce50ad13292"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/part2.nano",
+    "bytes": 1083,
+    "sha256": "82c3fbe0b779eaaa470d2e868c316a3dcf9b10f4f817cdda6b78ac20b619156b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/part3.nano",
+    "bytes": 1083,
+    "sha256": "d8f822deac5000a4f9de5cccf3790fd3ec34936cc760cf0c1d596d9a31780a8a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/part4.nano",
+    "bytes": 1083,
+    "sha256": "a9e1b4b18bbbf274bda4575b5f38977e4dc22db2ee9a92784b04a52564b586fc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-thi00k5c/source.nano",
+    "bytes": 401,
+    "sha256": "0f062de021b11685643d3cae23f8e7ab5d5ffa49d1e3dab906d7f9fcd7a25d09"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/catalog1.json",
+    "bytes": 8381,
+    "sha256": "94ca15393167e556494e52b61626f74d68dd61b0a274854a96413ec5d78d33be"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/catalog2.json",
+    "bytes": 10155,
+    "sha256": "c7535d9e8f2db73175ae3a6fc25a40d32e6487c3ae132f0bbee03ebfb3b90c74"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/command-001.json",
+    "bytes": 620,
+    "sha256": "2c772f3ed4478bcbc60425f5b9c0843f981701b1399ce620356016d2c5546cb4"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/command-002.json",
+    "bytes": 4420,
+    "sha256": "e297a034544215a048e53bdc415da0f17775ec3aff3ca733c44f87e157120b5f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/command-003.json",
+    "bytes": 294,
+    "sha256": "4d5c6a7a166f598ae2358496fb3794dede4b633d15c73d851c7cbf40b3b362c2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/command-004.json",
+    "bytes": 4424,
+    "sha256": "61de25c01ec47c2344afb68bae4b35f05ad89100ce9917e367dcbcec08300f3d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/command-005.json",
+    "bytes": 296,
+    "sha256": "95a83e323fad3ba1cce6e4dddaa0165aeb18b5ed65e889e3a487f23bee9c24dc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/part0.nano",
+    "bytes": 1083,
+    "sha256": "181bc6ca974460a433e7218f4917c211c9a40779125547294e9d9eee863c6d1f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/part1.nano",
+    "bytes": 267,
+    "sha256": "c63c22657e1193429fd3b20ad7b9f54e1e0ee40076be7b06c854b2649dabda4e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/part2.nano",
+    "bytes": 58,
+    "sha256": "6394fdf36aee384adcf1e326a6e81c0f43e68eaced01c309a08b33b88a5b56aa"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/part3.nano",
+    "bytes": 1083,
+    "sha256": "d8f822deac5000a4f9de5cccf3790fd3ec34936cc760cf0c1d596d9a31780a8a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9nxspq7y/source.nano",
+    "bytes": 303,
+    "sha256": "7acd3e430d242eb8055b534118467cdf2777b65b0ed722cb54bf753db2dfca43"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-lribqc0v/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/catalog1.json",
+    "bytes": 8381,
+    "sha256": "94ca15393167e556494e52b61626f74d68dd61b0a274854a96413ec5d78d33be"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/catalog2.json",
+    "bytes": 10155,
+    "sha256": "c7535d9e8f2db73175ae3a6fc25a40d32e6487c3ae132f0bbee03ebfb3b90c74"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/command-001.json",
+    "bytes": 631,
+    "sha256": "a94faaede70c2ad992b71da427f9c7ebb2926463f5ae095ec44bc7940639da5a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/command-002.json",
+    "bytes": 653,
+    "sha256": "4a2673836c3ee425d3bc74c3ab8439221ccd08f984a59f71d51dc01f0c473b31"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/command-003.json",
+    "bytes": 291,
+    "sha256": "2d26795f1e8c8e5b2bd72c241e9c73550716ce44af873717e98ba6a92b847f8c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/command-004.json",
+    "bytes": 409,
+    "sha256": "379f3b94607a8abdf790441e55d3652dea9d5fff39b555499caaa40e9c038b7e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/command-005.json",
+    "bytes": 470,
+    "sha256": "7b981a699875739b60ad7730e59a17100bb212158dfbd0d55ef9492df75b5a6d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/command-006.json",
+    "bytes": 588,
+    "sha256": "4b62f6532b594fde67d95e57ec7fffa34cf3bb624f53a98d12f29d26bfd593c9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/command-007.json",
+    "bytes": 635,
+    "sha256": "943648598545765e47e9fc8f69d011dc0ffe367d7e0f1ad2de1bde7603de3e00"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/command-008.json",
+    "bytes": 657,
+    "sha256": "2787421e3493d2acf971ebacb9697445fa3b9d969fd4c073cac82142b6ed6e42"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/command-009.json",
+    "bytes": 293,
+    "sha256": "821c8485ee90fe3caf08408d3529756f542838a4872042e7e79745432bc48f5c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/command-010.json",
+    "bytes": 411,
+    "sha256": "d9540bd61cd3edcb4a5707775382ae4074ce48202e40f61d5defd040d4ccd47a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/command-011.json",
+    "bytes": 472,
+    "sha256": "e80d5fb3a43b92207cffa98a0db3abeff9a7b81cd7c18e19b7c6fa065503baf9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/command-012.json",
+    "bytes": 590,
+    "sha256": "15bdac31183dc01efe8e5e79256c851a29ca498a2131e28ff447a31c9eb008d7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/nano_virt.lookup.nvm",
+    "bytes": 10140,
+    "sha256": "92855d37d06c03e37bbae7384311c2df02340e354791b25eddaa28eec836ef7c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/nanoc_c.lookup.nvm",
+    "bytes": 10140,
+    "sha256": "92855d37d06c03e37bbae7384311c2df02340e354791b25eddaa28eec836ef7c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/part0.nano",
+    "bytes": 996,
+    "sha256": "5107d5ffe071f058e2041ed8616768e495da63f8ce3c9aa7448d0df9f961d83e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/part1.nano",
+    "bytes": 229,
+    "sha256": "e2a78b016de8a4c74a3f1ef0263fb9c7c5d3ee89de9e356c1ccfa674b498342b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/part2.nano",
+    "bytes": 57,
+    "sha256": "affc21ddbcce0e68fbc2fbafccf9f7d05a96cce73c54f0e74a73f4ee4c23c388"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/part3.nano",
+    "bytes": 996,
+    "sha256": "3060f34e8c2f0d653b345a0b193c1c0018cc0b41271f00f418cb343be30e1ce9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fqh8zbyl/source.nano",
+    "bytes": 267,
+    "sha256": "dbbc52d01170d0ee85e295de40596c98eb61f49d6de907dbdd04f9ade2110423"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-q66jmsp1/command-001.json",
+    "bytes": 623,
+    "sha256": "a7a1d9a0c177e7c93bf582fdcd2847f4965c38137d6b187b2a7d81a57f842ee7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-q66jmsp1/command-002.json",
+    "bytes": 1127,
+    "sha256": "10de682af56176a515d85aacae9beb6a242df9081e77f8f9409d75da1694a4c2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-q66jmsp1/command-003.json",
+    "bytes": 232,
+    "sha256": "d8b58cd052a8c4c7317b33d30e6cbbff718c75220fe5c28d67c286931752abc8"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-q66jmsp1/command-004.json",
+    "bytes": 1131,
+    "sha256": "06b40a62538489a594878d809c33a3efbcdd8fc737dc48366d25bd746050779b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-q66jmsp1/command-005.json",
+    "bytes": 234,
+    "sha256": "da15f9f8ba4a5eedb0bf624331b85de9e897959c565d243bf50c2ecf09409c0d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-q66jmsp1/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-q66jmsp1/source.nano",
+    "bytes": 303,
+    "sha256": "d6d9bb0957afeb89e7cdb3e01656962dea178ba9134714cb87562dafba9d8db1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/command-001.json",
+    "bytes": 1058,
+    "sha256": "e3a9b834b51e1330b6b414b9b70224571624e99c04976d9ea20de076cf996a15"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/command-002.json",
+    "bytes": 324,
+    "sha256": "07e610fc6dfed78a540a5c486931b3533a54490030982edeaf7cc43cd77120e6"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/command-003.json",
+    "bytes": 1043,
+    "sha256": "0ff44b5e204b211fad4d946ab8b18edd36b01a47ab57c928ec64fe3d6349d05c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/command-004.json",
+    "bytes": 229,
+    "sha256": "39becb337105132516e7810a3b4b5b47ead0cad4da73668e5984c147a0a761dd"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/command-005.json",
+    "bytes": 1062,
+    "sha256": "281595ea69d33fd97a3a167d0e059ac8b855559ca985d21203717226b386184c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/command-006.json",
+    "bytes": 326,
+    "sha256": "ec706586b07db6ae4eed90a512489387514b95046bc92b58e9721d7d1c947d70"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/command-007.json",
+    "bytes": 1047,
+    "sha256": "2e96bd4a6dcd973ca31ed989b699cd2a8bfd57356c3dea6729e1e9032eadacaf"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/command-008.json",
+    "bytes": 231,
+    "sha256": "b3a9658737f36a5b2fb6eb830ecedda4db3498010a43ac8ff27aa09693f9a1a8"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/nano_virt.native",
+    "bytes": 745544,
+    "sha256": "579e512706939bf7572a1bff9abc3d43539b27ccd810b697b7e80aff1113cc35"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/nano_virt.nvm",
+    "bytes": 3064,
+    "sha256": "3d4b6438ada7912c72d4dee04021c5d97ddb76d43c572d85d52edcbbdf95a67f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/nanoc_c.native",
+    "bytes": 745544,
+    "sha256": "eabec04f047ce4dd3378283750cb357ebd4d4f3bc396e95aeea491b3955193b6"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/nanoc_c.nvm",
+    "bytes": 3064,
+    "sha256": "3d4b6438ada7912c72d4dee04021c5d97ddb76d43c572d85d52edcbbdf95a67f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mwrcemhz/source.nano",
+    "bytes": 366,
+    "sha256": "6298079e0b517801c62477844caf8cfa02339f3baca787744f6786bba223da02"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/command-001.json",
+    "bytes": 370,
+    "sha256": "508dc316be67db7d16a0da578b88c8d8303ef24c316f094a6bb6327d2b3dfcf5"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/command-002.json",
+    "bytes": 321,
+    "sha256": "bb3e96bca4b6d0386ce4246ee306abf49b4141382ed800e83877c08ac07a47dd"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/command-003.json",
+    "bytes": 411,
+    "sha256": "e4b8412d2b432dd3fee8325e81fbda6848f03069bd93e8505cb3ce251d655538"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/command-004.json",
+    "bytes": 421,
+    "sha256": "a05757d7f14bd3c9e6fd1086006764a8237cf085e55b6a285f61d8fa1ecb1874"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/command-005.json",
+    "bytes": 489,
+    "sha256": "b1a12248b04fb0df8f97ded31e074fb22af9caa26f2e394517aed02a45d02186"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/command-006.json",
+    "bytes": 374,
+    "sha256": "8b2df81b851d0910437e64c815ac5264b4034d1b124c7f34284639a3c104cbd5"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/command-007.json",
+    "bytes": 323,
+    "sha256": "64396073cebcf31d24fa493273aa2bb8db5cf57b5ddbbfb0767fb9f3708f395e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/command-008.json",
+    "bytes": 413,
+    "sha256": "114ae61f99518175b5a4c431bdacd0cf23b82b80a68f811da8e37cc630a82c24"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/command-009.json",
+    "bytes": 423,
+    "sha256": "646fa61a0d6162ffb34bf9f0b3eb2148d0513ef806888229cf349c3222d53cf7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/command-010.json",
+    "bytes": 491,
+    "sha256": "84efde100998ad47b6b5af3cbc08f6a9c85d6feb183f7feb06b7a35e4187ec6f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/nano_virt.nvm",
+    "bytes": 2524,
+    "sha256": "004452f9cee4ef78323b48d0885ae87700a19a4676a7a3e003480d263dc68fdf"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/nanoc_c.nvm",
+    "bytes": 2524,
+    "sha256": "004452f9cee4ef78323b48d0885ae87700a19a4676a7a3e003480d263dc68fdf"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/prior.c",
+    "bytes": 5,
+    "sha256": "e5bade0e979cb8cf6e53303dae696c6631a5c82ce60386d7a602f85fb249fcc0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-6wos1wvy/source.nano",
+    "bytes": 94,
+    "sha256": "e4b0bf0c00c46353a73bf21213aa1b3745f8455eed53627f85ff08b55d304902"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-001.json",
+    "bytes": 452,
+    "sha256": "5b41da674997c3608a4c856e7bcef63100c184409a9a6efcb7a9b7ca8762a27f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-002.json",
+    "bytes": 483,
+    "sha256": "afc31b5985374d5d990b3d17510c6c7913a8098486728594022213a131218871"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-003.json",
+    "bytes": 483,
+    "sha256": "7a669557a829cdf8069436bf357f87df3ae9d7dceb70e15befc5ebbd13e7e1fb"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-004.json",
+    "bytes": 527,
+    "sha256": "14d7119afaecf696fb147368e483b9bc59ac92e94c894bb3ab719e54936b4ce3"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-005.json",
+    "bytes": 578,
+    "sha256": "cfbfdd33191271602d784f18d0190d1d83e91d8b10748352aa45e04253762455"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-006.json",
+    "bytes": 545,
+    "sha256": "87140216c1c756d5a89783022ce87c7411834f0cf902365d953b91a810fcc565"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-007.json",
+    "bytes": 538,
+    "sha256": "f07f962a11e66d2b142fb94128f40c5bd18c8211b42dd1de09cc53665c157ce9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-008.json",
+    "bytes": 911,
+    "sha256": "fdb64a7e6b73fcb50b79d0687f9e3e146c86a3e0dd159099e26cb152d84e96ee"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-009.json",
+    "bytes": 454,
+    "sha256": "affa6ce2da31ca7d7d8516e6b4329088d1725648d079a4136610ff8d89a58c9f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-010.json",
+    "bytes": 485,
+    "sha256": "c326682894ca0a916a9eb68fe2f1d4f2993b73a5aebfa81a75e8832b1295a73f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-011.json",
+    "bytes": 485,
+    "sha256": "7a68c467a3e024a600b19b636379f65cae7b582c651e37f6ec6d1262c0230d41"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-012.json",
+    "bytes": 529,
+    "sha256": "d1a3842aff42563055e68c6647afbaf2e0dd54bd0a40ffa9659e3403f4403632"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-013.json",
+    "bytes": 580,
+    "sha256": "ac77b9f4750c755453d69be5d18b716b00cdf3a2268dd13bca9f1b64544491b8"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-014.json",
+    "bytes": 547,
+    "sha256": "dcb817b70e9ae574812639c185ea4feb191a5ebc04141db21c6c71379772be9b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-015.json",
+    "bytes": 540,
+    "sha256": "048cd0788027b071b493c3b575d9dc21e93c114ba2785d338c93eb934b54e1af"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/command-016.json",
+    "bytes": 913,
+    "sha256": "f60d1574990d0de9f882a652a8cd3e48400bcb5fb242a01f6ab6504a3885e135"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/prior.nvm",
+    "bytes": 5,
+    "sha256": "e5bade0e979cb8cf6e53303dae696c6631a5c82ce60386d7a602f85fb249fcc0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cvvzv89b/source.nano",
+    "bytes": 303,
+    "sha256": "d6d9bb0957afeb89e7cdb3e01656962dea178ba9134714cb87562dafba9d8db1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-001.json",
+    "bytes": 1070,
+    "sha256": "9119cecf07bd71a116793b118ba2a0a9977cd98c5e866aa59385efe24251c8bf"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-002.json",
+    "bytes": 324,
+    "sha256": "635dd2ff144b4d48ac5866b6c9689a1f5466c9d7f233df7a568ab8a0ab65a161"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-003.json",
+    "bytes": 394,
+    "sha256": "c706896a5584fdc3d6157098ae69cb4cd298dfde146a238286aebc6a56c52691"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-004.json",
+    "bytes": 405,
+    "sha256": "89bb8c52b73f391ee6a1197fbcdd842e10602479154414e9b7d71a38c9731514"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-005.json",
+    "bytes": 407,
+    "sha256": "aa057073261b195e761b9d87ce3a89ee177a957a1d2e0187f3d84bdf89308e3c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-006.json",
+    "bytes": 418,
+    "sha256": "9e1c2c76dde5043cd879cf61a3ed270cb2adfd9e50060615f90844eae4920cc5"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-007.json",
+    "bytes": 325,
+    "sha256": "39b55f833a432ab4deb0a9dfab0cb20ffcc3cef0a6658b919bdb35429aa5ead2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-008.json",
+    "bytes": 434,
+    "sha256": "976304d566a18567ca7af109c74a6a5f55ef33e85153b62de672630ea02dd20c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-009.json",
+    "bytes": 487,
+    "sha256": "cd0bde2ece2a0e0d220cad86073ca09905180b10126fc7006526d3fcb0be0e57"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-010.json",
+    "bytes": 1055,
+    "sha256": "7583d20939632f8de4fe1802fc0d9417f7d03150a87e84e4964ec5a7b03f8496"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-011.json",
+    "bytes": 254,
+    "sha256": "d6593c18fd68f84a44e9f41bc6c5480c6cf85143535804f28c2b973fd945a042"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-012.json",
+    "bytes": 285,
+    "sha256": "4546c6e31dbb12ed1192e3c0d6767bdeace086ad80fd07ff7134e9abac1912ef"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-013.json",
+    "bytes": 229,
+    "sha256": "d7a83779a8f29f54a347ee11d5ac6a4a9faefbc4c3df0a7c6af57ff688514499"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-014.json",
+    "bytes": 328,
+    "sha256": "67cd8f0507bdf97cb52a40dd4bdb28383f05ee828616255448f56062b89d9907"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-015.json",
+    "bytes": 341,
+    "sha256": "8de0c886e53250ee740715d00d32af0dfcf4f4c02f3edebd3c45482dea8eadd7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-016.json",
+    "bytes": 401,
+    "sha256": "b16ebf0912c555561e6740e54766325ca0eb5b7f23ccf67d58c1b1f1770c6485"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-017.json",
+    "bytes": 1074,
+    "sha256": "58bb87ec44fc8187717a596f25194c7b71f07a18cb839ce7d92847cf9928ed59"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-018.json",
+    "bytes": 326,
+    "sha256": "d35bf7a9c2e7d4012187352bc7461cbbe0c3e29c23bb8f3b0637012160e19c47"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-019.json",
+    "bytes": 396,
+    "sha256": "b4966d06a32151b0fd8cd65154ab9c2466a0b0f188868f6c21b876c72358bc73"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-020.json",
+    "bytes": 409,
+    "sha256": "40bcab8e180981e3aed347a2d5603c7cd541e22870d8ad526e6ac72cfc315ca7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-021.json",
+    "bytes": 409,
+    "sha256": "3dd69ae120ccb0b7fbb3e0049a799708c54ba6614e070ff7682f2763e2c77c60"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-022.json",
+    "bytes": 420,
+    "sha256": "c3e58ca25960da1b96732e5a8a3f60182f3eb7c2464a685ac34cb38afef7c3ac"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-023.json",
+    "bytes": 327,
+    "sha256": "30a515c29632a2f6bf838021c8b9ea21809ed994ece4db812d8f5f927553ff83"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-024.json",
+    "bytes": 436,
+    "sha256": "68ad9f770032adb93444bbddb5fa116d54b80d4abc8821ec3a060eda9d43a246"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-025.json",
+    "bytes": 489,
+    "sha256": "c4a2d357d90806e8e91de6246029c8e52eea8f5f27d60e8d97d964f18519a389"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-026.json",
+    "bytes": 951,
+    "sha256": "1606b4274d0d0e97385705f3f3d6296110a5b4a1c33e874e25a7058e85daf4f7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-027.json",
+    "bytes": 1059,
+    "sha256": "5e1241f12d617972172d3b4fac3ece5a8dc67b6a3dbe070329c66970abbb9230"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-028.json",
+    "bytes": 256,
+    "sha256": "3a591a4a4a6593b5b623a14be7d58347030068f93587cbd3051306d2d69d2510"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-029.json",
+    "bytes": 287,
+    "sha256": "c0470addbd92b039331ceb13a1aa4049493ba43c7a1ec3dd8c6fd2177bbf4007"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-030.json",
+    "bytes": 231,
+    "sha256": "b4a07541ef926361251aa7720dabcd45d6d64aed80fb240f0514a00748058589"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-031.json",
+    "bytes": 330,
+    "sha256": "d193a31d450cb0c0ab9dd0e2e71111454008dae6851d66edcbff84a96de6e928"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-032.json",
+    "bytes": 343,
+    "sha256": "d5f2af3ea0755bbb3128f249d604283d959628b3d76fbb73ffb29a8cc924b1be"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/command-033.json",
+    "bytes": 405,
+    "sha256": "db11a2b729b74d1e1b1b6e2eea88cee58c06e16953b7deea0ee466d9abd1d05a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/nano_virt.c",
+    "bytes": 189975,
+    "sha256": "3faf97c645bb07efa9e50903d6189c69b1e91c388be2b481c5b9425975f0c80c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/nano_virt.native",
+    "bytes": 712408,
+    "sha256": "38efee056c4a3111b7a27d8dd0e7f459cdf9bc73f82ac4d503fa3fa1b1a08ce9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/nano_virt.nvm",
+    "bytes": 2996,
+    "sha256": "8df0c345b391b4fb84099f723bb64b3cbf22dcf7084a38507901e4594a33e123"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/nanoc_c.c",
+    "bytes": 189975,
+    "sha256": "3faf97c645bb07efa9e50903d6189c69b1e91c388be2b481c5b9425975f0c80c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/nanoc_c.native",
+    "bytes": 712408,
+    "sha256": "8bf05fb84690284ad7f8b2ee20d532f378f82dd986f0ffd198e1f773e5eae646"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/nanoc_c.nvm",
+    "bytes": 2996,
+    "sha256": "8df0c345b391b4fb84099f723bb64b3cbf22dcf7084a38507901e4594a33e123"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1p_hrxry/source.nano",
+    "bytes": 303,
+    "sha256": "d6d9bb0957afeb89e7cdb3e01656962dea178ba9134714cb87562dafba9d8db1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-001.json",
+    "bytes": 488,
+    "sha256": "3e6b678103af9d1fa11abbb2feb65cb28002e93dc37d1248693b363c75322b39"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-002.json",
+    "bytes": 1055,
+    "sha256": "c1c097367acfe1eacc36b265da71acfbae652440d6e817192728995356d5d709"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-003.json",
+    "bytes": 343,
+    "sha256": "92af7d3bf248b450da034462f21efa01defa2ee0034544806e00c3c763959f53"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-004.json",
+    "bytes": 1040,
+    "sha256": "f34da4809cbe1150b2710167509a12c253204a82896a7e5077ac6d29bc38b27c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-005.json",
+    "bytes": 288,
+    "sha256": "dccb1153562bcf6eea7645ed9ec70d4f7feb6609dad792ca1cecc0aa0066e369"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-006.json",
+    "bytes": 232,
+    "sha256": "b067647b055684fc88d902ae2d6467810487c8d44638b9d2916bafdf840b791e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-007.json",
+    "bytes": 492,
+    "sha256": "de9f975cc687468556ab24cf7f95bef8683f7ac1c15c1ded775379009cf4d56a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-008.json",
+    "bytes": 1059,
+    "sha256": "4c7f01c5455d799074e33cb75ec62e9730f42a8239dee813cb441ac7a2121122"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-009.json",
+    "bytes": 345,
+    "sha256": "eb7495507ed648f8c5335a6aacbc932ea3e02a5e6b4eba78b44b36d3bf05c398"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-010.json",
+    "bytes": 1044,
+    "sha256": "b2e4935c6dd4e81aa097618445c4eb87aca1c754226e1b828a137d7b6e092658"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-011.json",
+    "bytes": 290,
+    "sha256": "a1c37539d24b12138e74ace095cf0a3680dbc061030879cbcfdc0289be812d35"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-012.json",
+    "bytes": 234,
+    "sha256": "dbabc125ef21b3dade5c2df595d04f1a3e224d19e6af7295ca89f652eb17eb5b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-013.json",
+    "bytes": 488,
+    "sha256": "ae5ff40f12b5c7d130932c424d53158b09f8a0c6f37d03b715a10d2595e8b866"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-014.json",
+    "bytes": 1055,
+    "sha256": "e22caca259bafcee7c2cfe8dc05731fea6088202459e790cec742c2d9d3dbe9d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-015.json",
+    "bytes": 343,
+    "sha256": "ac66f567d8827f179866a1e2f1a6caa66fbc12364712f69045f5a5c923f92a4e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-016.json",
+    "bytes": 1040,
+    "sha256": "7c5c065b214465e17f41c94795448db91fddfa85f5006059504905c996338207"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-017.json",
+    "bytes": 288,
+    "sha256": "17fcbf8c1254107c94da280ca2de43e2f3a45cb7b9c7b0f252538b64b4bd459c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-018.json",
+    "bytes": 232,
+    "sha256": "81cf20dface80a954c46f97f22c1e12e27ca49cf166885b2d04d6d71ea87465c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-019.json",
+    "bytes": 492,
+    "sha256": "b46229d09f903ce3363a34c904b2afa3558c1ed01964f3c9d61076cafce09333"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-020.json",
+    "bytes": 1059,
+    "sha256": "02805b3caec2395dee96404997014905e2558dd7d65bab944f4a945ca433f0ba"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-021.json",
+    "bytes": 345,
+    "sha256": "cb07dd90ebdefbe3a36586d567fa1434ffed957f5528fba57aeb461ed6455972"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-022.json",
+    "bytes": 1044,
+    "sha256": "30fbebd98300676fb1ad804ad42de6cf4fcc845ae9393ca0683a069ea0de3574"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-023.json",
+    "bytes": 290,
+    "sha256": "bda5bb38dc70d43f9f84e786226b78707f28fa39e68c51646ca246526d0dce9f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/command-024.json",
+    "bytes": 234,
+    "sha256": "f304f1894c65d23b26ddca92b27474b2c7cd19061b69430840a24f6cae6e1db1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/first.nano",
+    "bytes": 63,
+    "sha256": "37889b3f0b29d8d7a5cf09c16a2f05ecdf6a78575eff44ce29ac8cfe85cec7b2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/interface.nsi.json",
+    "bytes": 10155,
+    "sha256": "c7535d9e8f2db73175ae3a6fc25a40d32e6487c3ae132f0bbee03ebfb3b90c74"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/nano_virt-catalog1.native",
+    "bytes": 721784,
+    "sha256": "9ea1d8bc360b1893f92dfd77c122058d3ec6f48ba93f6e93d5119f0042ea6722"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/nano_virt-catalog1.nvm",
+    "bytes": 3180,
+    "sha256": "18c2dd85dbcc2720910a9fbdf466993ccd386bc1ddcaa005b8eff5b6c884ecbc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/nano_virt-catalog2.native",
+    "bytes": 721784,
+    "sha256": "1b779a465dd8a1330a3ac233251a9b660772c41356076acece06ae76a79ef02d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/nano_virt-catalog2.nvm",
+    "bytes": 3820,
+    "sha256": "aae0c8f02e3d8b9960ff0cdf07f75a1feef0177a08e552ea0452544be5779db7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/nanoc_c-catalog1.native",
+    "bytes": 721784,
+    "sha256": "a73ab3c33b81ff36c4b8a33d1b8f3fe50f7b32e3ae02312ea06dbae2cff03331"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/nanoc_c-catalog1.nvm",
+    "bytes": 3180,
+    "sha256": "18c2dd85dbcc2720910a9fbdf466993ccd386bc1ddcaa005b8eff5b6c884ecbc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/nanoc_c-catalog2.native",
+    "bytes": 721784,
+    "sha256": "455b570a179a12427507ae25545f81b75e3d2073da709b9232cf26f3828504c6"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/nanoc_c-catalog2.nvm",
+    "bytes": 3820,
+    "sha256": "aae0c8f02e3d8b9960ff0cdf07f75a1feef0177a08e552ea0452544be5779db7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/second.nano",
+    "bytes": 63,
+    "sha256": "37889b3f0b29d8d7a5cf09c16a2f05ecdf6a78575eff44ce29ac8cfe85cec7b2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ooeitsbb/source.nano",
+    "bytes": 120,
+    "sha256": "7fd993bf01765921f142445f0c214663ee3545124150c23e40349410a122113a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/catalog1.json",
+    "bytes": 8381,
+    "sha256": "94ca15393167e556494e52b61626f74d68dd61b0a274854a96413ec5d78d33be"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/catalog2.json",
+    "bytes": 10155,
+    "sha256": "c7535d9e8f2db73175ae3a6fc25a40d32e6487c3ae132f0bbee03ebfb3b90c74"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-001.json",
+    "bytes": 631,
+    "sha256": "af49af718f18bed876bb1edb1f2d96acf98a176721ec985eb55cf355b109d9c1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-002.json",
+    "bytes": 653,
+    "sha256": "bd6f30811d9d759ede017c9389333426011ef27a95aff1192caf376c41a5fb55"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-003.json",
+    "bytes": 291,
+    "sha256": "91a9d0e136c6c8994fb23424db4764be7e625acf08d928ff44b2dddb55cf544e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-004.json",
+    "bytes": 409,
+    "sha256": "b9d111d2310dfb8dfcaf673f367d6662c4afb666aaec2752d666b06e16568b97"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-005.json",
+    "bytes": 470,
+    "sha256": "3b59893cff2fe292bad7b8245be4b25d706cff9e2cba6b9919053ea16773cf97"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-006.json",
+    "bytes": 588,
+    "sha256": "3b23019e28d771f0c8c59e569e4f2f264eac94429ffb1b62a1033d10e5f82d95"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-007.json",
+    "bytes": 635,
+    "sha256": "ee9dfd91cf417363d93daffd70bee300f678759c448f0b90e111d12f5dd4301a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-008.json",
+    "bytes": 657,
+    "sha256": "4a5a55e0c08ebfb504be61d47222a03da301d7df8882aea770270718f559a122"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-009.json",
+    "bytes": 293,
+    "sha256": "292dd420c7c20bdfc5f6040ea40f3a6dfe6f0f3a4d45e8fe2475b0c69386e908"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-010.json",
+    "bytes": 411,
+    "sha256": "0082287fe3eeb4306e13b558e4ef3bdc3d21c38c00e3ed3cbe840e6510dbae5c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-011.json",
+    "bytes": 472,
+    "sha256": "1b3e06016f5c8bba6ae31426bbd3bb85180eef3d7b0588d9d203b7416b9ce417"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-012.json",
+    "bytes": 590,
+    "sha256": "59869b9b2c9d271c3ecc2ff46ee3be8ca15f64ceb59d195c686676f9765e25e8"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-013.json",
+    "bytes": 700,
+    "sha256": "c8cffedd406e6145ba4e511da11733ace1dddb1e0ba9c9e66a0f5bda543028c9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-014.json",
+    "bytes": 722,
+    "sha256": "b41c011c95b58cbf1bb1f6ab686539d889b24fc27a030136324aec9c3e64a1c0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-015.json",
+    "bytes": 298,
+    "sha256": "bdbdd96f5def5d8ad34c1f3e3ed945a90e25823ebf5525f0a045ee2f0063f108"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-016.json",
+    "bytes": 416,
+    "sha256": "ea70517e7d75fe9c6204b8b106c9fd183893a69fcc4da0bc1771fa5bcae4b4d1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-017.json",
+    "bytes": 477,
+    "sha256": "01df85db8fe1f1d2d5f4961f46da7840813deff35e8f1151b6829d5ecbc7987c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-018.json",
+    "bytes": 595,
+    "sha256": "a1881ea264e247e5dd96d50d47bc0c7c16eeb33106def336c0efa55e2f386251"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-019.json",
+    "bytes": 660,
+    "sha256": "67a868558d809162ac9f8f00a6f84a0a2195ceca360a292b8b21ea09969110b5"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-020.json",
+    "bytes": 682,
+    "sha256": "2f19433790808d15b99f624af0bbb165b2ef2fddb28bdd225be4f05f4fa8f6c7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-021.json",
+    "bytes": 315,
+    "sha256": "4315be514062ed67cbe78ce38e9a626838d011db5c12425e949998125276c3cc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-022.json",
+    "bytes": 433,
+    "sha256": "abe2afb9e24e996c41894dd079cc90b1c9034c807b28b5f021a22d510933f9c6"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-023.json",
+    "bytes": 494,
+    "sha256": "d0bec8fb1caa644ceabea0a076ead474e841122d1de0d8cc10d839a138f98ba9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/command-024.json",
+    "bytes": 612,
+    "sha256": "1c2270f177e7d2117903f5ca15ef8eeabb79ab85b69c6bbcc1837669681e5f63"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/nano_driver_vm.lookup.nvm",
+    "bytes": 10140,
+    "sha256": "367c02be8071fb7c92332e48b95ace9defb7b58662c335cf6a60212d4a04c09b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/nano_virt.lookup.nvm",
+    "bytes": 10140,
+    "sha256": "367c02be8071fb7c92332e48b95ace9defb7b58662c335cf6a60212d4a04c09b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/nanoc_c.lookup.nvm",
+    "bytes": 10140,
+    "sha256": "367c02be8071fb7c92332e48b95ace9defb7b58662c335cf6a60212d4a04c09b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/nl51-mixed-source-driver.native.lookup.nvm",
+    "bytes": 10140,
+    "sha256": "367c02be8071fb7c92332e48b95ace9defb7b58662c335cf6a60212d4a04c09b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/part0.nano",
+    "bytes": 996,
+    "sha256": "5107d5ffe071f058e2041ed8616768e495da63f8ce3c9aa7448d0df9f961d83e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/part1.nano",
+    "bytes": 229,
+    "sha256": "e2a78b016de8a4c74a3f1ef0263fb9c7c5d3ee89de9e356c1ccfa674b498342b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/part2.nano",
+    "bytes": 57,
+    "sha256": "affc21ddbcce0e68fbc2fbafccf9f7d05a96cce73c54f0e74a73f4ee4c23c388"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/part3.nano",
+    "bytes": 996,
+    "sha256": "3060f34e8c2f0d653b345a0b193c1c0018cc0b41271f00f418cb343be30e1ce9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5/source.nano",
+    "bytes": 267,
+    "sha256": "dbbc52d01170d0ee85e295de40596c98eb61f49d6de907dbdd04f9ade2110423"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/catalog1.json",
+    "bytes": 8381,
+    "sha256": "94ca15393167e556494e52b61626f74d68dd61b0a274854a96413ec5d78d33be"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/catalog2.json",
+    "bytes": 10155,
+    "sha256": "c7535d9e8f2db73175ae3a6fc25a40d32e6487c3ae132f0bbee03ebfb3b90c74"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/command-001.json",
+    "bytes": 370,
+    "sha256": "9f94b6c648e0fa6ecdd7a1a934b01346d0d644e5dc5a9240ab346cc602383dc1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/command-002.json",
+    "bytes": 355,
+    "sha256": "38fc24d612c9f31dce80e8d0fea70740dd3854441b52702e555fa2e18a49883c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/command-003.json",
+    "bytes": 2492,
+    "sha256": "b665a60b6694047913eda03568e8474cf63d60d5c74ef060829cc27e52f2302e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/command-004.json",
+    "bytes": 374,
+    "sha256": "372c712c208397f85374d83a4cc2b063764a8986966660de3a2a11cf59434884"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/command-005.json",
+    "bytes": 359,
+    "sha256": "295d01de847feefd5bd6b14565737475f2f23107658c7a0c7071906a01a0f639"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/command-006.json",
+    "bytes": 2496,
+    "sha256": "df67f56293463c314c0a869fda8615ea7ff6f3849df820b6d86acbd55b254f37"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/command-007.json",
+    "bytes": 439,
+    "sha256": "2378aeafec341b0e85bee9ebdbfb9669254ff18d9ed632b1b919dcf071763286"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/command-008.json",
+    "bytes": 424,
+    "sha256": "3bd695fdf3d17fe55a81ca9541d0efbf7d6b6e45f8712789214e3a54c10025af"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/command-009.json",
+    "bytes": 2561,
+    "sha256": "797a07dea4cb63f6c6f02af668582f181e493fdb6b8449312fce64b927fe0ad5"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/command-010.json",
+    "bytes": 399,
+    "sha256": "1843d2aa1f87c6d494bb0fb454c0740ebc9ca1bf1bc888eda7e949e01b4ba551"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/command-011.json",
+    "bytes": 384,
+    "sha256": "1a5144c7eced467b364044dfba667536ff7fc4dce54e3fcd1b65ed298658f4e8"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/command-012.json",
+    "bytes": 2521,
+    "sha256": "586b4e6c34f73b52a107f5af0460d63991324de9f4a9a8a6d85c5a5017606215"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/nano_driver_vm.native",
+    "bytes": 1590616,
+    "sha256": "62eb7f6b6d721d674b020aabfe27e684bce38f2bad03bbe1c84eaf4fca67c52d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/nano_driver_vm.nvm",
+    "bytes": 5,
+    "sha256": "e5bade0e979cb8cf6e53303dae696c6631a5c82ce60386d7a602f85fb249fcc0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/nano_virt.native",
+    "bytes": 1590616,
+    "sha256": "5e21938812af28c358a3f90b8230473feca9f73eba2d56251f8e9b7e8cc4742a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/nano_virt.nvm",
+    "bytes": 5,
+    "sha256": "e5bade0e979cb8cf6e53303dae696c6631a5c82ce60386d7a602f85fb249fcc0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/nanoc_c.native",
+    "bytes": 1590616,
+    "sha256": "32f55ef36340855ab33a18609596b23a3359fe4820ece05df0d3b4b938acf08d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/nanoc_c.nvm",
+    "bytes": 5,
+    "sha256": "e5bade0e979cb8cf6e53303dae696c6631a5c82ce60386d7a602f85fb249fcc0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/nl51-mixed-source-driver.native.native",
+    "bytes": 1590616,
+    "sha256": "41898c57bb1d717ecec597b369f4d0f7a14fe4a746257b2d00e57b247ac9270a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/nl51-mixed-source-driver.native.nvm",
+    "bytes": 5,
+    "sha256": "e5bade0e979cb8cf6e53303dae696c6631a5c82ce60386d7a602f85fb249fcc0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/part0.nano",
+    "bytes": 1083,
+    "sha256": "181bc6ca974460a433e7218f4917c211c9a40779125547294e9d9eee863c6d1f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/part1.nano",
+    "bytes": 267,
+    "sha256": "c63c22657e1193429fd3b20ad7b9f54e1e0ee40076be7b06c854b2649dabda4e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/part2.nano",
+    "bytes": 58,
+    "sha256": "6394fdf36aee384adcf1e326a6e81c0f43e68eaced01c309a08b33b88a5b56aa"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/part3.nano",
+    "bytes": 1083,
+    "sha256": "d8f822deac5000a4f9de5cccf3790fd3ec34936cc760cf0c1d596d9a31780a8a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm/source.nano",
+    "bytes": 303,
+    "sha256": "7acd3e430d242eb8055b534118467cdf2777b65b0ed722cb54bf753db2dfca43"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/catalog1.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/catalog2.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/catalog4.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-001.json",
+    "bytes": 610,
+    "sha256": "de11900693927b77a827867195d6b8617676a7f6428e4d74acbff32a8486727a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-002.json",
+    "bytes": 516,
+    "sha256": "e656f4edbd128cac34caa871627dcdd84f9417852b935b427c7d6d1f01b8cbe4"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-003.json",
+    "bytes": 4363,
+    "sha256": "4db8478febd4e5e53ceb490a79af6654d76882088869ee734e711aa7b92809a4"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-004.json",
+    "bytes": 402,
+    "sha256": "4ab9aae4763129ab0ac08e056ba70c698594af9dabf605536b3181891c2f5273"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-005.json",
+    "bytes": 435,
+    "sha256": "c9298faaf43555adaabea808a5827831aa34bfd07435989e212688ac9b746dbe"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-006.json",
+    "bytes": 4348,
+    "sha256": "9cd28d97b268722aab2d449cacefc25c5db00ffa8e8d309ee60bb09feb0eb36f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-007.json",
+    "bytes": 291,
+    "sha256": "636ae75ee710ad3d674f0966b091cbadbe854138377a7948f27a025fa05486dd"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-008.json",
+    "bytes": 316,
+    "sha256": "eeaf80257efd594ff04f26946d4b5f8922e03b28c95ae348a342b9699dea8546"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-009.json",
+    "bytes": 328,
+    "sha256": "9b9ed249378012b627c521fcf9c4910a058be30276ba6b2f37ad47d1e96c494b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-010.json",
+    "bytes": 439,
+    "sha256": "b64e170cb47fdf80b13b7ca73ac9c65f0159f7e8fe5e1878f717fe4fe708f6ab"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-011.json",
+    "bytes": 323,
+    "sha256": "5387495578f7f536c665bb97fb2a552c9d241b926c6268b65d8ed1b27a7384e6"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-012.json",
+    "bytes": 434,
+    "sha256": "c779cec8fd36d88c2c60bb77845fa3547a9348585d063d6fe9097233973a55ef"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-013.json",
+    "bytes": 341,
+    "sha256": "06052ee0d08dc3b09dd29aeefe0685645f1459ef12b39f6956684ced8fe37266"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-014.json",
+    "bytes": 452,
+    "sha256": "cb27ab63bccddabc95f2c4d0e3827c5a6b7d5a992bef3034908925f2d80ec56c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-015.json",
+    "bytes": 374,
+    "sha256": "0c292d3842a4f8218d5e97504ab8553a563f6763e1cf24b1e8b27560edcd4e2c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-016.json",
+    "bytes": 485,
+    "sha256": "4adb331f82a437eec7da5759e5bb2048b0f0e270d418fd9f621d20b0c8b0869a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-017.json",
+    "bytes": 339,
+    "sha256": "76d0d6fdf2fe75949a209d5fede4d7b4f2634c455cbbef9ff8413cb3d567462d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-018.json",
+    "bytes": 545,
+    "sha256": "2f8a98bbbe5bd8217cf3b283fbb25f65b8cf0f3f0158048204a57289645ffc26"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-019.json",
+    "bytes": 614,
+    "sha256": "e89fc2b4650c816626755e0e055ecdc8e225b7231502da5e7555927eb0a628bd"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-020.json",
+    "bytes": 520,
+    "sha256": "ee899867c3f68ac03d1fb9de68a955ed567160dd0306a0cc2ff5c3181aa7653a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-021.json",
+    "bytes": 4367,
+    "sha256": "c0ee08fd953937fb386cf54f5d53b59294a2a4ba2e1bb8a76e79ee3bbd9f4cfc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-022.json",
+    "bytes": 404,
+    "sha256": "e54e26442c06065bc15f829ca324e38ca4329e52e55f78c8594c7714c15c22b0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-023.json",
+    "bytes": 437,
+    "sha256": "9dca20fab8204a260490f821135ac1f3d4819458f2140e3a89306d715e69900a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-024.json",
+    "bytes": 4352,
+    "sha256": "4a5fbd7f7ef7351a231b3724f6b763d8ef11ba0d3f92addcc0c33060f82de668"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-025.json",
+    "bytes": 293,
+    "sha256": "1839e03dc74cf7e9341ef59fb446d12226e8acd4be9849e5b3f53ed5849aab55"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-026.json",
+    "bytes": 318,
+    "sha256": "ccfcd9a9d4df5e45ef782f71d16c1e5ad901f0b7a6edc70a444138e2f292adc2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-027.json",
+    "bytes": 330,
+    "sha256": "8a1562a428e92cb853a8d3636ff6d56a12586caa42848312b900a5788f371055"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-028.json",
+    "bytes": 441,
+    "sha256": "68759dc09f5caaeaffd5afe381bc8e327f1a6cf5e2ab6d23c155a5e56b7bf7b1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-029.json",
+    "bytes": 325,
+    "sha256": "d3a7900bbd052b9318d739d26e06d61351a4f1a006924d3c9dff42c83e7e96e5"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-030.json",
+    "bytes": 436,
+    "sha256": "11cca5d2988c1a9a2a02d8334a8d2165e8949c64b77d60a37148e03546532983"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-031.json",
+    "bytes": 343,
+    "sha256": "8fcb496bc1eb9147a6bd4c93f75cf2061f1ba89a12a6b17bbbb23466b405e822"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-032.json",
+    "bytes": 454,
+    "sha256": "2e6d008e0a9511323ad1716fcb1f0182b0c5a76edc1a4191111a94ebbbb00a92"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-033.json",
+    "bytes": 376,
+    "sha256": "e55aa582156619bc08886062dfb654cc6866be0f843784d3fd2a1a8a7d646d08"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-034.json",
+    "bytes": 487,
+    "sha256": "7afb5ff7c19ff1d36767b601c1ebfcb795a64f8005c93e466f5d1e065bdcaa30"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-035.json",
+    "bytes": 341,
+    "sha256": "fb55a986ebbb1d0b3e4cae2bbb877ac7ec802eb88e17e7307db1ce8818ccf492"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-036.json",
+    "bytes": 547,
+    "sha256": "a0bb23756555646694e47ef1e872b6070806596a8cc5a4d166186554f55d72b7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-037.json",
+    "bytes": 4244,
+    "sha256": "3b2a5121b007c2985a1d64fb7d44a10c5d27788912578c8fef30e88c80ed81b2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-038.json",
+    "bytes": 679,
+    "sha256": "e3251e7fce68929b2d318cffdfabed7e0b7de7400b86231048300246904e4ad3"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-039.json",
+    "bytes": 585,
+    "sha256": "aedb53cec3603a3c7cae24b2b96bfa7f8e6082f2e462c7b1e2ef601c7a631fff"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-040.json",
+    "bytes": 4432,
+    "sha256": "10b613620e1b7bf3997f06885c144839c6db86513c30650c15e1fd8f9ed14619"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-041.json",
+    "bytes": 409,
+    "sha256": "1bd225770fb33466957106a537b08be50829fde10f417c2783da8d161652d163"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-042.json",
+    "bytes": 442,
+    "sha256": "b7573f29ed82696dedda3ccb5afe99583f0ee10fd47aa07cc413881804091223"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-043.json",
+    "bytes": 4417,
+    "sha256": "2ba2e2ca9d78dede0d150790de997c479d7b7ce1a1d35307ff482dfd9f4c654d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-044.json",
+    "bytes": 298,
+    "sha256": "e921d8f2b5e92ba948e48839a6eb7d547635ef0fc3e8ab01c4def51e0529545f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-045.json",
+    "bytes": 323,
+    "sha256": "356f07905932d5f05d36f4b7b53b1f65db8bdecd8fce1205287351caa6cf1a01"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-046.json",
+    "bytes": 335,
+    "sha256": "3b2ae16e519fbcb3452ffd05d2c3c66973584a96a3da01c7d941bbab6862e145"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-047.json",
+    "bytes": 446,
+    "sha256": "be74893a003461c329a2135de3cb5a806a77bc175b197bda968a00309356448e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-048.json",
+    "bytes": 330,
+    "sha256": "58121cff38a42cfd48b5f144af65beb00afdb56a658a26043ff1ee1efc3e1cdd"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-049.json",
+    "bytes": 441,
+    "sha256": "37dc0de896d7f0856e243db57769b93541b1ed54d303f9ab998e9dcd611c5b3f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-050.json",
+    "bytes": 348,
+    "sha256": "c0121e67100b7b4f5c5fc3c871f85e3159fffdc465694eac56ff33aedc71c13e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-051.json",
+    "bytes": 459,
+    "sha256": "fa31916d5931981a6f3362dfd8a2e1179e6287939e2b9ce1c50986d2b10eda85"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-052.json",
+    "bytes": 381,
+    "sha256": "f5a01f25b74dbc91853cd921c978761c647a7b74d0e6363be3f5a8236c7c22e3"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-053.json",
+    "bytes": 492,
+    "sha256": "7a51f1c7cf152f9d2edf34377a559c912491f42355f2e639b1325580c56cd092"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-054.json",
+    "bytes": 346,
+    "sha256": "770461be4a75c36eb388855867713e517009a1ac8fcc3cb87c6e23d7c123866e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-055.json",
+    "bytes": 552,
+    "sha256": "b6b86542b672fa7eee7f716fa77127b9fa0766073e81ad7d1f01deeff356d12a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-056.json",
+    "bytes": 639,
+    "sha256": "98d4a6acb4a45d20e1d9a16b104df9073e2c4770b2db8889db815fab36986370"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-057.json",
+    "bytes": 545,
+    "sha256": "a075ccff30937cf319befae9877587fa23c508eb33a46aaa6bcd8cc9fb36e152"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-058.json",
+    "bytes": 4392,
+    "sha256": "5e7f325db2834875b1555863133491eddcff8db9a5215583e787d3bb11aef508"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-059.json",
+    "bytes": 426,
+    "sha256": "6dbf8f6b87eb9a1182110310be5ba38c0e231bf70f54037028ef3e8b00940f1b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-060.json",
+    "bytes": 459,
+    "sha256": "9264939dcd03855ce21520593bb7ebec907c19deca94b7977c4c9574afcfbbd1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-061.json",
+    "bytes": 4377,
+    "sha256": "9c1006ffae0b58b4ae7b26cd3de010c89a4a176a22369732fff71889a71bd418"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-062.json",
+    "bytes": 315,
+    "sha256": "fddd04579174bf6f7844b6f9f38b9944d065f63ecd89f61a5bddd534a35942c3"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-063.json",
+    "bytes": 340,
+    "sha256": "535c84269dc60abbe9fd8215b09fe9b1b0d851042811bc4639428083c596a08b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-064.json",
+    "bytes": 352,
+    "sha256": "a33e275957e98b4326aa334f46ec59aa01feb45d564bb23865a8bd1cd283071e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-065.json",
+    "bytes": 463,
+    "sha256": "bb513be12e6ad931099c17a67e236c24f69e706262bd0ee4541c2ea3f9147e73"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-066.json",
+    "bytes": 347,
+    "sha256": "72cf50cb5e9db01aacece000fee3e7d6361ab38e27c27396ef0ceb2da35b2aa3"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-067.json",
+    "bytes": 458,
+    "sha256": "2233e7f88b8ddc621bb40d8f691a55aaa35bc540cd0f2b5a293777847cd32d1b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-068.json",
+    "bytes": 365,
+    "sha256": "4a1749c0b9413712aa9d27876c6906536ab622b7b3fb1edbd672d939d25a5886"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-069.json",
+    "bytes": 476,
+    "sha256": "8465c1d759b5e73e8144c35ddccc43ff2392724f0e92a35bea2521a694f318f0"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-070.json",
+    "bytes": 398,
+    "sha256": "edd7306138f3e7e70b8fcf79719156fb6032ea3038d27d1fec4e12a432f71e73"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-071.json",
+    "bytes": 509,
+    "sha256": "28e5c2869991290619c90f1a8ad2de474539bd4914fd6e495c25b420981eec00"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-072.json",
+    "bytes": 363,
+    "sha256": "5c2d81602e61c1fa5ef1913b4f0120ebcb6311b07f833cf5a58fa146c3b340db"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-073.json",
+    "bytes": 569,
+    "sha256": "330559c815ef83a88a046620488cadec76096d69f71377ae0ebf1d6c68be7d90"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-074.json",
+    "bytes": 454,
+    "sha256": "862870d57c35fa2a5afce1e28ada6cc62cbb05cfa5b8225008dd16c7be924a77"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-075.json",
+    "bytes": 454,
+    "sha256": "862870d57c35fa2a5afce1e28ada6cc62cbb05cfa5b8225008dd16c7be924a77"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-076.json",
+    "bytes": 7565,
+    "sha256": "74433fafa5ad1bb0ba201223fc8f76f16a2f4f2da724a2a378fb296ac52e0ee5"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-077.json",
+    "bytes": 342,
+    "sha256": "a2a8e3cfb7773818e551c4d6f88cbdf34302fdb8e181af5462bd281a6ef7212e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-078.json",
+    "bytes": 373,
+    "sha256": "c881137c1e5a081196077aa7475b56fc21913aa1dfa743c869c310d49e27c51e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-079.json",
+    "bytes": 7550,
+    "sha256": "b28f89a0c053c497b6580f5f9c2fb49a4e6e93414e380f8a8954eebfd9964c28"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-080.json",
+    "bytes": 231,
+    "sha256": "3277d2ec23a8da9b32183149846e79906bae8d4fb3e025d8c05981a5ded82ab8"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-081.json",
+    "bytes": 254,
+    "sha256": "3000972fb3fd79b1b9c9c86bf0bc55ed0e71b3705fd1677cedb38799d7c146bc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-082.json",
+    "bytes": 266,
+    "sha256": "b664263bcd8ae281f628d42f183bdfbca018e1867c84b3a4bfafff5eddcbe5f9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-083.json",
+    "bytes": 377,
+    "sha256": "727eda7946be7b5795306c862db3cbc2433d0b968d90b6f7e97c503bd1c38515"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-084.json",
+    "bytes": 261,
+    "sha256": "b53070cb9632642c7452959d6ea586c860b59930cc50525d819929c9d4e7f261"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-085.json",
+    "bytes": 372,
+    "sha256": "3ebe7859c028d51f2f48240327545d0139e04ba3daca9fe2cb8385eec867e220"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-086.json",
+    "bytes": 279,
+    "sha256": "0410ffb92d7eb727131b67cae20ce3fb945c46afdd95ef7adfa1220b3cb81863"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-087.json",
+    "bytes": 390,
+    "sha256": "e31a60763a9e347aefee31cfdcda2dfa9d57d83aec6347a0f66058a1158172aa"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-088.json",
+    "bytes": 312,
+    "sha256": "f18608cb0d9c7973b6c9c341ab8e5ebb135c0daa8ee137fca5b011f2225dc55d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-089.json",
+    "bytes": 423,
+    "sha256": "797d2e9dd5d97b62d33a31221cfa30cf6c0a91c4ec612c2ba449fba579091d88"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-090.json",
+    "bytes": 277,
+    "sha256": "32c5d5e5c790f8be1ecbc88d8b91320e7d3453e51bf8abddb1161a21b5336d79"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-091.json",
+    "bytes": 483,
+    "sha256": "970dd4811ab4e8b6132700ce1d092f8e82682f55d0cef110227b2b86783aa2ef"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-092.json",
+    "bytes": 458,
+    "sha256": "80ab032ac74596fd141bd330b32988fcffb6281d4d74796d43dd6757af9bed26"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-093.json",
+    "bytes": 458,
+    "sha256": "80ab032ac74596fd141bd330b32988fcffb6281d4d74796d43dd6757af9bed26"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-094.json",
+    "bytes": 7569,
+    "sha256": "c026ff2f46f8aa8622d7b24c1168f3eab68e6d33c5d4e03abca124052151b55a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-095.json",
+    "bytes": 344,
+    "sha256": "38d3c4c5c0ff88b610079734953ec8fcb18ad7f95634b7761b235d01f998a73d"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-096.json",
+    "bytes": 375,
+    "sha256": "c50bfbcfc481ada92e5901763d439930435c52841967189340f157432c7e7eba"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-097.json",
+    "bytes": 7554,
+    "sha256": "4de593a729235beef1c6a03527d199accfd3966045a8a56f91fe05ebeea1f440"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-098.json",
+    "bytes": 233,
+    "sha256": "73709574608a2fc4bffc439620fe1f8265b522c1bd778fd8661637a2a6f9e027"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-099.json",
+    "bytes": 256,
+    "sha256": "97b2c9a2ab815358cf2805784a346ef9d4455e80016478b965b0d396e83463bf"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-100.json",
+    "bytes": 268,
+    "sha256": "14a814261cc1b53bd987f641a174b7882ea49e8f0aa35e86f5f93d72a49e3d15"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-101.json",
+    "bytes": 379,
+    "sha256": "1d49f077a5fdf3e3bf3dad3c56ececd7f372951f669fdedf0f4d2589b3693755"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-102.json",
+    "bytes": 263,
+    "sha256": "871fcbdd15aa96431998b06dcd7ae425b99bdb304eee0696d92194c5403a5d48"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-103.json",
+    "bytes": 374,
+    "sha256": "c1f6b2f7670350170ee26c705055cb7f7a36bc837b07c1adc08b33189da69187"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-104.json",
+    "bytes": 281,
+    "sha256": "55aab6c94ac0e883f41216ba9c0db153308f1ec1241dda5f1f7732f0a7ccd58c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-105.json",
+    "bytes": 392,
+    "sha256": "a4ba402f0deeb6f531cbb6f5848ea63af58fb1040530c5f0c1725ca4b46dd933"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-106.json",
+    "bytes": 314,
+    "sha256": "f111f1f325673dae522c79737d9119d737ff00ed002399d51fd5892bfc10da56"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-107.json",
+    "bytes": 425,
+    "sha256": "93199eb1edc146511481f7b7a828ff6ffa374e612a20c1c439e61bc3d1b56e35"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-108.json",
+    "bytes": 279,
+    "sha256": "01692e8e1841d652b1d4e0b6115cc814023d5d8af87f50399169f21d8459c299"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-109.json",
+    "bytes": 485,
+    "sha256": "42c76a7c992c2313fa87181b4af298965c24c5c579730a66c153f7e4eb10e815"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-110.json",
+    "bytes": 7448,
+    "sha256": "f56d41705d8e3e837eef636b5eaf3bf5a8ec20ed94fe71f8f89bb49f7cbe3992"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-111.json",
+    "bytes": 523,
+    "sha256": "39100e60691443893cc486aaa214a06e9944c6c5d7ac980f00e8b37f00839e6b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-112.json",
+    "bytes": 523,
+    "sha256": "39100e60691443893cc486aaa214a06e9944c6c5d7ac980f00e8b37f00839e6b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-113.json",
+    "bytes": 7634,
+    "sha256": "c47e9c389a6e5708ff1843e421622c86924ffaba84d2671383b4a99f1b90e158"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-114.json",
+    "bytes": 349,
+    "sha256": "bf4570aacf825dcc6cca83af2e4a23a3cec73afcb330b2d871b604509712dcae"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-115.json",
+    "bytes": 380,
+    "sha256": "f490a0c28802abcfc68266b1273e4d760f03dd5f2c779274fa4b6698409bb3ac"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-116.json",
+    "bytes": 7619,
+    "sha256": "ffaddf825bece867602d8e28b5e40c1028326d84aaee5a6b94c3571bb17f56fc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-117.json",
+    "bytes": 238,
+    "sha256": "f33875e581125413088add248d94ec7b192c8fd369ee778ce0f3c5a8f8c5ca86"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-118.json",
+    "bytes": 261,
+    "sha256": "dae04cdd47d7962bb7ae27ef453c39725cd3f99bab0c51e8a2705cab029b41c7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-119.json",
+    "bytes": 273,
+    "sha256": "4eae42df5e772de2e5de82ee8cfd2bb3c7fe7aefe619a115563c571ed78b7cd7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-120.json",
+    "bytes": 384,
+    "sha256": "727b194233df90e16e198be417bad151a3d4c49e5c3dc39bfc703cade8c009ec"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-121.json",
+    "bytes": 268,
+    "sha256": "a376b4c0e1125dfc5d35c7764005d295bbe0ebb18afe525b1af26252a517bd3e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-122.json",
+    "bytes": 379,
+    "sha256": "b894df9a6808936990e85f9ec73f7a78d6dc43e5344a18aa48c0dc34958a845f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-123.json",
+    "bytes": 286,
+    "sha256": "2bd039846cd06d4474fb83027354208ecab38cd8ba23e49c1953a1fdf12a7d18"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-124.json",
+    "bytes": 397,
+    "sha256": "01ea68f4ee90dfc01c4a66f20c4d1b3e236d0ff4f8803edd29150bf60d249733"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-125.json",
+    "bytes": 319,
+    "sha256": "b7ecd8d5c20644280b78a036e40b3469e57bba8419b55708c3168c6b4e870f3c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-126.json",
+    "bytes": 430,
+    "sha256": "6fd9dff3961b91f0b2756f6144370df4b24776a6af8cfa22aeaa149df2bee487"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-127.json",
+    "bytes": 284,
+    "sha256": "5504697d289bc51e82439bfbdd410aa9f8bca8ab673aff99f32858bbe33ce41f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-128.json",
+    "bytes": 490,
+    "sha256": "856576271310bb7558e748e576a43f71b7bcb678ea834b7e3b9f5085c60c78cd"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-129.json",
+    "bytes": 483,
+    "sha256": "b7f80c3f408bf6b510af06910eea5b7cdacc91e10aaa54a186c8460e13cd4baf"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-130.json",
+    "bytes": 483,
+    "sha256": "b7f80c3f408bf6b510af06910eea5b7cdacc91e10aaa54a186c8460e13cd4baf"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-131.json",
+    "bytes": 7594,
+    "sha256": "cc5b2a7c1dfac6e2eaccbee3bc979df27fd4f06dd71ba421045d1951300f4e49"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-132.json",
+    "bytes": 366,
+    "sha256": "ab6c319c6427a7991c5d86400b283680ea573dbbf13af48a1b26e6685f560cd2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-133.json",
+    "bytes": 397,
+    "sha256": "ba14aebb7901f0ac54e05326e7bc883397f7df4771b7186f448006f1e0905c5c"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-134.json",
+    "bytes": 7579,
+    "sha256": "c92fc8cf6112e123f9fa03a59def684f86a166211cafbabf3042ba7b42690a22"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-135.json",
+    "bytes": 255,
+    "sha256": "2bf465500300a93fd81272a5768f4e19306c220928fb6e90d617054ee2932f27"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-136.json",
+    "bytes": 278,
+    "sha256": "dbba0686d1f0834718e13b3213bf3dc3cb4e05bd77186257edce9ebc71fa5a75"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-137.json",
+    "bytes": 290,
+    "sha256": "dd39c2dca6e9d6cae6d1e8edd344703f9f5c1be13f2521e0dc969880c7921285"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-138.json",
+    "bytes": 401,
+    "sha256": "442611ba9c98394880d6b0642bb0de3729afe8843cddaa07a7aaf7759c1acf97"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-139.json",
+    "bytes": 285,
+    "sha256": "fed0658e8c6fb62c6f7dac3d6f35503f825a391112e486ce677adc315727888e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-140.json",
+    "bytes": 396,
+    "sha256": "0eead48927435423d769fa6a001521d3a8a84d7b28ef87b381a1d96ca9983de9"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-141.json",
+    "bytes": 303,
+    "sha256": "d4a7db49cfec9db978371519ad90a3cad6cafcde334bc889801aa72551ad58ce"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-142.json",
+    "bytes": 414,
+    "sha256": "6944f1c046f3a9b1eb83271e736155c7732f14622b80d9bec109bc1b2fdf4fd6"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-143.json",
+    "bytes": 336,
+    "sha256": "df67694fd614d6ef93ad8308d2ce2fd6d0c882e4a0598a984acfa4a28847c4c7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-144.json",
+    "bytes": 447,
+    "sha256": "50296cde84e1304e14771b3fc08ff93c28ba65de2470c766cb3b7a4f89ccaed3"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-145.json",
+    "bytes": 301,
+    "sha256": "7342713697f395a6907584751176c1926239ed9a1d19a84ff52d722cd8a1c180"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/command-146.json",
+    "bytes": 507,
+    "sha256": "f39f55e3392039f2855506c6c71ef5da0b92456e9d7c0832deb585f98700ddde"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/nano_driver_vm.native",
+    "bytes": 2879192,
+    "sha256": "86c9273df247e3b807d83bb3ffe3dfa5f45ddc93a28363fd04bd82a7d59f968f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/nano_driver_vm.nvm",
+    "bytes": 11988,
+    "sha256": "fb9b5e8152b4e71e979a6575a464f6866e88db57d27b264d3e3ea8670a564366"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/nano_virt.native",
+    "bytes": 2879192,
+    "sha256": "413be48eb433fd945f9fc5c761584519ea37be324393c9c387499867a3613e3e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/nano_virt.nvm",
+    "bytes": 11988,
+    "sha256": "fb9b5e8152b4e71e979a6575a464f6866e88db57d27b264d3e3ea8670a564366"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/nanoc_c.native",
+    "bytes": 2879192,
+    "sha256": "0385cd2e184de4f5e2400e2330510a23672e0d3678c2072f0ddfcf3ba92f2bd5"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/nanoc_c.nvm",
+    "bytes": 11988,
+    "sha256": "fb9b5e8152b4e71e979a6575a464f6866e88db57d27b264d3e3ea8670a564366"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/nl51-mixed-source-driver.native.native",
+    "bytes": 2879192,
+    "sha256": "6246dbc822bd71adc6f786360b9830247c1890a39f3168ca6ec7ea34c9f2dca7"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/nl51-mixed-source-driver.native.nvm",
+    "bytes": 11988,
+    "sha256": "fb9b5e8152b4e71e979a6575a464f6866e88db57d27b264d3e3ea8670a564366"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/part0.nano",
+    "bytes": 1083,
+    "sha256": "181bc6ca974460a433e7218f4917c211c9a40779125547294e9d9eee863c6d1f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/part1.nano",
+    "bytes": 1083,
+    "sha256": "2a87a62d1e7d5e75a642d983b3f01ed7300d4b1d932b2d18c3f9dce50ad13292"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/part2.nano",
+    "bytes": 1083,
+    "sha256": "82c3fbe0b779eaaa470d2e868c316a3dcf9b10f4f817cdda6b78ac20b619156b"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/part3.nano",
+    "bytes": 1083,
+    "sha256": "d8f822deac5000a4f9de5cccf3790fd3ec34936cc760cf0c1d596d9a31780a8a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/part4.nano",
+    "bytes": 1083,
+    "sha256": "a9e1b4b18bbbf274bda4575b5f38977e4dc22db2ee9a92784b04a52564b586fc"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f/source.nano",
+    "bytes": 401,
+    "sha256": "0f062de021b11685643d3cae23f8e7ab5d5ffa49d1e3dab906d7f9fcd7a25d09"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/catalog0.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/catalog1.json",
+    "bytes": 8381,
+    "sha256": "94ca15393167e556494e52b61626f74d68dd61b0a274854a96413ec5d78d33be"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/catalog2.json",
+    "bytes": 10155,
+    "sha256": "c7535d9e8f2db73175ae3a6fc25a40d32e6487c3ae132f0bbee03ebfb3b90c74"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/catalog3.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/command-001.json",
+    "bytes": 944,
+    "sha256": "24edd8addefdf0eb0b4d43be5e0f33ff0b4444c400d5ff642b6aa2e07ba8e858"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/command-002.json",
+    "bytes": 4420,
+    "sha256": "81e8782837b16d8e9de2cdf602c9b93967bd149fc5e551aa1eb3b0ee1968598f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/command-003.json",
+    "bytes": 294,
+    "sha256": "82713b74f278ab2d1c782363316de2c6a9caa24d6b4d83a89e15d4d47b038fa1"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/command-004.json",
+    "bytes": 4424,
+    "sha256": "5374b7b78b04c37fffc6ba6bb4b5389f14f2e54bc36ddfb5bf5ed5d8fa716a74"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/command-005.json",
+    "bytes": 296,
+    "sha256": "9bbe467acfc4c6c56ed7f94f30c42e7f676afac447ff8bba3d577e08f7b7e8a8"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/part0.nano",
+    "bytes": 1083,
+    "sha256": "181bc6ca974460a433e7218f4917c211c9a40779125547294e9d9eee863c6d1f"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/part1.nano",
+    "bytes": 267,
+    "sha256": "c63c22657e1193429fd3b20ad7b9f54e1e0ee40076be7b06c854b2649dabda4e"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/part2.nano",
+    "bytes": 58,
+    "sha256": "6394fdf36aee384adcf1e326a6e81c0f43e68eaced01c309a08b33b88a5b56aa"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/part3.nano",
+    "bytes": 1083,
+    "sha256": "d8f822deac5000a4f9de5cccf3790fd3ec34936cc760cf0c1d596d9a31780a8a"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj/source.nano",
+    "bytes": 303,
+    "sha256": "7acd3e430d242eb8055b534118467cdf2777b65b0ed722cb54bf753db2dfca43"
+  },
+  {
+    "path": "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-_q8oj4o7/interface.nsi.json",
+    "bytes": 9334,
+    "sha256": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2"
+  }
+]

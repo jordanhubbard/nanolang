@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/usr/bin/cc",
+    "--version"
+  ],
+  "timeout": 10,
+  "seconds": 0.02002787502715364,
+  "exit": 0,
+  "error": null
+}

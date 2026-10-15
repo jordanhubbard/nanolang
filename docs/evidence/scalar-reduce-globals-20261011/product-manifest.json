@@ -1,0 +1,96 @@
+{
+  "revision": "cfa60d6eb796cd366587971f17675638090c24a9",
+  "module": "/private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler.nvm",
+  "module_sha256": "b00d14b21eae58c14bec59fdbce0e15c1aa7de621e932417d85c4b50128dda4e",
+  "steps": [
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.0829411669401452,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-reduce-reconcile/compiler-final.c"
+      ],
+      "returncode": 0,
+      "seconds": 10.565131500014104,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-reduce-reconcile/compiler-final.c",
+        "-o",
+        "/private/tmp/nl51-reduce-reconcile/compiler-final",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "returncode": 0,
+      "seconds": 6.726049000048079,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-reduce-reconcile/compiler-final",
+        "--help"
+      ],
+      "returncode": 0,
+      "seconds": 0.011322834063321352,
+      "log": "product-03.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_native_nominal_order",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 3.074557750020176,
+      "log": "product-04.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_scalar_reduce_source",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 19.219641332980245,
+      "log": "product-05.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_union_aggregate_payloads",
+        "tests.test_selfhost_union_storage",
+        "tests.test_selfhost_layout_validation",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 8.602461541071534,
+      "log": "product-06.log"
+    }
+  ],
+  "src/nanoisa/nvm2c.c": "e2ee35d8d31f46ed383ad4286839b507caca58907fdee9ec95f2dc339de96266",
+  "Makefile.gnu": "32d46fdef5533313692d369d2114c1ba299c999238689dce8774f7e8ea59b5fc",
+  "inputs_unchanged": true
+}

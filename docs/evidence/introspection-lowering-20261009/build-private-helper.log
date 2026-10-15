@@ -1,0 +1,14 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2571, column 9: Unused variable 'rejected'
+Warning at line 2783, column 9: Unused variable 'rejected'
+Warning at line 2787, column 9: Unused variable 'rejected'
+Warning at line 2794, column 13: Unused variable 'rejected'
+Warning at line 2911, column 9: Unused variable 'rejected'
+Warning at line 2915, column 9: Unused variable 'rejected'
+Warning at line 2922, column 13: Unused variable 'rejected'
+Error at line 4675, column 45: I cannot call private function 'mi_fact' from module 'module_introspection'.
+Hint: Call an exported function, or declare this function pub in its owning module.
+Warning at line 6735, column 17: Unused variable 'imported'
+Error: Type checking failed for module '/private/tmp/nanolang-match-guards-20261009/src_nano/compiler/nanoisa_codegen.nano'
+Error at line 21, column 1: Failed to load module '/private/tmp/nanolang-match-guards-20261009/src_nano/compiler/nanoisa_codegen.nano'
+error: module loading failed

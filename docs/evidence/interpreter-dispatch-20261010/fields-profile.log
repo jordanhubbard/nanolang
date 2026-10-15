@@ -1,0 +1,2324 @@
+{"event":"shadow-start","name":"token_literal_value_bytes","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/token_value_bytes.nano","line":19,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_literal_value_bytes 0 0 0
+env-cost token_literal_value_bytes 1 0 0
+env-cost token_literal_value_bytes 2 52 43000
+env-cost token_literal_value_bytes 3 75 0
+env-cost token_literal_value_bytes 4 0 0
+{"event":"shadow-complete","name":"token_literal_value_bytes","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/token_value_bytes.nano","line":19,"elapsed_seconds":0.000426,"failures":0}
+{"event":"shadow-start","name":"diag_location","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":19,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_location 0 6 0
+env-cost diag_location 1 3 0
+env-cost diag_location 2 4 4000
+env-cost diag_location 3 0 0
+env-cost diag_location 4 2 4000
+{"event":"shadow-complete","name":"diag_location","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":19,"elapsed_seconds":0.000180,"failures":0}
+{"event":"shadow-start","name":"diag_location_empty","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":26,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_location_empty 0 6 0
+env-cost diag_location_empty 1 3 0
+env-cost diag_location_empty 2 4 3000
+env-cost diag_location_empty 3 0 0
+env-cost diag_location_empty 4 2 26000
+{"event":"shadow-complete","name":"diag_location_empty","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":26,"elapsed_seconds":0.000202,"failures":0}
+{"event":"shadow-start","name":"diag_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":79,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_error 0 10 1000
+env-cost diag_error 1 5 0
+env-cost diag_error 2 14 10000
+env-cost diag_error 3 0 0
+env-cost diag_error 4 8 19000
+{"event":"shadow-complete","name":"diag_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":79,"elapsed_seconds":0.000223,"failures":0}
+{"event":"shadow-start","name":"diag_warning","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":86,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_warning 0 10 1000
+env-cost diag_warning 1 5 0
+env-cost diag_warning 2 17 11000
+env-cost diag_warning 3 0 0
+env-cost diag_warning 4 7 12000
+{"event":"shadow-complete","name":"diag_warning","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":86,"elapsed_seconds":0.000214,"failures":0}
+{"event":"shadow-start","name":"diag_nanoisa_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":111,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_nanoisa_error 0 14 0
+env-cost diag_nanoisa_error 1 8 1000
+env-cost diag_nanoisa_error 2 17 11000
+env-cost diag_nanoisa_error 3 0 0
+env-cost diag_nanoisa_error 4 9 22000
+{"event":"shadow-complete","name":"diag_nanoisa_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":111,"elapsed_seconds":0.000224,"failures":0}
+{"event":"shadow-start","name":"diag_parser_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":123,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_parser_error 0 12 1000
+env-cost diag_parser_error 1 6 1000
+env-cost diag_parser_error 2 17 18000
+env-cost diag_parser_error 3 0 0
+env-cost diag_parser_error 4 9 23000
+{"event":"shadow-complete","name":"diag_parser_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":123,"elapsed_seconds":0.000318,"failures":0}
+{"event":"shadow-start","name":"diag_list_new","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":163,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_list_new 0 0 0
+env-cost diag_list_new 1 0 0
+env-cost diag_list_new 2 2 1000
+env-cost diag_list_new 3 0 0
+env-cost diag_list_new 4 0 0
+{"event":"shadow-complete","name":"diag_list_new","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":163,"elapsed_seconds":0.000238,"failures":0}
+{"event":"shadow-start","name":"diag_list_add","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":168,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_list_add 0 4 0
+env-cost diag_list_add 1 2 0
+env-cost diag_list_add 2 21 12000
+env-cost diag_list_add 3 0 0
+env-cost diag_list_add 4 9 16000
+{"event":"shadow-complete","name":"diag_list_add","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":168,"elapsed_seconds":0.000202,"failures":0}
+{"event":"shadow-start","name":"diag_list_has_errors","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":175,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_list_has_errors 0 20 1000
+env-cost diag_list_has_errors 1 10 0
+env-cost diag_list_has_errors 2 60 26000
+env-cost diag_list_has_errors 3 2 1000
+env-cost diag_list_has_errors 4 24 43000
+{"event":"shadow-complete","name":"diag_list_has_errors","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":175,"elapsed_seconds":0.000321,"failures":0}
+{"event":"shadow-start","name":"diag_make_type_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":204,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_make_type_error 0 0 0
+env-cost diag_make_type_error 1 0 0
+env-cost diag_make_type_error 2 5 7000
+env-cost diag_make_type_error 3 0 0
+env-cost diag_make_type_error 4 0 0
+{"event":"shadow-complete","name":"diag_make_type_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":204,"elapsed_seconds":0.000145,"failures":0}
+{"event":"shadow-start","name":"diag_make_undefined_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":214,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_make_undefined_error 0 0 0
+env-cost diag_make_undefined_error 1 0 0
+env-cost diag_make_undefined_error 2 2 5000
+env-cost diag_make_undefined_error 3 0 0
+env-cost diag_make_undefined_error 4 0 0
+{"event":"shadow-complete","name":"diag_make_undefined_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":214,"elapsed_seconds":0.000124,"failures":0}
+{"event":"shadow-start","name":"diag_new","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":220,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_new 0 6 0
+env-cost diag_new 1 3 0
+env-cost diag_new 2 10 9000
+env-cost diag_new 3 0 0
+env-cost diag_new 4 7 14000
+{"event":"shadow-complete","name":"diag_new","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":220,"elapsed_seconds":0.000194,"failures":0}
+{"event":"shadow-start","name":"diag_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":226,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_simple 0 6 0
+env-cost diag_simple 1 3 0
+env-cost diag_simple 2 14 10000
+env-cost diag_simple 3 0 0
+env-cost diag_simple 4 7 9000
+{"event":"shadow-complete","name":"diag_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":226,"elapsed_seconds":0.000147,"failures":0}
+{"event":"shadow-start","name":"diag_error_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":231,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_error_simple 0 8 1000
+env-cost diag_error_simple 1 4 0
+env-cost diag_error_simple 2 17 10000
+env-cost diag_error_simple 3 0 0
+env-cost diag_error_simple 4 7 13000
+{"event":"shadow-complete","name":"diag_error_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":231,"elapsed_seconds":0.000159,"failures":0}
+{"event":"shadow-start","name":"diag_warning_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":236,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_warning_simple 0 8 1000
+env-cost diag_warning_simple 1 4 0
+env-cost diag_warning_simple 2 17 13000
+env-cost diag_warning_simple 3 0 0
+env-cost diag_warning_simple 4 7 15000
+{"event":"shadow-complete","name":"diag_warning_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":236,"elapsed_seconds":0.000227,"failures":0}
+{"event":"shadow-start","name":"diag_info","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":241,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_info 0 8 0
+env-cost diag_info 1 4 1000
+env-cost diag_info 2 14 13000
+env-cost diag_info 3 0 0
+env-cost diag_info 4 8 12000
+{"event":"shadow-complete","name":"diag_info","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":241,"elapsed_seconds":0.000231,"failures":0}
+{"event":"shadow-start","name":"diag_info_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":247,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_info_simple 0 6 0
+env-cost diag_info_simple 1 3 0
+env-cost diag_info_simple 2 17 10000
+env-cost diag_info_simple 3 0 0
+env-cost diag_info_simple 4 7 12000
+{"event":"shadow-complete","name":"diag_info_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":247,"elapsed_seconds":0.000156,"failures":0}
+{"event":"shadow-start","name":"diag_lexer_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":252,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_lexer_error 0 8 0
+env-cost diag_lexer_error 1 4 0
+env-cost diag_lexer_error 2 17 8000
+env-cost diag_lexer_error 3 0 0
+env-cost diag_lexer_error 4 9 18000
+{"event":"shadow-complete","name":"diag_lexer_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":252,"elapsed_seconds":0.000166,"failures":0}
+{"event":"shadow-start","name":"diag_typecheck_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":258,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_typecheck_error 0 8 0
+env-cost diag_typecheck_error 1 4 0
+env-cost diag_typecheck_error 2 17 9000
+env-cost diag_typecheck_error 3 0 0
+env-cost diag_typecheck_error 4 9 16000
+{"event":"shadow-complete","name":"diag_typecheck_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":258,"elapsed_seconds":0.000151,"failures":0}
+{"event":"shadow-start","name":"diag_backend_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":264,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_backend_error 0 8 0
+env-cost diag_backend_error 1 4 0
+env-cost diag_backend_error 2 17 10000
+env-cost diag_backend_error 3 0 0
+env-cost diag_backend_error 4 9 20000
+{"event":"shadow-complete","name":"diag_backend_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":264,"elapsed_seconds":0.000174,"failures":0}
+{"event":"shadow-start","name":"diag_list_count","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":270,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_list_count 0 4 0
+env-cost diag_list_count 1 2 0
+env-cost diag_list_count 2 22 13000
+env-cost diag_list_count 3 0 0
+env-cost diag_list_count 4 9 6000
+{"event":"shadow-complete","name":"diag_list_count","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":270,"elapsed_seconds":0.000146,"failures":0}
+{"event":"shadow-start","name":"diag_list_get","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":278,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_list_get 0 6 0
+env-cost diag_list_get 1 3 0
+env-cost diag_list_get 2 23 12000
+env-cost diag_list_get 3 0 0
+env-cost diag_list_get 4 11 22000
+{"event":"shadow-complete","name":"diag_list_get","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":278,"elapsed_seconds":0.000195,"failures":0}
+{"event":"shadow-start","name":"diag_id_io_open","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":328,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_id_io_open 0 0 0
+env-cost diag_id_io_open 1 0 0
+env-cost diag_id_io_open 2 0 0
+env-cost diag_id_io_open 3 0 0
+env-cost diag_id_io_open 4 0 0
+{"event":"shadow-complete","name":"diag_id_io_open","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":328,"elapsed_seconds":0.000125,"failures":0}
+{"event":"shadow-start","name":"diag_id_lex_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":332,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_id_lex_failed 0 0 0
+env-cost diag_id_lex_failed 1 0 0
+env-cost diag_id_lex_failed 2 0 0
+env-cost diag_id_lex_failed 3 0 0
+env-cost diag_id_lex_failed 4 0 0
+{"event":"shadow-complete","name":"diag_id_lex_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":332,"elapsed_seconds":0.000128,"failures":0}
+{"event":"shadow-start","name":"diag_id_parse_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":336,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_id_parse_failed 0 0 0
+env-cost diag_id_parse_failed 1 0 0
+env-cost diag_id_parse_failed 2 0 0
+env-cost diag_id_parse_failed 3 0 0
+env-cost diag_id_parse_failed 4 0 0
+{"event":"shadow-complete","name":"diag_id_parse_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":336,"elapsed_seconds":0.000118,"failures":0}
+{"event":"shadow-start","name":"diag_id_import_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":340,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_id_import_failed 0 0 0
+env-cost diag_id_import_failed 1 0 0
+env-cost diag_id_import_failed 2 0 0
+env-cost diag_id_import_failed 3 0 0
+env-cost diag_id_import_failed 4 0 0
+{"event":"shadow-complete","name":"diag_id_import_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":340,"elapsed_seconds":0.000134,"failures":0}
+{"event":"shadow-start","name":"diag_id_type_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":344,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_id_type_failed 0 0 0
+env-cost diag_id_type_failed 1 0 0
+env-cost diag_id_type_failed 2 0 0
+env-cost diag_id_type_failed 3 0 0
+env-cost diag_id_type_failed 4 0 0
+{"event":"shadow-complete","name":"diag_id_type_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":344,"elapsed_seconds":0.000124,"failures":0}
+{"event":"shadow-start","name":"diag_id_mod_compile","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":348,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_id_mod_compile 0 0 0
+env-cost diag_id_mod_compile 1 0 0
+env-cost diag_id_mod_compile 2 0 0
+env-cost diag_id_mod_compile 3 0 0
+env-cost diag_id_mod_compile 4 0 0
+{"event":"shadow-complete","name":"diag_id_mod_compile","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":348,"elapsed_seconds":0.000120,"failures":0}
+{"event":"shadow-start","name":"diag_id_shadow_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":352,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_id_shadow_failed 0 0 0
+env-cost diag_id_shadow_failed 1 0 0
+env-cost diag_id_shadow_failed 2 0 0
+env-cost diag_id_shadow_failed 3 0 0
+env-cost diag_id_shadow_failed 4 0 0
+{"event":"shadow-complete","name":"diag_id_shadow_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":352,"elapsed_seconds":0.000152,"failures":0}
+{"event":"shadow-start","name":"diag_id_trans_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":356,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_id_trans_failed 0 0 0
+env-cost diag_id_trans_failed 1 0 0
+env-cost diag_id_trans_failed 2 0 0
+env-cost diag_id_trans_failed 3 0 0
+env-cost diag_id_trans_failed 4 0 0
+{"event":"shadow-complete","name":"diag_id_trans_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":356,"elapsed_seconds":0.000118,"failures":0}
+{"event":"shadow-start","name":"diag_id_c_temp","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":360,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_id_c_temp 0 0 0
+env-cost diag_id_c_temp 1 0 0
+env-cost diag_id_c_temp 2 0 0
+env-cost diag_id_c_temp 3 0 0
+env-cost diag_id_c_temp 4 0 0
+{"event":"shadow-complete","name":"diag_id_c_temp","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":360,"elapsed_seconds":0.000167,"failures":0}
+{"event":"shadow-start","name":"diag_id_cc_cmd","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":364,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_id_cc_cmd 0 0 0
+env-cost diag_id_cc_cmd 1 0 0
+env-cost diag_id_cc_cmd 2 0 0
+env-cost diag_id_cc_cmd 3 0 0
+env-cost diag_id_cc_cmd 4 0 0
+{"event":"shadow-complete","name":"diag_id_cc_cmd","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":364,"elapsed_seconds":0.000135,"failures":0}
+{"event":"shadow-start","name":"diag_id_cc_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":368,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_id_cc_failed 0 0 0
+env-cost diag_id_cc_failed 1 0 0
+env-cost diag_id_cc_failed 2 0 0
+env-cost diag_id_cc_failed 3 0 0
+env-cost diag_id_cc_failed 4 0 0
+{"event":"shadow-complete","name":"diag_id_cc_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":368,"elapsed_seconds":0.000129,"failures":0}
+{"event":"shadow-start","name":"diag_id_src_utf8","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":372,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_id_src_utf8 0 0 0
+env-cost diag_id_src_utf8 1 0 0
+env-cost diag_id_src_utf8 2 0 0
+env-cost diag_id_src_utf8 3 0 0
+env-cost diag_id_src_utf8 4 0 0
+{"event":"shadow-complete","name":"diag_id_src_utf8","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":372,"elapsed_seconds":0.000118,"failures":0}
+{"event":"shadow-start","name":"diag_en","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":376,"elapsed_seconds":0.000000,"failures":0}
+env-cost diag_en 0 0 0
+env-cost diag_en 1 0 0
+env-cost diag_en 2 4 9000
+env-cost diag_en 3 0 0
+env-cost diag_en 4 0 0
+{"event":"shadow-complete","name":"diag_en","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":376,"elapsed_seconds":0.000312,"failures":0}
+{"event":"shadow-start","name":"walkdir","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":35,"elapsed_seconds":0.000000,"failures":0}
+env-cost walkdir 0 0 0
+env-cost walkdir 1 0 0
+env-cost walkdir 2 8 15000
+env-cost walkdir 3 0 0
+env-cost walkdir 4 0 0
+{"event":"shadow-complete","name":"walkdir","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":35,"elapsed_seconds":0.001836,"failures":0}
+{"event":"shadow-start","name":"canonical","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":60,"elapsed_seconds":0.000000,"failures":0}
+env-cost canonical 0 0 0
+env-cost canonical 1 0 0
+env-cost canonical 2 7 11000
+env-cost canonical 3 0 0
+env-cost canonical 4 0 0
+{"event":"shadow-complete","name":"canonical","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":60,"elapsed_seconds":0.000734,"failures":0}
+{"event":"shadow-start","name":"normalize","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":73,"elapsed_seconds":0.000000,"failures":0}
+env-cost normalize 0 0 0
+env-cost normalize 1 0 0
+env-cost normalize 2 3 5000
+env-cost normalize 3 0 0
+env-cost normalize 4 0 0
+{"event":"shadow-complete","name":"normalize","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":73,"elapsed_seconds":0.000138,"failures":0}
+{"event":"shadow-start","name":"join","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":85,"elapsed_seconds":0.000000,"failures":0}
+env-cost join 0 0 0
+env-cost join 1 0 0
+env-cost join 2 6 8000
+env-cost join 3 0 0
+env-cost join 4 0 0
+{"event":"shadow-complete","name":"join","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":85,"elapsed_seconds":0.000140,"failures":0}
+{"event":"shadow-start","name":"basename","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":97,"elapsed_seconds":0.000000,"failures":0}
+env-cost basename 0 0 0
+env-cost basename 1 0 0
+env-cost basename 2 2 2000
+env-cost basename 3 0 0
+env-cost basename 4 0 0
+{"event":"shadow-complete","name":"basename","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":97,"elapsed_seconds":0.000102,"failures":0}
+{"event":"shadow-start","name":"dirname","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":108,"elapsed_seconds":0.000000,"failures":0}
+env-cost dirname 0 0 0
+env-cost dirname 1 0 0
+env-cost dirname 2 2 2000
+env-cost dirname 3 0 0
+env-cost dirname 4 0 0
+{"event":"shadow-complete","name":"dirname","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":108,"elapsed_seconds":0.000092,"failures":0}
+{"event":"shadow-start","name":"relpath","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":120,"elapsed_seconds":0.000000,"failures":0}
+env-cost relpath 0 0 0
+env-cost relpath 1 0 0
+env-cost relpath 2 22 32000
+env-cost relpath 3 0 0
+env-cost relpath 4 0 0
+{"event":"shadow-complete","name":"relpath","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":120,"elapsed_seconds":0.000326,"failures":0}
+{"event":"shadow-start","name":"cwd","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":135,"elapsed_seconds":0.000000,"failures":0}
+env-cost cwd 0 0 0
+env-cost cwd 1 0 0
+env-cost cwd 2 1 2000
+env-cost cwd 3 0 0
+env-cost cwd 4 0 0
+{"event":"shadow-complete","name":"cwd","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":135,"elapsed_seconds":0.000098,"failures":0}
+{"event":"shadow-start","name":"glob_match_impl","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":190,"elapsed_seconds":0.000000,"failures":0}
+env-cost glob_match_impl 0 0 0
+env-cost glob_match_impl 1 0 0
+env-cost glob_match_impl 2 56 24000
+env-cost glob_match_impl 3 1 0
+env-cost glob_match_impl 4 0 0
+{"event":"shadow-complete","name":"glob_match_impl","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":190,"elapsed_seconds":0.000143,"failures":0}
+{"event":"shadow-start","name":"glob_match","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":200,"elapsed_seconds":0.000000,"failures":0}
+env-cost glob_match 0 0 0
+env-cost glob_match 1 0 0
+env-cost glob_match 2 284 125000
+env-cost glob_match 3 17 0
+env-cost glob_match 4 0 0
+{"event":"shadow-complete","name":"glob_match","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":200,"elapsed_seconds":0.000366,"failures":0}
+{"event":"shadow-start","name":"glob","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":225,"elapsed_seconds":0.000000,"failures":0}
+env-cost glob 0 0 0
+env-cost glob 1 0 0
+env-cost glob 2 170 91000
+env-cost glob 3 16 0
+env-cost glob 4 0 0
+{"event":"shadow-complete","name":"glob","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":225,"elapsed_seconds":0.001550,"failures":0}
+{"event":"shadow-start","name":"read","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":251,"elapsed_seconds":0.000000,"failures":0}
+env-cost read 0 0 0
+env-cost read 1 0 0
+env-cost read 2 7 12000
+env-cost read 3 0 0
+env-cost read 4 0 0
+{"event":"shadow-complete","name":"read","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":251,"elapsed_seconds":0.003588,"failures":0}
+{"event":"shadow-start","name":"write","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":269,"elapsed_seconds":0.000000,"failures":0}
+env-cost write 0 0 0
+env-cost write 1 0 0
+env-cost write 2 7 10000
+env-cost write 3 0 0
+env-cost write 4 0 0
+{"event":"shadow-complete","name":"write","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":269,"elapsed_seconds":0.001249,"failures":0}
+{"event":"shadow-start","name":"append","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":287,"elapsed_seconds":0.000000,"failures":0}
+env-cost append 0 0 0
+env-cost append 1 0 0
+env-cost append 2 9 18000
+env-cost append 3 0 0
+env-cost append 4 0 0
+{"event":"shadow-complete","name":"append","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":287,"elapsed_seconds":0.005618,"failures":0}
+{"event":"shadow-start","name":"exists","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":306,"elapsed_seconds":0.000000,"failures":0}
+env-cost exists 0 0 0
+env-cost exists 1 0 0
+env-cost exists 2 9 16000
+env-cost exists 3 0 0
+env-cost exists 4 0 0
+{"event":"shadow-complete","name":"exists","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":306,"elapsed_seconds":0.000911,"failures":0}
+{"event":"shadow-start","name":"delete","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":326,"elapsed_seconds":0.000000,"failures":0}
+env-cost delete 0 0 0
+env-cost delete 1 0 0
+env-cost delete 2 8 11000
+env-cost delete 3 0 0
+env-cost delete 4 0 0
+{"event":"shadow-complete","name":"delete","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":326,"elapsed_seconds":0.000884,"failures":0}
+{"event":"shadow-start","name":"mkdir_p","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":346,"elapsed_seconds":0.000000,"failures":0}
+env-cost mkdir_p 0 0 0
+env-cost mkdir_p 1 0 0
+env-cost mkdir_p 2 8 11000
+env-cost mkdir_p 3 0 0
+env-cost mkdir_p 4 0 0
+{"event":"shadow-complete","name":"mkdir_p","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":346,"elapsed_seconds":0.001142,"failures":0}
+{"event":"shadow-start","name":"copy_file","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":366,"elapsed_seconds":0.000000,"failures":0}
+env-cost copy_file 0 0 0
+env-cost copy_file 1 0 0
+env-cost copy_file 2 11 21000
+env-cost copy_file 3 0 0
+env-cost copy_file 4 0 0
+{"event":"shadow-complete","name":"copy_file","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":366,"elapsed_seconds":0.004565,"failures":0}
+{"event":"shadow-start","name":"copy_dir","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":387,"elapsed_seconds":0.000000,"failures":0}
+env-cost copy_dir 0 0 0
+env-cost copy_dir 1 0 0
+env-cost copy_dir 2 14 25000
+env-cost copy_dir 3 0 0
+env-cost copy_dir 4 0 0
+{"event":"shadow-complete","name":"copy_dir","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":387,"elapsed_seconds":0.002859,"failures":0}
+{"event":"shadow-start","name":"is_identifier_start","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":18,"elapsed_seconds":0.000000,"failures":0}
+env-cost is_identifier_start 0 0 0
+env-cost is_identifier_start 1 0 0
+env-cost is_identifier_start 2 8 0
+env-cost is_identifier_start 3 0 0
+env-cost is_identifier_start 4 0 0
+{"event":"shadow-complete","name":"is_identifier_start","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":18,"elapsed_seconds":0.000123,"failures":0}
+{"event":"shadow-start","name":"is_identifier_char","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":33,"elapsed_seconds":0.000000,"failures":0}
+env-cost is_identifier_char 0 0 0
+env-cost is_identifier_char 1 0 0
+env-cost is_identifier_char 2 14 0
+env-cost is_identifier_char 3 0 0
+env-cost is_identifier_char 4 0 0
+{"event":"shadow-complete","name":"is_identifier_char","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":33,"elapsed_seconds":0.000124,"failures":0}
+{"event":"shadow-start","name":"is_whitespace_char","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":47,"elapsed_seconds":0.000000,"failures":0}
+env-cost is_whitespace_char 0 0 0
+env-cost is_whitespace_char 1 0 0
+env-cost is_whitespace_char 2 5 0
+env-cost is_whitespace_char 3 0 0
+env-cost is_whitespace_char 4 0 0
+{"event":"shadow-complete","name":"is_whitespace_char","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":47,"elapsed_seconds":0.000114,"failures":0}
+{"event":"shadow-start","name":"is_digit_char","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":59,"elapsed_seconds":0.000000,"failures":0}
+env-cost is_digit_char 0 0 0
+env-cost is_digit_char 1 0 0
+env-cost is_digit_char 2 6 0
+env-cost is_digit_char 3 0 0
+env-cost is_digit_char 4 0 0
+{"event":"shadow-complete","name":"is_digit_char","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":59,"elapsed_seconds":0.000131,"failures":0}
+{"event":"shadow-start","name":"keyword_group1","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":82,"elapsed_seconds":0.000000,"failures":0}
+env-cost keyword_group1 0 16 0
+env-cost keyword_group1 1 8 1000
+env-cost keyword_group1 2 7 8000
+env-cost keyword_group1 3 0 0
+env-cost keyword_group1 4 0 0
+{"event":"shadow-complete","name":"keyword_group1","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":82,"elapsed_seconds":0.000172,"failures":0}
+{"event":"shadow-start","name":"keyword_group2","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":153,"elapsed_seconds":0.000000,"failures":0}
+env-cost keyword_group2 0 22 1000
+env-cost keyword_group2 1 11 1000
+env-cost keyword_group2 2 11 15000
+env-cost keyword_group2 3 0 0
+env-cost keyword_group2 4 0 0
+{"event":"shadow-complete","name":"keyword_group2","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":153,"elapsed_seconds":0.000298,"failures":0}
+{"event":"shadow-start","name":"keyword_group3","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":185,"elapsed_seconds":0.000000,"failures":0}
+env-cost keyword_group3 0 12 0
+env-cost keyword_group3 1 6 0
+env-cost keyword_group3 2 7 9000
+env-cost keyword_group3 3 0 0
+env-cost keyword_group3 4 0 0
+{"event":"shadow-complete","name":"keyword_group3","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":185,"elapsed_seconds":0.000146,"failures":0}
+{"event":"shadow-start","name":"keyword_group4","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":205,"elapsed_seconds":0.000000,"failures":0}
+env-cost keyword_group4 0 6 0
+env-cost keyword_group4 1 3 0
+env-cost keyword_group4 2 4 5000
+env-cost keyword_group4 3 0 0
+env-cost keyword_group4 4 0 0
+{"event":"shadow-complete","name":"keyword_group4","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":205,"elapsed_seconds":0.000123,"failures":0}
+{"event":"shadow-start","name":"keyword_group5","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":218,"elapsed_seconds":0.000000,"failures":0}
+env-cost keyword_group5 0 2 0
+env-cost keyword_group5 1 1 0
+env-cost keyword_group5 2 2 4000
+env-cost keyword_group5 3 0 0
+env-cost keyword_group5 4 0 0
+{"event":"shadow-complete","name":"keyword_group5","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":218,"elapsed_seconds":0.000124,"failures":0}
+{"event":"shadow-start","name":"keyword_or_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":252,"elapsed_seconds":0.000000,"failures":0}
+env-cost keyword_or_identifier 0 10 0
+env-cost keyword_or_identifier 1 5 0
+env-cost keyword_or_identifier 2 43 33000
+env-cost keyword_or_identifier 3 0 0
+env-cost keyword_or_identifier 4 0 0
+{"event":"shadow-complete","name":"keyword_or_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":252,"elapsed_seconds":0.000340,"failures":0}
+{"event":"shadow-start","name":"push_tok","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":269,"elapsed_seconds":0.000000,"failures":0}
+env-cost push_tok 0 10 4000
+env-cost push_tok 1 5 0
+env-cost push_tok 2 9 9000
+env-cost push_tok 3 0 0
+env-cost push_tok 4 3 7000
+{"event":"shadow-complete","name":"push_tok","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":269,"elapsed_seconds":0.000145,"failures":0}
+{"event":"shadow-start","name":"process_string","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":300,"elapsed_seconds":0.000000,"failures":0}
+env-cost process_string 0 4 0
+env-cost process_string 1 2 0
+env-cost process_string 2 24 14000
+env-cost process_string 3 16 0
+env-cost process_string 4 2 7000
+{"event":"shadow-complete","name":"process_string","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":300,"elapsed_seconds":0.000167,"failures":0}
+{"event":"shadow-start","name":"process_number","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":338,"elapsed_seconds":0.000000,"failures":0}
+env-cost process_number 0 6 1000
+env-cost process_number 1 3 0
+env-cost process_number 2 24 11000
+env-cost process_number 3 3 0
+env-cost process_number 4 3 8000
+{"event":"shadow-complete","name":"process_number","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":338,"elapsed_seconds":0.000152,"failures":0}
+{"event":"shadow-start","name":"process_grammar_body","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":391,"elapsed_seconds":0.000000,"failures":0}
+env-cost process_grammar_body 0 4 1000
+env-cost process_grammar_body 1 2 0
+env-cost process_grammar_body 2 32 5000
+env-cost process_grammar_body 3 16 0
+env-cost process_grammar_body 4 3 1000
+{"event":"shadow-complete","name":"process_grammar_body","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":391,"elapsed_seconds":0.000145,"failures":0}
+{"event":"shadow-start","name":"process_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":420,"elapsed_seconds":0.000000,"failures":0}
+env-cost process_identifier 0 8 0
+env-cost process_identifier 1 4 0
+env-cost process_identifier 2 43 18000
+env-cost process_identifier 3 5 0
+env-cost process_identifier 4 3 2000
+{"event":"shadow-complete","name":"process_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":420,"elapsed_seconds":0.000174,"failures":0}
+{"event":"shadow-start","name":"process_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":430,"elapsed_seconds":0.000000,"failures":0}
+env-cost process_identifier 0 12 1000
+env-cost process_identifier 1 6 0
+env-cost process_identifier 2 78 17000
+env-cost process_identifier 3 23 0
+env-cost process_identifier 4 6 2000
+{"event":"shadow-complete","name":"process_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":430,"elapsed_seconds":0.000218,"failures":0}
+{"event":"shadow-start","name":"process_char_literal","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":489,"elapsed_seconds":0.000000,"failures":0}
+env-cost process_char_literal 0 6 0
+env-cost process_char_literal 1 3 0
+env-cost process_char_literal 2 20 9000
+env-cost process_char_literal 3 1 0
+env-cost process_char_literal 4 3 0
+{"event":"shadow-complete","name":"process_char_literal","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":489,"elapsed_seconds":0.000141,"failures":0}
+{"event":"shadow-start","name":"emit_fstring_part_tokens","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":525,"elapsed_seconds":0.000000,"failures":0}
+env-cost emit_fstring_part_tokens 0 48 4000
+env-cost emit_fstring_part_tokens 1 24 0
+env-cost emit_fstring_part_tokens 2 116 35000
+env-cost emit_fstring_part_tokens 3 23 2000
+env-cost emit_fstring_part_tokens 4 17 7000
+{"event":"shadow-complete","name":"emit_fstring_part_tokens","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":525,"elapsed_seconds":0.000272,"failures":0}
+{"event":"shadow-start","name":"process_fstring","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":674,"elapsed_seconds":0.000000,"failures":0}
+env-cost process_fstring 0 62 2000
+env-cost process_fstring 1 31 0
+env-cost process_fstring 2 219 68000
+env-cost process_fstring 3 49 1000
+env-cost process_fstring 4 28 8000
+{"event":"shadow-complete","name":"process_fstring","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":674,"elapsed_seconds":0.000363,"failures":0}
+{"event":"shadow-start","name":"tokenize_file","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":939,"elapsed_seconds":0.000000,"failures":0}
+env-cost tokenize_file 0 126 3000
+env-cost tokenize_file 1 63 1000
+env-cost tokenize_file 2 731 163000
+env-cost tokenize_file 3 560 14000
+env-cost tokenize_file 4 54 32000
+{"event":"shadow-complete","name":"tokenize_file","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":939,"elapsed_seconds":0.001558,"failures":0}
+{"event":"shadow-start","name":"tokenize_string","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":947,"elapsed_seconds":0.000000,"failures":0}
+env-cost tokenize_string 0 404 27000
+env-cost tokenize_string 1 202 13000
+env-cost tokenize_string 2 1671 468000
+env-cost tokenize_string 3 505 12000
+env-cost tokenize_string 4 165 44000
+{"event":"shadow-complete","name":"tokenize_string","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":947,"elapsed_seconds":0.002063,"failures":0}
+{"event":"shadow-start","name":"parser_init_ast_lists","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":144,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_init_ast_lists 0 12 14000
+env-cost parser_init_ast_lists 1 6 0
+env-cost parser_init_ast_lists 2 38 10000
+env-cost parser_init_ast_lists 3 0 0
+env-cost parser_init_ast_lists 4 2 5000
+{"event":"shadow-complete","name":"parser_init_ast_lists","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":144,"elapsed_seconds":0.000206,"failures":0}
+{"event":"shadow-start","name":"parser_new","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":241,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_new 0 78 10000
+env-cost parser_new 1 39 3000
+env-cost parser_new 2 43 6000
+env-cost parser_new 3 0 0
+env-cost parser_new 4 4 6000
+{"event":"shadow-complete","name":"parser_new","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":241,"elapsed_seconds":0.000172,"failures":0}
+{"event":"shadow-start","name":"parser_allocate_id","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":255,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_allocate_id 0 76 6000
+env-cost parser_allocate_id 1 38 1000
+env-cost parser_allocate_id 2 48 14000
+env-cost parser_allocate_id 3 0 0
+env-cost parser_allocate_id 4 6 6000
+{"event":"shadow-complete","name":"parser_allocate_id","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":255,"elapsed_seconds":0.000194,"failures":0}
+{"event":"shadow-start","name":"parser_is_at_end","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":273,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_is_at_end 0 76 9000
+env-cost parser_is_at_end 1 38 0
+env-cost parser_is_at_end 2 44 4000
+env-cost parser_is_at_end 3 0 0
+env-cost parser_is_at_end 4 5 7000
+{"event":"shadow-complete","name":"parser_is_at_end","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":273,"elapsed_seconds":0.000173,"failures":0}
+{"event":"shadow-start","name":"parser_with_position","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":361,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_with_position 0 234 158000
+env-cost parser_with_position 1 117 4000
+env-cost parser_with_position 2 46 12000
+env-cost parser_with_position 3 0 0
+env-cost parser_with_position 4 7 14000
+{"event":"shadow-complete","name":"parser_with_position","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":361,"elapsed_seconds":0.000358,"failures":0}
+{"event":"shadow-start","name":"parser_advance","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":381,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_advance 0 78 8000
+env-cost parser_advance 1 39 3000
+env-cost parser_advance 2 46 8000
+env-cost parser_advance 3 0 0
+env-cost parser_advance 4 7 15000
+{"event":"shadow-complete","name":"parser_advance","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":381,"elapsed_seconds":0.000170,"failures":0}
+{"event":"shadow-start","name":"parser_position","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":393,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_position 0 74 3000
+env-cost parser_position 1 37 2000
+env-cost parser_position 2 44 4000
+env-cost parser_position 3 0 0
+env-cost parser_position 4 5 10000
+{"event":"shadow-complete","name":"parser_position","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":393,"elapsed_seconds":0.000175,"failures":0}
+{"event":"shadow-start","name":"parser_current","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":415,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_current 0 80 8000
+env-cost parser_current 1 40 1000
+env-cost parser_current 2 46 6000
+env-cost parser_current 3 0 0
+env-cost parser_current 4 8 13000
+{"event":"shadow-complete","name":"parser_current","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":415,"elapsed_seconds":0.000165,"failures":0}
+{"event":"shadow-start","name":"parser_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":433,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_match 0 76 5000
+env-cost parser_match 1 38 2000
+env-cost parser_match 2 46 4000
+env-cost parser_match 3 0 0
+env-cost parser_match 4 6 10000
+{"event":"shadow-complete","name":"parser_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":433,"elapsed_seconds":0.000147,"failures":0}
+{"event":"shadow-start","name":"parser_expect","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":448,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_expect 0 232 139000
+env-cost parser_expect 1 116 6000
+env-cost parser_expect 2 51 5000
+env-cost parser_expect 3 0 0
+env-cost parser_expect 4 10 17000
+{"event":"shadow-complete","name":"parser_expect","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":448,"elapsed_seconds":0.000341,"failures":0}
+{"event":"shadow-start","name":"parser_peek","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":468,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_peek 0 80 11000
+env-cost parser_peek 1 40 1000
+env-cost parser_peek 2 49 5000
+env-cost parser_peek 3 0 0
+env-cost parser_peek 4 6 11000
+{"event":"shadow-complete","name":"parser_peek","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":468,"elapsed_seconds":0.000176,"failures":0}
+{"event":"shadow-start","name":"parser_with_error","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":558,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_with_error 0 0 0
+env-cost parser_with_error 1 0 0
+env-cost parser_with_error 2 0 0
+env-cost parser_with_error 3 0 0
+env-cost parser_with_error 4 0 0
+{"event":"shadow-complete","name":"parser_with_error","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":558,"elapsed_seconds":0.000095,"failures":0}
+{"event":"shadow-start","name":"parser_has_error","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":568,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_has_error 0 74 4000
+env-cost parser_has_error 1 37 2000
+env-cost parser_has_error 2 44 1000
+env-cost parser_has_error 3 0 0
+env-cost parser_has_error 4 5 20000
+{"event":"shadow-complete","name":"parser_has_error","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":568,"elapsed_seconds":0.000221,"failures":0}
+{"event":"shadow-start","name":"token_number","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":578,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_number 0 4 0
+env-cost token_number 1 2 0
+env-cost token_number 2 0 0
+env-cost token_number 3 0 0
+env-cost token_number 4 0 0
+{"event":"shadow-complete","name":"token_number","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":578,"elapsed_seconds":0.000082,"failures":0}
+{"event":"shadow-start","name":"token_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":581,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_identifier 0 4 0
+env-cost token_identifier 1 2 0
+env-cost token_identifier 2 0 0
+env-cost token_identifier 3 0 0
+env-cost token_identifier 4 0 0
+{"event":"shadow-complete","name":"token_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":581,"elapsed_seconds":0.000104,"failures":0}
+{"event":"shadow-start","name":"token_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":584,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_string 0 4 0
+env-cost token_string 1 2 0
+env-cost token_string 2 0 0
+env-cost token_string 3 0 0
+env-cost token_string 4 0 0
+{"event":"shadow-complete","name":"token_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":584,"elapsed_seconds":0.000091,"failures":0}
+{"event":"shadow-start","name":"token_true","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":587,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_true 0 4 0
+env-cost token_true 1 2 0
+env-cost token_true 2 0 0
+env-cost token_true 3 0 0
+env-cost token_true 4 0 0
+{"event":"shadow-complete","name":"token_true","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":587,"elapsed_seconds":0.000088,"failures":0}
+{"event":"shadow-start","name":"token_false","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":590,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_false 0 4 0
+env-cost token_false 1 2 0
+env-cost token_false 2 0 0
+env-cost token_false 3 0 0
+env-cost token_false 4 0 0
+{"event":"shadow-complete","name":"token_false","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":590,"elapsed_seconds":0.000091,"failures":0}
+{"event":"shadow-start","name":"token_lparen","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":593,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_lparen 0 4 0
+env-cost token_lparen 1 2 0
+env-cost token_lparen 2 0 0
+env-cost token_lparen 3 0 0
+env-cost token_lparen 4 0 0
+{"event":"shadow-complete","name":"token_lparen","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":593,"elapsed_seconds":0.000104,"failures":0}
+{"event":"shadow-start","name":"token_rparen","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":596,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_rparen 0 4 0
+env-cost token_rparen 1 2 0
+env-cost token_rparen 2 0 0
+env-cost token_rparen 3 0 0
+env-cost token_rparen 4 0 0
+{"event":"shadow-complete","name":"token_rparen","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":596,"elapsed_seconds":0.000089,"failures":0}
+{"event":"shadow-start","name":"token_plus","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":599,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_plus 0 4 0
+env-cost token_plus 1 2 0
+env-cost token_plus 2 0 0
+env-cost token_plus 3 0 0
+env-cost token_plus 4 0 0
+{"event":"shadow-complete","name":"token_plus","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":599,"elapsed_seconds":0.000087,"failures":0}
+{"event":"shadow-start","name":"token_minus","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":602,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_minus 0 4 0
+env-cost token_minus 1 2 0
+env-cost token_minus 2 0 0
+env-cost token_minus 3 0 0
+env-cost token_minus 4 0 0
+{"event":"shadow-complete","name":"token_minus","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":602,"elapsed_seconds":0.000085,"failures":0}
+{"event":"shadow-start","name":"token_star","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":605,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_star 0 4 0
+env-cost token_star 1 2 0
+env-cost token_star 2 0 0
+env-cost token_star 3 0 0
+env-cost token_star 4 0 0
+{"event":"shadow-complete","name":"token_star","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":605,"elapsed_seconds":0.000077,"failures":0}
+{"event":"shadow-start","name":"token_slash","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":608,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_slash 0 4 0
+env-cost token_slash 1 2 0
+env-cost token_slash 2 0 0
+env-cost token_slash 3 0 0
+env-cost token_slash 4 0 0
+{"event":"shadow-complete","name":"token_slash","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":608,"elapsed_seconds":0.000106,"failures":0}
+{"event":"shadow-start","name":"token_eq","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":611,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_eq 0 4 0
+env-cost token_eq 1 2 0
+env-cost token_eq 2 0 0
+env-cost token_eq 3 0 0
+env-cost token_eq 4 0 0
+{"event":"shadow-complete","name":"token_eq","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":611,"elapsed_seconds":0.000088,"failures":0}
+{"event":"shadow-start","name":"token_ne","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":614,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_ne 0 4 0
+env-cost token_ne 1 2 0
+env-cost token_ne 2 0 0
+env-cost token_ne 3 0 0
+env-cost token_ne 4 0 0
+{"event":"shadow-complete","name":"token_ne","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":614,"elapsed_seconds":0.000092,"failures":0}
+{"event":"shadow-start","name":"token_lt","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":617,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_lt 0 4 0
+env-cost token_lt 1 2 0
+env-cost token_lt 2 0 0
+env-cost token_lt 3 0 0
+env-cost token_lt 4 0 0
+{"event":"shadow-complete","name":"token_lt","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":617,"elapsed_seconds":0.000107,"failures":0}
+{"event":"shadow-start","name":"token_le","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":620,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_le 0 4 0
+env-cost token_le 1 2 0
+env-cost token_le 2 0 0
+env-cost token_le 3 0 0
+env-cost token_le 4 0 0
+{"event":"shadow-complete","name":"token_le","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":620,"elapsed_seconds":0.000086,"failures":0}
+{"event":"shadow-start","name":"token_gt","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":623,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_gt 0 4 1000
+env-cost token_gt 1 2 0
+env-cost token_gt 2 0 0
+env-cost token_gt 3 0 0
+env-cost token_gt 4 0 0
+{"event":"shadow-complete","name":"token_gt","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":623,"elapsed_seconds":0.000079,"failures":0}
+{"event":"shadow-start","name":"token_ge","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":626,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_ge 0 4 0
+env-cost token_ge 1 2 0
+env-cost token_ge 2 0 0
+env-cost token_ge 3 0 0
+env-cost token_ge 4 0 0
+{"event":"shadow-complete","name":"token_ge","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":626,"elapsed_seconds":0.000108,"failures":0}
+{"event":"shadow-start","name":"token_and","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":629,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_and 0 4 0
+env-cost token_and 1 2 0
+env-cost token_and 2 0 0
+env-cost token_and 3 0 0
+env-cost token_and 4 0 0
+{"event":"shadow-complete","name":"token_and","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":629,"elapsed_seconds":0.000092,"failures":0}
+{"event":"shadow-start","name":"token_or","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":632,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_or 0 4 0
+env-cost token_or 1 2 0
+env-cost token_or 2 0 0
+env-cost token_or 3 0 0
+env-cost token_or 4 0 0
+{"event":"shadow-complete","name":"token_or","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":632,"elapsed_seconds":0.000088,"failures":0}
+{"event":"shadow-start","name":"token_comma","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":635,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_comma 0 4 0
+env-cost token_comma 1 2 0
+env-cost token_comma 2 0 0
+env-cost token_comma 3 0 0
+env-cost token_comma 4 0 0
+{"event":"shadow-complete","name":"token_comma","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":635,"elapsed_seconds":0.000078,"failures":0}
+{"event":"shadow-start","name":"token_lbrace","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":638,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_lbrace 0 4 0
+env-cost token_lbrace 1 2 0
+env-cost token_lbrace 2 0 0
+env-cost token_lbrace 3 0 0
+env-cost token_lbrace 4 0 0
+{"event":"shadow-complete","name":"token_lbrace","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":638,"elapsed_seconds":0.000108,"failures":0}
+{"event":"shadow-start","name":"token_rbrace","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":641,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_rbrace 0 4 0
+env-cost token_rbrace 1 2 0
+env-cost token_rbrace 2 0 0
+env-cost token_rbrace 3 0 0
+env-cost token_rbrace 4 0 0
+{"event":"shadow-complete","name":"token_rbrace","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":641,"elapsed_seconds":0.000095,"failures":0}
+{"event":"shadow-start","name":"token_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":644,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_let 0 4 0
+env-cost token_let 1 2 0
+env-cost token_let 2 0 0
+env-cost token_let 3 0 0
+env-cost token_let 4 0 0
+{"event":"shadow-complete","name":"token_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":644,"elapsed_seconds":0.000102,"failures":0}
+{"event":"shadow-start","name":"token_if","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":647,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_if 0 4 0
+env-cost token_if 1 2 1000
+env-cost token_if 2 0 0
+env-cost token_if 3 0 0
+env-cost token_if 4 0 0
+{"event":"shadow-complete","name":"token_if","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":647,"elapsed_seconds":0.000096,"failures":0}
+{"event":"shadow-start","name":"token_else","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":650,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_else 0 4 0
+env-cost token_else 1 2 0
+env-cost token_else 2 0 0
+env-cost token_else 3 0 0
+env-cost token_else 4 0 0
+{"event":"shadow-complete","name":"token_else","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":650,"elapsed_seconds":0.000096,"failures":0}
+{"event":"shadow-start","name":"token_while","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":653,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_while 0 4 0
+env-cost token_while 1 2 0
+env-cost token_while 2 0 0
+env-cost token_while 3 0 0
+env-cost token_while 4 0 0
+{"event":"shadow-complete","name":"token_while","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":653,"elapsed_seconds":0.000096,"failures":0}
+{"event":"shadow-start","name":"token_return","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":656,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_return 0 4 0
+env-cost token_return 1 2 0
+env-cost token_return 2 0 0
+env-cost token_return 3 0 0
+env-cost token_return 4 0 0
+{"event":"shadow-complete","name":"token_return","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":656,"elapsed_seconds":0.000091,"failures":0}
+{"event":"shadow-start","name":"token_colon","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":659,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_colon 0 4 0
+env-cost token_colon 1 2 0
+env-cost token_colon 2 0 0
+env-cost token_colon 3 0 0
+env-cost token_colon 4 0 0
+{"event":"shadow-complete","name":"token_colon","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":659,"elapsed_seconds":0.000100,"failures":0}
+{"event":"shadow-start","name":"token_mut","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":662,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_mut 0 4 0
+env-cost token_mut 1 2 0
+env-cost token_mut 2 0 0
+env-cost token_mut 3 0 0
+env-cost token_mut 4 0 0
+{"event":"shadow-complete","name":"token_mut","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":662,"elapsed_seconds":0.000109,"failures":0}
+{"event":"shadow-start","name":"token_assign","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":665,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_assign 0 4 0
+env-cost token_assign 1 2 1000
+env-cost token_assign 2 0 0
+env-cost token_assign 3 0 0
+env-cost token_assign 4 0 0
+{"event":"shadow-complete","name":"token_assign","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":665,"elapsed_seconds":0.000111,"failures":0}
+{"event":"shadow-start","name":"token_arrow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":668,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_arrow 0 4 0
+env-cost token_arrow 1 2 1000
+env-cost token_arrow 2 0 0
+env-cost token_arrow 3 0 0
+env-cost token_arrow 4 0 0
+{"event":"shadow-complete","name":"token_arrow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":668,"elapsed_seconds":0.000089,"failures":0}
+{"event":"shadow-start","name":"token_fn","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":671,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_fn 0 4 0
+env-cost token_fn 1 2 0
+env-cost token_fn 2 0 0
+env-cost token_fn 3 0 0
+env-cost token_fn 4 0 0
+{"event":"shadow-complete","name":"token_fn","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":671,"elapsed_seconds":0.000080,"failures":0}
+{"event":"shadow-start","name":"token_extern","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":674,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_extern 0 4 0
+env-cost token_extern 1 2 0
+env-cost token_extern 2 0 0
+env-cost token_extern 3 0 0
+env-cost token_extern 4 0 0
+{"event":"shadow-complete","name":"token_extern","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":674,"elapsed_seconds":0.000082,"failures":0}
+{"event":"shadow-start","name":"token_set","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":677,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_set 0 4 0
+env-cost token_set 1 2 1000
+env-cost token_set 2 0 0
+env-cost token_set 3 0 0
+env-cost token_set 4 0 0
+{"event":"shadow-complete","name":"token_set","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":677,"elapsed_seconds":0.000091,"failures":0}
+{"event":"shadow-start","name":"token_struct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":680,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_struct 0 4 0
+env-cost token_struct 1 2 0
+env-cost token_struct 2 0 0
+env-cost token_struct 3 0 0
+env-cost token_struct 4 0 0
+{"event":"shadow-complete","name":"token_struct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":680,"elapsed_seconds":0.000107,"failures":0}
+{"event":"shadow-start","name":"token_enum","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":683,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_enum 0 4 0
+env-cost token_enum 1 2 0
+env-cost token_enum 2 0 0
+env-cost token_enum 3 0 0
+env-cost token_enum 4 0 0
+{"event":"shadow-complete","name":"token_enum","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":683,"elapsed_seconds":0.000098,"failures":0}
+{"event":"shadow-start","name":"token_union","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":686,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_union 0 4 0
+env-cost token_union 1 2 0
+env-cost token_union 2 0 0
+env-cost token_union 3 0 0
+env-cost token_union 4 0 0
+{"event":"shadow-complete","name":"token_union","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":686,"elapsed_seconds":0.000112,"failures":0}
+{"event":"shadow-start","name":"token_for","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":690,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_for 0 4 0
+env-cost token_for 1 2 0
+env-cost token_for 2 0 0
+env-cost token_for 3 0 0
+env-cost token_for 4 0 0
+{"event":"shadow-complete","name":"token_for","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":690,"elapsed_seconds":0.000094,"failures":0}
+{"event":"shadow-start","name":"token_in","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":693,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_in 0 4 0
+env-cost token_in 1 2 0
+env-cost token_in 2 0 0
+env-cost token_in 3 0 0
+env-cost token_in 4 0 0
+{"event":"shadow-complete","name":"token_in","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":693,"elapsed_seconds":0.000077,"failures":0}
+{"event":"shadow-start","name":"token_assert","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":696,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_assert 0 4 0
+env-cost token_assert 1 2 0
+env-cost token_assert 2 0 0
+env-cost token_assert 3 0 0
+env-cost token_assert 4 0 0
+{"event":"shadow-complete","name":"token_assert","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":696,"elapsed_seconds":0.000115,"failures":0}
+{"event":"shadow-start","name":"token_requires","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":699,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_requires 0 4 0
+env-cost token_requires 1 2 0
+env-cost token_requires 2 0 0
+env-cost token_requires 3 0 0
+env-cost token_requires 4 0 0
+{"event":"shadow-complete","name":"token_requires","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":699,"elapsed_seconds":0.000098,"failures":0}
+{"event":"shadow-start","name":"token_ensures","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":702,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_ensures 0 4 0
+env-cost token_ensures 1 2 0
+env-cost token_ensures 2 0 0
+env-cost token_ensures 3 0 0
+env-cost token_ensures 4 0 0
+{"event":"shadow-complete","name":"token_ensures","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":702,"elapsed_seconds":0.000101,"failures":0}
+{"event":"shadow-start","name":"token_unsafe","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":705,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_unsafe 0 4 0
+env-cost token_unsafe 1 2 0
+env-cost token_unsafe 2 0 0
+env-cost token_unsafe 3 0 0
+env-cost token_unsafe 4 0 0
+{"event":"shadow-complete","name":"token_unsafe","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":705,"elapsed_seconds":0.000096,"failures":0}
+{"event":"shadow-start","name":"token_shadow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":708,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_shadow 0 4 0
+env-cost token_shadow 1 2 0
+env-cost token_shadow 2 0 0
+env-cost token_shadow 3 0 0
+env-cost token_shadow 4 0 0
+{"event":"shadow-complete","name":"token_shadow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":708,"elapsed_seconds":0.000083,"failures":0}
+{"event":"shadow-start","name":"token_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":711,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_match 0 4 0
+env-cost token_match 1 2 0
+env-cost token_match 2 0 0
+env-cost token_match 3 0 0
+env-cost token_match 4 0 0
+{"event":"shadow-complete","name":"token_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":711,"elapsed_seconds":0.000098,"failures":0}
+{"event":"shadow-start","name":"token_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":714,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_import 0 4 1000
+env-cost token_import 1 2 0
+env-cost token_import 2 0 0
+env-cost token_import 3 0 0
+env-cost token_import 4 0 0
+{"event":"shadow-complete","name":"token_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":714,"elapsed_seconds":0.000117,"failures":0}
+{"event":"shadow-start","name":"token_as","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":717,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_as 0 4 0
+env-cost token_as 1 2 0
+env-cost token_as 2 0 0
+env-cost token_as 3 0 0
+env-cost token_as 4 0 0
+{"event":"shadow-complete","name":"token_as","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":717,"elapsed_seconds":0.000094,"failures":0}
+{"event":"shadow-start","name":"token_pub","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":720,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_pub 0 4 0
+env-cost token_pub 1 2 0
+env-cost token_pub 2 0 0
+env-cost token_pub 3 0 0
+env-cost token_pub 4 0 0
+{"event":"shadow-complete","name":"token_pub","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":720,"elapsed_seconds":0.000081,"failures":0}
+{"event":"shadow-start","name":"token_pure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":723,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_pure 0 4 0
+env-cost token_pure 1 2 0
+env-cost token_pure 2 0 0
+env-cost token_pure 3 0 0
+env-cost token_pure 4 0 0
+{"event":"shadow-complete","name":"token_pure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":723,"elapsed_seconds":0.000085,"failures":0}
+{"event":"shadow-start","name":"token_opaque","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":726,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_opaque 0 4 0
+env-cost token_opaque 1 2 0
+env-cost token_opaque 2 0 0
+env-cost token_opaque 3 0 0
+env-cost token_opaque 4 0 0
+{"event":"shadow-complete","name":"token_opaque","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":726,"elapsed_seconds":0.000080,"failures":0}
+{"event":"shadow-start","name":"token_lbracket","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":729,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_lbracket 0 4 0
+env-cost token_lbracket 1 2 1000
+env-cost token_lbracket 2 0 0
+env-cost token_lbracket 3 0 0
+env-cost token_lbracket 4 0 0
+{"event":"shadow-complete","name":"token_lbracket","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":729,"elapsed_seconds":0.000084,"failures":0}
+{"event":"shadow-start","name":"token_rbracket","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":732,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_rbracket 0 4 0
+env-cost token_rbracket 1 2 0
+env-cost token_rbracket 2 0 0
+env-cost token_rbracket 3 0 0
+env-cost token_rbracket 4 0 0
+{"event":"shadow-complete","name":"token_rbracket","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":732,"elapsed_seconds":0.000090,"failures":0}
+{"event":"shadow-start","name":"token_dot","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":735,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_dot 0 4 0
+env-cost token_dot 1 2 0
+env-cost token_dot 2 0 0
+env-cost token_dot 3 0 0
+env-cost token_dot 4 0 0
+{"event":"shadow-complete","name":"token_dot","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":735,"elapsed_seconds":0.000083,"failures":0}
+{"event":"shadow-start","name":"token_double_colon","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":738,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_double_colon 0 4 1000
+env-cost token_double_colon 1 2 0
+env-cost token_double_colon 2 0 0
+env-cost token_double_colon 3 0 0
+env-cost token_double_colon 4 0 0
+{"event":"shadow-complete","name":"token_double_colon","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":738,"elapsed_seconds":0.000147,"failures":0}
+{"event":"shadow-start","name":"token_percent","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":741,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_percent 0 4 0
+env-cost token_percent 1 2 0
+env-cost token_percent 2 0 0
+env-cost token_percent 3 0 0
+env-cost token_percent 4 0 0
+{"event":"shadow-complete","name":"token_percent","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":741,"elapsed_seconds":0.000101,"failures":0}
+{"event":"shadow-start","name":"token_not","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":744,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_not 0 4 1000
+env-cost token_not 1 2 0
+env-cost token_not 2 0 0
+env-cost token_not 3 0 0
+env-cost token_not 4 0 0
+{"event":"shadow-complete","name":"token_not","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":744,"elapsed_seconds":0.000081,"failures":0}
+{"event":"shadow-start","name":"token_pipe","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":747,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_pipe 0 4 0
+env-cost token_pipe 1 2 0
+env-cost token_pipe 2 0 0
+env-cost token_pipe 3 0 0
+env-cost token_pipe 4 0 0
+{"event":"shadow-complete","name":"token_pipe","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":747,"elapsed_seconds":0.000092,"failures":0}
+{"event":"shadow-start","name":"token_grammar","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":750,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_grammar 0 4 0
+env-cost token_grammar 1 2 0
+env-cost token_grammar 2 0 0
+env-cost token_grammar 3 0 0
+env-cost token_grammar 4 0 0
+{"event":"shadow-complete","name":"token_grammar","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":750,"elapsed_seconds":0.000097,"failures":0}
+{"event":"shadow-start","name":"token_larrow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":753,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_larrow 0 4 0
+env-cost token_larrow 1 2 0
+env-cost token_larrow 2 0 0
+env-cost token_larrow 3 0 0
+env-cost token_larrow 4 0 0
+{"event":"shadow-complete","name":"token_larrow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":753,"elapsed_seconds":0.000098,"failures":0}
+{"event":"shadow-start","name":"token_question","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":756,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_question 0 4 0
+env-cost token_question 1 2 0
+env-cost token_question 2 0 0
+env-cost token_question 3 0 0
+env-cost token_question 4 0 0
+{"event":"shadow-complete","name":"token_question","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":756,"elapsed_seconds":0.000110,"failures":0}
+{"event":"shadow-start","name":"token_array","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":759,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_array 0 4 0
+env-cost token_array 1 2 0
+env-cost token_array 2 0 0
+env-cost token_array 3 0 0
+env-cost token_array 4 0 0
+{"event":"shadow-complete","name":"token_array","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":759,"elapsed_seconds":0.000117,"failures":0}
+{"event":"shadow-start","name":"token_type_int","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":762,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_type_int 0 4 0
+env-cost token_type_int 1 2 0
+env-cost token_type_int 2 0 0
+env-cost token_type_int 3 0 0
+env-cost token_type_int 4 0 0
+{"event":"shadow-complete","name":"token_type_int","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":762,"elapsed_seconds":0.000102,"failures":0}
+{"event":"shadow-start","name":"token_type_u8","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":765,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_type_u8 0 4 0
+env-cost token_type_u8 1 2 0
+env-cost token_type_u8 2 0 0
+env-cost token_type_u8 3 0 0
+env-cost token_type_u8 4 0 0
+{"event":"shadow-complete","name":"token_type_u8","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":765,"elapsed_seconds":0.000099,"failures":0}
+{"event":"shadow-start","name":"token_type_float","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":768,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_type_float 0 4 0
+env-cost token_type_float 1 2 0
+env-cost token_type_float 2 0 0
+env-cost token_type_float 3 0 0
+env-cost token_type_float 4 0 0
+{"event":"shadow-complete","name":"token_type_float","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":768,"elapsed_seconds":0.000097,"failures":0}
+{"event":"shadow-start","name":"token_type_bool","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":771,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_type_bool 0 4 0
+env-cost token_type_bool 1 2 0
+env-cost token_type_bool 2 0 0
+env-cost token_type_bool 3 0 0
+env-cost token_type_bool 4 0 0
+{"event":"shadow-complete","name":"token_type_bool","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":771,"elapsed_seconds":0.000102,"failures":0}
+{"event":"shadow-start","name":"token_type_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":774,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_type_string 0 4 0
+env-cost token_type_string 1 2 0
+env-cost token_type_string 2 0 0
+env-cost token_type_string 3 0 0
+env-cost token_type_string 4 0 0
+{"event":"shadow-complete","name":"token_type_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":774,"elapsed_seconds":0.000099,"failures":0}
+{"event":"shadow-start","name":"token_type_bstring","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":777,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_type_bstring 0 4 0
+env-cost token_type_bstring 1 2 1000
+env-cost token_type_bstring 2 0 0
+env-cost token_type_bstring 3 0 0
+env-cost token_type_bstring 4 0 0
+{"event":"shadow-complete","name":"token_type_bstring","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":777,"elapsed_seconds":0.000090,"failures":0}
+{"event":"shadow-start","name":"token_type_void","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":780,"elapsed_seconds":0.000000,"failures":0}
+env-cost token_type_void 0 4 0
+env-cost token_type_void 1 2 0
+env-cost token_type_void 2 0 0
+env-cost token_type_void 3 0 0
+env-cost token_type_void 4 0 0
+{"event":"shadow-complete","name":"token_type_void","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":780,"elapsed_seconds":0.000101,"failures":0}
+{"event":"shadow-start","name":"parse_qualified_name","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":825,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_qualified_name 0 706 514000
+env-cost parse_qualified_name 1 353 6000
+env-cost parse_qualified_name 2 193 61000
+env-cost parse_qualified_name 3 21 7000
+env-cost parse_qualified_name 4 55 80000
+{"event":"shadow-complete","name":"parse_qualified_name","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":825,"elapsed_seconds":0.001010,"failures":0}
+{"event":"shadow-start","name":"parse_call_name","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":896,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_call_name 0 710 608000
+env-cost parse_call_name 1 355 15000
+env-cost parse_call_name 2 202 47000
+env-cost parse_call_name 3 28 6000
+env-cost parse_call_name 4 55 78000
+{"event":"shadow-complete","name":"parse_call_name","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":896,"elapsed_seconds":0.001102,"failures":0}
+{"event":"shadow-start","name":"is_type_start_token_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":946,"elapsed_seconds":0.000000,"failures":0}
+env-cost is_type_start_token_type 0 28 1000
+env-cost is_type_start_token_type 1 14 0
+env-cost is_type_start_token_type 2 2 1000
+env-cost is_type_start_token_type 3 0 0
+env-cost is_type_start_token_type 4 0 0
+{"event":"shadow-complete","name":"is_type_start_token_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":946,"elapsed_seconds":0.000144,"failures":0}
+{"event":"shadow-start","name":"parse_type_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1152,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_type_string 0 6084 4552000
+env-cost parse_type_string 1 3048 112000
+env-cost parse_type_string 2 1289 247000
+env-cost parse_type_string 3 188 51000
+env-cost parse_type_string 4 615 649000
+{"event":"shadow-complete","name":"parse_type_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1152,"elapsed_seconds":0.007376,"failures":0}
+{"event":"shadow-start","name":"parser_store_number","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1265,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_number 0 0 0
+env-cost parser_store_number 1 0 0
+env-cost parser_store_number 2 0 0
+env-cost parser_store_number 3 0 0
+env-cost parser_store_number 4 0 0
+{"event":"shadow-complete","name":"parser_store_number","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1265,"elapsed_seconds":0.000099,"failures":0}
+{"event":"shadow-start","name":"parser_store_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1362,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_string 0 0 0
+env-cost parser_store_string 1 0 0
+env-cost parser_store_string 2 0 0
+env-cost parser_store_string 3 0 0
+env-cost parser_store_string 4 0 0
+{"event":"shadow-complete","name":"parser_store_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1362,"elapsed_seconds":0.000100,"failures":0}
+{"event":"shadow-start","name":"parser_store_bool","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1458,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_bool 0 0 0
+env-cost parser_store_bool 1 0 0
+env-cost parser_store_bool 2 0 0
+env-cost parser_store_bool 3 0 0
+env-cost parser_store_bool 4 0 0
+{"event":"shadow-complete","name":"parser_store_bool","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1458,"elapsed_seconds":0.000091,"failures":0}
+{"event":"shadow-start","name":"parser_store_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1554,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_identifier 0 0 0
+env-cost parser_store_identifier 1 0 0
+env-cost parser_store_identifier 2 0 0
+env-cost parser_store_identifier 3 0 0
+env-cost parser_store_identifier 4 0 0
+{"event":"shadow-complete","name":"parser_store_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1554,"elapsed_seconds":0.000107,"failures":0}
+{"event":"shadow-start","name":"parser_store_binary_op","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1656,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_binary_op 0 0 0
+env-cost parser_store_binary_op 1 0 0
+env-cost parser_store_binary_op 2 0 0
+env-cost parser_store_binary_op 3 0 0
+env-cost parser_store_binary_op 4 0 0
+{"event":"shadow-complete","name":"parser_store_binary_op","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1656,"elapsed_seconds":0.000108,"failures":0}
+{"event":"shadow-start","name":"parser_mark_unary","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1671,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_mark_unary 0 4870 4179000
+env-cost parser_mark_unary 1 2440 105000
+env-cost parser_mark_unary 2 792 135000
+env-cost parser_mark_unary 3 88 6000
+env-cost parser_mark_unary 4 406 406000
+{"event":"shadow-complete","name":"parser_mark_unary","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1671,"elapsed_seconds":0.006292,"failures":0}
+{"event":"shadow-start","name":"parser_store_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1774,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_call 0 0 0
+env-cost parser_store_call 1 0 0
+env-cost parser_store_call 2 0 0
+env-cost parser_store_call 3 0 0
+env-cost parser_store_call 4 0 0
+{"event":"shadow-complete","name":"parser_store_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1774,"elapsed_seconds":0.000101,"failures":0}
+{"event":"shadow-start","name":"parser_store_module_qualified_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1872,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_module_qualified_call 0 0 0
+env-cost parser_store_module_qualified_call 1 0 0
+env-cost parser_store_module_qualified_call 2 0 0
+env-cost parser_store_module_qualified_call 3 0 0
+env-cost parser_store_module_qualified_call 4 0 0
+{"event":"shadow-complete","name":"parser_store_module_qualified_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1872,"elapsed_seconds":0.000123,"failures":0}
+{"event":"shadow-start","name":"name_contains_dot","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1891,"elapsed_seconds":0.000000,"failures":0}
+env-cost name_contains_dot 0 0 0
+env-cost name_contains_dot 1 0 0
+env-cost name_contains_dot 2 9 5000
+env-cost name_contains_dot 3 32 0
+env-cost name_contains_dot 4 0 0
+{"event":"shadow-complete","name":"name_contains_dot","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1891,"elapsed_seconds":0.000135,"failures":0}
+{"event":"shadow-start","name":"parser_store_call_arg","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1986,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_call_arg 0 0 0
+env-cost parser_store_call_arg 1 0 0
+env-cost parser_store_call_arg 2 0 0
+env-cost parser_store_call_arg 3 0 0
+env-cost parser_store_call_arg 4 0 0
+{"event":"shadow-complete","name":"parser_store_call_arg","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1986,"elapsed_seconds":0.000127,"failures":0}
+{"event":"shadow-start","name":"parser_store_array_element","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2079,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_array_element 0 0 0
+env-cost parser_store_array_element 1 0 0
+env-cost parser_store_array_element 2 0 0
+env-cost parser_store_array_element 3 0 0
+env-cost parser_store_array_element 4 0 0
+{"event":"shadow-complete","name":"parser_store_array_element","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2079,"elapsed_seconds":0.000113,"failures":0}
+{"event":"shadow-start","name":"literal_type_spelling","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2092,"elapsed_seconds":0.000000,"failures":0}
+env-cost literal_type_spelling 0 10530 8220000
+env-cost literal_type_spelling 1 5271 202000
+env-cost literal_type_spelling 2 1788 331000
+env-cost literal_type_spelling 3 250 35000
+env-cost literal_type_spelling 4 803 840000
+{"event":"shadow-complete","name":"literal_type_spelling","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2092,"elapsed_seconds":0.012602,"failures":0}
+{"event":"shadow-start","name":"parse_named_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2134,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_named_literal 0 23686 17618000
+env-cost parse_named_literal 1 11870 470000
+env-cost parse_named_literal 2 4006 716000
+env-cost parse_named_literal 3 529 60000
+env-cost parse_named_literal 4 1979 1976000
+{"event":"shadow-complete","name":"parse_named_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2134,"elapsed_seconds":0.027064,"failures":0}
+{"event":"shadow-start","name":"parse_union_construct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2201,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_union_construct 0 0 0
+env-cost parse_union_construct 1 0 0
+env-cost parse_union_construct 2 0 0
+env-cost parse_union_construct 3 0 0
+env-cost parse_union_construct 4 0 0
+{"event":"shadow-complete","name":"parse_union_construct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2201,"elapsed_seconds":0.000112,"failures":0}
+{"event":"shadow-start","name":"parse_struct_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2271,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_struct_literal 0 0 0
+env-cost parse_struct_literal 1 0 0
+env-cost parse_struct_literal 2 0 0
+env-cost parse_struct_literal 3 0 0
+env-cost parse_struct_literal 4 0 0
+{"event":"shadow-complete","name":"parse_struct_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2271,"elapsed_seconds":0.000121,"failures":0}
+{"event":"shadow-start","name":"parse_cond_expression","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2371,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_cond_expression 0 0 0
+env-cost parse_cond_expression 1 0 0
+env-cost parse_cond_expression 2 0 0
+env-cost parse_cond_expression 3 0 0
+env-cost parse_cond_expression 4 0 0
+{"event":"shadow-complete","name":"parse_cond_expression","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2371,"elapsed_seconds":0.000138,"failures":0}
+{"event":"shadow-start","name":"parse_cond_clauses","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2375,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_cond_clauses 0 0 0
+env-cost parse_cond_clauses 1 0 0
+env-cost parse_cond_clauses 2 0 0
+env-cost parse_cond_clauses 3 0 0
+env-cost parse_cond_clauses 4 0 0
+{"event":"shadow-complete","name":"parse_cond_clauses","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2375,"elapsed_seconds":0.000100,"failures":0}
+{"event":"shadow-start","name":"parse_match_guard","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2387,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_match_guard 0 1070 654000
+env-cost parse_match_guard 1 539 32000
+env-cost parse_match_guard 2 225 50000
+env-cost parse_match_guard 3 23 0
+env-cost parse_match_guard 4 79 146000
+{"event":"shadow-complete","name":"parse_match_guard","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2387,"elapsed_seconds":0.001381,"failures":0}
+{"event":"shadow-start","name":"parser_match_arm_unconditional","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2407,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_match_arm_unconditional 0 9288 6771000
+env-cost parser_match_arm_unconditional 1 4654 168000
+env-cost parser_match_arm_unconditional 2 1583 239000
+env-cost parser_match_arm_unconditional 3 191 11000
+env-cost parser_match_arm_unconditional 4 789 752000
+{"event":"shadow-complete","name":"parser_match_arm_unconditional","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2407,"elapsed_seconds":0.010481,"failures":0}
+{"event":"shadow-start","name":"parser_expect_match_arrow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2419,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_expect_match_arrow 0 276 149000
+env-cost parser_expect_match_arrow 1 138 5000
+env-cost parser_expect_match_arrow 2 148 36000
+env-cost parser_expect_match_arrow 3 17 1000
+env-cost parser_expect_match_arrow 4 23 23000
+{"event":"shadow-complete","name":"parser_expect_match_arrow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2419,"elapsed_seconds":0.000495,"failures":0}
+{"event":"shadow-start","name":"parse_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2671,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_match 0 5274 3832000
+env-cost parse_match 1 2639 83000
+env-cost parse_match 2 897 137000
+env-cost parse_match 3 114 11000
+env-cost parse_match 4 438 433000
+{"event":"shadow-complete","name":"parse_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2671,"elapsed_seconds":0.005869,"failures":0}
+{"event":"shadow-start","name":"parse_primary","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3276,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_primary 0 59700 44589000
+env-cost parse_primary 1 29883 1113000
+env-cost parse_primary 2 9293 1587000
+env-cost parse_primary 3 854 166000
+env-cost parse_primary 4 5155 4834000
+{"event":"shadow-complete","name":"parse_primary","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3276,"elapsed_seconds":0.066709,"failures":0}
+{"event":"shadow-start","name":"parse_parenthesized_head","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3339,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_parenthesized_head 0 6600 4721000
+env-cost parse_parenthesized_head 1 3303 135000
+env-cost parse_parenthesized_head 2 1273 251000
+env-cost parse_parenthesized_head 3 138 7000
+env-cost parse_parenthesized_head 4 544 536000
+{"event":"shadow-complete","name":"parse_parenthesized_head","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3339,"elapsed_seconds":0.007645,"failures":0}
+{"event":"shadow-start","name":"parenthesized_call_start","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3367,"elapsed_seconds":0.000000,"failures":0}
+env-cost parenthesized_call_start 0 5216 3086000
+env-cost parenthesized_call_start 1 2608 106000
+env-cost parenthesized_call_start 2 2346 544000
+env-cost parenthesized_call_start 3 283 12000
+env-cost parenthesized_call_start 4 530 425000
+{"event":"shadow-complete","name":"parenthesized_call_start","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3367,"elapsed_seconds":0.006746,"failures":0}
+{"event":"shadow-start","name":"is_binary_op","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3388,"elapsed_seconds":0.000000,"failures":0}
+env-cost is_binary_op 0 46 1000
+env-cost is_binary_op 1 23 1000
+env-cost is_binary_op 2 3 0
+env-cost is_binary_op 3 0 0
+env-cost is_binary_op 4 0 0
+{"event":"shadow-complete","name":"is_binary_op","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3388,"elapsed_seconds":0.000175,"failures":0}
+{"event":"shadow-start","name":"parse_expression_recursive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3569,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_expression_recursive 0 0 0
+env-cost parse_expression_recursive 1 0 0
+env-cost parse_expression_recursive 2 0 0
+env-cost parse_expression_recursive 3 0 0
+env-cost parse_expression_recursive 4 0 0
+{"event":"shadow-complete","name":"parse_expression_recursive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3569,"elapsed_seconds":0.000280,"failures":0}
+{"event":"shadow-start","name":"parse_expression","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3574,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_expression 0 0 0
+env-cost parse_expression 1 0 0
+env-cost parse_expression 2 0 0
+env-cost parse_expression 3 0 0
+env-cost parse_expression 4 0 0
+{"event":"shadow-complete","name":"parse_expression","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3574,"elapsed_seconds":0.000202,"failures":0}
+{"event":"shadow-start","name":"parser_store_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3682,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_let 0 166 116000
+env-cost parser_store_let 1 83 4000
+env-cost parser_store_let 2 51 12000
+env-cost parser_store_let 3 0 0
+env-cost parser_store_let 4 8 12000
+{"event":"shadow-complete","name":"parser_store_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3682,"elapsed_seconds":0.000391,"failures":0}
+{"event":"shadow-start","name":"parser_store_set","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3786,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_set 0 330 262000
+env-cost parser_store_set 1 165 3000
+env-cost parser_store_set 2 57 13000
+env-cost parser_store_set 3 0 0
+env-cost parser_store_set 4 13 20000
+{"event":"shadow-complete","name":"parser_store_set","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3786,"elapsed_seconds":0.000586,"failures":0}
+{"event":"shadow-start","name":"parser_store_if","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3892,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_if 0 0 0
+env-cost parser_store_if 1 0 0
+env-cost parser_store_if 2 0 0
+env-cost parser_store_if 3 0 0
+env-cost parser_store_if 4 0 0
+{"event":"shadow-complete","name":"parser_store_if","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3892,"elapsed_seconds":0.000232,"failures":0}
+{"event":"shadow-start","name":"parser_store_while","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3991,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_while 0 0 0
+env-cost parser_store_while 1 0 0
+env-cost parser_store_while 2 0 0
+env-cost parser_store_while 3 0 0
+env-cost parser_store_while 4 0 0
+{"event":"shadow-complete","name":"parser_store_while","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3991,"elapsed_seconds":0.000209,"failures":0}
+{"event":"shadow-start","name":"parser_finish_array_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4102,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_finish_array_literal 0 650 516000
+env-cost parser_finish_array_literal 1 325 13000
+env-cost parser_finish_array_literal 2 76 12000
+env-cost parser_finish_array_literal 3 4 2000
+env-cost parser_finish_array_literal 4 28 24000
+{"event":"shadow-complete","name":"parser_finish_array_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4102,"elapsed_seconds":0.000950,"failures":0}
+{"event":"shadow-start","name":"parser_always_returns","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4250,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_always_returns 0 7128 5077000
+env-cost parser_always_returns 1 3573 152000
+env-cost parser_always_returns 2 1235 187000
+env-cost parser_always_returns 3 139 13000
+env-cost parser_always_returns 4 619 626000
+{"event":"shadow-complete","name":"parser_always_returns","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4250,"elapsed_seconds":0.008098,"failures":0}
+{"event":"shadow-start","name":"parser_is_value_expression","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4258,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_is_value_expression 0 106 3000
+env-cost parser_is_value_expression 1 53 0
+env-cost parser_is_value_expression 2 4 0
+env-cost parser_is_value_expression 3 0 0
+env-cost parser_is_value_expression 4 0 0
+{"event":"shadow-complete","name":"parser_is_value_expression","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4258,"elapsed_seconds":0.000245,"failures":0}
+{"event":"shadow-start","name":"parser_decode_import_path","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4288,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_decode_import_path 0 0 0
+env-cost parser_decode_import_path 1 0 0
+env-cost parser_decode_import_path 2 38 34000
+env-cost parser_decode_import_path 3 54 39000
+env-cost parser_decode_import_path 4 0 0
+{"event":"shadow-complete","name":"parser_decode_import_path","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4288,"elapsed_seconds":0.000318,"failures":0}
+{"event":"shadow-start","name":"parser_store_return","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4956,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_return 0 0 0
+env-cost parser_store_return 1 0 0
+env-cost parser_store_return 2 0 0
+env-cost parser_store_return 3 0 0
+env-cost parser_store_return 4 0 0
+{"event":"shadow-complete","name":"parser_store_return","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4956,"elapsed_seconds":0.000198,"failures":0}
+{"event":"shadow-start","name":"parser_store_assert","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5053,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_assert 0 0 0
+env-cost parser_store_assert 1 0 0
+env-cost parser_store_assert 2 0 0
+env-cost parser_store_assert 3 0 0
+env-cost parser_store_assert 4 0 0
+{"event":"shadow-complete","name":"parser_store_assert","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5053,"elapsed_seconds":0.000186,"failures":0}
+{"event":"shadow-start","name":"parser_store_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5152,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_block 0 0 0
+env-cost parser_store_block 1 0 0
+env-cost parser_store_block 2 0 0
+env-cost parser_store_block 3 0 0
+env-cost parser_store_block 4 0 0
+{"event":"shadow-complete","name":"parser_store_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5152,"elapsed_seconds":0.000221,"failures":0}
+{"event":"shadow-start","name":"parser_wrap_if_in_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5165,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_wrap_if_in_block 0 0 0
+env-cost parser_wrap_if_in_block 1 0 0
+env-cost parser_wrap_if_in_block 2 0 0
+env-cost parser_wrap_if_in_block 3 0 0
+env-cost parser_wrap_if_in_block 4 0 0
+{"event":"shadow-complete","name":"parser_wrap_if_in_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5165,"elapsed_seconds":0.000208,"failures":0}
+{"event":"shadow-start","name":"expr_kind_to_pnode","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5182,"elapsed_seconds":0.000000,"failures":0}
+env-cost expr_kind_to_pnode 0 12 0
+env-cost expr_kind_to_pnode 1 6 0
+env-cost expr_kind_to_pnode 2 3 0
+env-cost expr_kind_to_pnode 3 0 0
+env-cost expr_kind_to_pnode 4 0 0
+{"event":"shadow-complete","name":"expr_kind_to_pnode","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5182,"elapsed_seconds":0.000198,"failures":0}
+{"event":"shadow-start","name":"parser_starts_owned_pattern","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5201,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_starts_owned_pattern 0 162 38000
+env-cost parser_starts_owned_pattern 1 81 5000
+env-cost parser_starts_owned_pattern 2 289 80000
+env-cost parser_starts_owned_pattern 3 49 1000
+env-cost parser_starts_owned_pattern 4 31 22000
+{"event":"shadow-complete","name":"parser_starts_owned_pattern","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5201,"elapsed_seconds":0.000613,"failures":0}
+{"event":"shadow-start","name":"parser_mark_owned","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5217,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_mark_owned 0 186 112000
+env-cost parser_mark_owned 1 93 5000
+env-cost parser_mark_owned 2 61 8000
+env-cost parser_mark_owned 3 0 0
+env-cost parser_mark_owned 4 14 15000
+{"event":"shadow-complete","name":"parser_mark_owned","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5217,"elapsed_seconds":0.000413,"failures":0}
+{"event":"shadow-start","name":"parse_owned_pattern","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5272,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_owned_pattern 0 6096 4427000
+env-cost parse_owned_pattern 1 3048 117000
+env-cost parse_owned_pattern 2 1148 237000
+env-cost parse_owned_pattern 3 158 25000
+env-cost parse_owned_pattern 4 475 460000
+{"event":"shadow-complete","name":"parse_owned_pattern","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5272,"elapsed_seconds":0.007094,"failures":0}
+{"event":"shadow-start","name":"parse_block_recursive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5368,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_block_recursive 0 588704 402145000
+env-cost parse_block_recursive 1 295418 10861000
+env-cost parse_block_recursive 2 100578 13711000
+env-cost parse_block_recursive 3 16025 1589000
+env-cost parse_block_recursive 4 49961 47342000
+{"event":"shadow-complete","name":"parse_block_recursive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5368,"elapsed_seconds":0.635158,"failures":0}
+{"event":"shadow-start","name":"parse_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5402,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_block 0 0 0
+env-cost parse_block 1 0 0
+env-cost parse_block 2 0 0
+env-cost parse_block 3 0 0
+env-cost parse_block 4 0 0
+{"event":"shadow-complete","name":"parse_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5402,"elapsed_seconds":0.000318,"failures":0}
+{"event":"shadow-start","name":"parser_store_unsafe_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5497,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_unsafe_block 0 0 0
+env-cost parser_store_unsafe_block 1 0 0
+env-cost parser_store_unsafe_block 2 0 0
+env-cost parser_store_unsafe_block 3 0 0
+env-cost parser_store_unsafe_block 4 0 0
+{"event":"shadow-complete","name":"parser_store_unsafe_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5497,"elapsed_seconds":0.000165,"failures":0}
+{"event":"shadow-start","name":"parse_unsafe_block_recursive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5529,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_unsafe_block_recursive 0 573738 396279000
+env-cost parse_unsafe_block_recursive 1 287925 10595000
+env-cost parse_unsafe_block_recursive 2 98232 13345000
+env-cost parse_unsafe_block_recursive 3 15798 1547000
+env-cost parse_unsafe_block_recursive 4 49075 45835000
+{"event":"shadow-complete","name":"parse_unsafe_block_recursive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5529,"elapsed_seconds":0.621630,"failures":0}
+{"event":"shadow-start","name":"parse_unsafe_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5581,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_unsafe_block 0 0 0
+env-cost parse_unsafe_block 1 0 0
+env-cost parse_unsafe_block 2 0 0
+env-cost parse_unsafe_block 3 0 0
+env-cost parse_unsafe_block 4 0 0
+{"event":"shadow-complete","name":"parse_unsafe_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5581,"elapsed_seconds":0.000189,"failures":0}
+{"event":"shadow-start","name":"parse_let_body","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5585,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_let_body 0 0 0
+env-cost parse_let_body 1 0 0
+env-cost parse_let_body 2 0 0
+env-cost parse_let_body 3 0 0
+env-cost parse_let_body 4 0 0
+{"event":"shadow-complete","name":"parse_let_body","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5585,"elapsed_seconds":0.000267,"failures":0}
+{"event":"shadow-start","name":"parse_tuple_destructure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5746,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_tuple_destructure 0 0 0
+env-cost parse_tuple_destructure 1 0 0
+env-cost parse_tuple_destructure 2 0 0
+env-cost parse_tuple_destructure 3 0 0
+env-cost parse_tuple_destructure 4 0 0
+{"event":"shadow-complete","name":"parse_tuple_destructure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5746,"elapsed_seconds":0.000292,"failures":0}
+{"event":"shadow-start","name":"parse_let_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5781,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_let_statement 0 0 0
+env-cost parse_let_statement 1 0 0
+env-cost parse_let_statement 2 0 0
+env-cost parse_let_statement 3 0 0
+env-cost parse_let_statement 4 0 0
+{"event":"shadow-complete","name":"parse_let_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5781,"elapsed_seconds":0.000129,"failures":0}
+{"event":"shadow-start","name":"parse_if_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5856,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_if_statement 0 0 0
+env-cost parse_if_statement 1 0 0
+env-cost parse_if_statement 2 0 0
+env-cost parse_if_statement 3 0 0
+env-cost parse_if_statement 4 0 0
+{"event":"shadow-complete","name":"parse_if_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5856,"elapsed_seconds":0.000161,"failures":0}
+{"event":"shadow-start","name":"parse_while_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5891,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_while_statement 0 0 0
+env-cost parse_while_statement 1 0 0
+env-cost parse_while_statement 2 0 0
+env-cost parse_while_statement 3 0 0
+env-cost parse_while_statement 4 0 0
+{"event":"shadow-complete","name":"parse_while_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5891,"elapsed_seconds":0.000213,"failures":0}
+{"event":"shadow-start","name":"parse_return_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5931,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_return_statement 0 0 0
+env-cost parse_return_statement 1 0 0
+env-cost parse_return_statement 2 0 0
+env-cost parse_return_statement 3 0 0
+env-cost parse_return_statement 4 0 0
+{"event":"shadow-complete","name":"parse_return_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5931,"elapsed_seconds":0.000138,"failures":0}
+{"event":"shadow-start","name":"parse_assert_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5953,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_assert_statement 0 0 0
+env-cost parse_assert_statement 1 0 0
+env-cost parse_assert_statement 2 0 0
+env-cost parse_assert_statement 3 0 0
+env-cost parse_assert_statement 4 0 0
+{"event":"shadow-complete","name":"parse_assert_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5953,"elapsed_seconds":0.000127,"failures":0}
+{"event":"shadow-start","name":"parse_for_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6014,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_for_statement 0 0 0
+env-cost parse_for_statement 1 0 0
+env-cost parse_for_statement 2 0 0
+env-cost parse_for_statement 3 0 0
+env-cost parse_for_statement 4 0 0
+{"event":"shadow-complete","name":"parse_for_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6014,"elapsed_seconds":0.000118,"failures":0}
+{"event":"shadow-start","name":"parser_with_node","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6101,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_with_node 0 158 94000
+env-cost parser_with_node 1 79 2000
+env-cost parser_with_node 2 41 8000
+env-cost parser_with_node 3 0 0
+env-cost parser_with_node 4 4 9000
+{"event":"shadow-complete","name":"parser_with_node","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6101,"elapsed_seconds":0.000305,"failures":0}
+{"event":"shadow-start","name":"parser_with_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6110,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_with_statement 0 158 102000
+env-cost parser_with_statement 1 79 1000
+env-cost parser_with_statement 2 43 5000
+env-cost parser_with_statement 3 0 0
+env-cost parser_with_statement 4 5 7000
+{"event":"shadow-complete","name":"parser_with_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6110,"elapsed_seconds":0.000281,"failures":0}
+{"event":"shadow-start","name":"parser_mark_passive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6126,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_mark_passive 0 6970 5081000
+env-cost parser_mark_passive 1 3497 139000
+env-cost parser_mark_passive 2 1254 207000
+env-cost parser_mark_passive 3 129 12000
+env-cost parser_mark_passive 4 637 596000
+{"event":"shadow-complete","name":"parser_mark_passive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6126,"elapsed_seconds":0.008079,"failures":0}
+{"event":"shadow-start","name":"parser_mark_par","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6137,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_mark_par 0 6966 5136000
+env-cost parser_mark_par 1 3495 129000
+env-cost parser_mark_par 2 1264 236000
+env-cost parser_mark_par 3 149 16000
+env-cost parser_mark_par 4 636 636000
+{"event":"shadow-complete","name":"parser_mark_par","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6137,"elapsed_seconds":0.008278,"failures":0}
+{"event":"shadow-start","name":"parse_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6233,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_statement 0 0 0
+env-cost parse_statement 1 0 0
+env-cost parse_statement 2 0 0
+env-cost parse_statement 3 0 0
+env-cost parse_statement 4 0 0
+{"event":"shadow-complete","name":"parse_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6233,"elapsed_seconds":0.000431,"failures":0}
+{"event":"shadow-start","name":"parser_mark_lambda","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6252,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_mark_lambda 0 258 82000
+env-cost parser_mark_lambda 1 131 5000
+env-cost parser_mark_lambda 2 61 10000
+env-cost parser_mark_lambda 3 0 0
+env-cost parser_mark_lambda 4 14 20000
+{"event":"shadow-complete","name":"parser_mark_lambda","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6252,"elapsed_seconds":0.000836,"failures":0}
+{"event":"shadow-start","name":"parser_lambda_function","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6271,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_lambda_function 0 8582 6166000
+env-cost parser_lambda_function 1 4302 165000
+env-cost parser_lambda_function 2 1463 241000
+env-cost parser_lambda_function 3 152 21000
+env-cost parser_lambda_function 4 776 720000
+{"event":"shadow-complete","name":"parser_lambda_function","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6271,"elapsed_seconds":0.010142,"failures":0}
+{"event":"shadow-start","name":"parser_mark_pure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6300,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_mark_pure 0 258 87000
+env-cost parser_mark_pure 1 131 5000
+env-cost parser_mark_pure 2 63 12000
+env-cost parser_mark_pure 3 0 0
+env-cost parser_mark_pure 4 16 20000
+{"event":"shadow-complete","name":"parser_mark_pure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6300,"elapsed_seconds":0.000324,"failures":0}
+{"event":"shadow-start","name":"parser_store_function","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6405,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_function 0 0 0
+env-cost parser_store_function 1 0 0
+env-cost parser_store_function 2 0 0
+env-cost parser_store_function 3 0 0
+env-cost parser_store_function 4 0 0
+{"event":"shadow-complete","name":"parser_store_function","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6405,"elapsed_seconds":0.000165,"failures":0}
+{"event":"shadow-start","name":"parser_store_struct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6508,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_struct 0 166 81000
+env-cost parser_store_struct 1 83 4000
+env-cost parser_store_struct 2 53 5000
+env-cost parser_store_struct 3 0 0
+env-cost parser_store_struct 4 9 7000
+{"event":"shadow-complete","name":"parser_store_struct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6508,"elapsed_seconds":0.000285,"failures":0}
+{"event":"shadow-start","name":"parser_store_enum","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6614,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_enum 0 238 78000
+env-cost parser_store_enum 1 119 4000
+env-cost parser_store_enum 2 55 12000
+env-cost parser_store_enum 3 0 0
+env-cost parser_store_enum 4 11 22000
+{"event":"shadow-complete","name":"parser_store_enum","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6614,"elapsed_seconds":0.000366,"failures":0}
+{"event":"shadow-start","name":"parser_store_union","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6724,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_union 0 0 0
+env-cost parser_store_union 1 0 0
+env-cost parser_store_union 2 0 0
+env-cost parser_store_union 3 0 0
+env-cost parser_store_union 4 0 0
+{"event":"shadow-complete","name":"parser_store_union","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6724,"elapsed_seconds":0.000199,"failures":0}
+{"event":"shadow-start","name":"parse_parameter_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7231,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_parameter_type 0 2218 1570000
+env-cost parse_parameter_type 1 1111 46000
+env-cost parse_parameter_type 2 520 101000
+env-cost parse_parameter_type 3 66 17000
+env-cost parse_parameter_type 4 230 196000
+{"event":"shadow-complete","name":"parse_parameter_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7231,"elapsed_seconds":0.002758,"failures":0}
+{"event":"shadow-start","name":"parse_function_params","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7322,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_function_params 0 0 0
+env-cost parse_function_params 1 0 0
+env-cost parse_function_params 2 0 0
+env-cost parse_function_params 3 0 0
+env-cost parse_function_params 4 0 0
+{"event":"shadow-complete","name":"parse_function_params","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7322,"elapsed_seconds":0.000272,"failures":0}
+{"event":"shadow-start","name":"parse_extern_function_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7385,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_extern_function_definition 0 1592 1202000
+env-cost parse_extern_function_definition 1 796 38000
+env-cost parse_extern_function_definition 2 377 82000
+env-cost parse_extern_function_definition 3 50 5000
+env-cost parse_extern_function_definition 4 137 141000
+{"event":"shadow-complete","name":"parse_extern_function_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7385,"elapsed_seconds":0.002853,"failures":0}
+{"event":"shadow-start","name":"parse_function_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7564,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_function_definition 0 0 0
+env-cost parse_function_definition 1 0 0
+env-cost parse_function_definition 2 0 0
+env-cost parse_function_definition 3 0 0
+env-cost parse_function_definition 4 0 0
+{"event":"shadow-complete","name":"parse_function_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7564,"elapsed_seconds":0.003856,"failures":0}
+{"event":"shadow-start","name":"parse_struct_fields","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7633,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_struct_fields 0 5316 3899000
+env-cost parse_struct_fields 1 2665 111000
+env-cost parse_struct_fields 2 1193 228000
+env-cost parse_struct_fields 3 221 15000
+env-cost parse_struct_fields 4 449 440000
+{"event":"shadow-complete","name":"parse_struct_fields","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7633,"elapsed_seconds":0.007896,"failures":0}
+{"event":"shadow-start","name":"parse_struct_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7692,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_struct_definition 0 5316 3930000
+env-cost parse_struct_definition 1 2665 126000
+env-cost parse_struct_definition 2 1193 216000
+env-cost parse_struct_definition 3 221 11000
+env-cost parse_struct_definition 4 449 419000
+{"event":"shadow-complete","name":"parse_struct_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7692,"elapsed_seconds":0.006354,"failures":0}
+{"event":"shadow-start","name":"parse_enum_variants","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7769,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_enum_variants 0 3980 3208000
+env-cost parse_enum_variants 1 1995 56000
+env-cost parse_enum_variants 2 863 167000
+env-cost parse_enum_variants 3 128 9000
+env-cost parse_enum_variants 4 309 304000
+{"event":"shadow-complete","name":"parse_enum_variants","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7769,"elapsed_seconds":0.005008,"failures":0}
+{"event":"shadow-start","name":"parse_enum_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7820,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_enum_definition 0 0 0
+env-cost parse_enum_definition 1 0 0
+env-cost parse_enum_definition 2 0 0
+env-cost parse_enum_definition 3 0 0
+env-cost parse_enum_definition 4 0 0
+{"event":"shadow-complete","name":"parse_enum_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7820,"elapsed_seconds":0.000235,"failures":0}
+{"event":"shadow-start","name":"parse_union_variants","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7954,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_union_variants 0 0 0
+env-cost parse_union_variants 1 0 0
+env-cost parse_union_variants 2 0 0
+env-cost parse_union_variants 3 0 0
+env-cost parse_union_variants 4 0 0
+{"event":"shadow-complete","name":"parse_union_variants","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7954,"elapsed_seconds":0.000249,"failures":0}
+{"event":"shadow-start","name":"parse_union_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8025,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_union_definition 0 0 0
+env-cost parse_union_definition 1 0 0
+env-cost parse_union_definition 2 0 0
+env-cost parse_union_definition 3 0 0
+env-cost parse_union_definition 4 0 0
+{"event":"shadow-complete","name":"parse_union_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8025,"elapsed_seconds":0.000249,"failures":0}
+{"event":"shadow-start","name":"parse_module_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8092,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_module_import 0 0 0
+env-cost parse_module_import 1 0 0
+env-cost parse_module_import 2 0 0
+env-cost parse_module_import 3 0 0
+env-cost parse_module_import 4 0 0
+{"event":"shadow-complete","name":"parse_module_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8092,"elapsed_seconds":0.000254,"failures":0}
+{"event":"shadow-start","name":"parse_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8096,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_import 0 1060 784000
+env-cost parse_import 1 535 22000
+env-cost parse_import 2 327 103000
+env-cost parse_import 3 99 39000
+env-cost parse_import 4 68 72000
+{"event":"shadow-complete","name":"parse_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8096,"elapsed_seconds":0.001638,"failures":0}
+{"event":"shadow-start","name":"parse_from_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8191,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_from_import 0 1496 1110000
+env-cost parse_from_import 1 749 24000
+env-cost parse_from_import 2 438 116000
+env-cost parse_from_import 3 122 39000
+env-cost parse_from_import 4 99 87000
+{"event":"shadow-complete","name":"parse_from_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8191,"elapsed_seconds":0.002125,"failures":0}
+{"event":"shadow-start","name":"parse_opaque_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8231,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_opaque_type 0 0 0
+env-cost parse_opaque_type 1 0 0
+env-cost parse_opaque_type 2 0 0
+env-cost parse_opaque_type 3 0 0
+env-cost parse_opaque_type 4 0 0
+{"event":"shadow-complete","name":"parse_opaque_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8231,"elapsed_seconds":0.000229,"failures":0}
+{"event":"shadow-start","name":"parse_shadow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8260,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_shadow 0 0 0
+env-cost parse_shadow 1 0 0
+env-cost parse_shadow 2 0 0
+env-cost parse_shadow 3 0 0
+env-cost parse_shadow 4 0 0
+{"event":"shadow-complete","name":"parse_shadow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8260,"elapsed_seconds":0.000152,"failures":0}
+{"event":"shadow-start","name":"parser_public_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8355,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_public_let 0 2160 1633000
+env-cost parser_public_let 1 1083 32000
+env-cost parser_public_let 2 460 91000
+env-cost parser_public_let 3 55 5000
+env-cost parser_public_let 4 181 183000
+{"event":"shadow-complete","name":"parser_public_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8355,"elapsed_seconds":0.002820,"failures":0}
+{"event":"shadow-start","name":"parser_public_use","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8378,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_public_use 0 1092 823000
+env-cost parser_public_use 1 551 16000
+env-cost parser_public_use 2 291 82000
+env-cost parser_public_use 3 91 15000
+env-cost parser_public_use 4 73 70000
+{"event":"shadow-complete","name":"parser_public_use","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8378,"elapsed_seconds":0.001539,"failures":0}
+{"event":"shadow-start","name":"parse_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8532,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_definition 0 9554 7066000
+env-cost parse_definition 1 4790 190000
+env-cost parse_definition 2 1971 372000
+env-cost parse_definition 3 342 36000
+env-cost parse_definition 4 810 758000
+{"event":"shadow-complete","name":"parse_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8532,"elapsed_seconds":0.011124,"failures":0}
+{"event":"shadow-start","name":"parse_program","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8581,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_program 0 2130 1557000
+env-cost parse_program 1 1066 36000
+env-cost parse_program 2 476 90000
+env-cost parse_program 3 51 4000
+env-cost parse_program 4 179 214000
+{"event":"shadow-complete","name":"parse_program","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8581,"elapsed_seconds":0.002650,"failures":0}
+{"event":"shadow-start","name":"create_number_node","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8607,"elapsed_seconds":0.000000,"failures":0}
+env-cost create_number_node 0 2 0
+env-cost create_number_node 1 1 0
+env-cost create_number_node 2 4 2000
+env-cost create_number_node 3 0 0
+env-cost create_number_node 4 2 0
+{"event":"shadow-complete","name":"create_number_node","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8607,"elapsed_seconds":0.000230,"failures":0}
+{"event":"shadow-start","name":"create_identifier_node","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8622,"elapsed_seconds":0.000000,"failures":0}
+env-cost create_identifier_node 0 2 0
+env-cost create_identifier_node 1 1 0
+env-cost create_identifier_node 2 4 1000
+env-cost create_identifier_node 3 0 0
+env-cost create_identifier_node 4 2 0
+{"event":"shadow-complete","name":"create_identifier_node","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8622,"elapsed_seconds":0.000154,"failures":0}
+{"event":"shadow-start","name":"test_parser_structure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8642,"elapsed_seconds":0.000000,"failures":0}
+env-cost test_parser_structure 0 82 3000
+env-cost test_parser_structure 1 41 2000
+env-cost test_parser_structure 2 51 7000
+env-cost test_parser_structure 3 0 0
+env-cost test_parser_structure 4 8 8000
+{"event":"shadow-complete","name":"test_parser_structure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8642,"elapsed_seconds":0.000188,"failures":0}
+{"event":"shadow-start","name":"parser_get_function_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8659,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_function_count 0 74 3000
+env-cost parser_get_function_count 1 37 0
+env-cost parser_get_function_count 2 44 3000
+env-cost parser_get_function_count 3 0 0
+env-cost parser_get_function_count 4 5 9000
+{"event":"shadow-complete","name":"parser_get_function_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8659,"elapsed_seconds":0.000209,"failures":0}
+{"event":"shadow-start","name":"parser_set_let_var_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8701,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_set_let_var_type 0 2526 1947000
+env-cost parser_set_let_var_type 1 1264 49000
+env-cost parser_set_let_var_type 2 530 115000
+env-cost parser_set_let_var_type 3 67 7000
+env-cost parser_set_let_var_type 4 215 254000
+{"event":"shadow-complete","name":"parser_set_let_var_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8701,"elapsed_seconds":0.003334,"failures":0}
+{"event":"shadow-start","name":"parser_get_for","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8796,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_for 0 480 403000
+env-cost parser_get_for 1 240 8000
+env-cost parser_get_for 2 67 19000
+env-cost parser_get_for 3 0 0
+env-cost parser_get_for 4 19 24000
+{"event":"shadow-complete","name":"parser_get_for","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8796,"elapsed_seconds":0.000691,"failures":0}
+{"event":"shadow-start","name":"parser_get_struct_def_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8934,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_struct_def_count 0 160 76000
+env-cost parser_get_struct_def_count 1 80 3000
+env-cost parser_get_struct_def_count 2 54 6000
+env-cost parser_get_struct_def_count 3 2 0
+env-cost parser_get_struct_def_count 4 9 12000
+{"event":"shadow-complete","name":"parser_get_struct_def_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8934,"elapsed_seconds":0.000315,"failures":0}
+{"event":"shadow-start","name":"parser_get_struct_def","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8950,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_struct_def 0 160 83000
+env-cost parser_get_struct_def 1 80 3000
+env-cost parser_get_struct_def 2 55 7000
+env-cost parser_get_struct_def 3 2 0
+env-cost parser_get_struct_def 4 9 15000
+{"event":"shadow-complete","name":"parser_get_struct_def","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8950,"elapsed_seconds":0.000366,"failures":0}
+{"event":"shadow-start","name":"parser_get_enum_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8976,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_enum_count 0 160 74000
+env-cost parser_get_enum_count 1 80 4000
+env-cost parser_get_enum_count 2 50 4000
+env-cost parser_get_enum_count 3 0 0
+env-cost parser_get_enum_count 4 9 12000
+{"event":"shadow-complete","name":"parser_get_enum_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8976,"elapsed_seconds":0.000319,"failures":0}
+{"event":"shadow-start","name":"parser_get_enum","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8988,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_enum 0 160 77000
+env-cost parser_get_enum 1 80 1000
+env-cost parser_get_enum 2 51 4000
+env-cost parser_get_enum 3 0 0
+env-cost parser_get_enum 4 9 12000
+{"event":"shadow-complete","name":"parser_get_enum","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8988,"elapsed_seconds":0.000280,"failures":0}
+{"event":"shadow-start","name":"parser_get_union_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9000,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_union_count 0 160 74000
+env-cost parser_get_union_count 1 80 3000
+env-cost parser_get_union_count 2 59 8000
+env-cost parser_get_union_count 3 0 0
+env-cost parser_get_union_count 4 9 15000
+{"event":"shadow-complete","name":"parser_get_union_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9000,"elapsed_seconds":0.000374,"failures":0}
+{"event":"shadow-start","name":"parser_get_union","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9017,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_union 0 160 73000
+env-cost parser_get_union 1 80 5000
+env-cost parser_get_union 2 60 9000
+env-cost parser_get_union 3 2 0
+env-cost parser_get_union 4 9 8000
+{"event":"shadow-complete","name":"parser_get_union","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9017,"elapsed_seconds":0.000282,"failures":0}
+{"event":"shadow-start","name":"parser_store_array_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9090,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_array_literal 0 162 120000
+env-cost parser_store_array_literal 1 81 2000
+env-cost parser_store_array_literal 2 50 6000
+env-cost parser_store_array_literal 3 0 0
+env-cost parser_store_array_literal 4 9 12000
+{"event":"shadow-complete","name":"parser_store_array_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9090,"elapsed_seconds":0.000361,"failures":0}
+{"event":"shadow-start","name":"parser_store_field_access","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9097,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_field_access 0 164 101000
+env-cost parser_store_field_access 1 82 1000
+env-cost parser_store_field_access 2 50 5000
+env-cost parser_store_field_access 3 0 0
+env-cost parser_store_field_access 4 9 11000
+{"event":"shadow-complete","name":"parser_store_field_access","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9097,"elapsed_seconds":0.000307,"failures":0}
+{"event":"shadow-start","name":"parser_store_float","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9104,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_float 0 162 97000
+env-cost parser_store_float 1 81 7000
+env-cost parser_store_float 2 48 4000
+env-cost parser_store_float 3 0 0
+env-cost parser_store_float 4 9 7000
+{"event":"shadow-complete","name":"parser_store_float","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9104,"elapsed_seconds":0.000306,"failures":0}
+{"event":"shadow-start","name":"parser_store_for","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9111,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_for 0 164 105000
+env-cost parser_store_for 1 82 5000
+env-cost parser_store_for 2 49 4000
+env-cost parser_store_for 3 0 0
+env-cost parser_store_for 4 8 11000
+{"event":"shadow-complete","name":"parser_store_for","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9111,"elapsed_seconds":0.000366,"failures":0}
+{"event":"shadow-start","name":"parser_store_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9118,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_import 0 160 106000
+env-cost parser_store_import 1 80 3000
+env-cost parser_store_import 2 80 33000
+env-cost parser_store_import 3 38 25000
+env-cost parser_store_import 4 9 11000
+{"event":"shadow-complete","name":"parser_store_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9118,"elapsed_seconds":0.000449,"failures":0}
+{"event":"shadow-start","name":"parser_store_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9127,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_match 0 164 71000
+env-cost parser_store_match 1 82 2000
+env-cost parser_store_match 2 60 5000
+env-cost parser_store_match 3 0 0
+env-cost parser_store_match 4 9 11000
+{"event":"shadow-complete","name":"parser_store_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9127,"elapsed_seconds":0.000280,"failures":0}
+{"event":"shadow-start","name":"parser_store_opaque_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9138,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_opaque_type 0 160 106000
+env-cost parser_store_opaque_type 1 80 4000
+env-cost parser_store_opaque_type 2 46 5000
+env-cost parser_store_opaque_type 3 0 0
+env-cost parser_store_opaque_type 4 8 7000
+{"event":"shadow-complete","name":"parser_store_opaque_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9138,"elapsed_seconds":0.000305,"failures":0}
+{"event":"shadow-start","name":"parser_store_shadow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9145,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_shadow 0 160 114000
+env-cost parser_store_shadow 1 80 2000
+env-cost parser_store_shadow 2 47 9000
+env-cost parser_store_shadow 3 0 0
+env-cost parser_store_shadow 4 8 9000
+{"event":"shadow-complete","name":"parser_store_shadow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9145,"elapsed_seconds":0.000332,"failures":0}
+{"event":"shadow-start","name":"parser_store_struct_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9152,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_struct_literal 0 164 72000
+env-cost parser_store_struct_literal 1 82 2000
+env-cost parser_store_struct_literal 2 55 10000
+env-cost parser_store_struct_literal 3 3 0
+env-cost parser_store_struct_literal 4 9 11000
+{"event":"shadow-complete","name":"parser_store_struct_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9152,"elapsed_seconds":0.000291,"failures":0}
+{"event":"shadow-start","name":"parser_store_tuple_index","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9165,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_tuple_index 0 164 73000
+env-cost parser_store_tuple_index 1 82 1000
+env-cost parser_store_tuple_index 2 50 5000
+env-cost parser_store_tuple_index 3 0 0
+env-cost parser_store_tuple_index 4 9 10000
+{"event":"shadow-complete","name":"parser_store_tuple_index","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9165,"elapsed_seconds":0.000282,"failures":0}
+{"event":"shadow-start","name":"parser_store_tuple_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9172,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_tuple_literal 0 164 68000
+env-cost parser_store_tuple_literal 1 82 4000
+env-cost parser_store_tuple_literal 2 52 3000
+env-cost parser_store_tuple_literal 3 2 0
+env-cost parser_store_tuple_literal 4 9 8000
+{"event":"shadow-complete","name":"parser_store_tuple_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9172,"elapsed_seconds":0.000236,"failures":0}
+{"event":"shadow-start","name":"parser_store_union_construct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9183,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_union_construct 0 162 81000
+env-cost parser_store_union_construct 1 81 4000
+env-cost parser_store_union_construct 2 56 10000
+env-cost parser_store_union_construct 3 0 0
+env-cost parser_store_union_construct 4 9 10000
+{"event":"shadow-complete","name":"parser_store_union_construct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9183,"elapsed_seconds":0.000297,"failures":0}
+{"event":"shadow-start","name":"parser_get_function","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9193,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_function 0 160 75000
+env-cost parser_get_function 1 80 4000
+env-cost parser_get_function 2 52 14000
+env-cost parser_get_function 3 0 0
+env-cost parser_get_function 4 9 13000
+{"event":"shadow-complete","name":"parser_get_function","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9193,"elapsed_seconds":0.000280,"failures":0}
+{"event":"shadow-start","name":"parser_get_let_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9200,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_let_count 0 162 122000
+env-cost parser_get_let_count 1 81 4000
+env-cost parser_get_let_count 2 51 8000
+env-cost parser_get_let_count 3 0 0
+env-cost parser_get_let_count 4 9 12000
+{"event":"shadow-complete","name":"parser_get_let_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9200,"elapsed_seconds":0.000299,"failures":0}
+{"event":"shadow-start","name":"parser_get_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9207,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_let 0 162 111000
+env-cost parser_get_let 1 81 3000
+env-cost parser_get_let 2 52 4000
+env-cost parser_get_let 3 0 0
+env-cost parser_get_let 4 9 10000
+{"event":"shadow-complete","name":"parser_get_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9207,"elapsed_seconds":0.000273,"failures":0}
+{"event":"shadow-start","name":"parser_get_identifier_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9214,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_identifier_count 0 162 148000
+env-cost parser_get_identifier_count 1 81 3000
+env-cost parser_get_identifier_count 2 47 6000
+env-cost parser_get_identifier_count 3 0 0
+env-cost parser_get_identifier_count 4 9 25000
+{"event":"shadow-complete","name":"parser_get_identifier_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9214,"elapsed_seconds":0.000341,"failures":0}
+{"event":"shadow-start","name":"parser_get_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9221,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_identifier 0 162 125000
+env-cost parser_get_identifier 1 81 5000
+env-cost parser_get_identifier 2 48 2000
+env-cost parser_get_identifier 3 0 0
+env-cost parser_get_identifier 4 9 17000
+{"event":"shadow-complete","name":"parser_get_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9221,"elapsed_seconds":0.000326,"failures":0}
+{"event":"shadow-start","name":"parser_get_number_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9228,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_number_count 0 160 134000
+env-cost parser_get_number_count 1 80 0
+env-cost parser_get_number_count 2 47 9000
+env-cost parser_get_number_count 3 0 0
+env-cost parser_get_number_count 4 9 9000
+{"event":"shadow-complete","name":"parser_get_number_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9228,"elapsed_seconds":0.000372,"failures":0}
+{"event":"shadow-start","name":"parser_get_number","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9235,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_number 0 160 130000
+env-cost parser_get_number 1 80 1000
+env-cost parser_get_number 2 48 8000
+env-cost parser_get_number 3 0 0
+env-cost parser_get_number 4 9 10000
+{"event":"shadow-complete","name":"parser_get_number","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9235,"elapsed_seconds":0.000312,"failures":0}
+{"event":"shadow-start","name":"parser_get_float_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9242,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_float_count 0 162 94000
+env-cost parser_get_float_count 1 81 1000
+env-cost parser_get_float_count 2 47 5000
+env-cost parser_get_float_count 3 0 0
+env-cost parser_get_float_count 4 9 9000
+{"event":"shadow-complete","name":"parser_get_float_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9242,"elapsed_seconds":0.000275,"failures":0}
+{"event":"shadow-start","name":"parser_get_float","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9249,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_float 0 162 95000
+env-cost parser_get_float 1 81 2000
+env-cost parser_get_float 2 48 4000
+env-cost parser_get_float 3 0 0
+env-cost parser_get_float 4 9 12000
+{"event":"shadow-complete","name":"parser_get_float","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9249,"elapsed_seconds":0.000249,"failures":0}
+{"event":"shadow-start","name":"parser_get_binary_op_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9256,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_binary_op_count 0 324 298000
+env-cost parser_get_binary_op_count 1 162 9000
+env-cost parser_get_binary_op_count 2 60 8000
+env-cost parser_get_binary_op_count 3 0 0
+env-cost parser_get_binary_op_count 4 14 14000
+{"event":"shadow-complete","name":"parser_get_binary_op_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9256,"elapsed_seconds":0.000515,"failures":0}
+{"event":"shadow-start","name":"parser_get_binary_op","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9266,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_binary_op 0 326 251000
+env-cost parser_get_binary_op 1 163 7000
+env-cost parser_get_binary_op 2 61 9000
+env-cost parser_get_binary_op 3 0 0
+env-cost parser_get_binary_op 4 14 10000
+{"event":"shadow-complete","name":"parser_get_binary_op","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9266,"elapsed_seconds":0.000437,"failures":0}
+{"event":"shadow-start","name":"parser_get_return_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9276,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_return_count 0 322 247000
+env-cost parser_get_return_count 1 161 6000
+env-cost parser_get_return_count 2 55 6000
+env-cost parser_get_return_count 3 0 0
+env-cost parser_get_return_count 4 14 29000
+{"event":"shadow-complete","name":"parser_get_return_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9276,"elapsed_seconds":0.000485,"failures":0}
+{"event":"shadow-start","name":"parser_get_return","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9284,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_return 0 324 246000
+env-cost parser_get_return 1 162 7000
+env-cost parser_get_return 2 56 4000
+env-cost parser_get_return 3 0 0
+env-cost parser_get_return 4 14 13000
+{"event":"shadow-complete","name":"parser_get_return","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9284,"elapsed_seconds":0.000434,"failures":0}
+{"event":"shadow-start","name":"parser_get_block_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9292,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_block_count 0 160 101000
+env-cost parser_get_block_count 1 80 2000
+env-cost parser_get_block_count 2 48 3000
+env-cost parser_get_block_count 3 0 0
+env-cost parser_get_block_count 4 9 10000
+{"event":"shadow-complete","name":"parser_get_block_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9292,"elapsed_seconds":0.000279,"failures":0}
+{"event":"shadow-start","name":"parser_get_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9300,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_block 0 160 106000
+env-cost parser_get_block 1 80 4000
+env-cost parser_get_block 2 49 5000
+env-cost parser_get_block 3 0 0
+env-cost parser_get_block 4 9 10000
+{"event":"shadow-complete","name":"parser_get_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9300,"elapsed_seconds":0.000259,"failures":0}
+{"event":"shadow-start","name":"parser_get_if_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9308,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_if_count 0 482 341000
+env-cost parser_get_if_count 1 241 9000
+env-cost parser_get_if_count 2 66 4000
+env-cost parser_get_if_count 3 0 0
+env-cost parser_get_if_count 4 19 21000
+{"event":"shadow-complete","name":"parser_get_if_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9308,"elapsed_seconds":0.000565,"failures":0}
+{"event":"shadow-start","name":"parser_get_if","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9319,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_if 0 482 359000
+env-cost parser_get_if 1 241 6000
+env-cost parser_get_if 2 67 7000
+env-cost parser_get_if 3 0 0
+env-cost parser_get_if 4 19 20000
+{"event":"shadow-complete","name":"parser_get_if","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9319,"elapsed_seconds":0.000575,"failures":0}
+{"event":"shadow-start","name":"parser_get_while_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9330,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_while_count 0 482 339000
+env-cost parser_get_while_count 1 241 7000
+env-cost parser_get_while_count 2 65 3000
+env-cost parser_get_while_count 3 0 0
+env-cost parser_get_while_count 4 19 17000
+{"event":"shadow-complete","name":"parser_get_while_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9330,"elapsed_seconds":0.000564,"failures":0}
+{"event":"shadow-start","name":"parser_get_while","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9341,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_while 0 482 346000
+env-cost parser_get_while 1 241 5000
+env-cost parser_get_while 2 66 5000
+env-cost parser_get_while 3 0 0
+env-cost parser_get_while 4 19 20000
+{"event":"shadow-complete","name":"parser_get_while","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9341,"elapsed_seconds":0.000546,"failures":0}
+{"event":"shadow-start","name":"parser_get_unsafe_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9352,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_unsafe_block 0 162 97000
+env-cost parser_get_unsafe_block 1 81 3000
+env-cost parser_get_unsafe_block 2 49 5000
+env-cost parser_get_unsafe_block 3 0 0
+env-cost parser_get_unsafe_block 4 9 15000
+{"event":"shadow-complete","name":"parser_get_unsafe_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9352,"elapsed_seconds":0.000264,"failures":0}
+{"event":"shadow-start","name":"parser_get_call_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9360,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_call_count 0 324 263000
+env-cost parser_get_call_count 1 162 6000
+env-cost parser_get_call_count 2 58 9000
+env-cost parser_get_call_count 3 0 0
+env-cost parser_get_call_count 4 14 16000
+{"event":"shadow-complete","name":"parser_get_call_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9360,"elapsed_seconds":0.000487,"failures":0}
+{"event":"shadow-start","name":"parser_get_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9369,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_call 0 324 262000
+env-cost parser_get_call 1 162 5000
+env-cost parser_get_call 2 59 4000
+env-cost parser_get_call 3 0 0
+env-cost parser_get_call 4 14 15000
+{"event":"shadow-complete","name":"parser_get_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9369,"elapsed_seconds":0.000442,"failures":0}
+{"event":"shadow-start","name":"parser_get_module_qualified_call_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9378,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_module_qualified_call_count 0 162 120000
+env-cost parser_get_module_qualified_call_count 1 81 2000
+env-cost parser_get_module_qualified_call_count 2 50 6000
+env-cost parser_get_module_qualified_call_count 3 0 0
+env-cost parser_get_module_qualified_call_count 4 9 9000
+{"event":"shadow-complete","name":"parser_get_module_qualified_call_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9378,"elapsed_seconds":0.000307,"failures":0}
+{"event":"shadow-start","name":"parser_get_module_qualified_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9385,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_module_qualified_call 0 162 129000
+env-cost parser_get_module_qualified_call 1 81 3000
+env-cost parser_get_module_qualified_call 2 51 6000
+env-cost parser_get_module_qualified_call 3 0 0
+env-cost parser_get_module_qualified_call 4 9 9000
+{"event":"shadow-complete","name":"parser_get_module_qualified_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9385,"elapsed_seconds":0.000304,"failures":0}
+{"event":"shadow-start","name":"parser_get_call_arg_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9392,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_call_arg_count 0 162 122000
+env-cost parser_get_call_arg_count 1 81 4000
+env-cost parser_get_call_arg_count 2 45 3000
+env-cost parser_get_call_arg_count 3 0 0
+env-cost parser_get_call_arg_count 4 9 11000
+{"event":"shadow-complete","name":"parser_get_call_arg_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9392,"elapsed_seconds":0.000279,"failures":0}
+{"event":"shadow-start","name":"parser_get_call_arg","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9399,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_call_arg 0 162 120000
+env-cost parser_get_call_arg 1 81 3000
+env-cost parser_get_call_arg 2 46 3000
+env-cost parser_get_call_arg 3 0 0
+env-cost parser_get_call_arg 4 9 8000
+{"event":"shadow-complete","name":"parser_get_call_arg","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9399,"elapsed_seconds":0.000280,"failures":0}
+{"event":"shadow-start","name":"parser_get_set_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9406,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_set_count 0 322 234000
+env-cost parser_get_set_count 1 161 8000
+env-cost parser_get_set_count 2 57 8000
+env-cost parser_get_set_count 3 0 0
+env-cost parser_get_set_count 4 14 12000
+{"event":"shadow-complete","name":"parser_get_set_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9406,"elapsed_seconds":0.000426,"failures":0}
+{"event":"shadow-start","name":"parser_get_set","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9414,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_set 0 322 249000
+env-cost parser_get_set 1 161 8000
+env-cost parser_get_set 2 58 8000
+env-cost parser_get_set 3 0 0
+env-cost parser_get_set 4 14 13000
+{"event":"shadow-complete","name":"parser_get_set","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9414,"elapsed_seconds":0.000454,"failures":0}
+{"event":"shadow-start","name":"parser_get_string_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9422,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_string_count 0 162 129000
+env-cost parser_get_string_count 1 81 3000
+env-cost parser_get_string_count 2 47 6000
+env-cost parser_get_string_count 3 0 0
+env-cost parser_get_string_count 4 9 10000
+{"event":"shadow-complete","name":"parser_get_string_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9422,"elapsed_seconds":0.000284,"failures":0}
+{"event":"shadow-start","name":"parser_get_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9429,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_string 0 162 127000
+env-cost parser_get_string 1 81 3000
+env-cost parser_get_string 2 48 7000
+env-cost parser_get_string 3 0 0
+env-cost parser_get_string 4 9 10000
+{"event":"shadow-complete","name":"parser_get_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9429,"elapsed_seconds":0.000282,"failures":0}
+{"event":"shadow-start","name":"parser_get_bool_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9436,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_bool_count 0 162 123000
+env-cost parser_get_bool_count 1 81 2000
+env-cost parser_get_bool_count 2 47 4000
+env-cost parser_get_bool_count 3 0 0
+env-cost parser_get_bool_count 4 9 9000
+{"event":"shadow-complete","name":"parser_get_bool_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9436,"elapsed_seconds":0.000295,"failures":0}
+{"event":"shadow-start","name":"parser_get_bool","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9443,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_bool 0 162 131000
+env-cost parser_get_bool 1 81 2000
+env-cost parser_get_bool 2 48 1000
+env-cost parser_get_bool 3 0 0
+env-cost parser_get_bool 4 9 8000
+{"event":"shadow-complete","name":"parser_get_bool","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9443,"elapsed_seconds":0.000286,"failures":0}
+{"event":"shadow-start","name":"parser_get_assert_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9450,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_assert_count 0 324 278000
+env-cost parser_get_assert_count 1 162 7000
+env-cost parser_get_assert_count 2 55 7000
+env-cost parser_get_assert_count 3 0 0
+env-cost parser_get_assert_count 4 14 19000
+{"event":"shadow-complete","name":"parser_get_assert_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9450,"elapsed_seconds":0.000497,"failures":0}
+{"event":"shadow-start","name":"parser_get_assert","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9458,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_assert 0 326 254000
+env-cost parser_get_assert 1 163 4000
+env-cost parser_get_assert 2 56 1000
+env-cost parser_get_assert 3 0 0
+env-cost parser_get_assert 4 14 14000
+{"event":"shadow-complete","name":"parser_get_assert","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9458,"elapsed_seconds":0.000502,"failures":0}
+{"event":"shadow-start","name":"parser_get_field_access_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9466,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_field_access_count 0 164 117000
+env-cost parser_get_field_access_count 1 82 1000
+env-cost parser_get_field_access_count 2 49 5000
+env-cost parser_get_field_access_count 3 0 0
+env-cost parser_get_field_access_count 4 9 11000
+{"event":"shadow-complete","name":"parser_get_field_access_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9466,"elapsed_seconds":0.000293,"failures":0}
+{"event":"shadow-start","name":"parser_get_field_access","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9473,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_field_access 0 164 107000
+env-cost parser_get_field_access 1 82 2000
+env-cost parser_get_field_access 2 50 5000
+env-cost parser_get_field_access 3 0 0
+env-cost parser_get_field_access 4 9 9000
+{"event":"shadow-complete","name":"parser_get_field_access","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9473,"elapsed_seconds":0.000263,"failures":0}
+{"event":"shadow-start","name":"parser_get_array_literal_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9480,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_array_literal_count 0 162 117000
+env-cost parser_get_array_literal_count 1 81 4000
+env-cost parser_get_array_literal_count 2 49 7000
+env-cost parser_get_array_literal_count 3 0 0
+env-cost parser_get_array_literal_count 4 9 10000
+{"event":"shadow-complete","name":"parser_get_array_literal_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9480,"elapsed_seconds":0.000302,"failures":0}
+{"event":"shadow-start","name":"parser_get_array_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9487,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_array_literal 0 162 109000
+env-cost parser_get_array_literal 1 81 4000
+env-cost parser_get_array_literal 2 50 4000
+env-cost parser_get_array_literal 3 0 0
+env-cost parser_get_array_literal 4 9 9000
+{"event":"shadow-complete","name":"parser_get_array_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9487,"elapsed_seconds":0.000276,"failures":0}
+{"event":"shadow-start","name":"parser_set_array_literal_element_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9494,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_set_array_literal_element_type 0 176 124000
+env-cost parser_set_array_literal_element_type 1 88 1000
+env-cost parser_set_array_literal_element_type 2 56 4000
+env-cost parser_set_array_literal_element_type 3 0 0
+env-cost parser_set_array_literal_element_type 4 14 13000
+{"event":"shadow-complete","name":"parser_set_array_literal_element_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9494,"elapsed_seconds":0.000306,"failures":0}
+{"event":"shadow-start","name":"parser_get_array_element_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9502,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_array_element_count 0 162 127000
+env-cost parser_get_array_element_count 1 81 4000
+env-cost parser_get_array_element_count 2 45 4000
+env-cost parser_get_array_element_count 3 0 0
+env-cost parser_get_array_element_count 4 9 10000
+{"event":"shadow-complete","name":"parser_get_array_element_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9502,"elapsed_seconds":0.000294,"failures":0}
+{"event":"shadow-start","name":"parser_get_array_element","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9509,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_array_element 0 162 123000
+env-cost parser_get_array_element 1 81 6000
+env-cost parser_get_array_element 2 46 6000
+env-cost parser_get_array_element 3 0 0
+env-cost parser_get_array_element 4 9 11000
+{"event":"shadow-complete","name":"parser_get_array_element","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9509,"elapsed_seconds":0.000352,"failures":0}
+{"event":"shadow-start","name":"parser_get_struct_literal_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9516,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_struct_literal_count 0 164 82000
+env-cost parser_get_struct_literal_count 1 82 4000
+env-cost parser_get_struct_literal_count 2 54 10000
+env-cost parser_get_struct_literal_count 3 3 1000
+env-cost parser_get_struct_literal_count 4 9 14000
+{"event":"shadow-complete","name":"parser_get_struct_literal_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9516,"elapsed_seconds":0.000286,"failures":0}
+{"event":"shadow-start","name":"parser_get_struct_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9529,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_struct_literal 0 164 72000
+env-cost parser_get_struct_literal 1 82 6000
+env-cost parser_get_struct_literal 2 55 4000
+env-cost parser_get_struct_literal 3 3 0
+env-cost parser_get_struct_literal 4 9 8000
+{"event":"shadow-complete","name":"parser_get_struct_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9529,"elapsed_seconds":0.000245,"failures":0}
+{"event":"shadow-start","name":"parser_get_union_construct_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9542,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_union_construct_count 0 162 77000
+env-cost parser_get_union_construct_count 1 81 2000
+env-cost parser_get_union_construct_count 2 55 6000
+env-cost parser_get_union_construct_count 3 0 0
+env-cost parser_get_union_construct_count 4 9 11000
+{"event":"shadow-complete","name":"parser_get_union_construct_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9542,"elapsed_seconds":0.000261,"failures":0}
+{"event":"shadow-start","name":"parser_get_union_construct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9552,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_union_construct 0 162 74000
+env-cost parser_get_union_construct 1 81 4000
+env-cost parser_get_union_construct 2 56 4000
+env-cost parser_get_union_construct 3 0 0
+env-cost parser_get_union_construct 4 9 10000
+{"event":"shadow-complete","name":"parser_get_union_construct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9552,"elapsed_seconds":0.000246,"failures":0}
+{"event":"shadow-start","name":"parser_get_match_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9562,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_match_count 0 164 76000
+env-cost parser_get_match_count 1 82 3000
+env-cost parser_get_match_count 2 59 7000
+env-cost parser_get_match_count 3 0 0
+env-cost parser_get_match_count 4 9 11000
+{"event":"shadow-complete","name":"parser_get_match_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9562,"elapsed_seconds":0.000280,"failures":0}
+{"event":"shadow-start","name":"parser_get_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9573,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_match 0 164 72000
+env-cost parser_get_match 1 82 4000
+env-cost parser_get_match 2 60 4000
+env-cost parser_get_match 3 0 0
+env-cost parser_get_match 4 9 9000
+{"event":"shadow-complete","name":"parser_get_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9573,"elapsed_seconds":0.000229,"failures":0}
+{"event":"shadow-start","name":"parser_get_tuple_literal_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9584,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_tuple_literal_count 0 164 70000
+env-cost parser_get_tuple_literal_count 1 82 2000
+env-cost parser_get_tuple_literal_count 2 51 6000
+env-cost parser_get_tuple_literal_count 3 2 0
+env-cost parser_get_tuple_literal_count 4 9 8000
+{"event":"shadow-complete","name":"parser_get_tuple_literal_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9584,"elapsed_seconds":0.000248,"failures":0}
+{"event":"shadow-start","name":"parser_get_tuple_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9595,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_tuple_literal 0 164 73000
+env-cost parser_get_tuple_literal 1 82 3000
+env-cost parser_get_tuple_literal 2 52 1000
+env-cost parser_get_tuple_literal 3 2 0
+env-cost parser_get_tuple_literal 4 9 9000
+{"event":"shadow-complete","name":"parser_get_tuple_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9595,"elapsed_seconds":0.000236,"failures":0}
+{"event":"shadow-start","name":"parser_get_tuple_index_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9606,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_tuple_index_count 0 164 71000
+env-cost parser_get_tuple_index_count 1 82 4000
+env-cost parser_get_tuple_index_count 2 49 2000
+env-cost parser_get_tuple_index_count 3 0 0
+env-cost parser_get_tuple_index_count 4 9 12000
+{"event":"shadow-complete","name":"parser_get_tuple_index_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9606,"elapsed_seconds":0.000250,"failures":0}
+{"event":"shadow-start","name":"parser_get_tuple_index","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9613,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_tuple_index 0 164 75000
+env-cost parser_get_tuple_index 1 82 5000
+env-cost parser_get_tuple_index 2 50 6000
+env-cost parser_get_tuple_index 3 0 0
+env-cost parser_get_tuple_index 4 9 7000
+{"event":"shadow-complete","name":"parser_get_tuple_index","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9613,"elapsed_seconds":0.000230,"failures":0}
+{"event":"shadow-start","name":"parser_get_import_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9620,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_import_count 0 160 104000
+env-cost parser_get_import_count 1 80 2000
+env-cost parser_get_import_count 2 79 34000
+env-cost parser_get_import_count 3 38 27000
+env-cost parser_get_import_count 4 9 11000
+{"event":"shadow-complete","name":"parser_get_import_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9620,"elapsed_seconds":0.000363,"failures":0}
+{"event":"shadow-start","name":"parser_get_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9629,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_import 0 160 119000
+env-cost parser_get_import 1 80 0
+env-cost parser_get_import 2 80 40000
+env-cost parser_get_import 3 38 29000
+env-cost parser_get_import 4 9 10000
+{"event":"shadow-complete","name":"parser_get_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9629,"elapsed_seconds":0.000381,"failures":0}
+{"event":"shadow-start","name":"parse_phase_run","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9682,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_phase_run 0 54818 40540000
+env-cost parse_phase_run 1 27461 1050000
+env-cost parse_phase_run 2 9982 1766000
+env-cost parse_phase_run 3 1340 110000
+env-cost parse_phase_run 4 4788 4568000
+{"event":"shadow-complete","name":"parse_phase_run","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9682,"elapsed_seconds":0.062038,"failures":0}
+{"event":"shadow-start","name":"parser_service_utf8","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9794,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_service_utf8 0 0 0
+env-cost parser_service_utf8 1 0 0
+env-cost parser_service_utf8 2 64 21000
+env-cost parser_service_utf8 3 12 0
+env-cost parser_service_utf8 4 0 0
+{"event":"shadow-complete","name":"parser_service_utf8","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9794,"elapsed_seconds":0.000159,"failures":0}
+{"event":"shadow-start","name":"parser_store_service","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9809,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_store_service 0 476 386000
+env-cost parser_store_service 1 238 6000
+env-cost parser_store_service 2 55 6000
+env-cost parser_store_service 3 0 0
+env-cost parser_store_service 4 14 18000
+{"event":"shadow-complete","name":"parser_store_service","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9809,"elapsed_seconds":0.000600,"failures":0}
+{"event":"shadow-start","name":"parse_service_declaration","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9823,"elapsed_seconds":0.000000,"failures":0}
+env-cost parse_service_declaration 0 7626 5231000
+env-cost parse_service_declaration 1 3822 163000
+env-cost parse_service_declaration 2 2212 527000
+env-cost parse_service_declaration 3 1208 166000
+env-cost parse_service_declaration 4 642 568000
+{"event":"shadow-complete","name":"parse_service_declaration","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9823,"elapsed_seconds":0.009506,"failures":0}
+{"event":"shadow-start","name":"parser_get_service_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9846,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_service_count 0 162 101000
+env-cost parser_get_service_count 1 81 2000
+env-cost parser_get_service_count 2 50 5000
+env-cost parser_get_service_count 3 0 0
+env-cost parser_get_service_count 4 9 10000
+{"event":"shadow-complete","name":"parser_get_service_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9846,"elapsed_seconds":0.000301,"failures":0}
+{"event":"shadow-start","name":"parser_get_service","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9853,"elapsed_seconds":0.000000,"failures":0}
+env-cost parser_get_service 0 168 106000
+env-cost parser_get_service 1 84 1000
+env-cost parser_get_service 2 50 7000
+env-cost parser_get_service 3 0 0
+env-cost parser_get_service 4 8 7000
+{"event":"shadow-complete","name":"parser_get_service","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9853,"elapsed_seconds":0.000266,"failures":0}
+{"event":"shadow-start","name":"main","source":"/private/tmp/nl51-profile-parser.nano","line":3,"elapsed_seconds":0.000000,"failures":0}
+env-cost main 0 0 0
+env-cost main 1 0 0
+env-cost main 2 0 0
+env-cost main 3 0 0
+env-cost main 4 0 0
+{"event":"shadow-complete","name":"main","source":"/private/tmp/nl51-profile-parser.nano","line":3,"elapsed_seconds":0.000067,"failures":0}

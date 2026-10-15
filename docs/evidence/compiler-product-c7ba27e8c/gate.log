@@ -1,0 +1,37 @@
+python3 scripts/embed_binary64_parser.py --check
+...............................................................................................
+----------------------------------------------------------------------
+Ran 95 tests in 805.224s
+
+OK
+roots=1024 comparisons=4442 seconds=0.000140
+roots=2048 comparisons=8705 seconds=0.000143
+roots=4096 comparisons=17686 seconds=0.000271
+scans=0 peak=3
+all families scans=1 visits=10004 retained=2097484 allocated=4196113
+scans=0 visits=0 map_peak_bytes=230288
+mixed scans=2 visits=20008 retained=2097504 allocated=4195016 peak=2097796
+string_peak_bytes=65550
+string_peak_bytes=84222
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65630
+string_peak_bytes=65623
+string_peak_bytes=65630
+string_peak_bytes=65630
+string_peak_bytes=65671
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=67016
+aggregate_peak_bytes=66064
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=66192
+aggregate_peak_bytes=66192
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=65928
+aggregate_peak_bytes=66184

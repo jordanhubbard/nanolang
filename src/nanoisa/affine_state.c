@@ -10,6 +10,7 @@ typedef struct {
     NvmV2Layouts layouts;
     uint8_t *flags;
     Slot result, *locals;
+    NvmOwnershipEffectTypes *arrays;
     uint16_t count, params;
     const NvmModule *module;
     uint32_t function;
@@ -27,6 +28,10 @@ struct NvmAffineState {
     Reference *refs;
     uint32_t ref_count, region;
     bool caller_bound;
+    bool handler;
+    uint16_t handler_first;
+    uint32_t handler_key;
+    NvmAffineType resume_type;
     uint64_t invocation;
     uint16_t origin_count;
     CallerOrigin origins[NVM_AFFINE_MAX_PARAMETERS];
@@ -34,8 +39,19 @@ struct NvmAffineState {
 static bool scalar(uint8_t tag) {
     return tag == TAG_INT || tag == TAG_U8 || tag == TAG_FLOAT || tag == TAG_BOOL;
 }
+static bool array_leaf(const Facts *f,Slot slot,Slot *leaf) {
+    for (uint32_t depth=0;depth<=NVM_OWNERSHIP_MAX_EFFECT_TYPES;depth++) {
+        if (slot.tag!=TAG_ARRAY) { *leaf=slot;return true; }
+        if (slot.mode || !f->arrays || slot.layout>=f->arrays->count) return false;
+        NvmOwnershipEffectValue value=f->arrays->items[slot.layout];
+        slot=(Slot){value.tag,0,value.layout};
+    }
+    return false;
+}
 static bool resource(const Facts *f, Slot slot) {
-    return slot.layout != NVM_V2_NO_INDEX &&
+    if (!array_leaf(f,slot,&slot)) return false;
+    return (slot.tag==TAG_STRUCT || slot.tag==TAG_UNION) &&
+           slot.layout<f->layouts.count &&
            (f->flags[slot.layout] & NVM_LAYOUT_RESOURCE);
 }
 static bool union_ordinal(const Facts *f,uint32_t layout,uint32_t *ordinal) {
@@ -54,13 +70,22 @@ static bool union_value(const Facts *f, Slot slot) {
            fact.layout==slot.layout;
 }
 static bool supported(const Facts *f,Slot slot) {
-    return scalar(slot.tag) ||
+    return (slot.tag==TAG_ARRAY && !slot.mode && f->arrays && slot.layout<f->arrays->count) ||
+           scalar(slot.tag) ||
            (slot.tag == TAG_STRING && slot.layout == NVM_V2_NO_INDEX) ||
            (slot.tag == TAG_STRUCT && slot.layout != NVM_V2_NO_INDEX) ||
            union_value(f,slot);
 }
-static bool same(Slot a, Slot b) {
-    return a.tag == b.tag && a.layout == b.layout && a.mode == b.mode;
+static bool same(const Facts *f,Slot a, Slot b) {
+    if (a.mode!=b.mode) return false;
+    for (uint32_t depth=0;depth<=NVM_OWNERSHIP_MAX_EFFECT_TYPES;depth++) {
+        if (a.tag!=b.tag) return false;
+        if (a.tag!=TAG_ARRAY) return a.layout==b.layout;
+        if (!f->arrays || a.layout>=f->arrays->count || b.layout>=f->arrays->count) return false;
+        NvmOwnershipEffectValue x=f->arrays->items[a.layout],y=f->arrays->items[b.layout];
+        a=(Slot){x.tag,0,x.layout};b=(Slot){y.tag,0,y.layout};
+    }
+    return false;
 }
 static bool slot_read(NvmV2Cursor *c, Slot *s) {
     uint16_t reserved;
@@ -69,7 +94,14 @@ static bool slot_read(NvmV2Cursor *c, Slot *s) {
 }
 static void facts_free(Facts *f) {
     if (!f || --f->users) return;
-    nvm_v2_layouts_free(&f->layouts); free(f->flags); free(f->locals); free(f);
+    nvm_v2_layouts_free(&f->layouts); free(f->flags); free(f->locals); free(f->arrays); free(f);
+}
+bool nvm_affine_has_complete_unions(const NvmAffineState *s) {
+    if (!s) return false;
+    for (uint32_t i=0;i<s->facts->layouts.count;i++)
+        if (s->facts->layouts.items[i].kind==NVM_V2_LAYOUT_UNION &&
+            (s->facts->flags[i]&NVM_LAYOUT_COMPLETE)) return true;
+    return false;
 }
 void nvm_affine_state_free(NvmAffineState *s) {
     if (!s) return;
@@ -79,6 +111,8 @@ void nvm_affine_state_free(NvmAffineState *s) {
 NvmAffineState *nvm_affine_state_create(const NvmModule *m, uint32_t function,
                                        uint32_t references) {
     bool needs;
+    /* Local facts do not grant global storage authority. The bytecode analysis
+     * separately checks global flow, and the verifier gates execution. */
     if (!m || !m->ownership_size || function >= m->function_count ||
         nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK) return NULL;
     NvmAffineState *s=calloc(1,sizeof(*s));
@@ -87,6 +121,13 @@ NvmAffineState *nvm_affine_state_create(const NvmModule *m, uint32_t function,
     if (!s->facts) { free(s); return NULL; }
     Facts *f=s->facts; f->users=1; f->module=m; f->function=function;
     s->invocation=1;
+    NvmOwnershipEffectTypes arrays;
+    NvmV2Result array_status=nvm_ownership_effect_types(m,&arrays);
+    if (array_status!=NVM_V2_OK && array_status!=NVM_V2_ERR_INDEX_RANGE) goto fail;
+    if (array_status==NVM_V2_OK && arrays.count) {
+        f->arrays=malloc(sizeof(*f->arrays));if (!f->arrays) goto fail;
+        *f->arrays=arrays;
+    }
     if (nvm_v2_layouts_decode(m->layout_data,m->layout_size,&f->layouts)!=NVM_V2_OK) goto fail;
     NvmV2Cursor c; nvm_v2_cursor_init(&c,m->ownership_data,m->ownership_size);
     uint32_t ignored, count; const uint8_t *flags;
@@ -110,8 +151,7 @@ NvmAffineState *nvm_affine_state_create(const NvmModule *m, uint32_t function,
         for (uint16_t j=0;j<locals;j++) {
             Slot slot; if (!slot_read(&c,&slot)) goto fail;
             if (i==function) {
-                /* Unknown/collection declarations cannot establish absence
-                 * of an ownership obligation in this bounded analysis. */
+                /* I require an exact supported declaration for each local. */
                 if (!supported(f,slot)) goto fail;
                 f->locals[j]=slot;
             }
@@ -142,6 +182,8 @@ NvmAffineState *nvm_affine_state_clone(const NvmAffineState *s) {
     out->facts=s->facts; out->facts->users++;
     out->ref_count=s->ref_count; out->region=s->region;
     out->caller_bound=s->caller_bound; out->invocation=s->invocation;
+    out->handler=s->handler;out->handler_first=s->handler_first;
+    out->handler_key=s->handler_key;out->resume_type=s->resume_type;
     out->origin_count=s->origin_count;
     memcpy(out->origins,s->origins,sizeof(out->origins));
     out->live=malloc((s->facts->count ? s->facts->count : 1)*sizeof(*s->live));
@@ -163,14 +205,56 @@ NvmAffineState *nvm_affine_state_clone(const NvmAffineState *s) {
 fail:
     nvm_affine_state_free(out); return NULL;
 }
+NvmAffineState *nvm_affine_handler_enter(const NvmAffineState *s,
+                                         uint32_t key_idx,uint16_t first) {
+    if (!s || s->region || s->caller_bound || first>s->facts->count ||
+        (s->handler && first<s->handler_first)) return NULL;
+    for (uint32_t i=0;i<s->ref_count;i++) if (s->refs[i].live) return NULL;
+    NvmOwnershipEffect effect;
+    if (nvm_ownership_effect(s->facts->module,key_idx,&effect)!=NVM_V2_OK ||
+        effect.parameter_count>s->facts->count-first) return NULL;
+    for (uint16_t p=0;p<effect.parameter_count;p++) {
+        NvmOwnershipEffectValue value=effect.parameters[p];
+        if (!same(s->facts,s->facts->locals[first+p],(Slot){value.tag,0,value.layout})) return NULL;
+    }
+    NvmAffineState *arm=nvm_affine_state_clone(s);
+    if (!arm) return NULL;
+    arm->handler=true;arm->handler_first=first;arm->handler_key=effect.key_idx;
+    arm->resume_type=(NvmAffineType){effect.result.tag,effect.result.layout};
+    for (uint16_t i=0;i<arm->facts->count;i++) {
+        Slot slot=arm->facts->locals[i];
+        if (i>=first || slot.mode || resource(arm->facts,slot)) {
+            arm->live[i]=false;arm->variants[i]=NVM_AFFINE_UNKNOWN_VARIANT;
+        }
+    }
+    for (uint16_t p=0;p<effect.parameter_count;p++) arm->live[first+p]=true;
+    return arm;
+}
+
+bool nvm_affine_can_suspend(const NvmAffineState *s) {
+    if (!s || s->region) return false;
+    for (uint32_t i=0;i<s->ref_count;i++) if (s->refs[i].live) return false;
+    for (uint16_t i=0;i<s->facts->count;i++)
+        if (s->live[i] && resource(s->facts,s->facts->locals[i])) return false;
+    return true;
+}
+
+bool nvm_affine_can_resume(const NvmAffineState *s,NvmAffineType result) {
+    return s && s->handler && same(s->facts,(Slot){s->resume_type.tag,0,s->resume_type.layout},(Slot){result.tag,0,result.layout}) && nvm_affine_can_suspend(s);
+}
+
 static bool state_equal(const NvmAffineState *a, const NvmAffineState *b, bool meet_scalars) {
     if (!a || !b || a->facts!=b->facts || a->region!=b->region ||
         a->ref_count!=b->ref_count || a->caller_bound!=b->caller_bound ||
-        a->invocation!=b->invocation || a->origin_count!=b->origin_count) return false;
+        a->invocation!=b->invocation || a->origin_count!=b->origin_count ||
+        a->handler!=b->handler || a->handler_first!=b->handler_first ||
+        a->handler_key!=b->handler_key || a->resume_type.tag!=b->resume_type.tag ||
+        a->resume_type.layout!=b->resume_type.layout) return false;
     for (uint16_t i=0;i<a->facts->count;i++) {
         Slot slot=a->facts->locals[i];
         if (meet_scalars && !slot.mode &&
-            (scalar(slot.tag) || slot.tag==TAG_STRING || slot.tag==TAG_UNION)) continue;
+            (scalar(slot.tag) || slot.tag==TAG_STRING ||
+             ((slot.tag==TAG_UNION || slot.tag==TAG_STRUCT || slot.tag==TAG_ARRAY) && !resource(a->facts,slot)))) continue;
         if (a->live[i]!=b->live[i]) return false;
         if (!meet_scalars && slot.tag==TAG_UNION && a->live[i] &&
             a->variants[i]!=b->variants[i]) return false;
@@ -202,7 +286,8 @@ bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
     if (!state_equal(destination,incoming,true)) return false;
     for (uint16_t i=0;i<destination->facts->count;i++) {
         Slot slot=destination->facts->locals[i];
-        if (!slot.mode && (scalar(slot.tag) || slot.tag==TAG_STRING || slot.tag==TAG_UNION) && destination->live[i] && !incoming->live[i]) {
+        if (!slot.mode && (scalar(slot.tag) || slot.tag==TAG_STRING ||
+            ((slot.tag==TAG_UNION || slot.tag==TAG_STRUCT || slot.tag==TAG_ARRAY) && !resource(destination->facts,slot))) && destination->live[i] && !incoming->live[i]) {
             destination->live[i]=false;
             if (slot.tag==TAG_UNION) destination->variants[i]=NVM_AFFINE_UNKNOWN_VARIANT;
             *changed=true;
@@ -216,16 +301,17 @@ bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
     return true;
 }
 static bool value_local(const NvmAffineState *s, uint16_t local) {
-    return s && local<s->facts->count && !s->facts->locals[local].mode;
+    return s && local<s->facts->count && !s->facts->locals[local].mode &&
+        !(s->handler && local<s->handler_first && resource(s->facts,s->facts->locals[local]));
 }
 static bool resolve(const NvmAffineState *s,uint16_t local,const uint16_t *path,
                     uint16_t count,Slot *out) {
     if (!s || local>=s->facts->count || (count && !path)) return false;
     Slot slot=s->facts->locals[local];
     for (uint16_t i=0;i<count;i++) {
-        if (slot.layout==NVM_V2_NO_INDEX) return false;
+        if (slot.tag!=TAG_STRUCT || slot.layout>=s->facts->layouts.count) return false;
         const NvmV2Layout *layout=&s->facts->layouts.items[slot.layout];
-        if (path[i]>=layout->field_count) return false;
+        if (layout->kind!=NVM_V2_LAYOUT_STRUCT || path[i]>=layout->field_count) return false;
         NvmV2LayoutField field=layout->fields[path[i]];
         slot=(Slot){field.type_tag,0,field.nested_idx};
     }
@@ -246,7 +332,8 @@ bool nvm_affine_owner_access(const NvmAffineState *s,uint16_t local,
 static bool destination(const NvmAffineState *s,uint16_t local) {
     if (!value_local(s,local)) return false;
     if (!s->live[local]) return true;
-    if (s->facts->locals[local].tag==TAG_UNION) return true;
+    if (s->facts->locals[local].tag==TAG_UNION)
+        return !resource(s->facts,s->facts->locals[local]);
     return !resource(s->facts,s->facts->locals[local]) &&
            nvm_affine_owner_access(s,local,NULL,0,true);
 }
@@ -264,6 +351,7 @@ bool nvm_affine_union_define(NvmAffineState *s,uint16_t local,uint32_t layout,
     uint32_t ordinal;NvmUnionVariantFact fact;
     if (!destination(s,local) || s->facts->locals[local].layout!=layout ||
         !union_value(s->facts,s->facts->locals[local]) ||
+        resource(s->facts,s->facts->locals[local]) ||
         !union_ordinal(s->facts,layout,&ordinal)) return false;
     if (variant!=NVM_AFFINE_UNKNOWN_VARIANT &&
         (nvm_ownership_union_variant(s->facts->module,ordinal,variant,&fact)!=NVM_V2_OK ||
@@ -290,7 +378,7 @@ bool nvm_affine_union_variant(const NvmAffineState *s,uint16_t local,
 }
 bool nvm_affine_move(NvmAffineState *s,uint16_t from,uint16_t to) {
     if (from==to || !destination(s,to) || !nvm_affine_owner_access(s,from,NULL,0,true) ||
-        !same(s->facts->locals[from],s->facts->locals[to])) return false;
+        !same(s->facts,s->facts->locals[from],s->facts->locals[to])) return false;
     s->live[from]=false; s->live[to]=true;
     if (s->facts->locals[from].tag==TAG_UNION) {
         s->variants[to]=s->variants[from];
@@ -302,14 +390,14 @@ static bool fields_check(const NvmAffineState *s,uint16_t root,const uint16_t *f
                           uint16_t count,bool unpack) {
     if (!value_local(s,root) || (count && !fields)) return false;
     Slot slot=s->facts->locals[root];
-    if (slot.layout==NVM_V2_NO_INDEX) return false;
+    if (slot.tag!=TAG_STRUCT || slot.layout>=s->facts->layouts.count) return false;
     const NvmV2Layout *layout=&s->facts->layouts.items[slot.layout];
-    if (count!=layout->field_count) return false;
+    if (layout->kind!=NVM_V2_LAYOUT_STRUCT || count!=layout->field_count) return false;
     if (unpack ? !nvm_affine_owner_access(s,root,NULL,0,true) : !destination(s,root)) return false;
     for (uint16_t i=0;i<count;i++) {
         uint16_t local=fields[i]; NvmV2LayoutField field=layout->fields[i];
         if (local==root || !value_local(s,local) ||
-            !same(s->facts->locals[local],(Slot){field.type_tag,0,field.nested_idx})) return false;
+            !same(s->facts,s->facts->locals[local],(Slot){field.type_tag,0,field.nested_idx})) return false;
         for (uint16_t j=0;j<i;j++) if (fields[j]==local &&
             (unpack || resource(s->facts,s->facts->locals[local]))) return false;
         if (unpack ? !destination(s,local) :
@@ -319,13 +407,59 @@ static bool fields_check(const NvmAffineState *s,uint16_t root,const uint16_t *f
 }
 bool nvm_affine_pack(NvmAffineState *s,uint16_t to,const uint16_t *fields,uint16_t count) {
     if (!fields_check(s,to,fields,count,false)) return false;
-    for (uint16_t i=0;i<count;i++) if (resource(s->facts,s->facts->locals[fields[i]])) s->live[fields[i]]=false;
+    for (uint16_t i=0;i<count;i++) if (resource(s->facts,s->facts->locals[fields[i]])) {
+        s->live[fields[i]]=false;s->variants[fields[i]]=NVM_AFFINE_UNKNOWN_VARIANT;
+    }
     s->live[to]=true; return true;
 }
 bool nvm_affine_unpack(NvmAffineState *s,uint16_t from,const uint16_t *fields,uint16_t count) {
     if (!fields_check(s,from,fields,count,true)) return false;
     s->live[from]=false;
-    for (uint16_t i=0;i<count;i++) s->live[fields[i]]=true;
+    for (uint16_t i=0;i<count;i++) {
+        s->live[fields[i]]=true;s->variants[fields[i]]=NVM_AFFINE_UNKNOWN_VARIANT;
+    }
+    return true;
+}
+/* I check the entire selected payload before publishing any transfer. */
+static bool union_fields_check(const NvmAffineState *s,uint16_t root,uint16_t variant,
+                               const uint16_t *fields,uint16_t count,bool unpack) {
+    uint32_t ordinal;NvmUnionVariantFact fact;
+    if (!value_local(s,root) || (count && !fields) ||
+        !union_value(s->facts,s->facts->locals[root]) ||
+        !union_ordinal(s->facts,s->facts->locals[root].layout,&ordinal) ||
+        nvm_ownership_union_variant(s->facts->module,ordinal,variant,&fact)!=NVM_V2_OK ||
+        fact.field_count!=count) return false;
+    if (unpack) {
+        if (!s->live[root] || s->variants[root]!=variant ||
+            !nvm_affine_owner_access(s,root,NULL,0,true)) return false;
+    } else if (!destination(s,root)) return false;
+    const NvmV2Layout *layout=&s->facts->layouts.items[fact.layout];
+    for (uint16_t i=0;i<count;i++) {
+        uint16_t local=fields[i];NvmV2LayoutField field=layout->fields[fact.field_offset+i];
+        if (local==root || !value_local(s,local) ||
+            !same(s->facts,s->facts->locals[local],(Slot){field.type_tag,0,field.nested_idx})) return false;
+        for (uint16_t j=0;j<i;j++) if (fields[j]==local &&
+            (unpack || resource(s->facts,s->facts->locals[local]))) return false;
+        if (unpack ? !destination(s,local) :
+            !nvm_affine_owner_access(s,local,NULL,0,resource(s->facts,s->facts->locals[local]))) return false;
+    }
+    return true;
+}
+bool nvm_affine_union_pack(NvmAffineState *s,uint16_t destination,uint16_t variant,
+                            const uint16_t *fields,uint16_t count) {
+    if (!union_fields_check(s,destination,variant,fields,count,false)) return false;
+    for (uint16_t i=0;i<count;i++) if (resource(s->facts,s->facts->locals[fields[i]])) {
+        s->live[fields[i]]=false;s->variants[fields[i]]=NVM_AFFINE_UNKNOWN_VARIANT;
+    }
+    s->live[destination]=true;s->variants[destination]=variant;return true;
+}
+bool nvm_affine_union_unpack(NvmAffineState *s,uint16_t source,uint16_t variant,
+                              const uint16_t *fields,uint16_t count) {
+    if (!union_fields_check(s,source,variant,fields,count,true)) return false;
+    s->live[source]=false;s->variants[source]=NVM_AFFINE_UNKNOWN_VARIANT;
+    for (uint16_t i=0;i<count;i++) {
+        s->live[fields[i]]=true;s->variants[fields[i]]=NVM_AFFINE_UNKNOWN_VARIANT;
+    }
     return true;
 }
 bool nvm_affine_region_begin(NvmAffineState *s) {
@@ -371,7 +505,8 @@ static bool borrow_install(NvmAffineState *s,uint32_t id,NvmReferencePlace place
 bool nvm_affine_borrow(NvmAffineState *s,uint32_t id,uint16_t root,
                         const uint16_t *path,uint16_t count,NvmReferenceMode mode) {
     Slot slot;
-    if (!value_local(s,root) || !s->live[root] || !resolve(s,root,path,count,&slot)) return false;
+    if (!value_local(s,root) || !s->live[root] || s->facts->locals[root].tag==TAG_ARRAY ||
+        !resolve(s,root,path,count,&slot)) return false;
     return borrow_install(s,id,(NvmReferencePlace){s->invocation,root,s->facts->locals[root].layout,
         path,count,slot.layout,mode},UINT32_MAX);
 }
@@ -402,7 +537,7 @@ bool nvm_affine_can_exit(const NvmAffineState *s,uint16_t result) {
     if (!s || s->region) return false;
     if (result==UINT16_MAX) { if (s->facts->result.tag!=TAG_VOID) return false; }
     else if (!value_local(s,result) || !s->live[result] ||
-             !same(s->facts->locals[result],s->facts->result)) return false;
+             !same(s->facts,s->facts->locals[result],s->facts->result)) return false;
     for (uint16_t i=0;i<s->facts->count;i++) if (i!=result && s->live[i] &&
         !s->facts->locals[i].mode && resource(s->facts,s->facts->locals[i])) return false;
     return true;
@@ -421,7 +556,7 @@ bool nvm_affine_scalar_field(const NvmAffineState *s,uint16_t local,
                               uint16_t field,uint8_t *tag) {
     if (!s || local>=s->facts->count || !s->live[local] || !tag) return false;
     Slot root=s->facts->locals[local];
-    if (root.layout==NVM_V2_NO_INDEX) return false;
+    if (root.tag!=TAG_STRUCT || root.layout>=s->facts->layouts.count) return false;
     const NvmV2Layout *layout=&s->facts->layouts.items[root.layout];
     if (field>=layout->field_count || !scalar(layout->fields[field].type_tag)) return false;
     bool allowed=root.mode ? nvm_affine_reference_access(s,local,field,false)
@@ -433,7 +568,7 @@ bool nvm_affine_string_field(const NvmAffineState *s,uint16_t local,
                               uint16_t field,uint8_t *tag) {
     if (!s || local>=s->facts->count || !s->live[local] || !tag) return false;
     Slot root=s->facts->locals[local];
-    if (root.mode || root.layout==NVM_V2_NO_INDEX) return false;
+    if (root.mode || root.tag!=TAG_STRUCT || root.layout>=s->facts->layouts.count) return false;
     const NvmV2Layout *layout=&s->facts->layouts.items[root.layout];
     if (field>=layout->field_count || layout->fields[field].type_tag!=TAG_STRING ||
         layout->fields[field].nested_idx!=NVM_V2_NO_INDEX ||
@@ -454,18 +589,83 @@ bool nvm_affine_local_type(const NvmAffineState *s,uint16_t local,NvmAffineType 
     if (slot.mode) return false;
     *type=(NvmAffineType){slot.tag,slot.layout}; return true;
 }
+bool nvm_affine_type_is_owned(const NvmAffineState *s,NvmAffineType type) {
+    if (s && type.tag==TAG_ARRAY)
+        return supported(s->facts,(Slot){type.tag,0,type.layout}) && resource(s->facts,(Slot){type.tag,0,type.layout});
+    if (!s || type.layout>=s->facts->layouts.count ||
+        !(s->facts->flags[type.layout]&NVM_LAYOUT_COMPLETE)) return false;
+    uint8_t kind=s->facts->layouts.items[type.layout].kind;
+    return ((type.tag==TAG_STRUCT && kind==NVM_V2_LAYOUT_STRUCT) ||
+            (type.tag==TAG_UNION && kind==NVM_V2_LAYOUT_UNION)) &&
+         resource(s->facts,(Slot){type.tag,0,type.layout});
+}
+bool nvm_affine_has_array_types(const NvmAffineState *s) { return s && s->facts->arrays; }
+bool nvm_affine_types_equal(const NvmAffineState *s,NvmAffineType a,NvmAffineType b) {
+    return s && same(s->facts,(Slot){a.tag,0,a.layout},(Slot){b.tag,0,b.layout});
+}
+bool nvm_affine_array_define(NvmAffineState *s,uint16_t local,uint32_t element) {
+    Slot type={TAG_ARRAY,0,element};
+    if (!s || !supported(s->facts,type) || resource(s->facts,type) ||
+        !destination(s,local) || !same(s->facts,s->facts->locals[local],type)) return false;
+    s->live[local]=true;return true;
+}
+bool nvm_affine_array_element(const NvmAffineState *s,NvmAffineType type,NvmAffineType *out) {
+    if (!s || !out || type.tag!=TAG_ARRAY || !s->facts->arrays || type.layout>=s->facts->arrays->count) return false;
+    NvmOwnershipEffectValue value=s->facts->arrays->items[type.layout];
+    *out=(NvmAffineType){value.tag,value.layout};return true;
+}
+bool nvm_affine_array_type(const NvmAffineState *s,NvmAffineType element,NvmAffineType *out) {
+    if (!s || !out || !s->facts->arrays) return false;
+    for (uint32_t i=0;i<s->facts->arrays->count;i++) {
+        NvmOwnershipEffectValue row=s->facts->arrays->items[i];
+        if (same(s->facts,(Slot){row.tag,0,row.layout},(Slot){element.tag,0,element.layout})) {
+            *out=(NvmAffineType){TAG_ARRAY,i};return true;
+        }
+    }
+    return false;
+}
+bool nvm_affine_array_tag_type(const NvmAffineState *s,uint8_t tag,NvmAffineType *out) {
+    if (!s || !out || !s->facts->arrays) return false;
+    uint32_t selected=NVM_V2_NO_INDEX;
+    for (uint32_t i=0;i<s->facts->arrays->count;i++) {
+        if (s->facts->arrays->items[i].tag!=tag) continue;
+        if (selected!=NVM_V2_NO_INDEX && !same(s->facts,(Slot){TAG_ARRAY,0,selected},(Slot){TAG_ARRAY,0,i})) return false;
+        selected=i;
+    }
+    if (selected==NVM_V2_NO_INDEX) return false;
+    *out=(NvmAffineType){TAG_ARRAY,selected};return true;
+}
+bool nvm_affine_record_is_copyable(const NvmAffineState *s,uint32_t layout) {
+    return s && layout<s->facts->layouts.count &&
+        s->facts->layouts.items[layout].kind==NVM_V2_LAYOUT_STRUCT &&
+        (s->facts->flags[layout]&(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE))==NVM_LAYOUT_COMPLETE;
+}
+bool nvm_affine_record_define(NvmAffineState *s,uint16_t local,uint32_t layout) {
+    if (!nvm_affine_record_is_copyable(s,layout) || !destination(s,local) ||
+        s->facts->locals[local].tag!=TAG_STRUCT || s->facts->locals[local].layout!=layout) return false;
+    s->live[local]=true;return true;
+}
+bool nvm_affine_owned_local_fields(const NvmAffineState *s,uint16_t local,
+    NvmAffineType *fields,uint16_t capacity,uint16_t *count) {
+    NvmAffineType type;uint16_t variant;
+    if (!nvm_affine_local_type(s,local,&type) || !nvm_affine_type_is_owned(s,type)) return false;
+    if (type.tag==TAG_UNION)
+        return nvm_affine_union_variant(s,local,&variant) &&
+            nvm_affine_union_fields(s,type.layout,variant,fields,capacity,count);
+    return type.tag==TAG_STRUCT && nvm_affine_record_fields(s,type.layout,fields,capacity,count);
+}
 bool nvm_affine_take_local(NvmAffineState *s,uint16_t local,NvmAffineType *type) {
     NvmAffineType found;
-    if (!type || !nvm_affine_local_type(s,local,&found) || found.tag!=TAG_STRUCT ||
+    if (!type || !nvm_affine_local_type(s,local,&found) || !nvm_affine_type_is_owned(s,found) ||
         found.layout==NVM_V2_NO_INDEX || !nvm_affine_owner_access(s,local,NULL,0,true)) return false;
-    s->live[local]=false; *type=found; return true;
+    s->live[local]=false;s->variants[local]=NVM_AFFINE_UNKNOWN_VARIANT; *type=found; return true;
 }
 bool nvm_affine_put_local(NvmAffineState *s,uint16_t local,NvmAffineType type) {
     NvmAffineType wanted;
-    if (!nvm_affine_local_type(s,local,&wanted) || type.tag!=TAG_STRUCT ||
-        type.layout==NVM_V2_NO_INDEX || wanted.tag!=type.tag || wanted.layout!=type.layout ||
+    if (!nvm_affine_local_type(s,local,&wanted) || !nvm_affine_type_is_owned(s,type) ||
+        type.layout==NVM_V2_NO_INDEX || !same(s->facts,(Slot){wanted.tag,0,wanted.layout},(Slot){type.tag,0,type.layout}) ||
         !destination(s,local)) return false;
-    s->live[local]=true; return true;
+    s->live[local]=true;s->variants[local]=NVM_AFFINE_UNKNOWN_VARIANT; return true;
 }
 bool nvm_affine_record_fields(const NvmAffineState *s,uint32_t layout,
                                NvmAffineType *fields,uint16_t capacity,uint16_t *count) {
@@ -494,7 +694,7 @@ bool nvm_affine_union_fields(const NvmAffineState *s,uint32_t layout,
     *count=fact.field_count;return true;
 }
 bool nvm_affine_can_exit_type(const NvmAffineState *s,NvmAffineType type) {
-    if (!s || s->region || !same(s->facts->result,(Slot){type.tag,0,type.layout})) return false;
+    if (!s || s->region || !same(s->facts,s->facts->result,(Slot){type.tag,0,type.layout})) return false;
     for (uint16_t i=0;i<s->facts->count;i++) if (s->live[i] &&
         !s->facts->locals[i].mode && resource(s->facts,s->facts->locals[i])) return false;
     return true;
@@ -566,17 +766,18 @@ static bool nested_result_tree(const Facts *facts,uint32_t root) {
     uint8_t *depth=calloc((size_t)root+1,sizeof(*depth));
     if (!depth) return false;
     depth[root]=1;
+    bool owned=(facts->flags[root]&NVM_LAYOUT_RESOURCE)!=0;
     for (uint32_t next=root+1;next>0;) {
         uint32_t index=--next;
         if (!depth[index]) continue;
         const NvmV2Layout *layout=&facts->layouts.items[index];
-        if ((facts->flags[index]&(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE))!=
-                (NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE) ||
-            layout->kind!=NVM_V2_LAYOUT_STRUCT ||
+        if (!(facts->flags[index]&NVM_LAYOUT_COMPLETE) ||
+            ((facts->flags[index]&NVM_LAYOUT_RESOURCE)!=0)!=owned ||
+            (layout->kind!=NVM_V2_LAYOUT_STRUCT && layout->kind!=NVM_V2_LAYOUT_UNION) ||
             layout->field_count>NVM_AFFINE_MAX_RESULT_FIELDS) goto refused;
         for (uint16_t f=0;f<layout->field_count;f++) {
             const NvmV2LayoutField *field=&layout->fields[f];
-            if (field->type_tag==TAG_STRUCT) {
+            if (field->type_tag==TAG_STRUCT || field->type_tag==TAG_UNION) {
                 uint32_t child=field->nested_idx;
                 if (child>=index || depth[index]>=NVM_AFFINE_MAX_RESULT_DEPTH)
                     goto refused;
@@ -601,14 +802,13 @@ bool nvm_affine_value_result(const NvmAffineState *s,NvmAffineType *type,
     uint16_t fields=0;
     if (result.tag==TAG_STRUCT) {
         if (result.layout>=s->facts->layouts.count ||
-            (s->facts->flags[result.layout]&(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE))!=
-                (NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE)) return false;
+            !(s->facts->flags[result.layout]&NVM_LAYOUT_COMPLETE)) return false;
         const NvmV2Layout *layout=&s->facts->layouts.items[result.layout];
         if (layout->kind!=NVM_V2_LAYOUT_STRUCT) return false;
         bool nested=false;
         for (uint16_t i=0;i<layout->field_count;i++) {
             const NvmV2LayoutField *field=&layout->fields[i];
-            if (field->type_tag==TAG_STRUCT) nested=true;
+            if (field->type_tag==TAG_STRUCT || field->type_tag==TAG_UNION) nested=true;
             else if ((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL && field->type_tag!=TAG_U8 && field->type_tag!=TAG_STRING) ||
                      field->nested_idx!=NVM_V2_NO_INDEX) return false;
         }
@@ -617,6 +817,8 @@ bool nvm_affine_value_result(const NvmAffineState *s,NvmAffineType *type,
         fields=layout->field_count;
     } else if (result.tag==TAG_UNION) {
         if (!union_value(s->facts,result)) return false;
+    } else if (result.tag==TAG_ARRAY) {
+        if (!supported(s->facts,result)) return false;
     } else if ((result.tag!=TAG_VOID && result.tag!=TAG_INT &&
                 result.tag!=TAG_BOOL && result.tag!=TAG_U8) ||
                result.layout!=NVM_V2_NO_INDEX) return false;
@@ -632,12 +834,15 @@ bool nvm_affine_value_parameters(const NvmAffineState *s,NvmAffineType *types,
         Slot parameter=s->facts->locals[p];
         if (parameter.mode) return false;
         if (parameter.tag==TAG_STRUCT) {
-            if (!resource(s->facts,parameter) ||
+            if (parameter.layout>=s->facts->layouts.count ||
+                s->facts->layouts.items[parameter.layout].kind!=NVM_V2_LAYOUT_STRUCT ||
                 !(s->facts->flags[parameter.layout]&NVM_LAYOUT_COMPLETE)) return false;
         } else if (parameter.tag==TAG_STRING) {
             if (parameter.layout!=NVM_V2_NO_INDEX) return false;
         } else if (parameter.tag==TAG_UNION) {
             if (!union_value(s->facts,parameter)) return false;
+        } else if (parameter.tag==TAG_ARRAY) {
+            if (!supported(s->facts,parameter)) return false;
         } else if (parameter.tag!=TAG_INT && parameter.tag!=TAG_BOOL && parameter.tag!=TAG_U8)
             return false;
     }
@@ -652,13 +857,13 @@ bool nvm_affine_consuming_parameters(const NvmAffineState *s,NvmAffineType *type
     if (!types || !count || !nvm_affine_value_parameters(s,checked,NVM_AFFINE_MAX_PARAMETERS,&length) ||
         length>capacity) return false;
     bool owned=false;
-    for (uint16_t p=0;p<length;p++) if (checked[p].tag==TAG_STRUCT) owned=true;
+    for (uint16_t p=0;p<length;p++) if (nvm_affine_type_is_owned(s,checked[p])) owned=true;
     if (!owned) return false;
     memcpy(types,checked,length*sizeof(*types));*count=length;return true;
 }
 bool nvm_affine_owned_parameter_type(const NvmAffineState *s,NvmAffineType *type) {
     if (!s || !type || s->facts->params!=1 || !s->facts->count ||
-        s->facts->locals[0].mode || !resource(s->facts,s->facts->locals[0]) ||
+        s->facts->locals[0].tag!=TAG_STRUCT || s->facts->locals[0].mode || !resource(s->facts,s->facts->locals[0]) ||
         !(s->facts->flags[s->facts->locals[0].layout]&NVM_LAYOUT_COMPLETE)) return false;
     *type=(NvmAffineType){s->facts->locals[0].tag,s->facts->locals[0].layout};
     return type->tag==TAG_STRUCT;

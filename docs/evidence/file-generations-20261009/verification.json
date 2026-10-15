@@ -1,0 +1,22 @@
+{
+  "artifacts": {
+    "nanoc_seed.nvm": "05ba10b0ed45349ddd678ce27c08d9cd4e1f9f6ab7fbdfa53046b4670b1f9219",
+    "nanoc_stage1": "3f962fff76c62df611d9f684eac11868db03a33fa01920ad77fc75661606ad95",
+    "nanoc_stage1.nvm": "9f120d47fbe19bec124bf08c7418b2c1d8de19c31709ec15cdc81dddfff7ab96",
+    "nanoc_stage2": "3980907438687d9cfdb5098835962575f30a7765b1ab5f1e49d8e3129ef1689a",
+    "nanoc_stage2.nvm": "9f120d47fbe19bec124bf08c7418b2c1d8de19c31709ec15cdc81dddfff7ab96"
+  },
+  "bootstrap_source_files": 967,
+  "host_closure_unchanged": true,
+  "qualification_sources": {
+    ".github/workflows/ci.yml": "629a06c2e952489c5f2c1ca65d19694f5db773cb9369644ee0a1ef7477929b3b",
+    "tests/fixtures/file_indirect_owners.nano": "2ccd5bebd6f186afa18a962964e3818493d2a4e1cb69f2e0a36633a5674d517d",
+    "tests/fixtures/file_indirect_source.nano": "5f93066f5c77752255ed358de967f2afd25ea02244a0f5abff4f8c9ab39ef5a7",
+    "tests/test_nano_service_driver.py": "05035b20fd4ab17838aab2171bd2af262b74df9dc32ad44ae5f6bec918375fd0",
+    "tests/test_service_drivers.py": "036669c990deae685e3dce3d6aee90983076e4364dccfee5f912d41e586f2a8d"
+  },
+  "raw_bytes": 635296,
+  "raw_equal": true,
+  "raw_sha256": "9f120d47fbe19bec124bf08c7418b2c1d8de19c31709ec15cdc81dddfff7ab96",
+  "sources_unchanged": true
+}

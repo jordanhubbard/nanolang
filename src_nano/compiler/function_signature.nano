@@ -1,0 +1,64 @@
+# I retain parameter and result spellings, including nested function types.
+# A valid result contains each parameter followed by the one result type.
+pub fn function_type_parts(type_name: string) -> array<string> {
+    let mut text: string = ""
+    let mut i: int = 0
+    while (< i (str_length type_name)) {
+        let ch: int = (char_at type_name i)
+        if (and (!= ch 32) (and (!= ch 9) (and (!= ch 10) (!= ch 13)))) {
+            set text (+ text (str_substring type_name i 1))
+        }
+        set i (+ i 1)
+    }
+    if (not (str_starts_with text "fn(")) { return [] }
+    let length: int = (str_length text)
+    let mut parts: array<string> = []
+    let mut start: int = 3
+    let mut parens: int = 0
+    let mut angles: int = 0
+    set i 3
+    while (< i length) {
+        let ch: string = (str_substring text i 1)
+        if (and (== ch ")") (== parens 0)) {
+            if (!= angles 0) { return [] }
+            if (or (> i start) (> (array_length parts) 0)) {
+                if (== i start) { return [] }
+                set parts (array_push parts (str_substring text start (- i start)))
+            }
+            if (or (>= (+ i 3) length) (!= (str_substring text (+ i 1) 2) "->")) { return [] }
+            return (array_push parts (str_substring text (+ i 3) (- length (+ i 3))))
+        }
+        if (== ch "(") { set parens (+ parens 1) }
+        if (== ch ")") { set parens (- parens 1) }
+        if (== ch "<") { set angles (+ angles 1) }
+        if (and (== ch ">") (!= (str_substring text (- i 1) 1) "-")) {
+            set angles (- angles 1)
+            if (< angles 0) { return [] }
+        }
+        if (and (== ch ",") (and (== parens 0) (== angles 0))) {
+            if (== i start) { return [] }
+            set parts (array_push parts (str_substring text start (- i start)))
+            set start (+ i 1)
+        }
+        set i (+ i 1)
+    }
+    return []
+}
+
+shadow function_type_parts {
+    let empty: array<string> = (function_type_parts "fn() -> void")
+    assert (== (array_length empty) 1)
+    assert (== (at empty 0) "void")
+    let nested: array<string> = (function_type_parts "fn(fn(int, string)->bool, (int,string), array<int>) -> fn()->int")
+    assert (== (array_length nested) 4)
+    assert (== (at nested 0) "fn(int,string)->bool")
+    assert (== (at nested 1) "(int,string)")
+    assert (== (at nested 2) "array<int>")
+    assert (== (at nested 3) "fn()->int")
+    assert (== (array_length (function_type_parts "int")) 0)
+    assert (== (array_length (function_type_parts "fn(int,) -> int")) 0)
+    assert (== (array_length (function_type_parts "fn(,int) -> int")) 0)
+    assert (== (array_length (function_type_parts "fn(int) int")) 0)
+    assert (== (array_length (function_type_parts "fn(int)->")) 0)
+    assert (== (array_length (function_type_parts "fn(array<int)->int")) 0)
+}

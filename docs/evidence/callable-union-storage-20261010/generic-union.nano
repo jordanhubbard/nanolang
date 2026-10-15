@@ -1,0 +1,5 @@
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 1) 1)}
+union Choice<T> {Some {value:T}}
+fn main()->int {let c:Choice<fn(int)->int> = Choice.Some {value:identity} match c {Some(payload)=>{let f:fn(int)->int=payload.value assert (== (f 7) 7)}} return 0}
+shadow main {assert (== (main) 0)}

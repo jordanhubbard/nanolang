@@ -1,0 +1,127 @@
+test_long_common_prefixes_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_long_common_prefixes_remain_distinct) ... FAIL
+test_punctuation_and_encoded_looking_names_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_punctuation_and_encoded_looking_names_remain_distinct) ... FAIL
+test_unicode_digits_and_dots_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_unicode_digits_and_dots_remain_distinct) ... FAIL
+
+======================================================================
+FAIL: test_long_common_prefixes_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_long_common_prefixes_remain_distinct)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_function_names.py", line 41, in test_long_common_prefixes_remain_distinct
+    self.check_names(['a'*120+'-x', 'a'*120+'-y', 'a'*120+'_x'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_module_function_names.py", line 32, in check_names
+    self.execute(source, files=files)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-z0yjat_u/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-x.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-y9HNWd/source.c:1775:129: error: expected ';' after top level declarator
+ 1775 | int64_t aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-x__private_value();
+      |                                                                                                                                 ^
+      |                                                                                                                                 ;
+obj/nano_modules/.nano-module-y9HNWd/source.c:1776:129: error: expected ';' after top level declarator
+ 1776 | int64_t aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-x__read();
+      |                                                                                                                                 ^
+      |                                                                                                                                 ;
+obj/nano_modules/.nano-module-y9HNWd/source.c:1780:129: error: expected ';' after top level declarator
+ 1780 | int64_t aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-x__private_value() {
+      |                                                                                                                                 ^
+      |                                                                                                                                 ;
+/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-z0yjat_u/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-x.nano:4:129: error: expected ';' after top level declarator
+    4 | int64_t aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-x__read() {
+      |                                                                                                                                 ^
+      |                                                                                                                                 ;
+4 errors generated.
+
+C file kept at: obj/nano_modules/.nano-module-y9HNWd/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-z0yjat_u/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-x.nano'
+Error: Failed to compile modules
+
+
+======================================================================
+FAIL: test_punctuation_and_encoded_looking_names_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_punctuation_and_encoded_looking_names_remain_distinct)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_function_names.py", line 35, in test_punctuation_and_encoded_looking_names_remain_distinct
+    self.check_names(['a-b', 'a_b', 'a b', '__nano_hex_612d62'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_module_function_names.py", line 32, in check_names
+    self.execute(source, files=files)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-ev31er_n/a-b.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-6NMeKL/source.c:1775:10: error: expected ';' after top level declarator
+ 1775 | int64_t a-b__private_value();
+      |          ^
+      |          ;
+obj/nano_modules/.nano-module-6NMeKL/source.c:1776:10: error: expected ';' after top level declarator
+ 1776 | int64_t a-b__read();
+      |          ^
+      |          ;
+obj/nano_modules/.nano-module-6NMeKL/source.c:1780:10: error: expected ';' after top level declarator
+ 1780 | int64_t a-b__private_value() {
+      |          ^
+      |          ;
+/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-ev31er_n/a-b.nano:4:10: error: expected ';' after top level declarator
+    4 | int64_t a-b__read() {
+      |          ^
+      |          ;
+4 errors generated.
+
+C file kept at: obj/nano_modules/.nano-module-6NMeKL/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-ev31er_n/a-b.nano'
+Error: Failed to compile modules
+
+
+======================================================================
+FAIL: test_unicode_digits_and_dots_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_unicode_digits_and_dots_remain_distinct)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_function_names.py", line 38, in test_unicode_digits_and_dots_remain_distinct
+    self.check_names(['café', 'cafe', '9probe', 'probe.aux'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_module_function_names.py", line 32, in check_names
+    self.execute(source, files=files)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-273fkbe4/9probe.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-Jgrz7A/source.c:1775:9: error: expected identifier or '('
+ 1775 | int64_t 9probe__private_value();
+      |         ^
+obj/nano_modules/.nano-module-Jgrz7A/source.c:1776:9: error: expected identifier or '('
+ 1776 | int64_t 9probe__read();
+      |         ^
+obj/nano_modules/.nano-module-Jgrz7A/source.c:1780:9: error: expected identifier or '('
+ 1780 | int64_t 9probe__private_value() {
+      |         ^
+/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-273fkbe4/9probe.nano:4:9: error: expected identifier or '('
+    4 | int64_t 9probe__read() {
+      |         ^
+4 errors generated.
+
+C file kept at: obj/nano_modules/.nano-module-Jgrz7A/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-273fkbe4/9probe.nano'
+Error: Failed to compile modules
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.597s
+
+FAILED (failures=3)

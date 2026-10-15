@@ -1,0 +1,26 @@
+{
+  "base_commit": "c7a43b0bc6ed3032ec25695f3d56971320736b3a",
+  "task": "task_f9059876cb0b463a8d51244f759e55c9",
+  "source_sha256": {
+    "src/nanoisa/nvm2c_callables.c": "844a17926912bee7451fb9516f4208e6dda957d8b72f3bc0ca7f62fa62249377",
+    "src/nanoisa/nvm2c_shape.c": "a43a3eaff93f7451c7ab8758a0359875bc2b46dc96181b15bbd593273808df38",
+    "src/nanoisa/nvm2c.c": "d5017f8c457a4c32a94ec27ca7a3d8f5d801d5f4ac1e80b9f34954d6c481e7ec",
+    "tests/nanoisa/test_nvm2c_callables.c": "55b702fa2071522161f6b60a8647398f8fbd8019d575c4786d1e3322cdb597b2"
+  },
+  "logs_sha256": {
+    "initial-focused.log": "0bd0ce7f648317f37ce4fb07a989c4e4a8e5d99a527807482b210a84ede2c218",
+    "initial-native.log": "1a437a367634bf51d184bfcd7bf3e22af0bb5efe292ae27f02f37af257b12423",
+    "sanitized.log": "1cfdeed7d701486dc28b4a2530e0cf1561a1dda1d040534486a3e474e06b15a5",
+    "source-analysis.log": "aad906844fcbc50b5a3294d50100d63fb65f9488bfee96439249ef6aa43f505c",
+    "source-sanitized.log": "aad906844fcbc50b5a3294d50100d63fb65f9488bfee96439249ef6aa43f505c",
+    "native.log": "5e6b4e4815b988802599db3e2e8efc3c2c0a522c901e416f425cd22acfcb628f"
+  },
+  "terminals": {
+    "initial_focused": 0,
+    "initial_native": 2,
+    "sanitized": 0,
+    "source_analysis": 0,
+    "source_sanitized": 0,
+    "native": 0
+  }
+}

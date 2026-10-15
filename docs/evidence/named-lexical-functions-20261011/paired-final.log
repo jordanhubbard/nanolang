@@ -1,0 +1,7 @@
+test_invalid_lexical_declarations_preserve_output (tests.test_named_nested_functions.NamedNestedFunctions.test_invalid_lexical_declarations_preserve_output) ... ok
+test_lexical_closures_and_recursive_values (tests.test_named_nested_functions.NamedNestedFunctions.test_lexical_closures_and_recursive_values) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 7.329s
+
+OK

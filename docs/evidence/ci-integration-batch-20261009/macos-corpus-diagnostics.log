@@ -1,0 +1,93 @@
+2026-10-09T18:00:28.1198950Z === .test_output/app_nested_structs.nano.compile.log ===
+2026-10-09T18:00:28.1200170Z === .test_output/app_test_algebraic_effects.nano.compile.log ===
+2026-10-09T18:00:28.1200540Z I cannot lower this checked program: undefined binding println
+2026-10-09T18:00:28.1200870Z === .test_output/app_test_all_imports.nano.compile.log ===
+2026-10-09T18:00:28.1201160Z NSType checking failed
+2026-10-09T18:00:28.1202510Z === .test_output/app_test_anonymous_struct_function_args.nano.compile.log ===
+2026-10-09T18:00:28.1203670Z === .test_output/app_test_anonymous_struct_literal.nano.compile.log ===
+2026-10-09T18:00:28.1204760Z === .test_output/app_test_array_operators.nano.compile.log ===
+2026-10-09T18:00:28.1205240Z I cannot lower this checked program: I require matching flat numeric array and scalar element types for arithmetic
+2026-10-09T18:00:28.1205750Z === .test_output/app_test_array_search_reverse.nano.compile.log ===
+2026-10-09T18:00:28.1206310Z NSType checking failed
+2026-10-09T18:00:28.1211010Z === .test_output/app_test_async.nano.compile.log ===
+2026-10-09T18:00:28.1212040Z === .test_output/app_test_bstring.nano.compile.log ===
+2026-10-09T18:00:28.1212310Z NSType checking failed
+2026-10-09T18:00:28.1218480Z === .test_output/app_test_builtins_phase1.nano.compile.log ===
+2026-10-09T18:00:28.1218810Z I cannot lower this checked program: undefined function min
+2026-10-09T18:00:28.1219170Z === .test_output/app_test_bytes_conversion.nano.compile.log ===
+2026-10-09T18:00:28.1219740Z I cannot lower the selected shadows: I cannot lower shadow main at merged line 411: undefined function bytes_from_string
+2026-10-09T18:00:28.1220200Z === .test_output/app_test_casting.nano.compile.log ===
+2026-10-09T18:00:28.1220530Z I cannot lower this checked program: undefined function cast_bool
+2026-10-09T18:00:28.1220880Z === .test_output/app_test_complex.nano.compile.log ===
+2026-10-09T18:00:28.1221580Z I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_complex_abs at merged line 79: I require the declared float return type
+2026-10-09T18:00:28.1222140Z === .test_output/app_test_dynamic_arrays.nano.compile.log ===
+2026-10-09T18:00:28.1222490Z I cannot lower this checked program: undefined function array_pop
+2026-10-09T18:00:28.1222840Z === .test_output/app_test_effects.nano.compile.log ===
+2026-10-09T18:00:28.1223920Z === .test_output/app_test_effects_pub.nano.compile.log ===
+2026-10-09T18:00:28.1224890Z === .test_output/app_test_env.nano.compile.log ===
+2026-10-09T18:00:28.1225260Z I cannot lower this checked program: unsupported extern result or symbol nl_os_setenv
+2026-10-09T18:00:28.1225670Z === .test_output/app_test_for_in_loops.nano.compile.log ===
+2026-10-09T18:00:28.1226050Z I cannot lower this checked program: I require two string operands for str_concat
+2026-10-09T18:00:28.1226420Z === .test_output/app_test_format.nano.compile.log ===
+2026-10-09T18:00:28.1226920Z I cannot lower this checked program: string concat needs two strings
+2026-10-09T18:00:28.1227300Z === .test_output/app_test_gc_string_leak.nano.compile.log ===
+2026-10-09T18:00:28.1227670Z I cannot lower this checked program: I require two string operands for str_concat
+2026-10-09T18:00:28.1228060Z === .test_output/app_test_generic_result.nano.compile.log ===
+2026-10-09T18:00:28.1228420Z I cannot lower this checked program: undefined binding println
+2026-10-09T18:00:28.1228800Z === .test_output/app_test_graphx.nano.compile.log ===
+2026-10-09T18:00:28.1233410Z === .test_output/app_test_hashmap_generic_core.nano.compile.log ===
+2026-10-09T18:00:28.1233750Z I cannot lower this checked program: undefined function map_remove
+2026-10-09T18:00:28.1234100Z === .test_output/app_test_hashmap_set_advanced.nano.compile.log ===
+2026-10-09T18:00:28.1234600Z I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_map_new at merged line 151: unsupported local type HashMap
+2026-10-09T18:00:28.1235080Z === .test_output/app_test_hm_inference.nano.compile.log ===
+2026-10-09T18:00:28.1235400Z I cannot lower this checked program: undefined binding println
+2026-10-09T18:00:28.1235720Z === .test_output/app_test_import_aliasing.nano.compile.log ===
+2026-10-09T18:00:28.1236060Z I cannot lower this checked program: unsupported local type StringBuilder
+2026-10-09T18:00:28.1236390Z === .test_output/app_test_matrix4.nano.compile.log ===
+2026-10-09T18:00:28.1236880Z I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 117: I require the declared float return type
+2026-10-09T18:00:28.1237420Z === .test_output/app_test_module_introspection.nano.compile.log ===
+2026-10-09T18:00:28.1238720Z I could not execute the module: Assertion failed
+2026-10-09T18:00:28.1238930Z   Assertion failed
+2026-10-09T18:00:28.1240110Z ERROR: Function count mismatch!
+2026-10-09T18:00:28.1240850Z === .test_output/app_test_module_qualified_comprehensive.nano.compile.log ===
+2026-10-09T18:00:28.1241160Z NSType checking failed
+2026-10-09T18:00:28.1244130Z === .test_output/app_test_module_qualified_struct.nano.compile.log ===
+2026-10-09T18:00:28.1244420Z NSType checking failed
+2026-10-09T18:00:28.1245570Z === .test_output/app_test_module_struct_qualification.nano.compile.log ===
+2026-10-09T18:00:28.1246120Z I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec_length at merged line 90: I require the declared float return type
+2026-10-09T18:00:28.1246630Z === .test_output/app_test_module_system.nano.compile.log ===
+2026-10-09T18:00:28.1246870Z NSType checking failed
+2026-10-09T18:00:28.1250830Z === .test_output/app_test_opaque_basic.nano.compile.log ===
+2026-10-09T18:00:28.1251760Z === .test_output/app_test_opl_cases_runner.nano.compile.log ===
+2026-10-09T18:00:28.1252110Z I cannot lower this checked program: unsupported local type OplParseResult
+2026-10-09T18:00:28.1252470Z === .test_output/app_test_opl_compile_golden.nano.compile.log ===
+2026-10-09T18:00:28.1252820Z I cannot lower this checked program: unsupported local type OplParseResult
+2026-10-09T18:00:28.1253210Z === .test_output/app_test_par_let.nano.compile.log ===
+2026-10-09T18:00:28.1254050Z === .test_output/app_test_process.nano.compile.log ===
+2026-10-09T18:00:28.1254400Z I cannot lower this checked program: unsupported extern result or symbol process_run
+2026-10-09T18:00:28.1254780Z === .test_output/app_test_pybridge_full.nano.compile.log ===
+2026-10-09T18:00:28.1255150Z I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init
+2026-10-09T18:00:28.1255570Z === .test_output/app_test_pybridge_matplotlib_smoke.nano.compile.log ===
+2026-10-09T18:00:28.1256040Z I cannot lower this checked program: unsupported extern result or symbol mpl_init
+2026-10-09T18:00:28.1256420Z === .test_output/app_test_pybridge_smoke.nano.compile.log ===
+2026-10-09T18:00:28.1256800Z I cannot lower this checked program: unsupported extern result or symbol nl_pybridge_init
+2026-10-09T18:00:28.1257170Z === .test_output/app_test_quaternion.nano.compile.log ===
+2026-10-09T18:00:28.1257680Z I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_vec3_length at merged line 117: I require the declared float return type
+2026-10-09T18:00:28.1258200Z === .test_output/app_test_repl_history.nano.compile.log ===
+2026-10-09T18:00:28.1258590Z I cannot lower this checked program: unsupported extern result or symbol rl_stifle_history_wrapper
+2026-10-09T18:00:28.1259000Z === .test_output/app_test_result_syntax.nano.compile.log ===
+2026-10-09T18:00:28.1259310Z I cannot lower this checked program: undefined binding println
+2026-10-09T18:00:28.1259620Z === .test_output/app_test_row_poly.nano.compile.log ===
+2026-10-09T18:00:28.1259870Z Error: Failed to tokenize input file
+2026-10-09T18:00:28.1260120Z === .test_output/app_test_setenv_shadow.nano.compile.log ===
+2026-10-09T18:00:28.1260630Z I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_set_env at merged line 35: unsupported extern result or symbol nl_os_setenv
+2026-10-09T18:00:28.1261140Z === .test_output/app_test_split2.nano.compile.log ===
+2026-10-09T18:00:28.1261500Z Error: import not found: modules/std/regex/regex.nano
+2026-10-09T18:00:28.1261730Z Error: import resolution failed
+2026-10-09T18:00:28.1261990Z === .test_output/app_test_std_collections.nano.compile.log ===
+2026-10-09T18:00:28.1262480Z I cannot lower the selected shadows: I cannot lower shadow __nano_module_0_sb_new at merged line 35: unsupported local type StringBuilder
+2026-10-09T18:00:28.1262980Z === .test_output/app_test_std_lib_collections.nano.compile.log ===
+2026-10-09T18:00:28.1263250Z NSType checking failed
+2026-10-09T18:00:28.1264400Z === .test_output/app_test_std_math_extended.nano.compile.log ===
+2026-10-09T18:00:28.1264910Z I cannot lower the selected shadows: I cannot lower shadow test_extended_math at merged line 272: unsupported extern result or symbol exp2
+2026-10-09T18:00:28.1265420Z === .test_output/app_test_std_math_extended_full.nano.compile.log ===

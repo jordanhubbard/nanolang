@@ -1,0 +1,5 @@
+I have not resolved File service declarations for this consumer.
+LIMIT site=0 queue=30 total=493 bytes=16773078 node=30848
+CYCLIC failure line 240 status 3
+SERIALIZE 3 I cannot validate my lowered File bodies.
+Assertion failed: (!result.status), function main, file test_service_lowering.c, line 99.

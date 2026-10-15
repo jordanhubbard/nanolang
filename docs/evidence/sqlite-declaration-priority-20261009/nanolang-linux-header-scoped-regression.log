@@ -1,0 +1,8 @@
+test_callable_local_still_shadows_declared_function (__main__.HeaderConstantFunctions.test_callable_local_still_shadows_declared_function) ... ok
+test_noncallable_local_refuses_without_replacing_prior_output (__main__.HeaderConstantFunctions.test_noncallable_local_refuses_without_replacing_prior_output) ... ok
+test_original_sqlite_example_and_dependency_shadows (__main__.HeaderConstantFunctions.test_original_sqlite_example_and_dependency_shadows) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.247s
+
+OK

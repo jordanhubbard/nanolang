@@ -1,0 +1,52 @@
+[
+  {
+    "incident": "38036104",
+    "commit": "ec4212c928971c10ef5a7e5e200ebb0adc18f541",
+    "evidence": "docs/evidence/json-parser-integrated-8498-20261008/parser/ordinary-providers-after.json",
+    "line": 134,
+    "key": "/Users/jordanh/Src/nanolang/obj/runtime/list_LexerToken.o",
+    "basis": "current retained object",
+    "matched": true,
+    "object_present": true
+  },
+  {
+    "incident": "37472714",
+    "commit": "4b9c7761373bb34c2187be7a2a883682562685e3",
+    "evidence": "docs/evidence/json-parser-integrated-8498-20261008/parser/token_value_bytes-expected-selection.json",
+    "line": 89,
+    "key": "src_nano/compiler/token_value_bytes.nano",
+    "basis": "source blob at reported commit",
+    "matched": true,
+    "object_present": true
+  },
+  {
+    "incident": "38036105",
+    "commit": "4b9c7761373bb34c2187be7a2a883682562685e3",
+    "evidence": "docs/evidence/json-parser-integrated-8498-20261008/parser/ordinary-providers-before.json",
+    "line": 142,
+    "key": "/Users/jordanh/Src/nanolang/obj/runtime/token_helpers.o",
+    "basis": "current retained object",
+    "matched": true,
+    "object_present": true
+  },
+  {
+    "incident": "37473261",
+    "commit": "53d01164d655e7c533694b4688711b31c65f307f",
+    "evidence": "docs/evidence/file-parser-nanoisa-retirement-20261008/fdff-full-parser-terminal/selection/token_value_bytes-expected-selection.json",
+    "line": 82,
+    "key": "tests/token_value_bytes.nano",
+    "basis": "source blob at reported commit",
+    "matched": true,
+    "object_present": true
+  },
+  {
+    "incident": "38036106",
+    "commit": "ec4212c928971c10ef5a7e5e200ebb0adc18f541",
+    "evidence": "docs/evidence/json-parser-integrated-8498-20261008/parser/ordinary-providers-after.json",
+    "line": 138,
+    "key": "/Users/jordanh/Src/nanolang/obj/runtime/list_token.o",
+    "basis": "current retained object",
+    "matched": true,
+    "object_present": true
+  }
+]

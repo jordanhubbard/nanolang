@@ -1,0 +1,22 @@
+Error at line 6, column 16: Expected field name, variant name, or tuple index after '.'
+Error at line 6, column 16: Expected '{' (got DOT)
+Error at line 6, column 5: Invalid body in for loop
+Error at line 6, column 19: Unexpected token in expression: LBRACE (type=9)
+Error at line 8, column 5: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 16: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 17: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 30: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 31: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 43: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 49: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 70: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 90: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 91: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 93: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8, column 94: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 9, column 5: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 9, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+error: parser failed

@@ -1,0 +1,17 @@
+unittest.case.FunctionTestCase (<lambda>)
+test_transfer ... ok
+unittest.case.FunctionTestCase (<lambda>)
+test_consumed_handler_argument ... ok
+unittest.case.FunctionTestCase (<lambda>)
+test_forwarded_resource ... ok
+unittest.case.FunctionTestCase (<lambda>)
+test_lexical_exit_consumes_argument ... ok
+unittest.case.FunctionTestCase (<lambda>)
+test_callee_contains_its_effect ... ok
+unittest.case.FunctionTestCase (<lambda>)
+test_forward_declared_callee_contains_its_effect ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.604s
+
+OK

@@ -1,0 +1,63 @@
+I retain mixed WebSocket value evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-kgo7lp86
+test_controlled_transport_lifetimes_and_faults (tests.test_mixed_websocket_values.MixedWebSocketValues.test_controlled_transport_lifetimes_and_faults) ... ERROR
+test_real_denied_network (tests.test_mixed_websocket_values.MixedWebSocketValues.test_real_denied_network) ... ERROR
+
+======================================================================
+ERROR: test_controlled_transport_lifetimes_and_faults (tests.test_mixed_websocket_values.MixedWebSocketValues.test_controlled_transport_lifetimes_and_faults)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_mixed_websocket_values.py", line 54, in test_controlled_transport_lifetimes_and_faults
+    print(self.command(exe.name, [str(exe)]).strip(), flush=True)
+          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_mixed_websocket_values.py", line 29, in command
+    result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, timeout=90,
+        env=dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+                 UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1',
+                 NANOLANG_RESOLVER=str(ROOT / 'bin/nano-resolver')))
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1221, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 2154, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1268, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-kgo7lp86/controlled-False']' timed out after 90 seconds
+
+======================================================================
+ERROR: test_real_denied_network (tests.test_mixed_websocket_values.MixedWebSocketValues.test_real_denied_network)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_mixed_websocket_values.py", line 67, in test_real_denied_network
+    def test_real_denied_network(self):
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_mixed_websocket_values.py", line 29, in command
+    def command(self, name, args):
+                 ^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+                     UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1',
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1221, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 2154, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1268, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-kgo7lp86/real', 'ws://127.0.0.1:1', 'denied']' timed out after 90 seconds
+
+----------------------------------------------------------------------
+Ran 2 tests in 188.587s
+
+FAILED (errors=2)

@@ -1,0 +1,43 @@
+-- E001 TYPE MISMATCH ---- /work/modules/sqlite/sqlite.nano
+I require a function value for a bound call.
+
+9| shadow SQLITE_OK { assert (== (SQLITE_OK) 0) }
+                                 ^
+Hint: Call the declared function or a function-typed binding.
+-- E001 TYPE MISMATCH ---- /work/modules/sqlite/sqlite.nano
+I require a function value for a bound call.
+
+12| shadow SQLITE_ROW { assert (== (SQLITE_ROW) 100) }
+                                   ^
+Hint: Call the declared function or a function-typed binding.
+-- E001 TYPE MISMATCH ---- /work/modules/sqlite/sqlite.nano
+I require a function value for a bound call.
+
+15| shadow SQLITE_DONE { assert (== (SQLITE_DONE) 101) }
+                                    ^
+Hint: Call the declared function or a function-typed binding.
+-- E001 TYPE MISMATCH ---- /work/modules/sqlite/sqlite.nano
+I require a function value for a bound call.
+
+19| shadow SQLITE_INTEGER { assert (== (SQLITE_INTEGER) 1) }
+                                       ^
+Hint: Call the declared function or a function-typed binding.
+-- E001 TYPE MISMATCH ---- /work/modules/sqlite/sqlite.nano
+I require a function value for a bound call.
+
+22| shadow SQLITE_FLOAT { assert (== (SQLITE_FLOAT) 2) }
+                                     ^
+Hint: Call the declared function or a function-typed binding.
+-- E001 TYPE MISMATCH ---- /work/modules/sqlite/sqlite.nano
+I require a function value for a bound call.
+
+28| shadow SQLITE_BLOB { assert (== (SQLITE_BLOB) 4) }
+                                    ^
+Hint: Call the declared function or a function-typed binding.
+-- E001 TYPE MISMATCH ---- /work/modules/sqlite/sqlite.nano
+I require a function value for a bound call.
+
+31| shadow SQLITE_NULL { assert (== (SQLITE_NULL) 5) }
+                                    ^
+Hint: Call the declared function or a function-typed binding.
+error: type check failed

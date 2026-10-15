@@ -1,0 +1,996 @@
+{"event":"shadow-start","name":"token_literal_value_bytes","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/token_value_bytes.nano","line":19,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_literal_value_bytes 63 26000
+{"event":"shadow-complete","name":"token_literal_value_bytes","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/token_value_bytes.nano","line":19,"elapsed_seconds":0.000562,"failures":0}
+{"event":"shadow-start","name":"diag_location","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":19,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_location 2 2000
+{"event":"shadow-complete","name":"diag_location","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":19,"elapsed_seconds":0.000154,"failures":0}
+{"event":"shadow-start","name":"diag_location_empty","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":26,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_location_empty 4 1000
+{"event":"shadow-complete","name":"diag_location_empty","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":26,"elapsed_seconds":0.000129,"failures":0}
+{"event":"shadow-start","name":"diag_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":79,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_error 6 4000
+{"event":"shadow-complete","name":"diag_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":79,"elapsed_seconds":0.000192,"failures":0}
+{"event":"shadow-start","name":"diag_warning","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":86,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_warning 10 8000
+{"event":"shadow-complete","name":"diag_warning","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":86,"elapsed_seconds":0.000195,"failures":0}
+{"event":"shadow-start","name":"diag_nanoisa_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":111,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_nanoisa_error 8 6000
+{"event":"shadow-complete","name":"diag_nanoisa_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":111,"elapsed_seconds":0.000200,"failures":0}
+{"event":"shadow-start","name":"diag_parser_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":123,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_parser_error 8 8000
+{"event":"shadow-complete","name":"diag_parser_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":123,"elapsed_seconds":0.000243,"failures":0}
+{"event":"shadow-start","name":"diag_list_new","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":163,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_list_new 6 17000
+{"event":"shadow-complete","name":"diag_list_new","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":163,"elapsed_seconds":0.000141,"failures":0}
+{"event":"shadow-start","name":"diag_list_add","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":168,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_list_add 19 24000
+{"event":"shadow-complete","name":"diag_list_add","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":168,"elapsed_seconds":0.000236,"failures":0}
+{"event":"shadow-start","name":"diag_list_has_errors","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":175,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_list_has_errors 55 56000
+{"event":"shadow-complete","name":"diag_list_has_errors","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":175,"elapsed_seconds":0.000387,"failures":0}
+{"event":"shadow-start","name":"diag_make_type_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":204,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_make_type_error 2 2000
+{"event":"shadow-complete","name":"diag_make_type_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":204,"elapsed_seconds":0.000144,"failures":0}
+{"event":"shadow-start","name":"diag_make_undefined_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":214,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_make_undefined_error 2 2000
+{"event":"shadow-complete","name":"diag_make_undefined_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":214,"elapsed_seconds":0.000129,"failures":0}
+{"event":"shadow-start","name":"diag_new","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":220,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_new 4 4000
+{"event":"shadow-complete","name":"diag_new","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":220,"elapsed_seconds":0.000149,"failures":0}
+{"event":"shadow-start","name":"diag_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":226,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_simple 8 6000
+{"event":"shadow-complete","name":"diag_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":226,"elapsed_seconds":0.000151,"failures":0}
+{"event":"shadow-start","name":"diag_error_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":231,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_error_simple 10 8000
+{"event":"shadow-complete","name":"diag_error_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":231,"elapsed_seconds":0.000198,"failures":0}
+{"event":"shadow-start","name":"diag_warning_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":236,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_warning_simple 10 10000
+{"event":"shadow-complete","name":"diag_warning_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":236,"elapsed_seconds":0.000180,"failures":0}
+{"event":"shadow-start","name":"diag_info","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":241,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_info 6 4000
+{"event":"shadow-complete","name":"diag_info","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":241,"elapsed_seconds":0.000147,"failures":0}
+{"event":"shadow-start","name":"diag_info_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":247,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_info_simple 10 8000
+{"event":"shadow-complete","name":"diag_info_simple","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":247,"elapsed_seconds":0.000161,"failures":0}
+{"event":"shadow-start","name":"diag_lexer_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":252,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_lexer_error 8 7000
+{"event":"shadow-complete","name":"diag_lexer_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":252,"elapsed_seconds":0.000179,"failures":0}
+{"event":"shadow-start","name":"diag_typecheck_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":258,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_typecheck_error 8 8000
+{"event":"shadow-complete","name":"diag_typecheck_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":258,"elapsed_seconds":0.000168,"failures":0}
+{"event":"shadow-start","name":"diag_backend_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":264,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_backend_error 8 5000
+{"event":"shadow-complete","name":"diag_backend_error","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":264,"elapsed_seconds":0.000161,"failures":0}
+{"event":"shadow-start","name":"diag_list_count","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":270,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_list_count 22 27000
+{"event":"shadow-complete","name":"diag_list_count","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":270,"elapsed_seconds":0.000163,"failures":0}
+{"event":"shadow-start","name":"diag_list_get","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":278,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_list_get 19 20000
+{"event":"shadow-complete","name":"diag_list_get","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":278,"elapsed_seconds":0.000202,"failures":0}
+{"event":"shadow-start","name":"diag_id_io_open","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":328,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_id_io_open 2 1000
+{"event":"shadow-complete","name":"diag_id_io_open","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":328,"elapsed_seconds":0.000109,"failures":0}
+{"event":"shadow-start","name":"diag_id_lex_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":332,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_id_lex_failed 2 2000
+{"event":"shadow-complete","name":"diag_id_lex_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":332,"elapsed_seconds":0.000116,"failures":0}
+{"event":"shadow-start","name":"diag_id_parse_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":336,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_id_parse_failed 2 1000
+{"event":"shadow-complete","name":"diag_id_parse_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":336,"elapsed_seconds":0.000119,"failures":0}
+{"event":"shadow-start","name":"diag_id_import_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":340,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_id_import_failed 2 2000
+{"event":"shadow-complete","name":"diag_id_import_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":340,"elapsed_seconds":0.000126,"failures":0}
+{"event":"shadow-start","name":"diag_id_type_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":344,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_id_type_failed 2 2000
+{"event":"shadow-complete","name":"diag_id_type_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":344,"elapsed_seconds":0.000127,"failures":0}
+{"event":"shadow-start","name":"diag_id_mod_compile","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":348,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_id_mod_compile 2 1000
+{"event":"shadow-complete","name":"diag_id_mod_compile","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":348,"elapsed_seconds":0.000129,"failures":0}
+{"event":"shadow-start","name":"diag_id_shadow_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":352,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_id_shadow_failed 2 2000
+{"event":"shadow-complete","name":"diag_id_shadow_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":352,"elapsed_seconds":0.000119,"failures":0}
+{"event":"shadow-start","name":"diag_id_trans_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":356,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_id_trans_failed 2 1000
+{"event":"shadow-complete","name":"diag_id_trans_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":356,"elapsed_seconds":0.000135,"failures":0}
+{"event":"shadow-start","name":"diag_id_c_temp","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":360,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_id_c_temp 2 2000
+{"event":"shadow-complete","name":"diag_id_c_temp","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":360,"elapsed_seconds":0.000101,"failures":0}
+{"event":"shadow-start","name":"diag_id_cc_cmd","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":364,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_id_cc_cmd 2 2000
+{"event":"shadow-complete","name":"diag_id_cc_cmd","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":364,"elapsed_seconds":0.000109,"failures":0}
+{"event":"shadow-start","name":"diag_id_cc_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":368,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_id_cc_failed 2 2000
+{"event":"shadow-complete","name":"diag_id_cc_failed","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":368,"elapsed_seconds":0.000100,"failures":0}
+{"event":"shadow-start","name":"diag_id_src_utf8","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":372,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_id_src_utf8 2 2000
+{"event":"shadow-complete","name":"diag_id_src_utf8","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":372,"elapsed_seconds":0.000115,"failures":0}
+{"event":"shadow-start","name":"diag_en","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":376,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile diag_en 54 7000
+{"event":"shadow-complete","name":"diag_en","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano","line":376,"elapsed_seconds":0.000262,"failures":0}
+{"event":"shadow-start","name":"walkdir","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":35,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile walkdir 17 17000
+{"event":"shadow-complete","name":"walkdir","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":35,"elapsed_seconds":0.001316,"failures":0}
+{"event":"shadow-start","name":"canonical","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":60,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile canonical 21 24000
+{"event":"shadow-complete","name":"canonical","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":60,"elapsed_seconds":0.000914,"failures":0}
+{"event":"shadow-start","name":"normalize","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":73,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile normalize 9 8000
+{"event":"shadow-complete","name":"normalize","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":73,"elapsed_seconds":0.000119,"failures":0}
+{"event":"shadow-start","name":"join","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":85,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile join 9 7000
+{"event":"shadow-complete","name":"join","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":85,"elapsed_seconds":0.000109,"failures":0}
+{"event":"shadow-start","name":"basename","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":97,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile basename 6 6000
+{"event":"shadow-complete","name":"basename","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":97,"elapsed_seconds":0.000115,"failures":0}
+{"event":"shadow-start","name":"dirname","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":108,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile dirname 6 5000
+{"event":"shadow-complete","name":"dirname","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":108,"elapsed_seconds":0.000110,"failures":0}
+{"event":"shadow-start","name":"relpath","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":120,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile relpath 49 42000
+{"event":"shadow-complete","name":"relpath","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":120,"elapsed_seconds":0.000482,"failures":0}
+{"event":"shadow-start","name":"cwd","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":135,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile cwd 4 4000
+{"event":"shadow-complete","name":"cwd","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":135,"elapsed_seconds":0.000095,"failures":0}
+{"event":"shadow-start","name":"glob_match_impl","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":190,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile glob_match_impl 44 15000
+{"event":"shadow-complete","name":"glob_match_impl","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":190,"elapsed_seconds":0.000144,"failures":0}
+{"event":"shadow-start","name":"glob_match","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":200,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile glob_match 235 85000
+{"event":"shadow-complete","name":"glob_match","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":200,"elapsed_seconds":0.000430,"failures":0}
+{"event":"shadow-start","name":"glob","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":225,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile glob 159 76000
+{"event":"shadow-complete","name":"glob","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":225,"elapsed_seconds":0.002001,"failures":0}
+{"event":"shadow-start","name":"read","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":251,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile read 15 18000
+{"event":"shadow-complete","name":"read","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":251,"elapsed_seconds":0.002323,"failures":0}
+{"event":"shadow-start","name":"write","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":269,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile write 15 17000
+{"event":"shadow-complete","name":"write","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":269,"elapsed_seconds":0.003167,"failures":0}
+{"event":"shadow-start","name":"append","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":287,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile append 18 16000
+{"event":"shadow-complete","name":"append","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":287,"elapsed_seconds":0.006491,"failures":0}
+{"event":"shadow-start","name":"exists","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":306,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile exists 21 21000
+{"event":"shadow-complete","name":"exists","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":306,"elapsed_seconds":0.001021,"failures":0}
+{"event":"shadow-start","name":"delete","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":326,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile delete 18 17000
+{"event":"shadow-complete","name":"delete","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":326,"elapsed_seconds":0.001128,"failures":0}
+{"event":"shadow-start","name":"mkdir_p","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":346,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile mkdir_p 24 24000
+{"event":"shadow-complete","name":"mkdir_p","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":346,"elapsed_seconds":0.001120,"failures":0}
+{"event":"shadow-start","name":"copy_file","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":366,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile copy_file 23 23000
+{"event":"shadow-complete","name":"copy_file","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":366,"elapsed_seconds":0.004317,"failures":0}
+{"event":"shadow-start","name":"copy_dir","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":387,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile copy_dir 35 37000
+{"event":"shadow-complete","name":"copy_dir","source":"/Users/jordanh/Src/nanolang/modules/std/fs.nano","line":387,"elapsed_seconds":0.002856,"failures":0}
+{"event":"shadow-start","name":"is_identifier_start","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":18,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile is_identifier_start 16 16000
+{"event":"shadow-complete","name":"is_identifier_start","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":18,"elapsed_seconds":0.000166,"failures":0}
+{"event":"shadow-start","name":"is_identifier_char","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":33,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile is_identifier_char 28 25000
+{"event":"shadow-complete","name":"is_identifier_char","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":33,"elapsed_seconds":0.000148,"failures":0}
+{"event":"shadow-start","name":"is_whitespace_char","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":47,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile is_whitespace_char 10 8000
+{"event":"shadow-complete","name":"is_whitespace_char","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":47,"elapsed_seconds":0.000146,"failures":0}
+{"event":"shadow-start","name":"is_digit_char","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":59,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile is_digit_char 12 10000
+{"event":"shadow-complete","name":"is_digit_char","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":59,"elapsed_seconds":0.000122,"failures":0}
+{"event":"shadow-start","name":"keyword_group1","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":82,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile keyword_group1 14 11000
+{"event":"shadow-complete","name":"keyword_group1","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":82,"elapsed_seconds":0.000187,"failures":0}
+{"event":"shadow-start","name":"keyword_group2","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":153,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile keyword_group2 22 18000
+{"event":"shadow-complete","name":"keyword_group2","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":153,"elapsed_seconds":0.000376,"failures":0}
+{"event":"shadow-start","name":"keyword_group3","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":185,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile keyword_group3 14 11000
+{"event":"shadow-complete","name":"keyword_group3","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":185,"elapsed_seconds":0.000169,"failures":0}
+{"event":"shadow-start","name":"keyword_group4","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":205,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile keyword_group4 8 8000
+{"event":"shadow-complete","name":"keyword_group4","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":205,"elapsed_seconds":0.000144,"failures":0}
+{"event":"shadow-start","name":"keyword_group5","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":218,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile keyword_group5 4 3000
+{"event":"shadow-complete","name":"keyword_group5","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":218,"elapsed_seconds":0.000108,"failures":0}
+{"event":"shadow-start","name":"keyword_or_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":252,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile keyword_or_identifier 48 41000
+{"event":"shadow-complete","name":"keyword_or_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":252,"elapsed_seconds":0.000343,"failures":0}
+{"event":"shadow-start","name":"push_tok","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":269,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile push_tok 7 17000
+{"event":"shadow-complete","name":"push_tok","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":269,"elapsed_seconds":0.000133,"failures":0}
+{"event":"shadow-start","name":"process_string","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":300,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile process_string 28 21000
+{"event":"shadow-complete","name":"process_string","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":300,"elapsed_seconds":0.000155,"failures":0}
+{"event":"shadow-start","name":"process_number","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":338,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile process_number 21 22000
+{"event":"shadow-complete","name":"process_number","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":338,"elapsed_seconds":0.000155,"failures":0}
+{"event":"shadow-start","name":"process_grammar_body","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":391,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile process_grammar_body 42 19000
+{"event":"shadow-complete","name":"process_grammar_body","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":391,"elapsed_seconds":0.000193,"failures":0}
+{"event":"shadow-start","name":"process_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":420,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile process_identifier 47 47000
+{"event":"shadow-complete","name":"process_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":420,"elapsed_seconds":0.000205,"failures":0}
+{"event":"shadow-start","name":"process_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":430,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile process_identifier 102 64000
+{"event":"shadow-complete","name":"process_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":430,"elapsed_seconds":0.000265,"failures":0}
+{"event":"shadow-start","name":"process_char_literal","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":489,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile process_char_literal 15 16000
+{"event":"shadow-complete","name":"process_char_literal","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":489,"elapsed_seconds":0.000141,"failures":0}
+{"event":"shadow-start","name":"emit_fstring_part_tokens","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":525,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile emit_fstring_part_tokens 101 103000
+{"event":"shadow-complete","name":"emit_fstring_part_tokens","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":525,"elapsed_seconds":0.000355,"failures":0}
+{"event":"shadow-start","name":"process_fstring","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":674,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile process_fstring 183 171000
+{"event":"shadow-complete","name":"process_fstring","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":674,"elapsed_seconds":0.000473,"failures":0}
+{"event":"shadow-start","name":"tokenize_file","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":939,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile tokenize_file 1227 662000
+{"event":"shadow-complete","name":"tokenize_file","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":939,"elapsed_seconds":0.002668,"failures":0}
+{"event":"shadow-start","name":"tokenize_string","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":947,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile tokenize_string 1926 1477000
+{"event":"shadow-complete","name":"tokenize_string","source":"/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano","line":947,"elapsed_seconds":0.003149,"failures":0}
+{"event":"shadow-start","name":"parser_init_ast_lists","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":144,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_init_ast_lists 39 100000
+{"event":"shadow-complete","name":"parser_init_ast_lists","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":144,"elapsed_seconds":0.000261,"failures":0}
+{"event":"shadow-start","name":"parser_new","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":241,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_new 42 105000
+{"event":"shadow-complete","name":"parser_new","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":241,"elapsed_seconds":0.000253,"failures":0}
+{"event":"shadow-start","name":"parser_allocate_id","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":255,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_allocate_id 46 109000
+{"event":"shadow-complete","name":"parser_allocate_id","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":255,"elapsed_seconds":0.000269,"failures":0}
+{"event":"shadow-start","name":"parser_is_at_end","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":273,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_is_at_end 44 110000
+{"event":"shadow-complete","name":"parser_is_at_end","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":273,"elapsed_seconds":0.000255,"failures":0}
+{"event":"shadow-start","name":"parser_with_position","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":361,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_with_position 44 108000
+{"event":"shadow-complete","name":"parser_with_position","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":361,"elapsed_seconds":0.000415,"failures":0}
+{"event":"shadow-start","name":"parser_advance","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":381,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_advance 46 109000
+{"event":"shadow-complete","name":"parser_advance","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":381,"elapsed_seconds":0.000246,"failures":0}
+{"event":"shadow-start","name":"parser_position","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":393,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_position 44 107000
+{"event":"shadow-complete","name":"parser_position","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":393,"elapsed_seconds":0.000242,"failures":0}
+{"event":"shadow-start","name":"parser_current","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":415,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_current 46 107000
+{"event":"shadow-complete","name":"parser_current","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":415,"elapsed_seconds":0.000248,"failures":0}
+{"event":"shadow-start","name":"parser_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":433,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_match 46 106000
+{"event":"shadow-complete","name":"parser_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":433,"elapsed_seconds":0.000233,"failures":0}
+{"event":"shadow-start","name":"parser_expect","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":448,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_expect 50 113000
+{"event":"shadow-complete","name":"parser_expect","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":448,"elapsed_seconds":0.000445,"failures":0}
+{"event":"shadow-start","name":"parser_peek","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":468,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_peek 46 110000
+{"event":"shadow-complete","name":"parser_peek","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":468,"elapsed_seconds":0.000276,"failures":0}
+{"event":"shadow-start","name":"parser_with_error","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":558,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_with_error 0 0
+{"event":"shadow-complete","name":"parser_with_error","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":558,"elapsed_seconds":0.000192,"failures":0}
+{"event":"shadow-start","name":"parser_has_error","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":568,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_has_error 44 119000
+{"event":"shadow-complete","name":"parser_has_error","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":568,"elapsed_seconds":0.000262,"failures":0}
+{"event":"shadow-start","name":"token_number","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":578,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_number 2 1000
+{"event":"shadow-complete","name":"token_number","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":578,"elapsed_seconds":0.000088,"failures":0}
+{"event":"shadow-start","name":"token_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":581,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_identifier 2 2000
+{"event":"shadow-complete","name":"token_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":581,"elapsed_seconds":0.000091,"failures":0}
+{"event":"shadow-start","name":"token_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":584,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_string 2 3000
+{"event":"shadow-complete","name":"token_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":584,"elapsed_seconds":0.000086,"failures":0}
+{"event":"shadow-start","name":"token_true","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":587,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_true 2 3000
+{"event":"shadow-complete","name":"token_true","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":587,"elapsed_seconds":0.000101,"failures":0}
+{"event":"shadow-start","name":"token_false","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":590,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_false 2 2000
+{"event":"shadow-complete","name":"token_false","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":590,"elapsed_seconds":0.000106,"failures":0}
+{"event":"shadow-start","name":"token_lparen","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":593,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_lparen 2 2000
+{"event":"shadow-complete","name":"token_lparen","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":593,"elapsed_seconds":0.000101,"failures":0}
+{"event":"shadow-start","name":"token_rparen","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":596,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_rparen 2 3000
+{"event":"shadow-complete","name":"token_rparen","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":596,"elapsed_seconds":0.000095,"failures":0}
+{"event":"shadow-start","name":"token_plus","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":599,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_plus 2 2000
+{"event":"shadow-complete","name":"token_plus","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":599,"elapsed_seconds":0.000095,"failures":0}
+{"event":"shadow-start","name":"token_minus","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":602,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_minus 2 3000
+{"event":"shadow-complete","name":"token_minus","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":602,"elapsed_seconds":0.000098,"failures":0}
+{"event":"shadow-start","name":"token_star","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":605,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_star 2 2000
+{"event":"shadow-complete","name":"token_star","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":605,"elapsed_seconds":0.000096,"failures":0}
+{"event":"shadow-start","name":"token_slash","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":608,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_slash 2 2000
+{"event":"shadow-complete","name":"token_slash","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":608,"elapsed_seconds":0.000089,"failures":0}
+{"event":"shadow-start","name":"token_eq","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":611,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_eq 2 2000
+{"event":"shadow-complete","name":"token_eq","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":611,"elapsed_seconds":0.000084,"failures":0}
+{"event":"shadow-start","name":"token_ne","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":614,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_ne 2 2000
+{"event":"shadow-complete","name":"token_ne","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":614,"elapsed_seconds":0.000074,"failures":0}
+{"event":"shadow-start","name":"token_lt","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":617,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_lt 2 2000
+{"event":"shadow-complete","name":"token_lt","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":617,"elapsed_seconds":0.000075,"failures":0}
+{"event":"shadow-start","name":"token_le","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":620,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_le 2 2000
+{"event":"shadow-complete","name":"token_le","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":620,"elapsed_seconds":0.000090,"failures":0}
+{"event":"shadow-start","name":"token_gt","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":623,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_gt 2 2000
+{"event":"shadow-complete","name":"token_gt","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":623,"elapsed_seconds":0.000092,"failures":0}
+{"event":"shadow-start","name":"token_ge","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":626,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_ge 2 5000
+{"event":"shadow-complete","name":"token_ge","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":626,"elapsed_seconds":0.000102,"failures":0}
+{"event":"shadow-start","name":"token_and","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":629,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_and 2 4000
+{"event":"shadow-complete","name":"token_and","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":629,"elapsed_seconds":0.000093,"failures":0}
+{"event":"shadow-start","name":"token_or","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":632,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_or 2 3000
+{"event":"shadow-complete","name":"token_or","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":632,"elapsed_seconds":0.000122,"failures":0}
+{"event":"shadow-start","name":"token_comma","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":635,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_comma 2 2000
+{"event":"shadow-complete","name":"token_comma","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":635,"elapsed_seconds":0.000123,"failures":0}
+{"event":"shadow-start","name":"token_lbrace","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":638,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_lbrace 2 2000
+{"event":"shadow-complete","name":"token_lbrace","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":638,"elapsed_seconds":0.000093,"failures":0}
+{"event":"shadow-start","name":"token_rbrace","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":641,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_rbrace 2 3000
+{"event":"shadow-complete","name":"token_rbrace","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":641,"elapsed_seconds":0.000112,"failures":0}
+{"event":"shadow-start","name":"token_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":644,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_let 2 3000
+{"event":"shadow-complete","name":"token_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":644,"elapsed_seconds":0.000108,"failures":0}
+{"event":"shadow-start","name":"token_if","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":647,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_if 2 2000
+{"event":"shadow-complete","name":"token_if","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":647,"elapsed_seconds":0.000103,"failures":0}
+{"event":"shadow-start","name":"token_else","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":650,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_else 2 2000
+{"event":"shadow-complete","name":"token_else","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":650,"elapsed_seconds":0.000156,"failures":0}
+{"event":"shadow-start","name":"token_while","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":653,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_while 2 3000
+{"event":"shadow-complete","name":"token_while","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":653,"elapsed_seconds":0.000098,"failures":0}
+{"event":"shadow-start","name":"token_return","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":656,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_return 2 3000
+{"event":"shadow-complete","name":"token_return","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":656,"elapsed_seconds":0.000100,"failures":0}
+{"event":"shadow-start","name":"token_colon","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":659,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_colon 2 2000
+{"event":"shadow-complete","name":"token_colon","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":659,"elapsed_seconds":0.000096,"failures":0}
+{"event":"shadow-start","name":"token_mut","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":662,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_mut 2 2000
+{"event":"shadow-complete","name":"token_mut","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":662,"elapsed_seconds":0.000096,"failures":0}
+{"event":"shadow-start","name":"token_assign","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":665,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_assign 2 2000
+{"event":"shadow-complete","name":"token_assign","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":665,"elapsed_seconds":0.000106,"failures":0}
+{"event":"shadow-start","name":"token_arrow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":668,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_arrow 2 2000
+{"event":"shadow-complete","name":"token_arrow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":668,"elapsed_seconds":0.000093,"failures":0}
+{"event":"shadow-start","name":"token_fn","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":671,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_fn 2 2000
+{"event":"shadow-complete","name":"token_fn","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":671,"elapsed_seconds":0.000088,"failures":0}
+{"event":"shadow-start","name":"token_extern","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":674,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_extern 2 2000
+{"event":"shadow-complete","name":"token_extern","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":674,"elapsed_seconds":0.000102,"failures":0}
+{"event":"shadow-start","name":"token_set","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":677,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_set 2 2000
+{"event":"shadow-complete","name":"token_set","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":677,"elapsed_seconds":0.000099,"failures":0}
+{"event":"shadow-start","name":"token_struct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":680,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_struct 2 3000
+{"event":"shadow-complete","name":"token_struct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":680,"elapsed_seconds":0.000088,"failures":0}
+{"event":"shadow-start","name":"token_enum","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":683,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_enum 2 3000
+{"event":"shadow-complete","name":"token_enum","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":683,"elapsed_seconds":0.000092,"failures":0}
+{"event":"shadow-start","name":"token_union","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":686,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_union 2 4000
+{"event":"shadow-complete","name":"token_union","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":686,"elapsed_seconds":0.000125,"failures":0}
+{"event":"shadow-start","name":"token_for","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":690,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_for 2 2000
+{"event":"shadow-complete","name":"token_for","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":690,"elapsed_seconds":0.000088,"failures":0}
+{"event":"shadow-start","name":"token_in","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":693,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_in 2 2000
+{"event":"shadow-complete","name":"token_in","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":693,"elapsed_seconds":0.000085,"failures":0}
+{"event":"shadow-start","name":"token_assert","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":696,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_assert 2 2000
+{"event":"shadow-complete","name":"token_assert","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":696,"elapsed_seconds":0.000108,"failures":0}
+{"event":"shadow-start","name":"token_requires","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":699,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_requires 2 2000
+{"event":"shadow-complete","name":"token_requires","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":699,"elapsed_seconds":0.000096,"failures":0}
+{"event":"shadow-start","name":"token_ensures","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":702,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_ensures 2 2000
+{"event":"shadow-complete","name":"token_ensures","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":702,"elapsed_seconds":0.000085,"failures":0}
+{"event":"shadow-start","name":"token_unsafe","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":705,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_unsafe 2 2000
+{"event":"shadow-complete","name":"token_unsafe","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":705,"elapsed_seconds":0.000076,"failures":0}
+{"event":"shadow-start","name":"token_shadow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":708,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_shadow 2 2000
+{"event":"shadow-complete","name":"token_shadow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":708,"elapsed_seconds":0.000103,"failures":0}
+{"event":"shadow-start","name":"token_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":711,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_match 2 2000
+{"event":"shadow-complete","name":"token_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":711,"elapsed_seconds":0.000089,"failures":0}
+{"event":"shadow-start","name":"token_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":714,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_import 2 3000
+{"event":"shadow-complete","name":"token_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":714,"elapsed_seconds":0.000104,"failures":0}
+{"event":"shadow-start","name":"token_as","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":717,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_as 2 2000
+{"event":"shadow-complete","name":"token_as","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":717,"elapsed_seconds":0.000081,"failures":0}
+{"event":"shadow-start","name":"token_pub","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":720,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_pub 2 2000
+{"event":"shadow-complete","name":"token_pub","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":720,"elapsed_seconds":0.000081,"failures":0}
+{"event":"shadow-start","name":"token_pure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":723,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_pure 2 2000
+{"event":"shadow-complete","name":"token_pure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":723,"elapsed_seconds":0.000106,"failures":0}
+{"event":"shadow-start","name":"token_opaque","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":726,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_opaque 2 2000
+{"event":"shadow-complete","name":"token_opaque","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":726,"elapsed_seconds":0.000084,"failures":0}
+{"event":"shadow-start","name":"token_lbracket","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":729,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_lbracket 2 4000
+{"event":"shadow-complete","name":"token_lbracket","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":729,"elapsed_seconds":0.000099,"failures":0}
+{"event":"shadow-start","name":"token_rbracket","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":732,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_rbracket 2 2000
+{"event":"shadow-complete","name":"token_rbracket","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":732,"elapsed_seconds":0.000089,"failures":0}
+{"event":"shadow-start","name":"token_dot","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":735,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_dot 2 2000
+{"event":"shadow-complete","name":"token_dot","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":735,"elapsed_seconds":0.000085,"failures":0}
+{"event":"shadow-start","name":"token_double_colon","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":738,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_double_colon 2 2000
+{"event":"shadow-complete","name":"token_double_colon","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":738,"elapsed_seconds":0.000095,"failures":0}
+{"event":"shadow-start","name":"token_percent","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":741,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_percent 2 2000
+{"event":"shadow-complete","name":"token_percent","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":741,"elapsed_seconds":0.000106,"failures":0}
+{"event":"shadow-start","name":"token_not","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":744,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_not 2 2000
+{"event":"shadow-complete","name":"token_not","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":744,"elapsed_seconds":0.000091,"failures":0}
+{"event":"shadow-start","name":"token_pipe","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":747,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_pipe 2 4000
+{"event":"shadow-complete","name":"token_pipe","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":747,"elapsed_seconds":0.000134,"failures":0}
+{"event":"shadow-start","name":"token_grammar","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":750,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_grammar 2 3000
+{"event":"shadow-complete","name":"token_grammar","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":750,"elapsed_seconds":0.000081,"failures":0}
+{"event":"shadow-start","name":"token_larrow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":753,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_larrow 2 3000
+{"event":"shadow-complete","name":"token_larrow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":753,"elapsed_seconds":0.000093,"failures":0}
+{"event":"shadow-start","name":"token_question","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":756,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_question 2 2000
+{"event":"shadow-complete","name":"token_question","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":756,"elapsed_seconds":0.000109,"failures":0}
+{"event":"shadow-start","name":"token_array","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":759,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_array 2 3000
+{"event":"shadow-complete","name":"token_array","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":759,"elapsed_seconds":0.000097,"failures":0}
+{"event":"shadow-start","name":"token_type_int","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":762,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_type_int 2 4000
+{"event":"shadow-complete","name":"token_type_int","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":762,"elapsed_seconds":0.000107,"failures":0}
+{"event":"shadow-start","name":"token_type_u8","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":765,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_type_u8 2 3000
+{"event":"shadow-complete","name":"token_type_u8","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":765,"elapsed_seconds":0.000105,"failures":0}
+{"event":"shadow-start","name":"token_type_float","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":768,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_type_float 2 3000
+{"event":"shadow-complete","name":"token_type_float","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":768,"elapsed_seconds":0.000106,"failures":0}
+{"event":"shadow-start","name":"token_type_bool","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":771,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_type_bool 2 2000
+{"event":"shadow-complete","name":"token_type_bool","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":771,"elapsed_seconds":0.000107,"failures":0}
+{"event":"shadow-start","name":"token_type_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":774,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_type_string 2 2000
+{"event":"shadow-complete","name":"token_type_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":774,"elapsed_seconds":0.000103,"failures":0}
+{"event":"shadow-start","name":"token_type_bstring","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":777,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_type_bstring 2 3000
+{"event":"shadow-complete","name":"token_type_bstring","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":777,"elapsed_seconds":0.000107,"failures":0}
+{"event":"shadow-start","name":"token_type_void","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":780,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile token_type_void 2 2000
+{"event":"shadow-complete","name":"token_type_void","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":780,"elapsed_seconds":0.000110,"failures":0}
+{"event":"shadow-start","name":"parse_qualified_name","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":825,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_qualified_name 211 281000
+{"event":"shadow-complete","name":"parse_qualified_name","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":825,"elapsed_seconds":0.001293,"failures":0}
+{"event":"shadow-start","name":"parse_call_name","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":896,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_call_name 235 305000
+{"event":"shadow-complete","name":"parse_call_name","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":896,"elapsed_seconds":0.001242,"failures":0}
+{"event":"shadow-start","name":"is_type_start_token_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":946,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile is_type_start_token_type 32 33000
+{"event":"shadow-complete","name":"is_type_start_token_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":946,"elapsed_seconds":0.000156,"failures":0}
+{"event":"shadow-start","name":"parse_type_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1152,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_type_string 1697 1966000
+{"event":"shadow-complete","name":"parse_type_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1152,"elapsed_seconds":0.008860,"failures":0}
+{"event":"shadow-start","name":"parser_store_number","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1265,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_number 0 0
+{"event":"shadow-complete","name":"parser_store_number","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1265,"elapsed_seconds":0.000120,"failures":0}
+{"event":"shadow-start","name":"parser_store_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1362,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_string 0 0
+{"event":"shadow-complete","name":"parser_store_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1362,"elapsed_seconds":0.000116,"failures":0}
+{"event":"shadow-start","name":"parser_store_bool","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1458,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_bool 0 0
+{"event":"shadow-complete","name":"parser_store_bool","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1458,"elapsed_seconds":0.000101,"failures":0}
+{"event":"shadow-start","name":"parser_store_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1554,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_identifier 0 0
+{"event":"shadow-complete","name":"parser_store_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1554,"elapsed_seconds":0.000105,"failures":0}
+{"event":"shadow-start","name":"parser_store_binary_op","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1656,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_binary_op 0 0
+{"event":"shadow-complete","name":"parser_store_binary_op","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1656,"elapsed_seconds":0.000096,"failures":0}
+{"event":"shadow-start","name":"parser_mark_unary","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1671,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_mark_unary 1189 1403000
+{"event":"shadow-complete","name":"parser_mark_unary","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1671,"elapsed_seconds":0.006999,"failures":0}
+{"event":"shadow-start","name":"parser_store_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1774,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_call 0 0
+{"event":"shadow-complete","name":"parser_store_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1774,"elapsed_seconds":0.000116,"failures":0}
+{"event":"shadow-start","name":"parser_store_module_qualified_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1872,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_module_qualified_call 0 0
+{"event":"shadow-complete","name":"parser_store_module_qualified_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1872,"elapsed_seconds":0.000131,"failures":0}
+{"event":"shadow-start","name":"name_contains_dot","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1891,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile name_contains_dot 75 13000
+{"event":"shadow-complete","name":"name_contains_dot","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1891,"elapsed_seconds":0.000160,"failures":0}
+{"event":"shadow-start","name":"parser_store_call_arg","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1986,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_call_arg 0 0
+{"event":"shadow-complete","name":"parser_store_call_arg","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":1986,"elapsed_seconds":0.000118,"failures":0}
+{"event":"shadow-start","name":"parser_store_array_element","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2079,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_array_element 0 0
+{"event":"shadow-complete","name":"parser_store_array_element","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2079,"elapsed_seconds":0.000124,"failures":0}
+{"event":"shadow-start","name":"literal_type_spelling","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2092,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile literal_type_spelling 2793 3093000
+{"event":"shadow-complete","name":"literal_type_spelling","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2092,"elapsed_seconds":0.014704,"failures":0}
+{"event":"shadow-start","name":"parse_named_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2134,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_named_literal 6056 6538000
+{"event":"shadow-complete","name":"parse_named_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2134,"elapsed_seconds":0.032163,"failures":0}
+{"event":"shadow-start","name":"parse_union_construct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2201,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_union_construct 0 0
+{"event":"shadow-complete","name":"parse_union_construct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2201,"elapsed_seconds":0.000090,"failures":0}
+{"event":"shadow-start","name":"parse_struct_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2271,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_struct_literal 0 0
+{"event":"shadow-complete","name":"parse_struct_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2271,"elapsed_seconds":0.000093,"failures":0}
+{"event":"shadow-start","name":"parse_cond_expression","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2371,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_cond_expression 0 0
+{"event":"shadow-complete","name":"parse_cond_expression","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2371,"elapsed_seconds":0.000101,"failures":0}
+{"event":"shadow-start","name":"parse_cond_clauses","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2375,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_cond_clauses 0 0
+{"event":"shadow-complete","name":"parse_cond_clauses","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2375,"elapsed_seconds":0.000152,"failures":0}
+{"event":"shadow-start","name":"parse_match_guard","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2387,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_match_guard 352 419000
+{"event":"shadow-complete","name":"parse_match_guard","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2387,"elapsed_seconds":0.001663,"failures":0}
+{"event":"shadow-start","name":"parser_match_arm_unconditional","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2407,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_match_arm_unconditional 2536 2727000
+{"event":"shadow-complete","name":"parser_match_arm_unconditional","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2407,"elapsed_seconds":0.012593,"failures":0}
+{"event":"shadow-start","name":"parser_expect_match_arrow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2419,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_expect_match_arrow 157 215000
+{"event":"shadow-complete","name":"parser_expect_match_arrow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2419,"elapsed_seconds":0.000698,"failures":0}
+{"event":"shadow-start","name":"parse_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2671,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_match 1369 1473000
+{"event":"shadow-complete","name":"parse_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":2671,"elapsed_seconds":0.006902,"failures":0}
+{"event":"shadow-start","name":"parse_primary","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3276,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_primary 14155 16479000
+{"event":"shadow-complete","name":"parse_primary","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3276,"elapsed_seconds":0.077404,"failures":0}
+{"event":"shadow-start","name":"parse_parenthesized_head","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3339,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_parenthesized_head 1769 2010000
+{"event":"shadow-complete","name":"parse_parenthesized_head","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3339,"elapsed_seconds":0.008883,"failures":0}
+{"event":"shadow-start","name":"parenthesized_call_start","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3367,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parenthesized_call_start 2851 3269000
+{"event":"shadow-complete","name":"parenthesized_call_start","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3367,"elapsed_seconds":0.009233,"failures":0}
+{"event":"shadow-start","name":"is_binary_op","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3388,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile is_binary_op 52 48000
+{"event":"shadow-complete","name":"is_binary_op","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3388,"elapsed_seconds":0.000155,"failures":0}
+{"event":"shadow-start","name":"parse_expression_recursive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3569,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_expression_recursive 0 0
+{"event":"shadow-complete","name":"parse_expression_recursive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3569,"elapsed_seconds":0.000103,"failures":0}
+{"event":"shadow-start","name":"parse_expression","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3574,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_expression 0 0
+{"event":"shadow-complete","name":"parse_expression","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3574,"elapsed_seconds":0.000086,"failures":0}
+{"event":"shadow-start","name":"parser_store_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3682,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_let 45 109000
+{"event":"shadow-complete","name":"parser_store_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3682,"elapsed_seconds":0.000376,"failures":0}
+{"event":"shadow-start","name":"parser_store_set","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3786,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_set 48 112000
+{"event":"shadow-complete","name":"parser_store_set","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3786,"elapsed_seconds":0.000559,"failures":0}
+{"event":"shadow-start","name":"parser_store_if","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3892,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_if 0 0
+{"event":"shadow-complete","name":"parser_store_if","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3892,"elapsed_seconds":0.000094,"failures":0}
+{"event":"shadow-start","name":"parser_store_while","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3991,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_while 0 0
+{"event":"shadow-complete","name":"parser_store_while","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":3991,"elapsed_seconds":0.000200,"failures":0}
+{"event":"shadow-start","name":"parser_finish_array_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4102,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_finish_array_literal 68 139000
+{"event":"shadow-complete","name":"parser_finish_array_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4102,"elapsed_seconds":0.000857,"failures":0}
+{"event":"shadow-start","name":"parser_always_returns","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4250,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_always_returns 1812 1987000
+{"event":"shadow-complete","name":"parser_always_returns","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4250,"elapsed_seconds":0.009325,"failures":0}
+{"event":"shadow-start","name":"parser_is_value_expression","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4258,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_is_value_expression 8 9000
+{"event":"shadow-complete","name":"parser_is_value_expression","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4258,"elapsed_seconds":0.000118,"failures":0}
+{"event":"shadow-start","name":"parser_decode_import_path","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4288,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_decode_import_path 89 16000
+{"event":"shadow-complete","name":"parser_decode_import_path","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4288,"elapsed_seconds":0.000221,"failures":0}
+{"event":"shadow-start","name":"parser_store_return","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4956,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_return 0 0
+{"event":"shadow-complete","name":"parser_store_return","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":4956,"elapsed_seconds":0.000105,"failures":0}
+{"event":"shadow-start","name":"parser_store_assert","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5053,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_assert 0 0
+{"event":"shadow-complete","name":"parser_store_assert","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5053,"elapsed_seconds":0.000090,"failures":0}
+{"event":"shadow-start","name":"parser_store_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5152,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_block 0 0
+{"event":"shadow-complete","name":"parser_store_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5152,"elapsed_seconds":0.000092,"failures":0}
+{"event":"shadow-start","name":"parser_wrap_if_in_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5165,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_wrap_if_in_block 0 0
+{"event":"shadow-complete","name":"parser_wrap_if_in_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5165,"elapsed_seconds":0.000096,"failures":0}
+{"event":"shadow-start","name":"expr_kind_to_pnode","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5182,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile expr_kind_to_pnode 6 7000
+{"event":"shadow-complete","name":"expr_kind_to_pnode","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5182,"elapsed_seconds":0.000101,"failures":0}
+{"event":"shadow-start","name":"parser_starts_owned_pattern","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5201,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_starts_owned_pattern 320 347000
+{"event":"shadow-complete","name":"parser_starts_owned_pattern","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5201,"elapsed_seconds":0.000755,"failures":0}
+{"event":"shadow-start","name":"parser_mark_owned","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5217,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_mark_owned 52 124000
+{"event":"shadow-complete","name":"parser_mark_owned","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5217,"elapsed_seconds":0.000390,"failures":0}
+{"event":"shadow-start","name":"parse_owned_pattern","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5272,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_owned_pattern 1430 1590000
+{"event":"shadow-complete","name":"parse_owned_pattern","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5272,"elapsed_seconds":0.007946,"failures":0}
+{"event":"shadow-start","name":"parse_block_recursive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5368,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_block_recursive 185598 184001000
+{"event":"shadow-complete","name":"parse_block_recursive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5368,"elapsed_seconds":0.747377,"failures":0}
+{"event":"shadow-start","name":"parse_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5402,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_block 0 0
+{"event":"shadow-complete","name":"parse_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5402,"elapsed_seconds":0.000106,"failures":0}
+{"event":"shadow-start","name":"parser_store_unsafe_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5497,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_unsafe_block 0 0
+{"event":"shadow-complete","name":"parser_store_unsafe_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5497,"elapsed_seconds":0.000107,"failures":0}
+{"event":"shadow-start","name":"parse_unsafe_block_recursive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5529,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_unsafe_block_recursive 181054 179757000
+{"event":"shadow-complete","name":"parse_unsafe_block_recursive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5529,"elapsed_seconds":0.742209,"failures":0}
+{"event":"shadow-start","name":"parse_unsafe_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5581,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_unsafe_block 0 0
+{"event":"shadow-complete","name":"parse_unsafe_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5581,"elapsed_seconds":0.000104,"failures":0}
+{"event":"shadow-start","name":"parse_let_body","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5585,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_let_body 0 0
+{"event":"shadow-complete","name":"parse_let_body","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5585,"elapsed_seconds":0.000084,"failures":0}
+{"event":"shadow-start","name":"parse_tuple_destructure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5746,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_tuple_destructure 0 0
+{"event":"shadow-complete","name":"parse_tuple_destructure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5746,"elapsed_seconds":0.000117,"failures":0}
+{"event":"shadow-start","name":"parse_let_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5781,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_let_statement 0 0
+{"event":"shadow-complete","name":"parse_let_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5781,"elapsed_seconds":0.000099,"failures":0}
+{"event":"shadow-start","name":"parse_if_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5856,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_if_statement 0 0
+{"event":"shadow-complete","name":"parse_if_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5856,"elapsed_seconds":0.000081,"failures":0}
+{"event":"shadow-start","name":"parse_while_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5891,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_while_statement 0 0
+{"event":"shadow-complete","name":"parse_while_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5891,"elapsed_seconds":0.000091,"failures":0}
+{"event":"shadow-start","name":"parse_return_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5931,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_return_statement 0 0
+{"event":"shadow-complete","name":"parse_return_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5931,"elapsed_seconds":0.000107,"failures":0}
+{"event":"shadow-start","name":"parse_assert_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5953,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_assert_statement 0 0
+{"event":"shadow-complete","name":"parse_assert_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":5953,"elapsed_seconds":0.000112,"failures":0}
+{"event":"shadow-start","name":"parse_for_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6014,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_for_statement 0 0
+{"event":"shadow-complete","name":"parse_for_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6014,"elapsed_seconds":0.000097,"failures":0}
+{"event":"shadow-start","name":"parser_with_node","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6101,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_with_node 41 104000
+{"event":"shadow-complete","name":"parser_with_node","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6101,"elapsed_seconds":0.000356,"failures":0}
+{"event":"shadow-start","name":"parser_with_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6110,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_with_statement 43 111000
+{"event":"shadow-complete","name":"parser_with_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6110,"elapsed_seconds":0.000342,"failures":0}
+{"event":"shadow-start","name":"parser_mark_passive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6126,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_mark_passive 1781 1980000
+{"event":"shadow-complete","name":"parser_mark_passive","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6126,"elapsed_seconds":0.009480,"failures":0}
+{"event":"shadow-start","name":"parser_mark_par","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6137,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_mark_par 1831 1932000
+{"event":"shadow-complete","name":"parser_mark_par","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6137,"elapsed_seconds":0.009342,"failures":0}
+{"event":"shadow-start","name":"parse_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6233,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_statement 0 0
+{"event":"shadow-complete","name":"parse_statement","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6233,"elapsed_seconds":0.000111,"failures":0}
+{"event":"shadow-start","name":"parser_mark_lambda","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6252,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_mark_lambda 55 138000
+{"event":"shadow-complete","name":"parser_mark_lambda","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6252,"elapsed_seconds":0.000472,"failures":0}
+{"event":"shadow-start","name":"parser_lambda_function","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6271,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_lambda_function 2072 2277000
+{"event":"shadow-complete","name":"parser_lambda_function","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6271,"elapsed_seconds":0.011592,"failures":0}
+{"event":"shadow-start","name":"parser_mark_pure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6300,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_mark_pure 57 140000
+{"event":"shadow-complete","name":"parser_mark_pure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6300,"elapsed_seconds":0.000434,"failures":0}
+{"event":"shadow-start","name":"parser_store_function","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6405,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_function 0 0
+{"event":"shadow-complete","name":"parser_store_function","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6405,"elapsed_seconds":0.000128,"failures":0}
+{"event":"shadow-start","name":"parser_store_struct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6508,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_struct 45 111000
+{"event":"shadow-complete","name":"parser_store_struct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6508,"elapsed_seconds":0.000381,"failures":0}
+{"event":"shadow-start","name":"parser_store_enum","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6614,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_enum 50 117000
+{"event":"shadow-complete","name":"parser_store_enum","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6614,"elapsed_seconds":0.000432,"failures":0}
+{"event":"shadow-start","name":"parser_store_union","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6724,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_union 0 0
+{"event":"shadow-complete","name":"parser_store_union","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":6724,"elapsed_seconds":0.000095,"failures":0}
+{"event":"shadow-start","name":"parse_parameter_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7231,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_parameter_type 653 803000
+{"event":"shadow-complete","name":"parse_parameter_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7231,"elapsed_seconds":0.003369,"failures":0}
+{"event":"shadow-start","name":"parse_function_params","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7322,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_function_params 0 0
+{"event":"shadow-complete","name":"parse_function_params","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7322,"elapsed_seconds":0.000101,"failures":0}
+{"event":"shadow-start","name":"parse_extern_function_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7385,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_extern_function_definition 467 513000
+{"event":"shadow-complete","name":"parse_extern_function_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7385,"elapsed_seconds":0.002387,"failures":0}
+{"event":"shadow-start","name":"parse_function_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7564,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_function_definition 0 0
+{"event":"shadow-complete","name":"parse_function_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7564,"elapsed_seconds":0.000109,"failures":0}
+{"event":"shadow-start","name":"parse_struct_fields","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7633,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_struct_fields 1624 1596000
+{"event":"shadow-complete","name":"parse_struct_fields","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7633,"elapsed_seconds":0.007383,"failures":0}
+{"event":"shadow-start","name":"parse_struct_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7692,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_struct_definition 1624 1564000
+{"event":"shadow-complete","name":"parse_struct_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7692,"elapsed_seconds":0.008441,"failures":0}
+{"event":"shadow-start","name":"parse_enum_variants","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7769,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_enum_variants 1085 1109000
+{"event":"shadow-complete","name":"parse_enum_variants","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7769,"elapsed_seconds":0.005652,"failures":0}
+{"event":"shadow-start","name":"parse_enum_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7820,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_enum_definition 0 0
+{"event":"shadow-complete","name":"parse_enum_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7820,"elapsed_seconds":0.000110,"failures":0}
+{"event":"shadow-start","name":"parse_union_variants","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7954,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_union_variants 0 0
+{"event":"shadow-complete","name":"parse_union_variants","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":7954,"elapsed_seconds":0.000098,"failures":0}
+{"event":"shadow-start","name":"parse_union_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8025,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_union_definition 0 0
+{"event":"shadow-complete","name":"parse_union_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8025,"elapsed_seconds":0.000124,"failures":0}
+{"event":"shadow-start","name":"parse_module_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8092,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_module_import 0 0
+{"event":"shadow-complete","name":"parse_module_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8092,"elapsed_seconds":0.000125,"failures":0}
+{"event":"shadow-start","name":"parse_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8096,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_import 440 388000
+{"event":"shadow-complete","name":"parse_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8096,"elapsed_seconds":0.001925,"failures":0}
+{"event":"shadow-start","name":"parse_from_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8191,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_from_import 579 536000
+{"event":"shadow-complete","name":"parse_from_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8191,"elapsed_seconds":0.002547,"failures":0}
+{"event":"shadow-start","name":"parse_opaque_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8231,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_opaque_type 0 0
+{"event":"shadow-complete","name":"parse_opaque_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8231,"elapsed_seconds":0.000080,"failures":0}
+{"event":"shadow-start","name":"parse_shadow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8260,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_shadow 0 0
+{"event":"shadow-complete","name":"parse_shadow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8260,"elapsed_seconds":0.000167,"failures":0}
+{"event":"shadow-start","name":"parser_public_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8355,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_public_let 597 655000
+{"event":"shadow-complete","name":"parser_public_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8355,"elapsed_seconds":0.003094,"failures":0}
+{"event":"shadow-start","name":"parser_public_use","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8378,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_public_use 380 384000
+{"event":"shadow-complete","name":"parser_public_use","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8378,"elapsed_seconds":0.001702,"failures":0}
+{"event":"shadow-start","name":"parse_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8532,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_definition 2835 2900000
+{"event":"shadow-complete","name":"parse_definition","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8532,"elapsed_seconds":0.013991,"failures":0}
+{"event":"shadow-start","name":"parse_program","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8581,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_program 579 708000
+{"event":"shadow-complete","name":"parse_program","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8581,"elapsed_seconds":0.003074,"failures":0}
+{"event":"shadow-start","name":"create_number_node","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8607,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile create_number_node 2 2000
+{"event":"shadow-complete","name":"create_number_node","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8607,"elapsed_seconds":0.000232,"failures":0}
+{"event":"shadow-start","name":"create_identifier_node","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8622,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile create_identifier_node 2 2000
+{"event":"shadow-complete","name":"create_identifier_node","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8622,"elapsed_seconds":0.000108,"failures":0}
+{"event":"shadow-start","name":"test_parser_structure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8642,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile test_parser_structure 48 109000
+{"event":"shadow-complete","name":"test_parser_structure","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8642,"elapsed_seconds":0.000372,"failures":0}
+{"event":"shadow-start","name":"parser_get_function_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8659,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_function_count 45 104000
+{"event":"shadow-complete","name":"parser_get_function_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8659,"elapsed_seconds":0.000280,"failures":0}
+{"event":"shadow-start","name":"parser_set_let_var_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8701,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_set_let_var_type 712 793000
+{"event":"shadow-complete","name":"parser_set_let_var_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8701,"elapsed_seconds":0.003566,"failures":0}
+{"event":"shadow-start","name":"parser_get_for","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8796,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_for 52 128000
+{"event":"shadow-complete","name":"parser_get_for","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8796,"elapsed_seconds":0.000639,"failures":0}
+{"event":"shadow-start","name":"parser_get_struct_def_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8934,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_struct_def_count 50 139000
+{"event":"shadow-complete","name":"parser_get_struct_def_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8934,"elapsed_seconds":0.000374,"failures":0}
+{"event":"shadow-start","name":"parser_get_struct_def","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8950,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_struct_def 47 132000
+{"event":"shadow-complete","name":"parser_get_struct_def","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8950,"elapsed_seconds":0.000375,"failures":0}
+{"event":"shadow-start","name":"parser_get_enum_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8976,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_enum_count 48 125000
+{"event":"shadow-complete","name":"parser_get_enum_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8976,"elapsed_seconds":0.000387,"failures":0}
+{"event":"shadow-start","name":"parser_get_enum","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8988,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_enum 45 112000
+{"event":"shadow-complete","name":"parser_get_enum","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":8988,"elapsed_seconds":0.000388,"failures":0}
+{"event":"shadow-start","name":"parser_get_union_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9000,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_union_count 48 129000
+{"event":"shadow-complete","name":"parser_get_union_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9000,"elapsed_seconds":0.000401,"failures":0}
+{"event":"shadow-start","name":"parser_get_union","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9017,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_union 47 110000
+{"event":"shadow-complete","name":"parser_get_union","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9017,"elapsed_seconds":0.000483,"failures":0}
+{"event":"shadow-start","name":"parser_store_array_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9090,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_array_literal 45 116000
+{"event":"shadow-complete","name":"parser_store_array_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9090,"elapsed_seconds":0.000508,"failures":0}
+{"event":"shadow-start","name":"parser_store_field_access","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9097,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_field_access 45 132000
+{"event":"shadow-complete","name":"parser_store_field_access","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9097,"elapsed_seconds":0.000539,"failures":0}
+{"event":"shadow-start","name":"parser_store_float","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9104,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_float 45 115000
+{"event":"shadow-complete","name":"parser_store_float","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9104,"elapsed_seconds":0.000463,"failures":0}
+{"event":"shadow-start","name":"parser_store_for","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9111,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_for 43 113000
+{"event":"shadow-complete","name":"parser_store_for","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9111,"elapsed_seconds":0.000453,"failures":0}
+{"event":"shadow-start","name":"parser_store_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9118,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_import 105 129000
+{"event":"shadow-complete","name":"parser_store_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9118,"elapsed_seconds":0.000562,"failures":0}
+{"event":"shadow-start","name":"parser_store_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9127,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_match 45 127000
+{"event":"shadow-complete","name":"parser_store_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9127,"elapsed_seconds":0.000536,"failures":0}
+{"event":"shadow-start","name":"parser_store_opaque_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9138,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_opaque_type 43 108000
+{"event":"shadow-complete","name":"parser_store_opaque_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9138,"elapsed_seconds":0.000414,"failures":0}
+{"event":"shadow-start","name":"parser_store_shadow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9145,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_shadow 43 105000
+{"event":"shadow-complete","name":"parser_store_shadow","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9145,"elapsed_seconds":0.000465,"failures":0}
+{"event":"shadow-start","name":"parser_store_struct_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9152,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_struct_literal 48 117000
+{"event":"shadow-complete","name":"parser_store_struct_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9152,"elapsed_seconds":0.000426,"failures":0}
+{"event":"shadow-start","name":"parser_store_tuple_index","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9165,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_tuple_index 45 117000
+{"event":"shadow-complete","name":"parser_store_tuple_index","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9165,"elapsed_seconds":0.000393,"failures":0}
+{"event":"shadow-start","name":"parser_store_tuple_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9172,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_tuple_literal 47 119000
+{"event":"shadow-complete","name":"parser_store_tuple_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9172,"elapsed_seconds":0.000389,"failures":0}
+{"event":"shadow-start","name":"parser_store_union_construct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9183,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_union_construct 45 117000
+{"event":"shadow-complete","name":"parser_store_union_construct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9183,"elapsed_seconds":0.000373,"failures":0}
+{"event":"shadow-start","name":"parser_get_function","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9193,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_function 45 120000
+{"event":"shadow-complete","name":"parser_get_function","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9193,"elapsed_seconds":0.000375,"failures":0}
+{"event":"shadow-start","name":"parser_get_let_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9200,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_let_count 48 113000
+{"event":"shadow-complete","name":"parser_get_let_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9200,"elapsed_seconds":0.000414,"failures":0}
+{"event":"shadow-start","name":"parser_get_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9207,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_let 45 117000
+{"event":"shadow-complete","name":"parser_get_let","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9207,"elapsed_seconds":0.000419,"failures":0}
+{"event":"shadow-start","name":"parser_get_identifier_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9214,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_identifier_count 48 106000
+{"event":"shadow-complete","name":"parser_get_identifier_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9214,"elapsed_seconds":0.000462,"failures":0}
+{"event":"shadow-start","name":"parser_get_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9221,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_identifier 45 106000
+{"event":"shadow-complete","name":"parser_get_identifier","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9221,"elapsed_seconds":0.000404,"failures":0}
+{"event":"shadow-start","name":"parser_get_number_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9228,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_number_count 48 106000
+{"event":"shadow-complete","name":"parser_get_number_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9228,"elapsed_seconds":0.000427,"failures":0}
+{"event":"shadow-start","name":"parser_get_number","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9235,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_number 45 110000
+{"event":"shadow-complete","name":"parser_get_number","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9235,"elapsed_seconds":0.000426,"failures":0}
+{"event":"shadow-start","name":"parser_get_float_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9242,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_float_count 48 119000
+{"event":"shadow-complete","name":"parser_get_float_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9242,"elapsed_seconds":0.000413,"failures":0}
+{"event":"shadow-start","name":"parser_get_float","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9249,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_float 45 109000
+{"event":"shadow-complete","name":"parser_get_float","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9249,"elapsed_seconds":0.000365,"failures":0}
+{"event":"shadow-start","name":"parser_get_binary_op_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9256,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_binary_op_count 51 120000
+{"event":"shadow-complete","name":"parser_get_binary_op_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9256,"elapsed_seconds":0.000598,"failures":0}
+{"event":"shadow-start","name":"parser_get_binary_op","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9266,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_binary_op 48 103000
+{"event":"shadow-complete","name":"parser_get_binary_op","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9266,"elapsed_seconds":0.000565,"failures":0}
+{"event":"shadow-start","name":"parser_get_return_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9276,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_return_count 51 122000
+{"event":"shadow-complete","name":"parser_get_return_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9276,"elapsed_seconds":0.000542,"failures":0}
+{"event":"shadow-start","name":"parser_get_return","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9284,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_return 48 133000
+{"event":"shadow-complete","name":"parser_get_return","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9284,"elapsed_seconds":0.000583,"failures":0}
+{"event":"shadow-start","name":"parser_get_block_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9292,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_block_count 49 113000
+{"event":"shadow-complete","name":"parser_get_block_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9292,"elapsed_seconds":0.000376,"failures":0}
+{"event":"shadow-start","name":"parser_get_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9300,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_block 47 116000
+{"event":"shadow-complete","name":"parser_get_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9300,"elapsed_seconds":0.000365,"failures":0}
+{"event":"shadow-start","name":"parser_get_if_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9308,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_if_count 55 122000
+{"event":"shadow-complete","name":"parser_get_if_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9308,"elapsed_seconds":0.000722,"failures":0}
+{"event":"shadow-start","name":"parser_get_if","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9319,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_if 52 121000
+{"event":"shadow-complete","name":"parser_get_if","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9319,"elapsed_seconds":0.000702,"failures":0}
+{"event":"shadow-start","name":"parser_get_while_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9330,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_while_count 55 135000
+{"event":"shadow-complete","name":"parser_get_while_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9330,"elapsed_seconds":0.000733,"failures":0}
+{"event":"shadow-start","name":"parser_get_while","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9341,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_while 52 122000
+{"event":"shadow-complete","name":"parser_get_while","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9341,"elapsed_seconds":0.000690,"failures":0}
+{"event":"shadow-start","name":"parser_get_unsafe_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9352,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_unsafe_block 47 117000
+{"event":"shadow-complete","name":"parser_get_unsafe_block","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9352,"elapsed_seconds":0.000373,"failures":0}
+{"event":"shadow-start","name":"parser_get_call_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9360,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_call_count 51 129000
+{"event":"shadow-complete","name":"parser_get_call_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9360,"elapsed_seconds":0.000858,"failures":0}
+{"event":"shadow-start","name":"parser_get_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9369,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_call 48 136000
+{"event":"shadow-complete","name":"parser_get_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9369,"elapsed_seconds":0.000605,"failures":0}
+{"event":"shadow-start","name":"parser_get_module_qualified_call_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9378,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_module_qualified_call_count 48 120000
+{"event":"shadow-complete","name":"parser_get_module_qualified_call_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9378,"elapsed_seconds":0.004362,"failures":0}
+{"event":"shadow-start","name":"parser_get_module_qualified_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9385,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_module_qualified_call 45 117000
+{"event":"shadow-complete","name":"parser_get_module_qualified_call","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9385,"elapsed_seconds":0.000403,"failures":0}
+{"event":"shadow-start","name":"parser_get_call_arg_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9392,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_call_arg_count 48 111000
+{"event":"shadow-complete","name":"parser_get_call_arg_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9392,"elapsed_seconds":0.000405,"failures":0}
+{"event":"shadow-start","name":"parser_get_call_arg","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9399,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_call_arg 45 112000
+{"event":"shadow-complete","name":"parser_get_call_arg","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9399,"elapsed_seconds":0.000404,"failures":0}
+{"event":"shadow-start","name":"parser_get_set_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9406,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_set_count 51 117000
+{"event":"shadow-complete","name":"parser_get_set_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9406,"elapsed_seconds":0.000539,"failures":0}
+{"event":"shadow-start","name":"parser_get_set","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9414,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_set 48 116000
+{"event":"shadow-complete","name":"parser_get_set","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9414,"elapsed_seconds":0.000520,"failures":0}
+{"event":"shadow-start","name":"parser_get_string_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9422,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_string_count 48 116000
+{"event":"shadow-complete","name":"parser_get_string_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9422,"elapsed_seconds":0.000390,"failures":0}
+{"event":"shadow-start","name":"parser_get_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9429,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_string 45 116000
+{"event":"shadow-complete","name":"parser_get_string","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9429,"elapsed_seconds":0.000420,"failures":0}
+{"event":"shadow-start","name":"parser_get_bool_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9436,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_bool_count 48 116000
+{"event":"shadow-complete","name":"parser_get_bool_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9436,"elapsed_seconds":0.000399,"failures":0}
+{"event":"shadow-start","name":"parser_get_bool","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9443,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_bool 45 110000
+{"event":"shadow-complete","name":"parser_get_bool","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9443,"elapsed_seconds":0.000381,"failures":0}
+{"event":"shadow-start","name":"parser_get_assert_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9450,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_assert_count 51 133000
+{"event":"shadow-complete","name":"parser_get_assert_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9450,"elapsed_seconds":0.000584,"failures":0}
+{"event":"shadow-start","name":"parser_get_assert","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9458,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_assert 48 108000
+{"event":"shadow-complete","name":"parser_get_assert","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9458,"elapsed_seconds":0.000530,"failures":0}
+{"event":"shadow-start","name":"parser_get_field_access_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9466,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_field_access_count 48 114000
+{"event":"shadow-complete","name":"parser_get_field_access_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9466,"elapsed_seconds":0.000393,"failures":0}
+{"event":"shadow-start","name":"parser_get_field_access","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9473,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_field_access 45 110000
+{"event":"shadow-complete","name":"parser_get_field_access","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9473,"elapsed_seconds":0.000373,"failures":0}
+{"event":"shadow-start","name":"parser_get_array_literal_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9480,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_array_literal_count 48 127000
+{"event":"shadow-complete","name":"parser_get_array_literal_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9480,"elapsed_seconds":0.000437,"failures":0}
+{"event":"shadow-start","name":"parser_get_array_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9487,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_array_literal 45 106000
+{"event":"shadow-complete","name":"parser_get_array_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9487,"elapsed_seconds":0.000402,"failures":0}
+{"event":"shadow-start","name":"parser_set_array_literal_element_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9494,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_set_array_literal_element_type 49 117000
+{"event":"shadow-complete","name":"parser_set_array_literal_element_type","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9494,"elapsed_seconds":0.000404,"failures":0}
+{"event":"shadow-start","name":"parser_get_array_element_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9502,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_array_element_count 48 124000
+{"event":"shadow-complete","name":"parser_get_array_element_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9502,"elapsed_seconds":0.000434,"failures":0}
+{"event":"shadow-start","name":"parser_get_array_element","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9509,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_array_element 45 105000
+{"event":"shadow-complete","name":"parser_get_array_element","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9509,"elapsed_seconds":0.000376,"failures":0}
+{"event":"shadow-start","name":"parser_get_struct_literal_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9516,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_struct_literal_count 51 125000
+{"event":"shadow-complete","name":"parser_get_struct_literal_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9516,"elapsed_seconds":0.000357,"failures":0}
+{"event":"shadow-start","name":"parser_get_struct_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9529,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_struct_literal 48 116000
+{"event":"shadow-complete","name":"parser_get_struct_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9529,"elapsed_seconds":0.000346,"failures":0}
+{"event":"shadow-start","name":"parser_get_union_construct_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9542,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_union_construct_count 48 119000
+{"event":"shadow-complete","name":"parser_get_union_construct_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9542,"elapsed_seconds":0.000375,"failures":0}
+{"event":"shadow-start","name":"parser_get_union_construct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9552,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_union_construct 45 113000
+{"event":"shadow-complete","name":"parser_get_union_construct","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9552,"elapsed_seconds":0.000387,"failures":0}
+{"event":"shadow-start","name":"parser_get_match_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9562,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_match_count 48 122000
+{"event":"shadow-complete","name":"parser_get_match_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9562,"elapsed_seconds":0.000394,"failures":0}
+{"event":"shadow-start","name":"parser_get_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9573,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_match 45 116000
+{"event":"shadow-complete","name":"parser_get_match","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9573,"elapsed_seconds":0.000338,"failures":0}
+{"event":"shadow-start","name":"parser_get_tuple_literal_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9584,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_tuple_literal_count 50 129000
+{"event":"shadow-complete","name":"parser_get_tuple_literal_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9584,"elapsed_seconds":0.000394,"failures":0}
+{"event":"shadow-start","name":"parser_get_tuple_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9595,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_tuple_literal 47 122000
+{"event":"shadow-complete","name":"parser_get_tuple_literal","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9595,"elapsed_seconds":0.000349,"failures":0}
+{"event":"shadow-start","name":"parser_get_tuple_index_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9606,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_tuple_index_count 48 116000
+{"event":"shadow-complete","name":"parser_get_tuple_index_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9606,"elapsed_seconds":0.000350,"failures":0}
+{"event":"shadow-start","name":"parser_get_tuple_index","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9613,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_tuple_index 45 107000
+{"event":"shadow-complete","name":"parser_get_tuple_index","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9613,"elapsed_seconds":0.000338,"failures":0}
+{"event":"shadow-start","name":"parser_get_import_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9620,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_import_count 108 119000
+{"event":"shadow-complete","name":"parser_get_import_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9620,"elapsed_seconds":0.000458,"failures":0}
+{"event":"shadow-start","name":"parser_get_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9629,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_import 105 126000
+{"event":"shadow-complete","name":"parser_get_import","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9629,"elapsed_seconds":0.000467,"failures":0}
+{"event":"shadow-start","name":"parse_phase_run","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9682,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_phase_run 14751 15341000
+{"event":"shadow-complete","name":"parse_phase_run","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9682,"elapsed_seconds":0.072616,"failures":0}
+{"event":"shadow-start","name":"parser_service_utf8","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9794,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_service_utf8 49 20000
+{"event":"shadow-complete","name":"parser_service_utf8","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9794,"elapsed_seconds":0.000155,"failures":0}
+{"event":"shadow-start","name":"parser_store_service","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9809,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_store_service 47 108000
+{"event":"shadow-complete","name":"parser_store_service","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9809,"elapsed_seconds":0.000692,"failures":0}
+{"event":"shadow-start","name":"parse_service_declaration","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9823,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parse_service_declaration 3540 2818000
+{"event":"shadow-complete","name":"parse_service_declaration","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9823,"elapsed_seconds":0.011472,"failures":0}
+{"event":"shadow-start","name":"parser_get_service_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9846,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_service_count 46 117000
+{"event":"shadow-complete","name":"parser_get_service_count","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9846,"elapsed_seconds":0.000410,"failures":0}
+{"event":"shadow-start","name":"parser_get_service","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9853,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile parser_get_service 45 113000
+{"event":"shadow-complete","name":"parser_get_service","source":"/Users/jordanh/Src/nanolang/src_nano/parser.nano","line":9853,"elapsed_seconds":0.000391,"failures":0}
+{"event":"shadow-start","name":"main","source":"/private/tmp/nl51-profile-parser.nano","line":3,"elapsed_seconds":0.000000,"failures":0}
+lookup-profile main 2 4000
+{"event":"shadow-complete","name":"main","source":"/private/tmp/nl51-profile-parser.nano","line":3,"elapsed_seconds":0.000059,"failures":0}

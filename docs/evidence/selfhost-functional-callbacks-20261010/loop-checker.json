@@ -1,0 +1,20 @@
+[
+  {
+    "source": "/private/tmp/nl51-selfhost-functional/test_iteration_named_computed_and_inline.nano",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "source": "/private/tmp/nl51-selfhost-functional/test_iteration_value_survives_mutation_and_return.nano",
+    "exit": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "source": "/private/tmp/nl51-selfhost-functional/test_iteration_continue_break_and_empty.nano",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

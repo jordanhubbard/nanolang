@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/private/tmp/nanolang-diag-tools/bin/nvm2c",
+    "/private/tmp/nanolang-capture-ae92c0488-cow/bin/nanoc_seed.nvm",
+    "-o",
+    "/private/tmp/nanolang-actual-write-seed.c"
+  ],
+  "seconds": 358.9405528330244,
+  "exit_code": -15
+}

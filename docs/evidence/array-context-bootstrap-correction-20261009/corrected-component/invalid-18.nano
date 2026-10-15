@@ -1,0 +1,2 @@
+fn main()->int { let child:array<int> = [7] let values:array<array<u8>> = [child] return 0 }
+shadow main { assert true }

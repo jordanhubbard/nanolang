@@ -1,0 +1,4 @@
+{
+  "entry_argument_count": "-6 != 0 : I stopped at a native invariant in nfx_perform at generated C line 876.\n",
+  "halt_in_arm": "99 != 0 : "
+}

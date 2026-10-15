@@ -1,0 +1,7 @@
+test_callable_record_signatures_are_not_layout_cycles (tests.test_native_nominal_order.NativeNominalOrder.test_callable_record_signatures_are_not_layout_cycles) ... ok
+test_generic_array_payload_is_not_a_layout_cycle (tests.test_native_nominal_order.NativeNominalOrder.test_generic_array_payload_is_not_a_layout_cycle) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.664s
+
+OK

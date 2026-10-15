@@ -1,0 +1,36 @@
+test_record_temporaries_have_scoped_heap_storage (tests.test_one_ir_compiler.OneIrCompiler.test_record_temporaries_have_scoped_heap_storage) ... 
+  test_record_temporaries_have_scoped_heap_storage (tests.test_one_ir_compiler.OneIrCompiler.test_record_temporaries_have_scoped_heap_storage) (mode='ordinary') ... FAIL
+  test_record_temporaries_have_scoped_heap_storage (tests.test_one_ir_compiler.OneIrCompiler.test_record_temporaries_have_scoped_heap_storage) (mode='self_tail') ... FAIL
+  test_record_temporaries_have_scoped_heap_storage (tests.test_one_ir_compiler.OneIrCompiler.test_record_temporaries_have_scoped_heap_storage) (mode='cross_tail') ... FAIL
+
+======================================================================
+FAIL: test_record_temporaries_have_scoped_heap_storage (tests.test_one_ir_compiler.OneIrCompiler.test_record_temporaries_have_scoped_heap_storage) (mode='ordinary')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 1045, in test_record_temporaries_have_scoped_heap_storage
+    self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : 
+
+======================================================================
+FAIL: test_record_temporaries_have_scoped_heap_storage (tests.test_one_ir_compiler.OneIrCompiler.test_record_temporaries_have_scoped_heap_storage) (mode='self_tail')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 1045, in test_record_temporaries_have_scoped_heap_storage
+    self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : 
+
+======================================================================
+FAIL: test_record_temporaries_have_scoped_heap_storage (tests.test_one_ir_compiler.OneIrCompiler.test_record_temporaries_have_scoped_heap_storage) (mode='cross_tail')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 1045, in test_record_temporaries_have_scoped_heap_storage
+    self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : 
+
+----------------------------------------------------------------------
+Ran 1 test in 1.511s
+
+FAILED (failures=3)

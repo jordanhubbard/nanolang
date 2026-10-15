@@ -1,0 +1,12 @@
+module "src_nano/compiler/file_source_plan.nano" as Plan
+fn main()->int{
+    for catalog in (range 1 4){
+        let first:string=(Plan.service_source_catalog_view catalog)
+        assert (== first (Plan.service_source_catalog_view catalog))
+        (println first)
+    }
+    assert (== (Plan.service_source_catalog_view -1) "")
+    assert (== (Plan.service_source_catalog_view 4) "")
+    return 0
+}
+shadow main {assert (== (main) 0)}

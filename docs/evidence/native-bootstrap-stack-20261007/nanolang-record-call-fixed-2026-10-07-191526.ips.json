@@ -1,0 +1,184 @@
+{
+  "exception": {
+    "codes": "0x0000000000000002, 0x000000016e849240",
+    "message": "Could not determine thread index for stack guard region",
+    "rawCodes": [
+      2,
+      6149149248
+    ],
+    "type": "EXC_BAD_ACCESS",
+    "signal": "SIGSEGV",
+    "subtype": "KERN_PROTECTION_FAILURE at 0x000000016e849240"
+  },
+  "vm_region": "0x16e849240 is in 0x16b064000-0x16e868000;  bytes after start: 58610240  bytes before end: 126399\n      REGION TYPE                    START - END         [ VSIZE] PRT/MAX SHRMOD  REGION DETAIL\n      MALLOC metadata             157600000-157604000    [   16K] rw-/rwx SM=PRV  \n      GAP OF 0x13a60000 BYTES\n--->  Stack Guard                 16b064000-16e868000    [ 56.0M] ---/rwx SM=PRV  \n      Stack                       16e868000-16f064000    [ 8176K] rw-/rwx SM=SHM  ",
+  "frames": [
+    {
+      "imageOffset": 1813484,
+      "symbol": "nl_parse_expression_recursive",
+      "symbolLocation": 28,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1874712,
+      "symbol": "nl_parse_expression",
+      "symbolLocation": 388,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1290460,
+      "symbol": "nl_parse_primary",
+      "symbolLocation": 616360,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1830092,
+      "symbol": "nl_parse_expression_recursive",
+      "symbolLocation": 16636,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1874712,
+      "symbol": "nl_parse_expression",
+      "symbolLocation": 388,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1290460,
+      "symbol": "nl_parse_primary",
+      "symbolLocation": 616360,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1830092,
+      "symbol": "nl_parse_expression_recursive",
+      "symbolLocation": 16636,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1874712,
+      "symbol": "nl_parse_expression",
+      "symbolLocation": 388,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1343076,
+      "symbol": "nl_parse_primary",
+      "symbolLocation": 668976,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1830092,
+      "symbol": "nl_parse_expression_recursive",
+      "symbolLocation": 16636,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1874712,
+      "symbol": "nl_parse_expression",
+      "symbolLocation": 388,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1343076,
+      "symbol": "nl_parse_primary",
+      "symbolLocation": 668976,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1830092,
+      "symbol": "nl_parse_expression_recursive",
+      "symbolLocation": 16636,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1874712,
+      "symbol": "nl_parse_expression",
+      "symbolLocation": 388,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1343076,
+      "symbol": "nl_parse_primary",
+      "symbolLocation": 668976,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1830092,
+      "symbol": "nl_parse_expression_recursive",
+      "symbolLocation": 16636,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1874712,
+      "symbol": "nl_parse_expression",
+      "symbolLocation": 388,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 2387384,
+      "symbol": "nl_parse_if_statement",
+      "symbolLocation": 2684,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 2475520,
+      "symbol": "nl_parse_statement",
+      "symbolLocation": 19012,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 2304892,
+      "symbol": "nl_parse_block_recursive",
+      "symbolLocation": 11308,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 2309064,
+      "symbol": "nl_parse_block",
+      "symbolLocation": 2376,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 2802404,
+      "symbol": "nl_parse_function_definition",
+      "symbolLocation": 44416,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 3055144,
+      "symbol": "nl_parse_definition",
+      "symbolLocation": 24428,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 3065116,
+      "symbol": "nl_parse_program",
+      "symbolLocation": 1388,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 14763352,
+      "symbol": "nl_compile_program",
+      "symbolLocation": 18972,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 14989312,
+      "symbol": "nl_main",
+      "symbolLocation": 8032,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 1568,
+      "symbol": "main",
+      "symbolLocation": 56,
+      "imageIndex": 0
+    },
+    {
+      "imageOffset": 132324,
+      "symbol": "start",
+      "symbolLocation": 6992,
+      "imageIndex": 2
+    }
+  ]
+}

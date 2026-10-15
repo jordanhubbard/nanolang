@@ -1,0 +1,111 @@
+test_declared_single_letter_record_is_nominal (__main__.StructuralGenerics.test_declared_single_letter_record_is_nominal) ... ok
+test_direct_array_type_binding (__main__.StructuralGenerics.test_direct_array_type_binding) ... ok
+test_distinct_record_specializations (__main__.StructuralGenerics.test_distinct_record_specializations) ... ok
+test_finite_polymorphic_recursion (__main__.StructuralGenerics.test_finite_polymorphic_recursion) ... ok
+test_generated_names_do_not_collide (__main__.StructuralGenerics.test_generated_names_do_not_collide) ... ok
+test_generic_array_mutation_preserves_aliases_and_empty_types (__main__.StructuralGenerics.test_generic_array_mutation_preserves_aliases_and_empty_types) ... ok
+test_growing_polymorphic_recursion_is_bounded (__main__.StructuralGenerics.test_growing_polymorphic_recursion_is_bounded) ... ok
+test_many_independent_bindings_are_not_recursive_depth (__main__.StructuralGenerics.test_many_independent_bindings_are_not_recursive_depth) ... ok
+test_nested_array_calls_and_record_elements (__main__.StructuralGenerics.test_nested_array_calls_and_record_elements) ... ok
+test_primitive_generic_fixture (__main__.StructuralGenerics.test_primitive_generic_fixture) ... ok
+test_repeated_type_variable_refusals (__main__.StructuralGenerics.test_repeated_type_variable_refusals) ... ok
+test_retained_record_result_regression (__main__.StructuralGenerics.test_retained_record_result_regression) ... ok
+test_structural_array_minimum (__main__.StructuralGenerics.test_structural_array_minimum) ... ok
+test_structural_array_parameters (__main__.StructuralGenerics.test_structural_array_parameters) ... ok
+test_structural_shape_and_identity_refusals (__main__.StructuralGenerics.test_structural_shape_and_identity_refusals) ... 
+  test_structural_shape_and_identity_refusals (__main__.StructuralGenerics.test_structural_shape_and_identity_refusals) (argument='true') ... FAIL
+  test_structural_shape_and_identity_refusals (__main__.StructuralGenerics.test_structural_shape_and_identity_refusals) (argument='[true]') ... FAIL
+test_typed_locals_transitive_calls_and_recursion (__main__.StructuralGenerics.test_typed_locals_transitive_calls_and_recursion) ... ok
+
+======================================================================
+FAIL: test_structural_shape_and_identity_refusals (__main__.StructuralGenerics.test_structural_shape_and_identity_refusals) (argument='true')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nl51-structural-integration/test_structural.py", line 20, in test_structural_shape_and_identity_refusals
+    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : .types 0 0 0
+.entry 2
+
+.function __nanoisa_shadow_0 0 0 0 void 0
+  PUSH_I64 1
+  ARR_LITERAL 1 1
+  PUSH_I64 2
+  CALL __nanoisa_generic_0
+  PUSH_I64 2
+  I64_EQ
+  ASSERT
+  RET
+.end
+.function __nanoisa_shadow_1 0 0 0 void 0
+  PUSH_BOOL 1
+  ASSERT
+  RET
+.end
+.function __nanoisa_shadow_entry 0 0 0 int 1
+  .shadow "combine"
+  CALL __nanoisa_shadow_0
+  .shadow "main"
+  CALL __nanoisa_shadow_1
+  PUSH_I64 0
+  RET
+.end
+.function __nanoisa_generic_0 2 2 0 int 1
+.parameters __nanoisa_generic_0 array int
+.local_begin 1 "value"
+  LOAD_LOCAL 1
+  TYPE_CHECK 1
+  ASSERT
+  LOAD_LOCAL 1
+  RET
+.end
+
+
+======================================================================
+FAIL: test_structural_shape_and_identity_refusals (__main__.StructuralGenerics.test_structural_shape_and_identity_refusals) (argument='[true]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nl51-structural-integration/test_structural.py", line 20, in test_structural_shape_and_identity_refusals
+    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : .types 0 0 0
+.entry 2
+
+.function __nanoisa_shadow_0 0 0 0 void 0
+  PUSH_I64 1
+  ARR_LITERAL 1 1
+  PUSH_I64 2
+  CALL __nanoisa_generic_0
+  PUSH_I64 2
+  I64_EQ
+  ASSERT
+  RET
+.end
+.function __nanoisa_shadow_1 0 0 0 void 0
+  PUSH_BOOL 1
+  ASSERT
+  RET
+.end
+.function __nanoisa_shadow_entry 0 0 0 int 1
+  .shadow "combine"
+  CALL __nanoisa_shadow_0
+  .shadow "main"
+  CALL __nanoisa_shadow_1
+  PUSH_I64 0
+  RET
+.end
+.function __nanoisa_generic_0 2 2 0 int 1
+.parameters __nanoisa_generic_0 array int
+.local_begin 1 "value"
+  LOAD_LOCAL 1
+  TYPE_CHECK 1
+  ASSERT
+  LOAD_LOCAL 1
+  RET
+.end
+
+
+----------------------------------------------------------------------
+Ran 16 tests in 16.723s
+
+FAILED (failures=2)

@@ -1,0 +1,9 @@
+test_ambiguous_imported_operations (tests.test_owned_effect_c_source.OwnedEffectCSource.test_ambiguous_imported_operations) ... ok
+test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) ... ok
+test_imported_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_imported_resource_effects) ... ok
+test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 12.300s
+
+OK

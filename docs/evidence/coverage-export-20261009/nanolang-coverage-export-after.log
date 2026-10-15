@@ -1,0 +1,11 @@
+make -f Makefile.after-export -f coverage_env_probe.mk probe-leaf
+make[1]: Entering directory '/work'
+NANO_BUILD_CACHE=/work/coverage-env-probe/cache python3 coverage_env_probe.py
+LDFLAGS: '--coverage -lcrypto -lffi  -rdynamic'
+test_real_emitter_driver_executes_in_vm_and_sanitized_native (tests.test_bootstrap_components.BootstrapComponents.test_real_emitter_driver_executes_in_vm_and_sanitized_native) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 116.564s
+
+OK
+make[1]: Leaving directory '/work'

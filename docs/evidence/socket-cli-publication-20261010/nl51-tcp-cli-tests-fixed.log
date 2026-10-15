@@ -1,0 +1,17 @@
+test_vm_and_generated_native_tcp (tests.test_socket_dispatch.SocketDispatch.test_vm_and_generated_native_tcp) ... I retain TCP execution artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-socket-dispatch-e1jiuooq
+ERROR
+
+======================================================================
+ERROR: test_vm_and_generated_native_tcp (tests.test_socket_dispatch.SocketDispatch.test_vm_and_generated_native_tcp)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_dispatch.py", line 77, in test_vm_and_generated_native_tcp
+    ordinary = shlex.split(os.environ["SOCKET_DISPATCH_OBJECTS"])
+                           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'SOCKET_DISPATCH_OBJECTS'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=1)

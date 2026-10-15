@@ -1,0 +1,6 @@
+test_independent_record_captures_share_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_independent_record_captures_share_specialization) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.951s
+
+OK

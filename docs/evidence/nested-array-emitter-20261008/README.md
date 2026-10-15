@@ -1,0 +1,5 @@
+I admit recursively typed array elements in the self-hosted emitter, preserve nested literal context, and emit array element tags rather than integer storage. My component driver builds and runs its shadows. The original nested slice case now assembles, verifies and executes in NanoVM through both producers. Expanded controls exercise three levels, call/return transport, shared child mutation, independent outer slices, nested empty/float/byte literals, and mismatched-element refusal.
+
+The expanded fixture exposed the C seed losing inner byte annotations and accepting an existing integer child for a declared byte child. I retain both failures. Recursive literal annotation and exact known child storage checks correct them; paired refusal controls pass, and the full typechecker and all 90 NanoVirt checks pass.
+
+The complete eight-method slice suite still has four native subcase failures: original and expanded nested fixtures through each producer. All reach the native translator after successful VM execution. Native nested child storage is still required; I neither remove these cases nor claim full acceptance.

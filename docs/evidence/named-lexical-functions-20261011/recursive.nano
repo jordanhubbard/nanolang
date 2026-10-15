@@ -1,0 +1,2 @@
+fn main()->int {fn sum(value:int)->int{if (== value 0) {return 0} return (+ value (sum (- value 1)))} return (sum 3)}
+shadow main {assert true}

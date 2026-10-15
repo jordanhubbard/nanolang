@@ -1,0 +1,3 @@
+I preserve the initial strict C build diagnostic from this session:
+src/service_lowering.c:157:34: error: use of undeclared identifier c
+The constructor emitter was inserted in sl_terminal_operand, which has no Sl context. I moved it into sl_expr and added a field walk to sl_terminal_operand.

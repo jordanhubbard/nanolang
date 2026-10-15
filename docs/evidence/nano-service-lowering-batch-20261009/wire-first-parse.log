@@ -1,0 +1,22 @@
+Error at line 52, column 36: Expected ',' or ']' in array literal
+Error at line 52, column 36: Failed to parse function argument
+Error at line 52, column 37: Unexpected token in expression: RBRACKET (type=12)
+Error at line 52, column 38: Unexpected token in expression: RPAREN (type=8)
+Error at line 100, column 33: Expected ',' or ']' in array literal
+Error at line 100, column 33: Failed to parse function argument
+Error at line 100, column 34: Unexpected token in expression: RBRACKET (type=12)
+Error at line 100, column 38: Unexpected token in expression: RPAREN (type=8)
+Error at line 100, column 41: Unexpected token in expression: RPAREN (type=8)
+Error at line 102, column 33: Expected ',' or ']' in array literal
+Error at line 102, column 33: Failed to parse function argument
+Error at line 102, column 34: Unexpected token in expression: RBRACKET (type=12)
+Error at line 102, column 38: Unexpected token in expression: RPAREN (type=8)
+Error at line 102, column 41: Unexpected token in expression: RPAREN (type=8)
+Error at line 103, column 33: Expected ',' or ']' in array literal
+Error at line 103, column 33: Failed to parse function argument
+Error at line 103, column 34: Unexpected token in expression: RBRACKET (type=12)
+Error at line 103, column 37: Unexpected token in expression: RPAREN (type=8)
+Error at line 103, column 40: Unexpected token in expression: RPAREN (type=8)
+Error at line 142, column 30: Expected ',' or ']' in array literal
+... stopping after 20 errors
+error: parser failed

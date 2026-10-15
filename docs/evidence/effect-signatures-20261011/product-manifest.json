@@ -1,0 +1,40 @@
+{
+  "revision": "6d5b3556f46f0396118c0a042684713bed13357e",
+  "inputs": {
+    "src/nanolang.h": "40e217d734d62341aaab27c3f4d9a2992db53baa339158cb65816d4c1655bc67",
+    "src/typechecker.c": "eb38549a9cd5c75ca73786542c410997045a3dee924e4e975518be013f92cb58",
+    "src_nano/typecheck.nano": "b43a409903f29d4fc415ef88d188a911b91bd62b3175ef066326804178f860fd",
+    "src/nanovirt/codegen.c": "96c3fb42f950e3792fc4728a1804000f599f14fb40a2a53518a0f6f4e077b243",
+    "src/nanovirt/generic_codegen.inc": "37699303476f906782114c026f9f2fb017dfe37ab3dfd8f8edf00a9c5a540797",
+    "src_nano/compiler/nanoisa_codegen.nano": "b85410b13b000f2c4e7267d1bd8913d96670d68f9a65d32be1dd80b2ef302e09",
+    "tests/test_effect_signature_identity.py": "ce97414dbb400945696b9450ddcdf5b34361d2dba376ec9e12af7d5ccf56ab73"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_effects",
+        "tests.test_effect_signature_identity",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 91.65094974997919,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-effect-signatures/seed",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-effect-signatures/compiler.nvm"
+      ],
+      "returncode": 1,
+      "seconds": 308.6065814999165,
+      "log": "product-01.log"
+    }
+  ],
+  "seed_build_log": "seed-build.log"
+}

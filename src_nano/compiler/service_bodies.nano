@@ -1,0 +1,584 @@
+# I check nominal service bodies independently of the C checker.
+# Status zero describes types only; it grants neither ownership nor execution.
+import "src_nano/compiler/service_types.nano"
+import "src_nano/compiler/service_namespace.nano"
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+
+struct ServiceBodyValue { type: ServiceType, borrow_mode: int, returns: bool }
+struct ServiceBodyLocal { name: string, value: ServiceBodyValue, mutable: bool }
+struct ServiceBodyFact { node_kind: int, node_id: int, type: ServiceType, borrow_mode: int, declaration: int }
+struct ServiceBodyCheck { status: int, diagnostic: string, facts: array<ServiceBodyFact>, functions: int, shadows: int }
+struct ServiceBodySignature { parameters: array<ServiceBodyValue>, result: ServiceBodyValue }
+let mut sb_signatures: array<ServiceBodySignature> = []
+let mut sb_type_depth: int = 0
+let mut sb_status: int = 0
+let mut sb_diagnostic: string = ""
+let mut sb_locals: array<ServiceBodyLocal> = []
+let mut sb_count: int = 0
+let mut sb_facts: array<ServiceBodyFact> = []
+let mut sb_owner: int = -1
+let mut sb_depth: int = 0
+let mut sb_pure: bool = false
+let mut sb_expected: ServiceBodyValue = ServiceBodyValue { type: ServiceType { kind: 3, declaration: 0, owner: -1, ordinal: -1, category: 0 }, borrow_mode: 0, returns: false }
+
+fn sb_empty() -> ServiceNamespace {
+    return ServiceNamespace { status: 0, names: [], plan: FileSourcePlan { status: 0, rows: [], logical_bytes: 0 }, text_bytes: 0, ordinary_count: 0, alias_count: 0 }
+}
+shadow sb_empty { assert (== (array_length (sb_empty).names) 0) }
+fn sb_value(kind: int) -> ServiceBodyValue {
+    return ServiceBodyValue { type: ServiceType { kind: kind, declaration: 0, owner: -1, ordinal: -1, category: 0 }, borrow_mode: 0, returns: false }
+}
+shadow sb_value { assert (== (sb_value 1).type.kind 1) assert (== (sb_value 2).borrow_mode 0) }
+fn sb_returned(value: ServiceBodyValue, returns: bool) -> ServiceBodyValue {
+    return ServiceBodyValue { type: value.type, borrow_mode: value.borrow_mode, returns: returns }
+}
+shadow sb_returned { assert (sb_returned (sb_value 1) true).returns assert (== (sb_returned (sb_value 1) true).type.kind 1) }
+fn sb_mode(value: ServiceBodyValue, mode: int) -> ServiceBodyValue {
+    return ServiceBodyValue { type: value.type, borrow_mode: mode, returns: value.returns }
+}
+shadow sb_mode { assert (== (sb_mode (sb_value 1) 2).borrow_mode 2) }
+fn sb_fail(status: int, why: string) -> ServiceBodyValue {
+    if (or (== sb_status 0) (and (== sb_status 2) (!= status 2))) { set sb_status status set sb_diagnostic why }
+    return (sb_value 0)
+}
+shadow sb_fail {
+    set sb_status 0 let _: ServiceBodyValue = (sb_fail 2 "unsupported")
+    let _: ServiceBodyValue = (sb_fail 1 "invalid") assert (== sb_diagnostic "invalid")
+    set sb_status 0 set sb_diagnostic ""
+}
+fn sb_equal(a: ServiceBodyValue, b: ServiceBodyValue) -> bool {
+    return (and (== a.borrow_mode b.borrow_mode) (service_types_equal a.type b.type))
+}
+shadow sb_equal { assert (sb_equal (sb_value 1) (sb_value 1)) assert (not (sb_equal (sb_value 0) (sb_value 0))) }
+fn sb_require(actual: ServiceBodyValue, expected: ServiceBodyValue) -> ServiceBodyValue {
+    if actual.returns { return actual }
+    if (and (!= actual.type.kind 0) (and (!= expected.type.kind 0) (not (sb_equal actual expected)))) {
+        return (sb_fail 1 "I require the exact nominal type and borrow mode.")
+    }
+    return actual
+}
+shadow sb_require {
+    set sb_status 0 let _: ServiceBodyValue = (sb_require (sb_value 1) (sb_value 2)) assert (== sb_status 1)
+    set sb_status 0 set sb_diagnostic ""
+    let terminal: ServiceBodyValue = (sb_require (sb_returned (sb_value 3) true) (sb_value 1))
+    assert terminal.returns assert (== sb_status 0)
+}
+fn sb_signature(parameters: array<ServiceBodyValue>, result: ServiceBodyValue) -> ServiceBodyValue {
+    let mut i: int = 0
+    while (< i (array_length sb_signatures)) {
+        let prior: ServiceBodySignature = (at sb_signatures i)
+        let mut same: bool = (and (== (array_length prior.parameters) (array_length parameters)) (sb_equal prior.result result))
+        let mut j: int = 0
+        while (and same (< j (array_length parameters))) { set same (sb_equal (at prior.parameters j) (at parameters j)) set j (+ j 1) }
+        if same { return ServiceBodyValue { type: ServiceType { kind: 7, declaration: 0, owner: -1, ordinal: i, category: 0 }, borrow_mode: 0, returns: false } }
+        set i (+ i 1)
+    }
+    if (== i 1024) { return (sb_fail 3 "I exceeded my callable signature bound.") }
+    set sb_signatures (array_push sb_signatures ServiceBodySignature { parameters: parameters, result: result })
+    return ServiceBodyValue { type: ServiceType { kind: 7, declaration: 0, owner: -1, ordinal: i, category: 0 }, borrow_mode: 0, returns: false }
+}
+shadow sb_signature {
+    set sb_signatures []
+    let first: ServiceBodyValue = (sb_signature [(sb_value 1)] (sb_value 2))
+    assert (sb_equal first (sb_signature [(sb_value 1)] (sb_value 2)))
+    assert (not (sb_equal first (sb_signature [(sb_value 2)] (sb_value 2))))
+    set sb_signatures []
+}
+fn sb_annotation(space: ServiceNamespace, owner: int, spelling: string) -> ServiceBodyValue {
+    set sb_type_depth (+ sb_type_depth 1)
+    if (> sb_type_depth 128) { set sb_type_depth (- sb_type_depth 1) return (sb_fail 3 "I exceeded my callable type nesting bound.") }
+    let result: ServiceBodyValue = (sb_annotation_impl space owner spelling)
+    set sb_type_depth (- sb_type_depth 1) return result
+}
+shadow sb_annotation {
+    set sb_signatures [] set sb_status 0
+    let a: ServiceBodyValue = (sb_annotation (sb_empty) 0 "fn(int)->bool")
+    assert (== a.type.kind 7) assert (== (array_length (at sb_signatures a.type.ordinal).parameters) 1)
+    assert (not (sb_equal a (sb_annotation (sb_empty) 0 "fn(bool)->bool")))
+    let nested: ServiceBodyValue = (sb_annotation (sb_empty) 0 "fn(fn(int)->bool)->fn()->int")
+    assert (== nested.type.kind 7)
+    set sb_signatures [] set sb_status 0 set sb_diagnostic ""
+}
+fn sb_type_token(token: LexerToken) -> string {
+    if (== token.token_type LexerTokenType.TOKEN_LPAREN) { return "(" }
+    if (== token.token_type LexerTokenType.TOKEN_RPAREN) { return ")" }
+    if (== token.token_type LexerTokenType.TOKEN_COMMA) { return "," }
+    if (== token.token_type LexerTokenType.TOKEN_ARROW) { return "->" }
+    if (== token.token_type LexerTokenType.TOKEN_AMPERSAND) { return "&" }
+    if (== token.token_type LexerTokenType.TOKEN_DOT) { return "." }
+    if (!= token.value "") { return token.value }
+    return "?"
+}
+shadow sb_type_token {
+    let tokens: List<LexerToken> = (tokenize_string "( )->&" "test" (list_CompilerDiagnostic_new))
+    assert (== (sb_type_token (list_LexerToken_get tokens 0)) "(")
+    assert (== (sb_type_token (list_LexerToken_get tokens 2)) "->")
+    assert (== (sb_type_token (list_LexerToken_get tokens 3)) "&")
+}
+fn sb_annotation_impl(space: ServiceNamespace, owner: int, spelling: string) -> ServiceBodyValue {
+    if (or (== spelling "") (== spelling "unknown")) { return (sb_value 0) }
+    let tokens: List<LexerToken> = (tokenize_string spelling "<service-type>" (list_CompilerDiagnostic_new))
+    let count: int = (list_LexerToken_length tokens)
+    if (== (list_LexerToken_get tokens 0).token_type LexerTokenType.TOKEN_FN) {
+        if (or (< count 5) (!= (list_LexerToken_get tokens 1).token_type LexerTokenType.TOKEN_LPAREN)) { return (sb_fail 1 "I require a complete callable signature.") }
+        let mut parameters: array<ServiceBodyValue> = [] let mut part: string = "" let mut nesting: int = 0 let mut at_token: int = 2
+        while (< at_token count) {
+            let token: LexerToken = (list_LexerToken_get tokens at_token)
+            if (and (== nesting 0) (or (== token.token_type LexerTokenType.TOKEN_COMMA) (== token.token_type LexerTokenType.TOKEN_RPAREN))) {
+                if (!= part "") { set parameters (array_push parameters (sb_annotation space owner part)) set part "" }
+                else if (or (== token.token_type LexerTokenType.TOKEN_COMMA) (> (array_length parameters) 0)) { return (sb_fail 1 "I require each callable parameter type.") }
+                if (> (array_length parameters) 256) { return (sb_fail 3 "I exceeded my callable parameter bound.") }
+                if (== token.token_type LexerTokenType.TOKEN_RPAREN) { break }
+            } else {
+                if (== token.token_type LexerTokenType.TOKEN_LPAREN) { set nesting (+ nesting 1) }
+                if (== token.token_type LexerTokenType.TOKEN_RPAREN) { set nesting (- nesting 1) }
+                set part (+ part (+ " " (sb_type_token token)))
+            }
+            set at_token (+ at_token 1)
+        }
+        if (or (>= (+ at_token 2) count) (!= (list_LexerToken_get tokens (+ at_token 1)).token_type LexerTokenType.TOKEN_ARROW)) { return (sb_fail 1 "I require the callable return type.") }
+        set part "" set at_token (+ at_token 2)
+        while (< at_token (- count 1)) { set part (+ part (+ " " (sb_type_token (list_LexerToken_get tokens at_token)))) set at_token (+ at_token 1) }
+        let result: ServiceBodyValue = (sb_annotation space owner part)
+        if (or (== result.type.kind 0) (!= result.borrow_mode 0)) { return (sb_fail 1 "I require a complete nonborrowed callable result.") }
+        return (sb_signature parameters result)
+    }
+    let mut i: int = 0
+    let mut mode: int = 0
+    if (== (list_LexerToken_get tokens 0).token_type LexerTokenType.TOKEN_AMPERSAND) {
+        set mode 1 set i 1
+        if (== (list_LexerToken_get tokens i).token_type LexerTokenType.TOKEN_MUT) { set mode 2 set i (+ i 1) }
+    }
+    let mut name: string = (list_LexerToken_get tokens i).value
+    set i (+ i 1)
+    while (and (< (+ i 1) count) (== (list_LexerToken_get tokens i).token_type LexerTokenType.TOKEN_DOT)) {
+        set name (+ name (+ "." (list_LexerToken_get tokens (+ i 1)).value)) set i (+ i 2)
+    }
+    if (and (< i count) (!= (list_LexerToken_get tokens i).token_type LexerTokenType.TOKEN_EOF)) {
+        return (sb_fail 2 "I have not checked this ordinary type in my service body path.")
+    }
+    let mut result: ServiceBodyValue = ServiceBodyValue { type: (service_named_type space owner name), borrow_mode: mode, returns: false }
+    if (== name "int") { set result (sb_mode (sb_value 1) mode) }
+    if (== name "bool") { set result (sb_mode (sb_value 2) mode) }
+    if (== name "void") { set result (sb_mode (sb_value 3) mode) }
+    if (== name "string") { set result (sb_mode (sb_value 8) mode) }
+    if (== result.type.kind 0) { return (sb_fail 2 "I have not checked this ordinary type in my service body path.") }
+    return result
+}
+shadow sb_annotation_impl {
+    let space: ServiceNamespace = (sb_empty)
+    assert (== (sb_annotation space 0 "int").type.kind 1)
+    assert (== (sb_annotation space 0 "bool").type.kind 2)
+    assert (== (sb_annotation space 0 "string").type.kind 8)
+    set sb_status 0 let _: ServiceBodyValue = (sb_annotation space 0 "array<int>") assert (== sb_status 2)
+    set sb_status 0 set sb_diagnostic ""
+}
+fn sb_local(name: string) -> int {
+    let mut i: int = sb_count
+    while (> i 0) { set i (- i 1) if (== (at sb_locals i).name name) { return i } }
+    return -1
+}
+shadow sb_local { set sb_count 0 assert (== (sb_local "missing") -1) }
+fn sb_bind(name: string, value: ServiceBodyValue, mutable: bool) -> bool {
+    if (== sb_count 1024) { let _: ServiceBodyValue = (sb_fail 3 "I exceeded my checked service local bound.") return false }
+    let item: ServiceBodyLocal = ServiceBodyLocal { name: name, value: value, mutable: mutable }
+    if (< sb_count (array_length sb_locals)) { (array_set sb_locals sb_count item) }
+    else { set sb_locals (array_push sb_locals item) }
+    set sb_count (+ sb_count 1) return true
+}
+shadow sb_bind {
+    set sb_count 0 assert (sb_bind "x" (sb_value 1) false) assert (== (sb_local "x") 0)
+    assert (sb_bind "x" (sb_value 2) true) assert (== (sb_local "x") 1)
+    set sb_count 0 set sb_locals []
+}
+fn sb_remember(kind: int, id: int, value: ServiceBodyValue, declaration: int) -> ServiceBodyValue {
+    if (== value.type.kind 0) { return value }
+    if (== (array_length sb_facts) 16384) { return (sb_fail 3 "I exceeded my checked service fact bound.") }
+    set sb_facts (array_push sb_facts ServiceBodyFact { node_kind: kind, node_id: id,
+        type: value.type, borrow_mode: value.borrow_mode, declaration: declaration })
+    return value
+}
+shadow sb_remember {
+    set sb_facts [] let _: ServiceBodyValue = (sb_remember 0 7 (sb_value 1) 0)
+    assert (== (at sb_facts 0).node_id 7) set sb_facts []
+}
+fn sb_callable(parser: Parser, space: ServiceNamespace, row: ServiceName) -> ServiceBodyValue {
+    if (!= row.kind 1) { return (sb_fail 2 "I require a noncapturing helper value.") }
+    let function: ASTFunction = (parser_get_function parser row.node_id)
+    if (< function.body 0) { return (sb_fail 2 "I require a noncapturing helper value.") }
+    let mut parameters: array<ServiceBodyValue> = [] let mut i: int = 0
+    while (< i function.param_count) {
+        let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
+        set parameters (array_push parameters (sb_annotation space row.target_owner parameter.var_type)) set i (+ i 1)
+    }
+    return (sb_signature parameters (sb_annotation space row.target_owner function.return_type))
+}
+shadow sb_callable {
+    let tokens: List<LexerToken> = (tokenize_string "fn f(x:int)->int{return x}" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    set sb_signatures []
+    let row: ServiceName = ServiceName { name: "f", id: 1, target: 1, owner: 0, target_owner: 0, kind: 1, ordinal: -1, request: -1, exported: true, immutable: true, node_id: 0 }
+    let result: ServiceBodyValue = (sb_callable p (sb_empty) row)
+    assert (== result.type.kind 7)
+    assert (== (array_length (at sb_signatures result.type.ordinal).parameters) 1)
+    assert (== (at sb_signatures result.type.ordinal).result.type.kind 1)
+    set sb_signatures []
+}
+fn sb_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, name: string, start: int, count: int) -> ServiceBodyValue {
+    let binding: int = (sb_local name)
+    if (or (== name "") (>= binding 0)) {
+        let node: ASTCall = (parser_get_call parser id)
+        let mut callee: ServiceBodyValue = (sb_value 0)
+        if (>= binding 0) { set callee (sb_expression parser space node.function_type node.function) }
+        else { set callee (sb_expression parser space node.function_type node.function) }
+        if (or (!= callee.type.kind 7) (or (!= callee.borrow_mode 0) (or (< callee.type.ordinal 0) (>= callee.type.ordinal (array_length sb_signatures))))) { return (sb_fail 1 "I require a callable value with a complete signature.") }
+        if sb_pure { return (sb_fail 1 "I cannot infer purity from an ordinary callable type.") }
+        let signature: ServiceBodySignature = (at sb_signatures callee.type.ordinal)
+        if (!= count (array_length signature.parameters)) { return (sb_fail 1 "I require the callable argument count.") }
+        let mut i: int = 0
+        while (< i count) {
+            let argument: ASTStmtRef = (parser_get_call_arg parser (+ start i))
+            let _: ServiceBodyValue = (sb_require (sb_expression parser space argument.node_type argument.node_id) (at signature.parameters i))
+            set i (+ i 1)
+        }
+        return (sb_remember kind id signature.result 0)
+    }
+    let found: int = (service_namespace_lookup space sb_owner name)
+    if (and (< found 0) (== name "str_length")) {
+        if (!= count 1) { return (sb_fail 1 "I require one string length operand.") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser start)
+        let input: ServiceBodyValue = (sb_require (sb_expression parser space argument.node_type argument.node_id) (sb_value 8))
+        return (sb_remember kind id (sb_returned (sb_value 1) input.returns) -1)
+    }
+    if (and (< found 0) (== name "not")) {
+        if (!= count 1) { return (sb_fail 1 "I require the operator argument count.") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser start)
+        let _: ServiceBodyValue = (sb_require (sb_expression parser space argument.node_type argument.node_id) (sb_value 2))
+        return (sb_value 2)
+    }
+    if (< found 0) { return (sb_fail 1 "I require a declared service or helper call.") }
+    let row: ServiceName = (at space.names found)
+    if (== row.kind 9) {
+        let signature: ServiceMethodType = (service_method_type space sb_owner name)
+        if (or (not signature.ok) (!= count (array_length signature.parameters))) {
+            return (sb_fail 1 "I require the catalog method argument count.")
+        }
+        if sb_pure { return (sb_fail 1 "I cannot call a service from a pure function.") }
+        let mut i: int = 0
+        while (< i count) {
+            let argument: ASTStmtRef = (parser_get_call_arg parser (+ start i))
+            let mut mode: int = 0
+            if (and (== i 0) (== signature.input_mode 1)) { set mode 2 }
+            let expected: ServiceBodyValue = ServiceBodyValue { type: (at signature.parameters i), borrow_mode: mode, returns: false }
+            let _: ServiceBodyValue = (sb_require (sb_expression parser space argument.node_type argument.node_id) expected)
+            set i (+ i 1)
+        }
+        return (sb_remember kind id ServiceBodyValue { type: signature.result, borrow_mode: 0, returns: false } row.target)
+    }
+    if (!= row.kind 1) { return (sb_fail 1 "I require a callable declaration.") }
+    let function: ASTFunction = (parser_get_function parser row.node_id)
+    if (< function.body 0) { return (sb_fail 2 "I have not admitted extern transport in my service body path.") }
+    if (!= count function.param_count) { return (sb_fail 1 "I require the helper argument count.") }
+    if (and sb_pure (not function.is_pure)) { return (sb_fail 1 "I require a pure helper in a pure function.") }
+    let mut i: int = 0
+    while (< i count) {
+        let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ start i))
+        let expected: ServiceBodyValue = (sb_annotation space row.target_owner parameter.var_type)
+        let _: ServiceBodyValue = (sb_require (sb_expression parser space argument.node_type argument.node_id) expected)
+        set i (+ i 1)
+    }
+    return (sb_remember kind id (sb_annotation space row.target_owner function.return_type) row.target)
+}
+shadow sb_call {
+    let tokens: List<LexerToken> = (tokenize_string "" "empty" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "empty")
+    set sb_status 0 let _: ServiceBodyValue = (sb_call p (sb_empty) 6 0 "absent" 0 0)
+    assert (== sb_status 1) set sb_status 0 set sb_diagnostic ""
+}
+fn sb_match(parser: Parser, space: ServiceNamespace, id: int) -> ServiceBodyValue {
+    let node: ASTMatch = (parser_get_match parser id)
+    let input: ServiceBodyValue = (sb_expression parser space node.scrutinee_type node.scrutinee)
+    if (== input.type.kind 0) { return input }
+    if (or (!= input.borrow_mode 0) (!= input.type.kind 6)) { return (sb_fail 2 "I have not checked this non-catalog match in my service body path.") }
+    let mut seen_ok: bool = false let mut seen_error: bool = false
+    let mut result: ServiceBodyValue = (sb_value 0) let mut all_return: bool = true
+    let mut i: int = 0
+    while (< i node.arm_count) {
+        let arm: string = (at node.arm_variants i)
+        if (or (and (!= arm "Ok") (!= arm "Error")) (or (and (== arm "Ok") seen_ok) (and (== arm "Error") seen_error))) {
+            return (sb_fail 1 "I require distinct catalog Result arms.")
+        }
+        if (== arm "Ok") { set seen_ok true } else { set seen_error true }
+        if (and (< i (array_length node.arm_guard_ids)) (>= (at node.arm_guard_ids i) 0)) {
+            return (sb_fail 2 "I have not checked guarded catalog Result exhaustiveness.")
+        }
+        let payload: ServiceType = (service_member_type space input.type arm)
+        let name: string = (at node.arm_bindings i)
+        let has: bool = (and (!= name "") (!= name "_"))
+        if (!= has (!= payload.kind 3)) { return (sb_fail 1 "I require the exact catalog Result payload arity.") }
+        let saved: int = sb_count
+        if has { let _: bool = (sb_bind name ServiceBodyValue { type: payload, borrow_mode: 0, returns: false } false) }
+        let body: ServiceBodyValue = (sb_expression parser space (at node.arm_body_types i) (at node.arm_body_ids i))
+        set sb_count saved set all_return (and all_return body.returns)
+        if (not body.returns) {
+            if (== result.type.kind 0) { set result body }
+            else { let _: ServiceBodyValue = (sb_require body result) }
+        }
+        set i (+ i 1)
+    }
+    if (not (and seen_ok seen_error)) { return (sb_fail 1 "I require both catalog Result arms.") }
+    if all_return { set result (sb_value 3) }
+    return (sb_returned result all_return)
+}
+shadow sb_match {
+    let tokens: List<LexerToken> = (tokenize_string "fn f()->void { match 1 { 1 => {} _ => {} } }" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    set sb_status 0 let _: ServiceBodyValue = (sb_match p (sb_empty) 0) assert (== sb_status 2)
+    set sb_status 0 set sb_diagnostic ""
+}
+fn sb_expression_impl(parser: Parser, space: ServiceNamespace, kind: int, id: int) -> ServiceBodyValue {
+    if (== kind ParseNodeType.PNODE_STRING) { return (sb_value 8) }
+    if (== kind ParseNodeType.PNODE_NUMBER) { return (sb_value 1) }
+    if (== kind ParseNodeType.PNODE_BOOL) { return (sb_value 2) }
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) {
+        if (>= (parser_lambda_function parser (parser_get_identifier parser id)) 0) {
+            return (sb_fail 2 "I have not checked a captured callable in my service body path.")
+        }
+        let name: string = (parser_get_identifier parser id).name
+        let index: int = (sb_local name)
+        if (>= index 0) { return (at sb_locals index).value }
+        let found: int = (service_namespace_lookup space sb_owner name)
+        if (>= found 0) { let row: ServiceName = (at space.names found) return (sb_remember kind id (sb_callable parser space row) row.target) }
+        return (sb_fail 1 "I require a bound service body value.")
+    }
+    if (== kind ParseNodeType.PNODE_CALL) {
+        let node: ASTCall = (parser_get_call parser id)
+        if (!= node.borrow_mode 0) {
+            let root: ASTStmtRef = (parser_get_call_arg parser node.arg_start)
+            if (or (!= node.arg_count 1) (!= root.node_type ParseNodeType.PNODE_IDENTIFIER)) { return (sb_fail 1 "I require a named service borrow root.") }
+            let index: int = (sb_local (parser_get_identifier parser root.node_id).name)
+            if (< index 0) { return (sb_fail 1 "I require a bound service borrow root.") }
+            let variable: ServiceBodyLocal = (at sb_locals index)
+            let mut value: ServiceBodyValue = variable.value
+            if (or (!= value.type.category 1) (or (and (== node.borrow_mode 2) (not (or variable.mutable (== value.borrow_mode 2)))) (and (== value.borrow_mode 1) (== node.borrow_mode 2)))) {
+                return (sb_fail 1 "I require a mutable service root for an exclusive borrow.")
+            }
+            return (sb_mode value node.borrow_mode)
+        }
+        let mut name: string = ""
+        if (== node.function_type ParseNodeType.PNODE_IDENTIFIER) { set name (parser_get_identifier parser node.function).name }
+        return (sb_call parser space kind id name node.arg_start node.arg_count)
+    }
+    if (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+        let node: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser id)
+        let mut name: string = node.function_name
+        if (!= node.module_name "") { set name (+ node.module_name (+ "." name)) }
+        return (sb_call parser space kind id name node.arg_start node.arg_count)
+    }
+    if (== kind ParseNodeType.PNODE_BINARY_OP) {
+        let op: ASTBinaryOp = (parser_get_binary_op parser id)
+        let logical: bool = (or (== op.op LexerTokenType.TOKEN_AND) (or (== op.op LexerTokenType.TOKEN_OR) (== op.op LexerTokenType.TOKEN_NOT)))
+        let compare: bool = (or (== op.op LexerTokenType.TOKEN_EQ) (or (== op.op LexerTokenType.TOKEN_NE) (or (== op.op LexerTokenType.TOKEN_LT) (or (== op.op LexerTokenType.TOKEN_LE) (or (== op.op LexerTokenType.TOKEN_GT) (== op.op LexerTokenType.TOKEN_GE))))))
+        let arithmetic: bool = (or (== op.op LexerTokenType.TOKEN_PLUS) (or (== op.op LexerTokenType.TOKEN_MINUS) (or (== op.op LexerTokenType.TOKEN_STAR) (or (== op.op LexerTokenType.TOKEN_SLASH) (== op.op LexerTokenType.TOKEN_PERCENT)))))
+        if (not (or logical (or compare arithmetic))) { return (sb_fail 2 "I have not checked this service body operator.") }
+        let mut expected: int = 1 if logical { set expected 2 }
+        let mut returned: bool = false
+        if (or op.is_unary (== op.op LexerTokenType.TOKEN_NOT)) {
+            let operand: ServiceBodyValue = (sb_require (sb_expression parser space op.right_type op.right) (sb_value expected))
+            set returned operand.returns
+        } else {
+            let first: ServiceBodyValue = (sb_expression parser space op.left_type op.left)
+            if (and (or (== op.op LexerTokenType.TOKEN_EQ) (== op.op LexerTokenType.TOKEN_NE)) (or (== first.type.kind 2) (== first.type.kind 8))) { set expected first.type.kind }
+            let _: ServiceBodyValue = (sb_require first (sb_value expected))
+            let second: ServiceBodyValue = (sb_require (sb_expression parser space op.right_type op.right) (sb_value expected))
+            set returned first.returns
+            if (not (or (== op.op LexerTokenType.TOKEN_AND) (== op.op LexerTokenType.TOKEN_OR))) { set returned (or returned second.returns) }
+        }
+        if (or logical compare) { return (sb_returned (sb_value 2) returned) } return (sb_returned (sb_value 1) returned)
+    }
+    if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
+        let node: ASTFieldAccess = (parser_get_field_access parser id)
+        if (== node.object_type ParseNodeType.PNODE_IDENTIFIER) {
+            let root: string = (parser_get_identifier parser node.object).name
+            if (< (sb_local root) 0) {
+                let found: int = (service_namespace_lookup space sb_owner (+ root (+ "." node.field_name)))
+                if (>= found 0) { let row: ServiceName = (at space.names found) return (sb_remember kind id (sb_callable parser space row) row.target) }
+            }
+        }
+        let object: ServiceBodyValue = (sb_expression parser space node.object_type node.object)
+        if (== object.type.kind 0) { return object }
+        let field: ServiceType = (service_member_type space object.type node.field_name)
+        if (or (!= object.borrow_mode 0) (or (!= object.type.category 3) (== field.kind 0))) { return (sb_fail 1 "I require a declared catalog record field.") }
+        return ServiceBodyValue { type: field, borrow_mode: 0, returns: false }
+    }
+    if (== kind ParseNodeType.PNODE_LET) {
+        let node: ASTLet = (parser_get_let parser id)
+        let actual: ServiceBodyValue = (sb_expression parser space node.value_type node.value)
+        let declared: ServiceBodyValue = (sb_annotation space sb_owner node.var_type)
+        let _: ServiceBodyValue = (sb_require actual declared)
+        if (!= actual.borrow_mode 0) { return (sb_fail 1 "I cannot store a call-scoped service borrow.") }
+        let _: bool = (sb_bind node.name actual node.is_mut)
+        let _: ServiceBodyValue = (sb_remember kind id actual 0) return (sb_value 3)
+    }
+    if (== kind ParseNodeType.PNODE_SET) {
+        let node: ASTSet = (parser_get_set parser id)
+        let index: int = (sb_local node.target)
+        if (< index 0) { return (sb_fail 1 "I require a mutable assignment target.") }
+        if (not (at sb_locals index).mutable) { return (sb_fail 1 "I require a mutable assignment target.") }
+        if (!= node.field_name "") { return (sb_fail 2 "I have not checked service field assignment.") }
+        let _: ServiceBodyValue = (sb_require (sb_expression parser space node.value_type node.value) (at sb_locals index).value)
+        return (sb_value 3)
+    }
+    if (== kind ParseNodeType.PNODE_RETURN) {
+        let node: ASTReturn = (parser_get_return parser id)
+        let mut actual: ServiceBodyValue = (sb_expression parser space node.value_type node.value)
+        let _: ServiceBodyValue = (sb_require actual sb_expected)
+        return (sb_returned actual true)
+    }
+    if (== kind ParseNodeType.PNODE_ASSERT) {
+        let node: ASTAssert = (parser_get_assert parser id)
+        let _: ServiceBodyValue = (sb_require (sb_expression parser space node.condition_type node.condition) (sb_value 2)) return (sb_value 3)
+    }
+    if (== kind ParseNodeType.PNODE_BLOCK) {
+        let node: ASTBlock = (parser_get_block parser id)
+        let saved: int = sb_count let mut last: ServiceBodyValue = (sb_value 3)
+        let mut returned: bool = false let mut i: int = 0
+        while (< i (list_ASTStmtRef_length node.statements)) {
+            let item: ASTStmtRef = (list_ASTStmtRef_get node.statements i)
+            set last (sb_expression parser space item.node_type item.node_id)
+            set returned (or returned last.returns) set i (+ i 1)
+        }
+        set sb_count saved return (sb_returned last returned)
+    }
+    if (== kind ParseNodeType.PNODE_IF) {
+        let node: ASTIf = (parser_get_if parser id)
+        let _: ServiceBodyValue = (sb_require (sb_expression parser space node.condition_type node.condition) (sb_value 2))
+        let yes: ServiceBodyValue = (sb_expression parser space ParseNodeType.PNODE_BLOCK node.then_body)
+        let no: ServiceBodyValue = (sb_expression parser space ParseNodeType.PNODE_BLOCK node.else_body)
+        return (sb_returned (sb_value 3) (and yes.returns no.returns))
+    }
+    if (== kind ParseNodeType.PNODE_WHILE) {
+        let node: ASTWhile = (parser_get_while parser id)
+        let _: ServiceBodyValue = (sb_require (sb_expression parser space node.condition_type node.condition) (sb_value 2))
+        let _: ServiceBodyValue = (sb_expression parser space ParseNodeType.PNODE_BLOCK node.body) return (sb_value 3)
+    }
+    if (== kind ParseNodeType.PNODE_MATCH) { return (sb_match parser space id) }
+    if (or (== kind ParseNodeType.PNODE_STRUCT_LITERAL) (== kind ParseNodeType.PNODE_UNION_CONSTRUCT)) {
+        let mut name: string = ""
+        if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) { set name (parser_get_struct_literal parser id).struct_name }
+        else { set name (parser_get_union_construct parser id).union_name }
+        let typ: ServiceType = (service_named_type space sb_owner name)
+        if (or (== typ.category 1) (== typ.category 2)) { return (sb_fail 1 "I cannot fabricate an owned catalog value.") }
+        let catalog: int = (service_namespace_catalog space typ.owner)
+        if (and (== kind ParseNodeType.PNODE_STRUCT_LITERAL) (or (and (== typ.ordinal 8) (== catalog 2)) (and (== typ.ordinal 2) (== catalog 3)))) {
+            let node: ASTStructLiteral = (parser_get_struct_literal parser id)
+            let count: int = (cond ((== catalog 3) 2) (else 7))
+            if (or (!= node.field_count count) (or (!= (array_length node.field_names) count) (or (!= (array_length node.field_value_ids) count) (!= (array_length node.field_value_types) count)))) {
+                return (sb_fail 1 "I require every catalog record field exactly once.")
+            }
+            let mut returned: bool = false
+            let mut i: int = 0
+            while (< i node.field_count) {
+                let field: string = (at node.field_names i)
+                let expected: ServiceType = (service_member_type space typ field)
+                if (== expected.kind 0) { return (sb_fail 1 "I require a declared catalog record field.") }
+                let mut j: int = 0
+                while (< j i) {
+                    if (== field (at node.field_names j)) { return (sb_fail 1 "I require distinct catalog record fields.") }
+                    set j (+ j 1)
+                }
+                let actual: ServiceBodyValue = (sb_require (sb_expression parser space (at node.field_value_types i) (at node.field_value_ids i)) ServiceBodyValue { type: expected, borrow_mode: 0, returns: false })
+                set returned (or returned actual.returns)
+                set i (+ i 1)
+            }
+            return ServiceBodyValue { type: typ, borrow_mode: 0, returns: returned }
+        }
+        return (sb_fail 2 "I have not checked this ordinary constructor in my service body path.")
+    }
+    return (sb_fail 2 "I have not checked this source form in my service body path.")
+}
+shadow sb_expression_impl {
+    let tokens: List<LexerToken> = (tokenize_string "" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    assert (== (sb_expression_impl p (sb_empty) ParseNodeType.PNODE_NUMBER 0).type.kind 1)
+    set sb_status 0 let _: ServiceBodyValue = (sb_expression_impl p (sb_empty) -100 0) assert (== sb_status 2)
+    set sb_status 0 set sb_diagnostic ""
+}
+fn sb_expression(parser: Parser, space: ServiceNamespace, kind: int, id: int) -> ServiceBodyValue {
+    if (< id 0) { return (sb_value 3) }
+    if (== sb_depth 128) { return (sb_fail 3 "I exceeded my service body nesting bound.") }
+    set sb_depth (+ sb_depth 1)
+    let result: ServiceBodyValue = (sb_expression_impl parser space kind id)
+    set sb_depth (- sb_depth 1)
+    if (> (array_length sb_facts) 0) {
+        let last: ServiceBodyFact = (at sb_facts (- (array_length sb_facts) 1))
+        if (and (== last.node_kind kind) (== last.node_id id)) { return result }
+    }
+    return (sb_remember kind id result 0)
+}
+shadow sb_expression {
+    let tokens: List<LexerToken> = (tokenize_string "" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    assert (== (sb_expression p (sb_empty) 17 -1).type.kind 3)
+}
+
+pub fn check_service_bodies(parser: Parser, files: array<string>, sources: array<string>, space: ServiceNamespace) -> ServiceBodyCheck {
+    set sb_status 0 set sb_diagnostic "" set sb_count 0 set sb_locals [] set sb_facts [] set sb_depth 0 set sb_signatures [] set sb_type_depth 0
+    let mut functions: int = 0 let mut shadows: int = 0
+    if (> parser.services_count 0) {
+        if (!= space.status 0) { let _: ServiceBodyValue = (sb_fail 1 "I require a complete service namespace.") }
+        if (or (> parser.structs_count 0) (or (> parser.unions_count 0) (or (> parser.enums_count 0) (> parser.opaque_types_count 0)))) {
+            let _: ServiceBodyValue = (sb_fail 2 "I have not checked this declaration beside service bodies.")
+        }
+        let mut declaration: int = 0
+        while (< declaration (array_length space.names)) {
+            if (== (at space.names declaration).kind 6) { let _: ServiceBodyValue = (sb_fail 2 "I have not checked this declaration beside service bodies.") }
+            set declaration (+ declaration 1)
+        }
+        let mut group: int = 0
+        while (< group 2) {
+            let mut count: int = parser.functions_count if (== group 1) { set count parser.shadows_count }
+            let mut i: int = 0
+            while (< i count) {
+                set sb_count 0 set sb_depth 0 set sb_pure false set sb_expected (sb_value 3)
+                let mut body: int = -1 let mut line: int = 0
+                if (== group 0) {
+                    let function: ASTFunction = (parser_get_function parser i)
+                    set line function.line set body function.body set sb_pure function.is_pure set functions (+ functions 1)
+                    if (== function.node_type ParseNodeType.PNODE_LAMBDA) { set body -1 }
+                    set sb_owner (sn_owner files sources line)
+                    set sb_expected (sb_annotation space sb_owner function.return_type)
+                    let mut j: int = 0
+                    while (< j function.param_count) {
+                        let parameter: ASTLet = (parser_get_let parser (+ function.param_start j))
+                        if (>= (sb_local parameter.name) 0) { let _: ServiceBodyValue = (sb_fail 1 "I require distinct parameter names.") }
+                        let _: bool = (sb_bind parameter.name (sb_annotation space sb_owner parameter.var_type) false)
+                        set j (+ j 1)
+                    }
+                } else {
+                    let item: ASTShadow = (list_ASTShadow_get parser.shadows i)
+                    set line item.line set body item.body set shadows (+ shadows 1)
+                    set sb_owner (sn_owner files sources line)
+                }
+                if (< sb_owner 0) { let _: ServiceBodyValue = (sb_fail 1 "I require the original service body source.") }
+                if (< body 0) { let _: ServiceBodyValue = (sb_fail 2 "I have not checked this callable in my service body path.") }
+                else {
+                    let result: ServiceBodyValue = (sb_expression parser space ParseNodeType.PNODE_BLOCK body)
+                    if (and (== group 0) (and (!= sb_expected.type.kind 0) (and (!= sb_expected.type.kind 3) (not result.returns)))) {
+                        let _: ServiceBodyValue = (sb_fail 1 "I require a return on every service helper path.")
+                    }
+                }
+                set i (+ i 1)
+            }
+            set group (+ group 1)
+        }
+    }
+    return ServiceBodyCheck { status: sb_status, diagnostic: sb_diagnostic, facts: sb_facts, functions: functions, shadows: shadows }
+}
+shadow check_service_bodies {
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->int { return 0 }" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    assert (== (check_service_bodies p [] [] (sb_empty)).status 0)
+}

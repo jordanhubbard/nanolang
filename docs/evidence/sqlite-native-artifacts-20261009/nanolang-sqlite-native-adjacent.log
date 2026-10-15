@@ -1,0 +1,176 @@
+python3 scripts/embed_binary64_parser.py --check
+CC="/opt/homebrew/opt/llvm/bin/clang" python3 -m unittest -v tests.test_native_array_pop
+test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) ... ok
+test_empty_record_array_returns_void (tests.test_native_array_pop.NativeArrayPop.test_empty_record_array_returns_void) ... ok
+test_empty_record_projection_traps (tests.test_native_array_pop.NativeArrayPop.test_empty_record_projection_traps) ... ok
+test_popped_closure_survives_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_popped_closure_survives_owner_reuse_and_collection) ... ok
+test_popped_record_crosses_return_and_argument (tests.test_native_array_pop.NativeArrayPop.test_popped_record_crosses_return_and_argument) ... ok
+test_record_children_survive_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_record_children_survive_owner_reuse_and_collection) ... ok
+test_scalar_values_aliases_and_empty_results (tests.test_native_array_pop.NativeArrayPop.test_scalar_values_aliases_and_empty_results) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 5.323s
+
+OK
+CC="/opt/homebrew/opt/llvm/bin/clang" python3 -m unittest -v tests.test_native_local_clear
+test_dead_clear_and_reassignment_across_control_flow (tests.test_native_local_clear.NativeLocalClear.test_dead_clear_and_reassignment_across_control_flow) ... ok
+test_observable_clear_is_not_erased (tests.test_native_local_clear.NativeLocalClear.test_observable_clear_is_not_erased) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.751s
+
+OK
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -Isrc/nanoisa -o obj/test_nvm2c_callables \
+		tests/nanoisa/test_nvm2c_callables.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+Callable constraints: 379 passed, 0 failed
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+OK
+.I verified fresh ASan/UBSan translator and shape objects.
+I verified fresh ASan/UBSan translator and shape objects.
+.I did not find ASan and UBSan instrumentation in nvm2c.o
+I did not find ASan and UBSan instrumentation in nvm2c.o
+I did not find ASan and UBSan instrumentation in nvm2c.o
+.
+----------------------------------------------------------------------
+Ran 3 tests in 0.005s
+
+OK
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -Isrc/nanoisa -o obj/test_nvm2c_shape \
+		tests/nanoisa/test_nvm2c_shape.c src/nanoisa/nvm2c_shape.c
+Shape constraints: 3098 passed, 0 failed
+Running nvm2c structured-C tests...
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -Isrc/nanoisa -Imodules/nanoisa -o tests/nanoisa/test_nvm2c \
+		tests/nanoisa/test_nvm2c.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_string at generated C line 651.
+I stopped at a native invariant in nvalue_require_bool at generated C line 643.
+I stopped at a native invariant in nvalue_require_bool at generated C line 643.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_string at generated C line 596.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nl___init__ at generated C line 103.
+I stopped at a native invariant in nl_main at generated C line 1018.
+I stopped at a native invariant in nl_main at generated C line 1018.
+I stopped at a native invariant in nl_main at generated C line 1018.
+I stopped at a native invariant in nl_main at generated C line 1009.
+I stopped at a native invariant in nl_main at generated C line 1009.
+I stopped at a native invariant in nl_main at generated C line 1009.
+I stopped at a native invariant in nl_main at generated C line 1011.
+I stopped at a native invariant in nl_main at generated C line 1011.
+I stopped at a native invariant in nl_main at generated C line 1011.
+I stopped at a native invariant in nl_main at generated C line 994.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nl_main at generated C line 891.
+I stopped at a native invariant in nl_main at generated C line 891.
+I stopped at a native invariant in nl_main at generated C line 891.
+I stopped at a native invariant in nl_main at generated C line 984.
+I stopped at a native invariant in nhost_walk_0 at generated C line 759.
+I stopped at a native invariant in nhost_walk_0 at generated C line 743.
+I stopped at a native invariant in nhost_walk_0 at generated C line 745.
+I stopped at a native invariant in nhost_walk_0 at generated C line 748.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nl_update at generated C line 1027.
+I stopped at a native invariant in nl_update at generated C line 1027.
+I stopped at a native invariant in nvalue_array_len at generated C line 913.
+I stopped at a native invariant in nvalue_array_len at generated C line 913.
+I stopped at a native invariant in nvalue_array_len at generated C line 913.
+I stopped at a native invariant in nvalue_require_int at generated C line 687.
+I stopped at a native invariant in nl_prove at generated C line 59.
+I stopped at a native invariant in nvalue_array_len at generated C line 833.
+I stopped at a native invariant in nl_main at generated C line 999.
+I stopped at a native invariant in nvalue_require_int at generated C line 635.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 636.
+I stopped at a native invariant in nvalue_require_int at generated C line 639.
+I stopped at a native invariant in nvalue_require_int at generated C line 639.
+I stopped at a native invariant in nvalue_require_int at generated C line 639.
+I stopped at a native invariant in nvalue_require_int at generated C line 688.
+I stopped at a native invariant in nvalue_array_len at generated C line 853.
+I stopped at a native invariant in nvalue_array_len at generated C line 853.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 971.
+I stopped at a native invariant in nvalue_array_set at generated C line 962.
+I stopped at a native invariant in nvalue_array_set at generated C line 962.
+I stopped at a native invariant in nvalue_array_set at generated C line 962.
+I stopped at a native invariant in nvalue_array_set at generated C line 962.
+I stopped at a native invariant in nvalue_array_set at generated C line 962.
+I stopped at a native invariant in nvalue_array_set at generated C line 962.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_string at generated C line 588.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nvalue_require_string at generated C line 588.
+I stopped at a native invariant in nvalue_require_string at generated C line 588.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_string at generated C line 603.
+I stopped at a native invariant in nvalue_require_string at generated C line 603.
+I stopped at a native invariant in nvalue_require_string at generated C line 603.
+I stopped at a native invariant in nvalue_require_string at generated C line 652.
+I stopped at a native invariant in nvalue_require_string at generated C line 603.
+I stopped at a native invariant in nl_main at generated C line 875.
+I stopped at a native invariant in nvalue_require_string at generated C line 588.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_bool at generated C line 584.
+I stopped at a native invariant in nvalue_require_int at generated C line 576.
+I stopped at a native invariant in nl_main at generated C line 910.
+
+[nvm2c] structured C11 from NanoISA...
+
+
+=== 2435 passed, 0 failed ===

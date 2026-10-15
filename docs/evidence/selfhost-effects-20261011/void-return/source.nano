@@ -1,0 +1,6 @@
+effect Record{emit:int->void}
+let mut recorded:int=0
+fn send()->void{return perform Record.emit(7)}
+shadow send{assert true}
+fn main()->int{set recorded 0 let ignored=handle {(send)} with {emit value->{set recorded value}} return recorded}
+shadow main{assert (== (main) 7)}

@@ -1,0 +1,32 @@
+[
+  {
+    "path": "0.log",
+    "sha256": "097d93c5673290508809e9fdc9c6160e059de186a12422c6800083225caadce6",
+    "bytes": 3009,
+    "text_archived": true
+  },
+  {
+    "path": "1.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "corrected-seed.nvm",
+    "sha256": "fbc7b600860d14e9fb03e8c1978724f0788257732688aa1a833537a2ebf7e9e2",
+    "bytes": 546776,
+    "text_archived": false
+  },
+  {
+    "path": "manifest.json",
+    "sha256": "d6a9d28c4755ab2c9007559d25fc83b5912abe7fe5140878c255d26dd2fdcfc6",
+    "bytes": 108743,
+    "text_archived": true
+  },
+  {
+    "path": "original-bootstrap.json",
+    "sha256": "ba86f90f517823352b6b1350376bf69c886ce6861d387fa787c07d6dcd518838",
+    "bytes": 107072,
+    "text_archived": true
+  }
+]

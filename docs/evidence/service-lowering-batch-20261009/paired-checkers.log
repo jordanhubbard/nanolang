@@ -1,0 +1,14 @@
+test_imported_owners_and_borrowed_aliases (tests.test_service_ownership.ServiceOwnership.test_imported_owners_and_borrowed_aliases) ... ok
+test_invalid_ownership_in_called_uncalled_and_shadow_bodies (tests.test_service_ownership.ServiceOwnership.test_invalid_ownership_in_called_uncalled_and_shadow_bodies) ... ok
+test_moves_branches_loops_and_borrows (tests.test_service_ownership.ServiceOwnership.test_moves_branches_loops_and_borrows) ... ok
+test_published_binding_keeps_all_five_shadow_bodies (tests.test_service_ownership.ServiceOwnership.test_published_binding_keeps_all_five_shadow_bodies) ... ok
+test_complete_calls_fields_helpers_and_generated_shadows (tests.test_service_bodies.ServiceBodies.test_complete_calls_fields_helpers_and_generated_shadows) ... ok
+test_imported_helper_aliases_and_distinct_nominal_bodies (tests.test_service_bodies.ServiceBodies.test_imported_helper_aliases_and_distinct_nominal_bodies) ... ok
+test_local_bound (tests.test_service_bodies.ServiceBodies.test_local_bound) ... ok
+test_nominal_refusals (tests.test_service_bodies.ServiceBodies.test_nominal_refusals) ... ok
+test_unsupported_is_not_checked_and_later_bodies_still_checked (tests.test_service_bodies.ServiceBodies.test_unsupported_is_not_checked_and_later_bodies_still_checked) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 327.880s
+
+OK

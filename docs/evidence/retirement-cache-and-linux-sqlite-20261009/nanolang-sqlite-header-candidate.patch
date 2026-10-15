@@ -1,0 +1,13 @@
+--- a/src/module.c
++++ b/src/module.c
+@@ -765,8 +765,8 @@
+                 if (constants && const_count > 0) {
+                     /* Add constants to environment as immutable symbols */
+                     for (int j = 0; j < const_count; j++) {
+-                        /* Check if symbol already exists (from manual declarations) */
+-                        bool exists = false;
++                        /* I retain declared functions and values over implicit header constants. */
++                        bool exists = env_get_function(env, constants[j].name) != NULL;
+                         for (int k = 0; k < env->symbol_count; k++) {
+                             if (strcmp(env->symbols[k].name, constants[j].name) == 0) {
+                                 exists = true;

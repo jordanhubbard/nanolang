@@ -1,0 +1,7 @@
+test_compiler_drivers_isolate_shadow_output (tests.test_native_shadow_emitter.NativeShadowEmitter.test_compiler_drivers_isolate_shadow_output) ... ok
+test_opaque_null_arguments_compile (tests.test_native_shadow_emitter.NativeShadowEmitter.test_opaque_null_arguments_compile) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 110.051s
+
+OK

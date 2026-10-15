@@ -1,0 +1,16 @@
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+import "src_nano/typecheck.nano"
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+extern fn file_read(path: string) -> string
+fn main() -> int {
+    if (!= (get_argc) 2) { return 0 }
+    let path: string = (get_argv 1)
+    let tokens: List<LexerToken> = (tokenize_string (file_read path) path (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) path)
+    if (parser_has_error parser) { return 2 }
+    if (typecheck_phase parser path).had_error { return 1 }
+    return 0
+}
+shadow main { assert (== (main) 0) }

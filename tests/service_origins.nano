@@ -1,0 +1,77 @@
+# I exercise my actual parser and origin binder without granting File authority.
+import "src_nano/compiler/service_origins.nano"
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+
+fn parse_origins(text: string) -> Parser {
+    let tokens: List<LexerToken> = (tokenize_string text "merged.nano" (list_CompilerDiagnostic_new))
+    return (parse_program tokens (list_LexerToken_length tokens) "merged.nano")
+}
+shadow parse_origins {
+    let p: Parser = (parse_origins "fn main() -> int { return 0 }\nshadow main { assert true }\n")
+    assert (not p.has_error)
+    assert (== p.services_count 0)
+}
+
+fn check_origins() -> void {
+    let declaration: string = "service \"nsi:nanolang/filesystem\" catalog 1 from \"interface.nsi.json\"\n"
+    let text: string = (+ "# removed module header\n" (+ declaration (+ "# intervening source\n" declaration)))
+    let p: Parser = (parse_origins text)
+    assert (not p.has_error)
+    let paths: array<string> = ["/root.nano", "/two/binding.nano", "/one/binding.nano"]
+    let map: array<string> = ["/one/binding.nano", "/one/binding.nano", "/two/binding.nano", "/two/binding.nano"]
+    # A late invalid mapping must leave the first declaration unbound.
+    let invalid: ServiceOrigins = (bind_service_origins p paths map [2,3,7,0])
+    assert (not invalid.ok)
+    let before: ASTServiceDecl = (parser_get_service p 0)
+    assert (== before.origin_index -1)
+    let bound: ServiceOrigins = (bind_service_origins p paths map [2,3,7,8])
+    assert bound.ok
+    assert (== (array_length bound.locations) 2)
+    let first: ServiceOrigin = (at bound.locations 0)
+    let second: ServiceOrigin = (at bound.locations 1)
+    assert (== first.file_index 2)
+    assert (== first.line 3)
+    assert (== second.file_index 1)
+    assert (== second.line 8)
+    let first_node: ASTServiceDecl = (parser_get_service p 0)
+    let second_node: ASTServiceDecl = (parser_get_service p 1)
+    assert (== first_node.origin_index 2)
+    assert (== second_node.origin_index 1)
+    assert (== first_node.line 2)
+    assert (== second_node.line 4)
+    assert (== first_node.document_path "interface.nsi.json")
+    let again: ServiceOrigins = (bind_service_origins p paths map [2,3,7,8])
+    assert again.ok
+    let reordered: ServiceOrigins = (bind_service_origins p ["/one/binding.nano", "/two/binding.nano", "/root.nano"] map [2,3,7,8])
+    assert (not reordered.ok)
+    let duplicate: Parser = (parse_origins (+ declaration declaration))
+    let duplicate_result: ServiceOrigins = (bind_service_origins duplicate ["/one/binding.nano"] ["/one/binding.nano", "/one/binding.nano"] [1,2])
+    assert (not duplicate_result.ok)
+    let duplicate_first: ASTServiceDecl = (parser_get_service duplicate 0)
+    assert (== duplicate_first.origin_index -1)
+    let missing: Parser = (parse_origins declaration)
+    let absent: ServiceOrigins = (bind_service_origins missing ["/other.nano"] ["/one/binding.nano"] [1])
+    assert (not absent.ok)
+    let unequal: ServiceOrigins = (bind_service_origins missing ["/one/binding.nano"] ["/one/binding.nano"] [])
+    assert (not unequal.ok)
+    let mut large: string = ""
+    let mut many_files: array<string> = []
+    let mut many_lines: array<int> = []
+    for i in (range 0 17) {
+        set large (+ large declaration)
+        set many_files (array_push many_files (+ "/file" (int_to_string i)))
+        set many_lines (array_push many_lines 1)
+    }
+    let over_limit: Parser = (parse_origins large)
+    let refused: ServiceOrigins = (bind_service_origins over_limit many_files many_files many_lines)
+    assert (not refused.ok)
+}
+shadow check_origins { (check_origins) }
+
+fn main() -> int {
+    (check_origins)
+    (println "PASS merged service origins")
+    return 0
+}
+shadow main { assert (== (main) 0) }

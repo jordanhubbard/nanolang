@@ -1,0 +1,4 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I cannot verify ownership: I require an exhaustive unguarded owned match with supported concrete payloads (/private/tmp/nanolang-selfhost-union-final/installed/SelectedUnionStage1/test_wildcard_cannot_hide_owned_payload/main.nano:5:36)
+  [E0036] I cannot verify ownership: resource remains live at scope exit: value (/private/tmp/nanolang-selfhost-union-final/installed/SelectedUnionStage1/test_wildcard_cannot_hide_owned_payload/main.nano:5:12)

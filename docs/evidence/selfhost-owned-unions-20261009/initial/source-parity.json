@@ -1,0 +1,338 @@
+[
+  {
+    "method": "test_compatible_outer_join",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "6a7061c8d9087701c780fcf907757c7ea11029d7e6ddc6b5648a308e46c3008e"
+  },
+  {
+    "method": "test_duplicate_selected_field_consumption",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "fabb624e109856f932fd73f37bf35776c31b68cccc424621dc36f74df519db0c"
+  },
+  {
+    "method": "test_guarded_owned_match_remains_rejected",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "1a3c54dd0d0d0bb66664aa23b87ec30a43c032b939014103ac95cce64ab1f249"
+  },
+  {
+    "method": "test_ignored_resource_binding",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "61da16f9eeb11c87d9d73a4550055a70b0608b3c24bcb4a88e67fabc8156de65"
+  },
+  {
+    "method": "test_ignored_selected_payload",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "a1ddb38ca7b46230b5dc27564cbf0e6b282841e9e73886b0161458a3ad5e9b7c"
+  },
+  {
+    "method": "test_incompatible_outer_join",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "ee3938810ba9ea91b0a562f4ab5a980b56f287eed6a3841e10a103c08f3e9de3"
+  },
+  {
+    "method": "test_loop_cannot_reconsume_outer_scrutinee",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "5aff176104f1b0ec8379725db00a7a94c69b2842728e2f5f3db602650f785a9d"
+  },
+  {
+    "method": "test_nested_resource_record",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "47f0ea50a0cbf4d8550c18840f3feb152561b5c1f28832c18dfe10e84afdb00c"
+  },
+  {
+    "method": "test_ordinary_call_match_expression_and_statement",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "f0b787c5ffa86b7583e882ddc682383c875f86e11e98daad72b882cbf8a5979e"
+  },
+  {
+    "method": "test_original_scrutinee_after_match",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "adeae1ec3654af768277e052d8016ff969d0ff686a46a4d936ddaf347751c79d"
+  },
+  {
+    "method": "test_partial_resource_field_move",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "43874942655fa68feed04cd45aa52e3d7de25b2ff60b64ff09d15c8cf5ecee07"
+  },
+  {
+    "method": "test_scrutinee_call_evaluates_once",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "e2b2709a61350372ae6bf08a436f84b81bd4e3466eadff3d61ff3ff108417c7b"
+  },
+  {
+    "method": "test_two_resources_and_ordinary_sibling_arms",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "ccf5d8b928c6f60b0df5997dd2308ffee66a2dcd9291c376d54edc3f59e21b18"
+  },
+  {
+    "method": "test_unresolved_selected_field",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "438e2c58d6f86f19adf8efec99415529d25fd50024b69267713bd4dd0a2e718e"
+  },
+  {
+    "method": "test_use_payload_after_destructure",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "5835ff58c6c5b09764f6b758a6233c6a098c18787b5f495b0881c4859016c485"
+  },
+  {
+    "method": "test_wildcard_cannot_hide_owned_payload",
+    "raw_class": "SelectedUnionProducer",
+    "c_class": "SelectedUnionCSource",
+    "same_source": true,
+    "sha256": "757e66a5d9bddf6352f71265dfaa9331fa51691accaaa984c9c765214e2a3fa6"
+  },
+  {
+    "method": "test_branch_join_consumes_outer_owner",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "03d6e0d59ab516fc249d8171aa25bc4200f99df713a410f5c397e2f99989b7a4"
+  },
+  {
+    "method": "test_conditional_constructor_return",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "b4ec072ff61da28b7786dcc15b9f7f3a73878e327a5f75201178a8842d36438b"
+  },
+  {
+    "method": "test_declared_constructor_argument",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "e02445617953fac0b35c96dd7a6381c02254cfca0779f3024d8b3fb3c3433cb7"
+  },
+  {
+    "method": "test_declared_constructor_return",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "96cb3a22914892af256d8b0a74574870f2b1de1f3a430cf82a03f69d79506b64"
+  },
+  {
+    "method": "test_declared_return_and_alias_transfer",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "a6d9de79c8332a31de03cff2d86b247c741f1dd4d66af491fd5e6ac881187411"
+  },
+  {
+    "method": "test_drop_selected_field_rejected",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "1d79fd45054504e8729cd4e6e99f8e0ceb93e674929643935b4f8f2001d8af12"
+  },
+  {
+    "method": "test_drop_union_rejected",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "a8f7891c2a284f5636f5f59dc00f4d8880fd0f746a30ba156d981c0f394359a8"
+  },
+  {
+    "method": "test_duplicate_consume_rejected",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "c1dc617cd7ec85cba9200a0ead0f40844dc9c81df05b440b2a4df09298832704"
+  },
+  {
+    "method": "test_empty_arm_has_no_obligation",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "4ce80b9eea5a4d1a4609009aabf379ec57314ee2e6e64a0abfe7d9a0953132db"
+  },
+  {
+    "method": "test_guarded_generic_match_remains_rejected",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "db019caed97c8289e01311693dc674cb92f302d433b381309684ee22e3bb4f9a"
+  },
+  {
+    "method": "test_incomplete_match_rejected",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "372dec73b43f9c0c92c44b96dbb5f44da11ac6a5bfe81e8c7d8b80a2e7888546"
+  },
+  {
+    "method": "test_join_mismatch_rejected",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "47a38664f08b1966526eedc958f13152a49f93557e76af3b4717f841642cd419"
+  },
+  {
+    "method": "test_match_constructor_return",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "15d2c42b1b133ca091875ef23b9fa92696b89626010d0b1cfd3b4f54d2d6b7cd"
+  },
+  {
+    "method": "test_match_then_reuse_rejected",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "cf96851024a2f3a7d1abda755ea0365d9f2bb9fe8da0547e117951a3cddd4f28"
+  },
+  {
+    "method": "test_nested_generic_transfer",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "c89676131b800b98e6ec68007b606fc22df661dcc0f9c0f26eb9661a4a8dbfa8"
+  },
+  {
+    "method": "test_ordinary_selected_arm_can_be_ignored",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "681960ff782404ef322362ce8353d57b03e33f765ba558fc5f1e4a2e555ce705"
+  },
+  {
+    "method": "test_partial_move_rejected",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "d80450f243ed7880e60e3934d5ddd8711f275c647d05e933bd393c161317be7a"
+  },
+  {
+    "method": "test_resource_and_ordinary_selected_arms",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "e3f64f69db74e0be31a58c9968b976da3c23b7c6e2948d991c7e9edc5f82b07c"
+  },
+  {
+    "method": "test_resource_collection_still_rejected",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "a53da9efe3a020addc2b7028726a18f891104c21a4c6cc350d67e6eb51cebc21"
+  },
+  {
+    "method": "test_unresolved_tuple_still_rejected",
+    "raw_class": "GenericSelectedUnionProducer",
+    "c_class": "GenericSelectedUnionCSource",
+    "same_source": true,
+    "sha256": "798343189bd8ba72fa1db889db0f345daa4e27fbbce8478a88e7477583d5fb70"
+  },
+  {
+    "method": "test_copyable_union_global",
+    "raw_class": "OwnedGlobalProducer",
+    "c_class": "OwnedGlobalSource",
+    "same_source": true,
+    "sha256": "0208310d1ff8163c6de7f442001b3db90d12cdf927165318142a6d53ff658985"
+  },
+  {
+    "method": "test_generic_union_global_and_alias",
+    "raw_class": "OwnedGlobalProducer",
+    "c_class": "OwnedGlobalSource",
+    "same_source": true,
+    "sha256": "a80dd387b9231f80a1125c10d2dac861a12f4990653b25ee8b256d33bd1de512"
+  },
+  {
+    "method": "test_immutable_assignment_refused",
+    "raw_class": "OwnedGlobalProducer",
+    "c_class": "OwnedGlobalSource",
+    "same_source": true,
+    "sha256": "33117ee017ac566778ea443d4bb85109d93a868cbb3be77a799297dc4d6cf940"
+  },
+  {
+    "method": "test_initializer_order_and_once_only_helper_effects",
+    "raw_class": "OwnedGlobalProducer",
+    "c_class": "OwnedGlobalSource",
+    "same_source": true,
+    "sha256": "793a1b305ee4c73dfee4aa0a743ef75be37ba6087ce703fdc72a99ea0d8c7dd3"
+  },
+  {
+    "method": "test_local_and_parameter_shadowing",
+    "raw_class": "OwnedGlobalProducer",
+    "c_class": "OwnedGlobalSource",
+    "same_source": true,
+    "sha256": "237a59ba920de94db9094d1cf7858cf37697acc5e864e325c869feb7601fe1cb"
+  },
+  {
+    "method": "test_resource_global_remains_refused",
+    "raw_class": "OwnedGlobalProducer",
+    "c_class": "OwnedGlobalSource",
+    "same_source": true,
+    "sha256": "f62213ef92f13a138c7fe1677c5de41d7f91365aebc92f3c6157c31f5ef7820f"
+  },
+  {
+    "method": "test_same_shape_wrong_union_assignment_refused",
+    "raw_class": "OwnedGlobalProducer",
+    "c_class": "OwnedGlobalSource",
+    "same_source": true,
+    "sha256": "17b362bdd183d8679cf7b1147b0861936fcaca4ed57c8a280fc3a1dfdf5105d8"
+  },
+  {
+    "method": "test_same_shape_wrong_union_initializer_refused",
+    "raw_class": "OwnedGlobalProducer",
+    "c_class": "OwnedGlobalSource",
+    "same_source": true,
+    "sha256": "3559da7c2f88a69b13c0ffbca034d075352d675a0facbec2d0a7a2ef84eecdc3"
+  },
+  {
+    "method": "test_scalar_kinds_and_mutation",
+    "raw_class": "OwnedGlobalProducer",
+    "c_class": "OwnedGlobalSource",
+    "same_source": true,
+    "sha256": "5e2433211ebd4d8355fc6b6afb1a99e5e145eeefe4af475616bb9f10669ce415"
+  },
+  {
+    "method": "test_uninitialized_global_read_in_initializer_refused",
+    "raw_class": "OwnedGlobalProducer",
+    "c_class": "OwnedGlobalSource",
+    "same_source": true,
+    "sha256": "4426819efd8f6beb751e981c3b54dcb9c9cd3c0375c28f5cdd5e9d61cd9e2de4"
+  },
+  {
+    "method": "test_wrong_generic_union_global_alias_refused",
+    "raw_class": "OwnedGlobalProducer",
+    "c_class": "OwnedGlobalSource",
+    "same_source": true,
+    "sha256": "09a03b977aaf6d1dd4c64bc78e3f010754cd280cb8590754b5a484510914d89e"
+  },
+  {
+    "method": "test_wrong_global_assignment_type_refused",
+    "raw_class": "OwnedGlobalProducer",
+    "c_class": "OwnedGlobalSource",
+    "same_source": true,
+    "sha256": "4ee080d93d94b0755cd395cf52e039fcff64dc9bf01ad3f77311f0bdd0ffdb50"
+  }
+]

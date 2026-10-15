@@ -1,0 +1,3 @@
+{
+  "log": "I retain source lowering artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-_2uuk60l\ntest_exact_wire_and_vm_native_results (tests.test_websocket_source_lowering.WebSocketSourceLowering.test_exact_wire_and_vm_native_results) ... I finish native compilation in 2.873s\nI finish native compilation in 2.681s\nI finish native compilation in 3.265s\nI finish native compilation in 3.002s\nok\n\n----------------------------------------------------------------------\nRan 1 test in 60.026s\n\nOK\n"
+}

@@ -1,4 +1,5 @@
 #include "file_source_plan.h"
+#include "service_source_catalog.h"
 #include "../nsi_file_catalog.h"
 #include <stdlib.h>
 #include <string.h>
@@ -26,36 +27,44 @@ static bool id_ok(uint32_t id){return id && id<=INT32_MAX;}
 static NlFileSourceText copy_text(char **p,NlFileSourceText s) {
  NlFileSourceText r={*p,s.size};memcpy(*p,s.data,s.size);(*p)[s.size]=0;*p+=s.size+1;return r;
 }
-NlFileSourceStatus nl_file_source_plan_build(const NlFileSourceRequest *requests,size_t nr,
+static NlFileSourceStatus source_plan_build(bool services,const NlFileSourceRequest *requests,size_t nr,
  const NlFileSourceAlias *aliases,size_t na,const NlFileSourceOrdinary *ordinary,size_t no,NlFileSourcePlan **out) {
  if(!out || !requests || !nr || (na&&!aliases) || (no&&!ordinary))return NL_FILE_SOURCE_INVALID;
  if(nr>NL_FILE_SOURCE_REQUESTS || na>NL_FILE_SOURCE_ALIASES || no>NL_FILE_SOURCE_ORDINARY)return NL_FILE_SOURCE_LIMIT;
  char catalog[32768];size_t needed=0;
- if(!nl_file_source_catalog_view(catalog,sizeof catalog,&needed))return NL_FILE_SOURCE_UNRESOLVED;
+
  /* Bounded temporary rows borrow input until validation finishes. */
- NlFileSourceRow rows[NL_FILE_SOURCE_REQUESTS*NL_FILE_SOURCE_BINDINGS+NL_FILE_SOURCE_ALIASES];
- NlFileSourceOrdinary space[NL_FILE_SOURCE_REQUESTS*NL_FILE_SOURCE_BINDINGS+NL_FILE_SOURCE_ALIASES+NL_FILE_SOURCE_ORDINARY];
+ NlFileSourceRow rows[NL_FILE_SOURCE_REQUESTS*NL_SERVICE_SOURCE_BINDINGS+NL_FILE_SOURCE_ALIASES];
+ NlFileSourceOrdinary space[NL_FILE_SOURCE_REQUESTS*NL_SERVICE_SOURCE_BINDINGS+NL_FILE_SOURCE_ALIASES+NL_FILE_SOURCE_ORDINARY];
  size_t count=0,ns=0,budget=0,owned_text=0;
  for(size_t r=0;r<nr;r++) {
   const NlFileSourceRequest *q=&requests[r];
   if(!text_ok(q->module,4096,false) || !text_ok(q->interface_id,256,false) ||
      !text_ok(q->catalog_view,32767,false) || !id_ok(q->line) || !id_ok(q->column) ||
-     !q->bindings || q->binding_count!=13)return NL_FILE_SOURCE_INVALID;
-  if(q->catalog_version!=1 || !text_literal(q->interface_id,nl_file_catalog_interface()) ||
+     !q->bindings || (!services && q->binding_count!=13))return NL_FILE_SOURCE_INVALID;
+  int64_t identity=text_literal(q->interface_id,"nsi:nanolang/filesystem")?NL_SOURCE_CATALOG_FILE:
+                   services && text_literal(q->interface_id,"nsi:nanolang/net")?NL_SOURCE_CATALOG_SOCKET:
+                   services && text_literal(q->interface_id,"nsi:nanolang/websocket")?NL_SOURCE_CATALOG_WEBSOCKET:NL_SOURCE_CATALOG_NONE;
+  if(!identity)return NL_FILE_SOURCE_UNRESOLVED;
+  uint32_t types=(uint32_t)nl_service_source_catalog_count(identity,1);
+  uint32_t methods=(uint32_t)nl_service_source_catalog_count(identity,2);
+  if(q->binding_count!=types+methods)return NL_FILE_SOURCE_INVALID;
+  if(!nl_service_source_catalog_view(identity,catalog,sizeof catalog,&needed))return NL_FILE_SOURCE_UNRESOLVED;
+  if(q->catalog_version!=1 ||
      q->catalog_view.size!=needed-1 || memcmp(q->catalog_view.data,catalog,needed-1))return NL_FILE_SOURCE_UNRESOLVED;
   if(!add_text(&budget,q->module)||!add_text(&budget,q->interface_id)||!add_text(&budget,q->catalog_view))return NL_FILE_SOURCE_LIMIT;
   for(size_t j=0;j<r;j++)if(text_equal(q->module,requests[j].module))return NL_FILE_SOURCE_INVALID;
   uint16_t seen=0;
-  for(size_t j=0;j<13;j++) {
+  for(size_t j=0;j<q->binding_count;j++) {
    const NlFileSourceBinding *b=&q->bindings[j];
-   if(!id_ok(b->id)||b->kind>1||b->ordinal>=(b->kind?5u:8u)||!text_ok(b->name,128,true))return NL_FILE_SOURCE_INVALID;
-   uint32_t index=b->ordinal+(b->kind?8u:0u);uint16_t bit=(uint16_t)(1u<<index);
-   if((seen&bit)||!text_literal(b->name,nl_file_source_catalog_string(b->kind+1,b->ordinal,1,0)))return NL_FILE_SOURCE_INVALID;
+   if(!id_ok(b->id)||b->kind>1||b->ordinal>=(b->kind?methods:types)||!text_ok(b->name,128,true))return NL_FILE_SOURCE_INVALID;
+   uint32_t index=b->ordinal+(b->kind?types:0u);uint16_t bit=(uint16_t)(1u<<index);
+   if((seen&bit)||!text_literal(b->name,nl_service_source_catalog_string(identity,b->kind+1,b->ordinal,1,0)))return NL_FILE_SOURCE_INVALID;
    seen|=bit;if(!add_text(&budget,b->name))return NL_FILE_SOURCE_LIMIT;
-   uint32_t category=b->kind?5u:b->ordinal==0?1u:b->ordinal==3?2u:b->ordinal<3?3u:4u;
+   uint32_t category=b->kind?5u:b->ordinal==0?1u:b->ordinal==3?2u:(b->ordinal<3 || (identity==NL_SOURCE_CATALOG_SOCKET && b->ordinal==8))?3u:4u;
    rows[count++]=(NlFileSourceRow){q->module,b->name,b->id,b->id,(uint32_t)r,b->kind,b->ordinal,category,
-    b->kind?(uint32_t)nl_file_source_catalog_number(2,b->ordinal,3,0):NL_FILE_SOURCE_NO_INDEX,
-    b->kind?3u+b->ordinal:NL_FILE_SOURCE_NO_INDEX,NL_FILE_SOURCE_NO_INDEX,NL_FILE_SOURCE_NO_INDEX,q->line,q->column};
+    b->kind?(uint32_t)nl_service_source_catalog_number(identity,2,b->ordinal,3,0):NL_FILE_SOURCE_NO_INDEX,
+    b->kind?3u+b->ordinal:NL_FILE_SOURCE_NO_INDEX,NL_FILE_SOURCE_NO_INDEX,NL_FILE_SOURCE_NO_INDEX,q->line,q->column,(uint32_t)identity};
    space[ns++]=(NlFileSourceOrdinary){q->module,b->name,b->id};
   }
  }
@@ -95,4 +104,13 @@ size_t nl_file_source_plan_bytes(const NlFileSourcePlan *p){return p?p->bytes:0;
 bool nl_file_source_plan_row(const NlFileSourcePlan *p,size_t i,NlFileSourceRow *out) {
  if(!p || !out || i>=p->count)return false;
  *out=p->rows[i];return true;
+}
+
+NlFileSourceStatus nl_file_source_plan_build(const NlFileSourceRequest *r,size_t nr,
+ const NlFileSourceAlias *a,size_t na,const NlFileSourceOrdinary *o,size_t no,NlFileSourcePlan **out) {
+ return source_plan_build(false,r,nr,a,na,o,no,out);
+}
+NlFileSourceStatus nl_service_source_plan_build(const NlFileSourceRequest *r,size_t nr,
+ const NlFileSourceAlias *a,size_t na,const NlFileSourceOrdinary *o,size_t no,NlFileSourcePlan **out) {
+ return source_plan_build(true,r,nr,a,na,o,no,out);
 }

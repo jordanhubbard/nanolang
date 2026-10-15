@@ -1,0 +1,47 @@
+114084530197.log
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-10T00:28:48.5016970Z src/service_lowering.c:278:9: error: this ‘for’ clause does not guard... [-Werror=misleading-indentation]
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-10T00:28:48.5031873Z src/service_lowering.c:346:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-10T00:28:48.5039386Z src/service_lowering.c:354:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+
+114084530211.log
+Concurrency (clang + libdispatch)	Build stage 1 with clang	2026-10-10T00:28:11.4676878Z src/runtime/service_product.c:185:22: error: use of bitwise '&' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
+Concurrency (clang + libdispatch)	Build stage 1 with clang	2026-10-10T00:28:11.4805253Z src/runtime/service_product.c:185:22: error: use of bitwise '&' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
+
+114084530283.log
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-10T00:28:53.9768897Z src/service_lowering.c:278:9: error: this ‘for’ clause does not guard... [-Werror=misleading-indentation]
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-10T00:28:53.9774152Z src/service_lowering.c:346:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-10T00:28:53.9777702Z src/service_lowering.c:354:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+
+114084530285.log
+Benchmark measurement check	Build nanoc	2026-10-10T00:28:10.3284894Z src/service_lowering.c:278:9: error: this ‘for’ clause does not guard... [-Werror=misleading-indentation]
+Benchmark measurement check	Build nanoc	2026-10-10T00:28:10.3300711Z src/service_lowering.c:346:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+Benchmark measurement check	Build nanoc	2026-10-10T00:28:10.3308519Z src/service_lowering.c:354:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+
+114084530287.log
+Strict examples (x64)	Build C reference compiler	2026-10-10T00:28:52.6075110Z src/service_lowering.c:278:9: error: this ‘for’ clause does not guard... [-Werror=misleading-indentation]
+Strict examples (x64)	Build C reference compiler	2026-10-10T00:28:52.6085281Z src/service_lowering.c:346:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+Strict examples (x64)	Build C reference compiler	2026-10-10T00:28:52.6092185Z src/service_lowering.c:354:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+
+114084530306.log
+Code Coverage	Build with coverage	2026-10-10T00:29:21.2079965Z src/service_lowering.c:278:9: error: this ‘for’ clause does not guard... [-Werror=misleading-indentation]
+Code Coverage	Build with coverage	2026-10-10T00:29:21.2092464Z src/service_lowering.c:346:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+Code Coverage	Build with coverage	2026-10-10T00:29:21.2098201Z src/service_lowering.c:354:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+
+114084530319.log
+Docs (link check)	Test and build user guide	2026-10-10T00:28:01.1768959Z src/service_lowering.c:278:9: error: this ‘for’ clause does not guard... [-Werror=misleading-indentation]
+Docs (link check)	Test and build user guide	2026-10-10T00:28:01.1782135Z src/service_lowering.c:346:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+Docs (link check)	Test and build user guide	2026-10-10T00:28:01.1786840Z src/service_lowering.c:354:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+
+114084530325.log
+Build and Test (macos-14, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-10T00:29:32.8091110Z src/runtime/service_product.c:185:22: error: use of bitwise '&' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
+Build and Test (macos-14, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-10T00:29:32.8094330Z src/runtime/service_product.c:185:22: error: use of bitwise '&' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
+
+114084530358.log
+Strict examples (arm64)	Build C reference compiler	2026-10-10T00:28:43.7200670Z src/runtime/service_product.c:185:22: error: use of bitwise '&' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
+Strict examples (arm64)	Build C reference compiler	2026-10-10T00:28:43.7204030Z src/runtime/service_product.c:185:22: error: use of bitwise '&' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
+
+nanolang-guide-5003-failure.log
+build	Validate user guide snippets	2026-10-10T00:27:58.7628294Z src/service_lowering.c:278:9: error: this ‘for’ clause does not guard... [-Werror=misleading-indentation]
+build	Validate user guide snippets	2026-10-10T00:27:58.7633869Z src/service_lowering.c:346:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+build	Validate user guide snippets	2026-10-10T00:27:58.7636162Z src/service_lowering.c:354:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+

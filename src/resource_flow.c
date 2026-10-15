@@ -36,6 +36,7 @@ typedef struct {
     size_t exit_first;
     OwnLoop *loop;
     unsigned restricted;
+    unsigned pending_values;
     bool *error;
 } OwnFlow;
 
@@ -124,8 +125,10 @@ static bool own_info_resource(OwnFlow *flow, ASTNode *at, const TypeInfo *info, 
     if (own_info_resource(flow, at, info->element_type, depth + 1)) return true;
     for (int i = 0; i < info->type_param_count; ++i)
         if (info->type_params && own_info_resource(flow, at, info->type_params[i], depth + 1)) return true;
-    for (int i = 0; i < info->tuple_element_count; ++i)
+    for (int i = 0; i < info->tuple_element_count; ++i) {
+        if (info->tuple_elements && own_info_resource(flow,at,info->tuple_elements[i],depth+1)) return true;
         if (info->tuple_type_names && own_resource(flow, info->tuple_type_names[i])) return true;
+    }
     return false;
 }
 
@@ -344,9 +347,19 @@ static FunctionSignature *own_signature(OwnFlow *flow, ASTNode *node) {
     return NULL;
 }
 
+static EffectOp *own_effect_operation(OwnFlow *flow, ASTNode *node) {
+    return effect_get_op(env_get_effect(flow->env, node->as.effect_op.effect_name),
+                         node->as.effect_op.op_name);
+}
+
 static const char *own_type(OwnFlow *flow, ASTNode *node) {
     if (!node) return NULL;
     switch (node->type) {
+        case AST_EFFECT_OP: {
+            EffectOp *op = own_effect_operation(flow, node);
+            return op ? op->return_type_name : NULL;
+        }
+        case AST_HANDLE_EXPR: return own_type(flow, node->as.handle_expr.body);
         case AST_IDENTIFIER: {
             OwnBinding *binding = own_find(flow, node->as.identifier);
             return binding ? binding->nominal : NULL;
@@ -423,6 +436,11 @@ static const char *own_type(OwnFlow *flow, ASTNode *node) {
 static const TypeInfo *own_expr_info(OwnFlow *flow, ASTNode *node) {
     if (!node) return NULL;
     switch (node->type) {
+        case AST_EFFECT_OP: {
+            EffectOp *op = own_effect_operation(flow, node);
+            return op ? op->return_type_info : NULL;
+        }
+        case AST_HANDLE_EXPR: return own_expr_info(flow, node->as.handle_expr.body);
         case AST_IDENTIFIER: {
             OwnBinding *binding = own_find(flow, node->as.identifier);
             return binding ? binding->type_info : NULL;
@@ -507,6 +525,7 @@ static void own_nested_function(OwnFlow *flow, ASTNode *function) {
     if (!own_clone(&nested, flow, function)) return;
     nested.exit_first = nested.count;
     nested.loop = NULL;
+    nested.pending_values = 0;
     for (int i = 0; i < function->as.function.param_count; ++i) {
         Parameter *parameter = &function->as.function.params[i];
         own_check_callback(flow, function, parameter->fn_sig);
@@ -517,6 +536,8 @@ static void own_nested_function(OwnFlow *flow, ASTNode *function) {
     if (result & OWN_NEXT) own_leaks(&nested, nested.exit_first, function);
     free(nested.bindings);
 }
+
+#include "resource_effect_summary.inc"
 
 static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
     if (!node) return OWN_NEXT;
@@ -593,6 +614,8 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
                 free(path);
                 return own_node(flow, node->as.set.value, true);
             }
+            if (binding && binding->resource && index < flow->exit_first)
+                own_error(flow, node, "I cannot assign a captured resource", binding->name);
             if (binding && (binding->borrowed || binding->holds))
                 own_error(flow, node, "I cannot overwrite a borrowed owner", binding->name);
             else if (binding && binding->resource && !binding->moved)
@@ -604,6 +627,8 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             return result;
         }
         case AST_RETURN: {
+            if (flow->pending_values)
+                own_error(flow, node, "I cannot abandon a staged resource at lexical return", NULL);
             unsigned result = own_node(flow, node->as.return_stmt.value, true);
             if (result & OWN_NEXT) own_leaks(flow, flow->exit_first, node);
             return (result & ~OWN_NEXT) | OWN_RETURN;
@@ -660,6 +685,7 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             OwnHold *held = calloc(count ? (size_t)count : 1, sizeof(*held));
             if (!entry || !held) { free(entry); free(held); own_error(flow, node, "I cannot allocate call borrow state", NULL); return result; }
             for (size_t i = 0; i < first_count; ++i) entry[i] = flow->bindings[i].holds;
+            unsigned pending = flow->pending_values;
             for (int i = 0; i < count && (result & OWN_NEXT); ++i) {
                 ASTNode *arg = args[i];
                 if (arg->type == AST_CALL && arg->as.call.borrow_mode > 0 && arg->as.call.arg_count == 1) {
@@ -675,8 +701,18 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
                         held[i].next = binding->holds;
                         binding->holds = &held[i];
                     }
-                } else result = (result & ~OWN_NEXT) | own_node(flow, arg, true);
+                } else {
+                    result = (result & ~OWN_NEXT) | own_node(flow, arg, true);
+                    if (own_value_resource(flow, arg, own_type(flow, arg), own_expr_info(flow, arg)))
+                        flow->pending_values++;
+                }
             }
+            flow->pending_values = pending;
+            bool suspended = pending != 0;
+            for (size_t i = 0; i < first_count; ++i)
+                suspended |= flow->bindings[i].resource && !flow->bindings[i].moved && !flow->bindings[i].borrowed;
+            if ((result & OWN_NEXT) && suspended && own_call_effect_escape(flow, node))
+                own_error(flow, node, "I cannot abandon a suspended resource across an effectful call", NULL);
             for (size_t i = 0; i < first_count; ++i) flow->bindings[i].holds = entry[i];
             for (int i = 0; i < count; ++i) free(held[i].path);
             free(entry);
@@ -690,9 +726,32 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             ASTNode **values = node->type == AST_STRUCT_LITERAL ? node->as.struct_literal.field_values : node->as.union_construct.field_values;
             int count = node->type == AST_STRUCT_LITERAL ? node->as.struct_literal.field_count : node->as.union_construct.field_count;
             unsigned result = OWN_NEXT;
-            if (node->type == AST_STRUCT_LITERAL) result = own_node(flow, node->as.struct_literal.spread_source, true);
-            for (int i = 0; i < count && (result & OWN_NEXT); ++i)
+            unsigned pending = flow->pending_values;
+            if (node->type == AST_STRUCT_LITERAL) {
+                ASTNode *spread = node->as.struct_literal.spread_source;
+                const char *source_name = own_type(flow, spread);
+                StructDef *source = source_name ? env_get_struct(flow->env, source_name) : NULL;
+                for (int i = 0; source && i < count; ++i) {
+                    const char *field = node->as.struct_literal.field_names[i];
+                    for (int f = 0; f < source->field_count; ++f) {
+                        if (strcmp(field, source->field_names[f])) continue;
+                        const char *name = source->field_type_names ? source->field_type_names[f] : NULL;
+                        const TypeInfo *info = source->field_type_info ? source->field_type_info[f] : NULL;
+                        if (own_value_resource(flow, spread, name, info))
+                            own_error(flow, values[i], "I cannot discard an inherited resource field in a spread override", field);
+                        break;
+                    }
+                }
+                result = own_node(flow, spread, true);
+                if (spread && own_value_resource(flow, spread, own_type(flow, spread), own_expr_info(flow, spread)))
+                    flow->pending_values++;
+            }
+            for (int i = 0; i < count && (result & OWN_NEXT); ++i) {
                 result = (result & ~OWN_NEXT) | own_node(flow, values[i], true);
+                if (own_value_resource(flow, values[i], own_type(flow, values[i]), own_expr_info(flow, values[i])))
+                    flow->pending_values++;
+            }
+            flow->pending_values = pending;
             if ((result & OWN_NEXT) && resource && (!move || flow->restricted))
                 own_error(flow, node, "resource construction has no resolved owner", nominal);
             return result;
@@ -826,7 +885,35 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             free(joined.bindings);
             return exits | (has_next ? OWN_NEXT : 0);
         }
-        case AST_HANDLE_EXPR:
+        case AST_HANDLE_EXPR: {
+            /* I check each repeatable arm against its own transferred parameters.
+             * Captured owners remain inaccessible until their effect lifetime is proved. */
+            EffectDef *effect = env_get_effect(flow->env, node->as.handle_expr.effect_name);
+            for (int i = 0; i < node->as.handle_expr.handler_count; ++i) {
+                EffectOp *op = effect_get_op(effect, node->as.handle_expr.handler_op_names[i]);
+                if (!op || op->param_count != node->as.handle_expr.handler_param_counts[i]) {
+                    own_error(flow, node, "I require a resolved handler ownership signature", NULL);
+                    continue;
+                }
+                OwnFlow arm;
+                if (!own_clone(&arm, flow, node)) continue;
+                size_t first = arm.count;
+                arm.exit_first = first;
+                arm.loop = NULL;
+                for (int arg = 0; arg < op->param_count; ++arg) {
+                    Parameter *parameter = &op->params[arg];
+                    if (own_add(&arm, node, node->as.handle_expr.handler_param_names[i][arg],
+                                parameter->struct_type_name, parameter->type_info))
+                        arm.bindings[arm.count - 1].signature = parameter->fn_sig;
+                }
+                unsigned result = own_node(&arm, node->as.handle_expr.handler_bodies[i], true);
+                if (result & OWN_NEXT) own_leaks(&arm, first, node);
+                if (result & (OWN_BREAK | OWN_CONTINUE))
+                    own_error(flow, node, "I cannot transfer loop control across a handler", NULL);
+                free(arm.bindings);
+            }
+            return own_node(flow, node->as.handle_expr.body, move);
+        }
         case AST_EFFECT_HANDLER: {
             /* I visit each region, but reject ownership across nonlocal control. */
             own_leaks(flow, 0, node);
@@ -843,11 +930,22 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             return OWN_NEXT;
         }
         case AST_EFFECT_OP: {
-            own_leaks(flow, 0, node);
-            flow->restricted++;
-            for (int i = 0; i < node->as.effect_op.arg_count; ++i) own_node(flow, node->as.effect_op.args[i], true);
-            flow->restricted--;
-            return OWN_NEXT;
+            if (flow->pending_values)
+                own_error(flow, node, "I cannot abandon a staged resource across an effect", NULL);
+            unsigned pending = flow->pending_values;
+            unsigned result = OWN_NEXT;
+            for (int i = 0; i < node->as.effect_op.arg_count && (result & OWN_NEXT); ++i) {
+                ASTNode *arg = node->as.effect_op.args[i];
+                result = (result & ~OWN_NEXT) | own_node(flow, arg, true);
+                if (own_value_resource(flow, arg, own_type(flow, arg), own_expr_info(flow, arg)))
+                    flow->pending_values++;
+            }
+            flow->pending_values = pending;
+            /* I cannot abandon another live owner when an operation exits lexically. */
+            if (result & OWN_NEXT) own_leaks(flow, flow->exit_first, node);
+            if (resource && !move)
+                own_error(flow, node, "I require an owner for a resumed resource", NULL);
+            return result;
         }
         case AST_NUMBER: case AST_FLOAT: case AST_STRING: case AST_BOOL:
         case AST_QUALIFIED_NAME: case AST_STRUCT_DEF: case AST_UNION_DEF:

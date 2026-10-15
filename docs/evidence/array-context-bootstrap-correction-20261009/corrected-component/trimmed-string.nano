@@ -1,0 +1,2 @@
+fn main()->int { let spelling:string = " Choice<int>" let values:array<string> = [(str_trim (str_substring spelling 0 7))] assert (== (at values 0) "Choice") return 0 }
+shadow main { assert true }

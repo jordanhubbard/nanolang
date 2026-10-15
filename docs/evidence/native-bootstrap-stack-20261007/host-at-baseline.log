@@ -1,0 +1,15 @@
+test_linker_at_sign_paths_reuse_and_invalidate (tests.test_module_cache_publication.ModuleCachePublication.test_linker_at_sign_paths_reuse_and_invalidate) ... FAIL
+
+======================================================================
+FAIL: test_linker_at_sign_paths_reuse_and_invalidate (tests.test_module_cache_publication.ModuleCachePublication.test_linker_at_sign_paths_reuse_and_invalidate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_cache_publication.py", line 142, in test_linker_at_sign_paths_reuse_and_invalidate
+    self.assertTrue((generation / "source_hashes.json").is_file())
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 1 test in 0.715s
+
+FAILED (failures=1)

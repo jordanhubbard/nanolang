@@ -1,0 +1,7 @@
+enum Choice { One, Two }
+fn fold(a:Choice,b:Choice)->Choice{return a}
+shadow fold {assert (== (fold Choice.One Choice.Two) Choice.One)}
+fn apply(xs:array<Choice>,initial:Choice)->Choice{return (reduce xs initial fold)}
+shadow apply {assert (== (apply [Choice.One,Choice.Two] Choice.Two) Choice.Two)}
+fn main()->int{return 0}
+shadow main {assert (== (main) 0)}

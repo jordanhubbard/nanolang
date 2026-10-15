@@ -115,6 +115,15 @@ The production checkpoint inventories every type copy/equality/signature path;
 old ordinary type behavior is unchanged. Declared variables/parameters/returns,
 record fields and shadow targets retain these facts through resolution.
 
+My companion reader now exists in `src/nanoisa/file_source_snapshot.{c,h}`.
+Its owning context retains exact input bytes and strict-preparer interface/source
+views, with sixteen-entry and aggregate 64 MiB project-heap bounds. My
+[Darwin reader tests](evidence/file-source-snapshots-20261009/README.md) cover
+acquisition, mutation isolation and cleanup. My Nano driver now acquires retained
+companions through the typed input bridge, and my C loader retains them in its
+environment. Namespace resolution, independent lowering and full source acceptance
+remain open.
+
 ## My two independent checking and lowering paths
 
 I extend the real C checker and `src/nanovirt/codegen.c` with a dedicated File
@@ -152,6 +161,17 @@ output. I require a coexistence test proving retention or that refusal; general
 mixed execution remains mandatory later work, not silently accepted.
 
 ## My driver and authority contract
+
+My C seed and `nano_virt` now select the checked File source path described below.
+They share byte-only staging/publication after C lowering and a whole-suite shadow
+supervisor. `nano_virt` without `-o` checks and runs selected shadows without
+publishing a file; `--run` additionally executes the main module. Native products
+require a separate runtime grant argument. My independent Nano driver now passes its own lowered bytes through an owned,
+bounded publication context. That bridge accepts hex chunks and selected origin/name
+labels; it cannot inspect an AST or choose source semantics. I share the byte-only
+transaction after independent lowering. Full source/profile coverage and the
+Linux/Darwin release gates remain required.
+
 
 I propose `--allow-temporary-files` in actual C seed, nano_virt and Nano driver
 options. For a service-bearing source graph, default native compilation selects
@@ -495,3 +515,68 @@ correction. I may therefore reuse exact18334 bootstrap products after full
 source/product identity proof, while always freshly building this changed
 publisher and its fixture/module outputs. Original bootstrap and sanitizer pins
 remain distinct; no fresh-bootstrap or File service execution claim follows.
+
+## My integrated origin binding
+
+I now bind C service declarations in the real import loader to environment-owned canonical source paths before aliases are applied. My Nano driver binds the parser nodes from the existing exact per-line source map and retains original line/column locations alongside the merged positions. Both paths validate before changing origin indices. I qualify the C recursive loader, paired source helpers and a [fresh full Darwin bootstrap](evidence/service-origins-bootstrap-4bf302505/README.md). My Nano driver now invokes the companion reader after origin binding. My C loader also retains companions under environment-owned canonical origins. Complete namespace resolution and executable File source admission remain open.
+
+## My Nano companion-input ABI
+
+I expose the existing reader in `modules/file_source_inputs` through six exact
+artifact signatures. Each caller owns an explicit opaque snapshot context and
+frees it once; I use no global handle table. Acquisition checks full terminated
+string extents against declared counts before passing spans to the strict reader.
+Nonnegative results identify retained snapshots; negative results retain the
+reader's status. My text operation copies one counted view and the module
+manifest marks that result as an owned string. A copied view survives context
+destruction. A failed copy returns NULL: my VM refuses it, while native callers must reject
+an empty required view. The provider exports its own versioned release companion
+so consumers copy and release exactly once, including a failed managed copy.
+
+The reader's 64 MiB bound covers its context and strict preparation storage.
+Returned copies belong to the caller and are additional storage; this bridge
+alone does not establish a whole-driver aggregate budget. My Nano driver wraps compilation in one explicit context lifetime and checks
+companion/output aliases before later diagnostics. Complete namespace resolution,
+whole-driver aggregate accounting and paired File lowering remain pending. I retain
+explicit nominal opaque typing for this compiler-input handle; it is not a File
+service type or an execution grant.
+
+## My Nano driver acquisition
+
+I retain one snapshot context around `compile_program_inputs` and destroy it
+when that inner function returns, including origin, acquisition, checker,
+shadow and publication failures. The retained snapshot indices remain aligned
+with service declarations; original file/line facts come from the real merged
+source mapping. I validate all origin/count associations before opening any
+companion. Acquisition failures publish no partial path/index result, and the
+outer owner still releases any successfully acquired prefix.
+
+I check output and diagnostics identity against acquired companion paths before
+writing later diagnostics. A retained declaration also receives this protection
+when parsing fails after that declaration. Unrecognized declarations in invalid
+lexical/syntax input do not establish a companion identity. I retain the existing
+source/output guard before lexing and do not infer a complete valid graph from
+partial parser output. A service-free program opens no companions.
+
+This is compiler input I/O. Strict valid catalogs still reach my explicit
+unresolved-service checker refusal until complete namespace and independent
+lowering are implemented. I do not run generated File behavior shadows through
+an ordinary foreign-call path or grant File authority at acquisition.
+
+## My C loader acquisition
+
+I retain a lazy environment-owned snapshot context and a bounded map from each
+canonical service origin to its immutable snapshot. I validate counted strings,
+catalog version and the full-width origin index before acquisition. Repeated
+imports reuse the retained snapshot only when their companion spelling matches;
+I do not reopen the input after mutation or silently rebind that origin to a new
+companion. Environment destruction releases every acquired prefix.
+
+I place the strict reader, binding preparer, NSI parser and catalog plan in a
+single compiler-input archive shared by common compiler and standalone NanoISA
+links. Archive selection retains one provider definition when both consumer sets
+participate; cJSON and UTF-8 stay in their existing consumer closures. My C loader
+still refuses service execution before ordinary checking/lowering. Successful
+input retention is not a nominal type binding or a File grant.
+
+I specify exclusive multi-borrow helper encoding and transfer in [my counted reference-map contract](NANOISA_FILE_MULTI_BORROW.md). Shared and indirect source requirements remain open.

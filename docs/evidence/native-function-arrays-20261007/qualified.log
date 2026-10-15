@@ -1,0 +1,33 @@
+test_branch_fixtures (tests.test_selfhost_returned_calls.ReturnedCalls.test_branch_fixtures) ... ok
+test_multiple_arguments_execute_once_in_order (tests.test_selfhost_returned_calls.ReturnedCalls.test_multiple_arguments_execute_once_in_order) ... ok
+test_nested_signature_and_printed_result (tests.test_selfhost_returned_calls.ReturnedCalls.test_nested_signature_and_printed_result) ... ok
+test_branch_fixtures (tests.test_selfhost_function_values.NativeReturnedCalls.test_branch_fixtures) ... ok
+test_contextual_bytes_arrays_and_record_arguments (tests.test_selfhost_function_values.NativeReturnedCalls.test_contextual_bytes_arrays_and_record_arguments) ... ok
+test_imported_function_value_uses_resolved_alias (tests.test_selfhost_function_values.NativeReturnedCalls.test_imported_function_value_uses_resolved_alias) ... ok
+test_multiple_arguments_execute_once_in_order (tests.test_selfhost_function_values.NativeReturnedCalls.test_multiple_arguments_execute_once_in_order) ... ok
+test_mutating_argument_does_not_replace_saved_callee (tests.test_selfhost_function_values.NativeReturnedCalls.test_mutating_argument_does_not_replace_saved_callee) ... ok
+test_nested_signature_and_printed_result (tests.test_selfhost_function_values.NativeReturnedCalls.test_nested_signature_and_printed_result) ... ok
+test_void_and_function_valued_results_keep_stack_counts (tests.test_selfhost_function_values.NativeReturnedCalls.test_void_and_function_valued_results_keep_stack_counts) ... ok
+test_wrong_signature_or_non_callable_preserves_prior_module (tests.test_selfhost_function_values.NativeReturnedCalls.test_wrong_signature_or_non_callable_preserves_prior_module) ... ok
+test_branch_fixtures (tests.test_selfhost_function_values.VMReturnedCalls.test_branch_fixtures) ... ok
+test_contextual_bytes_arrays_and_record_arguments (tests.test_selfhost_function_values.VMReturnedCalls.test_contextual_bytes_arrays_and_record_arguments) ... ok
+test_imported_function_value_uses_resolved_alias (tests.test_selfhost_function_values.VMReturnedCalls.test_imported_function_value_uses_resolved_alias) ... ok
+test_multiple_arguments_execute_once_in_order (tests.test_selfhost_function_values.VMReturnedCalls.test_multiple_arguments_execute_once_in_order) ... ok
+test_mutating_argument_does_not_replace_saved_callee (tests.test_selfhost_function_values.VMReturnedCalls.test_mutating_argument_does_not_replace_saved_callee) ... ok
+test_nested_signature_and_printed_result (tests.test_selfhost_function_values.VMReturnedCalls.test_nested_signature_and_printed_result) ... ok
+test_void_and_function_valued_results_keep_stack_counts (tests.test_selfhost_function_values.VMReturnedCalls.test_void_and_function_valued_results_keep_stack_counts) ... ok
+test_wrong_signature_or_non_callable_preserves_prior_module (tests.test_selfhost_function_values.VMReturnedCalls.test_wrong_signature_or_non_callable_preserves_prior_module) ... ok
+test_callable_tags_and_target_membership_are_checked (tests.test_native_callables.NativeCallables.test_callable_tags_and_target_membership_are_checked) ... ok
+test_function_array_aliases_globals_and_missing_elements (tests.test_native_callables.NativeCallables.test_function_array_aliases_globals_and_missing_elements) ... ok
+test_function_array_writes_check_payload_tags (tests.test_native_callables.NativeCallables.test_function_array_writes_check_payload_tags) ... ok
+test_function_field_tags_and_targets_are_checked (tests.test_native_callables.NativeCallables.test_function_field_tags_and_targets_are_checked) ... ok
+test_function_fields_survive_nested_records_and_record_arrays (tests.test_native_callables.NativeCallables.test_function_fields_survive_nested_records_and_record_arrays) ... ok
+test_function_identity_comparisons_preserve_tags (tests.test_native_callables.NativeCallables.test_function_identity_comparisons_preserve_tags) ... ok
+test_indirect_record_and_array_results_retain_roots (tests.test_native_callables.NativeCallables.test_indirect_record_and_array_results_retain_roots) ... ok
+test_many_targets_share_exclusive_dispatch_temporaries (tests.test_native_callables.NativeCallables.test_many_targets_share_exclusive_dispatch_temporaries) ... ok
+test_retained_source_function_containers (tests.test_native_callables.NativeCallables.test_retained_source_function_containers) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 8.848s
+
+OK

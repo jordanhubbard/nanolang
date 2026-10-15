@@ -1,0 +1,30 @@
+union Choice { Some { number: int }, None {} }
+let mut trace: int = 0
+fn mark(n: int) -> int { set trace (+ (* trace 10) n) return n }
+shadow mark { set trace 0 assert (== (mark 1) 1) assert (== trace 1) set trace 0 }
+fn gate(n: int, answer: bool) -> bool { let ignored: int = (mark n) return answer }
+shadow gate { set trace 0 assert (not (gate 2 false)) assert (== trace 2) set trace 0 }
+fn fresh() -> Choice { let ignored: int = (mark 1) return Choice.Some { number: 7 } }
+shadow fresh { set trace 0 let c: Choice = (fresh) assert (== trace 1) set trace 0 }
+fn choose(n: int) -> int {
+ let local: int = 40
+ let result: int = match n {
+  1 => { if (> n 0) { return 7 } let local = 8 (+ local 1) }
+  _ => { let local = (+ n 2) let next = (+ local 3) next }
+ }
+ assert (== local 40)
+ return result
+}
+shadow choose { assert (== (choose 1) 7) assert (== (choose 2) 7) }
+fn main() -> int {
+ set trace 0
+ let value: int = match (fresh) {
+  _ if (gate 2 false) => 99
+  Some(payload) if (gate 3 true) => { let local = payload.number (+ local 1) }
+  _ => 0
+ }
+ assert (== value 8) assert (== trace 123)
+ assert (== (choose 1) 7) assert (== (choose 2) 7)
+ return 0
+}
+shadow main { assert (== (main) 0) }

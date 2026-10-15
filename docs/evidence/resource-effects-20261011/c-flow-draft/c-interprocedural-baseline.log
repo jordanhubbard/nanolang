@@ -1,0 +1,41 @@
+test_cannot_reinitialize_captured_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_cannot_reinitialize_captured_owner) ... ok
+test_consumed_handler_argument (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_consumed_handler_argument) ... ok
+test_effectful_call_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_live_owner) ... FAIL
+test_effectful_call_preserves_staged_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_staged_owner) ... FAIL
+test_forwarded_resource (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forwarded_resource) ... ok
+test_invalid_ownership (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership) ... ok
+test_lexical_exit_consumes_argument (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_lexical_exit_consumes_argument) ... ok
+test_nested_perform_preserves_staged_owners (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_nested_perform_preserves_staged_owners) ... ok
+test_transfer (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_transfer) ... ok
+
+======================================================================
+FAIL: test_effectful_call_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_live_owner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 62, in test_effectful_call_preserves_live_owner
+    self.check('effect Transfer{tick:int->int} fn tick()->int{return perform Transfer.tick(0)} shadow tick{assert true}', 'let h:Handle=Handle{value:7} let n:int=handle {(tick)} with {tick number->{return 7}} return (consume h)', False)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 21, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : AFFINE_C_FRONTEND_ACCEPTED
+Warning at line 5, column 45: Unused variable 'n'
+
+
+======================================================================
+FAIL: test_effectful_call_preserves_staged_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_staged_owner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 59, in test_effectful_call_preserves_staged_owner
+    self.check('effect Transfer{pass:Handle int->Handle,tick:int->int} fn tick()->int{return perform Transfer.tick(0)} shadow tick{assert true}', 'let h:Handle=Handle{value:7} let k:Handle=handle {perform Transfer.pass(h (tick))} with {pass value number->{value} tick number->{return 7}} return (consume k)', False)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 21, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : AFFINE_C_FRONTEND_ACCEPTED
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.180s
+
+FAILED (failures=2)

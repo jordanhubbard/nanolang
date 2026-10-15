@@ -1,0 +1,208 @@
+FFFFFFF
+======================================================================
+FAIL: test_empty_callable_operations (tests.test_native_callable_operations.NativeCallableOperations.test_empty_callable_operations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 60, in test_empty_callable_operations
+            self.execute('''fn main()->int {let callbacks:array<fn(int)->int> =[]
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let values:array<int> =(map callbacks apply)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let kept:array<fn(int)->int> =(filter callbacks selected)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== (array_length values) 0) assert (== (array_length kept) 0)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== (reduce callbacks 9 sum_callback) 9) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 16, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + source)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-by3k3h_n/main.nano:12:273: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'FnType_0' (aka 'long long (*)(long long)') [-Wint-conversion]
+   12 |     DynArray* values = ({ DynArray* _arr = callbacks; __auto_type _f = nl_apply; DynArray* _out = dyn_array_new(ELEM_INT); int64_t _len = dyn_array_length(_arr); for (int64_t _i = 0; _i < _len; _i++) { int64_t _elem = dyn_array_get_int(_arr, _i); __auto_type _mapped = _f(_elem); dyn_array_push_int(_out, _mapped); } _out; });
+      |                                                                                                                                                                                                                                                                                 ^~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-by3k3h_n/main.nano:13:262: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'FnType_0' (aka 'long long (*)(long long)') [-Wint-conversion]
+   13 |     DynArray* kept = ({ DynArray* _arr = callbacks; __auto_type _pred = nl_selected; DynArray* _out = dyn_array_new(ELEM_INT); int64_t _len = dyn_array_length(_arr); for (int64_t _i = 0; _i < _len; _i++) { int64_t _elem = dyn_array_get_int(_arr, _i); if (_pred(_elem)) { dyn_array_push_int(_out, _elem); } } _out; });
+      |                                                                                                                                                                                                                                                                      ^~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-by3k3h_n/main.nano:15:237: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'FnType_0' (aka 'long long (*)(long long)') [-Wint-conversion]
+   15 |     if (!((({ DynArray* _arr = callbacks; __auto_type _f = nl_sum_callback; int64_t _acc = 9LL; int64_t _len = dyn_array_length(_arr); for (int64_t _i = 0; _i < _len; _i++) { int64_t _elem = dyn_array_get_int(_arr, _i); _acc = _f(_acc, _elem); } _acc; })) == (9LL))) { fputs("Contract violation at line 15: (== (reduce callbacks 9 sum_callback) 9)\n", stderr); exit(1); }
+      |                                                                                                                                                                                                                                             ^~~~~
+3 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_filter_callable_elements (tests.test_native_callable_operations.NativeCallableOperations.test_filter_callable_elements)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 31, in test_filter_callable_elements
+            self.execute('''fn main()->int {let callbacks:array<fn(int)->int> =[identity,increment]
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let kept:array<fn(int)->int> =(filter callbacks selected)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== (array_length kept) 1)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let callback:fn(int)->int=(at kept 0) assert (== (callback 7) 8) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 16, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + source)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Unsupported array element type in filter
+Error: array_length() requires an array argument
+Error: at() requires an array as first argument
+Error: Undefined function 'callback'
+  Shadow test 'main' FAILED: 2 failure(s)
+  First failure at line 13, column 1
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_filter_retains_value_before_predicate_mutation (tests.test_native_callable_operations.NativeCallableOperations.test_filter_retains_value_before_predicate_mutation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 37, in test_filter_retains_value_before_predicate_mutation
+            self.execute('''let callbacks:array<fn(int)->int> =[increment,increment]
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn replace(callback:fn(int)->int)->bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    assert (== (array_length kept) 1)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let callback:fn(int)->int=(at kept 0) assert (== (callback 7) 8) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 16, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + source)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Unsupported array element type in filter
+Error: array_length() requires an array argument
+Error: at() requires an array as first argument
+Error: Undefined function 'callback'
+  Shadow test 'main' FAILED: 2 failure(s)
+  First failure at line 19, column 1
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_map_callable_elements (tests.test_native_callable_operations.NativeCallableOperations.test_map_callable_elements)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 19, in test_map_callable_elements
+            self.execute('''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+    let callbacks:array<fn(int)->int> = [increment, identity]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let values:array<int> =(map callbacks apply)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== (at values 0) 8) assert (== (at values 1) 7) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 16, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + source)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Unsupported array element type in map
+Error: at() requires an array as first argument
+Error: at() requires an array as first argument
+  Shadow test 'main' FAILED: 2 failure(s)
+  First failure at line 14, column 1
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_map_callable_results (tests.test_native_callable_operations.NativeCallableOperations.test_map_callable_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 25, in test_map_callable_results
+            self.execute('''fn choose(value:int)->fn(int)->int{return increment}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow choose {let callback:fn(int)->int=(choose 0) assert (== (callback 7) 8)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int {let callbacks:array<fn(int)->int> =(map [1,2] choose)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let callback:fn(int)->int=(at callbacks 1) assert (== (callback 7) 8) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 16, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + source)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 11, column 1: Unused variable 'value'
+I require the transform's declared result type in map.
+Error: at() requires an array as first argument
+Error: Undefined function 'callback'
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 14, column 44
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+======================================================================
+FAIL: test_reduce_callable_accumulator (tests.test_native_callable_operations.NativeCallableOperations.test_reduce_callable_accumulator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 53, in test_reduce_callable_accumulator
+            self.execute('''fn choose(previous:fn(int)->int, next:fn(int)->int)->fn(int)->int{return next}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow choose {let callback:fn(int)->int=(choose identity increment) assert (== (callback 7) 8)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int {let callbacks:array<fn(int)->int> =[identity,increment]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let callback:fn(int)->int=(reduce callbacks identity choose)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== (callback 7) 8) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 16, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + source)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 11, column 1: Unused variable 'previous'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-2rosjwhf/main.nano
+I require reduce to receive array<E>, an initializer A and an exact fn(A,E)->A.
+
+14| let callback:fn(int)->int=(reduce callbacks identity choose)
+                              ^
+Hint: Retain complete types and match both callback parameters and its result exactly.
+Type checking failed
+
+
+======================================================================
+FAIL: test_reduce_callable_elements (tests.test_native_callable_operations.NativeCallableOperations.test_reduce_callable_elements)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 49, in test_reduce_callable_elements
+            self.execute('''fn main()->int {let callbacks:array<fn(int)->int> =[increment,identity]
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== (reduce callbacks 1 sum_callback) 16) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 16, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + source)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Unsupported array element type in reduce
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 12, column 1
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 2.759s
+
+FAILED (failures=7)

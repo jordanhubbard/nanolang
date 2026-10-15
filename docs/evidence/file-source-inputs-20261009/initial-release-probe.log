@@ -1,0 +1,21 @@
+test_aot_refuses_wrong_context_signatures (tests.test_file_source_inputs.FileSourceInputs.test_aot_refuses_wrong_context_signatures) ... ok
+test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) ... 
+  test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nano_virt') ... FAIL
+
+======================================================================
+FAIL: test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 50, in test_native_and_vm_module_consumers
+    self.assertEqual(self.checked([binary, origin]), output)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : I stopped at a native invariant in nhost_source_inputs_4 at generated C line 798.
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.257s
+
+FAILED (failures=1)

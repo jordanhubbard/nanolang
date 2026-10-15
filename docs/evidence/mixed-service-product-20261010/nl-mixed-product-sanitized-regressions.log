@@ -1,0 +1,47 @@
+test_cyclic_and_overlapping_owner_refusals_preserve_output (tests.test_service_drivers.ServiceDrivers.test_cyclic_and_overlapping_owner_refusals_preserve_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-m7nf_f3y
+ok
+test_cyclic_owners_helpers_and_selected_shadows (tests.test_service_drivers.ServiceDrivers.test_cyclic_owners_helpers_and_selected_shadows) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-8km0feer
+ok
+test_generated_shadows_byte_parity_and_native_runtime_grant (tests.test_service_drivers.ServiceDrivers.test_generated_shadows_byte_parity_and_native_runtime_grant) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-oraf64iq
+ok
+test_grant_failure_aliases_and_compiler_failure_preserve_output (tests.test_service_drivers.ServiceDrivers.test_grant_failure_aliases_and_compiler_failure_preserve_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-tfvmas3c
+ok
+test_indirect_affine_results_and_multiple_exclusive_borrows (tests.test_service_drivers.ServiceDrivers.test_indirect_affine_results_and_multiple_exclusive_borrows) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-lr905x1f
+ok
+test_indirect_helpers_borrows_and_higher_order_results (tests.test_service_drivers.ServiceDrivers.test_indirect_helpers_borrows_and_higher_order_results) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-s_93hj20
+ok
+test_indirect_imported_helper_value (tests.test_service_drivers.ServiceDrivers.test_indirect_imported_helper_value) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-iyma12da
+ok
+test_indirect_shadow_failure_preserves_output (tests.test_service_drivers.ServiceDrivers.test_indirect_shadow_failure_preserves_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-kbw6cghv
+ok
+test_indirect_signature_ownership_and_recursion_refusals (tests.test_service_drivers.ServiceDrivers.test_indirect_signature_ownership_and_recursion_refusals) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-p29982i6
+ok
+test_multiple_borrow_shadow_failure_preserves_output (tests.test_service_drivers.ServiceDrivers.test_multiple_borrow_shadow_failure_preserves_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-40g1skw7
+ok
+test_multiple_borrows_with_owned_operand (tests.test_service_drivers.ServiceDrivers.test_multiple_borrows_with_owned_operand) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pet9012u
+ok
+test_multiple_forwarded_reordered_file_borrows (tests.test_service_drivers.ServiceDrivers.test_multiple_forwarded_reordered_file_borrows) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-_0z7zt5x
+ok
+test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse (tests.test_service_drivers.ServiceDrivers.test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-4v3vw5no
+ok
+test_required_import_shadows_and_root_only_selection (tests.test_service_drivers.ServiceDrivers.test_required_import_shadows_and_root_only_selection) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-k4m817eo
+ok
+test_shared_aliases_and_forwarded_loans (tests.test_service_drivers.ServiceDrivers.test_shared_aliases_and_forwarded_loans) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ewbfvhxl
+ok
+test_shared_borrow_shadow_failure_preserves_output (tests.test_service_drivers.ServiceDrivers.test_shared_borrow_shadow_failure_preserves_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-c5pi8zuu
+ok
+test_dependency_shadow_selection (tests.test_mixed_service_drivers.MixedServiceDrivers.test_dependency_shadow_selection) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-0s_48t5u
+ok
+test_installed_runtime_publication (tests.test_mixed_service_drivers.MixedServiceDrivers.test_installed_runtime_publication) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ywafvw10
+ok
+test_network_publication_and_raw_routes (tests.test_mixed_service_drivers.MixedServiceDrivers.test_network_publication_and_raw_routes) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-fy_csxpx
+ok
+test_repeated_single_catalog_permissions (tests.test_mixed_service_drivers.MixedServiceDrivers.test_repeated_single_catalog_permissions) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-z39iw3vz
+ok
+test_shadow_failure_aliases_and_nonexecuting_publication (tests.test_mixed_service_drivers.MixedServiceDrivers.test_shadow_failure_aliases_and_nonexecuting_publication) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-4c1a58mh
+ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 174.042s
+
+OK

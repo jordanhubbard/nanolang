@@ -1,0 +1,59 @@
+..FFFFFF.....
+======================================================================
+FAIL: test_incompatible_payload_preserves_output (tests.test_callable_union_storage.CallableUnionStorage.test_incompatible_payload_preserves_output) (annotation='Choice', body='fn unused()->void {let c:Choice = Choice.Some {callback:identity}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 107, in test_incompatible_payload_preserves_output
+    self.assertIn('callback', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'callback' not found in 'NSType checking failed\nDiagnostics:\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpnqhyx8e6/source.nano:4:35)\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpnqhyx8e6/source.nano:4:35)\n'
+
+======================================================================
+FAIL: test_incompatible_payload_preserves_output (tests.test_callable_union_storage.CallableUnionStorage.test_incompatible_payload_preserves_output) (annotation='Choice', body='fn unused()->Choice {return Choice.Some {callback:identity}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 107, in test_incompatible_payload_preserves_output
+    self.assertIn('callback', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'callback' not found in 'NSType checking failed\nDiagnostics:\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpgopsrb5k/source.nano:4:29)\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpgopsrb5k/source.nano:4:29)\n'
+
+======================================================================
+FAIL: test_incompatible_payload_preserves_output (tests.test_callable_union_storage.CallableUnionStorage.test_incompatible_payload_preserves_output) (annotation='Choice', body='fn unused(value:Choice)->void {let mut c:Choice = value set c Choice.Some {callback:identity}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 107, in test_incompatible_payload_preserves_output
+    self.assertIn('callback', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'callback' not found in 'NSType checking failed\nDiagnostics:\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpb5q9211i/source.nano:4:63)\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpb5q9211i/source.nano:4:63)\n'
+
+======================================================================
+FAIL: test_incompatible_payload_preserves_output (tests.test_callable_union_storage.CallableUnionStorage.test_incompatible_payload_preserves_output) (annotation='Choice<fn(int)->bool>', body='fn unused()->void {let c:Choice<fn(int)->bool> = Choice.Some {callback:identity}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 107, in test_incompatible_payload_preserves_output
+    self.assertIn('callback', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'callback' not found in 'NSType checking failed\nDiagnostics:\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp3w74kpvo/source.nano:4:50)\n'
+
+======================================================================
+FAIL: test_incompatible_payload_preserves_output (tests.test_callable_union_storage.CallableUnionStorage.test_incompatible_payload_preserves_output) (annotation='Choice<fn(int)->bool>', body='fn unused()->Choice<fn(int)->bool> {return Choice.Some {callback:identity}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 107, in test_incompatible_payload_preserves_output
+    self.assertIn('callback', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'callback' not found in 'NSType checking failed\nDiagnostics:\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpmpqj8rha/source.nano:4:44)\n'
+
+======================================================================
+FAIL: test_incompatible_payload_preserves_output (tests.test_callable_union_storage.CallableUnionStorage.test_incompatible_payload_preserves_output) (annotation='Choice<fn(int)->bool>', body='fn unused(value:Choice<fn(int)->bool>)->void {let mut c:Choice<fn(int)->bool> = value set c Choice.Some {callback:identity}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 107, in test_incompatible_payload_preserves_output
+    self.assertIn('callback', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'callback' not found in 'NSType checking failed\nDiagnostics:\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpx1v2de6_/source.nano:4:93)\n'
+
+----------------------------------------------------------------------
+Ran 8 tests in 8.223s
+
+FAILED (failures=6)

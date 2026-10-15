@@ -1,0 +1,21 @@
+[
+  {
+    "argv": [
+      "/private/tmp/nl51-localnames/schema-generator"
+    ],
+    "returncode": 0,
+    "stdout": "Generating compiler schema artifacts...\nLoaded schema: 30424\nParsed schema successfully\nWriting src_nano/generated/compiler_schema.nano...\nWriting src_nano/generated/compiler_ast.nano...\nWriting src_nano/generated/compiler_contracts.nano...\nWriting src/generated/compiler_schema.h...\n\u2713 Schema generation complete!\n",
+    "stderr": "",
+    "matches": true
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/gen_compiler_schema.py"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "matches": true
+  }
+]

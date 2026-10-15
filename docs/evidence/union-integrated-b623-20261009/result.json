@@ -1,0 +1,24 @@
+{
+  "command": [
+    "make",
+    "-j2",
+    "test-owned-union-runtime",
+    "test-affine-state",
+    "test-affine-bytecode",
+    "test-affine-scalar-union-runtime",
+    "test-owned-runtime",
+    "test-owned-transfers",
+    "test-consuming-calls",
+    "test-multiple-consuming-calls",
+    "test-owned-result-descriptors",
+    "test-nested-owned-results",
+    "test-owned-value-results",
+    "test-ownership-contracts",
+    "test-ownership-declaration-projection",
+    "test-nvm2c",
+    "CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "exit": 0,
+  "seconds": 144.0982429999858,
+  "unchanged": true
+}

@@ -1,5 +1,11 @@
 # NanoLang Integrated Compiler - Implementation Plan
 
+I retain this as a historical design note. I retired `nanoc_integrated.nano`
+and the old modular/legacy-C drivers under #983. My current compiler entry
+point is `nanoc_v06.nano`; `make bootstrap` builds verified NanoISA generations
+and translates their native products. The commands and completion checklist
+below describe the retired design, not current build instructions.
+
 ## Problem: Struct Duplication
 
 **Duplicated across 3-4 files:**

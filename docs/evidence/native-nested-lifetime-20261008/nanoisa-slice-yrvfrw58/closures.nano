@@ -1,0 +1,13 @@
+fn make(n:int)->fn()->int { return fn()->int { return n } }
+shadow make { let f:fn()->int = (make 7) assert (== (f) 7) }
+fn main()->int {
+ let values:array<fn()->int> = [(make 7), (make 9)]
+ let copy:array<fn()->int> = (array_slice values 0 2)
+ (array_set values 0 (make 1))
+ let first:fn()->int = (at copy 0)
+ let second:fn()->int = (at copy 1)
+ assert (== (first) 7)
+ assert (== (second) 9)
+ return 0
+}
+shadow main { assert (== (main) 0) }

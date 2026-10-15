@@ -1,0 +1,61 @@
+test_copyable_union_inside_ordinary_arm_of_owned_union (tests.test_owned_union_boundaries.UnionBoundaryProducer.test_copyable_union_inside_ordinary_arm_of_owned_union) ... 
+  test_copyable_union_inside_ordinary_arm_of_owned_union (tests.test_owned_union_boundaries.UnionBoundaryProducer.test_copyable_union_inside_ordinary_arm_of_owned_union) (shadows=False) ... FAIL
+  test_copyable_union_inside_ordinary_arm_of_owned_union (tests.test_owned_union_boundaries.UnionBoundaryProducer.test_copyable_union_inside_ordinary_arm_of_owned_union) (shadows=True) ... FAIL
+test_phantom_resource_argument_does_not_make_payload_owned (tests.test_owned_union_boundaries.UnionBoundaryProducer.test_phantom_resource_argument_does_not_make_payload_owned) ... ok
+test_copyable_union_inside_ordinary_arm_of_owned_union (tests.test_owned_union_boundaries.UnionBoundaryC.test_copyable_union_inside_ordinary_arm_of_owned_union) ... FAIL
+test_phantom_resource_argument_does_not_make_payload_owned (tests.test_owned_union_boundaries.UnionBoundaryC.test_phantom_resource_argument_does_not_make_payload_owned) ... ok
+
+======================================================================
+FAIL: test_copyable_union_inside_ordinary_arm_of_owned_union (tests.test_owned_union_boundaries.UnionBoundaryProducer.test_copyable_union_inside_ordinary_arm_of_owned_union) (shadows=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_producer.py", line 93, in source_route
+    success(result)
+    ~~~~~~~^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_producer.py", line 73, in success
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/private/tmp/nanolang-selfhost-union-boundaries/UnionBoundaryProducer/test_copyable_union_inside_ordinary_arm_of_owned_union/main.nasm': Assembled module failed verification: I found invalid ownership declarations
+
+
+======================================================================
+FAIL: test_copyable_union_inside_ordinary_arm_of_owned_union (tests.test_owned_union_boundaries.UnionBoundaryProducer.test_copyable_union_inside_ordinary_arm_of_owned_union) (shadows=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_producer.py", line 93, in source_route
+    success(result)
+    ~~~~~~~^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_producer.py", line 73, in success
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/private/tmp/nanolang-selfhost-union-boundaries/UnionBoundaryProducer/test_copyable_union_inside_ordinary_arm_of_owned_union/shadows.nasm': Assembled module failed verification: I found invalid ownership declarations
+
+
+======================================================================
+FAIL: test_copyable_union_inside_ordinary_arm_of_owned_union (tests.test_owned_union_boundaries.UnionBoundaryC.test_copyable_union_inside_ordinary_arm_of_owned_union)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_boundaries.py", line 10, in test_copyable_union_inside_ordinary_arm_of_owned_union
+            self.program('''resource struct Handle { fd: int }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Box<T> { Some { item: T }, None {} }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<25 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''', True)
+    ^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 14, in program
+    self.source_route(source, accepted, diagnostics)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 44, in source_route
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 11, column 13: Unused variable 'empty'
+I could not compile shadows at line 0: I require I found invalid ownership declarations in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 54.360s
+
+FAILED (failures=3)

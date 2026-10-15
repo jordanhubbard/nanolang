@@ -1,0 +1,192 @@
+test_branch_fixtures (tests.test_selfhost_returned_calls.ReturnedCalls.test_branch_fixtures) ... 
+  test_branch_fixtures (tests.test_selfhost_returned_calls.ReturnedCalls.test_branch_fixtures) (name='calls') ... FAIL
+test_multiple_arguments_execute_once_in_order (tests.test_selfhost_returned_calls.ReturnedCalls.test_multiple_arguments_execute_once_in_order) ... FAIL
+test_nested_signature_and_printed_result (tests.test_selfhost_returned_calls.ReturnedCalls.test_nested_signature_and_printed_result) ... FAIL
+
+======================================================================
+FAIL: test_branch_fixtures (tests.test_selfhost_returned_calls.ReturnedCalls.test_branch_fixtures) (name='calls')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_returned_calls.py", line 25, in test_branch_fixtures
+    self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : callee
+argument
+callee
+argument
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:879:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  879 |     nroot_add(&nroots.live, 13, l0);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:880:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  880 |     nroot_add(&nroots.live, 13, l1);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:881:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  881 |     nroot_add(&nroots.live, 13, l2);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:882:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  882 |     nroot_add(&nroots.live, 13, l3);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:884:8: error: assigning to 'int64_t' (aka 'long long') from incompatible type 'nmap_value'
+  884 |     l0 = v[0];
+      |        ^ ~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:886:10: error: assigning to 'nmap_value' from incompatible type 'int64_t' (aka 'long long')
+  886 |     v[1] = l0;
+      |          ^ ~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:888:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  888 |     nroot_add(&nroots.live, 13, l0);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:889:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  889 |     nroot_add(&nroots.live, 13, l1);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:890:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  890 |     nroot_add(&nroots.live, 13, l2);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:891:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  891 |     nroot_add(&nroots.live, 13, l3);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:910:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  910 |     nroot_add(&nroots.live, 13, l0);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:911:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  911 |     nroot_add(&nroots.live, 13, l1);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:912:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  912 |     nroot_add(&nroots.live, 13, l2);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:913:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  913 |     nroot_add(&nroots.live, 13, l3);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:915:8: error: assigning to 'int64_t' (aka 'long long') from incompatible type 'nmap_value'
+  915 |     l1 = v[2];
+      |        ^ ~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:918:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  918 |     nroot_add(&nroots.live, 13, l0);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:919:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  919 |     nroot_add(&nroots.live, 13, l1);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:920:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  920 |     nroot_add(&nroots.live, 13, l2);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:921:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  921 |     nroot_add(&nroots.live, 13, l3);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-a1k26yb8/.nano-native.rQalla/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+
+
+======================================================================
+FAIL: test_multiple_arguments_execute_once_in_order (tests.test_selfhost_returned_calls.ReturnedCalls.test_multiple_arguments_execute_once_in_order)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_returned_calls.py", line 79, in test_multiple_arguments_execute_once_in_order
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b"I could not compile translated C to native output\nI could not publish the requested product: \ncallee\nfirst\nsecond\ncallee\nfirst\nsecond\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-9srf1foy/.nano-native.z17OtN/program.c:871:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]\n  871 |     nroot_add(&nroots.live, 13, l0);\n      |                                 ^~\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-9srf1foy/.nano-native.z17OtN/program.c:701:67: note: passing argument to parameter 'ptr' here\n  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {\n      |                                                                   ^\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-9srf1foy/.nano-native.z17OtN/program.c:873:8: error: assigning to 'int64_t' (aka 'long long') from incompatible type 'nmap_value'\n  873 |     l0 = v[0];\n      |        ^ ~~~~\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-9srf1foy/.nano-native.z17OtN/program.c:875:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]\n  875 |     nroot_add(&nroots.live, 13, l0);\n      |                                 ^~\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-9srf1foy/.nano-native.z17OtN/program.c:701:67: note: passing argument to parameter 'ptr' here\n  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {\n      |                                                                   ^\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-9srf1foy/.nano-native.z17OtN/program.c:878:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]\n  878 |     nroot_add(&nroots.live, 13, l0);\n      |                                 ^~\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-9srf1foy/.nano-native.z17OtN/program.c:701:67: note: passing argument to parameter 'ptr' here\n  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {\n      |                                                                   ^\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-9srf1foy/.nano-native.z17OtN/program.c:880:10: error: assigning to 'nmap_value' from incompatible type 'int64_t' (aka 'long long')\n  880 |     v[1] = l0;\n      |          ^ ~~\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-9srf1foy/.nano-native.z17OtN/program.c:882:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]\n  882 |     nroot_add(&nroots.live, 13, l0);\n      |                                 ^~\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-9srf1foy/.nano-native.z17OtN/program.c:701:67: note: passing argument to parameter 'ptr' here\n  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {\n      |                                                                   ^\n6 errors generated.\n"
+
+======================================================================
+FAIL: test_nested_signature_and_printed_result (tests.test_selfhost_returned_calls.ReturnedCalls.test_nested_signature_and_printed_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_returned_calls.py", line 53, in test_nested_signature_and_printed_result
+    self.assertEqual(result.returncode, 0, (result.stdout + result.stderr).decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile translated C to native output
+I could not publish the requested product: 
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:870:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  870 |     nroot_add(&nroots.live, 13, l0);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:872:8: error: assigning to 'int64_t' (aka 'long long') from incompatible type 'nmap_value'
+  872 |     l0 = v[0];
+      |        ^ ~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:875:10: error: assigning to 'nmap_value' from incompatible type 'int64_t' (aka 'long long')
+  875 |     v[2] = l0;
+      |          ^ ~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:877:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  877 |     nroot_add(&nroots.live, 13, l0);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:878:33: error: passing 'nmap_value' to parameter of incompatible type 'const void *'
+  878 |     nroot_add(&nroots.live, 13, v[1]);
+      |                                 ^~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:971:8: error: assigning to 'int64_t' (aka 'long long') from incompatible type 'nmap_value'
+  971 |     l2 = v[0];
+      |        ^ ~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:973:10: error: assigning to 'nmap_value' from incompatible type 'int64_t' (aka 'long long')
+  973 |     v[1] = l2;
+      |          ^ ~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:975:33: error: passing 'nmap_value' to parameter of incompatible type 'const void *'
+  975 |     nroot_add(&nroots.live, 13, l0);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:976:33: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const void *' [-Wint-conversion]
+  976 |     nroot_add(&nroots.live, 13, l2);
+      |                                 ^~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-returned-5u1nshhr/.nano-native.uoi7ZI/program.c:701:67: note: passing argument to parameter 'ptr' here
+  701 | static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+      |                                                                   ^
+9 errors generated.
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.727s
+
+FAILED (failures=3)

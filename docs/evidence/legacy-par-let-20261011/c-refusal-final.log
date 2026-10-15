@@ -1,0 +1,6 @@
+test_dependencies_and_malformed_groups_preserve_output (tests.test_legacy_par_let.LegacyParLet.test_dependencies_and_malformed_groups_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.184s
+
+OK

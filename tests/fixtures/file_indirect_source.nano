@@ -1,0 +1,89 @@
+# I carry checked helper values through locals, results and higher-order calls.
+fn plus_one(x:int)->int { return (+ x 1) }
+shadow plus_one { assert (== (plus_one 2) 3) }
+fn plus_two(x:int)->int { return (+ x 2) }
+shadow plus_two { assert (== (plus_two 2) 4) }
+fn choose(second:bool)->fn(int)->int {
+    if second { return plus_two }
+    return plus_one
+}
+shadow choose { let selected:fn(int)->int=(choose true) assert (== (selected 2) 4) }
+fn forward(f:fn(int)->int)->fn(int)->int { return f }
+shadow forward { let selected:fn(int)->int=(forward plus_one) assert (== (selected 3) 4) }
+fn apply(f:fn(int)->int,x:int)->int { return (f x) }
+shadow apply { assert (== (apply plus_two 3) 5) }
+fn write_selected(file:&mut File,x:int)->int {
+    match (write_byte &mut file x) { Ok(n)=>{return n} Error(e)=>{return -1} }
+}
+shadow write_selected {
+    match (temp) { Error(e)=>{assert false} Ok(f)=>{
+        let mut file:File=f
+        let writer:fn(&mut File,int)->int=write_selected
+        assert (== (writer &mut file 23) 1)
+        match (close file) { Ok()=>{} Error(e)=>{assert false} }
+    }}
+}
+fn shared_selected(a:&File,b:&File,x:int)->int { return (+ x 3) }
+shadow shared_selected {
+    match (temp) { Error(e)=>{assert false} Ok(file)=>{
+        let reader:fn(&File,&File,int)->int=shared_selected
+        assert (== (reader &file &file 4) 7)
+        match (close file) { Ok()=>{} Error(e)=>{assert false} }
+    }}
+}
+fn owned_selected(file:File)->File { return file }
+shadow owned_selected {
+    match (temp) { Error(e)=>{assert false} Ok(file)=>{
+        let identity:fn(File)->File=owned_selected
+        let moved:File=(identity file)
+        match (close moved) { Ok()=>{} Error(e)=>{assert false} }
+    }}
+}
+fn select_apply()->fn(fn(int)->int,int)->int { return apply }
+shadow select_apply {
+    let operation:fn(fn(int)->int,int)->int=(select_apply)
+    assert (== (operation plus_one 4) 5)
+}
+fn write_forward(operation:fn(&mut File,int)->int)->fn(&mut File,int)->int { return operation }
+shadow write_forward {
+    match (temp) { Error(e)=>{assert false} Ok(f)=>{
+        let mut file:File=f
+        let writer:fn(&mut File,int)->int=(write_forward write_selected)
+        assert (== (writer &mut file 33) 1)
+        match (close file) { Ok()=>{} Error(e)=>{assert false} }
+    }}
+}
+fn write_apply(operation:fn(&mut File,int)->int,file:&mut File,x:int)->int {
+    return (operation &mut file x)
+}
+shadow write_apply {
+    match (temp) { Error(e)=>{assert false} Ok(f)=>{
+        let mut file:File=f
+        assert (== (write_apply (write_forward write_selected) &mut file 41) 1)
+        match (close file) { Ok()=>{} Error(e)=>{assert false} }
+    }}
+}
+fn run_indirect()->int {
+    assert (== ((choose false) 4) 5)
+    let mut selected:fn(int)->int=plus_one
+    let mut total:int=0
+    let mut i:int=0
+    while (< i 3) {
+        if (== i 1) { set selected plus_two }
+        set total (+ total (apply (forward selected) i))
+        set i (+ i 1)
+    }
+    match (temp) { Error(e)=>{return -1} Ok(f)=>{
+        let mut file:File=f
+        let writer:fn(&mut File,int)->int=write_selected
+        assert (== (writer &mut file 17) 1)
+        let reader:fn(&File,&File,int)->int=shared_selected
+        set total (reader &file &file total)
+        let identity:fn(File)->File=owned_selected
+        let moved:File=(identity file)
+        match (close moved) { Ok()=>{} Error(e)=>{return -2} }
+    }}
+    return (+ total (apply (choose true) 10))
+}
+shadow run_indirect { assert (== (run_indirect) 23) }
+fn main()->int { return (run_indirect) }

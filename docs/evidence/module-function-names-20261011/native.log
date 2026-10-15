@@ -1,0 +1,170 @@
+test_long_common_prefixes_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_long_common_prefixes_remain_distinct) ... FAIL
+test_punctuation_and_encoded_looking_names_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_punctuation_and_encoded_looking_names_remain_distinct) ... FAIL
+test_unicode_digits_and_dots_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_unicode_digits_and_dots_remain_distinct) ... FAIL
+
+======================================================================
+FAIL: test_long_common_prefixes_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_long_common_prefixes_remain_distinct)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_function_names.py", line 41, in test_long_common_prefixes_remain_distinct
+    self.check_names(['a'*120+'-x', 'a'*120+'-y', 'a'*120+'_x'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_module_function_names.py", line 32, in check_names
+    self.execute(source, files=files)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56612_main.c:1884:136: error: expected ';' after top level declarator
+ 1884 | extern int64_t aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-x__private_value();
+      |                                                                                                                                        ^
+      |                                                                                                                                        ;
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56612_main.c:1885:136: error: expected ';' after top level declarator
+ 1885 | extern int64_t aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-x__read();
+      |                                                                                                                                        ^
+      |                                                                                                                                        ;
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56612_main.c:1886:136: error: expected ';' after top level declarator
+ 1886 | extern int64_t aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-y__private_value();
+      |                                                                                                                                        ^
+      |                                                                                                                                        ;
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56612_main.c:1887:136: error: expected ';' after top level declarator
+ 1887 | extern int64_t aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-y__read();
+      |                                                                                                                                        ^
+      |                                                                                                                                        ;
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-wpoei7pu/main.nano:6:15: error: call to undeclared function '__nano_hex_6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161612d78__read'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    6 |     if (!((({ __nano_hex_6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161612d78__read(); })) == (7LL))) { fputs("Contract violation at line 6: (== ... 7)\n", stderr); exit(1); }
+      |               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-wpoei7pu/main.nano:7:26: error: use of undeclared identifier '__nano_hex_6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161612d78__read'
+    7 |     FnType_0 callback0 = __nano_hex_6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161612d78__read;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-wpoei7pu/main.nano:9:15: error: call to undeclared function '__nano_hex_6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161612d79__read'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    9 |     if (!((({ __nano_hex_6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161612d79__read(); })) == (8LL))) { fputs("Contract violation at line 9: (== ... 8)\n", stderr); exit(1); }
+      |               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-wpoei7pu/main.nano:10:26: error: use of undeclared identifier '__nano_hex_6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161612d79__read'
+   10 |     FnType_0 callback1 = __nano_hex_6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161612d79__read;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-wpoei7pu/main.nano:15:15: error: call to undeclared function '__nano_hex_6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161612d78__read'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   15 |     if (!((({ __nano_hex_6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161612d78__read(); })) == (7LL))) { fputs("Contract violation at line 15: (== (selected) 7)\n", stderr); exit(1); }
+      |               ^
+9 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_punctuation_and_encoded_looking_names_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_punctuation_and_encoded_looking_names_remain_distinct)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_function_names.py", line 35, in test_punctuation_and_encoded_looking_names_remain_distinct
+    self.check_names(['a-b', 'a_b', 'a b', '__nano_hex_612d62'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_module_function_names.py", line 32, in check_names
+    self.execute(source, files=files)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56712_main.c:1919:17: error: expected ';' after top level declarator
+ 1919 | extern int64_t a-b__private_value();
+      |                 ^
+      |                 ;
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56712_main.c:1920:17: error: expected ';' after top level declarator
+ 1920 | extern int64_t a-b__read();
+      |                 ^
+      |                 ;
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56712_main.c:1923:17: error: expected ';' after top level declarator
+ 1923 | extern int64_t a b__private_value();
+      |                 ^
+      |                 ;
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56712_main.c:1924:17: error: expected ';' after top level declarator
+ 1924 | extern int64_t a b__read();
+      |                 ^
+      |                 ;
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-671lgckp/main.nano:13:15: error: call to undeclared function '__nano_hex_612062__read'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   13 |     if (!((({ __nano_hex_612062__read(); })) == (9LL))) { fputs("Contract violation at line 13: (== ... 9)\n", stderr); exit(1); }
+      |               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-671lgckp/main.nano:13:15: note: did you mean '__nano_hex_612d62__read'?
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56712_main.c:1926:16: note: '__nano_hex_612d62__read' declared here
+   13 | extern int64_t __nano_hex_612d62__read();
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-671lgckp/main.nano:14:26: error: use of undeclared identifier '__nano_hex_612062__read'; did you mean '__nano_hex_612d62__read'?
+   14 |     FnType_0 callback2 = __nano_hex_612062__read;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~
+      |                          __nano_hex_612d62__read
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56712_main.c:1926:16: note: '__nano_hex_612d62__read' declared here
+ 1926 | extern int64_t __nano_hex_612d62__read();
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-671lgckp/main.nano:16:15: error: call to undeclared function '__nano_hex_5f5f6e616e6f5f6865785f363132643632__read'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   16 |     if (!((({ __nano_hex_5f5f6e616e6f5f6865785f363132643632__read(); })) == (10LL))) { fputs("Contract violation at line 16: (== ... 10)\n", stderr); exit(1); }
+      |               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-671lgckp/main.nano:17:26: error: use of undeclared identifier '__nano_hex_5f5f6e616e6f5f6865785f363132643632__read'
+   17 |     FnType_0 callback3 = __nano_hex_5f5f6e616e6f5f6865785f363132643632__read;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+8 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_unicode_digits_and_dots_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_unicode_digits_and_dots_remain_distinct)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_function_names.py", line 38, in test_unicode_digits_and_dots_remain_distinct
+    self.check_names(['café', 'cafe', '9probe', 'probe.aux'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_module_function_names.py", line 32, in check_names
+    self.execute(source, files=files)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56826_main.c:1923:16: error: expected identifier or '('
+ 1923 | extern int64_t 9probe__private_value();
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56826_main.c:1924:16: error: expected identifier or '('
+ 1924 | extern int64_t 9probe__read();
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56826_main.c:1925:21: error: expected ';' after top level declarator
+ 1925 | extern int64_t probe.aux__private_value();
+      |                     ^
+      |                     ;
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_56826_main.c:1926:21: error: expected ';' after top level declarator
+ 1926 | extern int64_t probe.aux__read();
+      |                     ^
+      |                     ;
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-moe116si/main.nano:7:15: error: call to undeclared function '__nano_hex_636166c3a9__read'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    7 |     if (!((({ __nano_hex_636166c3a9__read(); })) == (7LL))) { fputs("Contract violation at line 7: (== ... 7)\n", stderr); exit(1); }
+      |               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-moe116si/main.nano:8:26: error: use of undeclared identifier '__nano_hex_636166c3a9__read'
+    8 |     FnType_0 callback0 = __nano_hex_636166c3a9__read;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-moe116si/main.nano:13:15: error: call to undeclared function '__nano_hex_3970726f6265__read'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   13 |     if (!((({ __nano_hex_3970726f6265__read(); })) == (9LL))) { fputs("Contract violation at line 13: (== ... 9)\n", stderr); exit(1); }
+      |               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-moe116si/main.nano:14:26: error: use of undeclared identifier '__nano_hex_3970726f6265__read'
+   14 |     FnType_0 callback2 = __nano_hex_3970726f6265__read;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-moe116si/main.nano:16:15: error: call to undeclared function '__nano_hex_70726f62652e617578__read'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   16 |     if (!((({ __nano_hex_70726f62652e617578__read(); })) == (10LL))) { fputs("Contract violation at line 16: (== ... 10)\n", stderr); exit(1); }
+      |               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-moe116si/main.nano:17:26: error: use of undeclared identifier '__nano_hex_70726f62652e617578__read'
+   17 |     FnType_0 callback3 = __nano_hex_70726f62652e617578__read;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-moe116si/main.nano:19:15: error: call to undeclared function '__nano_hex_636166c3a9__read'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   19 |     if (!((({ __nano_hex_636166c3a9__read(); })) == (7LL))) { fputs("Contract violation at line 19: (== (selected) 7)\n", stderr); exit(1); }
+      |               ^
+11 errors generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.957s
+
+FAILED (failures=3)

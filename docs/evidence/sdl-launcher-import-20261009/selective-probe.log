@@ -1,0 +1,5 @@
+/private/tmp/nanolang-launcher-global-candidate/sdl_example_launcher.nano:113:59: error: use of undeclared identifier 'IMG_INIT_PNG'
+  113 |     int64_t img_result = ({ __auto_type __nl_arg_2562_0 = IMG_INIT_PNG; IMG_Init(__nl_arg_2562_0); });
+      |                                                           ^~~~~~~~~~~~
+1 error generated.
+C compilation failed

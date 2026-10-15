@@ -1,0 +1,22 @@
+{
+  "command": [
+    "make",
+    "-j2",
+    "test-bytecode-shadows",
+    "test-parser-parenthesized"
+  ],
+  "exit_code": 2,
+  "source_snapshots": {
+    "methods": 126,
+    "seconds": 4287.554,
+    "failures": 22,
+    "errors": 113,
+    "skipped": 19
+  },
+  "failure_report_groups": {
+    "explicit_ENOSPC": 115,
+    "compile_only_Xlinker_lm_rejected": 20
+  },
+  "log_sha256": "7ba807f916de16f11f7816b378159b63598429364402c2164c95468e0cdbcf05",
+  "scope": "I ran this during development and disk exhaustion; this is failure evidence, not clean-pin acceptance."
+}

@@ -1,0 +1,10 @@
+fn increment(value:int)->int{return (+ value 1)}
+shadow increment {assert (== (increment 7) 8)}
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 7) 7)}
+fn main()->int {
+let callbacks:array<fn(int)->int> = [increment]
+let copied:array<fn(int)->int> = (map callbacks identity)
+let callback:fn(int)->int=(at copied 0)
+assert (== (callback 7) 8) return 0}
+shadow main {assert (== (main) 0)}

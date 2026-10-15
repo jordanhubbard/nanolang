@@ -1,0 +1,4 @@
+resource struct Handle{fd:int}
+effect Ask{ask:int->int}
+fn main()->int{return handle {perform Ask.ask(1)} with {ask value->{value}}}
+shadow main{assert true}

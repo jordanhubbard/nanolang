@@ -1,0 +1,21 @@
+test_aot_refuses_wrong_context_signatures (tests.test_file_source_inputs.FileSourceInputs.test_aot_refuses_wrong_context_signatures) ... ok
+test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) ... 
+  test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nano_virt') ... FAIL
+
+======================================================================
+FAIL: test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 41, in test_native_and_vm_module_consumers
+    output = self.checked([ROOT / "bin/nano_vm", product, "--", origin])
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not execute the module: Not implemented
+  FFI call failed: I require up to two strings or one opaque parameter for provider string cleanup
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.613s
+
+FAILED (failures=1)

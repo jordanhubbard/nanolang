@@ -1,0 +1,3 @@
+from "modules/std/json/json.nano" import as_string
+fn main()->int { assert (== (as_string 0) "") return 0 }
+shadow main { assert true }

@@ -1,0 +1,10 @@
+{
+  "target": "/private/tmp/nanolang-closure-arrays-9790d9a91",
+  "pin": "9790d9a91aac6b412e48e2f6af04c8f5a6392be1",
+  "files_replaced": 57551,
+  "logical_bytes": 6505883106,
+  "method": "APFS clonefile only for identical tracked Git blob IDs; source bytes verified against blob hash; old checkout clean before and after; host-library paths unchanged",
+  "seconds": 320.2809037080151,
+  "df_before": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   926Gi   900Gi   6.1Gi   100%     11M   64M   15%   /System/Volumes/Data\n",
+  "df_after": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   926Gi   894Gi    12Gi    99%     11M  127M    8%   /System/Volumes/Data\n"
+}

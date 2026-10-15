@@ -1,0 +1,7 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o obj/test_service_shadows tests/test_service_shadows.c src/runtime/service_shadows.c
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o obj/test_file_product_bridge tests/test_file_product_bridge.c
+./obj/test_file_product_bridge
+I pass byte-only File publication staging and allocation controls.
+./obj/test_service_shadows
+I require NANO_SHADOW_TIMEOUT_SECONDS to be an integer from 1 to 300.
+I pass File/TCP shadow supervision, whole-suite timeout and refusal controls.

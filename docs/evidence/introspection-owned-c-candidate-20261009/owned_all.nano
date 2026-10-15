@@ -1,0 +1,32 @@
+module "/private/tmp/nanolang-introspection-callables-20261009/probe.nano" as probe
+extern fn ___module_is_unsafe_callable_probe() -> bool
+extern fn ___module_has_ffi_callable_probe() -> bool
+extern fn ___module_name_callable_probe() -> string
+extern fn ___module_path_callable_probe() -> string
+extern fn ___module_function_count_callable_probe() -> int
+extern fn ___module_struct_count_callable_probe() -> int
+extern fn ___module_function_name_callable_probe(index: int) -> string
+extern fn ___module_struct_name_callable_probe(index: int) -> string
+let mut evaluations: int = 0
+fn index() -> int { set evaluations (+ evaluations 1) return 0 }
+shadow index { assert true }
+resource struct Handle { value: int }
+fn consume(h: Handle) -> int { let Handle { value } = h return value }
+shadow consume { assert (== (consume Handle { value: 7 }) 7) }
+fn main() -> int {
+let h: Handle = Handle { value: 7 }
+assert (== (___module_is_unsafe_callable_probe) false)
+assert (== (___module_has_ffi_callable_probe) false)
+assert (== (___module_name_callable_probe) "callable_probe")
+assert (== (___module_path_callable_probe) "/private/tmp/nanolang-introspection-callables-20261009/probe.nano")
+assert (== (___module_function_count_callable_probe) 1)
+assert (== (___module_struct_count_callable_probe) 1)
+assert (== (___module_function_name_callable_probe (index)) "answer")
+assert (== (___module_function_name_callable_probe -1) "")
+assert (== (___module_function_name_callable_probe 1) "")
+assert (== (___module_struct_name_callable_probe (index)) "Visible")
+assert (== (___module_struct_name_callable_probe -1) "")
+assert (== (___module_struct_name_callable_probe 1) "")
+assert (== evaluations 2)
+assert (== (consume h) 7) return 0 }
+shadow main { assert (== (main) 0) }

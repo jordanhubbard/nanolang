@@ -1,0 +1,47 @@
+test_default_refusal_and_exact_imports_preserve_output (tests.test_portable_read_execution.PortableReadExecution.test_default_refusal_and_exact_imports_preserve_output) ... ok
+test_native_allocation_prefixes_and_recovery (tests.test_portable_read_execution.PortableReadExecution.test_native_allocation_prefixes_and_recovery) ... ok
+test_native_binding_and_lifecycle (tests.test_portable_read_execution.PortableReadExecution.test_native_binding_and_lifecycle) ... ok
+test_source_vm_c_and_wasm (tests.test_portable_read_execution.PortableReadExecution.test_source_vm_c_and_wasm) ... 
+  test_source_vm_c_and_wasm (tests.test_portable_read_execution.PortableReadExecution.test_source_vm_c_and_wasm) (producer='seed') ... FAIL
+  test_source_vm_c_and_wasm (tests.test_portable_read_execution.PortableReadExecution.test_source_vm_c_and_wasm) (producer='selfhost_native') ... FAIL
+test_unused_declared_wasm_import (tests.test_portable_read_execution.PortableReadExecution.test_unused_declared_wasm_import) ... ok
+test_wasm_permission_repeated_entry_and_type_guard (tests.test_portable_read_execution.PortableReadExecution.test_wasm_permission_repeated_entry_and_type_guard) ... ok
+
+======================================================================
+FAIL: test_source_vm_c_and_wasm (tests.test_portable_read_execution.PortableReadExecution.test_source_vm_c_and_wasm) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_portable_read_execution.py", line 175, in test_source_vm_c_and_wasm
+    self.source_route(source, driver, name)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_portable_read_execution.py", line 179, in source_route
+    self.command([*driver, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_portable_read_execution.py", line 23, in command
+    self.assertEqual(result.returncode == 0, success, str(args) + '\n' + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : [PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-portable-execution-1kd0qj_9/input.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-portable-execution-1kd0qj_9/seed.nvm')]
+I currently accept C-seed --emit-nvm only for checked File graphs.
+
+
+======================================================================
+FAIL: test_source_vm_c_and_wasm (tests.test_portable_read_execution.PortableReadExecution.test_source_vm_c_and_wasm) (producer='selfhost_native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_portable_read_execution.py", line 175, in test_source_vm_c_and_wasm
+    self.source_route(source, driver, name)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_portable_read_execution.py", line 179, in source_route
+    self.command([*driver, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_portable_read_execution.py", line 23, in command
+    self.assertEqual(result.returncode == 0, success, str(args) + '\n' + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : ['/private/tmp/nl51-portable-driver.native', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-portable-execution-1kd0qj_9/input.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-portable-execution-1kd0qj_9/selfhost_native.nvm')]
+I stopped at a native invariant in nhost_artifact_20 at generated C line 1211.
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 4.998s
+
+FAILED (failures=2)

@@ -1,0 +1,23 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -Wall -Wextra -Werror tests/test_nsi_websocket_protocol.c src/nsi_websocket_protocol.c src/utf8.c -o obj/test_nsi_websocket_protocol -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+PASS nonce/accept known vectors and exact bounded HTTP upgrade
+PASS all stream splits, fragments, interleaved controls, binary/NUL and UTF-8
+PASS masked/RSV/opcode/length/UTF-8/close/fragment/EOF refusals
+PASS masked client frames at every length boundary through 1 MiB
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -Wall -Wextra -Werror -DNL_WS_PROTOCOL_INSTRUMENT tests/test_nsi_websocket_protocol.c src/utf8.c -o obj/test_nsi_websocket_protocol_instrumented -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+PASS allocation refusal and terminal decoder cleanup
+PASS nonce/accept known vectors and exact bounded HTTP upgrade
+PASS all stream splits, fragments, interleaved controls, binary/NUL and UTF-8
+PASS masked/RSV/opcode/length/UTF-8/close/fragment/EOF refusals
+PASS masked client frames at every length boundary through 1 MiB
+NANO_WEBSOCKET_CC="/opt/homebrew/opt/llvm/bin/clang" NANO_WEBSOCKET_CFLAGS="-Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include" python3 -m unittest -v tests.test_websocket_transport
+test_close_consumes_on_invalid_deadline (tests.test_websocket_transport.WebSocketTransport.test_close_consumes_on_invalid_deadline) ... ok
+test_close_consumes_on_timeout (tests.test_websocket_transport.WebSocketTransport.test_close_consumes_on_timeout) ... ok
+test_counted_messages_survive_receive_and_close (tests.test_websocket_transport.WebSocketTransport.test_counted_messages_survive_receive_and_close) ... ok
+test_partial_input_survives_timeout (tests.test_websocket_transport.WebSocketTransport.test_partial_input_survives_timeout) ... ok
+test_partial_send_failure_terminates_stream (tests.test_websocket_transport.WebSocketTransport.test_partial_send_failure_terminates_stream) ... ok
+test_protocol_failure_is_terminal (tests.test_websocket_transport.WebSocketTransport.test_protocol_failure_is_terminal) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.005s
+
+OK

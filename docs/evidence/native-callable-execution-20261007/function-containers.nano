@@ -1,0 +1,15 @@
+struct Ops { op:fn(int)->int }
+fn inc(n:int)->int { return (+ n 1) }
+shadow inc { assert (== (inc 41) 42) }
+fn dec(n:int)->int { return (- n 1) }
+shadow dec { assert (== (dec 41) 40) }
+fn main()->int {
+    let o:Ops = Ops { op: inc }
+    let field:fn(int)->int = o.op
+    assert (== (field 41) 42)
+    let ops:array<fn(int)->int> = [inc, dec]
+    let chosen:fn(int)->int = (at ops 1)
+    assert (== (chosen 41) 40)
+    return 0
+}
+shadow main { assert (== (main) 0) }

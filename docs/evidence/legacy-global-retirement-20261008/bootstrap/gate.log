@@ -1,0 +1,47 @@
+python3 scripts/embed_binary64_parser.py --check
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -c src/main.c -o obj/main.o
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+✓ Bootstrap Stage 0: C reference compiler ready
+I run seed; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/00-seed.log.
+I run seed-verify; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/01-seed-verify.log.
+I run stage1; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/02-stage1.log.
+I run stage1-verify; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/03-stage1-verify.log.
+I run stage1-translate; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/04-stage1-translate.log.
+I run stage1-native; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/05-stage1-native.log.
+I run stage1-hello-compile; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/06-stage1-hello-compile.log.
+I run stage1-hello-execute; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/07-stage1-hello-execute.log.
+I run stage2; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/08-stage2.log.
+I run stage2-verify; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/09-stage2-verify.log.
+I run stage2-translate; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/10-stage2-translate.log.
+I run stage2-native; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/11-stage2-native.log.
+I run stage2-hello-compile; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/12-stage2-hello-compile.log.
+I run stage2-hello-execute; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/13-stage2-hello-execute.log.
+I run seed-final-verify; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/14-seed-final-verify.log.
+I run stage1-final-verify; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/15-stage1-final-verify.log.
+I run stage2-final-verify; I retain its log at /private/tmp/nanolang-retirement-20261008/obj/bootstrap-nanoisa/run-jssembpe/16-stage2-final-verify.log.
+I compared raw Stage 1 and Stage 2 modules: they are byte-identical in this build.
+I have not established reproducibility across clean environments or proved compiler semantic correctness.
+I installed bin/nanoc from the verified Stage 2 module.
+Hello from NanoLang!
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+

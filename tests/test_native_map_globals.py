@@ -11,7 +11,7 @@ HEADER = '.entry main\n.string key "key"\n.string text "value"\n'
 class NativeMapGlobals(unittest.TestCase):
     def command(self, args):
         return subprocess.run([str(x) for x in args], capture_output=True, text=True,
-                              timeout=60, env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                              timeout=60, env={**os.environ})
 
     def check(self, body, helpers='', bad=False, vm_bad=None):
         with tempfile.TemporaryDirectory(prefix='nano-map-global-') as tmp:

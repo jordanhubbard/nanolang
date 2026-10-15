@@ -1,0 +1,16 @@
+{
+  "parser": "included and allocation-hooked",
+  "fresh_selected": [
+    "lexer",
+    "utf8",
+    "env",
+    "eval",
+    "transpiler"
+  ],
+  "env_observer": "actual owning-TU free only; all real frees execute; env allocations are not parser failure-prefix hooks",
+  "common_providers": "ordinary retained exact list",
+  "publisher": "fresh seven-provider actual Make closure",
+  "eval_wrapper": "actual interpreter included; static cleanup unit controls separate from source program execution",
+  "service_execution": false,
+  "bootstrap": "required fresh outer prerequisite"
+}

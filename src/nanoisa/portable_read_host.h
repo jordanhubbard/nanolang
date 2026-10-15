@@ -25,6 +25,8 @@ NprStatus npr_file_host_create(const NprPath *, uint32_t, NprFileHost **);
 NprStatus npr_file_host_destroy(NprFileHost *);
 /* I borrow buffers. On error, destination is unpublished scratch and length
  * is unchanged. I reject overlap with each other and my entire context. */
+int32_t npr_file_read_bytes(void *, const uint8_t *, uint32_t,
+                           uint8_t *, uint32_t, uint32_t *);
 int32_t npr_file_read(void *, const uint8_t *, uint32_t,
                       uint8_t *, uint32_t, uint32_t *);
 #endif

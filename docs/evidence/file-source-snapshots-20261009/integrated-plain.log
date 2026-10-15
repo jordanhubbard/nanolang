@@ -1,0 +1,7 @@
+python3 -m unittest -v tests.test_file_source_snapshot
+test_companion_lifetime_and_failures (tests.test_file_source_snapshot.FileSourceSnapshot.test_companion_lifetime_and_failures) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.738s
+
+OK

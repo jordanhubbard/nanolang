@@ -1,0 +1,50 @@
+# I transport an affine Result and combine borrowed and owned indirect arguments.
+fn forward_opened(opened:OpenResult)->OpenResult { return opened }
+shadow forward_opened {
+    let transport:fn(OpenResult)->OpenResult=forward_opened
+    match (transport (temp)) {
+        Error(e)=>{assert false}
+        Ok(file)=>{match (close file) {Ok()=>{} Error(e)=>{assert false}}}
+    }
+}
+fn borrowed_consume(left:&mut File,right:&mut File,owned:File)->int {
+    match (write_byte &mut left 17) {Ok(n)=>{assert (== n 1)} Error(e)=>{assert false}}
+    match (write_byte &mut right 23) {Ok(n)=>{assert (== n 1)} Error(e)=>{assert false}}
+    match (close owned) {Ok()=>{return 2} Error(e)=>{return -3}}
+}
+shadow borrowed_consume { assert (== (run_owners) 2) }
+fn is_two(value:int)->bool { return (== value 2) }
+shadow is_two { assert (is_two 2) assert (not (is_two 3)) }
+fn run_owners()->int {
+    let transport:fn(OpenResult)->OpenResult=forward_opened
+    match (transport (temp)) {
+        Error(e)=>{return -1}
+        Ok(first)=>{
+            let mut left:File=first
+            match (transport (temp)) {
+                Error(e)=>{match (close left) {Ok()=>{} Error(e)=>{assert false}} return -2}
+                Ok(second)=>{
+                    let mut right:File=second
+                    match (transport (temp)) {
+                        Error(e)=>{
+                            match (close left) {Ok()=>{} Error(e)=>{assert false}}
+                            match (close right) {Ok()=>{} Error(e)=>{assert false}}
+                            return -3
+                        }
+                        Ok(third)=>{
+                            let operation:fn(&mut File,&mut File,File)->int=borrowed_consume
+                            let result:int=(operation &mut left &mut right third)
+                            let predicate:fn(int)->bool=is_two
+                            assert (predicate result)
+                            match (close left) {Ok()=>{} Error(e)=>{assert false}}
+                            match (close right) {Ok()=>{} Error(e)=>{assert false}}
+                            return result
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+shadow run_owners { assert (== (run_owners) 2) }
+fn main()->int { return (run_owners) }

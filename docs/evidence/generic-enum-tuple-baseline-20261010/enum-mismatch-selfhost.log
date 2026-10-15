@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0010] I require one concrete identity and matching structure for each generic type variable. (/private/tmp/nl51-generic-nominal-probes/enum-mismatch.nano:5:34)

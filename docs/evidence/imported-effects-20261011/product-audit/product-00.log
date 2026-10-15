@@ -1,0 +1,24 @@
+test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) ... ok
+test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) ... ok
+test_invalid_effects_preserve_previous_output (tests.test_selfhost_effects.SelfhostEffects.test_invalid_effects_preserve_previous_output) ... ok
+test_c_generic_union_array_identity (tests.test_effect_signature_identity.EffectSignatureIdentity.test_c_generic_union_array_identity) ... ok
+test_imported_record_effect_execution (tests.test_effect_signature_identity.EffectSignatureIdentity.test_imported_record_effect_execution) ... ok
+test_mismatches_preserve_output (tests.test_effect_signature_identity.EffectSignatureIdentity.test_mismatches_preserve_output) ... ok
+test_nominal_and_generic_execution (tests.test_effect_signature_identity.EffectSignatureIdentity.test_nominal_and_generic_execution) ... ok
+test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) ... ok
+test_mismatches_preserve_output (tests.test_union_arrays.UnionArrays.test_mismatches_preserve_output) ... ok
+test_distinct_argument_and_result_records (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_argument_and_result_records) ... ok
+test_distinct_record_mismatches_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_record_mismatches_preserve_output) ... ok
+test_distinct_record_signatures (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_record_signatures) ... ok
+test_private_effect_does_not_ambiguate_local_handler (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_effect_does_not_ambiguate_local_handler) ... ok
+test_private_effect_remains_local (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_effect_remains_local) ... ok
+test_private_handler_preserves_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_handler_preserves_output) ... ok
+test_private_imports_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_imports_preserve_output) ... ok
+test_qualified_perform (tests.test_imported_effect_identity.ImportedEffectIdentity.test_qualified_perform) ... ok
+test_same_named_effects (tests.test_imported_effect_identity.ImportedEffectIdentity.test_same_named_effects) ... ok
+test_selective_alias (tests.test_imported_effect_identity.ImportedEffectIdentity.test_selective_alias) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 44.572s
+
+OK

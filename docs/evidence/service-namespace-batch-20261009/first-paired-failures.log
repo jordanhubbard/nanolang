@@ -1,0 +1,40 @@
+test_graph_namespace_and_driver_refusals (tests.test_service_namespace.ServiceNamespace.test_graph_namespace_and_driver_refusals) ... 
+  test_graph_namespace_and_driver_refusals (tests.test_service_namespace.ServiceNamespace.test_graph_namespace_and_driver_refusals) (driver='/Users/jordanh/Src/nanolang/bin/nano_vm', case='distinct-alias') ... FAIL
+  test_graph_namespace_and_driver_refusals (tests.test_service_namespace.ServiceNamespace.test_graph_namespace_and_driver_refusals) (driver='/Users/jordanh/Src/nanolang/bin/nano_vm', case='distinct-types') ... FAIL
+test_independent_nano_identity_and_native_catalog_bridge (tests.test_service_namespace.ServiceNamespace.test_independent_nano_identity_and_native_catalog_bridge) ... FAIL
+
+======================================================================
+FAIL: test_graph_namespace_and_driver_refusals (tests.test_service_namespace.ServiceNamespace.test_graph_namespace_and_driver_refusals) (driver='/Users/jordanh/Src/nanolang/bin/nano_vm', case='distinct-alias')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_namespace.py", line 67, in test_graph_namespace_and_driver_refusals
+    self.assertIn(expected, run.stdout + run.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'I cannot resolve the complete File service namespace' not found in 'I reject ambiguous module introspection identity: binding\nError: import resolution failed\n'
+
+======================================================================
+FAIL: test_graph_namespace_and_driver_refusals (tests.test_service_namespace.ServiceNamespace.test_graph_namespace_and_driver_refusals) (driver='/Users/jordanh/Src/nanolang/bin/nano_vm', case='distinct-types')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_namespace.py", line 67, in test_graph_namespace_and_driver_refusals
+    self.assertIn(expected, run.stdout + run.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'I have not resolved File service declarations' not found in 'I reject ambiguous module introspection identity: binding\nError: import resolution failed\n'
+
+======================================================================
+FAIL: test_independent_nano_identity_and_native_catalog_bridge (tests.test_service_namespace.ServiceNamespace.test_independent_nano_identity_and_native_catalog_bridge)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_namespace.py", line 89, in test_independent_nano_identity_and_native_catalog_bridge
+    checked([*compiler, ROOT / "tests/service_namespace.nano", "--emit-nvm", "-o", module])
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_namespace.py", line 81, in checked
+    self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: undefined function tokenize_string
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 54.158s
+
+FAILED (failures=3)

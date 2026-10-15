@@ -1,0 +1,42 @@
+test_callback_effect_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_callback_effect_preserves_live_owner) ... ok
+test_callback_shadow_does_not_use_global_summary (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_callback_shadow_does_not_use_global_summary) ... ok
+test_callee_contains_its_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_callee_contains_its_effect) ... ok
+test_cannot_reinitialize_captured_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_cannot_reinitialize_captured_owner) ... ok
+test_consumed_handler_argument (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_consumed_handler_argument) ... ok
+test_effect_free_callback_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_free_callback_preserves_live_owner) ... 
+  test_effect_free_callback_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_free_callback_preserves_live_owner) (route='native') ... FAIL
+test_effect_preserves_staged_spread_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_preserves_staged_spread_owner) ... ok
+test_effectful_call_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_live_owner) ... ok
+test_effectful_call_preserves_staged_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_staged_owner) ... ok
+test_forward_declared_callee_contains_its_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forward_declared_callee_contains_its_effect) ... ok
+test_forwarded_resource (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forwarded_resource) ... ok
+test_invalid_ownership (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership) ... ok
+test_lexical_exit_consumes_argument (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_lexical_exit_consumes_argument) ... ok
+test_mutual_recursion_propagates_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_mutual_recursion_propagates_effect) ... ok
+test_nested_perform_preserves_staged_owners (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_nested_perform_preserves_staged_owners) ... ok
+test_partial_handler_does_not_hide_other_operation (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_partial_handler_does_not_hide_other_operation) ... ok
+test_transfer (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_transfer) ... ok
+test_transitive_effectful_call (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_transitive_effectful_call) ... ok
+
+======================================================================
+FAIL: test_effect_free_callback_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_free_callback_preserves_live_owner) (route='native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 27, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 5, column 45: Unused variable 'values'
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpeygmta8v/main.nano:5:131: error: call to undeclared function 'array_map'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    5 |     DynArray* values = ({ __auto_type __nl_arg_0_0 = dynarray_literal_int(1, (int64_t)(1LL)); __auto_type __nl_arg_0_1 = nl_plus; array_map(__nl_arg_0_0, __nl_arg_0_1); });
+      |                                                                                                                                   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpeygmta8v/main.nano:5:15: error: incompatible integer to pointer conversion initializing 'DynArray *' with an expression of type 'int' [-Wint-conversion]
+    5 |     DynArray* values = ({ __auto_type __nl_arg_0_0 = dynarray_literal_int(1, (int64_t)(1LL)); __auto_type __nl_arg_0_1 = nl_plus; array_map(__nl_arg_0_0, __nl_arg_0_1); });
+      |               ^        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2 errors generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 18 tests in 9.985s
+
+FAILED (failures=1)

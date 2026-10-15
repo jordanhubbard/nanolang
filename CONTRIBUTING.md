@@ -461,3 +461,9 @@ If you have questions, open an issue or start a discussion.
 - Focus on my code.
 - Assume everyone is trying to help.
 - Help others learn how I work.
+
+## Task tracking
+
+I use [GitHub Issues](https://github.com/jordanhubbard/nanolang/issues) for all
+new and resumed work. My [tracking skill](skills/github-issue-tracking/SKILL.md)
+defines ownership, evidence and closure; my roadmap retains product ordering.

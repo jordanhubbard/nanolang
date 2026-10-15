@@ -1,0 +1,20 @@
+--- a/src/typechecker.c
++++ b/src/typechecker.c
+@@ -360,6 +360,17 @@
+         if (sym) return sym->type_info;
+     }
+     if (expr->type == AST_FIELD_ACCESS) {
++        ASTNode *receiver = expr->as.field_access.object;
++        if (receiver && receiver->type == AST_IDENTIFIER &&
++            !env_get_var_visible_at(env, receiver->as.identifier, receiver->line, receiver->column)) {
++            size_t length = strlen(receiver->as.identifier) + strlen(expr->as.field_access.field_name) + 2;
++            char *qualified = malloc(length);
++            if (!qualified) return NULL;
++            snprintf(qualified, length, "%s.%s", receiver->as.identifier, expr->as.field_access.field_name);
++            Symbol *imported = env_global_import_symbol(env, qualified);
++            free(qualified);
++            if (imported) return imported->type_info;
++        }
+         if (expr->as.field_access.resolved_type_info)
+             return expr->as.field_access.resolved_type_info;
+         const char *owner = get_struct_type_name(expr->as.field_access.object, env);

@@ -67,6 +67,8 @@ NmsStatus nms_record_get(NmsRuntime *, NmsHandle, uint64_t, NmsValue *);
 NmsStatus nms_record_set(NmsRuntime *, NmsHandle, uint64_t, NmsValue);
 
 /* I retain a declared int/U8/float/bool kind; this API grants no opcode admission. */
+/* I copy counted bytes into a VM-policy packed u8 array; failure preserves out. */
+NmsStatus nms_bytes_create(NmsRuntime *, const uint8_t *, uint32_t, NmsHandle *);
 NmsStatus nms_packed_array_create(NmsRuntime *, uint32_t, NmsHandle *);
 NmsStatus nms_value_array_create(NmsRuntime *, NmsHandle *);
 /* I prepare capacity8 and VM checked-doubling semantics before publication. */

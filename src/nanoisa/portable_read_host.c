@@ -56,9 +56,9 @@ static bool npr_overlap(NprRange a, NprRange b) {
            a.start < b.end && b.start < a.end;
 }
 
-int32_t npr_file_read(void *context, const uint8_t *path, uint32_t path_length,
+static int32_t file_read(void *context, const uint8_t *path, uint32_t path_length,
                       uint8_t *destination, uint32_t capacity,
-                      uint32_t *length_out) {
+                      uint32_t *length_out, bool binary) {
     NprFileHost *host = context;
     if (!host) return NPR_DENIED;
     if (path_length > NPR_PATH_LIMIT || capacity > NPR_TEXT_LIMIT) return NPR_LIMIT;
@@ -109,7 +109,16 @@ int32_t npr_file_read(void *context, const uint8_t *path, uint32_t path_length,
     }
     host->active = false;
     if (status != NPR_OK) return status;
-    if (failed || (length && memchr(destination, 0, length))) length = 0;
+    if (failed || (!binary && length && memchr(destination, 0, length))) length = 0;
     *length_out = length;
     return NPR_OK;
+}
+
+int32_t npr_file_read(void *context,const uint8_t *path,uint32_t length,
+                      uint8_t *out,uint32_t capacity,uint32_t *written) {
+    return file_read(context,path,length,out,capacity,written,false);
+}
+int32_t npr_file_read_bytes(void *context,const uint8_t *path,uint32_t length,
+                            uint8_t *out,uint32_t capacity,uint32_t *written) {
+    return file_read(context,path,length,out,capacity,written,true);
 }

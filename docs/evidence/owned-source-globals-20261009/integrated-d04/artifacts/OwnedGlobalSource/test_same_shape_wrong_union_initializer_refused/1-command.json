@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/Users/jordanh/Src/nanolang/bin/nano_virt",
+    "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_same_shape_wrong_union_initializer_refused/main.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_same_shape_wrong_union_initializer_refused/main.nvm"
+  ],
+  "exit": 1
+}

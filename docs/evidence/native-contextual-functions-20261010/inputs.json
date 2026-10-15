@@ -1,0 +1,10 @@
+{
+  "src/nanolang.h": "345e0b13126281f8aa7dbcdcc524eb92b45dc3be3fd72d447b599ec7624129d2",
+  "src/env.c": "3a0b139d0244c267244e6004fbd17aa22db0319a873ed74cef14e80fe73364a7",
+  "src/parser.c": "c2d44f8b74bdfb94bc3bc2249facf277a3d0b35801b9d42bf4e038ca544d61be",
+  "src/typechecker.c": "f7db15520b7fc852a8a97de8dca494cfc40d16ba9e200bd6f369a6934cb0382b",
+  "src/transpiler.c": "371a586bd2e3cb5809a28b3598caaac5ab0a736756f607e56ed1ef59713b92a7",
+  "src/transpiler_iterative_v3_twopass.c": "c041ea66301afbf858820a3856f3ce1708ca2ed6192312dbd4774ff30a2e9317",
+  "tests/test_contextual_generic_functions.py": "ae970efcf65f1d4abdb9d638c4ee04a9780e7d73a8b689880d2ac3a27ab05205",
+  "/private/tmp/nl51-native-context-seed.nvm": "cbc37313196715a107db391187521515a9a63438d55adabb9a9e0c163e820f11"
+}

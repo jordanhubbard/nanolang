@@ -1,0 +1,1 @@
+fn main()->int { let bytes:array<u8> = [300] assert (== (at bytes 0) 44) return 0 } shadow main { assert true }

@@ -1,0 +1,8 @@
+['/private/tmp/nanolang-array-types-20261008/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-5nbxyiz7/guard.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-5nbxyiz7/guard.nvm']
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-5nbxyiz7/guard.nano
+I require a match guard to have type bool.
+
+2| fn main() -> int { return match 1 { 1 if 7 => 2 _ => 0 } } shadow main { assert true }
+                                            ^
+Hint: Give this guard an exact bool type before I select an arm.
+error: type check failed

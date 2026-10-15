@@ -1,0 +1,6 @@
+Error at line 5856, column 22: I cannot call private function 'parser_lambda_function' from module 'parser'.
+Hint: Call an exported function, or declare this function pub in its owning module.
+Warning at line 5855, column 1: Unused variable 'identifier'
+Error: Type checking failed for module '/Users/jordanh/Src/nanolang/src_nano/typecheck.nano'
+Error at line 1, column 1: Failed to load module '/Users/jordanh/Src/nanolang/src_nano/typecheck.nano'
+error: module loading failed

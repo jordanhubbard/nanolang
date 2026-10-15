@@ -1,0 +1,29 @@
++ set -eu
++ cd /Users/jordanh/Src/nanolang
++ for variant in clang gcc sanitizer
++ case "$variant" in
++ compiler=/opt/homebrew/opt/llvm/bin/clang
++ flags=
++ /opt/homebrew/opt/llvm/bin/clang -std=c11 -D_DEFAULT_SOURCE -D_DARWIN_C_SOURCE -g -O1 -Wall -Wextra -Werror src/nsi_socket_resolver_main.c src/nsi_socket.c src/nsi_cap.c -o /private/tmp/nl51-dns-helper-clang
++ /opt/homebrew/opt/llvm/bin/clang -std=c11 -D_DEFAULT_SOURCE -D_DARWIN_C_SOURCE -g -O1 -Wall -Wextra -Werror tests/test_nsi_socket_resolver.c src/nsi_socket_resolver.c src/nsi_socket.c src/nsi_cap.c -o /private/tmp/nl51-dns-test-clang
++ ASAN_OPTIONS=detect_leaks=1
++ /private/tmp/nl51-dns-test-clang /private/tmp/nl51-dns-helper-clang
+PASS supervised localhost, authority, deadline/reaping, worker protocol and preserved socket owners
++ for variant in clang gcc sanitizer
++ case "$variant" in
++ compiler=/opt/homebrew/bin/gcc-16
++ flags=
++ /opt/homebrew/bin/gcc-16 -std=c11 -D_DEFAULT_SOURCE -D_DARWIN_C_SOURCE -g -O1 -Wall -Wextra -Werror src/nsi_socket_resolver_main.c src/nsi_socket.c src/nsi_cap.c -o /private/tmp/nl51-dns-helper-gcc
++ /opt/homebrew/bin/gcc-16 -std=c11 -D_DEFAULT_SOURCE -D_DARWIN_C_SOURCE -g -O1 -Wall -Wextra -Werror tests/test_nsi_socket_resolver.c src/nsi_socket_resolver.c src/nsi_socket.c src/nsi_cap.c -o /private/tmp/nl51-dns-test-gcc
++ ASAN_OPTIONS=detect_leaks=1
++ /private/tmp/nl51-dns-test-gcc /private/tmp/nl51-dns-helper-gcc
+PASS supervised localhost, authority, deadline/reaping, worker protocol and preserved socket owners
++ for variant in clang gcc sanitizer
++ case "$variant" in
++ compiler=/opt/homebrew/opt/llvm/bin/clang
++ flags='-fsanitize=address,undefined -fno-sanitize-recover=all'
++ /opt/homebrew/opt/llvm/bin/clang -std=c11 -D_DEFAULT_SOURCE -D_DARWIN_C_SOURCE -g -O1 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all src/nsi_socket_resolver_main.c src/nsi_socket.c src/nsi_cap.c -o /private/tmp/nl51-dns-helper-sanitizer
++ /opt/homebrew/opt/llvm/bin/clang -std=c11 -D_DEFAULT_SOURCE -D_DARWIN_C_SOURCE -g -O1 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all tests/test_nsi_socket_resolver.c src/nsi_socket_resolver.c src/nsi_socket.c src/nsi_cap.c -o /private/tmp/nl51-dns-test-sanitizer
++ ASAN_OPTIONS=detect_leaks=1
++ /private/tmp/nl51-dns-test-sanitizer /private/tmp/nl51-dns-helper-sanitizer
+PASS supervised localhost, authority, deadline/reaping, worker protocol and preserved socket owners

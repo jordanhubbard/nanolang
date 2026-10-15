@@ -1,0 +1,55 @@
+[
+  {
+    "argv": [
+      "bin/nano_virt",
+      "/private/tmp/nl51-effect-bindings/handlers.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-effect-bindings/handlers.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "obj/test_local_bindings",
+      "/private/tmp/nl51-effect-bindings/handlers.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "main 0 12 148 value\nmain 2 65 68 adjusted\nmain 3 72 148 first\nmain 5 126 148 second\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "bin/nano_vm",
+      "/private/tmp/nl51-effect-bindings/handlers.nvm"
+    ],
+    "returncode": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "bin/nvm2c",
+      "/private/tmp/nl51-effect-bindings/handlers.nvm",
+      "-o",
+      "/private/tmp/nl51-effect-bindings/handlers.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot translate '/private/tmp/nl51-effect-bindings/handlers.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 0 at offset 12\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-named-functions/compiler",
+      "/private/tmp/nl51-effect-bindings/handlers.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-effect-bindings/self.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "Parse error at /private/tmp/nl51-effect-bindings/handlers.nano:1, column 1: unexpected token 'effect'\n",
+    "stderr": ""
+  }
+]

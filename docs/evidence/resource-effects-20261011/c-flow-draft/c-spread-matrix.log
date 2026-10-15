@@ -1,0 +1,54 @@
+test_callee_contains_its_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_callee_contains_its_effect) ... ok
+test_cannot_reinitialize_captured_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_cannot_reinitialize_captured_owner) ... ok
+test_consumed_handler_argument (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_consumed_handler_argument) ... ok
+test_effect_preserves_staged_spread_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_preserves_staged_spread_owner) ... FAIL
+test_effectful_call_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_live_owner) ... ok
+test_effectful_call_preserves_staged_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_staged_owner) ... ok
+test_forward_declared_callee_contains_its_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forward_declared_callee_contains_its_effect) ... ok
+test_forwarded_resource (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forwarded_resource) ... ok
+test_invalid_ownership (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership) ... ok
+test_lexical_exit_consumes_argument (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_lexical_exit_consumes_argument) ... ok
+test_mutual_recursion_propagates_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_mutual_recursion_propagates_effect) ... ok
+test_nested_perform_preserves_staged_owners (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_nested_perform_preserves_staged_owners) ... ok
+test_partial_handler_does_not_hide_other_operation (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_partial_handler_does_not_hide_other_operation) ... ok
+test_transfer (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_transfer) ... ok
+test_transitive_effectful_call (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_transitive_effectful_call) ... ok
+
+======================================================================
+FAIL: test_effect_preserves_staged_spread_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_preserves_staged_spread_owner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 80, in test_effect_preserves_staged_spread_owner
+    self.check('effect Transfer{tick:int->int}', 'let h:Handle=Handle{value:7} let k:Handle=handle {Handle{..h,value:perform Transfer.tick(0)}} with {tick number->{return 7}} return (consume k)', False)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 21, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1 : Error at line 5, column 73: Expected field name in struct literal
+Error at line 5, column 73: Expected '}' at end of struct literal (got DOT)
+Error at line 5, column 74: Unexpected token in expression: DOT (type=18)
+Error at line 5, column 76: Unexpected token in expression: COMMA (type=13)
+Error at line 5, column 82: Unexpected token in expression: COLON (type=14)
+Error at line 5, column 108: Expected 'with' after handle body (got RBRACE)
+Error at line 5, column 110: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 115: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 116: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 121: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 127: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 129: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 130: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 137: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 138: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 139: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 141: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 148: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 149: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 157: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+AFFINE_C_FRONTEND_FAILED:parser
+
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.198s
+
+FAILED (failures=1)

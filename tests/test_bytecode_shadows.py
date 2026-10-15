@@ -14,6 +14,35 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class BytecodeShadows(unittest.TestCase):
+    def test_selected_shadow_trace_is_opt_in(self):
+        source='fn main()->int{return 0} shadow main {assert (== (main) 0)}'
+        for trace in (False,True):
+            with self.subTest(trace=trace), tempfile.TemporaryDirectory(prefix='nano-vm-trace-') as tmp:
+                env=os.environ.copy();env.pop('NANO_SHADOW_TRACE',None)
+                if trace:env['NANO_SHADOW_TRACE']='1'
+                result,output=self.compile(source,Path(tmp),env=env)
+                self.assertEqual(result.returncode,0,result.stderr)
+                self.assertEqual(b'I am testing shadow $shadow_0_main' in result.stderr,trace)
+                self.assertEqual(self.execute(output).returncode,0)
+
+    def test_selected_shadow_trace_retains_timeout_target(self):
+        source='''fn ready()->int{return 7}
+shadow ready {assert (== (ready) 7)}
+fn stuck()->void{while true {}}
+shadow stuck {(stuck)}
+fn main()->int{return 0}
+shadow main {assert true}
+'''
+        with tempfile.TemporaryDirectory(prefix='nano-vm-trace-') as tmp:
+            directory=Path(tmp);output=directory/'program.nvm';output.write_bytes(b'prior')
+            env=dict(os.environ,NANO_SHADOW_TRACE='1',NANO_SHADOW_TIMEOUT_SECONDS='1')
+            result,output=self.compile(source,directory,env=env)
+            self.assertNotEqual(result.returncode,0)
+            self.assertIn(b'I stopped shadow execution after 1 seconds',result.stderr)
+            trace=[line for line in result.stderr.splitlines() if line.startswith(b'I am testing shadow ')]
+            self.assertEqual(trace,[b'I am testing shadow $shadow_0_ready',b'I am testing shadow $shadow_1_stuck'])
+            self.assertEqual(output.read_bytes(),b'prior')
+
     def test_dependency_functions_and_shadows_exceed_old_capacity(self):
         with tempfile.TemporaryDirectory(prefix="nano-shadow-capacity-") as tmp:
             directory = Path(tmp)

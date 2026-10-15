@@ -1,0 +1,18 @@
+I retain strict binding artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-binding-p1rm6q1_
+PASS strict File binding 7866 checks cases=705 allocations=0/0/0/0 bound=7575764 mode=linked
+PASS strict File binding 26883819 checks cases=705 allocations=11429916/233388/0/1619126 bound=7575764 mode=instrumented
+.nsi 20 passed, 0 failed
+nsi-generator 3 passed, 0 failed
+nsi-file-plan PASS 905 checks; exact private file plan, no service execution
+.I retain strict binding artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-socket-binding-8pvobew6
+PASS simultaneous File/Socket plans, cross-catalog refusal and independent lifetimes
+.PASS strict Socket binding 9450 checks cases=849 allocations=0/0/0/0 bound=7575756 mode=linked
+PASS strict Socket binding 41283367 checks cases=849 allocations=17471429/307693/0/2655805 bound=7575756 mode=instrumented
+.nsi 20 passed, 0 failed
+nsi-generator 3 passed, 0 failed
+nsi-socket-plan PASS 1136 checks; exact private TCP plan, no service execution
+.
+----------------------------------------------------------------------
+Ran 5 tests in 25.106s
+
+OK

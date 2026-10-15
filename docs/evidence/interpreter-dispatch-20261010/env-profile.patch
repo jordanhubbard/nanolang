@@ -1,0 +1,103 @@
+--- a/src/env.c
++++ b/src/env.c
+@@ -1,3 +1,11 @@
++#include "nanolang.h"
++#include <time.h>
++static unsigned long long prof_count[5],prof_ns[5],prof_total;
++Function *env_get_function(Environment *env, const char *name);
++static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file);
++void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);
++void env_set_var(Environment *env, const char *name, Value value);
++Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count);
+ #include "nanolang.h"
+ #include "nanoisa/file_source_snapshot.h"
+ #include "service_namespace.h"
+@@ -103,7 +111,7 @@
+     return NULL;
+ }
+ 
+-static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file) {
++static Symbol *prof_impl_symbol_lookup(Environment *env, const char *name, bool same_file) {
+     if (!env || !name) return NULL;
+     struct EnvSymbolIndex *index = symbol_index_sync(env);
+     uint64_t hash = symbol_name_hash(name);
+@@ -683,7 +691,7 @@
+     return symbol_lookup(env, name, true);
+ }
+ 
+-void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
++void prof_impl_env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
+     /* Borrowed parameters retain their caller's identity and do not own its storage. */
+     if (value.type == VAL_STRUCT && value.as.struct_val &&
+         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
+@@ -931,7 +939,7 @@
+ }
+ 
+ /* Set variable value */
+-void env_set_var(Environment *env, const char *name, Value value) {
++void prof_impl_env_set_var(Environment *env, const char *name, Value value) {
+     Symbol *sym = env_get_var(env, name);
+     if (sym) {
+         /* I copy before releasing the old binding, including self-assignment
+@@ -1012,7 +1020,7 @@
+ }
+ 
+ /* Get function */
+-Function *env_get_function(Environment *env, const char *name) {
++Function *prof_impl_env_get_function(Environment *env, const char *name) {
+     if (!name) {
+         return NULL;
+     }
+@@ -1177,7 +1185,7 @@
+     return v;
+ }
+ 
+-Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count) {
++Value prof_impl_create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count) {
+     Value v;
+     v.type = VAL_STRUCT;
+     v.is_return = false;
+@@ -2466,3 +2474,25 @@
+     }
+     env->generic_func_instances[env->generic_func_instance_count++] = inst;
+ }
++Function *env_get_function(Environment *env, const char *name) { struct timespec a,b; unsigned long long before=prof_total; clock_gettime(CLOCK_MONOTONIC,&a);
++ Function *result = prof_impl_env_get_function(env, name); clock_gettime(CLOCK_MONOTONIC,&b);
++ long long own=(b.tv_sec-a.tv_sec)*1000000000LL+b.tv_nsec-a.tv_nsec-(prof_total-before); if(own<0)own=0;
++ prof_count[0]++; prof_ns[0]+=own; prof_total+=own; return result;}
++static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file) { struct timespec a,b; unsigned long long before=prof_total; clock_gettime(CLOCK_MONOTONIC,&a);
++ Symbol *result = prof_impl_symbol_lookup(env, name, same_file); clock_gettime(CLOCK_MONOTONIC,&b);
++ long long own=(b.tv_sec-a.tv_sec)*1000000000LL+b.tv_nsec-a.tv_nsec-(prof_total-before); if(own<0)own=0;
++ prof_count[1]++; prof_ns[1]+=own; prof_total+=own; return result;}
++void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) { struct timespec a,b; unsigned long long before=prof_total; clock_gettime(CLOCK_MONOTONIC,&a);
++ prof_impl_env_define_var_with_type_info(env, name, type, element_type, type_info, is_mut, value); clock_gettime(CLOCK_MONOTONIC,&b);
++ long long own=(b.tv_sec-a.tv_sec)*1000000000LL+b.tv_nsec-a.tv_nsec-(prof_total-before); if(own<0)own=0;
++ prof_count[2]++; prof_ns[2]+=own; prof_total+=own; }
++void env_set_var(Environment *env, const char *name, Value value) { struct timespec a,b; unsigned long long before=prof_total; clock_gettime(CLOCK_MONOTONIC,&a);
++ prof_impl_env_set_var(env, name, value); clock_gettime(CLOCK_MONOTONIC,&b);
++ long long own=(b.tv_sec-a.tv_sec)*1000000000LL+b.tv_nsec-a.tv_nsec-(prof_total-before); if(own<0)own=0;
++ prof_count[3]++; prof_ns[3]+=own; prof_total+=own; }
++Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count) { struct timespec a,b; unsigned long long before=prof_total; clock_gettime(CLOCK_MONOTONIC,&a);
++ Value result = prof_impl_create_struct(struct_name, field_names, field_values, field_count); clock_gettime(CLOCK_MONOTONIC,&b);
++ long long own=(b.tv_sec-a.tv_sec)*1000000000LL+b.tv_nsec-a.tv_nsec-(prof_total-before); if(own<0)own=0;
++ prof_count[4]++; prof_ns[4]+=own; prof_total+=own; return result;}
++void nl_lookup_profile_reset(void) { memset(prof_count,0,sizeof prof_count);memset(prof_ns,0,sizeof prof_ns);prof_total=0; }
++void nl_lookup_profile_report(const char *name) { for(int i=0;i<5;i++)fprintf(stderr,"env-cost %s %d %llu %llu\n",name,i,prof_count[i],prof_ns[i]); }
+--- a/src/eval.c
++++ b/src/eval.c
+@@ -1,3 +1,5 @@
++extern void nl_lookup_profile_reset(void);
++extern void nl_lookup_profile_report(const char *);
+ #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
+ 
+ #include "nanolang.h"
+@@ -6592,7 +6594,9 @@
+                 bool trace_clock = trace_shadows && clock_gettime(CLOCK_MONOTONIC, &trace_start) == 0;
+                 if (trace_shadows)
+                     shadow_trace_event("shadow-start", func_name, file, item->line, 0, 0);
++                nl_lookup_profile_reset();
+                 eval_statement(item->as.shadow.body, env);
++                nl_lookup_profile_report(func_name);
+                 if (trace_shadows) {
+                     double elapsed = -1;
+                     if (trace_clock && clock_gettime(CLOCK_MONOTONIC, &trace_end) == 0)

@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-selfhost-union-final/raw/OwnedGlobalProducer/shadow-driver",
+    "/private/tmp/nanolang-selfhost-union-final/raw/OwnedGlobalProducer/test_immutable_assignment_refused/main.nano",
+    "0",
+    "raw"
+  ],
+  "exit": 1
+}

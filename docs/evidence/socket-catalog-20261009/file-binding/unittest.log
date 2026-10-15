@@ -1,0 +1,13 @@
+I retain strict binding artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-binding-masfla3h
+test_complete_document_lifetime_and_allocation (tests.test_nsi_file_binding.FileBindingPlan.test_complete_document_lifetime_and_allocation) ... PASS strict File binding 7855 checks cases=704 allocations=0/0/0/0 bound=7575764 mode=linked
+PASS strict File binding 26881859 checks cases=704 allocations=11429125/233370/0/1618970 bound=7575764 mode=instrumented
+ok
+test_unchanged_legacy_neighbors (tests.test_nsi_file_binding.FileBindingPlan.test_unchanged_legacy_neighbors) ... nsi 20 passed, 0 failed
+nsi-generator 3 passed, 0 failed
+nsi-file-plan PASS 905 checks; exact private file plan, no service execution
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 14.239s
+
+OK

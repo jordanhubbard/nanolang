@@ -1,0 +1,42 @@
+{
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-binding-masfla3h/linked-nsi_file_binding.o": {
+    "sha256": "7a63109b1309c4113cf02cdf4dd8dc1911541beee7791e489dce75ef362b575f",
+    "bytes": 168120
+  },
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-binding-masfla3h/linked-nsi_file_plan.o": {
+    "sha256": "043f51fe738f2d99eb99d197b5613d841bef1cdc6df8a2af8c037ac3384a4897",
+    "bytes": 80528
+  },
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-binding-masfla3h/linked-nsi.o": {
+    "sha256": "b389daf3dde9325c3f36182dbf7a350c3dcaac98297a940ad5294daae8546e8f",
+    "bytes": 266264
+  },
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-binding-masfla3h/linked-cJSON.o": {
+    "sha256": "3b6b0427f9dfd5e6730c950172cb52f2939d51ea32023c8697230c22f3bb207a",
+    "bytes": 307776
+  },
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-binding-masfla3h/linked-utf8.o": {
+    "sha256": "6742494a86752500937c65b7b8f7f831fc1bbca2e7319780508bce8711060f55",
+    "bytes": 28848
+  },
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-binding-masfla3h/instrumented-nsi_file_binding.o": {
+    "sha256": "0537579f7f54bc54004b7d697729508c632b0c785214a947e9c20176161f00ca",
+    "bytes": 168128
+  },
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-binding-masfla3h/instrumented-nsi_file_plan.o": {
+    "sha256": "6efd212fca941375081a2adb1155e50109121d2c83eddacbf97bf77c08b7db28",
+    "bytes": 80280
+  },
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-binding-masfla3h/instrumented-nsi.o": {
+    "sha256": "2190d84e8cfd8ababec8ac7fde144b5ee68b132dc00e2a3c250a0d48f7e885d3",
+    "bytes": 266320
+  },
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-binding-masfla3h/instrumented-cJSON.o": {
+    "sha256": "0862c43ef931d0569cf03361096394bb65c68765c6a785d787a400bf2de8ff80",
+    "bytes": 307752
+  },
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-binding-masfla3h/instrumented-utf8.o": {
+    "sha256": "6742494a86752500937c65b7b8f7f831fc1bbca2e7319780508bce8711060f55",
+    "bytes": 28848
+  }
+}

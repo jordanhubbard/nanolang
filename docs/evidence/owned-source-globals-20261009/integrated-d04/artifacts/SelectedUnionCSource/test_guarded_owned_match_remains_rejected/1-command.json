@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/Users/jordanh/Src/nanolang/bin/nano_virt",
+    "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_guarded_owned_match_remains_rejected/main.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_guarded_owned_match_remains_rejected/main.nvm"
+  ],
+  "exit": 1
+}

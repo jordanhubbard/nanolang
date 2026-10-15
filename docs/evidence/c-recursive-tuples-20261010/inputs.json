@@ -1,0 +1,15 @@
+{
+  "source_sha256": {
+    "src/nanolang.h": "9d7c2c83fbc38d46b8ace883e7f7ebc95dcb4135e5e216d1839c618c56ee1c19",
+    "src/env.c": "b5bef3d4cd4145805a2860f8c0408da99bbcefdb0f678c1f7fa2d3378f60820e",
+    "src/parser.c": "7260c937df0710610531d8401edc172fd1c848689acae8cd72f507297e7fa11a",
+    "src/generic_bindings.h": "785388eea91339870e34b8170351eb27c16204e886c897679572ff5f91affedf",
+    "src/typechecker.c": "cde4399dddb47b364d9dd3f3cd20806f5f5bbd60c57bab8f33b5adc3f6f6334c",
+    "src/typechecker_purity.c": "257b938dc9bec6cbc065d29bc8d8e2e6c0f17c0840e3defba936b354b6eb4539",
+    "src/nominal_types.c": "6081b58202dc41ce3dca6a2fac5c70d654000e0152b335bc624fa18102671e1b",
+    "src/resource_flow.c": "3f36c30fd8046f368bfdea83936d577ef4db095748d718f3e0f46254cf7c53f9",
+    "src/module_metadata.c": "5106c295402e595de0ab6aa9770ee8426e22b8d7749be74c153804c0459688bc",
+    "src/nanovirt/generic_codegen.inc": "6863e6c375fbfa8fdf6f656b92e81084de3ba30bd34ed644a2a1066b7f13421c"
+  },
+  "seed_sha256": "cb1e3b4b87150b5013d65b1441d584ca72fb1dc6a3c22eeec103c9179eeee44e"
+}

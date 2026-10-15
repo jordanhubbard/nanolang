@@ -1,0 +1,21 @@
+test_real_make_links_only_changed_or_missing_tool (tests.test_bootstrap_tools.BootstrapTools.test_real_make_links_only_changed_or_missing_tool) ... FAIL
+
+======================================================================
+FAIL: test_real_make_links_only_changed_or_missing_tool (tests.test_bootstrap_tools.BootstrapTools.test_real_make_links_only_changed_or_missing_tool)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_tools.py", line 40, in test_real_make_links_only_changed_or_missing_tool
+    self.assertEqual(links(), [])
+                     ~~~~~^^
+  File "/Users/jordanh/Src/nanolang/tests/test_bootstrap_tools.py", line 37, in links
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : mkdir -p obj/runtime
+mkdir -p obj/eval
+make: *** No rule to make target `src/nanoisa/file_indirect_public.h', needed by `obj/nanoisa/affine_bytecode.o'.  Stop.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.106s
+
+FAILED (failures=1)

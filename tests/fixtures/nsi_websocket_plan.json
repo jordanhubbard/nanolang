@@ -1,0 +1,340 @@
+{
+  "nsi_version": 0,
+  "interface": {
+    "id": "nsi:nanolang/websocket",
+    "name": "websocket"
+  },
+  "methods": [
+    {
+      "id": "nsi:nanolang/websocket#connect",
+      "name": "connect",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/websocket#connect.url",
+          "name": "url",
+          "type": "nsi:core/string",
+          "direction": "in",
+          "ownership": "copy",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/websocket#connect.timeout_ms",
+          "name": "timeout_ms",
+          "type": "nsi:core/int",
+          "direction": "in",
+          "ownership": "copy",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/websocket#connect.result",
+          "name": "result",
+          "type": "nsi:nanolang/websocket#ConnectResult",
+          "direction": "return",
+          "ownership": "transfer",
+          "lifetime": "resource",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/websocket#send",
+      "name": "send",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/websocket#send.connection",
+          "name": "connection",
+          "type": "nsi:nanolang/websocket#Connection",
+          "direction": "in",
+          "ownership": "borrow",
+          "lifetime": "call",
+          "mutability": "mutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/websocket#send.message",
+          "name": "message",
+          "type": "nsi:nanolang/websocket#Message",
+          "direction": "in",
+          "ownership": "copy",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/websocket#send.timeout_ms",
+          "name": "timeout_ms",
+          "type": "nsi:core/int",
+          "direction": "in",
+          "ownership": "copy",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/websocket#send.result",
+          "name": "result",
+          "type": "nsi:nanolang/websocket#SendResult",
+          "direction": "return",
+          "ownership": "copy",
+          "lifetime": "caller",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/websocket#receive",
+      "name": "receive",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/websocket#receive.connection",
+          "name": "connection",
+          "type": "nsi:nanolang/websocket#Connection",
+          "direction": "in",
+          "ownership": "borrow",
+          "lifetime": "call",
+          "mutability": "mutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/websocket#receive.timeout_ms",
+          "name": "timeout_ms",
+          "type": "nsi:core/int",
+          "direction": "in",
+          "ownership": "copy",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/websocket#receive.result",
+          "name": "result",
+          "type": "nsi:nanolang/websocket#ReceiveResult",
+          "direction": "return",
+          "ownership": "copy",
+          "lifetime": "caller",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/websocket#close",
+      "name": "close",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/websocket#close.connection",
+          "name": "connection",
+          "type": "nsi:nanolang/websocket#Connection",
+          "direction": "in",
+          "ownership": "transfer",
+          "lifetime": "callee",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/websocket#close.timeout_ms",
+          "name": "timeout_ms",
+          "type": "nsi:core/int",
+          "direction": "in",
+          "ownership": "copy",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/websocket#close.result",
+          "name": "result",
+          "type": "nsi:nanolang/websocket#CloseResult",
+          "direction": "return",
+          "ownership": "copy",
+          "lifetime": "caller",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "id": "nsi:nanolang/websocket#Connection",
+      "name": "Connection",
+      "kind": "resource"
+    },
+    {
+      "id": "nsi:nanolang/websocket#WebSocketError",
+      "name": "WebSocketError",
+      "kind": "record",
+      "fields": [
+        {
+          "id": "nsi:nanolang/websocket#WebSocketError.status",
+          "name": "status",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/websocket#WebSocketError.host_errno",
+          "name": "host_errno",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/websocket#WebSocketError.resolver_error",
+          "name": "resolver_error",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/websocket#WebSocketError.supervisor_status",
+          "name": "supervisor_status",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/websocket#WebSocketError.close_code",
+          "name": "close_code",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/websocket#WebSocketError.cleanup_errno",
+          "name": "cleanup_errno",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/websocket#WebSocketError.cleanup_failed",
+          "name": "cleanup_failed",
+          "type": "nsi:core/bool"
+        },
+        {
+          "id": "nsi:nanolang/websocket#WebSocketError.closure_unknown",
+          "name": "closure_unknown",
+          "type": "nsi:core/bool"
+        },
+        {
+          "id": "nsi:nanolang/websocket#WebSocketError.terminal",
+          "name": "terminal",
+          "type": "nsi:core/bool"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/websocket#Message",
+      "name": "Message",
+      "kind": "record",
+      "fields": [
+        {
+          "id": "nsi:nanolang/websocket#Message.binary",
+          "name": "binary",
+          "type": "nsi:core/bool"
+        },
+        {
+          "id": "nsi:nanolang/websocket#Message.data",
+          "name": "data",
+          "type": "nsi:core/string"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/websocket#ConnectResult",
+      "name": "ConnectResult",
+      "kind": "variant",
+      "cases": [
+        {
+          "id": "nsi:nanolang/websocket#ConnectResult.Ok",
+          "name": "Ok",
+          "type": "nsi:nanolang/websocket#Connection"
+        },
+        {
+          "id": "nsi:nanolang/websocket#ConnectResult.Error",
+          "name": "Error",
+          "type": "nsi:nanolang/websocket#WebSocketError"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/websocket#SendResult",
+      "name": "SendResult",
+      "kind": "variant",
+      "cases": [
+        {
+          "id": "nsi:nanolang/websocket#SendResult.Ok",
+          "name": "Ok",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/websocket#SendResult.Error",
+          "name": "Error",
+          "type": "nsi:nanolang/websocket#WebSocketError"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/websocket#ReceiveResult",
+      "name": "ReceiveResult",
+      "kind": "variant",
+      "cases": [
+        {
+          "id": "nsi:nanolang/websocket#ReceiveResult.Ok",
+          "name": "Ok",
+          "type": "nsi:nanolang/websocket#Message"
+        },
+        {
+          "id": "nsi:nanolang/websocket#ReceiveResult.Error",
+          "name": "Error",
+          "type": "nsi:nanolang/websocket#WebSocketError"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/websocket#CloseResult",
+      "name": "CloseResult",
+      "kind": "variant",
+      "cases": [
+        {
+          "id": "nsi:nanolang/websocket#CloseResult.Ok",
+          "name": "Ok"
+        },
+        {
+          "id": "nsi:nanolang/websocket#CloseResult.Error",
+          "name": "Error",
+          "type": "nsi:nanolang/websocket#WebSocketError"
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "id": "nsi:nanolang/websocket#io",
+      "name": "io",
+      "version": "1"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap:nanolang/websocket.connect",
+      "name": "connect"
+    },
+    {
+      "id": "cap:nanolang/net.lookup",
+      "name": "lookup"
+    }
+  ]
+}

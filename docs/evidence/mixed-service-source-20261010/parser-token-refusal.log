@@ -1,0 +1,7 @@
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   lower_probe  tests/service_lowering.nano:54:5
+I could not execute the module: Assertion failed
+  Assertion failed
+I could not parse the lowering fixture at 41:41 near 

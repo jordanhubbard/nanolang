@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-g",
+    "/private/tmp/nanolang-owned-global-source-union-checker/OwnedGlobalSource/test_initializer_order_and_once_only_helper_effects/main.c",
+    "-o",
+    "/private/tmp/nanolang-owned-global-source-union-checker/OwnedGlobalSource/test_initializer_order_and_once_only_helper_effects/native"
+  ],
+  "exit": 0
+}

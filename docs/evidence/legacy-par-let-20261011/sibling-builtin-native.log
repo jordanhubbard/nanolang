@@ -1,0 +1,11 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nl51-legacy-par/sibling-builtin.nano
+I require a function value for a bound call.
+
+1| fn main()->int {par-let left=(array_length [1]) array_length=7 in left return left}
+                                ^
+Hint: Call the declared function or a function-typed binding.
+/private/tmp/nl51-legacy-par/sibling-builtin.nano:5:5: error: expression result unused [-Werror,-Wunused-value]
+    5 |     left;
+      |     ^~~~
+1 error generated.
+C compilation failed

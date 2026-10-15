@@ -1,0 +1,264 @@
+test_array_binding_parity (tests.test_cseed_generic_functions.CseedGenericFunctions.test_array_binding_parity) ... ok
+test_builtin_tail_call_does_not_enter_generic_specialization (tests.test_cseed_generic_functions.CseedGenericFunctions.test_builtin_tail_call_does_not_enter_generic_specialization) ... ok
+test_distinct_record_specializations (tests.test_cseed_generic_functions.CseedGenericFunctions.test_distinct_record_specializations) ... ok
+test_generic_array_contexts_reject_wrong_elements (tests.test_cseed_generic_functions.CseedGenericFunctions.test_generic_array_contexts_reject_wrong_elements) ... ok
+test_generic_array_mutation_preserves_aliases_and_empty_types (tests.test_cseed_generic_functions.CseedGenericFunctions.test_generic_array_mutation_preserves_aliases_and_empty_types) ... ok
+test_generic_global_initializer (tests.test_cseed_generic_functions.CseedGenericFunctions.test_generic_global_initializer) ... ok
+test_growing_array_specializations_preserve_output (tests.test_cseed_generic_functions.CseedGenericFunctions.test_growing_array_specializations_preserve_output) ... ok
+test_imported_generic_array_results_keep_complete_types (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_generic_array_results_keep_complete_types) ... ok
+test_imported_qualified_and_selective_owners (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_qualified_and_selective_owners) ... ok
+test_imported_structural_generic_parameters (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_structural_generic_parameters) ... ok
+test_independent_instances_do_not_consume_recursive_budget (tests.test_cseed_generic_functions.CseedGenericFunctions.test_independent_instances_do_not_consume_recursive_budget) ... ok
+test_nested_array_calls_and_record_elements (tests.test_cseed_generic_functions.CseedGenericFunctions.test_nested_array_calls_and_record_elements) ... ok
+test_primitive_generic_fixture (tests.test_cseed_generic_functions.CseedGenericFunctions.test_primitive_generic_fixture) ... ok
+test_repeated_generic_array_types_must_match (tests.test_cseed_generic_functions.CseedGenericFunctions.test_repeated_generic_array_types_must_match) ... ok
+test_repeated_type_variable_rejects_distinct_records (tests.test_cseed_generic_functions.CseedGenericFunctions.test_repeated_type_variable_rejects_distinct_records) ... ok
+test_retained_record_result_regression (tests.test_cseed_generic_functions.CseedGenericFunctions.test_retained_record_result_regression) ... ok
+test_structural_array_minimum (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_array_minimum) ... ok
+test_structural_array_parameters (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_array_parameters) ... ok
+test_structural_callable_local_and_nominal_letter (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_callable_local_and_nominal_letter) ... ok
+test_structural_callable_parameters (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_callable_parameters) ... ok
+test_structural_generic_refusals_preserve_output (tests.test_cseed_generic_functions.CseedGenericFunctions.test_structural_generic_refusals_preserve_output) ... ok
+test_typed_locals_transitive_calls_and_recursion (tests.test_cseed_generic_functions.CseedGenericFunctions.test_typed_locals_transitive_calls_and_recursion) ... ok
+test_unbound_structural_result_preserves_output (tests.test_cseed_generic_functions.CseedGenericFunctions.test_unbound_structural_result_preserves_output) ... ok
+test_callback_argument (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_callback_argument) ... ok
+test_distinct_nominal_tuple_contexts (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_distinct_nominal_tuple_contexts) ... ok
+test_imported_alias_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_imported_alias_callback) ... ok
+test_inconsistent_context_preserves_output (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_inconsistent_context_preserves_output) ... ok
+test_local_multiple_instances (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_local_multiple_instances) ... ok
+test_nested_tuple_callable_dependencies (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nested_tuple_callable_dependencies) ... ok
+test_nominal_and_tuple_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nominal_and_tuple_context) ... ok
+test_reassigned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_reassigned_callback) ... ok
+test_returned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_returned_callback) ... ok
+test_structural_array_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_structural_array_context) ... ok
+test_tail_and_indirect_callback_arguments (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_tail_and_indirect_callback_arguments) ... ok
+test_array_binding_parity (tests.test_cseed_tuple_generics.TupleGenerics.test_array_binding_parity) ... ok
+test_builtin_tail_call_does_not_enter_generic_specialization (tests.test_cseed_tuple_generics.TupleGenerics.test_builtin_tail_call_does_not_enter_generic_specialization) ... ok
+test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) ...
+  test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn bad()->(int,bool){return (1,2)}\nshadow bad {assert true}\nfn main()->int{return 0}') ... FAIL
+  test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn main()->int{let value:(int,bool)=(1,2) return 0}') ... FAIL
+  test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn main()->int{let mut value:(int,bool)=(1,true) set value (1,2) return 0}') ... FAIL
+  test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn take(value:(int,bool))->int{return 0}\nshadow take {assert true}\nfn main()->int{return (take (1,2))}') ... FAIL
+test_distinct_record_specializations (tests.test_cseed_tuple_generics.TupleGenerics.test_distinct_record_specializations) ... ok
+test_generic_array_contexts_reject_wrong_elements (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_array_contexts_reject_wrong_elements) ... ok
+test_generic_array_mutation_preserves_aliases_and_empty_types (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_array_mutation_preserves_aliases_and_empty_types) ... ok
+test_generic_global_initializer (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_global_initializer) ... ok
+test_growing_array_specializations_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_growing_array_specializations_preserve_output) ... ok
+test_imported_generic_array_results_keep_complete_types (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_generic_array_results_keep_complete_types) ... ok
+test_imported_qualified_and_selective_owners (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_qualified_and_selective_owners) ... ok
+test_imported_structural_generic_parameters (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_structural_generic_parameters) ... ok
+test_imported_tuple_result (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_result) ... FAIL
+test_independent_instances_do_not_consume_recursive_budget (tests.test_cseed_tuple_generics.TupleGenerics.test_independent_instances_do_not_consume_recursive_budget) ... ok
+test_nested_array_calls_and_record_elements (tests.test_cseed_tuple_generics.TupleGenerics.test_nested_array_calls_and_record_elements) ... ok
+test_nested_tuple_and_array_results (tests.test_cseed_tuple_generics.TupleGenerics.test_nested_tuple_and_array_results) ... ok
+test_primitive_generic_fixture (tests.test_cseed_tuple_generics.TupleGenerics.test_primitive_generic_fixture) ... ok
+test_repeated_generic_array_types_must_match (tests.test_cseed_tuple_generics.TupleGenerics.test_repeated_generic_array_types_must_match) ... ok
+test_repeated_type_variable_rejects_distinct_records (tests.test_cseed_tuple_generics.TupleGenerics.test_repeated_type_variable_rejects_distinct_records) ... ok
+test_resource_tuple_preserves_output (tests.test_cseed_tuple_generics.TupleGenerics.test_resource_tuple_preserves_output) ... ok
+test_retained_record_result_regression (tests.test_cseed_tuple_generics.TupleGenerics.test_retained_record_result_regression) ... ok
+test_structural_array_minimum (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_array_minimum) ... ok
+test_structural_array_parameters (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_array_parameters) ... ok
+test_structural_callable_local_and_nominal_letter (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_callable_local_and_nominal_letter) ... ok
+test_structural_callable_parameters (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_callable_parameters) ... ok
+test_structural_generic_refusals_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_generic_refusals_preserve_output) ... ok
+test_structural_tuple_parameter (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_parameter) ... ok
+test_structural_tuple_result_substitution (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_result_substitution) ... FAIL
+test_tuple_array_alias_is_preserved (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_array_alias_is_preserved) ... ok
+test_tuple_binding_mismatches_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_binding_mismatches_preserve_output) ...
+  test_tuple_binding_mismatches_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_binding_mismatches_preserve_output) (left='(1,true)', right='(1,2)') ... FAIL
+  test_tuple_binding_mismatches_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_binding_mismatches_preserve_output) (left='((1,true),3)', right='((1,2),3)') ... FAIL
+  test_tuple_binding_mismatches_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_binding_mismatches_preserve_output) (left='([1],true)', right='([false],true)') ... FAIL
+  test_tuple_binding_mismatches_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_binding_mismatches_preserve_output) (left='(1,true)', right='(1,true,3)') ... FAIL
+test_tuple_byte_element (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_byte_element) ... ok
+test_tuple_identity_and_destructuring (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_identity_and_destructuring) ... ok
+test_tuple_nominal_and_callback_elements (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_nominal_and_callback_elements) ... ok
+test_tuple_projection_bounds_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_projection_bounds_preserve_output) ... ok
+test_tuple_recursive_callback_signature (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_recursive_callback_signature) ... ok
+test_typed_locals_transitive_calls_and_recursion (tests.test_cseed_tuple_generics.TupleGenerics.test_typed_locals_transitive_calls_and_recursion) ... ok
+test_unbound_structural_result_preserves_output (tests.test_cseed_tuple_generics.TupleGenerics.test_unbound_structural_result_preserves_output) ... ok
+test_filter_generic_predicate (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_filter_generic_predicate) ... ok
+test_incompatible_contexts_preserve_output (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_incompatible_contexts_preserve_output) ... ok
+test_inline_callable_inputs (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_inline_callable_inputs) ... ok
+test_map_callable_identity (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_map_callable_identity) ... ok
+test_map_multiple_scalar_instances (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_map_multiple_scalar_instances) ... ok
+test_reduce_generic_callable_accumulator (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_reduce_generic_callable_accumulator) ... ok
+test_reduce_independent_type_variables (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_reduce_independent_type_variables) ... ok
+test_typed_empty_inputs (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_typed_empty_inputs) ... ok
+test_computed_generic_callback (tests.test_generic_function_values.GenericFunctionValues.test_computed_generic_callback) ... ok
+test_forwarded_function_value (tests.test_generic_function_values.GenericFunctionValues.test_forwarded_function_value) ... ok
+test_generic_parameter (tests.test_generic_function_values.GenericFunctionValues.test_generic_parameter) ... ok
+test_generic_result (tests.test_generic_function_values.GenericFunctionValues.test_generic_result) ... ok
+test_indirect_record_literal_identity (tests.test_generic_function_values.GenericFunctionValues.test_indirect_record_literal_identity) ... ok
+test_local_function_value (tests.test_generic_function_values.GenericFunctionValues.test_local_function_value) ... ok
+test_nested_array_callback (tests.test_generic_function_values.GenericFunctionValues.test_nested_array_callback) ... ok
+test_qualified_import_callback_signatures (tests.test_generic_function_values.GenericFunctionValues.test_qualified_import_callback_signatures) ... ok
+test_reject_computed_nested_array_argument (tests.test_generic_function_values.GenericFunctionValues.test_reject_computed_nested_array_argument) ... ok
+test_reject_indirect_wrong_record_literal (tests.test_generic_function_values.GenericFunctionValues.test_reject_indirect_wrong_record_literal) ... ok
+test_reject_nested_array_signature (tests.test_generic_function_values.GenericFunctionValues.test_reject_nested_array_signature) ... ok
+test_reject_wrong_forwarded_signature (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_forwarded_signature) ... ok
+test_reject_wrong_generic_parameter (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_generic_parameter) ... ok
+test_reject_wrong_generic_result (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_generic_result) ... ok
+test_reject_wrong_indirect_generic_argument (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_indirect_generic_argument) ... ok
+test_reject_wrong_indirect_nested_array_argument (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_indirect_nested_array_argument) ... ok
+test_reject_wrong_local_generic_result (tests.test_generic_function_values.GenericFunctionValues.test_reject_wrong_local_generic_result) ... ok
+test_vm_generic_callback_context (tests.test_generic_function_values.GenericFunctionValues.test_vm_generic_callback_context) ... ok
+test_array_and_callable_payloads (tests.test_generic_union_parameters.GenericUnionParameters.test_array_and_callable_payloads) ... ok
+test_imported_union_and_generic_function (tests.test_generic_union_parameters.GenericUnionParameters.test_imported_union_and_generic_function) ... ok
+test_mismatched_instances_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_mismatched_instances_preserve_output) ... ok
+test_nested_and_multiple_parameters (tests.test_generic_union_parameters.GenericUnionParameters.test_nested_and_multiple_parameters) ... ok
+test_ordinary_union_identity (tests.test_generic_union_parameters.GenericUnionParameters.test_ordinary_union_identity) ... ok
+test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) ... ok
+test_scalar_instances_and_empty_variants (tests.test_generic_union_parameters.GenericUnionParameters.test_scalar_instances_and_empty_variants) ... ok
+test_union_result_boundaries_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_union_result_boundaries_preserve_output) ... ok
+
+======================================================================
+FAIL: test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn bad()->(int,bool){return (1,2)}\nshadow bad {assert true}\nfn main()->int{return 0}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 92, in test_declared_tuple_shapes_preserve_output
+    self.assertRegex(result.stdout+result.stderr, r'one complete tuple shape|expected a value of type `\(int,bool\)`, but found `\(int,int\)`|expected \(int,bool\), got \(int,int\)')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'one complete tuple shape|expected a value of type `\\(int,bool\\)`, but found `\\(int,int\\)`|expected \\(int,bool\\), got \\(int,int\\)' not found in 'I currently accept C-seed --emit-nvm only for checked File graphs.\n'
+
+======================================================================
+FAIL: test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn main()->int{let value:(int,bool)=(1,2) return 0}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 92, in test_declared_tuple_shapes_preserve_output
+    self.assertRegex(result.stdout+result.stderr, r'one complete tuple shape|expected a value of type `\(int,bool\)`, but found `\(int,int\)`|expected \(int,bool\), got \(int,int\)')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'one complete tuple shape|expected a value of type `\\(int,bool\\)`, but found `\\(int,int\\)`|expected \\(int,bool\\), got \\(int,int\\)' not found in 'I currently accept C-seed --emit-nvm only for checked File graphs.\n'
+
+======================================================================
+FAIL: test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn main()->int{let mut value:(int,bool)=(1,true) set value (1,2) return 0}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 92, in test_declared_tuple_shapes_preserve_output
+    self.assertRegex(result.stdout+result.stderr, r'one complete tuple shape|expected a value of type `\(int,bool\)`, but found `\(int,int\)`|expected \(int,bool\), got \(int,int\)')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'one complete tuple shape|expected a value of type `\\(int,bool\\)`, but found `\\(int,int\\)`|expected \\(int,bool\\), got \\(int,int\\)' not found in 'I currently accept C-seed --emit-nvm only for checked File graphs.\n'
+
+======================================================================
+FAIL: test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn take(value:(int,bool))->int{return 0}\nshadow take {assert true}\nfn main()->int{return (take (1,2))}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 92, in test_declared_tuple_shapes_preserve_output
+    self.assertRegex(result.stdout+result.stderr, r'one complete tuple shape|expected a value of type `\(int,bool\)`, but found `\(int,int\)`|expected \(int,bool\), got \(int,int\)')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'one complete tuple shape|expected a value of type `\\(int,bool\\)`, but found `\\(int,int\\)`|expected \\(int,bool\\), got \\(int,int\\)' not found in 'I currently accept C-seed --emit-nvm only for checked File graphs.\n'
+
+======================================================================
+FAIL: test_imported_tuple_result (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 109, in test_imported_tuple_result
+            self.execute('module "pair.nano" as pair\n'+IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let value = (identity (pair.make))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    shadow make {let value = (make) assert value.1}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    '''})
+    ^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-50jghhoq/main.nano:5:40: error: variable has incomplete type 'void'
+    5 |     __auto_type value = ({ __auto_type __nl_arg_0_0 = ({ pair__make(); }); nl___contextual_0(__nl_arg_0_0); });
+      |                                        ^
+1 error generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_structural_tuple_result_substitution (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_result_substitution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 96, in test_structural_tuple_result_substitution
+            self.execute('''fn swap(value:(T,E))->(E,T){return (value.1,value.0)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow swap {let value=(swap (7,true)) assert value.0 assert (== value.1 7)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-04p9ul9d/main.nano:1:34: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'int64_t' (aka 'long long') [-Wint-conversion]
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |                                  ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-04p9ul9d/main.nano:1:50: error: initializing 'void *' with an expression of type 'const char *' discards qualifiers [-Werror,-Wincompatible-pointer-types-discards-qualifiers]
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |                                                  ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-04p9ul9d/main.nano:1:12: error: returning 'Tuple_t0_t1_0' (aka 'struct Tuple_t0_t1_0') from a function with incompatible result type 'Tuple_int_string_4' (aka 'struct Tuple_int_string_4')
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-04p9ul9d/main.nano:1:34: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'bool' [-Wint-conversion]
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |                                  ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-04p9ul9d/main.nano:1:12: error: returning 'Tuple_t0_t1_0' (aka 'struct Tuple_t0_t1_0') from a function with incompatible result type 'Tuple_bool_t1_5' (aka 'struct Tuple_bool_t1_5')
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-04p9ul9d/main.nano:1:34: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'bool' [-Wint-conversion]
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |                                  ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-04p9ul9d/main.nano:1:50: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'int64_t' (aka 'long long') [-Wint-conversion]
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |                                                  ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-04p9ul9d/main.nano:1:12: error: returning 'Tuple_t0_t1_0' (aka 'struct Tuple_t0_t1_0') from a function with incompatible result type 'Tuple_bool_int_6' (aka 'struct Tuple_bool_int_6')
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+8 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_tuple_binding_mismatches_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_binding_mismatches_preserve_output) (left='(1,true)', right='(1,2)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 74, in test_tuple_binding_mismatches_preserve_output
+    self.assertIn('one concrete identity',result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'one concrete identity' not found in 'I currently accept C-seed --emit-nvm only for checked File graphs.\n'
+
+======================================================================
+FAIL: test_tuple_binding_mismatches_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_binding_mismatches_preserve_output) (left='((1,true),3)', right='((1,2),3)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 74, in test_tuple_binding_mismatches_preserve_output
+    self.assertIn('one concrete identity',result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'one concrete identity' not found in 'I currently accept C-seed --emit-nvm only for checked File graphs.\n'
+
+======================================================================
+FAIL: test_tuple_binding_mismatches_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_binding_mismatches_preserve_output) (left='([1],true)', right='([false],true)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 74, in test_tuple_binding_mismatches_preserve_output
+    self.assertIn('one concrete identity',result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'one concrete identity' not found in 'I currently accept C-seed --emit-nvm only for checked File graphs.\n'
+
+======================================================================
+FAIL: test_tuple_binding_mismatches_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_binding_mismatches_preserve_output) (left='(1,true)', right='(1,true,3)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 74, in test_tuple_binding_mismatches_preserve_output
+    self.assertIn('one concrete identity',result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'one concrete identity' not found in 'I currently accept C-seed --emit-nvm only for checked File graphs.\n'
+
+----------------------------------------------------------------------
+Ran 104 tests in 112.923s
+
+FAILED (failures=10)

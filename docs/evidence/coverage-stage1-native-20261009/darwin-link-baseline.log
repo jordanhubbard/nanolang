@@ -1,0 +1,58 @@
+test_native_link_uses_effective_flags_for_covered_runtime (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_native_link_uses_effective_flags_for_covered_runtime) ... I run probe-native; I retain its log at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-qtzfd5xi/obj/bootstrap-nanoisa/run-tq1z3z85/00-probe-native.log.
+
+  test_native_link_uses_effective_flags_for_covered_runtime (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_native_link_uses_effective_flags_for_covered_runtime) (configuration={'LDFLAGS': '-fprofile-arcs -ftest-coverage'}) ... FAIL
+I run probe-native; I retain its log at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-qtzfd5xi/obj/bootstrap-nanoisa/run-84xdq3ny/00-probe-native.log.
+
+======================================================================
+FAIL: test_native_link_uses_effective_flags_for_covered_runtime (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_native_link_uses_effective_flags_for_covered_runtime) (configuration={'LDFLAGS': '-fprofile-arcs -ftest-coverage'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_bootstrap_nanoisa.py", line 101, in link_boundary
+    run(label, argv, env)
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/scripts/bootstrap_nanoisa.py", line 80, in run
+    raise RuntimeError(f'I failed {label} with status {status}; see {log_path}.')
+RuntimeError: I failed probe-native with status 1; see /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-qtzfd5xi/obj/bootstrap-nanoisa/run-tq1z3z85/00-probe-native.log.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_bootstrap_nanoisa.py", line 110, in test_native_link_uses_effective_flags_for_covered_runtime
+    self.bootstrap.native('probe', self.root / 'bin/stage.nvm')
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/scripts/bootstrap_nanoisa.py", line 148, in native
+    self.run(label + '-native', command)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_bootstrap_nanoisa.py", line 104, in link_boundary
+    self.fail(str(error) + '\n' + log.read_text())
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I failed probe-native with status 1; see /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-qtzfd5xi/obj/bootstrap-nanoisa/run-tq1z3z85/00-probe-native.log.
+Undefined symbols for architecture arm64:
+  "_llvm_gcda_emit_arcs", referenced from:
+      ___llvm_gcov_writeout in nano_aot_runtime.o
+  "_llvm_gcda_emit_function", referenced from:
+      ___llvm_gcov_writeout in nano_aot_runtime.o
+  "_llvm_gcda_end_file", referenced from:
+      ___llvm_gcov_writeout in nano_aot_runtime.o
+  "_llvm_gcda_start_file", referenced from:
+      ___llvm_gcov_writeout in nano_aot_runtime.o
+  "_llvm_gcda_summary_info", referenced from:
+      ___llvm_gcov_writeout in nano_aot_runtime.o
+  "_llvm_gcov_init", referenced from:
+      ___llvm_gcov_init in nano_aot_runtime.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.266s
+
+FAILED (failures=1)

@@ -1,0 +1,89 @@
+test_alias_retention_overwrite_and_collection (tests.test_native_record_globals.NativeRecordGlobals.test_alias_retention_overwrite_and_collection) ... FAIL
+test_invalid_boxed_record_argument_traps (tests.test_native_record_globals.NativeRecordGlobals.test_invalid_boxed_record_argument_traps) ... ok
+test_record_arguments_from_direct_global_and_tail_calls (tests.test_native_record_globals.NativeRecordGlobals.test_record_arguments_from_direct_global_and_tail_calls) ... 
+  test_record_arguments_from_direct_global_and_tail_calls (tests.test_native_record_globals.NativeRecordGlobals.test_record_arguments_from_direct_global_and_tail_calls) (global_first=False) ... FAIL
+  test_record_arguments_from_direct_global_and_tail_calls (tests.test_native_record_globals.NativeRecordGlobals.test_record_arguments_from_direct_global_and_tail_calls) (global_first=True) ... FAIL
+test_scalar_overwrite_refuses_record_projection (tests.test_native_record_globals.NativeRecordGlobals.test_scalar_overwrite_refuses_record_projection) ... 
+  test_scalar_overwrite_refuses_record_projection (tests.test_native_record_globals.NativeRecordGlobals.test_scalar_overwrite_refuses_record_projection) (route='native') ... FAIL
+
+======================================================================
+FAIL: test_alias_retention_overwrite_and_collection (tests.test_native_record_globals.NativeRecordGlobals.test_alias_retention_overwrite_and_collection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_globals.py", line 18, in test_alias_retention_overwrite_and_collection
+    self.run_module('.string before "before"\n.string after "after"\n.string suffix "-owned"\n.entry main\n.function main 0 2 0 int 1\nCALL make_before\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nSTORE_LOCAL 0\nPUSH_I64 0\nSTORE_LOCAL 1\nloop:\nLOAD_LOCAL 1\nPUSH_I64 4096\nI64_LT_S\nJMP_FALSE done\nCALL make_after\nSTORE_GLOBAL 0\nLOAD_LOCAL 1\nPUSH_I64 1\nI64_ADD\nSTORE_LOCAL 1\nJMP loop\ndone:\nLOAD_LOCAL 0\nAGG_GET 0\nPUSH_STR before\nPUSH_STR suffix\nSTR_CONCAT\nSTR_EQ\nASSERT\nLOAD_LOCAL 0\nAGG_GET 1\nPUSH_I64 0\nARR_GET\nPUSH_STR before\nPUSH_STR suffix\nSTR_CONCAT\nSTR_EQ\nASSERT\nLOAD_GLOBAL 0\nAGG_GET 0\nPUSH_STR after\nPUSH_STR suffix\nSTR_CONCAT\nSTR_EQ\nASSERT\nPUSH_VOID\nSTORE_GLOBAL 0\nLOAD_LOCAL 0\nAGG_GET 0\nPRINTLN\nPUSH_I64 0\nRET\n.end\n.function make_before 0 0 0 struct 1\nPUSH_STR before\nPUSH_STR suffix\nSTR_CONCAT\nDUP\nARR_LITERAL 5 1\nAGG_PACK 0 0 0 2\nRET\n.end\n.function make_after 0 0 0 struct 1\nPUSH_STR after\nPUSH_STR suffix\nSTR_CONCAT\nDUP\nARR_LITERAL 5 1\nAGG_PACK 0 0 0 2\nRET\n.end\n', 'before-owned\n', collections=True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 36, in run_module
+    result = self.sanitized(source, work / 'program')
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 33, in sanitized
+    return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==35781==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_record_arguments_from_direct_global_and_tail_calls (tests.test_native_record_globals.NativeRecordGlobals.test_record_arguments_from_direct_global_and_tail_calls) (global_first=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_globals.py", line 48, in test_record_arguments_from_direct_global_and_tail_calls
+    self.run_module(
+    ~~~~~~~~~~~~~~~^
+        '.string a "a"\n.string b "b"\n.entry main\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+        'PUSH_STR a\nPUSH_STR b\nSTR_CONCAT\nSTR_EQ\nASSERT\nRET\n.end\n' +
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        closures.CHURN, 'ab\nab\n', collections=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 26, in run_module
+    source = self.emit(work, text, stdout)
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 22, in emit
+    self.checked([ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-closures-5hkpujny/input.nasm': Unknown opcode: TAILCALL
+
+
+======================================================================
+FAIL: test_record_arguments_from_direct_global_and_tail_calls (tests.test_native_record_globals.NativeRecordGlobals.test_record_arguments_from_direct_global_and_tail_calls) (global_first=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_globals.py", line 48, in test_record_arguments_from_direct_global_and_tail_calls
+    self.run_module(
+    ~~~~~~~~~~~~~~~^
+        '.string a "a"\n.string b "b"\n.entry main\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+        'PUSH_STR a\nPUSH_STR b\nSTR_CONCAT\nSTR_EQ\nASSERT\nRET\n.end\n' +
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        closures.CHURN, 'ab\nab\n', collections=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 26, in run_module
+    source = self.emit(work, text, stdout)
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 22, in emit
+    self.checked([ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-closures-v0oekl4z/input.nasm': Unknown opcode: TAILCALL
+
+
+======================================================================
+FAIL: test_scalar_overwrite_refuses_record_projection (tests.test_native_record_globals.NativeRecordGlobals.test_scalar_overwrite_refuses_record_projection) (route='native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_globals.py", line 40, in test_scalar_overwrite_refuses_record_projection
+    self.assertIn('native invariant',result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'native invariant' not found in '==35812==AddressSanitizer: detect_leaks is not supported on this platform.\n'
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.116s
+
+FAILED (failures=4)

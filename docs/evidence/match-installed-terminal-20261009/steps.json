@@ -1,0 +1,29 @@
+[
+  {
+    "argv": [
+      "make",
+      "-j1",
+      "test-canonical-match-guards",
+      "test-nanoisa-match-guards",
+      "CC=/opt/homebrew/opt/llvm/bin/clang"
+    ],
+    "exit": 0,
+    "seconds": 1044.7400635000085
+  },
+  {
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_shared_match_policy_docs",
+      "tests.test_cseed_match_totality",
+      "tests.test_match_block_semantics",
+      "tests.test_match_expression_scope",
+      "tests.test_selected_variant_ownership",
+      "tests.test_generic_selected_ownership"
+    ],
+    "exit": 1,
+    "seconds": 61.787638499983586
+  }
+]

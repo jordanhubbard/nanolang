@@ -1,0 +1,9 @@
+I build independent File lowerer with producer 0.
+I build independent File lowerer with producer 1.
+test_failed_selected_shadow_drains_live_file (tests.test_service_lowering_nano.ServiceLoweringNano.test_failed_selected_shadow_drains_live_file) ... I finish native compilation in 0.514s
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 123.983s
+
+OK

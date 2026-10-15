@@ -1,0 +1,3 @@
+module "/private/tmp/nanolang-selfhost-header-parity-20261009/values.nano" as values
+fn main()->int { assert (== HEADER_VALUE 41) assert (== (values.declared) 17) return 0 }
+shadow main { assert (== (main) 0) }

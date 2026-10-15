@@ -148,6 +148,10 @@ void module_metadata_free(ModuleBuildMetadata *meta);
 // Returns build info with object file path and link flags
 ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta);
 
+/* I retain one native dependency generation per builder lifetime. The returned
+ * info owns its strings; shared-library-only builds keep module_build semantics. */
+ModuleBuildInfo* module_build_native(ModuleBuilder *builder, ModuleBuildMetadata *meta);
+
 // Free build info
 void module_build_info_free(ModuleBuildInfo *info);
 
@@ -169,9 +173,14 @@ bool module_ensure_build_dir(const char *module_dir);
 // Verbose build output (controlled by NANO_VERBOSE_BUILD env var)
 extern bool module_builder_verbose;
 
-// Parse C header to extract #define constants
+// I extract complete signed-int-range decimal, octal and hexadecimal literals,
+// with C integer suffixes and trailing comments. I skip expressions and
+// unsupported values; I do not evaluate conditional preprocessing directives.
 // Returns array of ConstantDef, caller must free
 // Note: ConstantDef is defined in nanolang.h
 ConstantDef* parse_c_header_constants(const char *header_path, int *count_out);
+
+/* I return an allocated readable path in my header search directories, or NULL. */
+char *module_find_header(const char *header_name);
 
 #endif // MODULE_BUILDER_H

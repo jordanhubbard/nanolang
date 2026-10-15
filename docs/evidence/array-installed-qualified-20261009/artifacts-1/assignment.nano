@@ -1,0 +1,2 @@
+fn main()->int { let mut bytes:array<u8> = [] set bytes [300] assert (== (at bytes 0) 44) return 0 }
+shadow main { assert true }

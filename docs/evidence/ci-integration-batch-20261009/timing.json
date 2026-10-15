@@ -1,0 +1,13 @@
+{
+  "baseline_shadows": 662,
+  "candidate_shadows": 662,
+  "same_order_and_selection": true,
+  "baseline_seconds": 42.358958,
+  "candidate_seconds": 8.073218,
+  "baseline_source": "23885ce29",
+  "candidate_changes": [
+    "src/env.c: env_get_var_visible_at uses existing symbol index"
+  ],
+  "selected_instrumentation": "tests/test_env_symbol_index.c includes src/env.c under LLVM ASan/UBSan; linked common/runtime objects remain ordinary",
+  "lookup_patch_sha256": "9051a5ed60e684c454d09cbd87fae065f0012d97003b1aad27471c8de98aa707"
+}

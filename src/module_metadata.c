@@ -68,6 +68,10 @@ static bool metadata_graph_collect(MetadataGraph *graph, const ModuleMetadata *m
                 !metadata_add(&graph->signatures, t->fn_sig)) return false;
             for (int j = 0; j < t->type_param_count; j++)
                 if (!metadata_add(&graph->types, t->type_params[j])) return false;
+            for (int j = 0; t->tuple_elements && j < t->tuple_element_count; ++j)
+                if (!metadata_add(&graph->types, t->tuple_elements[j])) return false;
+            for (int j = 0; t->row_field_type_info && j < t->row_field_count; ++j)
+                if (!metadata_add(&graph->types, t->row_field_type_info[j])) return false;
         }
         while (si < graph->signatures.count) {
             const FunctionSignature *sig = graph->signatures.items[si++];
@@ -231,6 +235,15 @@ static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capa
     snprintf(temp, sizeof(temp), "    _type_infos[%d].base_type = %d;\n", info_idx, type_info->base_type);
     APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
     
+    snprintf(temp, sizeof(temp),
+             "    _type_infos[%d].service_declaration = %u;\n"
+             "    _type_infos[%d].service_module = %u;\n"
+             "    _type_infos[%d].service_ordinal = %u;\n"
+             "    _type_infos[%d].service_category = %u;\n",
+             info_idx, type_info->service_declaration, info_idx, type_info->service_module,
+             info_idx, type_info->service_ordinal, info_idx, type_info->service_category);
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+
     if (type_info->element_type) {
         snprintf(temp, sizeof(temp), "    _type_infos[%d].element_type = &_type_infos[%d];\n",
                  info_idx, metadata_index(&graph->types, type_info->element_type));
@@ -252,6 +265,19 @@ static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capa
         snprintf(temp, sizeof(temp), "    _type_infos[%d].type_params = _type_info_%d_params;\n    _type_infos[%d].type_param_count = %d;\n",
                  info_idx, info_idx, info_idx, type_info->type_param_count);
         APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    }
+
+    if (type_info->tuple_element_count && type_info->tuple_elements) {
+        snprintf(temp,sizeof(temp),"    static TypeInfo* _type_info_%d_tuple_elements[%d];\n",info_idx,type_info->tuple_element_count);
+        APPEND_TO_BUFFER(buffer_ptr,pos_ptr,capacity_ptr,temp);
+        for (int i=0;i<type_info->tuple_element_count;++i) {
+            if (!type_info->tuple_elements[i]) continue;
+            snprintf(temp,sizeof(temp),"    _type_info_%d_tuple_elements[%d] = &_type_infos[%d];\n",
+                info_idx,i,metadata_index(&graph->types,type_info->tuple_elements[i]));
+            APPEND_TO_BUFFER(buffer_ptr,pos_ptr,capacity_ptr,temp);
+        }
+        snprintf(temp,sizeof(temp),"    _type_infos[%d].tuple_elements = _type_info_%d_tuple_elements;\n",info_idx,info_idx);
+        APPEND_TO_BUFFER(buffer_ptr,pos_ptr,capacity_ptr,temp);
     }
 
     /* Tuple types */
@@ -317,6 +343,18 @@ static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capa
                          type_info->row_field_count, type_info->row_field_types, NULL);
     serialize_type_array(buffer_ptr, pos_ptr, capacity_ptr, info_idx, "row_field_type_names",
                          type_info->row_field_count, NULL, type_info->row_field_type_names);
+    if (type_info->row_field_count && type_info->row_field_type_info) {
+        snprintf(temp, sizeof(temp), "    static TypeInfo* _type_info_%d_row_fields[%d];\n", info_idx, type_info->row_field_count);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        for (int i = 0; i < type_info->row_field_count; ++i) {
+            if (!type_info->row_field_type_info[i]) continue;
+            snprintf(temp, sizeof(temp), "    _type_info_%d_row_fields[%d] = &_type_infos[%d];\n",
+                     info_idx, i, metadata_index(&graph->types, type_info->row_field_type_info[i]));
+            APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        }
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].row_field_type_info = _type_info_%d_row_fields;\n", info_idx, info_idx);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    }
     serialize_type_array(buffer_ptr, pos_ptr, capacity_ptr, info_idx, "type_var_names",
                          type_info->type_var_count, NULL, type_info->type_var_names);
     snprintf(temp, sizeof(temp), "    _type_infos[%d].row_field_count = %d;\n    _type_infos[%d].is_open_row = %s;\n    _type_infos[%d].type_var_count = %d;\n",

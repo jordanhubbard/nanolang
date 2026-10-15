@@ -1,0 +1,8 @@
+resource struct Handle{value:int}
+fn consume(h:Handle)->int{let Handle{value}=h return value}
+shadow consume{assert (== (consume Handle{value:7}) 7)}
+effect Transfer{tick:int->int}
+fn tick(n:int)->int{return perform Transfer.tick(n)}
+shadow tick{assert true}
+fn main()->int{let h:Handle=Handle{value:7} let values:array<int> = handle {(array_map [1] tick)} with {tick number->{return 7}} return (consume h)}
+shadow main{assert true}

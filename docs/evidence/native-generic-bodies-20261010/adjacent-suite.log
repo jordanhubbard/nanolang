@@ -1,0 +1,27 @@
+test_foreign_callback_can_resume_without_nonlocal_return (tests.test_native_effect_execution.NativeEffectExecution.test_foreign_callback_can_resume_without_nonlocal_return) ... ok
+test_foreign_callback_cannot_escape_its_native_activation (tests.test_native_effect_execution.NativeEffectExecution.test_foreign_callback_cannot_escape_its_native_activation) ... ok
+test_generated_owned_local_is_released_on_handler_return (tests.test_native_effect_execution.NativeEffectExecution.test_generated_owned_local_is_released_on_handler_return) ... ok
+test_handler_installs_nested_handler_with_lexical_return (tests.test_native_effect_execution.NativeEffectExecution.test_handler_installs_nested_handler_with_lexical_return) ... ok
+test_handler_return_transfers_captured_owned_value (tests.test_native_effect_execution.NativeEffectExecution.test_handler_return_transfers_captured_owned_value) ... ok
+test_imported_perform_reaches_callers_handler (tests.test_native_effect_execution.NativeEffectExecution.test_imported_perform_reaches_callers_handler) ... ok
+test_mutable_lexical_capture_and_perform_value (tests.test_native_effect_execution.NativeEffectExecution.test_mutable_lexical_capture_and_perform_value) ... ok
+test_nested_dynamic_handler_restores_outer (tests.test_native_effect_execution.NativeEffectExecution.test_nested_dynamic_handler_restores_outer) ... ok
+test_owned_locals_release_during_nonlocal_return (tests.test_native_effect_execution.NativeEffectExecution.test_owned_locals_release_during_nonlocal_return) ... ok
+test_return_removes_handler (tests.test_native_effect_execution.NativeEffectExecution.test_return_removes_handler) ... ok
+test_wrapper_exports_native_effect_state_to_foreign_modules (tests.test_native_effect_execution.NativeEffectExecution.test_wrapper_exports_native_effect_state_to_foreign_modules) ... ok
+test_array_metadata_survives_shadow_scope (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_array_metadata_survives_shadow_scope) ... ok
+test_exited_bindings_are_not_visible (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_exited_bindings_are_not_visible) ... ok
+test_function_parameter_is_not_a_later_function_local (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_function_parameter_is_not_a_later_function_local) ... ok
+test_hashmap_parameter_metadata_survives_emission (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_hashmap_parameter_metadata_survives_emission) ... ok
+test_imported_constants_keep_local_and_global_shadowing (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_imported_constants_keep_local_and_global_shadowing) ... ok
+test_loop_exits_and_string_return (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_loop_exits_and_string_return) ... ok
+test_same_named_array_parameters_keep_function_type (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_same_named_array_parameters_keep_function_type) ... ok
+test_same_named_record_locals_keep_nominal_type (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_same_named_record_locals_keep_nominal_type) ... ok
+test_shadow_restores_outer_type_and_value (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_shadow_restores_outer_type_and_value) ... ok
+test_sibling_branch_cannot_read_other_branch_local (tests.test_lexical_scope_boundaries.LexicalScopeBoundaries.test_sibling_branch_cannot_read_other_branch_local) ... ok
+test_implicit_public_and_opaque_callback_signatures (tests.test_imported_callback_typedefs.ImportedCallbackTypedefs.test_implicit_public_and_opaque_callback_signatures) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 26.942s
+
+OK

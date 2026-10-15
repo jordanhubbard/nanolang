@@ -1,0 +1,297 @@
+# I track operations that can escape a call while an owner is suspended.
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
+from "src_nano/compiler/passive_purity.nano" import par_call_index
+from "src_nano/generated/purity_intrinsics.nano" import purity_intrinsic
+
+fn rfx_parser(source: string) -> Parser {
+    let tokens: List<LexerToken> = (tokenize_string source "resource_effects.nano" (list_CompilerDiagnostic_new))
+    return (parse_program tokens (list_LexerToken_length tokens) "resource_effects.nano")
+}
+shadow rfx_parser { assert (not (rfx_parser "fn f()->int{return 7}").has_error) }
+
+fn rfx_names(names: array<string>, extra: string) -> array<string> {
+    let mut result: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length names)) { set result (array_push result (at names i)) set i (+ i 1) }
+    if (!= extra "") { set result (array_push result extra) }
+    return result
+}
+shadow rfx_names {
+    let names: array<string> = ["a"]
+    assert (== (array_length (rfx_names names "b")) 2)
+    assert (== (array_length names) 1)
+}
+
+fn rfx_bound(names: array<string>, name: string) -> bool {
+    let mut i: int = 0
+    while (< i (array_length names)) { if (== (at names i) name) { return true } set i (+ i 1) }
+    return false
+}
+shadow rfx_bound { assert (rfx_bound ["a"] "a") assert (not (rfx_bound ["a"] "b")) }
+
+# I construct child references through the declared integer field contract.
+fn rfx_ref(id: int, kind: int) -> ASTStmtRef {
+    return ASTStmtRef{node_id:id,node_type:kind}
+}
+shadow rfx_ref {
+    let child: ASTStmtRef = (rfx_ref 7 ParseNodeType.PNODE_CALL)
+    assert (== child.node_id 7)
+    assert (== child.node_type ParseNodeType.PNODE_CALL)
+    assert (== (rfx_ref 0 -1).node_type -1)
+}
+
+# I use a negative-kind sentinel for an unclassified expression, not an empty leaf.
+fn rfx_children(parser: Parser, id: int, kind: int) -> array<ASTStmtRef> {
+    if (< id 0) { return [] }
+    if (or (and (>= kind ParseNodeType.PNODE_NUMBER) (<= kind ParseNodeType.PNODE_IDENTIFIER))
+        (or (== kind ParseNodeType.PNODE_BREAK) (or (== kind ParseNodeType.PNODE_CONTINUE)
+        (or (== kind ParseNodeType.PNODE_FUNCTION) (== kind ParseNodeType.PNODE_LAMBDA))))) { return [] }
+    if (== kind ParseNodeType.PNODE_LET) { let n: ASTLet = (parser_get_let parser id) return [(rfx_ref n.value n.value_type)] }
+    if (== kind ParseNodeType.PNODE_SET) { let n: ASTSet = (parser_get_set parser id) return [(rfx_ref n.value n.value_type)] }
+    if (== kind ParseNodeType.PNODE_RETURN) { let n: ASTReturn = (parser_get_return parser id) return [(rfx_ref n.value n.value_type)] }
+    if (== kind ParseNodeType.PNODE_ASSERT) { let n: ASTAssert = (parser_get_assert parser id) return [(rfx_ref n.condition n.condition_type)] }
+    if (== kind ParseNodeType.PNODE_PRINT) { let n: ASTPrint = (list_ASTPrint_get parser.prints id) return [(rfx_ref n.value n.value_type)] }
+    if (== kind ParseNodeType.PNODE_FIELD_ACCESS) { let n: ASTFieldAccess = (parser_get_field_access parser id) return [(rfx_ref n.object n.object_type)] }
+    if (== kind ParseNodeType.PNODE_TUPLE_INDEX) { let n: ASTTupleIndex = (parser_get_tuple_index parser id) return [(rfx_ref n.tuple n.tuple_type)] }
+    if (== kind ParseNodeType.PNODE_BINARY_OP) {
+        let n: ASTBinaryOp = (parser_get_binary_op parser id)
+        if n.is_unary { return [(rfx_ref n.right n.right_type)] }
+        return [(rfx_ref n.left n.left_type),(rfx_ref n.right n.right_type)]
+    }
+    if (== kind ParseNodeType.PNODE_IF) { let n: ASTIf = (parser_get_if parser id) return [(rfx_ref n.condition n.condition_type),(rfx_ref n.then_body ParseNodeType.PNODE_BLOCK),(rfx_ref n.else_body ParseNodeType.PNODE_BLOCK)] }
+    if (== kind ParseNodeType.PNODE_WHILE) { let n: ASTWhile = (parser_get_while parser id) return [(rfx_ref n.condition n.condition_type),(rfx_ref n.body ParseNodeType.PNODE_BLOCK)] }
+    if (== kind ParseNodeType.PNODE_FOR) { let n: ASTFor = (parser_get_for parser id) return [(rfx_ref n.iterable n.iterable_type),(rfx_ref n.body ParseNodeType.PNODE_BLOCK)] }
+    let mut result: array<ASTStmtRef> = []
+    if (or (== kind ParseNodeType.PNODE_BLOCK) (== kind ParseNodeType.PNODE_UNSAFE_BLOCK)) {
+        let mut statements: List<ASTStmtRef> = (list_ASTStmtRef_new)
+        if (== kind ParseNodeType.PNODE_BLOCK) { set statements (parser_get_block parser id).statements } else { set statements (parser_get_unsafe_block parser id).statements }
+        let mut i: int = 0
+        while (< i (list_ASTStmtRef_length statements)) { set result (array_push result (list_ASTStmtRef_get statements i)) set i (+ i 1) }
+        return result
+    }
+    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let mut start: int = 0 let mut count: int = 0
+        if (== kind ParseNodeType.PNODE_CALL) {
+            let n: ASTCall = (parser_get_call parser id)
+            set result (array_push result (rfx_ref n.function n.function_type))
+            set start n.arg_start set count n.arg_count
+        } else { let n: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser id) set start n.arg_start set count n.arg_count }
+        let mut i: int = 0
+        while (< i count) { set result (array_push result (parser_get_call_arg parser (+ start i))) set i (+ i 1) }
+        return result
+    }
+    if (== kind ParseNodeType.PNODE_ARRAY_LITERAL) {
+        let n: ASTArrayLiteral = (parser_get_array_literal parser id)
+        let mut i: int = 0
+        while (< i n.element_count) { set result (array_push result (parser_get_array_element parser (+ n.element_start i))) set i (+ i 1) }
+        return result
+    }
+    let mut ids: array<int> = [] let mut kinds: array<int> = []
+    if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) { let n: ASTStructLiteral = (parser_get_struct_literal parser id) set ids n.field_value_ids set kinds n.field_value_types }
+    else { if (== kind ParseNodeType.PNODE_UNION_CONSTRUCT) { let n: ASTUnionConstruct = (parser_get_union_construct parser id) set ids n.field_value_ids set kinds n.field_value_types }
+    else { if (== kind ParseNodeType.PNODE_TUPLE_LITERAL) { let n: ASTTupleLiteral = (parser_get_tuple_literal parser id) set ids n.element_ids set kinds n.element_types }
+    else { if (== kind ParseNodeType.PNODE_EFFECT_OP) { let n: ASTEffectPerform = (at parser.performs id) set ids n.argument_ids set kinds n.argument_types }
+    else { if (== kind ParseNodeType.PNODE_HANDLE_EXPR) {
+        let n: ASTEffectHandle = (at parser.handlers id)
+        set result (array_push result (rfx_ref n.body_id n.body_type))
+        set ids n.arm_ids set kinds n.arm_types
+    } else { if (== kind ParseNodeType.PNODE_MATCH) {
+        let n: ASTMatch = (parser_get_match parser id)
+        set result (array_push result (rfx_ref n.scrutinee n.scrutinee_type))
+        let mut a: int = 0
+        while (< a n.arm_count) {
+            set result (array_push result (rfx_ref (at n.arm_guard_ids a) (at n.arm_guard_types a)))
+            set a (+ a 1)
+        }
+        set ids n.arm_body_ids set kinds n.arm_body_types
+    } else { return [(rfx_ref 0 -1)] } } } } } }
+    let mut i: int = 0
+    while (< i (array_length ids)) { set result (array_push result (rfx_ref (at ids i) (at kinds i))) set i (+ i 1) }
+    return result
+}
+shadow rfx_children {
+    let p: Parser = (rfx_parser "fn f()->int{return (+ 1 2)}")
+    assert (== (array_length (rfx_children p 0 ParseNodeType.PNODE_RETURN)) 1)
+    assert (== (array_length (rfx_children p 0 ParseNodeType.PNODE_BINARY_OP)) 2)
+    assert (== (at (rfx_children p 0 ParseNodeType.PNODE_GRAMMAR) 0).node_type -1)
+}
+
+fn rfx_target(parser: Parser, name: string, line: int, start: int, count: int, names: array<string>, facts: array<bool>, effect_index: int, operation: int, depth: int) -> bool {
+    if (or (> depth 512) (rfx_bound names name)) { return true }
+    let target: int = (par_call_index parser name line)
+    if (>= target 0) {
+        let f: ASTFunction = (parser_get_function parser target)
+        if (>= f.body 0) { return (at facts target) }
+        # I have no closed foreign reentry summary at this boundary yet.
+        return true
+    }
+    let mut callback: int = -1
+    if (or (or (== name "map") (== name "filter")) (or (== name "array_map") (== name "array_filter"))) { set callback 1 }
+    if (or (== name "reduce") (== name "array_fold")) { set callback 2 }
+    if (>= callback 0) {
+        if (or (< start 0) (>= callback count)) { return true }
+        let arg: ASTStmtRef = (parser_get_call_arg parser (+ start callback))
+        if (!= arg.node_type ParseNodeType.PNODE_IDENTIFIER) { return true }
+        let ident: ASTIdentifier = (parser_get_identifier parser arg.node_id)
+        return (rfx_target parser ident.name ident.line -1 0 names facts effect_index operation (+ depth 1))
+    }
+    return (not (or (purity_intrinsic name) (or (== name "array_set") (or (== name "array_push") (or (== name "print") (== name "println"))))))
+}
+shadow rfx_target {
+    let p: Parser = (rfx_parser "fn f()->int{return 7}")
+    assert (not (rfx_target p "f" 1 0 0 [] [false] 0 0 0))
+    assert (rfx_target p "f" 1 0 0 ["f"] [false] 0 0 0)
+    assert (rfx_target p "unknown" 1 0 0 [] [false] 0 0 0)
+}
+
+fn rfx_node(parser: Parser, id: int, kind: int, names: array<string>, facts: array<bool>, effect_index: int, operation: int, depth: int) -> bool {
+    if (> depth 512) { return true }
+    if (< id 0) { return false }
+    if (< kind 0) { return true }
+    let children: array<ASTStmtRef> = (rfx_children parser id kind)
+    if (== kind ParseNodeType.PNODE_EFFECT_OP) {
+        let n: ASTEffectPerform = (at parser.performs id)
+        let target: int = (effect_decl_index parser n.effect_name)
+        if (< target 0) { return true }
+        if (and (== target effect_index) (== (effect_operation_index (at parser.effects target) n.operation_name) operation)) { return true }
+    }
+    if (== kind ParseNodeType.PNODE_HANDLE_EXPR) {
+        let n: ASTEffectHandle = (at parser.handlers id)
+        let target: int = (effect_handler_owner parser n)
+        if (== target effect_index) {
+            let op: string = (at (at parser.effects effect_index).operation_names operation)
+            if (rfx_bound n.operation_names op) { return false }
+        }
+        if (rfx_node parser n.body_id n.body_type names facts effect_index operation (+ depth 1)) { return true }
+        let mut arm: int = 0
+        while (< arm (array_length n.arm_ids)) {
+            let mut local: array<string> = (rfx_names names "")
+            let mut param: int = 0
+            while (< param (at n.parameter_counts arm)) {
+                set local (array_push local (at n.parameter_names (+ (at n.parameter_starts arm) param)))
+                set param (+ param 1)
+            }
+            if (rfx_node parser (at n.arm_ids arm) (at n.arm_types arm) local facts effect_index operation (+ depth 1)) { return true }
+            set arm (+ arm 1)
+        }
+        return false
+    }
+    if (or (== kind ParseNodeType.PNODE_BLOCK) (== kind ParseNodeType.PNODE_UNSAFE_BLOCK)) {
+        let mut local: array<string> = (rfx_names names "")
+        let mut i: int = 0
+        while (< i (array_length children)) {
+            let child: ASTStmtRef = (at children i)
+            if (rfx_node parser child.node_id child.node_type local facts effect_index operation (+ depth 1)) { return true }
+            if (== child.node_type ParseNodeType.PNODE_LET) { set local (array_push local (parser_get_let parser child.node_id).name) }
+            if (== child.node_type ParseNodeType.PNODE_FUNCTION) { set local (array_push local (parser_get_function parser child.node_id).name) }
+            set i (+ i 1)
+        }
+        return false
+    }
+    if (== kind ParseNodeType.PNODE_FOR) {
+        let n: ASTFor = (parser_get_for parser id)
+        return (or (rfx_node parser n.iterable n.iterable_type names facts effect_index operation (+ depth 1))
+            (rfx_node parser n.body ParseNodeType.PNODE_BLOCK (rfx_names names n.var_name) facts effect_index operation (+ depth 1)))
+    }
+    if (== kind ParseNodeType.PNODE_MATCH) {
+        let n: ASTMatch = (parser_get_match parser id)
+        if (rfx_node parser n.scrutinee n.scrutinee_type names facts effect_index operation (+ depth 1)) { return true }
+        let mut arm: int = 0
+        while (< arm n.arm_count) {
+            let local: array<string> = (rfx_names names (at n.arm_bindings arm))
+            if (rfx_node parser (at n.arm_guard_ids arm) (at n.arm_guard_types arm) local facts effect_index operation (+ depth 1)) { return true }
+            if (rfx_node parser (at n.arm_body_ids arm) (at n.arm_body_types arm) local facts effect_index operation (+ depth 1)) { return true }
+            set arm (+ arm 1)
+        }
+        return false
+    }
+    let mut i: int = 0
+    while (< i (array_length children)) {
+        let child: ASTStmtRef = (at children i)
+        if (rfx_node parser child.node_id child.node_type names facts effect_index operation (+ depth 1)) { return true }
+        set i (+ i 1)
+    }
+    if (== kind ParseNodeType.PNODE_CALL) {
+        let n: ASTCall = (parser_get_call parser id)
+        if (> n.borrow_mode 0) { return false }
+        if (!= n.function_type ParseNodeType.PNODE_IDENTIFIER) { return true }
+        let ident: ASTIdentifier = (parser_get_identifier parser n.function)
+        return (rfx_target parser ident.name ident.line n.arg_start n.arg_count names facts effect_index operation (+ depth 1))
+    }
+    if (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+        let n: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser id)
+        return (rfx_target parser n.function_name n.line n.arg_start n.arg_count [] facts effect_index operation (+ depth 1))
+    }
+    return false
+}
+shadow rfx_node {
+    let p: Parser = (rfx_parser "effect E{tick:int->int} fn f()->int{return perform E.tick(1)}")
+    assert (rfx_node p 0 ParseNodeType.PNODE_EFFECT_OP [] [false] 0 0 0)
+    assert (not (rfx_node p 0 ParseNodeType.PNODE_NUMBER [] [false] 0 0 0))
+}
+
+pub fn resource_effects_escape(parser: Parser, id: int, kind: int, names: array<string>) -> bool {
+    let mut effect_index: int = 0
+    while (< effect_index (array_length parser.effects)) {
+        let declaration: ASTEffectDecl = (at parser.effects effect_index)
+        let mut operation: int = 0
+        while (< operation (array_length declaration.operation_names)) {
+            let mut facts: array<bool> = []
+            let mut f: int = 0
+            while (< f parser.functions_count) { set facts (array_push facts false) set f (+ f 1) }
+            let mut changed: bool = true
+            while changed {
+                set changed false set f 0
+                while (< f parser.functions_count) {
+                    let function: ASTFunction = (parser_get_function parser f)
+                    if (and (not (at facts f)) (>= function.body 0)) {
+                        let mut local: array<string> = []
+                        let mut param: int = 0
+                        while (< param function.param_count) { set local (array_push local (parser_get_let parser (+ function.param_start param)).name) set param (+ param 1) }
+                        if (rfx_node parser function.body ParseNodeType.PNODE_BLOCK local facts effect_index operation 0) {
+                            (array_set facts f true) set changed true
+                        }
+                    }
+                    set f (+ f 1)
+                }
+            }
+            if (rfx_node parser id kind names facts effect_index operation 0) { return true }
+            set operation (+ operation 1)
+        }
+        set effect_index (+ effect_index 1)
+    }
+    return false
+}
+shadow resource_effects_escape {
+    let escaping: Parser = (rfx_parser "effect E{tick:int->int} fn first()->int{return (last)} fn last()->int{return perform E.tick(7)}")
+    assert (resource_effects_escape escaping (parser_get_function escaping 0).body ParseNodeType.PNODE_BLOCK [])
+    let contained: Parser = (rfx_parser "effect E{tick:int->int} fn first()->int{return (last)} fn last()->int{return handle {perform E.tick(7)} with {tick n->{n}}}")
+    assert (not (resource_effects_escape contained (parser_get_function contained 0).body ParseNodeType.PNODE_BLOCK []))
+    let matched: Parser = (rfx_parser "effect E{tick:int->int} union Choice{Some{value:int},None{}} fn choose(c:Choice)->int{match c{Some(value)=>{return value.value} None(value)=>{return 0}}}")
+    assert (not (resource_effects_escape matched (parser_get_function matched 0).body ParseNodeType.PNODE_BLOCK []))
+}
+
+pub fn resource_handler_loop_escape(parser: Parser, id: int, kind: int, loops: int, depth: int) -> bool {
+    if (> depth 512) { return true }
+    if (< kind 0) { return (>= id 0) }
+    if (or (== kind ParseNodeType.PNODE_BREAK) (== kind ParseNodeType.PNODE_CONTINUE)) { return (== loops 0) }
+    if (< id 0) { return false }
+    let children: array<ASTStmtRef> = (rfx_children parser id kind)
+    let mut i: int = 0
+    while (< i (array_length children)) {
+        let child: ASTStmtRef = (at children i)
+        let mut nested: int = loops
+        if (and (== i 1) (or (== kind ParseNodeType.PNODE_FOR) (== kind ParseNodeType.PNODE_WHILE))) { set nested (+ loops 1) }
+        if (and (> i 0) (== kind ParseNodeType.PNODE_HANDLE_EXPR)) { set nested 0 }
+        if (resource_handler_loop_escape parser child.node_id child.node_type nested (+ depth 1)) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow resource_handler_loop_escape {
+    let p: Parser = (rfx_parser "fn f()->int{while true {break} return 7}")
+    assert (resource_handler_loop_escape p 0 ParseNodeType.PNODE_BREAK 0 0)
+    assert (not (resource_handler_loop_escape p (parser_get_function p 0).body ParseNodeType.PNODE_BLOCK 0 0))
+}

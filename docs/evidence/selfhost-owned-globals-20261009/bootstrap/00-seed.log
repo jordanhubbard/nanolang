@@ -1,0 +1,59 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2567, column 9: Unused variable 'rejected'
+Warning at line 2731, column 9: Unused variable 'rejected'
+Warning at line 2735, column 9: Unused variable 'rejected'
+Warning at line 2742, column 13: Unused variable 'rejected'
+Warning at line 2800, column 9: Unused variable 'rejected'
+Warning at line 2804, column 9: Unused variable 'rejected'
+Warning at line 2811, column 13: Unused variable 'rejected'
+Warning at line 6431, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I cannot define a record twice in one module: Handle
+I cannot define a function twice in one module: answer
+I cannot resolve a qualified function in this module: lib.answer
+I require separate artifact and diagnostic destinations
+I require separate artifact and diagnostic destinations
+I will not overwrite a source file: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_7ETP2E/source.nano
+I will not overwrite a source file: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_7ETP2E/source.nano
+I cannot check source/output file identity: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_7ETP2E/missing
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Usage: nanoc <input.nano> [-o output] [options]
+
+Options:
+  -o <file>        Explicit native output; --emit-nvm selects module output
+  -v, --verbose    Verbose compilation output
+  -k, --keep-c     Keep generated C file
+  --target <t>    native or c; unqualified compilation publishes input.nvm
+  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o
+  --test-imports  I run dependency shadows before root shadows (default)
+  --root-shadows-only  I run only root-file shadows
+  --              End options; the remaining argument is my input path
+  -fshow-intermediate-code  Print generated C to stdout
+  -h, --help       Show this help
+  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)
+
+This compiler is 100% written in NanoLang!
+Pipeline: Lex → Parse → Typecheck → NanoISA → optional native translation
+

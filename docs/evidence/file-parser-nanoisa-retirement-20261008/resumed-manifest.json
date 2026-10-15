@@ -1,0 +1,44 @@
+[
+  {
+    "name": "nanoc_stage1",
+    "phase": "compile",
+    "args": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_stage1",
+      "/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano",
+      "-o",
+      "/private/tmp/nanolang-parser-retirement-evidence-20261008/nanoc_stage1-resumed"
+    ],
+    "exit_code": 0,
+    "seconds": 132.3620350830024
+  },
+  {
+    "name": "nanoc_stage1",
+    "phase": "execute",
+    "args": [
+      "/private/tmp/nanolang-parser-retirement-evidence-20261008/nanoc_stage1-resumed"
+    ],
+    "exit_code": 0,
+    "seconds": 0.019932708994019777
+  },
+  {
+    "name": "nanoc_stage2",
+    "phase": "compile",
+    "args": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_stage2",
+      "/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano",
+      "-o",
+      "/private/tmp/nanolang-parser-retirement-evidence-20261008/nanoc_stage2-resumed"
+    ],
+    "exit_code": 0,
+    "seconds": 32.80569333402673
+  },
+  {
+    "name": "nanoc_stage2",
+    "phase": "execute",
+    "args": [
+      "/private/tmp/nanolang-parser-retirement-evidence-20261008/nanoc_stage2-resumed"
+    ],
+    "exit_code": 0,
+    "seconds": 0.017665833001956344
+  }
+]

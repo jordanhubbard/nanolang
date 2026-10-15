@@ -1,0 +1,8 @@
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /private/tmp/nanolang-lexical-checker-debug.nano:30:5
+I could not execute the module: Assertion failed
+  Assertion failed
+fn make(n:int)->int{return (fn()->int{return n})}
+Return value of make: I expected a value of type `int`, but found `fn()->int`.

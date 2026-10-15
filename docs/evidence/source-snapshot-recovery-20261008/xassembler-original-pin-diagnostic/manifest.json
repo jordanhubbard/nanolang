@@ -1,0 +1,12 @@
+{
+  "source_commit": "f0f6a0c62b9a3fb53251f987a492f3de9f7ab514",
+  "initial_status": "",
+  "probe_sha256": "1037fb559b5427bcd03318814f8ac5fa2e3d43229e8e44131163d66e646b27de",
+  "runner_pid": 2253,
+  "scope": "original xassembler helper: all placements, external selections and shared choices; not full corpus acceptance",
+  "exit_code": 0,
+  "seconds": 217.9454491250217,
+  "final_status": "",
+  "head_unchanged": true,
+  "probe_unchanged": true
+}

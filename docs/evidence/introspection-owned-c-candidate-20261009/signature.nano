@@ -1,0 +1,9 @@
+module "/private/tmp/nanolang-introspection-routes-20261009/probe.nano" as probe
+extern fn ___module_function_count_route_probe() -> int
+resource struct Handle { value: int }
+fn consume(h: Handle) -> int { let Handle { value } = h return value }
+shadow consume { assert (== (consume Handle { value: 7 }) 7) }
+fn main() -> int { let h: Handle = Handle { value: 7 } assert (== (___module_function_count_route_probe) 1) assert (== (consume h) 7) return 0 }
+shadow main { assert (== (main) 0) }
+
+extern fn ___module_name_route_probe() -> int

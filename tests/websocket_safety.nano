@@ -1,0 +1,21 @@
+# I exercise legacy WebSocket refusal paths without network access.
+module "modules/websocket/websocket.nano" as ws
+
+fn check_refusals() -> bool {
+    assert (== (ws.connect "wss://localhost/private") 0)
+    assert (== (ws.connect "ws://localhost:0/") 0)
+    assert (== (ws.send 1 "hello") -1)
+    assert (== (ws.close 1) -1)
+    assert (not (ws.is_connected 1))
+    assert (== (ws.receive_timeout 1 0) "")
+    assert (== (ws.receive 1) "")
+    assert (!= (ws.last_error 1) "")
+    return true
+}
+shadow check_refusals {
+    assert (check_refusals)
+}
+fn main() -> int {
+    assert (check_refusals)
+    return 0
+}

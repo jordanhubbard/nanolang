@@ -1,0 +1,8 @@
+['/Users/jordanh/Src/nanolang/bin/nano_vm', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-z0rid8lg/bound-9223372036854775807-seed.nvm']
+
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-z0rid8lg/bound-9223372036854775807.nano:3:2
+I could not execute the module: Assertion failed
+  Assertion failed

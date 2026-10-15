@@ -1,0 +1,2 @@
+Error at line 9, column 5: Cannot assign to immutable variable 'counter'
+error: type check failed

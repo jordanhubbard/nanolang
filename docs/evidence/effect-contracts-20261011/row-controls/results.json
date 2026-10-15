@@ -1,0 +1,26 @@
+[
+  {
+    "case": "unknown",
+    "driver": "c",
+    "returncode": 0,
+    "preserved": false
+  },
+  {
+    "case": "unknown",
+    "driver": "selfhost",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "known",
+    "driver": "c",
+    "returncode": 0,
+    "preserved": false
+  },
+  {
+    "case": "known",
+    "driver": "selfhost",
+    "returncode": 1,
+    "preserved": true
+  }
+]

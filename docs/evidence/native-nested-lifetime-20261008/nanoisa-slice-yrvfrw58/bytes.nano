@@ -1,0 +1,7 @@
+fn main() -> int {
+ let mut bytes: array<u8> = []
+ set bytes (array_push bytes 255)
+ assert (== (at (array_slice bytes 0 1) 0) 255)
+ return 0
+}
+shadow main { assert (== (main) 0) }

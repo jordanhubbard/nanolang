@@ -1,0 +1,8 @@
+['/private/tmp/nanolang-array-types-20261008/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-5nbxyiz7/unreachable.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-5nbxyiz7/unreachable.nvm']
+-- E036 UNREACHABLE MATCH ARM --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-5nbxyiz7/unreachable.nano
+I cannot reach a match arm after an unconditional wildcard.
+
+2| fn main() -> int { return match 1 { _ if true => 2 1 => 0 } } shadow main { assert true }
+                                                           ^
+Hint: Remove this arm or give the earlier wildcard a non-literal guard.
+error: type check failed

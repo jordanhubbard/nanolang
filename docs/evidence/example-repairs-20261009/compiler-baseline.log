@@ -1,0 +1,18 @@
+test_cpp_driver_retains_language_and_header_invalidation (candidate_cache.ModuleCachePublication.test_cpp_driver_retains_language_and_header_invalidation) ... FAIL
+
+======================================================================
+FAIL: test_cpp_driver_retains_language_and_header_invalidation (candidate_cache.ModuleCachePublication.test_cpp_driver_retains_language_and_header_invalidation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-example-repairs-20261009/test_module_cache_publication.py", line 624, in test_cpp_driver_retains_language_and_header_invalidation
+    self.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-example-repairs-20261009/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b". /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/SDKSettings.json\n/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cpp-retained-391vvb7j/foreign/answer.c:1:10: fatal error: 'cstdint' file not found\n    1 | #include <cstdint>\n      |          ^~~~~~~~~\n. /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cpp-retained-391vvb7j/foreign/answer.h\n1 error generated.\nError: Failed to compile module answer_native\n"
+
+----------------------------------------------------------------------
+Ran 1 test in 0.117s
+
+FAILED (failures=1)

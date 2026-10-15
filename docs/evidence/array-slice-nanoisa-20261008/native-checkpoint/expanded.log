@@ -1,0 +1,70 @@
+I retain slice qualification at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-19r23tcf
+test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) ... ok
+test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) ... ok
+test_byte_slice (tests.test_nanoisa_array_slice.NanoISASlice.test_byte_slice) ... 
+  test_byte_slice (tests.test_nanoisa_array_slice.NanoISASlice.test_byte_slice) (case='bytes', producer='seed') ... FAIL
+  test_byte_slice (tests.test_nanoisa_array_slice.NanoISASlice.test_byte_slice) (case='bytes', producer='selfhost') ... FAIL
+test_closure_environment_copy (tests.test_nanoisa_array_slice.NanoISASlice.test_closure_environment_copy) ... ok
+test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) ... 
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='seed') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='selfhost') ... FAIL
+test_unchecked_emitter_refuses_invalid_operands (tests.test_nanoisa_array_slice.NanoISASlice.test_unchecked_emitter_refuses_invalid_operands) ... ok
+
+======================================================================
+FAIL: test_byte_slice (tests.test_nanoisa_array_slice.NanoISASlice.test_byte_slice) (case='bytes', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 50, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-19r23tcf/bytes-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-19r23tcf/bytes-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-19r23tcf/bytes-seed.nvm': function 0: I support int, bool, float, string, function or record elements in ARR_LITERAL
+
+
+======================================================================
+FAIL: test_byte_slice (tests.test_nanoisa_array_slice.NanoISASlice.test_byte_slice) (case='bytes', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 45, in qualify
+    assembly.write_text(self.run_checked(self.driver, source, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-slice-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-19r23tcf/bytes.nano', 'program']: 1
+
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 50, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-19r23tcf/nested-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-19r23tcf/nested-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-19r23tcf/nested-seed.nvm': function 0: I support int, bool, float, string, function or record elements in ARR_LITERAL
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 45, in qualify
+    assembly.write_text(self.run_checked(self.driver, source, "program").stdout)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-slice-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-19r23tcf/nested.nano', 'program']: 1
+
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 4.018s
+
+FAILED (failures=4)

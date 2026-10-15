@@ -1,0 +1,23 @@
+..FF....
+======================================================================
+FAIL: test_incompatible_payload_preserves_output (tests.test_callable_union_storage.CallableUnionStorage.test_incompatible_payload_preserves_output) (annotation='Choice')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 104, in test_incompatible_payload_preserves_output
+    self.assertIn('matching concrete types', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'matching concrete types' not found in ''
+
+======================================================================
+FAIL: test_incompatible_payload_preserves_output (tests.test_callable_union_storage.CallableUnionStorage.test_incompatible_payload_preserves_output) (annotation='Choice<fn(int)->bool>')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 104, in test_incompatible_payload_preserves_output
+    self.assertIn('matching concrete types', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'matching concrete types' not found in ''
+
+----------------------------------------------------------------------
+Ran 7 tests in 14.583s
+
+FAILED (failures=2)

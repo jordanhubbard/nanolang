@@ -10,8 +10,8 @@ typedef struct {
     uint32_t length;
 } NprScratch;
 
-NprManagedResult npr_read_managed(NmsRuntime *runtime, NmsHandle argument,
-                                 const NprHostBinding *binding) {
+static NprManagedResult read_managed(NmsRuntime *runtime, NmsHandle argument,
+                                 const NprHostBinding *binding, int binary) {
     NprManagedResult result = { NPR_OK, NMS_OK, 0 };
     if (!runtime) { result.managed_status = NMS_STATE; return result; }
     if (runtime->disposed) { result.managed_status = NMS_DISPOSED; return result; }
@@ -40,13 +40,21 @@ NprManagedResult npr_read_managed(NmsRuntime *runtime, NmsHandle argument,
     else result.host_status = (NprStatus)status;
     if (result.host_status == NPR_OK) {
         if (scratch->length > NPR_TEXT_LIMIT ||
-            (scratch->length && memchr(scratch->destination, 0, scratch->length))) {
+            (!binary && scratch->length && memchr(scratch->destination, 0, scratch->length))) {
             result.host_status = NPR_INVALID;
         } else {
-            result.managed_status = nms_create(runtime, scratch->destination,
-                                               scratch->length, &result.value);
+            result.managed_status = binary ?
+                nms_bytes_create(runtime, scratch->destination, scratch->length, &result.value) :
+                nms_create(runtime, scratch->destination, scratch->length, &result.value);
         }
     }
     free(scratch);
     return result;
+}
+
+NprManagedResult npr_read_managed(NmsRuntime *runtime,NmsHandle argument,const NprHostBinding *binding) {
+    return read_managed(runtime,argument,binding,0);
+}
+NprManagedResult npr_read_bytes_managed(NmsRuntime *runtime,NmsHandle argument,const NprHostBinding *binding) {
+    return read_managed(runtime,argument,binding,1);
 }

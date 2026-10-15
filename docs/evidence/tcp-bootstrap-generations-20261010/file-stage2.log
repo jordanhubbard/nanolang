@@ -1,0 +1,37 @@
+test_cyclic_and_overlapping_owner_refusals_preserve_output (tests.test_nano_service_driver.NanoServiceDriver.test_cyclic_and_overlapping_owner_refusals_preserve_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7fj689iv
+ok
+test_cyclic_owners_helpers_and_selected_shadows (tests.test_nano_service_driver.NanoServiceDriver.test_cyclic_owners_helpers_and_selected_shadows) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-tp_0qzi0
+ok
+test_generated_shadows_byte_parity_and_native_runtime_grant (tests.test_nano_service_driver.NanoServiceDriver.test_generated_shadows_byte_parity_and_native_runtime_grant) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-iwrulbgn
+ok
+test_grant_failure_aliases_and_compiler_failure_preserve_output (tests.test_nano_service_driver.NanoServiceDriver.test_grant_failure_aliases_and_compiler_failure_preserve_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-xwgzpsoz
+ok
+test_indirect_affine_results_and_multiple_exclusive_borrows (tests.test_nano_service_driver.NanoServiceDriver.test_indirect_affine_results_and_multiple_exclusive_borrows) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1g5pjm2s
+ok
+test_indirect_helpers_borrows_and_higher_order_results (tests.test_nano_service_driver.NanoServiceDriver.test_indirect_helpers_borrows_and_higher_order_results) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ow7zg2z0
+ok
+test_indirect_imported_helper_value (tests.test_nano_service_driver.NanoServiceDriver.test_indirect_imported_helper_value) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-8rebetay
+ok
+test_indirect_shadow_failure_preserves_output (tests.test_nano_service_driver.NanoServiceDriver.test_indirect_shadow_failure_preserves_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-111ndg86
+ok
+test_indirect_signature_ownership_and_recursion_refusals (tests.test_nano_service_driver.NanoServiceDriver.test_indirect_signature_ownership_and_recursion_refusals) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-owcva7zd
+ok
+test_multiple_borrow_shadow_failure_preserves_output (tests.test_nano_service_driver.NanoServiceDriver.test_multiple_borrow_shadow_failure_preserves_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-8u80gwx6
+ok
+test_multiple_borrows_with_owned_operand (tests.test_nano_service_driver.NanoServiceDriver.test_multiple_borrows_with_owned_operand) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-c1bk2rn7
+ok
+test_multiple_forwarded_reordered_file_borrows (tests.test_nano_service_driver.NanoServiceDriver.test_multiple_forwarded_reordered_file_borrows) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-f9tfl1fc
+ok
+test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse (tests.test_nano_service_driver.NanoServiceDriver.test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-4gl7qbr4
+ok
+test_required_import_shadows_and_root_only_selection (tests.test_nano_service_driver.NanoServiceDriver.test_required_import_shadows_and_root_only_selection) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-w06hlujq
+ok
+test_shared_aliases_and_forwarded_loans (tests.test_nano_service_driver.NanoServiceDriver.test_shared_aliases_and_forwarded_loans) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-smt0_0e2
+ok
+test_shared_borrow_shadow_failure_preserves_output (tests.test_nano_service_driver.NanoServiceDriver.test_shared_borrow_shadow_failure_preserves_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-quo0ydn9
+ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 460.076s
+
+OK

@@ -1,0 +1,2 @@
+fn main()->int {return (helper)} fn other()->int{fn helper()->int{return 7} return (helper)}
+shadow main {assert true}

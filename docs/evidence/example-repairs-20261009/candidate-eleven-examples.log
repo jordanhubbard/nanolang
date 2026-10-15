@@ -1,0 +1,22 @@
+{"source": "/private/tmp/nanolang-example-repairs-20261009/examples/api_lessons/glut_helpers_api.nano", "exit": 0, "stdout": "", "stderr": "Warning at line 9, column 5: Unused variable 'text'\nglut helper calls: 4\n"}
+VERIFY glut_helpers_api.nano 0  
+{"source": "/private/tmp/nanolang-example-repairs-20261009/examples/api_lessons/sdl_image_safe_api.nano", "exit": 0, "stdout": "", "stderr": "ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'\nld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'\n"}
+VERIFY sdl_image_safe_api.nano 0  
+{"source": "/private/tmp/nanolang-example-repairs-20261009/examples/graphics/sdl_image_demo.nano", "exit": 0, "stdout": "", "stderr": ""}
+VERIFY sdl_image_demo.nano 0  
+{"source": "/private/tmp/nanolang-example-repairs-20261009/examples/graphics/sdl_image_sprite_animation.nano", "exit": 0, "stdout": "", "stderr": ""}
+VERIFY sdl_image_sprite_animation.nano 0  
+{"source": "/private/tmp/nanolang-example-repairs-20261009/examples/graphics/sdl_image_tiled_background.nano", "exit": 0, "stdout": "", "stderr": ""}
+VERIFY sdl_image_tiled_background.nano 0  
+{"source": "/private/tmp/nanolang-match-guards-20261009/examples/physics/bullet_beads_simple.nano", "exit": 0, "stdout": "", "stderr": "clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]\nclang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]\nld: warning: ignoring duplicate libraries: '-lc++'\nld: warning: ignoring duplicate libraries: '-lc++'\n"}
+VERIFY bullet_beads_simple.nano 0  
+{"source": "/private/tmp/nanolang-match-guards-20261009/examples/physics/bullet_beads_visual.nano", "exit": 0, "stdout": "", "stderr": "clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]\nclang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]\nld: warning: ignoring duplicate libraries: '-lc++'\nld: warning: ignoring duplicate libraries: '-lc++'\n"}
+VERIFY bullet_beads_visual.nano 0  
+{"source": "/private/tmp/nanolang-match-guards-20261009/examples/physics/bullet_bouncy_balls.nano", "exit": 0, "stdout": "", "stderr": "ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'\nld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'\nclang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]\nclang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]\nld: warning: ignoring duplicate libraries: '-lc++'\nld: warning: ignoring duplicate libraries: '-lc++'\n"}
+VERIFY bullet_bouncy_balls.nano 0  
+{"source": "/private/tmp/nanolang-match-guards-20261009/examples/physics/bullet_rigid_megastacks.nano", "exit": 0, "stdout": "", "stderr": "clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]\nclang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]\nld: warning: ignoring duplicate libraries: '-lc++'\nld: warning: ignoring duplicate libraries: '-lc++'\n"}
+VERIFY bullet_rigid_megastacks.nano 0  
+{"source": "/private/tmp/nanolang-match-guards-20261009/examples/physics/bullet_soft_body_modern.nano", "exit": 0, "stdout": "", "stderr": "clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]\nclang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]\nld: warning: ignoring duplicate libraries: '-lc++'\nld: warning: ignoring duplicate libraries: '-lc++'\n"}
+VERIFY bullet_soft_body_modern.nano 0  
+{"source": "/private/tmp/nanolang-match-guards-20261009/examples/physics/bullet_softbody_hourglass.nano", "exit": 0, "stdout": "", "stderr": "clang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]\nclang++: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]\nld: warning: ignoring duplicate libraries: '-lc++'\nld: warning: ignoring duplicate libraries: '-lc++'\n"}
+VERIFY bullet_softbody_hourglass.nano 0  

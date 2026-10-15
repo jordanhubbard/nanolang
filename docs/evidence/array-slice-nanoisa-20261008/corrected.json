@@ -1,0 +1,11 @@
+[
+  {
+    "compiler": "nano_virt",
+    "exit_code": 0,
+    "vm_exit_code": 0
+  },
+  {
+    "compiler": "nanoc_stage2",
+    "exit_code": 1
+  }
+]

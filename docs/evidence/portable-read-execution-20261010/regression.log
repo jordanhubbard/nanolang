@@ -1,0 +1,31 @@
+test_calls_loops_branch_effects_and_bool_transport (tests.test_nvm2llvm.ScalarLLVM.test_calls_loops_branch_effects_and_bool_transport) ... ok
+test_count_only_nominal_metadata_refused (tests.test_nvm2llvm.ScalarLLVM.test_count_only_nominal_metadata_refused) ... ok
+test_existing_predicate_and_unused_array_signature (tests.test_nvm2llvm.ScalarLLVM.test_existing_predicate_and_unused_array_signature) ... ok
+test_integer_boundaries (tests.test_nvm2llvm.ScalarLLVM.test_integer_boundaries) ... ok
+test_nonzero_arity_initializer_refused (tests.test_nvm2llvm.ScalarLLVM.test_nonzero_arity_initializer_refused) ... ok
+test_recursive_call_and_stack_join (tests.test_nvm2llvm.ScalarLLVM.test_recursive_call_and_stack_join) ... ok
+test_refused_profile_preserves_output (tests.test_nvm2llvm.ScalarLLVM.test_refused_profile_preserves_output) ... ok
+test_rot3_calls_locals_and_loop (tests.test_nvm2llvm.ScalarLLVM.test_rot3_calls_locals_and_loop) ... ok
+test_rot3_stack_rotation (tests.test_nvm2llvm.ScalarLLVM.test_rot3_stack_rotation) ... ok
+test_runtime_declared_result_tag (tests.test_nvm2llvm.ScalarLLVM.test_runtime_declared_result_tag) ... ok
+test_runtime_tag_preserved_across_call (tests.test_nvm2llvm.ScalarLLVM.test_runtime_tag_preserved_across_call) ... ok
+test_scalar_tags_boolean_ops_and_argument_order (tests.test_nvm2llvm.ScalarLLVM.test_scalar_tags_boolean_ops_and_argument_order) ... ok
+test_unused_import_refused (tests.test_nvm2llvm.ScalarLLVM.test_unused_import_refused) ... ok
+test_verified_implicit_entry (tests.test_nvm2llvm.ScalarLLVM.test_verified_implicit_entry) ... ok
+test_allocation_failure_unwinds_callee_and_preserves_global_owner (tests.test_llvm_managed_strings.ManagedStrings.test_allocation_failure_unwinds_callee_and_preserves_global_owner) ... ok
+test_callee_errors_unwind_all_frames_and_preserve_prior_global_writes (tests.test_llvm_managed_strings.ManagedStrings.test_callee_errors_unwind_all_frames_and_preserve_prior_global_writes) ... ok
+test_content_aliases_branches_loop_and_nested_calls (tests.test_llvm_managed_strings.ManagedStrings.test_content_aliases_branches_loop_and_nested_calls) ... ok
+test_dynamic_return_tag_errors_clean_explicit_and_implicit_frames (tests.test_llvm_managed_strings.ManagedStrings.test_dynamic_return_tag_errors_clean_explicit_and_implicit_frames) ... ok
+test_failed_initializer_cleans_locals_and_preserves_committed_global (tests.test_llvm_managed_strings.ManagedStrings.test_failed_initializer_cleans_locals_and_preserves_committed_global) ... ok
+test_global_ownership_reentry_initializer_and_terminal_disposal (tests.test_llvm_managed_strings.ManagedStrings.test_global_ownership_reentry_initializer_and_terminal_disposal) ... ok
+test_managed_profile_preserves_numeric_tags_and_total_boundaries (tests.test_llvm_managed_strings.ManagedStrings.test_managed_profile_preserves_numeric_tags_and_total_boundaries) ... ok
+test_native_byte_and_descriptor_allocation_failure_are_recoverable (tests.test_llvm_managed_strings.ManagedStrings.test_native_byte_and_descriptor_allocation_failure_are_recoverable) ... ok
+test_substring_allocation_failure_and_type_error_cleanup (tests.test_llvm_managed_strings.ManagedStrings.test_substring_allocation_failure_and_type_error_cleanup) ... ok
+test_substring_bytes_indices_aliases_and_reentry (tests.test_llvm_managed_strings.ManagedStrings.test_substring_bytes_indices_aliases_and_reentry) ... ok
+test_unsupported_array_shape_and_reserved_entry_refusals_preserve_output (tests.test_llvm_managed_strings.ManagedStrings.test_unsupported_array_shape_and_reserved_entry_refusals_preserve_output) ... ok
+test_wasm_memory_cap_failure_cleans_frames_and_reuses_storage (tests.test_llvm_managed_strings.ManagedStrings.test_wasm_memory_cap_failure_cleans_frames_and_reuses_storage) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 25.496s
+
+OK

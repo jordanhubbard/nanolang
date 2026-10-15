@@ -1,0 +1,15 @@
+{
+  "base": "4b9c7761373bb34c2187be7a2a883682562685e3",
+  "sha256": {
+    "src/nanoisa/nvm2c.c": "e9711b8e7b36d97f6ff533f8c7ef72f2901c9228df9cf131ea183c44a6098867",
+    "src/nanoisa/nvm2c_map_roots.inc": "e75fa6b34a01ded3cde64810b8d991716b1f262f148a77534149e8542bea2506",
+    "tests/test_native_record_field_transport.py": "a7826110abef92ec7328fa4967a24723c8b3d0b7c271e590258e701c4df0e630",
+    "tests/test_native_record_array_scalar_tags.py": "e09d79288471f5d3669ce6cb5c7bd0a9290f32a488c236d30ae769c8e77d37f8",
+    "tests/test_native_float_records.py": "0e8ee1193374d9f98b053d50f356fc21a429f89ec7a87d2a1e0793fa350fd7dc",
+    "bin/nvm2c": "a168d1b404656e8757a5c13e6cef5e9c397560cf18cf0a18371de322dcd04c5d",
+    "bin/nano_vm": "0a236e54537dee467155a77e3d929b101f5ebd343e7515ba06bd598860e2b4da",
+    "bin/nanoisa": "3c8b0e30485f403467caf47230d64f0b2229692205a8769acccaa189dd18e9c3",
+    "bin/nanoisa_emit": "0a580259d51c45f7daf2e7d504d2321449a049f8ae8138c4a2c0692296428b03",
+    "bin/nano_virt": "fd150c68a07c37a893a9eac60f357eb8398e5fbdbfb87d4c6d50ab718004867d"
+  }
+}

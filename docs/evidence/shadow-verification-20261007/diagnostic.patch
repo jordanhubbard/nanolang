@@ -1,0 +1,63 @@
+--- a/src/nanovm/vm.c
++++ b/src/nanovm/vm.c
+@@ -2911,6 +2911,11 @@
+             }
+ 
+             const NvmFunctionEntry *callee = &vm->module->functions[callee_idx];
++            if (vm->current_fn == vm->module->header.entry_point) {
++                struct timespec now; clock_gettime(CLOCK_MONOTONIC, &now);
++                fprintf(stderr, "SHADOW-CALL %lld.%09ld %u %s\n", (long long)now.tv_sec, now.tv_nsec, callee_idx, nvm_get_string(vm->module, callee->name_idx));
++            }
++
+ 
+             if (vm->frame_count >= VM_MAX_FRAMES) {
+                 return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
+--- a/src/nanovm/main.c
++++ b/src/nanovm/main.c
+@@ -128,7 +128,12 @@
+     return (int)((uint64_t)scalar.value & UINT64_C(255));
+ }
+ 
++static void diagnostic_phase(const char *name) {
++    struct timespec now;clock_gettime(CLOCK_MONOTONIC,&now);
++    fprintf(stderr,"PHASE %lld.%09ld %s\n",(long long)now.tv_sec,now.tv_nsec,name);
++}
+ static int run_standalone(const char *path, bool verify_only) {
++    diagnostic_phase("load-start");
+     NanoisaErr err;
+     NvmModule *module = nanoisa_load_file(path, &err);
+     if (!module) {
+@@ -137,6 +142,7 @@
+         return 1;
+     }
+ 
++    diagnostic_phase("loaded");
+     /* Verify bytecode safety before execution */
+     NvmVerifyResult vr = nvm_verify(module);
+     if (!vr.ok) {
+@@ -146,6 +152,7 @@
+         return 1;
+     }
+ 
++    diagnostic_phase("verified");
+     if (verify_only) {
+         nvm_module_free(module);
+         return 0;
+@@ -200,6 +207,7 @@
+      * cannot see an interpreter change of any size. Running the module N times
+      * behind one startup lets the per-iteration cost be recovered by
+      * comparing two values of N. */
++    diagnostic_phase("ffi-loaded");
+     VmResult result = VM_OK;
+     for (uint32_t iteration = 1; iteration < g_repeat; iteration++) {
+         VmState warm;
+@@ -228,7 +236,9 @@
+         vm.debug_mode = true;
+     }
+ 
++    diagnostic_phase("vm-initialized");
+     result = vm_execute(&vm);
++    diagnostic_phase("executed");
+ 
+     if (g_profile_path) {
+         FILE *profile = strcmp(g_profile_path, "-") == 0

@@ -1,0 +1,11 @@
+{
+  "Makefile.gnu": "b61b03994537a91e4e2e9c67a5d74a9c766ab2f2c5094cff6e5b9cb241006265",
+  "src/nanoisa/nvm2c.c": "a8c63d20612cecd725400966081c1f7704d6bd62656ea44a8f596cb24506b84b",
+  "src/typechecker.c": "bd5a7da89dfaccc1f619def2b2380e32d60c3dbdc2d3bd14d42c8f59529e999a",
+  "src_nano/nanoc_v06.nano": "f95eae1c85b9a6ea144f958c3e8723919816526e20f0ead2618f345755f672b1",
+  "src_nano/typecheck.nano": "0b224797b6a80519a32b3e2807cb076cde2e6557df412c267c02efe28ccc9001",
+  "tests/nanoisa/test_nvm2c.c": "c0d8419d8f64b6122ade9e48d0e29d03d2535511e7364669cee52ba5af9cb9f5",
+  "tests/test_imported_globals.py": "c920eacf8f0c191c0bf8ddffde512a4027d2c0c2529486612e59a480a1297240",
+  "tests/test_native_record_globals.py": "3d04b10d36ff28e271481941410da982a225af5d1b594bbc32d9fb52f424dc49",
+  "tests/test_selfhost_native_link_flags.py": "52c5d9b346d600ee1fd136431d2121a87eae8a7ae1676ad8f00b897019e81db4"
+}

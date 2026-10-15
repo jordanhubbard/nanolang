@@ -1,0 +1,14 @@
+[
+  {
+    "driver": "/Users/jordanh/Src/nanolang/bin/nano_virt",
+    "status": 0,
+    "stdout": "",
+    "stderr": "-- E001 TYPE MISMATCH --- /private/tmp/nl51-legacy-par/sibling-builtin.nano\nI require a function value for a bound call.\n\n1| fn main()->int {par-let left=(array_length [1]) array_length=7 in left return left}\n                                ^\nHint: Call the declared function or a function-typed binding.\n-- E001 TYPE MISMATCH --- /private/tmp/nl51-legacy-par/sibling-builtin.nano\nI require a function value for a bound call.\n\n1| fn main()->int {par-let left=(array_length [1]) array_length=7 in left return left}\n                                ^\nHint: Call the declared function or a function-typed binding.\n"
+  },
+  {
+    "driver": "/private/tmp/nl51-legacy-par/seed",
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

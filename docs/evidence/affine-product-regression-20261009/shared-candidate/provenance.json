@@ -1,0 +1,17 @@
+{
+  "base_source": "5dc3a17fb345b925e9cbe7dd06aaf1d2a62652a4",
+  "candidate_source_and_artifacts": {
+    "/private/tmp/nanolang-mixed-record-candidate/c/affine_state.c": "6f032c5507e0e7892f8148701c6265c40d591328ae33d9556ceb941058214697",
+    "/private/tmp/nanolang-mixed-record-candidate/c/affine_state.h": "2ae319532495a4ab7e0cf68a8937944a3f4e5d5dbfaf1235755d467b039d2c1c",
+    "/private/tmp/nanolang-mixed-record-candidate/c/affine_bytecode.c": "bd65b43b99d8301e51941357362dd67c58dff0d176681090a33fecdc1d4c7752",
+    "/private/tmp/nanolang-mixed-record-candidate/c/nvm2c_owned.h": "dbf6dc6f443860422bf6747a5d25e4efb825d3f628cd89ce330853e8cd14fb1a",
+    "/private/tmp/nanolang-mixed-record-candidate/nanoisa_borrows.nano": "f021ec7b6d93d71d12b1d869ec6bf18665d9ff85e703e346838bb791e776198b",
+    "/private/tmp/nanolang-mixed-record-candidate/compiler-shadowed.nvm": "99197ae229a7c5929868ff25a4386a33f5ba7a0983f5a91750ebbeb5f9640cdc",
+    "/private/tmp/nanolang-mixed-record-candidate/compiler-relinked.nvm": "87734ba4a544fd6beaaf22edb13cfefcb6d40a1d83ba01650505e0de65e734a0",
+    "/private/tmp/nanolang-mixed-record-candidate/nano_vm": "633fbf62e6fa5c7bfc98f5dd503bd4667860c04341ee2d20a6d31bbfe6a29619",
+    "/private/tmp/nanolang-mixed-record-candidate/nvm2c": "fbbcc3b7cf1aaba429d4a96892c70b64b4e585fb517ef9ba1a00a0052e0ae62f",
+    "/private/tmp/nanolang-mixed-record-candidate/nanoisa": "c6035e9f5726cbb6f9f197fbc1a64133f368bfe23c69a792e1df0cb206b989db",
+    "/private/tmp/nanolang-mixed-record-candidate/cache/v2-73c6fe6f3f61f786044ab4ef848a17ea0f42b3de29033b90d5d84d63cfb6fdea/libnanoisa.dylib": "4b9bc65f6174f02fb0688e83804ec2b2730ea92913164f5307367ed29ce5272a"
+  },
+  "relink": "I dumped and reassembled the compiler module, replacing only its absolute original libnanoisa artifact references with the isolated rebuilt library. This is component evidence, not a raw bootstrap fixed point."
+}

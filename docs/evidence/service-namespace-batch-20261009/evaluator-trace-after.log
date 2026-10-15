@@ -1,0 +1,196 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/service_namespace.c -o obj/service_namespace.o
+Running interpreter (eval.c) unit tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o tests/test_eval tests/test_eval.c obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o lib/libnano_compiler_inputs.a obj/eval_clock_test.o obj/eval_io_faults.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+  Testing eval_declared_push_initializer_bindings... ✓
+  Testing eval_file_write_failures... ✓
+  Testing eval_handler_return_async_calls... ✓
+  Testing eval_handler_return_higher_order... ✓
+  Testing eval_handler_return_partial_literal_cleanup... ✓
+  Testing eval_handler_return_recursive_activation... ✓
+  Testing eval_handler_return_nested_and_string... ✓
+  Testing eval_handler_return_expression_order... ✓
+  Testing eval_handler_final_value_resumes... ✓
+  Testing eval_handler_return_destination... ✓
+  Testing eval_effect_argument_lists... ✓
+  Testing eval_unqualified_effect_handler... ✓
+  Testing eval_nested_effect_handlers... ✓
+=== Interpreter (eval.c) Tests ===
+  Testing eval_integer_arithmetic... ✓
+  Testing eval_subtraction... ✓
+  Testing eval_multiplication... ✓
+  Testing eval_division... ✓
+  Testing eval_modulo... ✓
+  Testing eval_boolean_ops... ✓
+  Testing eval_comparison_ops... ✓
+  Testing eval_if_else... ✓
+  Testing eval_let_bindings... ✓
+  Testing eval_recursion... ✓
+  Testing eval_while_loop... ✓
+  Testing eval_for_loop... ✓
+  Testing eval_string_ops... ✓
+  Testing eval_string_length... ✓
+  Testing eval_nested_calls... ✓
+  Testing eval_multiple_return_paths... ✓
+  Testing eval_shadow_tests... ✓
+  Testing eval_float_arithmetic... ✓
+  Testing eval_string_comparison... ✓
+  Testing eval_int_to_string... ✓
+  Testing eval_string_to_int... ✓
+  Testing eval_min_max... ✓
+  Testing eval_abs... ✓
+  Testing eval_program_with_top_level_let... ✓
+  Testing eval_negative_zero... ✓
+  Testing eval_struct_creation_and_access... ✓
+  Testing eval_struct_string_field_lifetime... ✓
+  Testing eval_struct_pythagorean... ✓
+  Testing eval_match_expression... ✓
+  Testing eval_list_iteration... ✓
+  Testing eval_string_builtins... ✓
+  Testing eval_higher_order_returns... ✓
+  Testing eval_mutual_recursion... ✓
+  Testing eval_nested_match... ✓
+  Testing eval_string_contains... ✓
+  Testing eval_multiple_lets... ✓
+  Testing eval_not_operator... ✓
+  Testing builtins_registry_lookup... ✓
+  Testing eval_hashmap_operations... ✓
+  Testing eval_hashmap_has_and_remove... ✓
+  Testing eval_union_types... ✓
+  Testing eval_tuple_types... ✓
+  Testing eval_cond_expression... ✓
+  Testing eval_break_in_for... ✓
+  Testing eval_nested_for_loops... ✓
+  Testing eval_array_length... ✓
+  Testing eval_array_get_alias... ✓
+  Testing eval_math_functions... ✓
+  Testing eval_string_conversion... ✓
+  Testing eval_binary64_prefix_and_strict_cast... ✓
+  Testing eval_enum_access... ✓
+  Testing eval_string_to_int_back... ✓
+  Testing eval_shadowed_functions_reuse... ✓
+  Testing eval_float_comparison... ✓
+  Testing eval_map_builtin... ✓
+  Testing eval_filter_builtin... ✓
+  Testing eval_reduce_builtin... ✓
+  Testing eval_array_push_pop... ✓
+  Testing eval_array_sort... ✓
+  Testing eval_array_contains... ✓
+  Testing eval_type_casts... ✓
+  Testing eval_string_format_ops... ✓
+  Testing eval_array_reverse... ✓
+  Testing eval_array_index_of... ✓
+  Testing eval_array_slice... ✓
+  Testing eval_set_mutation... ✓
+  Testing eval_array_set... ✓
+  Testing eval_continue_in_loop...{"event":"shadow-start","name":"main","source":"","line":2,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"","line":2,"elapsed_seconds":0.000034,"failures":0}
+ ✓
+  Testing eval_unsafe_block...{"event":"shadow-start","name":"main","source":"","line":2,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"","line":2,"elapsed_seconds":0.000025,"failures":0}
+ ✓
+  Testing eval_nested_closures...{"event":"shadow-start","name":"main","source":"","line":2,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"","line":2,"elapsed_seconds":0.000037,"failures":0}
+ ✓
+  Testing eval_string_format...{"event":"shadow-start","name":"main","source":"","line":2,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"","line":2,"elapsed_seconds":0.000028,"failures":0}
+ ✓
+  Testing eval_nested_arrays...{"event":"shadow-start","name":"main","source":"","line":9,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"","line":9,"elapsed_seconds":0.000020,"failures":0}
+ ✓
+  Testing eval_string_array...{"event":"shadow-start","name":"join_strs","source":"","line":9,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"join_strs","source":"","line":9,"elapsed_seconds":0.000026,"failures":0}
+ ✓
+  Testing eval_float_array...{"event":"shadow-start","name":"avg3","source":"","line":5,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"avg3","source":"","line":5,"elapsed_seconds":0.000022,"failures":0}
+ ✓
+  Testing eval_complex_match_with_guards...{"event":"shadow-start","name":"classify","source":"","line":9,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"classify","source":"","line":9,"elapsed_seconds":0.000027,"failures":0}
+ ✓
+  Testing eval_match_wildcards_follow_lexical_order...{"event":"shadow-start","name":"mark_match_guard","source":"","line":7,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"mark_match_guard","source":"","line":7,"elapsed_seconds":0.000032,"failures":0}
+{"event":"shadow-start","name":"select_match","source":"","line":16,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"select_match","source":"","line":16,"elapsed_seconds":0.000035,"failures":0}
+{"event":"shadow-start","name":"mark_match_input","source":"","line":32,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"mark_match_input","source":"","line":32,"elapsed_seconds":0.000069,"failures":0}
+{"event":"shadow-start","name":"select_integer_match","source":"","line":41,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"select_integer_match","source":"","line":41,"elapsed_seconds":0.000057,"failures":0}
+{"event":"shadow-start","name":"restore_outer_binding","source":"","line":54,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"restore_outer_binding","source":"","line":54,"elapsed_seconds":0.000034,"failures":0}
+{"event":"shadow-start","name":"main","source":"","line":58,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"","line":58,"elapsed_seconds":0.000011,"failures":0}
+ ✓
+  Testing eval_match_miss_is_terminal... ✓
+  Testing eval_union_with_data...{"event":"shadow-start","name":"area","source":"","line":12,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"area","source":"","line":12,"elapsed_seconds":0.000039,"failures":0}
+ ✓
+  Testing eval_multiple_function_calls...{"event":"shadow-start","name":"compose","source":"","line":5,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"compose","source":"","line":5,"elapsed_seconds":0.000029,"failures":0}
+ ✓
+  Testing eval_let_reassignment... ✓
+  Testing eval_string_escape...{"event":"shadow-start","name":"get_tab_str","source":"","line":4,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"get_tab_str","source":"","line":4,"elapsed_seconds":0.000037,"failures":0}
+ ✓
+  Testing eval_array_operations_comprehensive...{"event":"shadow-start","name":"main","source":"","line":2,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"","line":2,"elapsed_seconds":0.000022,"failures":0}
+ ✓
+  Testing eval_type_casting...{"event":"shadow-start","name":"main","source":"","line":2,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"","line":2,"elapsed_seconds":0.000022,"failures":0}
+ ✓
+  Testing eval_bool_operations...{"event":"shadow-start","name":"main","source":"","line":2,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"","line":2,"elapsed_seconds":0.000012,"failures":0}
+ ✓
+  Testing eval_nested_struct_fields...{"event":"shadow-start","name":"make_line","source":"","line":7,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"make_line","source":"","line":7,"elapsed_seconds":0.000027,"failures":0}
+ ✓
+  Testing eval_record_string_local_lifetime...{"event":"shadow-start","name":"check","source":"","line":13,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"check","source":"","line":13,"elapsed_seconds":0.000028,"failures":0}
+ ✓
+  Testing eval_map_pure_arithmetic_int... ✓
+  Testing eval_map_pure_arithmetic_float... ✓
+  Testing eval_map_declared_scalar_results... ✓
+  Testing eval_reduce_pure_arithmetic_int...{"event":"shadow-start","name":"main","source":"","line":7,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"","line":7,"elapsed_seconds":0.000030,"failures":0}
+ ✓
+  Testing eval_reduce_pure_arithmetic_float... ✓
+  Testing eval_unary_minus_int_array... ✓
+  Testing eval_unary_minus_float_array... ✓
+  Testing eval_array_scalar_broadcast_add... ✓
+  Testing eval_array_scalar_broadcast_mul... ✓
+  Testing eval_for_over_dynarray... ✓
+  Testing eval_for_over_float_array... ✓
+  Testing eval_coroutine_spawn_and_run... ✓
+  Testing eval_async_fn_direct_call... ✓
+  Testing eval_string_format_struct... ✓
+  Testing eval_array_broadcast_scalar_right... ✓
+  Testing eval_foreign_native_call_api... ✓
+  Testing eval_indexed_read_aliases...{"event":"shadow-start","name":"read","source":"","line":2,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"read","source":"","line":2,"elapsed_seconds":0.000021,"failures":0}
+{"event":"shadow-start","name":"main","source":"","line":4,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"","line":4,"elapsed_seconds":0.000062,"failures":0}
+ ✓
+  Testing eval_struct_array_literal...{"event":"shadow-start","name":"item","source":"","line":4,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"item","source":"","line":4,"elapsed_seconds":0.000027,"failures":0}
+ ✓
+  Testing eval_array_literal_evaluates_once_in_order...{"event":"shadow-start","name":"next","source":"","line":4,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"next","source":"","line":4,"elapsed_seconds":0.000024,"failures":0}
+ ✓
+  Testing eval_empty_array_aliases...{"event":"shadow-start","name":"check","source":"","line":41,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"check","source":"","line":41,"elapsed_seconds":0.000084,"failures":0}
+ ✓
+  Testing eval_static_array_alias_reclaim... ✓
+  Testing eval_array_append_and_dynamic_write...{"event":"shadow-start","name":"main","source":"","line":3,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"main","source":"","line":3,"elapsed_seconds":0.000067,"failures":0}
+ ✓
+  Testing eval_record_alias_reassignment...{"event":"shadow-start","name":"replace","source":"","line":5,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"replace","source":"","line":5,"elapsed_seconds":0.000037,"failures":0}
+ ✓
+  Testing eval_record_alias_across_direct_calls...{"event":"shadow-start","name":"read_pair","source":"","line":15,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"read_pair","source":"","line":15,"elapsed_seconds":0.000022,"failures":0}
+{"event":"shadow-start","name":"alias_after_reassignment","source":"","line":16,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"alias_after_reassignment","source":"","line":16,"elapsed_seconds":0.000034,"failures":0}
+{"event":"shadow-start","name":"alias_across_call","source":"","line":17,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"alias_across_call","source":"","line":17,"elapsed_seconds":0.000036,"failures":0}
+ ✓
+  Testing eval_epoch_milliseconds... ✓
+
+✓ All eval tests passed!

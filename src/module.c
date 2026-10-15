@@ -3,6 +3,11 @@
 #include "module_builder.h"
 #include "shell_path.h"
 #include "stdlib_runtime.h"
+#include "utf8.h"
+#include "nanoisa/file_source_snapshot.h"
+#include "service_namespace.h"
+#include "service_bodies.h"
+#include "service_ownership.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -312,8 +317,8 @@ char *unpack_module_package(const char *package_path, char *temp_dir_out, size_t
 const char *resolve_module_path(const char *module_path, const char *current_file) {
     if (!module_path) return NULL;
     
-    /* If module_path is absolute or starts with ./, use as-is */
-    if (module_path[0] == '/' || (module_path[0] == '.' && module_path[1] == '/')) {
+    /* I resolve explicit relative paths from the importing file, like bare paths. */
+    if (module_path[0] == '/') {
         return strdup(module_path);
     }
     
@@ -669,6 +674,17 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         return NULL;
     }
     
+    /* I retain the whole service graph before checking any service identities.
+     * Ordinary modules loaded before its first service keep their existing path. */
+    if (env->service_origin_count > 0) {
+        env->current_module = saved_current_module;
+        free(module_name);
+        free_tokens(tokens, token_count);
+        free(source);
+        if (use_cache) cache_module_with_ast(module_path, module_ast);
+        return module_ast;
+    }
+
     /* Type check module (without requiring main) */
     /* I must not merge distinct files into one public introspection identity.
      * Imports are resolved first so this also catches a parent/child clash. */
@@ -691,6 +707,9 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
             return NULL;
         }
     }
+    /* I retain the same physical source under its declared introspection name. */
+    if (identity && strcmp(identity, module_name) != 0)
+        env_register_module(env, identity, module_path, false);
     free(identity);
     /* Register module for introspection BEFORE type checking so functions can be tracked */
     env_register_module(env, module_name, module_path, false);  /* is_unsafe will be updated later */
@@ -736,37 +755,26 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     if (meta && meta->headers_count > 0) {
         /* Try to find and parse C headers for constants */
         for (size_t i = 0; i < meta->headers_count; i++) {
-            /* Try to locate the header - check system include paths */
-            char header_path[1024];
-            
-            /* Try common locations */
-            const char *search_paths[] = {
-                "/opt/homebrew/include",  /* macOS homebrew */
-                "/usr/local/include",      /* Linux/macOS local */
-                "/usr/include",            /* Linux system */
-                NULL
-            };
-            
-            bool found = false;
-            for (int j = 0; search_paths[j] != NULL; j++) {
-                snprintf(header_path, sizeof(header_path), "%s/%s", search_paths[j], meta->headers[i]);
-                FILE *test = fopen(header_path, "r");
-                if (test) {
-                    fclose(test);
-                    found = true;
-                    break;
-                }
-            }
-            
-            if (found) {
+            char *header_path = module_find_header(meta->headers[i]);
+            if (header_path) {
                 int const_count = 0;
                 ConstantDef *constants = parse_c_header_constants(header_path, &const_count);
+                free(header_path);
                 
                 if (constants && const_count > 0) {
                     /* Add constants to environment as immutable symbols */
                     for (int j = 0; j < const_count; j++) {
-                        /* Check if symbol already exists (from manual declarations) */
+                        /* I keep this module's explicit functions authoritative
+                         * over constants discovered implicitly in its headers. */
                         bool exists = false;
+                        for (int k = 0; k < module_ast->as.program.count; k++) {
+                            ASTNode *declaration = module_ast->as.program.items[k];
+                            if (declaration->type == AST_FUNCTION &&
+                                strcmp(declaration->as.function.name, constants[j].name) == 0) {
+                                exists = true;
+                                break;
+                            }
+                        }
                         for (int k = 0; k < env->symbol_count; k++) {
                             if (strcmp(env->symbols[k].name, constants[j].name) == 0) {
                                 exists = true;
@@ -900,11 +908,103 @@ ASTNode *load_module_from_package(const char *package_path, Environment *env, ch
 
 static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
 
-/* I apply an explicit module declaration before registering its import aliases. */
-bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
+/* I bind the parser's own source before import aliases or module declarations
+ * can change visible names. Failure leaves both the AST and origin table intact. */
+bool bind_service_origin(ASTNode *program, Environment *env, const char *source_file) {
     if (!program || program->type != AST_PROGRAM || !env) return false;
-    if (ast_has_service_declaration(program)) {
-        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+    if (!ast_has_service_declaration(program)) return true;
+    int declarations = 0;
+    for (int i = 0; i < program->as.program.count; ++i)
+        if (program->as.program.items[i]->type == AST_SERVICE_DECL) ++declarations;
+    if (declarations != 1) return false;
+    if (!source_file || !source_file[0]) return false;
+    char *canonical = realpath(source_file, NULL);
+    if (!canonical) return false;
+    size_t size = strlen(canonical);
+    if (!size || size > 4096 || canonical[0] != '/' || !nl_utf8_validate(canonical, size, NULL)) {
+        free(canonical);
+        return false;
+    }
+    int index = 0;
+    while (index < env->service_origin_count &&
+           strcmp(env->service_origins[index], canonical)) ++index;
+    if (index == 16) { free(canonical); return false; }
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *node = program->as.program.items[i];
+        if (node->type != AST_SERVICE_DECL) continue;
+        if (node->as.service_decl.origin_index != -1 &&
+            node->as.service_decl.origin_index != index) { free(canonical); return false; }
+    }
+    if (index == env->service_origin_count) {
+        env->service_origins[env->service_origin_count++] = canonical;
+    } else free(canonical);
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *node = program->as.program.items[i];
+        if (node->type == AST_SERVICE_DECL) node->as.service_decl.origin_index = index;
+    }
+    return true;
+}
+
+/* I acquire data under the original source identity. Repeated import aliases
+ * retain the first immutable bytes rather than reopening a changed document. */
+bool acquire_service_input(ASTNode *program, Environment *env) {
+    if (!program || program->type != AST_PROGRAM || !env) return false;
+    ASTNode *service = NULL;
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *node = program->as.program.items[i];
+        if (node->type != AST_SERVICE_DECL) continue;
+        if (service) return false;
+        service = node;
+    }
+    if (!service) return true;
+    int64_t owner = service->as.service_decl.origin_index;
+    const char *interface_id = service->as.service_decl.interface_id;
+    const char *relative = service->as.service_decl.document_path;
+    if (owner < 0 || owner >= env->service_origin_count || owner >= 16 ||
+        service->as.service_decl.catalog_version != 1 || !interface_id || !relative ||
+        !nl_service_source_catalog_id(interface_id) ||
+        service->as.service_decl.interface_bytes != (int64_t)strlen(interface_id) ||
+        service->as.service_decl.path_bytes <= 0 ||
+        service->as.service_decl.path_bytes > NL_FILE_BINDING_MAX_BYTES ||
+        (uint64_t)service->as.service_decl.path_bytes != strlen(relative)) return false;
+    const char *origin = env->service_origins[owner];
+    if (!origin) return false;
+    if (env->service_snapshot_bound[owner]) {
+        size_t size = 0, parent = strlen(origin), count = strlen(relative);
+        const unsigned char *path = nl_file_source_snapshot_bytes(env->service_inputs,
+            env->service_snapshot_indices[owner], 0, &size);
+        while (parent && origin[parent - 1] != '/') --parent;
+        return nl_service_source_snapshot_catalog(env->service_inputs, env->service_snapshot_indices[owner]) ==
+            nl_service_source_catalog_id(interface_id) && path && parent <= size && count == size - parent &&
+            !memcmp(path, origin, parent) && !memcmp(path + parent, relative, count);
+    }
+    if (!env->service_inputs &&
+        nl_file_source_snapshots_new(&env->service_inputs) != NL_FILE_BINDING_OK) return false;
+    size_t index;
+    if (nl_service_source_snapshot_open(env->service_inputs, nl_service_source_catalog_id(interface_id), origin, strlen(origin),
+            relative, service->as.service_decl.path_bytes, &index) != NL_FILE_BINDING_OK) return false;
+    env->service_snapshot_indices[owner] = index;
+    env->service_snapshot_bound[owner] = true;
+    return true;
+}
+
+/* I apply an explicit module declaration before registering its import aliases. */
+static bool process_imports_consumer(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file, bool service_consumer) {
+    if (!program || program->type != AST_PROGRAM || !env) return false;
+    if (env->service_import_depth == 0) {
+        nl_service_ownership_free(env->service_ownership);
+        env->service_ownership = NULL;
+        nl_service_body_check_free(env->service_bodies);
+        env->service_bodies = NULL;
+        nl_service_namespace_free(env->service_namespace);
+        env->service_namespace = NULL;
+    }
+    if (!bind_service_origin(program, env, current_file)) {
+        fprintf(stderr, "I cannot retain the original source of this File service declaration.\n");
+        return false;
+    }
+    if (!acquire_service_input(program, env)) {
+        fprintf(stderr, "I cannot acquire the immutable companion of this File service declaration.\n");
         return false;
     }
     char *saved_owner = env->current_module;
@@ -915,9 +1015,61 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
             break;
         }
     }
+    bool root = env->service_import_depth++ == 0;
+    bool own_modules = root && !modules;
+    if (own_modules) modules = create_module_list();
     bool ok = process_imports_owned(program, env, modules, current_file);
+    --env->service_import_depth;
     env->current_module = saved_owner;
+    if (root && ok && env->service_origin_count > 0) {
+        NlServiceNamespace *space = NULL;
+        NlFileSourceStatus status = nl_service_namespace_build(program, env, modules, current_file, &space);
+        if (status != NL_FILE_SOURCE_OK) {
+            fprintf(stderr, "I cannot resolve the complete File service namespace (status %d).\n", status);
+        } else {
+            nl_service_namespace_free(env->service_namespace);
+            env->service_namespace = space;
+            uint32_t module = 0;
+            while (nl_service_namespace_program(space, module)) {
+                if (!bind_service_annotations(nl_service_namespace_program(space, module), env,
+                        nl_service_namespace_module(space, module))) {
+                    fprintf(stderr, "I cannot retain nominal File type annotations.\n");
+                    nl_service_namespace_free(space);
+                    env->service_namespace = NULL;
+                    break;
+                }
+                ++module;
+            }
+            if (env->service_namespace) {
+                env->service_bodies = nl_service_check_bodies(space);
+                if (!env->service_bodies || env->service_bodies->status == 1 || env->service_bodies->status == 3)
+                    fprintf(stderr, "I cannot type-check File service bodies: %s\n",
+                            env->service_bodies ? env->service_bodies->diagnostic : "I cannot allocate body facts.");
+                if (env->service_bodies && env->service_bodies->status == 0) {
+                    env->service_ownership = nl_service_check_ownership(space, env->service_bodies);
+                    if (!env->service_ownership || env->service_ownership->status == 1 || env->service_ownership->status == 3)
+                        fprintf(stderr, "I cannot verify File service ownership: %s\n",
+                                env->service_ownership ? env->service_ownership->diagnostic : "I cannot allocate ownership facts.");
+                }
+            }
+        }
+        ok = service_consumer && env->service_namespace && env->service_bodies &&
+            env->service_bodies->status == 0 && env->service_ownership &&
+            env->service_ownership->status == 0;
+        if(!ok)fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+    }
+    if (own_modules) free_module_list(modules);
     return ok;
+}
+
+bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
+    return process_imports_consumer(program,env,modules,current_file,false);
+}
+
+bool process_imports_for_service(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
+    /* I retain the complete graph through lowering; the caller owns modules. */
+    if(!modules)return false;
+    return process_imports_consumer(program,env,modules,current_file,true);
 }
 
 /* Process imports in a program */
@@ -1022,6 +1174,11 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 module_list_add(modules, module_path);
             }
 
+            if (env->service_origin_count > 0) {
+                free(module_path);
+                continue;
+            }
+
             /* If module was already cached and returned NULL, try to grab cached AST for alias handling */
             if (module_ast == NULL) {
                 module_ast = get_cached_module_ast(module_path);
@@ -1067,9 +1224,9 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                     } else if (node->type == AST_STRUCT_DEF) {
                         struct_names[s_idx++] = strdup(node->as.struct_def.original_name ? node->as.struct_def.original_name : node->as.struct_def.name);
                     } else if (node->type == AST_ENUM_DEF) {
-                        enum_names[e_idx++] = strdup(node->as.enum_def.name);
+                        enum_names[e_idx++] = strdup(node->as.enum_def.original_name ? node->as.enum_def.original_name : node->as.enum_def.name);
                     } else if (node->type == AST_UNION_DEF) {
-                        union_names[u_idx++] = strdup(node->as.union_def.name);
+                        union_names[u_idx++] = strdup(node->as.union_def.original_name ? node->as.union_def.original_name : node->as.union_def.name);
                     }
                 }
                 
@@ -1081,6 +1238,75 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                                       enum_names, enum_count,
                                       union_names, union_count);
                 free(inferred_name);
+            }
+
+            /* I bind effects only into the importing module's namespace. */
+            char *effect_owner = orig_module_name ? strdup(orig_module_name) : module_name_from_path(module_path);
+            for (int e = 0; e < module_ast->as.program.count; ++e) {
+                ASTNode *declaration = module_ast->as.program.items[e];
+                if (declaration->type != AST_EFFECT_DECL) continue;
+                const char *name = declaration->as.effect_decl.effect_name;
+                EffectDef *target = env_get_effect_owned(env, name, effect_owner);
+                if (!target) continue;
+                if (item->as.import_stmt.is_selective && !item->as.import_stmt.is_wildcard) {
+                    for (int selected = 0; selected < item->as.import_stmt.import_symbol_count; ++selected) {
+                        if (strcmp(item->as.import_stmt.import_symbols[selected], name)) continue;
+                        const char *alias = item->as.import_stmt.import_aliases ? item->as.import_stmt.import_aliases[selected] : NULL;
+                        if (!env_import_effect(env, alias && *alias ? alias : name, target)) {
+                            fprintf(stderr, "I cannot bind a private or conflicting effect import: %s\n", name);
+                            free(effect_owner); free(module_path); return false;
+                        }
+                    }
+                } else if (target->is_pub) {
+                    size_t length = (module_alias ? strlen(module_alias) + 1 : 0) + strlen(name) + 1;
+                    char *qualified = malloc(length);
+                    if (!qualified) { free(effect_owner); free(module_path); return false; }
+                    snprintf(qualified, length, "%s%s%s", module_alias ? module_alias : "", module_alias ? "." : "", name);
+                    bool bound = env_import_effect(env, qualified, target);
+                    free(qualified);
+                    if (!bound) {
+                        fprintf(stderr, "I cannot bind a conflicting effect import: %s\n", name);
+                        free(effect_owner); free(module_path); return false;
+                    }
+                }
+            }
+            free(effect_owner);
+
+            /* I retain public imports and the legacy plain-import immutable constant contract. */
+            for (int g = 0; g < module_ast->as.program.count; ++g) {
+                ASTNode *global = module_ast->as.program.items[g];
+                if (global->type != AST_LET) continue;
+                bool legacy_constant = !module_alias && !item->as.import_stmt.is_selective && !global->as.let.is_mut;
+                if (!global->as.let.is_pub && !legacy_constant) continue;
+                const char *name = global->as.let.name;
+                if (item->as.import_stmt.is_selective && !item->as.import_stmt.is_wildcard) {
+                    for (int selected = 0; selected < item->as.import_stmt.import_symbol_count; ++selected) {
+                        if (strcmp(item->as.import_stmt.import_symbols[selected], name)) continue;
+                        const char *alias = item->as.import_stmt.import_aliases ? item->as.import_stmt.import_aliases[selected] : NULL;
+                        if (!env_import_global(env, current_file, alias && *alias ? alias : name, global)) {
+                            fprintf(stderr, "I cannot bind a conflicting public global import.\n");
+                            free(module_path);
+                            return false;
+                        }
+                    }
+                } else {
+                    size_t length = (module_alias ? strlen(module_alias) + 1 : 0) + strlen(name) + 1;
+                    char *qualified = malloc(length);
+                    if (!qualified) { free(module_path); return false; }
+                    snprintf(qualified, length, "%s%s%s", module_alias ? module_alias : "", module_alias ? "." : "", name);
+                    bool bound = env_import_global(env, current_file, qualified, global);
+                    /* I preserve legacy literal folding without copying the binding into another scope. */
+                    Symbol *constant = bound && legacy_constant ? env_global_import_symbol_at(env, current_file, qualified) : NULL;
+                    ASTNode *value = global->as.let.value;
+                    if (constant && constant->value.type == VAL_VOID && value) {
+                        if (value->type == AST_NUMBER) constant->value = create_int(value->as.number);
+                        else if (value->type == AST_FLOAT) constant->value = create_float(value->as.float_val);
+                        else if (value->type == AST_BOOL) constant->value = create_bool(value->as.bool_val);
+                        else if (value->type == AST_STRING) constant->value = create_string(value->as.string_val);
+                    }
+                    free(qualified);
+                    if (!bound) { fprintf(stderr, "I cannot bind a conflicting public global import.\n"); free(module_path); return false; }
+                }
             }
 
             /* Apply import aliases for selective imports: from "module" import foo as bar */
@@ -1104,6 +1330,9 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                         continue;
                     }
                     
+                    EffectDef *effect_alias = env_get_effect_owned(env, symbol, module_name_for_alias);
+                    if (effect_alias && effect_alias->is_pub) continue;
+
                     if (env_get_function(env, alias)) {
                         fprintf(stderr, "Error at line %d, column %d: Import alias '%s' conflicts with existing function\n",
                                 item->line, item->column, alias);
@@ -1116,7 +1345,24 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                         return false;
                     }
                     
+                    bool enum_alias = false;
+                    for (int e = 0; e < env->enum_count; ++e) {
+                        EnumDef *definition = &env->enums[e];
+                        const char *source_name = definition->original_name ? definition->original_name : definition->name;
+                        if (!definition->is_pub || !definition->module_name ||
+                            strcmp(definition->module_name, module_name_for_alias) || strcmp(source_name, symbol)) continue;
+                        if (!env_import_enum(env, alias, definition)) {
+                            fprintf(stderr, "I cannot bind conflicting enum import alias: %s\n", alias);
+                            free(module_name_for_alias); free(module_path);
+                            for (int k = 0; k < unpacked_count; ++k) free(unpacked_dirs[k]);
+                            free(unpacked_dirs); return false;
+                        }
+                        enum_alias = true; break;
+                    }
+                    if (enum_alias) continue;
+
                     Function *func = find_module_function(env, module_name_for_alias, symbol);
+                    if (!func && env_lookup_global_import_at(env, current_file, alias)) continue;
                     if (!func) {
                         fprintf(stderr, "Error at line %d, column %d: Symbol '%s' not found in module for alias '%s'\n",
                                 item->line, item->column, symbol, alias);
@@ -1145,33 +1391,6 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
             /* This makes module symbols available in the current environment */
             for (int j = 0; j < module_ast->as.program.count; j++) {
                 ASTNode *module_item = module_ast->as.program.items[j];
-                
-                /* Export top-level constants (immutable let statements) from modules */
-                if (module_item->type == AST_LET && !module_item->as.let.is_mut) {
-                    /* This is a constant - evaluate it and make it available in importing module */
-                    Value val = create_void();
-                    
-                    /* Try to evaluate constant expressions (literals and simple expressions) */
-                    if (module_item->as.let.value) {
-                        ASTNode *value_node = module_item->as.let.value;
-                        if (value_node->type == AST_NUMBER) {
-                            val = create_int(value_node->as.number);
-                        } else if (value_node->type == AST_FLOAT) {
-                            val = create_float(value_node->as.float_val);
-                        } else if (value_node->type == AST_BOOL) {
-                            val = create_bool(value_node->as.bool_val);
-                        } else if (value_node->type == AST_STRING) {
-                            val = create_string(value_node->as.string_val);
-                        }
-                        /* For complex expressions, keep as void - transpiler will use variable name */
-                    }
-                    
-                    env_define_var(env, module_item->as.let.name, 
-                                   module_item->as.let.var_type, 
-                                   false, val);
-                    env->symbols[env->symbol_count - 1].is_global = true;
-                    continue;
-                }
                 
                 /* Skip imports, shadows, and executable statements in modules */
                 if (module_item->type == AST_IMPORT || 
@@ -1207,12 +1426,13 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
 
 /* Compile a single module to an object file */
 
-bool compile_module_to_object(const char *module_path,
+static bool compile_module_object(const char *module_path,
                               const char *output_obj,
                               Environment *env,
                               bool verbose,
                               char **extra_compile_flags,
-                              size_t extra_compile_flags_count) {
+                              size_t extra_compile_flags_count,
+                              ModuleBuildInfo **dependencies, size_t dependency_count) {
     if (!module_path || !output_obj) return false;
 
     /* env is intentionally unused: module compilation is done in an isolated environment */
@@ -1283,7 +1503,10 @@ bool compile_module_to_object(const char *module_path,
         if (item->type == AST_MODULE_DECL && item->as.module_decl.name)
             module_env->current_module = item->as.module_decl.name;
     }
+    const char *saved_source_file = env_current_file(module_env);
+    env_set_current_file(module_env, module_path);
     char *c_code = transpile_to_c(module_ast, module_env, module_path);
+    env_set_current_file(module_env, saved_source_file);
     module_env->current_module = saved_module_context;
 
     if (saved_main) {
@@ -1460,19 +1683,41 @@ bool compile_module_to_object(const char *module_path,
     bool arguments_valid = true;
     const char *root = get_project_root();
 
-    for (size_t i = 0; i < extra_compile_flags_count; i++) {
-        if (!extra_compile_flags || !extra_compile_flags[i] || extra_compile_flags[i][0] == '\0') {
-            continue;
-        }
-        if (strlen(inherited_flags) + strlen(extra_compile_flags[i]) + 2 < sizeof(inherited_flags)) {
-            if (inherited_flags[0] != '\0') {
-                strcat(inherited_flags, " ");
+    /* I inherit flags only from this isolated module's actual import closure. */
+    ModuleBuildInfo **selected = dependency_count ? calloc(dependency_count, sizeof *selected) : NULL;
+    size_t selected_count = 0, import_flag_count = 0;
+    if (dependency_count && !selected) arguments_valid = false;
+    for (size_t i = 0; selected && i < dependency_count; ++i) {
+        const char *directory = dependencies[i]->module_dir;
+        if (!directory) continue;
+        for (int j = 0; module_cache && j < module_cache->count; ++j) {
+            const char *path = module_cache->loaded_paths[j];
+            const char *slash = strrchr(path, '/');
+            if (slash && strlen(directory) == (size_t)(slash - path) &&
+                !strncmp(path, directory, (size_t)(slash - path))) {
+                selected[selected_count++] = dependencies[i];
+                break;
             }
-            strcat(inherited_flags, extra_compile_flags[i]);
-        } else {
-            arguments_valid = false;
         }
     }
+    char **import_flags = module_get_compile_flags(selected, selected_count, &import_flag_count);
+    if (!import_flags)
+        for (size_t i = 0; i < selected_count; ++i)
+            if (selected[i]->compile_flags_count) arguments_valid = false;
+    free(selected);
+    for (int group = 0; group < 2; ++group) {
+        char **flags = group ? import_flags : extra_compile_flags;
+        size_t count = group ? import_flag_count : extra_compile_flags_count;
+        for (size_t i = 0; i < count; ++i) {
+            if (!flags || !flags[i] || !flags[i][0]) continue;
+            if (strlen(inherited_flags) + strlen(flags[i]) + 2 < sizeof inherited_flags) {
+                if (inherited_flags[0]) strcat(inherited_flags, " ");
+                strcat(inherited_flags, flags[i]);
+            } else arguments_valid = false;
+        }
+    }
+    for (size_t i = 0; i < import_flag_count; ++i) free(import_flags[i]);
+    free(import_flags);
 
     /* Extract the module's own directory for -I path (so it can find its own headers) */
     char module_dir[512] = "";
@@ -1580,6 +1825,13 @@ bool compile_module_to_object(const char *module_path,
     /* Don't free AST or environment - they're owned by the cache/caller */
     free_environment(module_env);
     return true;
+}
+
+bool compile_module_to_object(const char *module_path, const char *output_obj,
+                              Environment *env, bool verbose,
+                              char **extra_compile_flags, size_t extra_compile_flags_count) {
+    return compile_module_object(module_path, output_obj, env, verbose,
+                                 extra_compile_flags, extra_compile_flags_count, NULL, 0);
 }
 
 /* Check if a module is FFI-only (only extern declarations, no implementation) */
@@ -1706,7 +1958,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
             }
             free(physical_dir);
             if (!info) {
-                info = module_build(builder, meta);
+                info = module_build_native(builder, meta);
                 if (info) {
                     build_infos[build_info_count++] = info;
                     c_modules_built++;
@@ -1761,7 +2013,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                 char nano_obj[512];
                 snprintf(nano_obj, sizeof(nano_obj), "obj/nano_modules/%s_nano_%s.o", meta->name, base_without_ext);
                 
-                if (!compile_module_to_object(module_path, nano_obj, env, verbose, info->compile_flags, info->compile_flags_count)) {
+                if (!compile_module_object(module_path, nano_obj, env, verbose, info->compile_flags, info->compile_flags_count, build_infos, (size_t)build_info_count)) {
                     fprintf(stderr, "Error: Failed to compile nanolang parts of module '%s'\n", meta->name);
                     module_metadata_free(meta);
                     free(module_dir);
@@ -1830,7 +2082,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
 #pragma GCC diagnostic pop
 
             /* Compile module to object file */
-            if (!compile_module_to_object(module_path, obj_file, env, verbose, NULL, 0)) {
+            if (!compile_module_object(module_path, obj_file, env, verbose, NULL, 0, build_infos, (size_t)build_info_count)) {
                 fprintf(stderr, "Error: Failed to compile module '%s'\n", module_path);
                 free(module_dir);
                 module_builder_free(builder);
@@ -2145,6 +2397,7 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         meta->enums = malloc(sizeof(EnumDef) * meta->enum_count);
         for (int i = 0; i < meta->enum_count; i++) {
             meta->enums[i] = env->enums[i];
+            meta->enums[i].original_name = env->enums[i].original_name ? strdup(env->enums[i].original_name) : NULL;
             if (env->enums[i].name) {
                 meta->enums[i].name = strdup(env->enums[i].name);
             }
@@ -2169,6 +2422,7 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         meta->unions = malloc(sizeof(UnionDef) * meta->union_count);
         for (int i = 0; i < meta->union_count; i++) {
             meta->unions[i] = env->unions[i];
+            meta->unions[i].original_name = env->unions[i].original_name ? strdup(env->unions[i].original_name) : NULL;
             meta->unions[i].variant_names = NULL;
             meta->unions[i].variant_field_counts = NULL;
             meta->unions[i].variant_field_names = NULL;
@@ -2561,6 +2815,7 @@ void free_module_metadata(ModuleMetadata *meta) {
     if (meta->enums) {
         for (int i = 0; i < meta->enum_count; i++) {
             if (meta->enums[i].name) free(meta->enums[i].name);
+            free(meta->enums[i].original_name);
             if (meta->enums[i].variant_names) {
                 for (int j = 0; j < meta->enums[i].variant_count; j++) {
                     if (meta->enums[i].variant_names[j]) free(meta->enums[i].variant_names[j]);
@@ -2576,6 +2831,7 @@ void free_module_metadata(ModuleMetadata *meta) {
     if (meta->unions) {
         for (int i = 0; i < meta->union_count; i++) {
             if (meta->unions[i].name) free(meta->unions[i].name);
+            free(meta->unions[i].original_name);
             if (meta->unions[i].variant_names) {
                 for (int j = 0; j < meta->unions[i].variant_count; j++) {
                     if (meta->unions[i].variant_names[j]) free(meta->unions[i].variant_names[j]);

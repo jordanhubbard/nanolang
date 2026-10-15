@@ -1,0 +1,7 @@
+test_dependencies_and_malformed_groups_preserve_output (tests.test_legacy_par_let.LegacyParLet.test_dependencies_and_malformed_groups_preserve_output) ... ok
+test_source_visibility_and_discarded_native_bodies (tests.test_legacy_par_let.LegacyParLet.test_source_visibility_and_discarded_native_bodies) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 14.617s
+
+OK

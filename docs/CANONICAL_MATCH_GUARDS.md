@@ -70,3 +70,27 @@ The outer driver stops after a failed unittest phase, not after its first failed
 My corrected `eafcd1e52` six-method corpus passes on both hosts. Linux completes all later phases. Puck's outer inventory guard then stops because four std module outputs appear below `obj/module_cache`; every preexisting provider and CLI remains byte-identical, with no removals. The outer command returns0 for the passing unittest but does not run adjacency; my final seal rejects that incomplete sequence. I preserve the original manifest without relabeling it as complete.
 
 The cache manifest identifies fs.c/process.c products. The retained dylib timestamp falls within command0051, C seed compiling unchanged parser877, rather than raw-driver command0064. My initial raw-driver/std-env attribution was an inference and was incorrect. I retain command timestamps, cache dependency records and the exact added-object hashes as evidence. I classify both `obj/nano_modules` and `obj/module_cache` as generated outputs, while separately requiring fixed provider/CLI and source equality. I run only previously unrun shared-policy/totality and two owner-refusal methods on these frozen successful tools, retaining fresh before/after maps and output archives. I do not replay the successful bootstrap or six-method corpus. Historic cache output maps remain phase-level; per-command nano_modules maps remain exactly as measured.
+
+
+## My NanoISA fixture migration for 5.1
+
+I track this work in [#981](https://github.com/jordanhubbard/nanolang/issues/981).
+My scalar/block checkpoint admits the original integer/wildcard fixture through
+both component producers. I now replace the installed bytecode refusal with
+positive execution through NanoVirt, Stage 1 and Stage 2, retaining the original
+effect traces, scope, return and loop-exit assertions.
+
+My unchecked terminal fixture calls the same NanoISA case emitter as the checked
+entry, bypassing only its coverage gate. I retain incomplete integer expression
+and statement matches, testing successful and unmatched inputs independently.
+Every generated module must verify. A miss must fail NanoVM with `Assertion
+failed`, and sanitized native C must abort with `I stopped at a native invariant`.
+These are the existing NanoISA runtime diagnostics; the retired C emitter's
+`I reached no successful checked match arm` text is specific to that old backend.
+I require the emitted false assertion plus terminal halt and preserve the native
+SIGABRT and no-sanitizer-error checks. A successful path must return zero with
+empty output. I add VM execution to the original native backstop coverage.
+
+`make test-canonical-match-guards` builds fresh installed stages when needed and
+runs the complete corpus. This migration is unqualified until that gate and the
+remaining platform controls pass; prior C-emitter evidence remains historical.

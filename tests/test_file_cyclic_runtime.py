@@ -15,9 +15,12 @@ PROVIDERS = [*(f'src/nanoisa/{name}.c' for name in HOSTED_PROVIDERS),
 
 
 class FileCyclicRuntime(unittest.TestCase):
+    fixture = "tests/nanoisa/test_file_cyclic_runtime.c"
+    artifact_prefix = "nano-file-cyclic-runtime-"
+
     @classmethod
     def setUpClass(cls):
-        cls.artifacts = Path(tempfile.mkdtemp(prefix='nano-file-cyclic-runtime-'))
+        cls.artifacts = Path(tempfile.mkdtemp(prefix=cls.artifact_prefix))
         print(f'I retain carrier artifacts at {cls.artifacts}', flush=True)
         os.environ["LSAN_OPTIONS"] = ""
         cls.compiler = shlex.split(os.environ.get('NANO_FILE_RUNTIME_CC', 'cc'))
@@ -67,7 +70,7 @@ class FileCyclicRuntime(unittest.TestCase):
         exe = self.artifacts / name
         self.command(f'{name}-link', [*self.compiler, *self.flags,
                      *(['-DHOSTED_INSTRUMENT'] if instrument else []),
-                     'tests/nanoisa/test_file_cyclic_runtime.c', *objects, *self.objects,
+                     self.fixture, *objects, *self.objects,
                      *self.ldflags, '-o', str(exe)])
         self.command(f'{name}-run', [str(exe)], run=True)
 

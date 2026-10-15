@@ -1,0 +1,23 @@
+test_argument_order (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_argument_order) ... ok
+test_callback_result_inference (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_callback_result_inference) ... ok
+test_dependent_callbacks_reach_fixed_point (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_dependent_callbacks_reach_fixed_point) ... ok
+test_imported_callback_alias (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_imported_callback_alias) ... ok
+test_nested_array_and_record_binding (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_nested_array_and_record_binding) ... ok
+test_refusals_preserve_output (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_refusals_preserve_output) ... ok
+test_structural_callback_result (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_structural_callback_result) ... ok
+test_callback_argument (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_callback_argument) ... ok
+test_distinct_nominal_tuple_contexts (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_distinct_nominal_tuple_contexts) ... ok
+test_imported_alias_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_imported_alias_callback) ... ok
+test_inconsistent_context_preserves_output (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_inconsistent_context_preserves_output) ... ok
+test_local_multiple_instances (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_local_multiple_instances) ... ok
+test_nested_tuple_callable_dependencies (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nested_tuple_callable_dependencies) ... ok
+test_nominal_and_tuple_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nominal_and_tuple_context) ... ok
+test_reassigned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_reassigned_callback) ... ok
+test_returned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_returned_callback) ... ok
+test_structural_array_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_structural_array_context) ... ok
+test_tail_and_indirect_callback_arguments (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_tail_and_indirect_callback_arguments) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 7.150s
+
+OK

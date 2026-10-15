@@ -1,0 +1,30 @@
+{
+  "completed": 1137,
+  "failures": 0,
+  "changed": [
+    {
+      "event": "shadow-complete",
+      "name": "tc_effect_type_known",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 7357,
+      "elapsed_seconds": 0.013531,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "tc_effect_declarations",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 7396,
+      "elapsed_seconds": 0.017292,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nisa_emit_stmt",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+      "line": 6795,
+      "elapsed_seconds": 0.031627,
+      "failures": 0
+    }
+  ]
+}

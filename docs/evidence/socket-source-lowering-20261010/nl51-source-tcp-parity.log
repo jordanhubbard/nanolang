@@ -1,0 +1,38 @@
+I build independent File lowerer with producer 0.
+test_tcp_source_bytes_and_granted_execution (tests.test_service_lowering_nano.ServiceLoweringNano.test_tcp_source_bytes_and_granted_execution) ... FAIL
+
+======================================================================
+FAIL: test_tcp_source_bytes_and_granted_execution (tests.test_service_lowering_nano.ServiceLoweringNano.test_tcp_source_bytes_and_granted_execution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering_nano.py", line 127, in test_tcp_source_bytes_and_granted_execution
+    report = self.command([os.environ.get('NANO_SERVICE_LOWERING_RUNNER', ROOT/'obj/test_service_lowering'), path, selection, generated])
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 61, in command
+    if process.returncode:raise AssertionError(f'{args}\n{process.returncode}\n{stdout}\n{stderr}')
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_lowering'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-bjwvqsan/tcp.nano'), 'main', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-bjwvqsan/socket-source.c')]
+-6
+
+Error at line 6, column 24: Expected parameter name
+Error at line 6, column 28: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 29: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 32: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 33: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 35: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 46: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 47: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 54: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 55: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 65: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 66: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 70: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 75: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 79: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 6, column 80: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_lowering.c, line 96.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 44.311s
+
+FAILED (failures=1)

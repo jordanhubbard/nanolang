@@ -1,0 +1,15 @@
+Warning at line 3, column 1: Unused variable 'y'
+-- E001 TYPE MISMATCH --- docs/evidence/generic-union-parameters-20261011/owners/main.nano
+I require one concrete identity and matching structure for each generic type variable.
+
+5| fn unused()->int{let wrong = (same (a.make) (b.make)) return 0}
+                                ^
+Hint: Use complete matching argument types and bind every result variable.
+-- E001 TYPE MISMATCH --- docs/evidence/generic-union-parameters-20261011/owners/main.nano
+I require one concrete identity and matching structure for each generic type variable.
+
+5| fn unused()->int{let wrong = (same (a.make) (b.make)) return 0}
+                                ^
+Hint: Use complete matching argument types and bind every result variable.
+Warning at line 5, column 18: Unused variable 'wrong'
+Type checking failed

@@ -1,0 +1,9 @@
+test_distinct_instances_verify_and_execute_in_vm_and_native (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_distinct_instances_verify_and_execute_in_vm_and_native) ... ok
+test_imported_aliases_and_concrete_instances_execute_in_vm_and_native (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_imported_aliases_and_concrete_instances_execute_in_vm_and_native) ... ok
+test_imported_identity_and_shadow_refusals_preserve_prior_output (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_imported_identity_and_shadow_refusals_preserve_prior_output) ... ok
+test_refusals_preserve_prior_output_on_every_frontend (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_refusals_preserve_prior_output_on_every_frontend) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 325.086s
+
+OK

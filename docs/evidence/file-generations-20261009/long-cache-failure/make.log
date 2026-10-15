@@ -1,0 +1,4 @@
+python3 scripts/embed_binary64_parser.py --check
+I run seed; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-0l3y3d1y/00-seed.log.
+I failed seed with status 1; see /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-0l3y3d1y/00-seed.log.
+make: *** [.bootstrap1.built] Error 1

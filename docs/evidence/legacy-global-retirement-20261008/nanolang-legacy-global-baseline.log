@@ -1,0 +1,5 @@
+module_aliases: accepted
+module_alias_targets: accepted
+func_aliases: accepted
+func_alias_targets: accepted
+not_a_declared_global: rejected

@@ -1,0 +1,2 @@
+ld: warning: ignoring duplicate libraries: 'lib/libnano_compiler_inputs.a'
+I instrumented parser, checker, environment and NanoISA codegen, and linked their normal dependencies.

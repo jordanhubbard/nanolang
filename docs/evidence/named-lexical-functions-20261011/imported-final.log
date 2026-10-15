@@ -1,0 +1,6 @@
+test_imported_lexical_function_shadows_module_function (tests.test_named_nested_functions.NamedNestedFunctions.test_imported_lexical_function_shadows_module_function) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.605s
+
+OK

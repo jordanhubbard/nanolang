@@ -1,0 +1,13 @@
+NANO_WEBSOCKET_CC="/opt/homebrew/opt/llvm/bin/clang" NANO_WEBSOCKET_CFLAGS="-Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include" python3 -m unittest -v tests.test_websocket_client
+test_close_has_valid_length_and_mask (tests.test_websocket_client.WebSocketClient.test_close_has_valid_length_and_mask) ... ok
+test_dns_helper_failure_and_deadline (tests.test_websocket_client.WebSocketClient.test_dns_helper_failure_and_deadline) ... ok
+test_forged_or_unverified_upgrade_is_refused (tests.test_websocket_client.WebSocketClient.test_forged_or_unverified_upgrade_is_refused) ... ok
+test_invalid_server_frames_close_transport (tests.test_websocket_client.WebSocketClient.test_invalid_server_frames_close_transport) ... ok
+test_ipv6_url_and_hostname_resolution (tests.test_websocket_client.WebSocketClient.test_ipv6_url_and_hostname_resolution) ... ok
+test_long_frames_random_masks_fragments_and_control_payload (tests.test_websocket_client.WebSocketClient.test_long_frames_random_masks_fragments_and_control_payload) ... ok
+test_partial_frame_survives_timeout (tests.test_websocket_client.WebSocketClient.test_partial_frame_survives_timeout) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 11.729s
+
+OK

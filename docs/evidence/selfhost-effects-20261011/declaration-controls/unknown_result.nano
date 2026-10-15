@@ -1,0 +1,3 @@
+effect Ask{ask:int->Missing}
+fn main()->int{return 0}
+shadow main{assert true}

@@ -25,7 +25,7 @@ def run_sanitizers(make, cc):
         if result.returncode:
             return result.returncode
         # Verify actual object instrumentation, not just the requested flags.
-        for name in ("nvm2c", "nvm2c_shape"):
+        for name in ("nvm2c", "nvm2c_shape", "nvm2c_callables"):
             artifact = work / f"obj/nanoisa/{name}.o"
             symbols = subprocess.check_output(["nm", "-u", str(artifact)], text=True)
             if "__asan_" not in symbols or "__ubsan_" not in symbols:

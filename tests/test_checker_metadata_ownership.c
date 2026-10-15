@@ -73,14 +73,16 @@ static void checker_borrowed_control(void) {
     env_define_function(env,function);
     TypeInfo callback={.base_type=TYPE_FUNCTION,.fn_sig=&signature};
     env_define_var_with_type_info(env,"callback",TYPE_FUNCTION,TYPE_UNKNOWN,&callback,false,create_void());
-    /* I retain ownership of this ordinary runtime array outside the registry. */
+    /* I keep runtime arrays outside the checker registry; the environment
+     * owns their teardown, including aliases. */
     Value array=create_array(VAL_INT,1,1);
     ((long long *)array.as.array_val->data)[0]=37;
     env_define_var_with_element_type(env,"array",TYPE_ARRAY,TYPE_INT,false,array);
+    ASSERT(env_get_var(env,"array")->value.as.array_val == array.as.array_val);
+    ASSERT(((long long *)array.as.array_val->data)[0]==37);
+    env_define_var_with_element_type(env,"alias",TYPE_ARRAY,TYPE_INT,false,array);
     free_environment(env);
     ASSERT(signature.param_type_info[0]==&integer);
-    ASSERT(((long long *)array.as.array_val->data)[0]==37);
-    free(array.as.array_val->data);free(array.as.array_val);
 }
 
 int main(void) {
@@ -90,6 +92,6 @@ int main(void) {
             for(int discard=0;discard<2;discard++)
                 checker_orders(module!=0,ast_first!=0,discard!=0);
     checker_borrowed_control();
-    puts("Checker ownership: original parsed lifecycle, eight orders/slot controls, borrowed metadata/runtime array PASS");
+    puts("Checker ownership: original parsed lifecycle, eight orders/slot controls, borrowed metadata and environment-owned runtime aliases PASS");
     return 0;
 }

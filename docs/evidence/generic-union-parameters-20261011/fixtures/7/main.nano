@@ -1,0 +1,16 @@
+union Box<T> { Some {value:T}, None {} }
+fn unbox(value:Box<T>,fallback:T)->T{match value{Some(p)=>{return p.value} None(p)=>{return fallback}}}
+shadow unbox {assert (== (unbox Box<int>.Some {value:7} 0) 7)}
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 1) 1)}
+fn box(value:T)->Box<T>{return Box.Some {value:value}}
+shadow box {assert (== (unbox (box 7) 0) 7)}
+fn main()->int{
+ assert (== (unbox (identity (box 7)) 0) 7)
+ assert (unbox (box true) false)
+ assert (== (unbox (box 1.5) 0.0) 1.5)
+ assert (== (unbox (box "kept") "") "kept")
+ assert (== (unbox (identity Box<string>.None {}) "fallback") "fallback")
+ return 0
+}
+shadow main {assert (== (main) 0)}

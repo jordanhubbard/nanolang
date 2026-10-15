@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/local/bin/python3",
+    "-c",
+    "import os,sys; os.chdir(sys.argv[1]); os.execv(sys.argv[2],[sys.argv[2]])",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/schema-nanoc_stage2",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/gen_compiler_schema-nanoc_stage2"
+  ],
+  "cwd": "/private/tmp/nanolang-array-types-20261008",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

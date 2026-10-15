@@ -1,0 +1,7 @@
+I cannot verify affine ownership at line 9, column 19: I cannot use a moved value — value
+Warning at line 6, column 20: Unused variable 'label'
+Warning at line 6, column 69: Unused variable 'a'
+Warning at line 6, column 102: Unused variable 'b'
+Warning at line 7, column 21: Unused variable 'ignored'
+Warning at line 5, column 36: Unused variable 'payload'
+error: type check failed

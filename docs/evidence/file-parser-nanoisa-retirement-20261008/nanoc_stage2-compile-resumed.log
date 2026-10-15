@@ -1,0 +1,349 @@
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:19605:9: warning: initializing 'typeof ((nl_tc_enclosing_function)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 19605 |         NL_GUARDED_WRITE(nl_tc_enclosing_function, nl_previous_function);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:19606:9: warning: initializing 'typeof ((nl_tc_enclosing_return)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 19606 |         NL_GUARDED_WRITE(nl_tc_enclosing_return, nl_previous_return);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:21413:9: warning: initializing 'typeof ((nl_nb_expression_identity)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 21413 |         NL_GUARDED_WRITE(nl_nb_expression_identity, nl_authoritative);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:21458:5: warning: initializing 'typeof ((nl_nb_expression_identity)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 21458 |     NL_GUARDED_WRITE(nl_nb_expression_identity, nl_authoritative);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:22259:17: warning: initializing 'typeof ((nl_nb_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 22259 |                 NL_GUARDED_WRITE(nl_nb_loop_top, nl_top);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:22259:17: warning: initializing 'typeof ((nl_nb_loop_done)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 22259 |                 NL_GUARDED_WRITE(nl_nb_loop_done, nl_skip);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:22266:17: warning: initializing 'typeof ((nl_nb_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 22266 |                 NL_GUARDED_WRITE(nl_nb_loop_top, nl_saved_top);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:22266:17: warning: initializing 'typeof ((nl_nb_loop_done)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 22266 |                 NL_GUARDED_WRITE(nl_nb_loop_done, nl_saved_done);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:23693:9: warning: initializing 'typeof ((nl_nisa_err)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23693 |         NL_GUARDED_WRITE(nl_nisa_err, nl_msg);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:23812:9: warning: initializing 'typeof ((nl_nisa_return_type)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23812 |         NL_GUARDED_WRITE(nl_nisa_return_type, nl_saved_return);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:23813:9: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23813 |         NL_GUARDED_WRITE(nl_nisa_loop_top, nl_saved_top);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:23814:9: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23814 |         NL_GUARDED_WRITE(nl_nisa_loop_end, nl_saved_end);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:23815:9: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23815 |         NL_GUARDED_WRITE(nl_nisa_loop_index, nl_saved_index);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:25503:5: warning: initializing 'typeof ((nl_nisa_ordinary_init)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 25503 |     NL_GUARDED_WRITE(nl_nisa_ordinary_init, nl___nano_module__22_nisa_ordinary_contract(nl_parser, "void", 0, nl_nisa_types));
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:27952:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 27952 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_l_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:27953:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 27953 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_l_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:27971:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 27971 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_outer_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:27972:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 27972 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_outer_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:27973:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 27973 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_outer_index);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:28020:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 28020 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:28021:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 28021 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:28022:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 28022 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_index_slot);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:28042:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 28042 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_outer_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:28043:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 28043 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_outer_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:28044:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 28044 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_outer_index);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+25 warnings generated.
+/Users/jordanh/Src/nanolang/modules/std/collections/collections.c:1:9: warning: '_GNU_SOURCE' macro redefined [-Wmacro-redefined]
+    1 | #define _GNU_SOURCE
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define _GNU_SOURCE 1
+      |         ^
+1 warning generated.
+/Users/jordanh/Src/nanolang/modules/std/json/json.c:1:9: warning: '_GNU_SOURCE' macro redefined [-Wmacro-redefined]
+    1 | #define _GNU_SOURCE
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define _GNU_SOURCE 1
+      |         ^
+1 warning generated.
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:19605:9: warning: initializing 'typeof ((nl_tc_enclosing_function)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 19605 |         NL_GUARDED_WRITE(nl_tc_enclosing_function, nl_previous_function);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:19606:9: warning: initializing 'typeof ((nl_tc_enclosing_return)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 19606 |         NL_GUARDED_WRITE(nl_tc_enclosing_return, nl_previous_return);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:21413:9: warning: initializing 'typeof ((nl_nb_expression_identity)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 21413 |         NL_GUARDED_WRITE(nl_nb_expression_identity, nl_authoritative);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:21458:5: warning: initializing 'typeof ((nl_nb_expression_identity)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 21458 |     NL_GUARDED_WRITE(nl_nb_expression_identity, nl_authoritative);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:22259:17: warning: initializing 'typeof ((nl_nb_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 22259 |                 NL_GUARDED_WRITE(nl_nb_loop_top, nl_top);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:22259:17: warning: initializing 'typeof ((nl_nb_loop_done)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 22259 |                 NL_GUARDED_WRITE(nl_nb_loop_done, nl_skip);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:22266:17: warning: initializing 'typeof ((nl_nb_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 22266 |                 NL_GUARDED_WRITE(nl_nb_loop_top, nl_saved_top);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:22266:17: warning: initializing 'typeof ((nl_nb_loop_done)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 22266 |                 NL_GUARDED_WRITE(nl_nb_loop_done, nl_saved_done);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:23693:9: warning: initializing 'typeof ((nl_nisa_err)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23693 |         NL_GUARDED_WRITE(nl_nisa_err, nl_msg);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:23812:9: warning: initializing 'typeof ((nl_nisa_return_type)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23812 |         NL_GUARDED_WRITE(nl_nisa_return_type, nl_saved_return);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:23813:9: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23813 |         NL_GUARDED_WRITE(nl_nisa_loop_top, nl_saved_top);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:23814:9: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23814 |         NL_GUARDED_WRITE(nl_nisa_loop_end, nl_saved_end);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:23815:9: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 23815 |         NL_GUARDED_WRITE(nl_nisa_loop_index, nl_saved_index);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:25503:5: warning: initializing 'typeof ((nl_nisa_ordinary_init)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 25503 |     NL_GUARDED_WRITE(nl_nisa_ordinary_init, nl___nano_module__22_nisa_ordinary_contract(nl_parser, "void", 0, nl_nisa_types));
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:27952:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 27952 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_l_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:27953:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 27953 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_l_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:27971:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 27971 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_outer_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:27972:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 27972 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_outer_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:27973:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 27973 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_outer_index);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:28020:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 28020 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:28021:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 28021 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:28022:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 28022 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_index_slot);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:28042:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 28042 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_outer_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:28043:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 28043 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_outer_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-parser-retirement-evidence-20261008/parser.nano:28044:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 28044 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_outer_index);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jordanh/Src/nanolang/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+25 warnings generated.
+/Users/jordanh/Src/nanolang/modules/std/collections/collections.c:1:9: warning: '_GNU_SOURCE' macro redefined [-Wmacro-redefined]
+    1 | #define _GNU_SOURCE
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define _GNU_SOURCE 1
+      |         ^
+1 warning generated.
+/Users/jordanh/Src/nanolang/modules/std/json/json.c:1:9: warning: '_GNU_SOURCE' macro redefined [-Wmacro-redefined]
+    1 | #define _GNU_SOURCE
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define _GNU_SOURCE 1
+      |         ^
+1 warning generated.
+
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!

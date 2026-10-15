@@ -1,0 +1,28 @@
+I build independent File lowerer with producer 0.
+I build independent File lowerer with producer 1.
+test_assertion_drains_live_file (tests.test_service_lowering_nano.ServiceLoweringNano.test_assertion_drains_live_file) ... I finish native compilation in 0.426s
+ok
+test_helpers_loops_fields_and_result_values (tests.test_service_lowering_nano.ServiceLoweringNano.test_helpers_loops_fields_and_result_values) ... I finish native compilation in 2.923s
+ok
+test_limits_and_unimplemented_reference_calls_preserve_outputs (tests.test_service_lowering_nano.ServiceLoweringNano.test_limits_and_unimplemented_reference_calls_preserve_outputs) ... ok
+test_nested_argument_borrows_keep_branch_state (tests.test_service_lowering_nano.ServiceLoweringNano.test_nested_argument_borrows_keep_branch_state) ... I finish native compilation in 1.455s
+ok
+test_qualified_reexported_helper (tests.test_service_lowering_nano.ServiceLoweringNano.test_qualified_reexported_helper) ... I finish native compilation in 0.609s
+ok
+test_short_circuit_skips_effects (tests.test_service_lowering_nano.ServiceLoweringNano.test_short_circuit_skips_effects) ... I finish native compilation in 0.373s
+ok
+test_terminal_operands_release_pending_values (tests.test_service_lowering_nano.ServiceLoweringNano.test_terminal_operands_release_pending_values) ... I finish native compilation in 0.716s
+I finish native compilation in 0.631s
+I finish native compilation in 0.515s
+ok
+test_unchanged_generated_binding_and_all_shadows (tests.test_service_lowering_nano.ServiceLoweringNano.test_unchanged_generated_binding_and_all_shadows) ... I finish native compilation in 8.498s
+I finish native compilation in 8.631s
+I finish native compilation in 8.533s
+I finish native compilation in 8.514s
+I finish native compilation in 8.459s
+ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 197.418s
+
+OK

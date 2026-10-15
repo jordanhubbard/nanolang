@@ -1,0 +1,16 @@
+test_compiler_bytecode_to_native_to_program (tests.test_one_ir_compiler.OneIrCompiler.test_compiler_bytecode_to_native_to_program) ... FAIL
+
+======================================================================
+FAIL: test_compiler_bytecode_to_native_to_program (tests.test_one_ir_compiler.OneIrCompiler.test_compiler_bytecode_to_native_to_program)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 321, in test_compiler_bytecode_to_native_to_program
+    self.assertNotIn("nano_vm", source.read_text())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+----------------------------------------------------------------------
+Ran 1 test in 33.597s
+
+FAILED (failures=1)
+AssertionError: substring nano_vm in generated source; sole occurrence at line 542260: s[137] = "bin/nano_vm";
+Original log SHA-256: 5c1207ae1919bc575e49b4200515ea61f9944bcb4c1880bb7ca7b1972742d3c6

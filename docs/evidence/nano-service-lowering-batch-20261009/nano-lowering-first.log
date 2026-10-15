@@ -1,0 +1,22 @@
+setUpClass (tests.test_service_lowering_nano.ServiceLoweringNano) ... ERROR
+
+======================================================================
+ERROR: setUpClass (tests.test_service_lowering_nano.ServiceLoweringNano)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering_nano.py", line 41, in setUpClass
+    cls.command([ROOT/'bin/nvm2c', module, '-o', generated])
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 61, in command
+    if process.returncode:raise AssertionError(f'{args}\n{process.returncode}\n{stdout}\n{stderr}')
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [PosixPath('/Users/jordanh/Src/nanolang/bin/nvm2c'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-khk8obhi/probe-0.nvm'), '-o', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-khk8obhi/probe-0.c')]
+1
+
+I cannot translate '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-khk8obhi/probe-0.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained int destination at nodes 744266/5647 (conversion 254611/7465)
+
+
+----------------------------------------------------------------------
+Ran 0 tests in 3.716s
+
+FAILED (errors=1)

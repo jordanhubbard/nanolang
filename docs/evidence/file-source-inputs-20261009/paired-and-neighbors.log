@@ -1,0 +1,18 @@
+test_aot_refuses_wrong_context_signatures (tests.test_file_source_inputs.FileSourceInputs.test_aot_refuses_wrong_context_signatures) ... ok
+test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) ... ok
+test_dependency_cleanup_symbol_is_not_accepted_as_owner (tests.test_artifact_string_release.ArtifactStringRelease.test_dependency_cleanup_symbol_is_not_accepted_as_owner) ... ok
+test_native_copy_allocation_failure_still_releases_provider (tests.test_artifact_string_release.ArtifactStringRelease.test_native_copy_allocation_failure_still_releases_provider) ... ok
+test_null_provider_result_is_released_once_then_refused (tests.test_artifact_string_release.ArtifactStringRelease.test_null_provider_result_is_released_once_then_refused) ... ok
+test_opaque_indices_copy_and_release (tests.test_artifact_string_release.ArtifactStringRelease.test_opaque_indices_copy_and_release) ... ok
+test_provider_cleanup_counts_zero_one_two_args_and_borrowed (tests.test_artifact_string_release.ArtifactStringRelease.test_provider_cleanup_counts_zero_one_two_args_and_borrowed) ... ok
+test_real_fs_allocation_failure_preserves_empty_sentinel (tests.test_artifact_string_release.ArtifactStringRelease.test_real_fs_allocation_failure_preserves_empty_sentinel) ... ok
+test_real_fs_text_empty_missing_and_embedded_nul (tests.test_artifact_string_release.ArtifactStringRelease.test_real_fs_text_empty_missing_and_embedded_nul) ... ok
+test_real_path_provider_allocation_failure_retains_null_contract (tests.test_artifact_string_release.ArtifactStringRelease.test_real_path_provider_allocation_failure_retains_null_contract) ... ok
+test_real_path_providers_repeated_results_preserve_aliases (tests.test_artifact_string_release.ArtifactStringRelease.test_real_path_providers_repeated_results_preserve_aliases) ... ok
+test_same_symbol_distinct_libraries_keep_release_owner (tests.test_artifact_string_release.ArtifactStringRelease.test_same_symbol_distinct_libraries_keep_release_owner) ... ok
+test_vm_copy_allocation_failure_still_releases_provider (tests.test_artifact_string_release.ArtifactStringRelease.test_vm_copy_allocation_failure_still_releases_provider) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 14.755s
+
+OK

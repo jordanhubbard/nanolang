@@ -1,8 +1,22 @@
 # 5.1 Scope - One IR
 
 I use this punch list to distinguish my release requirements from follow-on
-experiments. Line references point to the unchecked Phase 20 rows in
-`ROADMAP.md`; that roadmap remains the detailed contract and evidence ledger.
+experiments. Parenthesized line numbers identify the roadmap snapshot used
+when I fixed this scope; subsequent edits have moved those rows. I locate each
+requirement by its text under Phase 20 in [my roadmap](ROADMAP.md), which remains
+the detailed contract and evidence index. GitHub Issues is my task ledger.
+None of these historical numbers narrows the requirement it identifies.
+
+My [2026-10-11 reconciliation](RELEASE_5.1_STATUS.md) accounts for all 67
+headline entries and separates recorded implementation from unclosed acceptance.
+It is an evidence inventory, not release qualification or a narrowed scope.
+
+**Scope decision, 2026-10-13:** my user demoted the LLVM and Wasm translators to optional for 5.1.
+`nvm2llvm` and `nvm2wasm`, and the work already done on them (rows 10672 and 10673), stay in the tree
+as optional translators of verified NanoISA. They are not 5.1 release gates, and I do not expose them
+as release targets. Rows 10661, 10670, 10671 and 10674 are optional; row 10680 narrows to NanoVM and C AOT.
+**Scope decision, 2026-10-14:** my user also demoted rows 10663 and 10664 (portable read-text) to optional.
+This changes no other row.
 
 ## Ownership and services
 
@@ -15,9 +29,10 @@ experiments. Line references point to the unchecked Phase 20 rows in
 - **Required (9559):** Review matched File and Result flow through VM and native dispatch before changing public selection.
 - **Required (9560):** Qualify paired File generation and all shadows through the C seed, Stage 1, and Stage 2 on Linux and Darwin.
 - **Required (9561):** Admit File publicly only after verifier, VM, native, generated-binding, and real-file equivalence passes.
-- **Required (9563):** Qualify one real local Socket lifecycle; service-handle migration requires a tested socket owner.
-- **Required (9564):** Review the private Socket API and close/error policy before host operations.
-- **Required (9565):** Qualify Socket lifecycle, refusal, fault, and adjacent File/capability controls on both hosts.
+- **Done (9563):** Qualify one real local Socket lifecycle; service-handle migration requires a tested socket owner.
+- **Done (9564):** Review the private Socket API and close/error policy before host operations.
+- **Done (9565):** Qualify Socket lifecycle, refusal, fault, and adjacent File/capability controls on both hosts.
+  My [private Socket integration audit](evidence/socket-integration-20261009/README.md) distinguishes the merged Linux/Darwin prerequisite from current Darwin checks and the still-open exact-candidate platform gate.
 - **Required (9566):** Complete public network/WebSocket bindings and paired verified execution; the local pair alone is insufficient.
 - **Deferred-to-later (9567):** Qualify a real CUDA GPU buffer lifecycle; this needs explicit GPU hardware and does not block the portable One IR cut.
 - **Deferred-to-later (9568):** Review CUDA driver/context restoration on qualified hardware as part of the GPU lifecycle.
@@ -28,20 +43,21 @@ experiments. Line references point to the unchecked Phase 20 rows in
 
 ## Compiler product
 
-- **Required (9707):** Infer C-seed loop element metadata for inline and computed arrays; compiler-source lowering depends on valid loops. **Done.**
+- **Done (9707):** Infer C-seed loop element metadata for inline and computed arrays; compiler-source lowering depends on valid loops.
 - **Done (9879):** Propagate transitive foreign header paths through C-seed module compilation.
 - **Done (9882):** Reclaim shared static arrays and owned elements at an alias-safe interpreter boundary.
 - **Done (9902):** Define Boolean List syntax and backend parity before the compiler product claims list coverage. `List<bool>` now parses and the interpreter, native C and NanoVM backends share its boolean element contract (`tests/nl_types_bool_list.nano`).
 - **Done (9941):** Reconcile the legacy `string_from_char` alias so VM and AOT resolve the same host contract; NanoVM exports the alias and `tests/test_one_ir_compiler.py` executes both names in both backends.
-- **Required (9978):** Prevent ordinary record names from colliding with native runtime helper names.
-- **Required (10055):** Carry record and map globals through standalone AOT with correct runtime ownership.
-- **Required (10068):** Bind imported globals and selective or qualified aliases in the standalone product.
-- **Required (10153):** Make `--emit-nvm` the self-hosted compiler's only backend and make binary output an explicit `nvm2c` plus `cc` pipeline.
+- **Done (9978):** Prevent ordinary record names from colliding with native runtime helper names. My [native record-name evidence](evidence/native-record-names-20261010/README.md) passes the original `NSType` fixture, record-array operations, imported records and external schema ABI.
+- **Implemented (10055):** Carry record and map globals through standalone AOT with correct runtime ownership. My [current local audit](evidence/generic-results-global-audit-20261010/README.md) passes both installed stages, C-frontend source execution and record-retention/refusal controls; final candidate/platform qualification remains required.
+- **Implemented (10068):** Bind imported globals and selective or qualified aliases in the standalone product. My [28-method shared suite](evidence/generic-results-global-audit-20261010/README.md) passes all three producer routes locally; final candidate/platform qualification remains required.
+- **Implemented (10153):** Make `--emit-nvm` the self-hosted compiler's only backend and make binary output an explicit `nvm2c` plus `cc` pipeline. My [driver implementation](evidence/native-driver-cutover-20261007/README.md) and [structural bootstrap](evidence/structural-bootstrap-0c501dc4b/README.md) establish the product path; the exact-candidate gates below remain required.
 - **Required (10260):** Finish the self-hosted NanoISA lowering dual for the full compiler subset.
-- **Required (10262):** Compile the compiler to `.nvm` through the C seed and then the self-hosted emitter.
-- **Required (10264):** Compare Stage 1 and Stage 2 module bytes; native binary comparison remains a translator test.
-- **Required (10266):** Freeze and remove `transpiler.nano` from the product after the compiler module builds itself.
-- **Required (10269):** Rename the transpiler compiler phase so the language pipeline ends at NanoISA.
+- **Done (10262):** Compile the compiler to `.nvm` through the C seed and then the self-hosted emitter.
+- **Done (10264):** Compare Stage 1 and Stage 2 module bytes; native binary comparison remains a translator test.
+  My [current local bootstrap evidence](evidence/structural-bootstrap-0c501dc4b/README.md) records all 17 guarded steps, equal raw module bytes and generic/global execution through both installed stages; the exact release-candidate Linux/Darwin gates remain below.
+- **Implemented (10266):** Freeze and remove `transpiler.nano` from the product after the compiler module builds itself. My [emitter retirement](evidence/legacy-extern-retirement-20261009/README.md) removes the product source and passes an isolated Darwin bootstrap. The historical helper closure remains test-only; exact-candidate Linux/Darwin gates remain required.
+- **Implemented (10269):** Rename the transpiler compiler phase so the language pipeline ends at NanoISA. My [phase evidence](evidence/compiler-phases-20261008/README.md) records the NanoISA ordinal and distinct backend phase, with 36 passing controls. Integration and final-candidate qualification remain required.
 
 ## C AOT, metadata, and profiles
 
@@ -59,20 +75,20 @@ experiments. Line references point to the unchecked Phase 20 rows in
 - **Required (10643):** Establish explicit ordinary heap-bearing record authority before nominal target admission.
 - **Required (10648):** Cover array elements, generics, imports, forward order, and remaining nominal record authority.
 - **Obsolete (10656):** The shared checked record selection row duplicates completed prior-order and forward-record execution rows; remaining authority is tracked at 10643 and 10648.
-- **Required (10661):** Implement exact declared host/module capability linkage and owned results for LLVM and Wasm.
-- **Required (10663):** Review the portable read-text linkage proposal as the first concrete portable host capability.
-- **Required (10664):** Qualify the read-text query, adapters, opt-in lowering, source publication, and installed links in ordered checkpoints.
-- **Required (10669):** Implement the private allowlisted read-text adapters and managed-copy ownership checkpoint.
-- **Required (10670):** Qualify native, LLVM, Wasmtime, and Node adapters with real files and denial/fault cleanup.
-- **Required (10671):** Extend portable linkage to byte and aggregate results and the remaining compiler capabilities.
+- **Optional (10661) (demoted to optional 2026-10-13; not a 5.1 release gate):** Implement exact declared host/module capability linkage and owned results for LLVM and Wasm.
+- **Optional (10663) (demoted to optional 2026-10-14; not a 5.1 release gate):** Review the portable read-text linkage proposal as the first concrete portable host capability.
+- **Optional (10664) (demoted to optional 2026-10-14; not a 5.1 release gate):** Qualify the read-text query, adapters, opt-in lowering, source publication, and installed links in ordered checkpoints.
+- **Implemented (10669):** Implement the private allowlisted read-text adapters and managed-copy ownership checkpoint. My [portable execution](evidence/portable-read-execution-20261010/README.md) and [installed text/byte gate](evidence/portable-byte-execution-20261010/README.md) exercise the adapters. Wasmtime execution and full capability/candidate coverage remain required.
+- **Optional (10670) (demoted to optional 2026-10-13; not a 5.1 release gate):** Qualify native, LLVM, Wasmtime, and Node adapters with real files and denial/fault cleanup. The native adapter check stays with row 10664.
+- **Optional (10671) (demoted to optional 2026-10-13; not a 5.1 release gate):** Extend portable linkage to byte and aggregate results and the remaining compiler capabilities.
 
 ## Translators and release gates
 
 - **Done (10672):** Complete LLVM IR translation from NanoISA rather than from the NanoLang AST. I admit `ROT3` in the shared closed profile and lower it in `nvm2llvm`; VM/C/LLVM parity tests pass.
 - **Done (10673):** Complete WebAssembly translation from NanoISA rather than from the NanoLang AST. I translate verified NanoISA through the shared `nvm2llvm` closed profile, including `ROT3`; VM/C/LLVM/Wasmtime/import-free Node parity tests pass.
-- **Required (10674):** Cover the applicable language in both translators before exposing them as release targets.
+- **Optional (10674) (demoted to optional 2026-10-13; not a 5.1 release gate):** Cover the applicable language in both translators before exposing them as release targets. Until then I do not expose them as release targets.
 - **Deferred-to-later (10676):** Evaluate JVM, SPIR-V, PTX, OpenCL, and Metal translators; 5.1 does not ship every evaluated optional target.
-- **Required (10680):** Run one pinned module corpus through NanoVM, C AOT, LLVM, and Wasm and compare semantics.
+- **Required (10680), narrowed 2026-10-13:** Run one pinned module corpus through NanoVM and C AOT and compare semantics. LLVM and Wasm are an optional cross-check, not a gate.
 - **Required (10684):** Verify that `src_nano` emits `.nvm` as its only compiler product.
 - **Required (10685):** Verify that `nvm2c` products do not link `nano_vm`.
 - **Required (10686):** Verify byte-identical Stage 1 and Stage 2 `.nvm` products at the release revision.
@@ -81,7 +97,7 @@ experiments. Line references point to the unchecked Phase 20 rows in
 
 ## Release closeout
 
-- **Required (1033):** Reconcile completed roadmap rows with merged commits and authoritative MAC task states.
+- **Required (1033):** Reconcile completed roadmap rows with merged commits and authoritative GitHub issue states.
 - **Required:** Keep main CI green and run the clean release/platform gates on the exact candidate revision.
 - **Required:** Draft `RELEASE_5.1.md` after the required implementation rows close, using `RELEASE_5.0.md` as the format.
-- **Deferred-to-later:** Tagging and publishing `v5.1.0` remain operator actions.
+- **Required:** Tag and publish `v5.1.0` after the complete scope and exact-candidate release gates pass. My user's instruction to finish and release 5.1 includes publication; an implementation checkpoint alone does not complete that instruction.

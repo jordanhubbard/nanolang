@@ -1,0 +1,17 @@
+fn increment(value:int)->int{return (+ value 1)}
+shadow increment {assert (== (increment 7) 8)}
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 7) 7)}
+fn apply(callback:fn(int)->int)->int{return (callback 7)}
+shadow apply {assert (== (apply increment) 8)}
+fn selected(callback:fn(int)->int)->bool{return (== (callback 7) 8)}
+shadow selected {assert (selected increment)}
+fn sum_callback(total:int, callback:fn(int)->int)->int{return (+ total (callback 7))}
+shadow sum_callback {assert (== (sum_callback 1 increment) 9)}
+fn retain(callback:fn(int)->int)->fn(int)->int{return callback}
+shadow retain {let callback:fn(int)->int=(retain increment) assert (== (callback 7) 8)}
+fn main()->int {let original:array<fn(int)->int> = [increment]
+let copied:array<fn(int)->int> = (map original retain)
+(array_set original 0 identity)
+let callback:fn(int)->int=(at copied 0) assert (== (callback 7) 8) return 0}
+shadow main {assert (== (main) 0)}

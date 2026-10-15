@@ -1,0 +1,42 @@
+[
+  {
+    "name": "literal-vm",
+    "command": [
+      "/private/tmp/nanolang-byte-literal-retained-20261008/nano_vm",
+      "/private/tmp/nanolang-byte-literal-baseline.nvm"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "\nRuntime error: Assertion failed\nStack trace (most recent call first):\n  #0   main  /private/tmp/nanolang-byte-literal-baseline.nano:1:46\nI could not execute the module: Assertion failed\n  Assertion failed\n",
+    "artifacts": {
+      "/private/tmp/nanolang-byte-literal-retained-20261008/nano_vm": "faa78e71049db085833e655127e76d3c3963c306aa2361f7ee97669380a18834",
+      "/private/tmp/nanolang-byte-literal-baseline.nvm": "1100d1e978b83be6692787b891371e67ec7115dcad000fb9e61af96cd8a17f4d"
+    }
+  },
+  {
+    "name": "push-vm",
+    "command": [
+      "/private/tmp/nanolang-byte-literal-retained-20261008/nano_vm",
+      "/private/tmp/nanolang-byte-contract-baseline.nvm"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "artifacts": {
+      "/private/tmp/nanolang-byte-literal-retained-20261008/nano_vm": "faa78e71049db085833e655127e76d3c3963c306aa2361f7ee97669380a18834",
+      "/private/tmp/nanolang-byte-contract-baseline.nvm": "4c0d6cb0abc8e963a45880dad21289a89361e5a62e8d96373cd9c74b1a08e2ac"
+    }
+  },
+  {
+    "name": "literal-native",
+    "command": [
+      "/private/tmp/nanolang-byte-literal-baseline-native"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "artifacts": {
+      "/private/tmp/nanolang-byte-literal-baseline-native": "2e3408d2bd5cf737cdd5e0476c575d560e6d3a2e4ad6c39e4ebeba368eedc6fa"
+    }
+  }
+]

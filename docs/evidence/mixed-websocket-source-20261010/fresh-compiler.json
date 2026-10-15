@@ -1,0 +1,38 @@
+{
+  "source": "src_nano/nanoc_v06.nano",
+  "source_producer": "bin/nano_virt",
+  "native_translator": "bin/nvm2c",
+  "native_compiler": "/opt/homebrew/opt/llvm/bin/clang",
+  "flags": [
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all"
+  ],
+  "link": [
+    "bin/nano_aot_runtime.o",
+    "-lm",
+    "-lffi",
+    "-L/opt/homebrew/opt/openssl@3/lib",
+    "-lcrypto"
+  ],
+  "build_status": 0,
+  "artifacts": [
+    {
+      "path": "/private/tmp/nl51-mixed-source-driver.nvm",
+      "size": 1124436,
+      "sha256": "f1ce0f73303bc4b62be6f0eec479afe6bbb3c2b845b79caedbbfe1b14926f7c9"
+    },
+    {
+      "path": "/private/tmp/nl51-mixed-source-driver.c",
+      "size": 14622458,
+      "sha256": "19792ab1807d21a24e05853d556384b4c78a530fa5d5a6799919a963e7b0a210"
+    },
+    {
+      "path": "/private/tmp/nl51-mixed-source-driver.native",
+      "size": 26243312,
+      "sha256": "8e43a9ddd5086c46cbc1cb6213c5938999bf2a318d12ec4f2f91223f106104aa"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+module route_probe
+pub fn answer() -> int { return 7 }
+shadow answer { assert (== (answer) 7) }

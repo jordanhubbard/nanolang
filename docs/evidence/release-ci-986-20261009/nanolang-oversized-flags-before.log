@@ -1,0 +1,15 @@
+test_oversized_compile_flags_fail_without_silent_truncation (tests.test_native_module_generation_selection.NativeModuleGenerationSelection.test_oversized_compile_flags_fail_without_silent_truncation) ... FAIL
+
+======================================================================
+FAIL: test_oversized_compile_flags_fail_without_silent_truncation (tests.test_native_module_generation_selection.NativeModuleGenerationSelection.test_oversized_compile_flags_fail_without_silent_truncation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_module_generation_selection.py", line 133, in test_oversized_compile_flags_fail_without_silent_truncation
+    self.assertNotEqual(result.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+----------------------------------------------------------------------
+Ran 1 test in 2.653s
+
+FAILED (failures=1)

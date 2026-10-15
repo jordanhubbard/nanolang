@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nanoisa_emit",
+    "/private/tmp/nanolang-selfhost-union-final/raw/UnionBoundaryProducer/test_phantom_resource_argument_does_not_make_payload_owned/main.nano",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-final/raw/UnionBoundaryProducer/test_phantom_resource_argument_does_not_make_payload_owned/main.nasm"
+  ],
+  "exit": 0
+}

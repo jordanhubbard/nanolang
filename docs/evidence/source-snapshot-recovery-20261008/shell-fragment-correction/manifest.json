@@ -1,0 +1,11 @@
+{
+  "base": "fdff092ed3ab04f40bcd9a0b52f742ae35b06442",
+  "hash_observation": "dirty corrected checkpoint after terminal checks",
+  "focused_exit_code": 0,
+  "link_response_exit_code": 0,
+  "sha256": {
+    "src/module_builder.c": "2caba28914ad6e69b5d64e6c2578fd1bede6508478ff92a96804631b40066349",
+    "tests/test_source_snapshots.py": "d98faac66cddb6c606aa9b34b7b2a6774dd944f878c6267b90295705d70422c8",
+    "obj/test_module_generation_probe": "a5e4b4db8120fa2a4f69d828473eb370e60a7cad851cc85bd69af419a675de89"
+  }
+}

@@ -1,0 +1,30 @@
+test_spread_cannot_drop_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_drop_inherited_owner) ... 
+  test_spread_cannot_drop_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_drop_inherited_owner) (route='frontend') ... FAIL
+  test_spread_cannot_drop_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_drop_inherited_owner) (route='native') ... FAIL
+test_spread_carries_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_carries_inherited_owner) ... ok
+
+======================================================================
+FAIL: test_spread_cannot_drop_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_drop_inherited_owner) (route='frontend')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 32, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : AFFINE_C_FRONTEND_ACCEPTED
+Warning at line 5, column 16: Unused variable 'original'
+
+
+======================================================================
+FAIL: test_spread_cannot_drop_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_drop_inherited_owner) (route='native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 32, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : Warning at line 5, column 16: Unused variable 'original'
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.646s
+
+FAILED (failures=2)

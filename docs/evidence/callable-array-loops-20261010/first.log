@@ -1,0 +1,63 @@
+...FF...
+======================================================================
+FAIL: test_iteration_named_computed_and_inline (tests.test_native_callable_arrays.NativeCallableArrays.test_iteration_named_computed_and_inline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_arrays.py", line 64, in test_iteration_named_computed_and_inline
+            self.execute('''fn make()->array<fn(int)->int>{return [increment]}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow make {assert (== (array_length (make)) 1)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    for callback in [increment] {assert (== (callback 7) 8)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    return 0}''')
+    ^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_arrays.py", line 17, in execute
+    harness.NativeGlobalTypes().execute(PRELUDE + source)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-o0msvb6r/main.nano
+I cannot determine this function value's signature.
+
+13| for callback in [increment] {assert (== (callback 7) 8)}
+                                            ^
+Hint: Declare the function value's parameter and return types.
+Type checking failed
+
+
+======================================================================
+FAIL: test_iteration_value_survives_mutation_and_return (tests.test_native_callable_arrays.NativeCallableArrays.test_iteration_value_survives_mutation_and_return)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_arrays.py", line 76, in test_iteration_value_survives_mutation_and_return
+            self.execute('''fn select()->fn(int)->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let callbacks:array<fn(int)->int> = [increment]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    shadow select {let callback=(select) assert (== (callback 7) 8)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int {let callback=(select) assert (== (callback 7) 8) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_arrays.py", line 17, in execute
+    harness.NativeGlobalTypes().execute(PRELUDE + source)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-_sq9tib2/main.nano
+I cannot determine this function value's signature.
+
+15| fn main()->int {let callback=(select) assert (== (callback 7) 8) return 0}
+                                                     ^
+Hint: Declare the function value's parameter and return types.
+Type checking failed
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 7.437s
+
+FAILED (failures=2)

@@ -1,0 +1,3 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DWEBSOCKET_PLAN_INSTRUMENT tests/test_nsi_websocket_plan.c src/nsi.c src/utf8.c src/cJSON.c -o obj/test_nsi_websocket_plan_instrumented -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+FAIL 136: other
+make: *** [test-nsi-websocket-plan] Error 1

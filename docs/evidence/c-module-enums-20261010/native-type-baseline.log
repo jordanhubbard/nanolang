@@ -1,0 +1,60 @@
+Warning: Function 'next_status' is missing a shadow test
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_70461_nl51-native-enums.c:1843:9: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+ 1843 | static  nl_opposite_direction( d);
+      | ~~~~~~  ^
+      | int 
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_70461_nl51-native-enums.c:1843:32: error: a parameter list without types is only allowed in a function definition
+ 1843 | static  nl_opposite_direction( d);
+      |                                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_70461_nl51-native-enums.c:1844:37: error: a parameter list without types is only allowed in a function definition
+ 1844 | static int64_t nl_direction_to_int( d);
+      |                                     ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_70461_nl51-native-enums.c:1847:9: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+ 1847 | static  nl_next_status( s);
+      | ~~~~~~  ^
+      | int 
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_70461_nl51-native-enums.c:1847:25: error: a parameter list without types is only allowed in a function definition
+ 1847 | static  nl_next_status( s);
+      |                         ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_70461_nl51-native-enums.c:1849:28: error: a parameter list without types is only allowed in a function definition
+ 1849 | static bool nl_is_weekend( d);
+      |                            ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_70461_nl51-native-enums.c:1850:38: error: a parameter list without types is only allowed in a function definition
+ 1850 | static const char* nl_day_to_string( d);
+      |                                      ^
+tests/nl_types_enum.nano:95:32: error: parameter 'd' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+   95 | static  nl_opposite_direction( d) {
+      |                                ^
+tests/nl_types_enum.nano:95:9: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+   95 | static  nl_opposite_direction( d) {
+      | ~~~~~~  ^
+      | int 
+tests/nl_types_enum.nano:95:9: error: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+tests/nl_types_enum.nano:117:37: error: parameter 'd' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+  117 | static int64_t nl_direction_to_int( d) {
+      |                                     ^
+tests/nl_types_enum.nano:117:16: error: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+  117 | static int64_t nl_direction_to_int( d) {
+      |                ^
+tests/nl_types_enum.nano:217:25: error: parameter 's' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+  217 | static  nl_next_status( s) {
+      |                         ^
+tests/nl_types_enum.nano:217:9: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+  217 | static  nl_next_status( s) {
+      | ~~~~~~  ^
+      | int 
+tests/nl_types_enum.nano:217:9: error: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+tests/nl_types_enum.nano:244:28: error: parameter 'd' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+  244 | static bool nl_is_weekend( d) {
+      |                            ^
+tests/nl_types_enum.nano:244:13: error: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+  244 | static bool nl_is_weekend( d) {
+      |             ^
+tests/nl_types_enum.nano:254:38: error: parameter 'd' was not declared, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+  254 | static const char* nl_day_to_string( d) {
+      |                                      ^
+tests/nl_types_enum.nano:254:20: error: a function definition without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+  254 | static const char* nl_day_to_string( d) {
+      |                    ^
+19 errors generated.
+C compilation failed

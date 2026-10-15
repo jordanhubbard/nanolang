@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-retirement-20261008/obj/test_module_generation_probe",
+    "build",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-as-search-30l1uoxq/foreign"
+  ],
+  "timeout": 20,
+  "seconds": 2.977269667026121,
+  "exit": 1,
+  "error": null
+}

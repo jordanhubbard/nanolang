@@ -1,0 +1,6 @@
+test_installed_relocated_helper_and_explicit_selection (tests.test_socket_resolver_install.ResolverInstall.test_installed_relocated_helper_and_explicit_selection) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.782s
+
+OK

@@ -1,0 +1,28 @@
+.........F
+======================================================================
+FAIL: test_reduce_operand_order (tests.test_native_callable_operations.NativeCallableOperations.test_reduce_operand_order)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 78, in test_reduce_operand_order
+            self.execute('''let mut order:int=0
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+    fn input()->array<fn(int)->int>{set order (+ (* order 10) 1) return [increment]}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    fn main()->int {set order 0 assert (== (reduce (input) (initial) (reducer)) 9)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== order 123) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callable_operations.py", line 19, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + source)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require the complete callable array operation signature.
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 12.716s
+
+FAILED (failures=1)

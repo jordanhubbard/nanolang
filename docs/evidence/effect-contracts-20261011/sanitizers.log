@@ -1,0 +1,367 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -O1 -fno-inline -fsanitize=address,undefined -fno-sanitize-recover=all -c src/parser.c -o /private/tmp/nl51-effect-contracts/parser-asan.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -O1 -fno-inline -fsanitize=address,undefined -fno-sanitize-recover=all -c src/typechecker.c -o /private/tmp/nl51-effect-contracts/typechecker-asan.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -O1 -fno-inline -fsanitize=address,undefined -fno-sanitize-recover=all -c src/nominal_types.c -o /private/tmp/nl51-effect-contracts/nominal-types-asan.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -O1 -fno-inline -fsanitize=address,undefined -fno-sanitize-recover=all -o /private/tmp/nl51-effect-contracts/test-parser-asan tests/test_parser.c /private/tmp/nl51-effect-contracts/parser-asan.o /private/tmp/nl51-effect-contracts/typechecker-asan.o /private/tmp/nl51-effect-contracts/nominal-types-asan.o obj/lexer.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+ASAN_OPTIONS=detect_leaks=1 /private/tmp/nl51-effect-contracts/test-parser-asan
+I support borrow annotations only on named parameters until ownership lowering lands
+Error at line 1, column 23: Expected ')' after parameters (got AMPERSAND)
+Error at line 1, column 24: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 27: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 29: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 32: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+I support borrow annotations only on named parameters until ownership lowering lands
+Error at line 1, column 24: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+I support borrow annotations only on named parameters until ownership lowering lands
+Error at line 1, column 25: Expected field name
+Error at line 1, column 25: Expected '}' after struct fields (got AMPERSAND)
+Error at line 1, column 26: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 30: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+  Testing reexported_call_paths... ✓
+=== Parser Tests ===
+
+--- Valid programs ---
+  Testing parse_minimal... ✓
+  Testing borrow_annotation_retention... ✓
+  Testing borrow_postcondition_copy... ✓
+  Testing exclusive_field_place_retention... ✓
+  Testing nested_generic_annotation_metadata... ✓
+  Testing nested_generic_annotation_errors... ✓
+  Testing parse_empty_program... ✓
+  Testing parse_arithmetic... ✓
+  Testing parse_all_comparisons... ✓
+  Testing parse_bool_ops... ✓
+  Testing parse_if_else_chain... ✓
+  Testing parse_while_loop... ✓
+  Testing parse_for_range... ✓
+  Testing parse_struct_def... ✓
+  Testing parse_enum_def... ✓
+  Testing parse_union_def... ✓
+  Testing parse_match_expr... ✓
+  Testing parse_match_with_guards... ✓
+  Testing parse_union_match... ✓
+  Testing parse_cond_expr... ✓
+  Testing parse_array_literal... ✓
+  Testing parse_tuple_literal... ✓
+  Testing parse_struct_literal... ✓
+  Testing parse_let_mut... ✓
+  Testing parse_constants... ✓
+  Testing parse_pub_functions... ✓
+  Testing parse_public_globals... ✓
+  Testing parse_extern_fn... ✓
+  Testing parse_pure_fn... ✓
+  Testing parse_pub_pure_fn... ✓
+  Testing parse_pure_extern_fn... ✓
+  Testing parse_pub_pure_extern_fn... ✓
+  Testing parse_pure_fn_not_set_on_regular... ✓
+  Testing parse_shadow... ✓
+  Testing parse_break_continue... ✓
+  Testing parse_print_println... ✓
+  Testing parse_assert... ✓
+  Testing parse_float_literals... ✓
+  Testing parse_string_escape... ✓
+  Testing parse_generic_list... ✓
+  Testing parse_hashmap... ✓
+  Testing parse_opaque_type... ✓
+  Testing parse_effect_decl... ✓
+  Testing effect_result_annotations... ✓
+  Testing parse_handle_expr... ✓
+  Testing parse_unary_operators... ✓
+  Testing parse_nested_function_calls... ✓
+  Testing parse_multiline_string... ✓
+  Testing parse_unsafe_block... ✓
+
+--- Import parsing ---
+  Testing parse_selective_import_alias... ✓
+  Testing parse_pub_use_reexport... ✓
+  Testing parse_normal_module_import... ✓
+  Testing parse_unsafe_module_import... ✓
+  Testing parse_wildcard_import... ✓
+
+--- parse_repl_input tests ---
+  Testing parse_repl_simple... ✓
+  Testing parse_repl_expression... ✓
+  Testing parse_repl_function... ✓
+  Testing parse_repl_empty... ✓
+
+--- free_ast edge cases ---
+  Testing free_ast_null... ✓
+  Testing free_ast_complex... ✓
+
+--- Error cases ---
+  Testing parse_ascii_identifiers_only... ✓
+  Testing parse_err_unclosed_paren... ✓
+  Testing parse_err_missing_return_type... ✓
+  Testing parse_err_invalid_token... ✓
+  Testing parse_err_selective_import_dangling_as... ✓
+  Testing parse_many_functions... ✓
+  Testing parse_deep_nesting... ✓
+  Testing parse_infix_operators... ✓
+  Testing parse_type_annotations... ✓
+  Testing owned_generic_function_annotations... ✓
+  Testing recursive_tuple_annotations... ✓
+
+✓ All parser tests passed!
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x104461da8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f94280"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f83aa8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7c2d4"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f71614"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f77938"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f76a94"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1828804e0"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x104461da8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f94280"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f83aa8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7c098"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f71614"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f716fc"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f76b24"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1828804e0"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x104461da8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7ef0c"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7b978"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f71614"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f76314"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f773a0"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1828804e0"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1044696ec"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f8ea54"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f8551c"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f96b48"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f84280"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7c098"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f71614"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7622c"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f77334"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1828804e0"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1044696ec"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f943fc"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f83aa8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7c2d4"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f71614"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f77938"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f76a94"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1828804e0"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1044696ec"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f9446c"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f83aa8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7c2d4"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f71614"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f77938"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f76a94"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1828804e0"
+
+=================================================================
+==42951==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 168 byte(s) in 1 object(s) allocated from:
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1044696ec"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f9446c"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f83aa8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7c2d4"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f71614"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f77938"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f76a94"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1828804e0"
+    #0 0x0001044696ec in calloc+0x78 (/opt/homebrew/Cellar/llvm/23.1.3/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000102f9446c in parse_parameters+0x360 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x10002446c)
+    #2 0x000102f83aa8 in parse_function+0x1ec (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100013aa8)
+    #3 0x000102f7c2d4 in parse_program+0xe44 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x10000c2d4)
+    #4 0x000102f71614 in parse_ok+0xd4 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100001614)
+    #5 0x000102f77938 in test_borrow_annotation_retention+0x488 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100007938)
+    #6 0x000102f76a94 in main+0x8c (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100006a94)
+    #7 0x0001828804e0 in start+0x1b4c (/usr/lib/dyld:arm64e+0x204e0)
+
+Direct leak of 136 byte(s) in 1 object(s) allocated from:
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1044696ec"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f8ea54"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f8551c"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f96b48"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f84280"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7c098"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f71614"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7622c"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f77334"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1828804e0"
+    #0 0x0001044696ec in calloc+0x78 (/opt/homebrew/Cellar/llvm/23.1.3/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000102f8ea54 in create_node+0x30 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x10001ea54)
+    #2 0x000102f8551c in parse_statement+0xa14 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x10001551c)
+    #3 0x000102f96b48 in parse_block+0x614 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100026b48)
+    #4 0x000102f84280 in parse_function+0x9c4 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100014280)
+    #5 0x000102f7c098 in parse_program+0xc08 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x10000c098)
+    #6 0x000102f71614 in parse_ok+0xd4 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100001614)
+    #7 0x000102f7622c in test_parse_err_unclosed_paren+0x18 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x10000622c)
+    #8 0x000102f77334 in main+0x92c (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100007334)
+    #9 0x0001828804e0 in start+0x1b4c (/usr/lib/dyld:arm64e+0x204e0)
+
+Direct leak of 8 byte(s) in 1 object(s) allocated from:
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x104461da8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7ef0c"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7b978"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f71614"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f76314"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f773a0"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1828804e0"
+    #0 0x000104461da8 in strdup+0xf8 (/opt/homebrew/Cellar/llvm/23.1.3/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64+0x4dda8)
+    #1 0x000102f7ef0c in parse_import+0x66c (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x10000ef0c)
+    #2 0x000102f7b978 in parse_program+0x4e8 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x10000b978)
+    #3 0x000102f71614 in parse_ok+0xd4 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100001614)
+    #4 0x000102f76314 in test_parse_err_selective_import_dangling_as+0x1c (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100006314)
+    #5 0x000102f773a0 in main+0x998 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x1000073a0)
+    #6 0x0001828804e0 in start+0x1b4c (/usr/lib/dyld:arm64e+0x204e0)
+
+Direct leak of 6 byte(s) in 1 object(s) allocated from:
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x104461da8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f94280"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f83aa8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7c098"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f71614"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f716fc"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f76b24"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1828804e0"
+    #0 0x000104461da8 in strdup+0xf8 (/opt/homebrew/Cellar/llvm/23.1.3/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64+0x4dda8)
+    #1 0x000102f94280 in parse_parameters+0x174 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100024280)
+    #2 0x000102f83aa8 in parse_function+0x1ec (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100013aa8)
+    #3 0x000102f7c098 in parse_program+0xc08 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x10000c098)
+    #4 0x000102f71614 in parse_ok+0xd4 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100001614)
+    #5 0x000102f716fc in test_nested_generic_annotation_errors+0x44 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x1000016fc)
+    #6 0x000102f76b24 in main+0x11c (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100006b24)
+    #7 0x0001828804e0 in start+0x1b4c (/usr/lib/dyld:arm64e+0x204e0)
+
+Direct leak of 2 byte(s) in 1 object(s) allocated from:
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x104461da8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f94280"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f83aa8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7c2d4"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f71614"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f77938"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f76a94"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1828804e0"
+    #0 0x000104461da8 in strdup+0xf8 (/opt/homebrew/Cellar/llvm/23.1.3/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64+0x4dda8)
+    #1 0x000102f94280 in parse_parameters+0x174 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100024280)
+    #2 0x000102f83aa8 in parse_function+0x1ec (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100013aa8)
+    #3 0x000102f7c2d4 in parse_program+0xe44 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x10000c2d4)
+    #4 0x000102f71614 in parse_ok+0xd4 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100001614)
+    #5 0x000102f77938 in test_borrow_annotation_retention+0x488 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100007938)
+    #6 0x000102f76a94 in main+0x8c (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100006a94)
+    #7 0x0001828804e0 in start+0x1b4c (/usr/lib/dyld:arm64e+0x204e0)
+
+Indirect leak of 168 byte(s) in 1 object(s) allocated from:
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1044696ec"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f943fc"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f83aa8"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f7c2d4"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f71614"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f77938"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x102f76a94"
+==42951==WARNING: Can't read from symbolizer at fd 3
+==42951==WARNING: atos failed to symbolize address "0x1828804e0"
+    #0 0x0001044696ec in calloc+0x78 (/opt/homebrew/Cellar/llvm/23.1.3/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000102f943fc in parse_parameters+0x2f0 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x1000243fc)
+    #2 0x000102f83aa8 in parse_function+0x1ec (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100013aa8)
+    #3 0x000102f7c2d4 in parse_program+0xe44 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x10000c2d4)
+    #4 0x000102f71614 in parse_ok+0xd4 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100001614)
+    #5 0x000102f77938 in test_borrow_annotation_retention+0x488 (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100007938)
+    #6 0x000102f76a94 in main+0x8c (/private/tmp/nl51-effect-contracts/test-parser-asan:arm64+0x100006a94)
+    #7 0x0001828804e0 in start+0x1b4c (/usr/lib/dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 488 byte(s) leaked in 6 allocation(s).
+make: *** [effect-contract-sanitize] Error 1

@@ -1,0 +1,34 @@
+test_nested_body_is_not_a_second_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nested_body_is_not_a_second_specialization) ... 
+  test_nested_body_is_not_a_second_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nested_body_is_not_a_second_specialization) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt')) ... FAIL
+  test_nested_body_is_not_a_second_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nested_body_is_not_a_second_specialization) (driver=PosixPath('/private/tmp/nl51-generic/seed')) ... FAIL
+
+======================================================================
+FAIL: test_nested_body_is_not_a_second_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nested_body_is_not_a_second_specialization) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_binding_metadata.py", line 31, in exercise
+    self.run_checked([driver, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_binding_metadata.py", line 20, in run_checked
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 2: I cannot retain the nested function purity declaration
+
+
+======================================================================
+FAIL: test_nested_body_is_not_a_second_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nested_body_is_not_a_second_specialization) (driver=PosixPath('/private/tmp/nl51-generic/seed'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_binding_metadata.py", line 31, in exercise
+    self.run_checked([driver, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_binding_metadata.py", line 20, in run_checked
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require one lexical creation scope for an anonymous body
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.045s
+
+FAILED (failures=2)

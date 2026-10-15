@@ -8,6 +8,8 @@ Release target: `v5.1.0`. I preserve `v5.0.0` as published history and require
 the full unfinished 5.0 roadmap before I publish this release.
 
 ### Changed
+- I make the `nvm2llvm` and `nvm2wasm` translators optional for 5.1. They remain in the tree as
+  translators of verified NanoISA and are not release targets or release gates.
 - I add sanitizer regressions for caller frames, globals, nested and mutable
   aggregates, scalar safepoints, loop backedges and tail-call teardown.
 - I retain the native map reclamation repair as one part of 5.1.0. It does not

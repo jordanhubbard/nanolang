@@ -1,0 +1,9 @@
+test_lexical_return_retains_arm_interval (tests.test_effect_binding_metadata.EffectBindingMetadata.test_lexical_return_retains_arm_interval) ... ok
+test_nested_handlers_keep_distinct_parameters (tests.test_effect_binding_metadata.EffectBindingMetadata.test_nested_handlers_keep_distinct_parameters) ... ok
+test_sibling_parameters_shadow_outer_binding (tests.test_effect_binding_metadata.EffectBindingMetadata.test_sibling_parameters_shadow_outer_binding) ... ok
+test_typed_arguments_and_zero_argument_arm (tests.test_effect_binding_metadata.EffectBindingMetadata.test_typed_arguments_and_zero_argument_arm) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.472s
+
+OK

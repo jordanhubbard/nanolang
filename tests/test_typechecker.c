@@ -997,6 +997,11 @@ void test_tc_reduce_exact_refusals(void) {
         "let fold:fn(float,float)->float=f let x=(reduce [1] 0 fold) return 0}",
         "enum Choice { One, Two } fn fold(a:int,b:int)->int{return a} "
         "fn apply(xs:array<Choice>)->int{return (reduce xs 0 fold)}",
+        "enum Choice { One, Two } enum Other { One, Two } "
+        "fn fold(a:Choice,b:Choice)->Choice{return a} "
+        "fn apply(xs:array<Choice>,initial:Other)->Choice{return (reduce xs initial fold)}",
+        "enum Choice { One, Two } fn fold(a:Choice,b:Choice)->Choice{return a} "
+        "fn apply(xs:array<Choice>,initial:int)->Choice{return (reduce xs initial fold)}",
         "struct A { x:int } struct B { x:int } fn fold(a:A,b:A)->A{return a} "
         "fn apply(xs:array<B>,initial:A)->A{return (reduce xs initial fold)}",
         "union Box<T> { Value { value:T } } fn fold(a:Box<int>,b:Box<int>)->Box<int>{return a} "

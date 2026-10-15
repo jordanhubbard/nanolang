@@ -1,0 +1,21 @@
+[
+  {
+    "argv": [
+      "bin/nanoc_c",
+      "/private/tmp/nl51-native-tuple-results/enum-reduce-execution.nano",
+      "-o",
+      "/private/tmp/nl51-native-tuple-results/enum-native"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Warning at line 2, column 1: Unused variable 'b'\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-native-tuple-results/enum-native"
+    ],
+    "exit": -6,
+    "stdout": "",
+    "stderr": "Assertion failed: (arr->elem_type == ELEM_STRUCT && \"DynArray: Type mismatch\"), function dyn_array_get_struct, file dyn_array.c, line 631.\n"
+  }
+]

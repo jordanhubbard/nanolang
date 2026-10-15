@@ -1,0 +1,102 @@
+{
+  "module": "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/rebuilt-compiler.nvm",
+  "steps": [
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/rebuilt-compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/compiler.c"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.297999917005654
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/compiler.c",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.529187542037107
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/compiler",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.022506541979964823
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_captures",
+        "tests.test_native_mutable_record_arrays",
+        "tests.test_genenv_scope"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 18.899968124984298
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/compiler",
+        "/Users/jordanh/Src/nanolang/examples/language/nl_hello.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.04310616705333814
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.011074584035668522
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello.nvm",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello.c"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.006138666009064764
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello.c",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.14594795898301527
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.01259504200424999
+    }
+  ]
+}

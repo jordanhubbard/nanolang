@@ -1,0 +1,10 @@
+test_bound_transitive_import (tests.test_purity_contract.PurityContract.test_bound_transitive_import) ... ok
+test_c_global_summary_uses_source_owner (tests.test_purity_contract.PurityContract.test_c_global_summary_uses_source_owner) ... ok
+test_c_match_guard_effect_is_not_hidden (tests.test_purity_contract.PurityContract.test_c_match_guard_effect_is_not_hidden) ... ok
+test_generated_intrinsic_contract (tests.test_purity_contract.PurityContract.test_generated_intrinsic_contract) ... ok
+test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 17.233s
+
+OK

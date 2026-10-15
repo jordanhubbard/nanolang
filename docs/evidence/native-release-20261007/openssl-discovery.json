@@ -1,0 +1,18 @@
+[
+  {
+    "case": "installed-package",
+    "passed": true
+  },
+  {
+    "case": "missing-package",
+    "passed": true
+  },
+  {
+    "case": "unavailable-pkg-config",
+    "passed": true
+  },
+  {
+    "case": "explicit-override",
+    "passed": true
+  }
+]

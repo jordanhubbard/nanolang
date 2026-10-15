@@ -1,0 +1,4 @@
+fn id(x:T)->T{return x}
+fn keep(x:int)->bool{return true}
+fn unused()->void{let callbacks:array<fn(int)->int> = [id] (array_set callbacks 0 keep)}
+fn main()->int{return 0}

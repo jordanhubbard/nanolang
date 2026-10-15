@@ -1,0 +1,100 @@
+test_private_effect_does_not_ambiguate_local_handler (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_effect_does_not_ambiguate_local_handler) ... 
+  test_private_effect_does_not_ambiguate_local_handler (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_effect_does_not_ambiguate_local_handler) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... FAIL
+test_private_effect_remains_local (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_effect_remains_local) ... ok
+test_private_handler_preserves_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_handler_preserves_output) ... 
+  test_private_handler_preserves_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_handler_preserves_output) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... FAIL
+test_private_imports_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_imports_preserve_output) ... 
+  test_private_imports_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_imports_preserve_output) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt', target='Secret', header='module "lib.nano" as lib') ... FAIL
+  test_private_imports_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_imports_preserve_output) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt', target='Secret', header='from "lib.nano" import Secret') ... FAIL
+test_qualified_perform (tests.test_imported_effect_identity.ImportedEffectIdentity.test_qualified_perform) ... 
+  test_qualified_perform (tests.test_imported_effect_identity.ImportedEffectIdentity.test_qualified_perform) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... FAIL
+test_same_named_effects (tests.test_imported_effect_identity.ImportedEffectIdentity.test_same_named_effects) ... 
+  test_same_named_effects (tests.test_imported_effect_identity.ImportedEffectIdentity.test_same_named_effects) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... FAIL
+test_selective_alias (tests.test_imported_effect_identity.ImportedEffectIdentity.test_selective_alias) ... 
+  test_selective_alias (tests.test_imported_effect_identity.ImportedEffectIdentity.test_selective_alias) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... FAIL
+
+======================================================================
+FAIL: test_private_effect_does_not_ambiguate_local_handler (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_effect_does_not_ambiguate_local_handler) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_imported_effect_identity.py", line 29, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpfhml482n/main.nano
+I cannot infer a unique effect for this handler.
+
+3| fn main()->int{return handle {perform Local.ask(7)} with {ask n->{n}}}
+                         ^^^^^^
+Hint: Use operation names that identify one effect.
+error: type check failed
+
+
+======================================================================
+FAIL: test_private_handler_preserves_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_handler_preserves_output) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_imported_effect_identity.py", line 32, in check
+    self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_private_imports_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_imports_preserve_output) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt', target='Secret', header='module "lib.nano" as lib')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_imported_effect_identity.py", line 32, in check
+    self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_private_imports_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_imports_preserve_output) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt', target='Secret', header='from "lib.nano" import Secret')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_imported_effect_identity.py", line 32, in check
+    self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_qualified_perform (tests.test_imported_effect_identity.ImportedEffectIdentity.test_qualified_perform) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_imported_effect_identity.py", line 29, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 2, column 44: Unexpected token in expression: DOT (type=18)
+error: parser failed
+
+
+======================================================================
+FAIL: test_same_named_effects (tests.test_imported_effect_identity.ImportedEffectIdentity.test_same_named_effects) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_imported_effect_identity.py", line 29, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 1, column 5: Effect is already defined in this scope
+Hint: E013: effect names must be unique
+Error at line 2, column 27: I require a declared effect and operation for perform.
+Hint: Check the effect and operation names against their declaration.
+Error: Type checking failed for module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpftwhp5ke/right.nano'
+Error at line 2, column 1: Failed to load module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpftwhp5ke/right.nano'
+error: module loading failed
+
+
+======================================================================
+FAIL: test_selective_alias (tests.test_imported_effect_identity.ImportedEffectIdentity.test_selective_alias) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_imported_effect_identity.py", line 29, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 1, column 1: Symbol 'E' not found in module for alias 'Chosen'
+error: module loading failed
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.367s
+
+FAILED (failures=7)

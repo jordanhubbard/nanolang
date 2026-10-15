@@ -1,0 +1,239 @@
+{
+  "host": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "runs": [
+    {
+      "name": "llvm-sanitizers",
+      "linkage": "instrumented",
+      "phase": "compile",
+      "args": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-D_DEFAULT_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-sanitize-recover=all",
+        "tests/test_nsi_socket.c",
+        "-o",
+        "/private/tmp/nanolang-tcp-llvm-sanitizers/instrumented"
+      ],
+      "returncode": 0,
+      "seconds": 0.5185904579702765,
+      "log": "llvm-sanitizers-instrumented-compile.log",
+      "binary_sha256": "c1cd15b6ac3d2b9174ae9474d594719b6a065d3fd7ac6e793a3234c5da8577db"
+    },
+    {
+      "name": "llvm-sanitizers",
+      "linkage": "instrumented",
+      "phase": "execute",
+      "args": [
+        "/private/tmp/nanolang-tcp-llvm-sanitizers/instrumented"
+      ],
+      "returncode": 0,
+      "seconds": 0.19681679201312363,
+      "log": "llvm-sanitizers-instrumented-execute.log",
+      "binary_sha256": "c1cd15b6ac3d2b9174ae9474d594719b6a065d3fd7ac6e793a3234c5da8577db"
+    },
+    {
+      "name": "llvm-sanitizers",
+      "linkage": "linked",
+      "phase": "compile",
+      "args": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-D_DEFAULT_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-sanitize-recover=all",
+        "tests/test_nsi_socket_linked.c",
+        "src/nsi_socket.c",
+        "src/nsi_cap.c",
+        "-o",
+        "/private/tmp/nanolang-tcp-llvm-sanitizers/linked"
+      ],
+      "returncode": 0,
+      "seconds": 0.3634577500051819,
+      "log": "llvm-sanitizers-linked-compile.log",
+      "binary_sha256": "41c4cda3e1c045777cb77c1a3386121bc535a3df7092ab27fbfc567a34c62c89"
+    },
+    {
+      "name": "llvm-sanitizers",
+      "linkage": "linked",
+      "phase": "execute",
+      "args": [
+        "/private/tmp/nanolang-tcp-llvm-sanitizers/linked"
+      ],
+      "returncode": 0,
+      "seconds": 0.2053241670364514,
+      "log": "llvm-sanitizers-linked-execute.log",
+      "binary_sha256": "41c4cda3e1c045777cb77c1a3386121bc535a3df7092ab27fbfc567a34c62c89"
+    },
+    {
+      "name": "apple-strict",
+      "linkage": "instrumented",
+      "phase": "compile",
+      "args": [
+        "/usr/bin/clang",
+        "-std=c11",
+        "-D_DEFAULT_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "tests/test_nsi_socket.c",
+        "-o",
+        "/private/tmp/nanolang-tcp-apple-strict/instrumented"
+      ],
+      "returncode": 0,
+      "seconds": 1.0284523339942098,
+      "log": "apple-strict-instrumented-compile.log",
+      "binary_sha256": "d00220aa6466e36dd8897bfa5679831a84f0314740b5ef75e397ec050c00281c"
+    },
+    {
+      "name": "apple-strict",
+      "linkage": "instrumented",
+      "phase": "execute",
+      "args": [
+        "/private/tmp/nanolang-tcp-apple-strict/instrumented"
+      ],
+      "returncode": 0,
+      "seconds": 0.04317175003234297,
+      "log": "apple-strict-instrumented-execute.log",
+      "binary_sha256": "d00220aa6466e36dd8897bfa5679831a84f0314740b5ef75e397ec050c00281c"
+    },
+    {
+      "name": "apple-strict",
+      "linkage": "linked",
+      "phase": "compile",
+      "args": [
+        "/usr/bin/clang",
+        "-std=c11",
+        "-D_DEFAULT_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "tests/test_nsi_socket_linked.c",
+        "src/nsi_socket.c",
+        "src/nsi_cap.c",
+        "-o",
+        "/private/tmp/nanolang-tcp-apple-strict/linked"
+      ],
+      "returncode": 0,
+      "seconds": 0.24461437499849126,
+      "log": "apple-strict-linked-compile.log",
+      "binary_sha256": "dfbe1ebbac906e8219b449496003d30cb328229f3510f3a54060ab4eb3d45005"
+    },
+    {
+      "name": "apple-strict",
+      "linkage": "linked",
+      "phase": "execute",
+      "args": [
+        "/private/tmp/nanolang-tcp-apple-strict/linked"
+      ],
+      "returncode": 0,
+      "seconds": 0.023717875010333955,
+      "log": "apple-strict-linked-execute.log",
+      "binary_sha256": "dfbe1ebbac906e8219b449496003d30cb328229f3510f3a54060ab4eb3d45005"
+    },
+    {
+      "name": "gcc-strict",
+      "linkage": "instrumented",
+      "phase": "compile",
+      "args": [
+        "/opt/homebrew/bin/gcc-16",
+        "-std=c11",
+        "-D_DEFAULT_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "tests/test_nsi_socket.c",
+        "-o",
+        "/private/tmp/nanolang-tcp-gcc-strict/instrumented"
+      ],
+      "returncode": 0,
+      "seconds": 0.9704552500043064,
+      "log": "gcc-strict-instrumented-compile.log",
+      "binary_sha256": "cd217d27e3db0978bfed519a461755b0ffa364c09c274ad53c49cdef5755a232"
+    },
+    {
+      "name": "gcc-strict",
+      "linkage": "instrumented",
+      "phase": "execute",
+      "args": [
+        "/private/tmp/nanolang-tcp-gcc-strict/instrumented"
+      ],
+      "returncode": 0,
+      "seconds": 0.02392662497004494,
+      "log": "gcc-strict-instrumented-execute.log",
+      "binary_sha256": "cd217d27e3db0978bfed519a461755b0ffa364c09c274ad53c49cdef5755a232"
+    },
+    {
+      "name": "gcc-strict",
+      "linkage": "linked",
+      "phase": "compile",
+      "args": [
+        "/opt/homebrew/bin/gcc-16",
+        "-std=c11",
+        "-D_DEFAULT_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "tests/test_nsi_socket_linked.c",
+        "src/nsi_socket.c",
+        "src/nsi_cap.c",
+        "-o",
+        "/private/tmp/nanolang-tcp-gcc-strict/linked"
+      ],
+      "returncode": 0,
+      "seconds": 0.809145167004317,
+      "log": "gcc-strict-linked-compile.log",
+      "binary_sha256": "d4e3cac487f1108414362dce63889373ac760863d02a7fe6bbac4ef4d5d64cf3"
+    },
+    {
+      "name": "gcc-strict",
+      "linkage": "linked",
+      "phase": "execute",
+      "args": [
+        "/private/tmp/nanolang-tcp-gcc-strict/linked"
+      ],
+      "returncode": 0,
+      "seconds": 0.024722833011765033,
+      "log": "gcc-strict-linked-execute.log",
+      "binary_sha256": "d4e3cac487f1108414362dce63889373ac760863d02a7fe6bbac4ef4d5d64cf3"
+    },
+    {
+      "name": "adjacency",
+      "args": [
+        "make",
+        "-f",
+        "Makefile.gnu",
+        "CC=/opt/homebrew/opt/llvm/bin/clang",
+        "CFLAGS=-std=c11 -g -O1 -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+        "LDFLAGS=-fsanitize=address,undefined",
+        "test-nsi-file",
+        "test-nsi-cap"
+      ],
+      "returncode": 0,
+      "seconds": 6.205282500013709,
+      "log": "adjacency-sanitizers.log"
+    }
+  ]
+}

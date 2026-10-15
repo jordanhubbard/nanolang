@@ -1,0 +1,134 @@
+{
+  "completed": 1136,
+  "failures": 0,
+  "effect_tests": [
+    {
+      "event": "shadow-complete",
+      "name": "parser_with_effects",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/parser.nano",
+      "line": 10169,
+      "elapsed_seconds": 0.000139,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "parse_effect_declaration",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/parser.nano",
+      "line": 10222,
+      "elapsed_seconds": 0.002273,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "parse_effect_perform",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/parser.nano",
+      "line": 10268,
+      "elapsed_seconds": 0.002405,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "parse_effect_handle",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/parser.nano",
+      "line": 10335,
+      "elapsed_seconds": 0.007095,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "effect_decl_index",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/compiler/effect_declarations.nano",
+      "line": 13,
+      "elapsed_seconds": 0.00135,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "effect_operation_index",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/compiler/effect_declarations.nano",
+      "line": 28,
+      "elapsed_seconds": 0.001325,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "effect_handler_owner",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/compiler/effect_declarations.nano",
+      "line": 56,
+      "elapsed_seconds": 0.005758,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "tc_effect_error",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 7302,
+      "elapsed_seconds": 0.000178,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "tc_effect_declarations",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 7333,
+      "elapsed_seconds": 0.004299,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "tc_effect_perform",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 7370,
+      "elapsed_seconds": 0.004314,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "tc_effect_handle",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 7422,
+      "elapsed_seconds": 0.013561,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nisa_effect_scope_end",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+      "line": 7652,
+      "elapsed_seconds": 0.000312,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nisa_effect_value_type",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+      "line": 7670,
+      "elapsed_seconds": 0.001254,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nisa_effect_value",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+      "line": 7703,
+      "elapsed_seconds": 0.003284,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nisa_effect_perform",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+      "line": 7732,
+      "elapsed_seconds": 0.005088,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "nisa_effect_handle",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_codegen.nano",
+      "line": 7799,
+      "elapsed_seconds": 0.008799,
+      "failures": 0
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) ... 
+  test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='mutation', driver='/private/tmp/nl51-union-arrays/seed-v2') ... FAIL
+
+======================================================================
+FAIL: test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (case='mutation', driver='/private/tmp/nl51-union-arrays/seed-v2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_arrays.py", line 61, in test_construction_and_retained_payloads
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0001] Variable saved: I expected a value of type `Box<string>`, but found `Box<string>`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpa21uyln3/source.nano:2:82)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 6.042s
+
+FAILED (failures=1)

@@ -1,0 +1,129 @@
+test_all_word_and_string_arrays_survive_checked_writes (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_all_word_and_string_arrays_survive_checked_writes) ... ok
+test_incompatible_concrete_field_preserves_prior_output (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_incompatible_concrete_field_preserves_prior_output) ... ok
+test_wrong_runtime_tag_element_kind_and_null_are_refused (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_wrong_runtime_tag_element_kind_and_null_are_refused) ... ok
+test_generated_present_field_compatibility_and_refusal (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_generated_present_field_compatibility_and_refusal) ... FAIL
+test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) ... 
+  test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) (tag=1, boxed=False) ... FAIL
+  test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) (tag=1, boxed=True) ... FAIL
+  test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) (tag=4, boxed=False) ... FAIL
+  test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) (tag=4, boxed=True) ... FAIL
+  test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) (tag=5, boxed=False) ... FAIL
+  test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) (tag=5, boxed=True) ... FAIL
+test_existing_populated_diagnostic_formatter (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_existing_populated_diagnostic_formatter) ... ok
+test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) ... ok
+test_dynamic_or_conflicting_record_array_globals_are_refused (tests.test_native_record_array_globals.NativeRecordArrayGlobals.test_dynamic_or_conflicting_record_array_globals_are_refused) ... ok
+test_empty_alias_nested_fields_overwrite_and_collection_match_vm (tests.test_native_record_array_globals.NativeRecordArrayGlobals.test_empty_alias_nested_fields_overwrite_and_collection_match_vm) ... ok
+
+======================================================================
+FAIL: test_generated_present_field_compatibility_and_refusal (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_generated_present_field_compatibility_and_refusal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_array_scalar_tags.py", line 74, in test_generated_present_field_compatibility_and_refusal
+    self.checked([p/'check'])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 13, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==89796==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) (tag=1, boxed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_array_scalar_tags.py", line 26, in test_ordinary_replacement_and_alias_observation
+    self.paired('.types 1 0 0\n.string first "before"\n.string second "after"\n.entry main\n.function main 0 2 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 25, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 13, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==89804==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) (tag=1, boxed=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_array_scalar_tags.py", line 26, in test_ordinary_replacement_and_alias_observation
+    self.paired('.types 1 0 0\n.string first "before"\n.string second "after"\n.entry main\n.function main 0 2 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 25, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 13, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==89812==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) (tag=4, boxed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_array_scalar_tags.py", line 26, in test_ordinary_replacement_and_alias_observation
+    self.paired('.types 1 0 0\n.string first "before"\n.string second "after"\n.entry main\n.function main 0 2 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 25, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 13, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==89820==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) (tag=4, boxed=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_array_scalar_tags.py", line 26, in test_ordinary_replacement_and_alias_observation
+    self.paired('.types 1 0 0\n.string first "before"\n.string second "after"\n.entry main\n.function main 0 2 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 25, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 13, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==89829==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) (tag=5, boxed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_array_scalar_tags.py", line 26, in test_ordinary_replacement_and_alias_observation
+    self.paired('.types 1 0 0\n.string first "before"\n.string second "after"\n.entry main\n.function main 0 2 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 25, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 13, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==89837==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) (tag=5, boxed=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_array_scalar_tags.py", line 26, in test_ordinary_replacement_and_alias_observation
+    self.paired('.types 1 0 0\n.string first "before"\n.string second "after"\n.entry main\n.function main 0 2 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 25, in paired
+    self.checked([binary])
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_optional_array_reads.py", line 13, in checked
+    self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==89845==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 19.310s
+
+FAILED (failures=7)

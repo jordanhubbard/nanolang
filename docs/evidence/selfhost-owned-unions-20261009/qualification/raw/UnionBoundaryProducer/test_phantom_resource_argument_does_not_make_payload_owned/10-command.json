@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nano_vm",
+    "--verify-only",
+    "/private/tmp/nanolang-selfhost-union-final/raw/UnionBoundaryProducer/test_phantom_resource_argument_does_not_make_payload_owned/shadows.nvm"
+  ],
+  "exit": 0
+}

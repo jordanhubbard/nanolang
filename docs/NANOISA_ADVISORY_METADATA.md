@@ -28,3 +28,85 @@ duplicate order, exact bytes, existing ownership/passive facts, lifetime and
 allocation cleanup, module-copy/link consumers, ordinary VM/native behavior,
 and the genuine canonical compiler seed build. I keep every broader Phase20
 acceptance row open.
+
+## Shadow execution markers
+
+Inside a function, `.shadow "target"` emits one `NOP` and retains the target
+under the advisory key `nanolang.shadow.offset.<absolute-bytecode-offset>`.
+I require a nonempty target without control bytes. My ordinary and owned
+self-hosted shadow emitters place this marker immediately before each selected
+shadow. With `NANO_SHADOW_TRACE` present, NanoVM reports
+`I am testing shadow <target>` to stderr when execution reaches that NOP.
+A failed shadow therefore does not report later unreachable shadows. With the
+environment variable absent, the marker has ordinary NOP behavior.
+
+These names are diagnostics, not verified source identity or permission to
+execute. They neither grant capabilities nor change ownership admission.
+Raw-bytecode consumers may author advisory metadata themselves. A bytecode
+rewriter that relocates instructions must relocate or discard these offset
+keys; copying them across a changed code layout cannot preserve trace meaning.
+Native translation preserves execution semantics but does not currently emit
+this optional diagnostic; my self-hosted compiler executes shadows in NanoVM.
+
+## Declared function purity
+
+I retain each emitted function's frontend `is_pure` flag under `nano.purity.v1`.
+Its eight-byte value contains a little-endian u32 function-table index, one
+byte (`0` for no pure declaration, `1` for a pure declaration), and three zero
+reserved bytes. A synthetic function with no declaration carries zero when it
+passes through the ordinary source emitter. Functions produced through other
+paths may have no record. Zero does not assert that a function has effects.
+Extern imports have no function-body entry; this convention does not encode
+import annotations. Unconstrained generic pure inputs still fail the existing
+purity check; admitted ordinary specializations retain zero.
+
+My assembler accepts `.function_purity 0` or `.function_purity 1` inside a
+function, once. Canonical assembly retains raw `.metadata` entries instead.
+My lookup API returns `-1` for absent metadata, an invalid function index, a
+malformed v1 record anywhere in the table, or duplicate records for the queried
+function. Unknown versions remain uninterpreted. My append API refuses malformed
+v1 tables and an existing record for the target function; allocation failure
+publishes no partial metadata entry, though unused strings may remain.
+
+These records describe frontend declarations. They do not certify inferred or
+verified purity, permit calls, or replace the ownership/passive verifiers.
+Stripping, forging or duplicating them cannot change executable behavior.
+A linker or rewriter that changes function-table indices must remap or discard
+these records. Exact module transport preserves them; general fact-aware linking
+and reconstruction remain separate requirements.
+
+## Generic specialization bindings
+
+I retain one `nano.generic.v1` entry per bound type variable of an emitted
+specialization. Its value starts with five little-endian u32 fields: the
+function-table index, then byte lengths for the original declaration name,
+source path, variable name and resolved type spelling. Those four UTF-8 strings
+follow inline, without terminators or padding. The source path may be empty
+when the producer has no filename; the other fields must be nonempty. No field
+may contain NUL. The codec treats the counted strings as descriptive bytes; it
+does not certify UTF-8 or parse the type spelling.
+
+My C producer retains its checked `TypeInfo` spelling, including internal
+nominal owner names. My selfhosted producer retains its resolved, whitespace-free
+type spelling and recovers the original declaration name before module renaming.
+These frontend spellings can differ. They preserve the frontend's identity;
+they do not replace canonical layout identities or recover original type aliases.
+Calls and contextual function values sharing one specialization share its
+binding records. Ordinary functions have no generic binding record.
+
+Inside a function, `.generic_binding "declaration" "path" "variable" "type"`
+constructs an entry. Canonical assembly transports the raw `.metadata` bytes.
+My lookup borrows counted fields and leaves its output unchanged on failure.
+Unknown versions remain uninterpreted. A malformed v1 record makes lookup fail;
+duplicate variables or inconsistent declaration origins for the queried function
+make its records ambiguous. Missing records do not imply a complete binding set.
+Appending refuses an ambiguous target binding, inconsistent origin or malformed
+v1 record. Allocation failure publishes no partial entry; unused pooled strings
+may remain available for retry.
+
+I do not use these strings to authorize execution, substitute executable types,
+choose layouts or transfer ownership. Stripping and forging them leave execution
+unchanged. A function-table rewriter must remap indices or discard the records.
+Because fields are inline bytes, string-pool relocation needs no hidden index
+rewrite. Complete generic signatures, fact-aware linking and source reconstruction
+remain separate obligations.

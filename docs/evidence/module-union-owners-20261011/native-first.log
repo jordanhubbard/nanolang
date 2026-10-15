@@ -1,0 +1,299 @@
+test_array_and_callable_payloads (tests.test_generic_union_parameters.GenericUnionParameters.test_array_and_callable_payloads) ... FAIL
+test_imported_union_and_generic_function (tests.test_generic_union_parameters.GenericUnionParameters.test_imported_union_and_generic_function) ... FAIL
+test_mismatched_instances_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_mismatched_instances_preserve_output) ... ok
+test_nested_and_multiple_parameters (tests.test_generic_union_parameters.GenericUnionParameters.test_nested_and_multiple_parameters) ... FAIL
+test_ordinary_union_identity (tests.test_generic_union_parameters.GenericUnionParameters.test_ordinary_union_identity) ... FAIL
+test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) ... 
+  test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) (case='identity') ... FAIL
+  test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) (case='unbox') ... FAIL
+  test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) (case='rebox') ... FAIL
+test_scalar_instances_and_empty_variants (tests.test_generic_union_parameters.GenericUnionParameters.test_scalar_instances_and_empty_variants) ... FAIL
+test_union_result_boundaries_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_union_result_boundaries_preserve_output) ... ok
+
+======================================================================
+FAIL: test_array_and_callable_payloads (tests.test_generic_union_parameters.GenericUnionParameters.test_array_and_callable_payloads)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 37, in test_array_and_callable_payloads
+            self.execute(BOX+UNBOX+IDENTITY+'''fn plus(x:int)->int{return (+ x 1)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow plus {assert (== (plus 1) 2)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+     return 0
+     ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 2, column 38: Unused variable 'p'
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-r04t_5l5/main.nano:7:24: error: use of undeclared identifier 'p'
+    7 |                 return p.value;
+      |                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-r04t_5l5/main.nano:7:24: error: use of undeclared identifier 'p'
+    7 |                 return p.value;
+      |                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-r04t_5l5/main.nano:7:24: error: use of undeclared identifier 'p'
+    7 |                 return p.value;
+      |                        ^
+3 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_imported_union_and_generic_function (tests.test_generic_union_parameters.GenericUnionParameters.test_imported_union_and_generic_function)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 71, in test_imported_union_and_generic_function
+            self.execute('module "box.nano" as b\n'+IDENTITY+'''fn main()->int{
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     let value:b.Box<int> = (b.make)
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    }'''+MAIN_SHADOW,files={'box.nano':BOX.replace('union','pub union',1)+UNBOX.replace('fn unbox','pub fn unbox',1)+
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                'pub fn make()->Box<int>{return Box<int>.Some {value:7}}\nshadow make {assert (== (unbox (make) 0) 7)}\n'})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 2, column 42: Unused variable 'p'
+Warning at line 2, column 42: Unused variable 'p'
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-5n3x7pzy/main.nano:7:24: error: use of undeclared identifier 'p'
+    7 |                 return p.value;
+      |                        ^
+1 error generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_nested_and_multiple_parameters (tests.test_generic_union_parameters.GenericUnionParameters.test_nested_and_multiple_parameters)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 51, in test_nested_and_multiple_parameters
+            self.execute(BOX+UNBOX+IDENTITY+'''union Choice<T,E> {Left {value:T}, Right {value:E}}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn second(value:Choice<T,E>,fallback:E)->E{match value{Left(p)=>{return fallback} Right(p)=>{return p.value}}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+     return 0
+     ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 2, column 38: Unused variable 'p'
+Warning at line 7, column 44: Unused variable 'p'
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-h_ufey7t/main.nano:7:24: error: use of undeclared identifier 'p'
+    7 |                 return p.value;
+      |                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-h_ufey7t/main.nano:7:24: error: use of undeclared identifier 'p'
+    7 |                 return p.value;
+      |                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-h_ufey7t/main.nano:17:24: error: use of undeclared identifier 'p'
+   17 |                 return p.value;
+      |                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-h_ufey7t/main.nano:17:24: error: use of undeclared identifier 'p'
+   17 |                 return p.value;
+      |                        ^
+4 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_ordinary_union_identity (tests.test_generic_union_parameters.GenericUnionParameters.test_ordinary_union_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 65, in test_ordinary_union_identity
+            self.execute(IDENTITY+'''union Choice {Number {value:int}, Flag {value:bool}}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn read(value:Choice)->int{match value{Number(p)=>{return p.value} Flag(p)=>{if p.value{return 7} return 0}}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow read {assert (== (read Choice.Number {value:7}) 7)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int{assert (== (read (identity Choice.Number {value:7})) 7) assert (== (read (identity Choice.Flag {value:true})) 7) return 0}'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_73915_main.c:1730:9: error: unknown type name 'nl_Choice'
+ 1730 | typedef nl_Choice.Number (*FnType_0)(nl_Choice.Number);
+      |         ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_73915_main.c:1730:18: error: expected identifier or '('
+ 1730 | typedef nl_Choice.Number (*FnType_0)(nl_Choice.Number);
+      |                  ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_73915_main.c:1731:9: error: unknown type name 'nl_Choice'
+ 1731 | typedef nl_Choice.Flag (*FnType_1)(nl_Choice.Flag);
+      |         ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_73915_main.c:1731:18: error: expected identifier or '('
+ 1731 | typedef nl_Choice.Flag (*FnType_1)(nl_Choice.Flag);
+      |                  ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_73915_main.c:1831:8: error: unknown type name 'nl_Choice'
+ 1831 | static nl_Choice.Number nl___contextual_0(nl_Choice.Number value);
+      |        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_73915_main.c:1831:17: error: expected identifier or '('
+ 1831 | static nl_Choice.Number nl___contextual_0(nl_Choice.Number value);
+      |                 ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_73915_main.c:1832:8: error: unknown type name 'nl_Choice'
+ 1832 | static nl_Choice.Flag nl___contextual_1(nl_Choice.Flag value);
+      |        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_73915_main.c:1832:17: error: expected identifier or '('
+ 1832 | static nl_Choice.Flag nl___contextual_1(nl_Choice.Flag value);
+      |                 ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-0o_lms8b/main.nano:6:73: error: use of undeclared identifier 'nl_Choice'
+    6 |     if (!((({ __auto_type __nl_arg_0_0 = ({ __auto_type __nl_arg_1_0 = (nl_Choice){ .tag = nl_Choice_TAG_Number, .data.Number = {.value = 7LL}}; nl___contextual_0(__nl_arg_1_0); }); nl_read(__nl_arg_0_0); })) == (7LL))) { fputs("Contract violation at line 6: (== (read (identity ...)) 7)\n", stderr); exit(1); }
+      |                                                                         ^~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-0o_lms8b/main.nano:6:146: error: call to undeclared function 'nl___contextual_0'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    6 |     if (!((({ __auto_type __nl_arg_0_0 = ({ __auto_type __nl_arg_1_0 = (nl_Choice){ .tag = nl_Choice_TAG_Number, .data.Number = {.value = 7LL}}; nl___contextual_0(__nl_arg_1_0); }); nl_read(__nl_arg_0_0); })) == (7LL))) { fputs("Contract violation at line 6: (== (read (identity ...)) 7)\n", stderr); exit(1); }
+      |                                                                                                                                                  ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-0o_lms8b/main.nano:6:146: note: did you mean 'nl___contextual_2'?
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_73915_main.c:1833:16: note: 'nl___contextual_2' declared here
+    6 | static int64_t nl___contextual_2(int64_t value);
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-0o_lms8b/main.nano:6:73: error: use of undeclared identifier 'nl_Choice'
+    6 |     if (!((({ __auto_type __nl_arg_2_0 = ({ __auto_type __nl_arg_3_0 = (nl_Choice){ .tag = nl_Choice_TAG_Flag, .data.Flag = {.value = true}}; nl___contextual_1(__nl_arg_3_0); }); nl_read(__nl_arg_2_0); })) == (7LL))) { fputs("Contract violation at line 6: (== (read (identity ...)) 7)\n", stderr); exit(1); }
+      |                                                                         ^~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-0o_lms8b/main.nano:6:143: error: call to undeclared function 'nl___contextual_1'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    6 |     if (!((({ __auto_type __nl_arg_2_0 = ({ __auto_type __nl_arg_3_0 = (nl_Choice){ .tag = nl_Choice_TAG_Flag, .data.Flag = {.value = true}}; nl___contextual_1(__nl_arg_3_0); }); nl_read(__nl_arg_2_0); })) == (7LL))) { fputs("Contract violation at line 6: (== (read (identity ...)) 7)\n", stderr); exit(1); }
+      |                                                                                                                                               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-0o_lms8b/main.nano:6:143: note: did you mean 'nl___contextual_2'?
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_73915_main.c:1833:16: note: 'nl___contextual_2' declared here
+    6 | static int64_t nl___contextual_2(int64_t value);
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-0o_lms8b/main.nano:9:8: error: unknown type name 'nl_Choice'
+    9 | static nl_Choice.Number nl___contextual_0(nl_Choice.Number value) {
+      |        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-0o_lms8b/main.nano:9:17: error: expected identifier or '('
+    9 | static nl_Choice.Number nl___contextual_0(nl_Choice.Number value) {
+      |                 ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-0o_lms8b/main.nano:4:8: error: unknown type name 'nl_Choice'
+    4 | static nl_Choice.Flag nl___contextual_1(nl_Choice.Flag value) {
+      |        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-0o_lms8b/main.nano:4:17: error: expected identifier or '('
+    4 | static nl_Choice.Flag nl___contextual_1(nl_Choice.Flag value) {
+      |                 ^
+16 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) (case='identity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 22, in test_retained_failures
+    self.execute((directory/(name+'.nano')).read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 4, column 26: Unused variable 'p'
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-u9v40j7w/main.nano:9:24: error: use of undeclared identifier 'p'
+    9 |                 return p.value;
+      |                        ^
+1 error generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) (case='unbox')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 22, in test_retained_failures
+    self.execute((directory/(name+'.nano')).read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 2, column 34: Unused variable 'p'
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-1oa5a_u3/main.nano:7:24: error: use of undeclared identifier 'p'
+    7 |                 return p.value;
+      |                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-1oa5a_u3/main.nano:7:24: error: use of undeclared identifier 'p'
+    7 |                 return p.value;
+      |                        ^
+2 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) (case='rebox')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 22, in test_retained_failures
+    self.execute((directory/(name+'.nano')).read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 4, column 26: Unused variable 'p'
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-cqeyypi0/main.nano:9:24: error: use of undeclared identifier 'p'
+    9 |                 return p.value;
+      |                        ^
+1 error generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_scalar_instances_and_empty_variants (tests.test_generic_union_parameters.GenericUnionParameters.test_scalar_instances_and_empty_variants)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 25, in test_scalar_instances_and_empty_variants
+            self.execute(BOX+UNBOX+IDENTITY+'''fn box(value:T)->Box<T>{return Box.Some {value:value}}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow box {assert (== (unbox (box 7) 0) 7)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+     return 0
+     ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 2, column 38: Unused variable 'p'
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-d6c3k59z/main.nano:7:24: error: use of undeclared identifier 'p'
+    7 |                 return p.value;
+      |                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-d6c3k59z/main.nano:7:24: error: use of undeclared identifier 'p'
+    7 |                 return p.value;
+      |                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-d6c3k59z/main.nano:7:24: error: use of undeclared identifier 'p'
+    7 |                 return p.value;
+      |                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-d6c3k59z/main.nano:7:24: error: use of undeclared identifier 'p'
+    7 |                 return p.value;
+      |                        ^
+4 errors generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 10.481s
+
+FAILED (failures=8)

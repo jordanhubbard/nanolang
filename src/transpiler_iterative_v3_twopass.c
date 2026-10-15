@@ -9,6 +9,7 @@
  */
 
 #include "nanolang.h"
+#include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
 #include "utf8.h"
@@ -113,6 +114,18 @@ static const char *match_union_c_name(ASTNode *match, Environment *env, char *bu
     return base;
 }
 
+/* I recover the declaration from registered instances, never name punctuation. */
+static UnionDef *native_union_definition(Environment *env, const char *name) {
+    UnionDef *definition = env_get_union(env, name);
+    if (definition) return definition;
+    for (int i = 0; i < env->generic_instance_count; ++i) {
+        GenericInstantiation *instance = &env->generic_instances[i];
+        if (instance->concrete_name && !strcmp(instance->concrete_name, name))
+            return env_get_union(env, instance->generic_name);
+    }
+    return NULL;
+}
+
 static bool match_uses_checked_int_domain(ASTNode *match) {
     if (!match || !match->as.match_expr.scrutinee_type_checked) {
         fprintf(stderr,
@@ -130,7 +143,24 @@ static bool match_uses_checked_int_domain(ASTNode *match) {
     exit(1);
 }
 
-static const char *checked_match_union_name(ASTNode *match) {
+static const char *checked_match_union_name(ASTNode *match, Environment *env, char *buffer, size_t size) {
+    if (match && native_generic_bindings) {
+        ASTNode *value = match->as.match_expr.expr;
+        TypeInfo *info = NULL;
+        if (value && value->type == AST_IDENTIFIER) {
+            Symbol *symbol = env_get_var_visible_at(env, value->as.identifier, value->line, value->column);
+            if (symbol) info = symbol->type_info;
+        } else if (value && value->type == AST_CALL) {
+            check_expression(value, env);
+            if (value->as.call.checked_signature) info = value->as.call.checked_signature->return_type_info;
+        }
+        if (info && info->generic_name && env_get_union(env, info->generic_name)) {
+            info = native_generic_local(env, info);
+            if (info->type_param_count && build_monomorphized_name_from_typeinfo_iter(buffer, size, info))
+                return buffer;
+            return info->generic_name;
+        }
+    }
     const char *name = match ? match->as.match_expr.union_type_name : NULL;
     if (name && name[0] != '\0') return name;
 
@@ -559,7 +589,7 @@ static const char *map_function_name(const char *name, Environment *env) {
     }
     
     /* I retain the selected declaration instead of its registry spelling. */
-    if (strcmp(name, "array_push") == 0) {
+    if (strcmp(name, "array_push") == 0 || builtin_is_array_operation(name)) {
         Function *selected = env_get_function(env, name);
         if (selected && selected->body && !selected->is_extern) {
             extern const char *get_c_func_name_with_module(const char *, const char *, bool);
@@ -588,7 +618,14 @@ static const char *map_function_name(const char *name, Environment *env) {
 }
 
 static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
+    if (expr && expr->type == AST_TUPLE_INDEX) {
+        const TypeInfo *tuple = array_expr_type_info(expr->as.tuple_index.tuple, env);
+        int index = expr->as.tuple_index.index;
+        return tuple && tuple->base_type == TYPE_TUPLE && tuple->tuple_elements &&
+            index >= 0 && index < tuple->tuple_element_count ? tuple->tuple_elements[index] : NULL;
+    }
     if (!expr) return NULL;
+    if (expr->type == AST_TUPLE_LITERAL) return expr->as.tuple_literal.type_info;
     if (expr->type == AST_CALL && expr->as.call.name &&
         strcmp(expr->as.call.name, "array_push") == 0 &&
         !env_array_push_is_builtin(env, expr->line, expr->column)) {
@@ -598,13 +635,19 @@ static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
         Function *selected = env_get_function(env, expr->as.call.name);
         return selected ? selected->return_type_info : NULL;
     }
+    if (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL) {
+        check_expression(expr, env);
+        FunctionSignature *signature = expr->type == AST_CALL ? expr->as.call.checked_signature
+            : expr->as.module_qualified_call.checked_signature;
+        if (signature) return signature->return_type_info;
+    }
     if (expr->type == AST_FIELD_ACCESS) {
         check_expression(expr, env);
         if (expr->as.field_access.resolved_type_info) return expr->as.field_access.resolved_type_info;
     }
     if (expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
-        return sym && sym->type == TYPE_ARRAY ? sym->type_info : NULL;
+        return sym ? sym->type_info : NULL;
     }
     if (expr->type == AST_CALL && expr->as.call.name &&
         strcmp(expr->as.call.name, "at") == 0 &&
@@ -630,7 +673,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && array_expr->as.call.arg_count >= 1) {
         const char *name = array_expr->as.call.name;
-        bool keeps_source = (!strcmp(name, "filter") && array_expr->as.call.arg_count == 2) ||
+        bool keeps_source = (!strcmp(env_array_operation(env, array_expr), "filter") && array_expr->as.call.arg_count == 2) ||
                             (!strcmp(name, "array_slice") && array_expr->as.call.arg_count >= 2);
         if (keeps_source)
             return infer_array_element_type(array_expr->as.call.args[0], env);
@@ -1123,8 +1166,56 @@ static void build_ordered_hashmap_call(WorkList *list, ASTNode *call, Environmen
     emit_literal(list, "); })");
 }
 
+/* I borrow complete callback annotations for sized callable array reads. */
+static void build_callable_array_read(WorkList *list, ASTNode *array,
+        ASTNode *callback, int parameter, Environment *env) {
+    const TypeInfo *info = array_expr_type_info(array, env);
+    FunctionSignature *signature = info && info->element_type ? info->element_type->fn_sig : NULL;
+    FunctionSignature *operation = NULL;
+    if (!signature && callback && callback->contextual_func_name) {
+        for (int i = 0; i < env->generic_func_instance_count; ++i) {
+            GenericFuncInstance *instance = &env->generic_func_instances[i];
+            if (!strcmp(instance->mono_name, callback->contextual_func_name)) {
+                operation = instance->signature;
+                break;
+            }
+        }
+    }
+    if (!signature && callback && callback->type == AST_IDENTIFIER) {
+        Symbol *symbol = env_get_var_visible_at(env, callback->as.identifier, callback->line, callback->column);
+        Function *function = symbol ? NULL : env_get_function(env, callback->as.identifier);
+        if (symbol && symbol->type_info) operation = symbol->type_info->fn_sig;
+        if (function && parameter < function->param_count) {
+            Parameter *input = &function->params[parameter];
+            signature = input->fn_sig ? input->fn_sig : input->type_info ? input->type_info->fn_sig : NULL;
+        }
+    }
+    if (!signature && callback && callback->type == AST_CALL) {
+        if (callback->as.call.checked_signature)
+            operation = callback->as.call.checked_signature->return_fn_sig;
+        if (!operation && callback->as.call.name) {
+            Function *factory = env_get_function(env, callback->as.call.name);
+            if (factory) operation = factory->return_fn_sig;
+        }
+    }
+    if (!signature && operation && operation->param_type_info && parameter < operation->param_count) {
+        TypeInfo *input = operation->param_type_info[parameter];
+        signature = input ? input->fn_sig : NULL;
+    }
+    if (!signature) {
+        fprintf(stderr, "I require the complete callable array operation signature.\n");
+        exit(1);
+    }
+    const char *type = register_function_signature(g_function_registry, signature);
+    emit_literal(list, "void *_slot = dyn_array_get_struct(_arr, _i); ");
+    emit_literal(list, "if (!_slot) { fputs(\"I require an in-bounds callable array element.\\n\", stderr); abort(); } ");
+    emit_formatted(list, "%s _elem = *((%s *)_slot); ", type, type);
+}
+
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
     if (!expr) return;
+    if (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL)
+        check_expression(expr, env);
 
     if (native_effect_program && expr != effect_guarded_foreign_call &&
         (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL)) {
@@ -1193,6 +1284,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             break;
             
         case AST_IDENTIFIER: {
+            if (expr->contextual_func_name) {
+                emit_formatted(list, "nl_%s", expr->contextual_func_name);
+                break;
+            }
             if (in_effect_handler) {
                 const char *captured = effect_capture_name(expr->as.identifier, expr->line, expr->column);
                 if (captured != expr->as.identifier) { emit_literal(list, captured); break; }
@@ -1681,6 +1776,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
             /* Map function name */
             const char *func_name = expr->as.call.name;
+            const char *array_operation = env_array_operation(env, expr);
+            if (*array_operation) func_name = array_operation;
             
             /* Check for NULL function name (happens with function pointers: ((get_operation choice) a b)) */
             if (!func_name) {
@@ -1996,14 +2093,15 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
 
             /* Special handling for filter() - compiled lowering */
-            else if (strcmp(func_name, "filter") == 0 && expr->as.call.arg_count == 2) {
+            else if (strcmp(array_operation, "filter") == 0 && expr->as.call.arg_count == 2) {
                 /* filter(array<T>, fn(T)->bool) -> array<T>
                  * Arrays are DynArray* in compiled mode.
                  */
                 ASTNode *array_arg = expr->as.call.args[0];
                 ASTNode *fn_arg = expr->as.call.args[1];
 
-                Type elem_type = TYPE_INT;  /* default */
+                Type elem_type = infer_array_element_type(array_arg, env);
+                if (elem_type == TYPE_UNKNOWN) elem_type = TYPE_INT;
                 const char *struct_name = NULL;
 
                 if (array_arg && array_arg->type == AST_IDENTIFIER) {
@@ -2053,7 +2151,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     elem_enum = "ELEM_ARRAY";
                     type_suffix = "array";
                     c_type = "DynArray*";
-                } else if (elem_type == TYPE_STRUCT) {
+                } else if (elem_type == TYPE_STRUCT || elem_type == TYPE_FUNCTION) {
                     elem_enum = "ELEM_STRUCT";
                 }
 
@@ -2066,12 +2164,15 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_literal(list, "int64_t _len = dyn_array_length(_arr); ");
                 emit_literal(list, "for (int64_t _i = 0; _i < _len; _i++) { ");
 
-                if (elem_type == TYPE_STRUCT && struct_name) {
+                if (elem_type == TYPE_FUNCTION) {
+                    build_callable_array_read(list, array_arg, fn_arg, 0, env);
+                    emit_literal(list, "if (_pred(_elem)) { dyn_array_push_struct(_out, &_elem, sizeof _elem); } ");
+                } else if (elem_type == TYPE_STRUCT && struct_name) {
                     emit_formatted(list,
-                                   "nl_%s _elem = *((nl_%s*)dyn_array_get_struct(_arr, _i)); ",
-                                   struct_name, struct_name);
+                                   "%s _elem = *((%s*)dyn_array_get_struct(_arr, _i)); ",
+                                   get_prefixed_type_name(struct_name), get_prefixed_type_name(struct_name));
                     emit_literal(list, "if (_pred(_elem)) { ");
-                    emit_formatted(list, "dyn_array_push_struct(_out, &_elem, sizeof(nl_%s)); ", struct_name);
+                    emit_formatted(list, "dyn_array_push_struct(_out, &_elem, sizeof(%s)); ", get_prefixed_type_name(struct_name));
                     emit_literal(list, "} ");
                 } else if (elem_type == TYPE_STRUCT && !struct_name) {
                     emit_literal(list, "int64_t _elem = dyn_array_get_int(_arr, _i); ");
@@ -2087,14 +2188,15 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
 
             /* Special handling for map() - compiled lowering */
-            else if (strcmp(func_name, "map") == 0 && expr->as.call.arg_count == 2) {
+            else if (strcmp(array_operation, "map") == 0 && expr->as.call.arg_count == 2) {
                 /* map(array<T>, fn(T)->U) -> array<U>
                  * Arrays are DynArray* in compiled mode.
                  */
                 ASTNode *array_arg = expr->as.call.args[0];
                 ASTNode *fn_arg = expr->as.call.args[1];
 
-                Type elem_type = TYPE_INT;  /* default */
+                Type elem_type = infer_array_element_type(array_arg, env);
+                if (elem_type == TYPE_UNKNOWN) elem_type = TYPE_INT;
                 const char *struct_name = NULL;
 
                 if (array_arg && array_arg->type == AST_IDENTIFIER) {
@@ -2136,7 +2238,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     elem_enum = "ELEM_ARRAY";
                     type_suffix = "array";
                     c_type = "DynArray*";
-                } else if (elem_type == TYPE_STRUCT) {
+                } else if (elem_type == TYPE_STRUCT || elem_type == TYPE_FUNCTION) {
                     elem_enum = "ELEM_STRUCT";
                 }
 
@@ -2151,37 +2253,36 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 else if (result_type == TYPE_BOOL) { elem_enum = "ELEM_BOOL"; result_suffix = "bool"; }
                 else if (result_type == TYPE_STRING) { elem_enum = "ELEM_STRING"; result_suffix = "string"; }
                 else if (result_type == TYPE_ARRAY) { elem_enum = "ELEM_ARRAY"; result_suffix = "array"; }
+                else if (result_type == TYPE_FUNCTION || result_type == TYPE_STRUCT) { elem_enum = "ELEM_STRUCT"; }
                 emit_formatted(list, "; DynArray* _out = dyn_array_new(%s); ", elem_enum);
                 emit_literal(list, "int64_t _len = dyn_array_length(_arr); ");
                 emit_literal(list, "for (int64_t _i = 0; _i < _len; _i++) { ");
 
-                if (elem_type == TYPE_STRUCT && struct_name) {
-                    emit_formatted(list,
-                                   "nl_%s _elem = *((nl_%s*)dyn_array_get_struct(_arr, _i)); ",
-                                   struct_name, struct_name);
-                    emit_formatted(list,
-                                   "nl_%s _mapped = _f(_elem); dyn_array_push_struct(_out, &_mapped, sizeof(nl_%s)); ",
-                                   struct_name, struct_name);
-                } else if (elem_type == TYPE_STRUCT && !struct_name) {
-                    /* Best effort fallback - treat as int to avoid generating invalid C types */
-                    emit_literal(list, "int64_t _elem = dyn_array_get_int(_arr, _i); ");
-                    emit_literal(list, "int64_t _mapped = _f(_elem); dyn_array_push_int(_out, _mapped); ");
+                if (elem_type == TYPE_FUNCTION) {
+                    build_callable_array_read(list, array_arg, fn_arg, 0, env);
+                } else if (elem_type == TYPE_STRUCT && struct_name) {
+                    emit_formatted(list, "%s _elem = *((%s*)dyn_array_get_struct(_arr, _i)); ",
+                        get_prefixed_type_name(struct_name), get_prefixed_type_name(struct_name));
                 } else {
                     emit_formatted(list, "%s _elem = dyn_array_get_%s(_arr, _i); ", c_type, type_suffix);
-                    emit_formatted(list, "__auto_type _mapped = _f(_elem); dyn_array_push_%s(_out, _mapped); ", result_suffix);
                 }
+                emit_literal(list, "__auto_type _mapped = _f(_elem); ");
+                if (result_type == TYPE_FUNCTION || result_type == TYPE_STRUCT)
+                    emit_literal(list, "dyn_array_push_struct(_out, &_mapped, sizeof _mapped); ");
+                else emit_formatted(list, "dyn_array_push_%s(_out, _mapped); ", result_suffix);
 
                 emit_literal(list, "} _out; })");
             }
 
             /* Special handling for reduce() - compiled lowering */
-            else if (strcmp(func_name, "reduce") == 0 && expr->as.call.arg_count == 3) {
+            else if (strcmp(array_operation, "reduce") == 0 && expr->as.call.arg_count == 3) {
                 /* reduce(array<T>, acc, fn(acc, T)->acc) -> acc */
                 ASTNode *array_arg = expr->as.call.args[0];
                 ASTNode *initial_arg = expr->as.call.args[1];
                 ASTNode *fn_arg = expr->as.call.args[2];
 
-                Type elem_type = TYPE_INT;  /* default */
+                Type elem_type = infer_array_element_type(array_arg, env);
+                if (elem_type == TYPE_UNKNOWN) elem_type = TYPE_INT;
                 const char *elem_struct_name = NULL;
 
                 if (array_arg && array_arg->type == AST_IDENTIFIER) {
@@ -2203,34 +2304,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
 
-                Type acc_type = check_expression(initial_arg, env);
-                const char *acc_c_type = "int64_t";
-                const char *acc_struct_name = NULL;
-
-                if (acc_type == TYPE_FLOAT) {
-                    acc_c_type = "double";
-                } else if (acc_type == TYPE_BOOL) {
-                    acc_c_type = "bool";
-                } else if (acc_type == TYPE_STRING) {
-                    acc_c_type = "const char*";
-                } else if (acc_type == TYPE_ARRAY) {
-                    acc_c_type = "DynArray*";
-                } else if (acc_type == TYPE_STRUCT) {
-                    /* Try to recover struct name */
-                    if (initial_arg && initial_arg->type == AST_STRUCT_LITERAL) {
-                        acc_struct_name = initial_arg->as.struct_literal.struct_name;
-                    } else if (initial_arg && initial_arg->type == AST_IDENTIFIER) {
-                        Symbol *sym = env_get_var_visible_at(env, initial_arg->as.identifier, initial_arg->line, initial_arg->column);
-                        if (sym && sym->struct_type_name) {
-                            acc_struct_name = sym->struct_type_name;
-                        }
-                    }
-                    if (acc_struct_name) {
-                        static _Thread_local char buf[256];
-                        snprintf(buf, sizeof(buf), "nl_%s", acc_struct_name);
-                        acc_c_type = buf;
-                    }
-                }
+                elem_type = resolved_array_element(elem_type, elem_struct_name, env);
 
                 const char *elem_suffix = "int";
                 const char *elem_c_type = "int64_t";
@@ -2250,21 +2324,23 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                 emit_literal(list, "({ DynArray* _arr = ");
                 build_expr(list, array_arg, env);
+                emit_literal(list, check_expression(initial_arg, env) == TYPE_STRING
+                    ? "; const char *_acc = " : "; __auto_type _acc = ");
+                build_expr(list, initial_arg, env);
                 emit_literal(list, "; __auto_type _f = ");
                 build_expr(list, fn_arg, env);
-                emit_literal(list, "; ");
-
-                emit_formatted(list, "%s _acc = ", acc_c_type);
-                build_expr(list, initial_arg, env);
                 emit_literal(list, "; ");
 
                 emit_literal(list, "int64_t _len = dyn_array_length(_arr); ");
                 emit_literal(list, "for (int64_t _i = 0; _i < _len; _i++) { ");
 
-                if (elem_type == TYPE_STRUCT && elem_struct_name) {
+                if (elem_type == TYPE_FUNCTION) {
+                    build_callable_array_read(list, array_arg, fn_arg, 1, env);
+                    emit_literal(list, "_acc = _f(_acc, _elem); ");
+                } else if (elem_type == TYPE_STRUCT && elem_struct_name) {
                     emit_formatted(list,
-                                   "nl_%s _elem = *((nl_%s*)dyn_array_get_struct(_arr, _i)); ",
-                                   elem_struct_name, elem_struct_name);
+                                   "%s _elem = *((%s*)dyn_array_get_struct(_arr, _i)); ",
+                                   get_prefixed_type_name(elem_struct_name), get_prefixed_type_name(elem_struct_name));
                     emit_literal(list, "_acc = _f(_acc, _elem); ");
                 } else if (elem_type == TYPE_STRUCT && !elem_struct_name) {
                     emit_literal(list, "int64_t _elem = dyn_array_get_int(_arr, _i); ");
@@ -2290,8 +2366,12 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     elem_type = TYPE_INT;  /* Fallback */
                 }
 
+                const TypeInfo *array_info = array_expr_type_info(array_arg, env);
+                if (array_info && array_info->element_type)
+                    struct_name = array_info->element_type->generic_name;
+
                 /* If this is an array of structs, try to recover the element struct name */
-                if (elem_type == TYPE_STRUCT) {
+                if (elem_type == TYPE_STRUCT && !struct_name) {
                     if (array_arg->type == AST_CALL && array_arg->as.call.name &&
                         !array_arg->as.call.func_expr) {
                         Function *producer = env_get_function(env, array_arg->as.call.name);
@@ -2328,11 +2408,28 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (elem_type == TYPE_STRUCT && (strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0))
                     struct_name = get_struct_type_name(expr, env);
 
-                /* For structs, use dyn_array_get/set_struct with casts */
-                if (elem_type == TYPE_STRUCT && struct_name) {
+                /* I copy typed callable pointers through sized array slots. */
+                if (elem_type == TYPE_FUNCTION) {
+                    FunctionSignature *signature = array_info && array_info->element_type
+                        ? array_info->element_type->fn_sig : NULL;
+                    if (!signature) { fprintf(stderr, "I require the complete callable array signature.\n"); exit(1); }
+                    const char *type_name = register_function_signature(g_function_registry, signature);
+                    emit_literal(list, "({ ");
+                    unsigned call_id = build_ordered_call_args(list, expr->as.call.args, expr->as.call.arg_count, env, NULL);
+                    if (strcmp(func_name, "array_set") == 0) {
+                        emit_formatted(list,
+                            "%s _value = __nl_arg_%u_2; dyn_array_set_struct(__nl_arg_%u_0, __nl_arg_%u_1, &_value, sizeof _value); })",
+                            type_name, call_id, call_id, call_id);
+                    } else {
+                        emit_formatted(list,
+                            "void *_slot = dyn_array_get_struct(__nl_arg_%u_0, __nl_arg_%u_1); "
+                            "if (!_slot) { fputs(\"I require an in-bounds callable array element.\\n\", stderr); abort(); } "
+                            "*((%s *)_slot); })", call_id, call_id, type_name);
+                    }
+                } else if (elem_type == TYPE_STRUCT && struct_name) {
                     if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0)) {
                         /* Generate: *((nl_StructName*)dyn_array_get_struct(arr, idx)) */
-                        emit_formatted(list, "(*((nl_%s*)dyn_array_get_struct(", struct_name);
+                        emit_formatted(list, "(*((%s*)dyn_array_get_struct(", get_prefixed_type_name(struct_name));
                         build_expr(list, expr->as.call.args[0], env);  /* array */
                         emit_literal(list, ", ");
                         build_expr(list, expr->as.call.args[1], env);  /* index */
@@ -2345,7 +2442,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         build_expr(list, expr->as.call.args[1], env);  /* index */
                         emit_literal(list, ", &(");
                         build_expr(list, expr->as.call.args[2], env);  /* value */
-                        emit_formatted(list, "), sizeof(nl_%s))", struct_name);
+                        emit_formatted(list, "), sizeof(%s))", get_prefixed_type_name(struct_name));
                     }
                 } else {
                     /* Map element type to suffix for primitive types */
@@ -2421,7 +2518,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     elem_type_str = "ELEM_BOOL";
                 } else if (elem_type == TYPE_ARRAY) {
                     elem_type_str = "ELEM_ARRAY";
-                } else if (elem_type == TYPE_STRUCT) {
+                } else if (elem_type == TYPE_STRUCT || elem_type == TYPE_FUNCTION) {
                     elem_type_str = "ELEM_STRUCT";
                 }
                 
@@ -2432,7 +2529,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_formatted(list, "DynArray* _arr = dyn_array_new(%s); ", elem_type_str);
                 emit_formatted(list, "for (int64_t _i = 0; _i < __nl_arg_%u_0; _i++) { ", call_id);
 
-                if (elem_type == TYPE_STRUCT) {
+                if (elem_type == TYPE_STRUCT || elem_type == TYPE_FUNCTION) {
                     emit_formatted(list, "dyn_array_push_struct(_arr, &__nl_arg_%u_1, sizeof(__nl_arg_%u_1)); ", call_id, call_id);
                 } else {
                     /* For primitives: dyn_array_push_<type>(_arr, value) */
@@ -2466,7 +2563,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                  * addressable storage, and either operand may have effects. */
                 emit_literal(list, "({ ");
                 unsigned call_id = build_ordered_call_args(list, expr->as.call.args, 2, env, NULL);
-                if (elem_type == TYPE_STRUCT) {
+                if (elem_type == TYPE_STRUCT || elem_type == TYPE_FUNCTION) {
                     emit_formatted(list,
                         "dyn_array_push_struct(__nl_arg_%u_0, &__nl_arg_%u_1, sizeof(__nl_arg_%u_1)); })",
                         call_id, call_id, call_id);
@@ -2498,12 +2595,22 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
                 
-                /* For structs, use dyn_array_pop_struct */
-                if (elem_type == TYPE_STRUCT && struct_name) {
+                const TypeInfo *array_info = array_expr_type_info(array_arg, env);
+                if (array_info && array_info->element_type) elem_type = array_info->element_type->base_type;
+                if (elem_type == TYPE_FUNCTION) {
+                    FunctionSignature *signature = array_info && array_info->element_type
+                        ? array_info->element_type->fn_sig : NULL;
+                    if (!signature) { fprintf(stderr, "I require the complete callable array signature.\n"); exit(1); }
+                    const char *type_name = register_function_signature(g_function_registry, signature);
+                    emit_formatted(list, "({ bool _success; %s _value; dyn_array_pop_struct(", type_name);
+                    build_expr(list, array_arg, env);
+                    emit_literal(list, ", &_value, sizeof _value, &_success); "
+                        "if (!_success) { fputs(\"I cannot pop an empty callable array.\\n\", stderr); abort(); } _value; })");
+                } else if (elem_type == TYPE_STRUCT && struct_name) {
                     /* Generate: ({ bool _s; nl_StructName _v; dyn_array_pop_struct(arr, &_v, sizeof(nl_StructName), &_s); _v; }) */
-                    emit_formatted(list, "({ bool _s; nl_%s _v; dyn_array_pop_struct(", struct_name);
+                    emit_formatted(list, "({ bool _s; %s _v; dyn_array_pop_struct(", get_prefixed_type_name(struct_name));
                     build_expr(list, expr->as.call.args[0], env);  /* array */
-                    emit_formatted(list, ", &_v, sizeof(nl_%s), &_s); _v; })", struct_name);
+                    emit_formatted(list, ", &_v, sizeof(%s), &_s); _v; })", get_prefixed_type_name(struct_name));
                 } else {
                     /* Map element type to suffix for primitive types */
                     const char *type_suffix = "int";
@@ -2660,7 +2767,20 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             sprintf(qualified_name, "%s.%s", module_alias, function_name);
             
             /* Map to C function name */
-            char *c_name = strdup(map_function_name(qualified_name, env));
+            const char *selected_name = NULL;
+            Function *selected_function = env_get_function(env, qualified_name);
+            for (int i = 0; selected_function && i < env->generic_func_instance_count; ++i) {
+                GenericFuncInstance *instance = &env->generic_func_instances[i];
+                if (instance->signature && !strcmp(instance->orig_name, selected_function->name) &&
+                    function_signatures_equal(instance->signature, expr->as.module_qualified_call.checked_signature)) {
+                    selected_name = instance->mono_name; break;
+                }
+            }
+            char *c_name;
+            if (selected_name) {
+                c_name = malloc(strlen(selected_name) + 4);
+                if (c_name) sprintf(c_name, "nl_%s", selected_name);
+            } else c_name = strdup(map_function_name(qualified_name, env));
             if (!c_name) {
                 fprintf(stderr, "I could not retain the qualified native call name.\n");
                 exit(1);
@@ -2729,7 +2849,14 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             const char *typedef_name = NULL;
             
             if (g_tuple_registry && element_count > 0) {
-                if (expr->as.tuple_literal.element_types) {
+                if (expr->as.tuple_literal.type_info) {
+                    /* I discover contextual field tuples while buffering
+                     * bodies, before the complete layout graph is emitted. */
+                    TypeInfo *info = expr->as.tuple_literal.type_info;
+                    if (native_generic_bindings && generic_contains(env, info, 0))
+                        info = native_generic_local(env, info);
+                    typedef_name = register_tuple_type(g_tuple_registry, info);
+                } else if (expr->as.tuple_literal.element_types) {
                     /* Element types are set - look up by exact match */
                     for (int i = 0; i < g_tuple_registry->count; i++) {
                         TypeInfo *registered = g_tuple_registry->tuples[i];
@@ -2809,12 +2936,20 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         }
         
         case AST_FIELD_ACCESS: {
+            ASTNode *literal = env_qualified_import_literal(env, expr);
+            if (literal) {
+                build_expr(list, literal, env);
+                break;
+            }
             /* Check if this is an enum variant (Enum.Variant) */
             if (expr->as.field_access.object->type == AST_IDENTIFIER) {
                 const char *object_name = expr->as.field_access.object->as.identifier;
-                if (env_get_enum(env, object_name)) {
-                    /* It's an enum - generate prefixed variant name */
-                    const char *prefixed = get_prefixed_variant_name(object_name, expr->as.field_access.field_name);
+                EnumDef *enumeration = env_get_var_visible_at(env, object_name,
+                    expr->as.field_access.object->line, expr->as.field_access.object->column)
+                    ? NULL : env_get_enum(env, object_name);
+                if (enumeration) {
+                    /* I emit the variant from its canonical declaration. */
+                    const char *prefixed = get_prefixed_variant_name(enumeration->name, expr->as.field_access.field_name);
                     emit_literal(list, prefixed);
                     break;
                 }
@@ -2954,6 +3089,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             
             ASTNode *spread = expr->as.struct_literal.spread_source;
             char spread_name[64];
+            unsigned override_id = 0;
             if (spread && sdef) {
                 unsigned index = 0;
                 do {
@@ -2962,12 +3098,14 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_formatted(list, "({ __auto_type %s = ", spread_name);
                 build_expr(list, spread, env);
                 emit_formatted(list, "; (void)%s; ", spread_name);
+                override_id = build_ordered_call_args(list, expr->as.struct_literal.field_values, field_count, env, NULL);
             }
             emit_formatted(list, "(%s){", get_prefixed_type_name(struct_name));
             for (int i = 0; i < field_count; i++) {
                 if (i > 0) emit_literal(list, ", ");
                 emit_formatted(list, ".%s = ", expr->as.struct_literal.field_names[i]);
-                build_expr(list, expr->as.struct_literal.field_values[i], env);
+                if (spread && sdef) emit_formatted(list, "__nl_arg_%u_%d", override_id, i);
+                else build_expr(list, expr->as.struct_literal.field_values[i], env);
             }
             if (spread && sdef) {
                 int emitted = field_count;
@@ -3000,6 +3138,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             if (!context && g_current_function &&
                 g_current_function->as.function.return_type == TYPE_UNION)
                 context = g_current_function->as.function.return_type_info;
+            if (context && native_generic_bindings && generic_contains(env, context, 0))
+                context = native_generic_local(env, context);
             if (context && context->generic_name && context->type_param_count > 0 &&
                 strcmp(union_name, context->generic_name) == 0) {
                 if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name), context)) {
@@ -3069,7 +3209,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "dyn_array_new(ELEM_STRING)");
                 } else if (elem_type == TYPE_BOOL) {
                     emit_literal(list, "dyn_array_new(ELEM_BOOL)");
-                } else if (elem_type == TYPE_STRUCT) {
+                } else if (elem_type == TYPE_STRUCT || elem_type == TYPE_FUNCTION) {
                     /* Array of structs - size will be set on first push */
                     emit_literal(list, "dyn_array_new(ELEM_STRUCT)");
                 } else {
@@ -3079,7 +3219,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             } else {
                 /* Non-empty array - prefer stored element type (possibly set from type context) */
                 Type elem_type = expr->as.array_literal.element_type;
-                if (elem_type == TYPE_UNKNOWN) {
+                if (elem_type == TYPE_UNKNOWN || elem_type == TYPE_STRUCT) {
                     elem_type = check_expression(expr->as.array_literal.elements[0], env);
                 }
                 
@@ -3120,7 +3260,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         build_expr(list, expr->as.array_literal.elements[i], env);
                     }
                     emit_literal(list, ")");
-                } else if (elem_type == TYPE_STRUCT) {
+                } else if (elem_type == TYPE_STRUCT || elem_type == TYPE_FUNCTION) {
                     /* I snapshot each record in source order before copying its
                      * value into a dynamic record array. */
                     unsigned array_id = next_nested_array_id(env);
@@ -3183,26 +3323,13 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
 
+            char concrete_union[256];
             const char *union_c_name = is_int_match_expr
-                ? "" : checked_match_union_name(expr);
+                ? "" : checked_match_union_name(expr, env, concrete_union, sizeof concrete_union);
 
             /* Look up union definition to check variant field counts.
              * For generic unions, union_c_name is monomorphized; use the base name for lookup. */
-            const char *base_union_name = union_c_name;
-            char base_buf[256];
-            UnionDef *udef = env_get_union(env, base_union_name);
-            if (!udef) {
-                const char *us = strchr(union_c_name, '_');
-                if (us) {
-                    size_t n = (size_t)(us - union_c_name);
-                    if (n < sizeof(base_buf)) {
-                        memcpy(base_buf, union_c_name, n);
-                        base_buf[n] = '\0';
-                        base_union_name = base_buf;
-                        udef = env_get_union(env, base_union_name);
-                    }
-                }
-            }
+            UnionDef *udef = native_union_definition(env, union_c_name);
 
             /* I lower the checked match value, not the enclosing return type. */
             Type result_type = expr->as.match_expr.result_type;
@@ -3457,7 +3584,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 build_expr(list, expr->as.effect_op.args[i], env);
                 emit_literal(list, "; ");
             }
-            emit_formatted(list, "nl_perform_%s_%s(", expr->as.effect_op.effect_name, expr->as.effect_op.op_name);
+            emit_formatted(list, "nl_perform_%s_%s(", module_symbol_suffix(expr->as.effect_op.effect_name), expr->as.effect_op.op_name);
             for (int i = 0; i < expr->as.effect_op.arg_count; ++i)
                 emit_formatted(list, "%s_effect_arg%d", i ? ", " : "", i);
             emit_literal(list, "); })");
@@ -3507,6 +3634,24 @@ static bool loop_body_has_exit(const ASTNode *node) {
 static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry) {
     if (!stmt) return;
+    ASTNode concrete;
+    if (stmt->type == AST_LET) {
+        TypeInfo view;
+        const TypeInfo *formal = generic_view(stmt->as.let.type_info, stmt->as.let.var_type,
+            stmt->as.let.type_name, stmt->as.let.fn_sig, &view);
+        if ((native_generic_bindings && generic_contains(env, formal, 0)) ||
+            (formal->generic_name && strchr(formal->generic_name, '.') && env_get_union(env, formal->generic_name))) {
+            TypeInfo *info = native_generic_local(env, formal);
+            concrete = *stmt;
+            concrete.as.let.var_type = info->base_type;
+            concrete.as.let.type_info = info;
+            concrete.as.let.type_name = info->base_type == TYPE_ARRAY && info->element_type
+                ? info->element_type->generic_name : info->generic_name;
+            concrete.as.let.fn_sig = info->fn_sig;
+            concrete.as.let.element_type = info->element_type ? info->element_type->base_type : TYPE_UNKNOWN;
+            stmt = &concrete;
+        }
+    }
 
     switch (stmt->type) {
         case AST_BLOCK:
@@ -3615,8 +3760,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_indent_item(list, indent);
             emit_literal(list, "/* par-let end */\n");
             emit_indent_item(list, indent);
+            emit_literal(list, "(void)(");
             build_expr(list, stmt->as.par_let.body, env);
-            emit_literal(list, ";\n");
+            emit_literal(list, ");\n");
             break;
         case AST_MATCH: {
             /* Use the checked domain rather than reconstructing it from arms.
@@ -3634,26 +3780,13 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 }
             }
 
+            char concrete_union[256];
             const char *union_c_name = is_int_match_stmt
-                ? "" : checked_match_union_name(stmt);
+                ? "" : checked_match_union_name(stmt, env, concrete_union, sizeof concrete_union);
 
             /* For generic unions, typechecker stores the monomorphized name (e.g. Result_int_string).
              * We still need the base name (e.g. Result) to look up the union definition. */
-            const char *base_union_name = union_c_name;
-            char base_buf[256];
-            UnionDef *udef = env_get_union(env, base_union_name);
-            if (!udef) {
-                const char *us = strchr(union_c_name, '_');
-                if (us) {
-                    size_t n = (size_t)(us - union_c_name);
-                    if (n < sizeof(base_buf)) {
-                        memcpy(base_buf, union_c_name, n);
-                        base_buf[n] = '\0';
-                        base_union_name = base_buf;
-                        udef = env_get_union(env, base_union_name);
-                    }
-                }
-            }
+            UnionDef *udef = native_union_definition(env, union_c_name);
 
             const char *prefixed_union = get_prefixed_type_name(union_c_name);
 
@@ -4361,15 +4494,31 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n");
                     emit_indent_item(list, indent + 2);
-                    emit_formatted(list, "%s %s = %s(__nl_arr, __nl_idx);\n",
-                                   c_elem_type, var, get_fn);
-                    /* Emit body statements */
-                    ASTNode *dyn_body = stmt->as.for_stmt.body;
                     scope_stack_push(scopes, list);
                     if (!reestablish_checked_loop_binding(env, stmt)) {
                         fprintf(stderr, "I require checked loop binding metadata at line %d.\n", stmt->line);
                         exit(1);
                     }
+                    if (dyn_elem_type == TYPE_FUNCTION) {
+                        Symbol *binding = env_get_var(env, var);
+                        FunctionSignature *signature = binding && binding->type_info
+                            ? binding->type_info->fn_sig : NULL;
+                        if (!signature) {
+                            fprintf(stderr, "I require the complete callable loop signature.\n");
+                            exit(1);
+                        }
+                        const char *callable_type = register_function_signature(g_function_registry, signature);
+                        emit_literal(list, "void *__nl_slot = dyn_array_get_struct(__nl_arr, __nl_idx);\n");
+                        emit_indent_item(list, indent + 2);
+                        emit_literal(list, "if (!__nl_slot) { fputs(\"I require an in-bounds callable loop element.\\n\", stderr); abort(); }\n");
+                        emit_indent_item(list, indent + 2);
+                        emit_formatted(list, "%s %s = *((%s *)__nl_slot);\n", callable_type, var, callable_type);
+                    } else {
+                        emit_formatted(list, "%s %s = %s(__nl_arr, __nl_idx);\n",
+                                       c_elem_type, var, get_fn);
+                    }
+                    /* Emit body statements */
+                    ASTNode *dyn_body = stmt->as.for_stmt.body;
                     if (!strcmp(var, "_")) list->underscore_name = NULL;
                     if (dyn_body && dyn_body->type == AST_BLOCK) {
                         for (int bi = 0; bi < dyn_body->as.block.count; bi++) {
@@ -4703,6 +4852,9 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
         EffectOp *result_op = effect_get_op(env_get_effect(env, result_expr->as.effect_op.effect_name), result_expr->as.effect_op.op_name);
         if (result_op) result_name = result_op->return_type_name;
     }
+    /* I retain the result spelling while nested checking refreshes call annotations. */
+    char *retained_result_name = result_name ? strdup(result_name) : NULL;
+    result_name = retained_result_name;
     Type lexical = g_current_function->as.function.return_type;
     Symbol **captures = calloc((size_t)env->symbol_count, sizeof(*captures));
     int count = 0;
@@ -4789,4 +4941,5 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
     emit_literal(list, "})");
     for (int c = 0; c < count; ++c) free(captures[c]);
     free(captures);
+    free(retained_result_name);
 }

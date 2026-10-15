@@ -1,0 +1,6 @@
+test_typed_locals_transitive_calls_and_recursion (tests.test_cseed_tuple_generics.TupleGenerics.test_typed_locals_transitive_calls_and_recursion) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.830s
+
+OK

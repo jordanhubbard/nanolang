@@ -1,0 +1,4 @@
+['/private/tmp/nl51-ws-compiler-native', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-artifacts-iqmj8jbp/wrong.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-artifacts-iqmj8jbp/wrong.nvm']
+I cannot lower this checked program: I require exact operands for this artifact call
+
+exit=1

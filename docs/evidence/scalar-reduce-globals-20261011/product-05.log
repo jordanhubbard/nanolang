@@ -1,0 +1,19 @@
+test_boolean_results_and_empty (tests.test_scalar_reduce_source.ScalarReduce.test_boolean_results_and_empty) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-a6o271oc
+ok
+test_bound_reduce_function_and_local (tests.test_scalar_reduce_source.ScalarReduce.test_bound_reduce_function_and_local) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-l1aw_7zr
+ok
+test_checked_signature_refusals_preserve_output (tests.test_scalar_reduce_source.ScalarReduce.test_checked_signature_refusals_preserve_output) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-t568h1xu
+ok
+test_float_contexts_and_empty (tests.test_scalar_reduce_source.ScalarReduce.test_float_contexts_and_empty) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-6ukoqusw
+ok
+test_global_array_mutations_preserve_result_storage (tests.test_scalar_reduce_source.ScalarReduce.test_global_array_mutations_preserve_result_storage) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-4a3buho3
+ok
+test_neighbor_helpers (tests.test_scalar_reduce_source.ScalarReduce.test_neighbor_helpers) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-mu_o5l5a
+ok
+test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-92n36l4c
+ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 19.156s
+
+OK

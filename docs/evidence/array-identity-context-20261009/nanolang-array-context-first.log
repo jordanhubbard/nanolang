@@ -1,0 +1,26 @@
+I retain checked array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/checked-array-literals-szhlpqfw
+test_all_byte_destinations (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_all_byte_destinations) ... 
+  test_all_byte_destinations (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_all_byte_destinations) (context='argument') ... FAIL
+test_invalid_elements_and_existing_storage_preserve_output (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_invalid_elements_and_existing_storage_preserve_output) ... ok
+test_nested_literals_keep_context (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_nested_literals_keep_context) ... ok
+
+======================================================================
+FAIL: test_all_byte_destinations (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_all_byte_destinations) (context='argument')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_array_literal_context.py", line 53, in test_all_byte_destinations
+    self.qualify(name, source)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_array_literal_context.py", line 39, in qualify
+    self.command(self.driver, path, 'program', '0', assembly)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_array_literal_context.py", line 32, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}{result.stderr}')
+AssertionError: (PosixPath('/private/tmp/nanolang-array-context-driver'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/checked-array-literals-szhlpqfw/argument.nano'), 'program', '0', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/checked-array-literals-szhlpqfw/argument.nasm')): 1
+TYPECHECK
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.787s
+
+FAILED (failures=1)

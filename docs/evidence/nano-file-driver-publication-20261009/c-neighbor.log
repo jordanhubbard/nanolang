@@ -1,0 +1,9 @@
+test_generated_shadows_byte_parity_and_native_runtime_grant (tests.test_service_drivers.ServiceDrivers.test_generated_shadows_byte_parity_and_native_runtime_grant) ... ok
+test_grant_failure_aliases_and_compiler_failure_preserve_output (tests.test_service_drivers.ServiceDrivers.test_grant_failure_aliases_and_compiler_failure_preserve_output) ... ok
+test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse (tests.test_service_drivers.ServiceDrivers.test_no_shadows_need_no_compile_grant_and_invalid_bodies_refuse) ... ok
+test_required_import_shadows_and_root_only_selection (tests.test_service_drivers.ServiceDrivers.test_required_import_shadows_and_root_only_selection) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 19.043s
+
+OK

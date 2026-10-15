@@ -26,7 +26,7 @@ I am not warm, but I am not cold either. I am the voice of someone who has built
 
 > My project policy requires shadow tests. My compiler currently warns about missing tests, with exemptions documented in canonical style. A test checks its assertions; it does not prove every input.
 
-> I built myself. My bootstrap exercises the resulting compilers. Matching canonical compiler outputs is a separate 5.0 acceptance criterion, and remains unfinished.
+> I built myself. My bootstrap exercises the resulting compilers. My bootstrap checks byte-identical Stage 1 and Stage 2 NanoISA modules. That fixed point is a test, not proof of compiler correctness.
 
 ---
 
@@ -60,7 +60,7 @@ Compiler exemptions include extern functions, main, generated lambdas, and funct
 
 ### 4. Build Yourself
 
-I am self-hosting. The C reference compiler (Stage 0) compiles my NanoLang compiler (Stage 1), which compiles it again (Stage 2). My current bootstrap can pass with different native binaries. Equality of canonical `.nvm` outputs remains a 5.0 gate; even a fixed point does not prove compiler semantic correctness.
+I am self-hosting. The C reference compiler (Stage 0) compiles my NanoLang compiler (Stage 1), which compiles it again (Stage 2). My bootstrap requires byte-identical Stage 1 and Stage 2 `.nvm` outputs and an unchanged host-library closure. Native binaries may differ. The fixed point does not prove compiler semantic correctness; exact release-candidate platform checks remain separate.
 
 Self-hosting is not vanity. It is the ultimate test of language completeness. If I cannot express my own compiler, I am not expressive enough. Every feature I ask you to use, I have used myself.
 

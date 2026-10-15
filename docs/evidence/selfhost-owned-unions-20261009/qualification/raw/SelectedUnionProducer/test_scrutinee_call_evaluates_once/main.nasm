@@ -1,0 +1,89 @@
+.types 1 0 1
+.entry 0
+.string "Handle"
+.string "fd"
+.string "Choice"
+.string "owner"
+.string "main"
+.string "make_value"
+.string "consume"
+.string "Some"
+.string "None"
+.layouts "02000000000001000000000001000000ffffffff010000000200010002000000080000000000000003000000"
+.ownership "030000000200000003030000030000000000000001000000ffffffff020000000a0000000100000001000000ffffffff08000000000000000600000001000000ffffffff0a0000000100000008000000000000000800000000000000080000000000000001000000ffffffff0a00000001000000040000000000000002000000010001001c00000001000000010000000200000007000000000001000800000001000000030001000c0000000100000001010000ffffffff"
+.function main 0 0 0 int 1
+  PUSH_I64 0
+  STORE_GLOBAL 0
+  PUSH_I64 0
+  STORE_GLOBAL 0
+  CALL 2
+  PUSH_I64 7
+  EQ
+  ASSERT
+  LOAD_GLOBAL 0
+  PUSH_I64 1
+  EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.end
+.function make_value 0 2 0 union 1
+  LOAD_GLOBAL 0
+  PUSH_I64 1
+  ADD
+  STORE_GLOBAL 0
+  PUSH_I64 7
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  OWN_PACK 0
+  OWN_STORE_LOCAL 1
+  OWN_MOVE_LOCAL 1
+  AGG_PACK 1 0 0 1
+  RET
+.end
+.function consume 0 6 0 int 1
+  CALL 1
+  MATCH_TAG 0 nb_control_1
+  JMP nb_control_2
+  nb_control_1:
+  OWN_STORE_LOCAL 0
+  .local_begin 0 "payload"
+  OWN_UNPACK_LOCAL 0
+  OWN_STORE_LOCAL 1
+  OWN_MOVE_LOCAL 1
+  OWN_STORE_LOCAL 2
+  .local_begin 2 "owner"
+  OWN_MOVE_LOCAL 2
+  OWN_STORE_LOCAL 3
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 3
+  REF_GET 0 0
+  REGION_END
+  STORE_LOCAL 4
+  .local_begin 4 "fd"
+  LOAD_LOCAL 4
+  OWN_UNPACK_LOCAL 3
+  POP
+  RET
+  .local_end 2
+  .local_end 4
+  .local_end 0
+  nb_control_2:
+  MATCH_TAG 1 nb_control_3
+  JMP nb_control_4
+  nb_control_3:
+  OWN_STORE_LOCAL 5
+  OWN_UNPACK_LOCAL 5
+  .local_begin 5 "payload"
+  PUSH_I64 0
+  RET
+  .local_end 5
+  nb_control_4:
+  POP
+  PUSH_BOOL 0
+  ASSERT
+  HALT
+  nb_control_0:
+.end
+.parameters 1
+.parameters 2

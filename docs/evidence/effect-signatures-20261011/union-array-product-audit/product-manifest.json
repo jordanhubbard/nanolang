@@ -1,0 +1,127 @@
+{
+  "revision": "6d5b3556f46f0396118c0a042684713bed13357e",
+  "inputs": {
+    "src/nanolang.h": "40e217d734d62341aaab27c3f4d9a2992db53baa339158cb65816d4c1655bc67",
+    "src/typechecker.c": "068771cde8be3b544b220ba9fa5dd71d3e3d8ee0a136d8b7457c4844362831bd",
+    "src_nano/typecheck.nano": "adf840863ff2086d108e6ef0075531090289a0b85410ceb684a320bddf7f88a7",
+    "src/nanovirt/codegen.c": "96c3fb42f950e3792fc4728a1804000f599f14fb40a2a53518a0f6f4e077b243",
+    "src/nanovirt/generic_codegen.inc": "37699303476f906782114c026f9f2fb017dfe37ab3dfd8f8edf00a9c5a540797",
+    "src_nano/compiler/nanoisa_codegen.nano": "b40b389254997afa7cba966a65c0c04a396d8b6223ca7f194e0030d210c68d15",
+    "tests/test_effect_signature_identity.py": "2048dc1ea3243e5a2274d4b424c2fa2fae41f972460de71b3c85b9f459c68abd",
+    "src/nanoisa/nvm2c.c": "2c70d3cb4e9bdd22da6a8476e11494bc2243173244c6473b4ae0849251f2822b",
+    "tests/test_union_arrays.py": "97ea26c82daf6fe3c0fafc62718f54528229b93da526b3129f6bb6946586a493"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_effects",
+        "tests.test_effect_signature_identity",
+        "tests.test_union_arrays",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 45.684906500042416,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-union-arrays/product-audit/seed",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-union-arrays/product-audit/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 349.95614170795307,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-union-arrays/product-audit/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.12362229102291167,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-union-arrays/product-audit/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-union-arrays/product-audit/compiler.c"
+      ],
+      "returncode": 0,
+      "seconds": 20.02730283292476,
+      "log": "product-03.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-union-arrays/product-audit/compiler.c",
+        "-o",
+        "/private/tmp/nl51-union-arrays/product-audit/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "returncode": 0,
+      "seconds": 7.270579625037499,
+      "log": "product-04.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-union-arrays/product-audit/compiler",
+        "--help"
+      ],
+      "returncode": 0,
+      "seconds": 0.02028808300383389,
+      "log": "product-05.log"
+    },
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_effects",
+        "tests.test_effect_signature_identity",
+        "tests.test_union_arrays",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 19.494358708965592,
+      "log": "product-06.log"
+    },
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_generic_binding_metadata",
+        "tests.test_function_purity_metadata",
+        "tests.test_generic_union_parameters",
+        "tests.test_contextual_generic_functions",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 18.648059332976118,
+      "log": "product-07.log"
+    }
+  ],
+  "seed_build_log": "seed-build.log",
+  "inputs_unchanged": true,
+  "artifacts": {
+    "seed": "90556bf1dc090808bcc761b1553801fea4b84a15ffa00da5580f06f238e3b777",
+    "compiler.nvm": "ea4227882694847abcaecb9ca75a065d1a5fae4ccbd089084b5ee5c4b78d5ac9",
+    "compiler.c": "8f925ab9c99e78f9397e1c606563aee018c351e029a0aabbf7b19b88c10fefa3",
+    "compiler": "be931172ebbe7ab1c38f8cc691f5c0a4129c3d708bec1057eb53b041fb25e17f"
+  }
+}

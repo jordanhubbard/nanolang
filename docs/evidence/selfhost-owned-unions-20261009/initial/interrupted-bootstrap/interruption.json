@@ -1,0 +1,5 @@
+{
+  "session": 30519,
+  "exit": 130,
+  "reason": "I deliberately interrupted the still-live bootstrap after the additional nested-copyable-union boundary reproduced an invalid declaration defect in both producers. I did not treat the bootstrap as failed or complete; the corrected source requires a fresh qualification."
+}

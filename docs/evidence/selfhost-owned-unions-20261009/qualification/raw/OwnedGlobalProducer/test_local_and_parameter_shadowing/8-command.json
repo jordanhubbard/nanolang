@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-selfhost-union-final/raw/OwnedGlobalProducer/shadow-driver",
+    "/private/tmp/nanolang-selfhost-union-final/raw/OwnedGlobalProducer/test_local_and_parameter_shadowing/main.nano",
+    "0",
+    "raw"
+  ],
+  "exit": 0
+}

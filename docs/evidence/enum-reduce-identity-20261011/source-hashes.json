@@ -1,0 +1,6 @@
+{
+  "src/typechecker.c": "235d0c631a74d590076963ee0f1d526d56ae9d6d352166bc9d79e2daf9dc18fd",
+  "src/transpiler_iterative_v3_twopass.c": "39ed8698937b43305a954e344a27f366d999400d68e62121755416d00ddc689b",
+  "tests/test_typechecker.c": "4b3ae0904d1c6a3347ca8fc70f14a2f020520f2b70df72d564d549921afda8e1",
+  "tests/test_reduce_nominal_values.py": "44d5a8e8c6a7248b541a2a8ecb2d4c9ef0913f7e1a93886ee2f9afc9c2400d6e"
+}

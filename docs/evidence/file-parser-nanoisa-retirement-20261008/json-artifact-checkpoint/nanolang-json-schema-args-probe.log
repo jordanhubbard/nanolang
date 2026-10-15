@@ -1,0 +1,4 @@
+I could not execute the module: Type error
+  I64_NE requires two integers
+I rejected failed shadow execution
+I will not publish bytecode after failed shadows

@@ -1,0 +1,22 @@
+Error at line 110, column 122: Expected parameter name
+Error at line 110, column 128: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 130: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 133: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 135: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 144: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 146: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 149: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 151: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 156: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 158: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 161: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 163: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 166: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 110, column 171: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 111, column 5: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 111, column 8: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 111, column 9: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 111, column 12: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 111, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+AFFINE_C_FRONTEND_FAILED:parser

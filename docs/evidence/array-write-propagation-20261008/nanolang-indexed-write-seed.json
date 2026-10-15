@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/private/tmp/nanolang-write-indexed-tools/bin/nvm2c",
+    "/private/tmp/nanolang-capture-ae92c0488-cow/bin/nanoc_seed.nvm",
+    "-o",
+    "/private/tmp/nanolang-indexed-write-seed.c"
+  ],
+  "seconds": 10.921145458007231,
+  "exit_code": 0,
+  "translator_sha256": "80a5a48a723b26652da7238950a808e1a73d8f329957bda86d2aa5771af7b7ef"
+}

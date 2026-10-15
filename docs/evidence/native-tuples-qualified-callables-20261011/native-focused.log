@@ -1,0 +1,84 @@
+test_imported_tuple_result (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_result) ... ok
+test_structural_tuple_result_substitution (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_result_substitution) ... ok
+test_imported_tuple_signatures_and_aliases (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_signatures_and_aliases) ... FAIL
+test_generic_tuple_literals_in_nested_results (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_tuple_literals_in_nested_results) ... FAIL
+
+======================================================================
+FAIL: test_imported_tuple_signatures_and_aliases (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_signatures_and_aliases)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 165, in test_imported_tuple_signatures_and_aliases
+            self.execute('module "pair.nano" as pair\nfrom "pair.nano" import flip as other\n'+IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let value:(int,bool) = (pair.make)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    shadow flip {assert (== (flip (3,true)).1 3)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    '''})
+    ^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-dqhprs95/main.nano
+I cannot find a variable named `pair`.
+
+8|     let flip:fn((int,bool))->(bool,int) = pair.flip
+                                             ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-dqhprs95/main.nano
+Field access requires a struct value.
+
+8|     let flip:fn((int,bool))->(bool,int) = pair.flip
+                                                 ^
+Hint: Ensure the object before '.' is a struct type.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-dqhprs95/main.nano
+I cannot find a variable named `pair`.
+
+9|     let maker:fn()->(int,bool) = pair.make
+                                    ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-dqhprs95/main.nano
+Field access requires a struct value.
+
+9|     let maker:fn()->(int,bool) = pair.make
+                                        ^
+Hint: Ensure the object before '.' is a struct type.
+Type checking failed
+
+
+======================================================================
+FAIL: test_generic_tuple_literals_in_nested_results (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_tuple_literals_in_nested_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 182, in test_generic_tuple_literals_in_nested_results
+            self.execute(IDENTITY+'''fn wrap(value:T)->((T,bool),T){return ((value,true),value)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow wrap {let value=(wrap 3) assert (== value.0.0 3) assert value.0.1}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<17 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 4, column 50: Expected field name, variant name, or tuple index after '.'
+Error at line 4, column 70: Expected field name, variant name, or tuple index after '.'
+Error at line 12, column 42: Expected field name, variant name, or tuple index after '.'
+Error at line 15, column 23: Expected field name, variant name, or tuple index after '.'
+Error at line 17, column 21: Expected field name, variant name, or tuple index after '.'
+Parsing error
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.733s
+
+FAILED (failures=2)

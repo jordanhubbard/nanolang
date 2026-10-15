@@ -1,0 +1,26 @@
+/private/tmp/nl51-structural-binding-candidate.nano:57:16: error: comparison of integers of different signs: 'int64_t' (aka 'long long') and 'unsigned long' [-Werror,-Wsign-compare]
+   57 |     while ((i) < (({ __auto_type __nl_arg_1994_0 = spelling; strlen(__nl_arg_1994_0); })))     {
+      |             ~  ^  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nl51-structural-binding-candidate.nano:60:26: error: comparison of integers of different signs: 'int64_t' (aka 'long long') and 'unsigned long' [-Werror,-Wsign-compare]
+   60 |             while ((((i) < (({ __auto_type __nl_arg_1997_0 = spelling; strlen(__nl_arg_1997_0); }))) && (({ __auto_type __nl_arg_1998_0 = ({ __auto_type __nl_arg_1999_0 = spelling; __auto_type __nl_arg_1999_1 = i; char_at(__nl_arg_1999_0, __nl_arg_1999_1); }); nl_generic_word_char(__nl_arg_1998_0); }))))             {
+      |                       ~  ^  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nl51-structural-binding-candidate.nano:79:16: error: comparison of integers of different signs: 'int64_t' (aka 'long long') and 'unsigned long' [-Werror,-Wsign-compare]
+   79 |     while ((i) < (({ __auto_type __nl_arg_2002_0 = spelling; strlen(__nl_arg_2002_0); })))     {
+      |             ~  ^  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nl51-structural-binding-candidate.nano:115:29: error: comparison of integers of different signs: 'int64_t' (aka 'long long') and 'unsigned long' [-Werror,-Wsign-compare]
+  115 |     while (((valid) && ((f) < (({ __auto_type __nl_arg_2009_0 = formal; strlen(__nl_arg_2009_0); })))))     {
+      |                          ~  ^  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nl51-structural-binding-candidate.nano:116:17: error: comparison of integers of different signs: 'int64_t' (aka 'long long') and 'unsigned long' [-Werror,-Wsign-compare]
+  116 |         if ((a) >= (({ __auto_type __nl_arg_2010_0 = actual; strlen(__nl_arg_2010_0); })))         {
+      |              ~  ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nl51-structural-binding-candidate.nano:119:26: error: comparison of integers of different signs: 'int64_t' (aka 'long long') and 'unsigned long' [-Werror,-Wsign-compare]
+  119 |             while ((((f) < (({ __auto_type __nl_arg_2013_0 = formal; strlen(__nl_arg_2013_0); }))) && (({ __auto_type __nl_arg_2014_0 = ({ __auto_type __nl_arg_2015_0 = formal; __auto_type __nl_arg_2015_1 = f; char_at(__nl_arg_2015_0, __nl_arg_2015_1); }); nl_generic_word_char(__nl_arg_2014_0); }))))             {
+      |                       ~  ^  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nl51-structural-binding-candidate.nano:138:30: error: comparison of integers of different signs: 'int64_t' (aka 'long long') and 'unsigned long' [-Werror,-Wsign-compare]
+  138 |                 while ((((a) < (({ __auto_type __nl_arg_2023_0 = actual; strlen(__nl_arg_2023_0); }))) && (({ __auto_type __nl_arg_2024_0 = ({ __auto_type __nl_arg_2025_0 = actual; __auto_type __nl_arg_2025_1 = a; char_at(__nl_arg_2025_0, __nl_arg_2025_1); }); nl_generic_word_char(__nl_arg_2024_0); }))))                 {
+      |                           ~  ^  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nl51-structural-binding-candidate.nano:147:13: error: comparison of integers of different signs: 'int64_t' (aka 'long long') and 'unsigned long' [-Werror,-Wsign-compare]
+  147 |     if ((a) != (({ __auto_type __nl_arg_2029_0 = actual; strlen(__nl_arg_2029_0); })))     {
+      |          ~  ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+8 errors generated.
+C compilation failed

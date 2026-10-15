@@ -135,7 +135,9 @@
     "PNODE_EFFECT_DECL",
     "PNODE_HANDLE_EXPR",
     "PNODE_ASYNC_FN",
-    "PNODE_SERVICE_DECL"
+    "PNODE_SERVICE_DECL",
+    "PNODE_LAMBDA",
+    "PNODE_EFFECT_OP"
   ],
   "nano_enums": [
     {
@@ -180,8 +182,9 @@
         "PHASE_LEXER",
         "PHASE_PARSER",
         "PHASE_TYPECHECK",
-        "PHASE_TRANSPILER",
-        "PHASE_RUNTIME"
+        "PHASE_NANOISA",
+        "PHASE_RUNTIME",
+        "PHASE_BACKEND"
       ]
     }
   ],
@@ -523,6 +526,14 @@
           "bool"
         ],
         [
+          "is_pub",
+          "bool"
+        ],
+        [
+          "is_generated",
+          "bool"
+        ],
+        [
           "is_destructure",
           "bool"
         ],
@@ -735,6 +746,10 @@
         [
           "is_flow",
           "bool"
+        ],
+        [
+          "is_legacy_par",
+          "bool"
         ]
       ],
       "emit_c": true
@@ -851,6 +866,10 @@
         [
           "is_pure",
           "bool"
+        ],
+        [
+          "self_name",
+          "string"
         ]
       ],
       "emit_c": true
@@ -1334,6 +1353,136 @@
       ]
     },
     {
+      "name": "ASTEffectDecl",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "name",
+          "string"
+        ],
+        [
+          "is_pub",
+          "bool"
+        ],
+        [
+          "operation_names",
+          "array<string>"
+        ],
+        [
+          "parameter_types",
+          "array<string>"
+        ],
+        [
+          "parameter_starts",
+          "array<int>"
+        ],
+        [
+          "parameter_counts",
+          "array<int>"
+        ],
+        [
+          "return_types",
+          "array<string>"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTEffectPerform",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "effect_name",
+          "string"
+        ],
+        [
+          "operation_name",
+          "string"
+        ],
+        [
+          "argument_ids",
+          "array<int>"
+        ],
+        [
+          "argument_types",
+          "array<int>"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTEffectHandle",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "body_id",
+          "int"
+        ],
+        [
+          "body_type",
+          "int"
+        ],
+        [
+          "operation_names",
+          "array<string>"
+        ],
+        [
+          "parameter_names",
+          "array<string>"
+        ],
+        [
+          "parameter_starts",
+          "array<int>"
+        ],
+        [
+          "parameter_counts",
+          "array<int>"
+        ],
+        [
+          "arm_ids",
+          "array<int>"
+        ],
+        [
+          "arm_types",
+          "array<int>"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
       "name": "Parser",
       "fields": [
         [
@@ -1643,6 +1792,18 @@
         [
           "services_count",
           "int"
+        ],
+        [
+          "effects",
+          "array<ASTEffectDecl>"
+        ],
+        [
+          "performs",
+          "array<ASTEffectPerform>"
+        ],
+        [
+          "handlers",
+          "array<ASTEffectHandle>"
         ]
       ],
       "emit_c": true

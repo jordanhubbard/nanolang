@@ -1,0 +1,19 @@
+test_failure_aliases_and_nonexecuting_emission (tests.test_socket_service_drivers.SocketServiceDrivers.test_failure_aliases_and_nonexecuting_emission) ... FAIL
+
+======================================================================
+FAIL: test_failure_aliases_and_nonexecuting_emission (tests.test_socket_service_drivers.SocketServiceDrivers.test_failure_aliases_and_nonexecuting_emission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_drivers.py", line 103, in test_failure_aliases_and_nonexecuting_emission
+    self.run_command([driver, self.source, '--allow-tcp-connections', *flags, '-o', output], 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_drivers.py", line 34, in run_command
+    self.assertEqual(run.returncode,expected,run.stdout+run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 1 : I stopped at a native invariant in nhost_artifact_20 at generated C line 1200.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 7.161s
+
+FAILED (failures=1)

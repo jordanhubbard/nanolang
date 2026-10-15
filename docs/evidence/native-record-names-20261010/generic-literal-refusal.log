@@ -1,0 +1,29 @@
+test_generic_record_arguments_and_results (tests.test_native_record_names.NativeRecordNames.test_generic_record_arguments_and_results) ... FAIL
+
+======================================================================
+FAIL: test_generic_record_arguments_and_results (tests.test_native_record_names.NativeRecordNames.test_generic_record_arguments_and_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_names.py", line 62, in test_generic_record_arguments_and_results
+    self.execute(source,root/'native')
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_names.py", line 19, in execute
+    self.command([compiler,source,'-o',destination])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_names.py", line 14, in command
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpke3bznce/generic.nano:4:119: error: passing '__nl_record_NSType' (aka 'struct __nl_record_NSType') to parameter of incompatible type 'int64_t' (aka 'long long')
+    4 |     __nl_record_NSType value = ({ __auto_type __nl_arg_0_0 = (__nl_record_NSType){.value = 37LL}; nl_identity_unknown(__nl_arg_0_0); });
+      |                                                                                                                       ^~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_90293_native.c:1821:44: note: passing argument to parameter 'value' here
+ 1821 | static int64_t nl_identity_unknown(int64_t value);
+      |                                            ^
+1 error generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.397s
+
+FAILED (failures=1)

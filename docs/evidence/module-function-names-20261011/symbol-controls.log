@@ -1,0 +1,6 @@
+test_symbol_suffix_collisions_and_call_mapping (tests.test_module_compile_invocation.ModuleCompileInvocation.test_symbol_suffix_collisions_and_call_mapping) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.095s
+
+OK

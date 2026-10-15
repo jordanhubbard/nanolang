@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I cannot verify ownership: resource remains live at scope exit: value (/private/tmp/nanolang-selfhost-union-final/installed/GenericSelectedUnionStage2/test_drop_union_rejected/main.nano:6:12)

@@ -1,0 +1,29 @@
+{
+  "hashes": {
+    "src_nano/generated/compiler_schema.nano": "2eebd56927f639b4e38fa6ada1a91b4bf4b7213fdf76302b362e93ace50f4547",
+    "src_nano/generated/compiler_ast.nano": "ff8f46d9de160b7260fdfcbe4da6a0e9b1b41a5be8661184de56f0f978b6b06b",
+    "src_nano/generated/compiler_contracts.nano": "2e0a537b8e69e04d48d948dd9e75f27c03ad002a7f2585cf00380cee6cfb5d0b",
+    "src/generated/compiler_schema.h": "a60be3d50f2a41a9bd8391ffc124bbd3a738f46fd0cc839fd60f6d0f69c5c173"
+  },
+  "results": [
+    {
+      "argv": [
+        "/private/tmp/nl51-named-functions/schema-generator"
+      ],
+      "returncode": 0,
+      "stdout": "Generating compiler schema artifacts...\nLoaded schema: 30552\nParsed schema successfully\nWriting src_nano/generated/compiler_schema.nano...\nWriting src_nano/generated/compiler_ast.nano...\nWriting src_nano/generated/compiler_contracts.nano...\nWriting src/generated/compiler_schema.h...\n\u2713 Schema generation complete!\n",
+      "stderr": "",
+      "matches": true
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/gen_compiler_schema.py"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "matches": true
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -Isrc/nanoisa tests/nanoisa/test_affine_global_flow.c -o obj/test_affine_global_flow
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+obj/test_affine_global_flow
+Assertion failed: (edge(got.lexical_return, input, end) == (safe && returned[end])), function pair, file test_affine_global_flow.c, line 31.
+make: *** [test-affine-global-flow] Abort trap: 6
+make: *** Waiting for unfinished jobs....

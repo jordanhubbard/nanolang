@@ -1,0 +1,6 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o
+src/nanovm/vm.c:3278:64: error: no member named 'integer' in 'union NanoValue::(unnamed at src/nanovm/value.h:38:5)'
+ 3278 |                     results[i].tag == TAG_INT && results[i].as.integer == 0) {
+      |                                                  ~~~~~~~~~~~~~ ^
+1 error generated.
+make: *** [obj/nanovm/vm.o] Error 1

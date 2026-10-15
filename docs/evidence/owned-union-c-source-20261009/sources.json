@@ -1,0 +1,7 @@
+{
+  "src/nanovirt/borrow_codegen.inc": "f5d095d163436ef7b3536c274eb6f00a9fd458b7cd76cc6b658d80895cf74e51",
+  "tests/test_owned_union_c_source.py": "2fcf89d100829ca1cf5a16f2c934424184bb08f77b7d58504f86b97ccf482be8",
+  "tests/test_selected_variant_ownership.py": "8c563c70b26c5b2e9d15c51fbf87b0e608d5967ff3ca4bce85c6079e46365e57",
+  "tests/test_generic_selected_ownership.py": "b01f25c78f9c21ab74b4c89d2781d36cc859db700acff866ecea446402d42053",
+  "Makefile.gnu": "0d1fe2d6a887b2d770ba2d37f6aae6941a9bbd2c02f2c4dc4de7e1d2e09602b6"
+}

@@ -1,0 +1,82 @@
+--- f35ae5370/src/nanoisa/file_cyclic.inc
++++ scratch/file_cyclic.inc
+@@ -96,12 +96,12 @@
+         if(!same(s->locals[i].type,s->declarations->locals[s->declarations->offsets[s->function]+i]))
+             return NVM_FILE_FLOW_INVALID;
+         NvmFileFlowStatus status=file_cyclic_value(w,s->locals[i],&c->locals[i],true);
+-        if(status!=NVM_FILE_FLOW_OK)return status;
++        if(status!=NVM_FILE_FLOW_OK){fprintf(stderr,"CYCLIC failure line %d status %u\n",__LINE__,status);return status;}
+     }
+     for(uint16_t i=0;i<c->info.stack;i++) {
+         if(!s->stack[i].initialized)return NVM_FILE_FLOW_INVALID;
+         NvmFileFlowStatus status=file_cyclic_value(w,s->stack[i],&c->stack[i],false);
+-        if(status!=NVM_FILE_FLOW_OK)return status;
++        if(status!=NVM_FILE_FLOW_OK){fprintf(stderr,"CYCLIC failure line %d status %u\n",__LINE__,status);return status;}
+     }
+     for(uint16_t i=0;i<s->region_count;i++) {
+         if(!s->regions[i])return NVM_FILE_FLOW_INVALID;
+@@ -151,7 +151,7 @@
+     }
+     if(site->count==NVM_FILE_CYCLIC_ALTERNATIVES || w->tail==NVM_FILE_CYCLIC_FUNCTION_PAIRS ||
+        r->summary.variants==NVM_FILE_CYCLIC_PAIRS || !file_cyclic_room(r,1,sizeof(FileCyclicNode)))
+-        return NVM_FILE_FLOW_LIMIT;
++        {fprintf(stderr,"LIMIT site=%u queue=%u total=%u bytes=%zu node=%zu\n",site->count,w->tail,r->summary.variants,r->summary.storage_peak,sizeof(FileCyclicNode));return NVM_FILE_FLOW_LIMIT;}
+     FileCyclicNode *node=calloc(1,sizeof *node);if(!node)return NVM_FILE_FLOW_MEMORY;
+     node->state=w->canonical;node->fact.input=w->canonical.info;
+     node->fact.edge_variants[0]=node->fact.edge_variants[1]=NVM_FILE_CYCLIC_NO_VARIANT;
+@@ -199,8 +199,8 @@
+             UINT64_C(257)+i,UINT64_C(257)+i,0};
+     }
+     file_cyclic_scratch(w,scratch,f,&w->canonical);
+-    NvmFileFlowStatus status=file_cyclic_canonicalize(w);if(status!=NVM_FILE_FLOW_OK)return status;
+-    uint8_t ordinal;status=file_cyclic_intern(r,w,f,0,&ordinal);if(status!=NVM_FILE_FLOW_OK)return status;
++    NvmFileFlowStatus status=file_cyclic_canonicalize(w);if(status!=NVM_FILE_FLOW_OK){fprintf(stderr,"CYCLIC failure line %d status %u\n",__LINE__,status);return status;}
++    uint8_t ordinal;status=file_cyclic_intern(r,w,f,0,&ordinal);if(status!=NVM_FILE_FLOW_OK){fprintf(stderr,"CYCLIC failure line %d status %u\n",__LINE__,status);return status;}
+     bool returned=false;
+     while(w->head<w->tail) {
+         FileCyclicWork item=w->queue[w->head++];
+@@ -215,9 +215,9 @@
+         fact->cleanup_local=NVM_FILE_FLOW_NO_REFERENCE;fact->pending_checks=NVM_FILE_FLOW_CHECK_CLEANUP;
+         status=extension?extension->transfer(extension->context,&w->body,&w->transfer,in,fact):
+                          file_body_transfer(&w->body,&w->transfer,in,fact);
+-        if(status!=NVM_FILE_FLOW_OK)return status;
++        if(status!=NVM_FILE_FLOW_OK){fprintf(stderr,"CYCLIC failure line %d status %u\n",__LINE__,status);return status;}
+         fact->output_stack=w->transfer.stack_count;returned|=fact->exit_checked;
+-        status=file_cyclic_canonicalize(w);if(status!=NVM_FILE_FLOW_OK)return status;
++        status=file_cyclic_canonicalize(w);if(status!=NVM_FILE_FLOW_OK){fprintf(stderr,"CYCLIC failure line %d status %u\n",__LINE__,status);return status;}
+         node->fact.output=w->canonical.info;
+         NvmFileFlowArm prior=NVM_FILE_FLOW_ARM_NONE;
+         uint16_t refine=0;
+@@ -235,9 +235,9 @@
+             }
+             if(r->summary.edges==NVM_FILE_CYCLIC_EDGES)return NVM_FILE_FLOW_LIMIT;
+             r->summary.edges++;
+-            status=file_cyclic_canonicalize(w);if(status!=NVM_FILE_FLOW_OK)return status;
++            status=file_cyclic_canonicalize(w);if(status!=NVM_FILE_FLOW_OK){fprintf(stderr,"CYCLIC failure line %d status %u\n",__LINE__,status);return status;}
+             status=file_cyclic_intern(r,w,f,in->successors[edge],&ordinal);
+-            if(status!=NVM_FILE_FLOW_OK)return status;
++            if(status!=NVM_FILE_FLOW_OK){fprintf(stderr,"CYCLIC failure line %d status %u\n",__LINE__,status);return status;}
+             node->fact.edge_variants[edge]=ordinal;node->fact.edge_mask|=(uint8_t)(1u<<edge);
+         }
+         node->processed=true;
+@@ -278,7 +278,7 @@
+                                              uint32_t *instructions,size_t *bytes,
+                                              size_t *declaration_bytes) {
+     NvmFileFlowStatus status=file_code_preflight(m,instructions,bytes);
+-    if(status!=NVM_FILE_FLOW_OK)return status;
++    if(status!=NVM_FILE_FLOW_OK){fprintf(stderr,"CYCLIC failure line %d status %u\n",__LINE__,status);return status;}
+     size_t locals=0;
+     for(uint32_t i=0;i<m->function_count;i++)locals+=m->functions[i].local_count;
+     *declaration_bytes=sizeof(NvmFileFlowDeclarations)+locals*sizeof(NvmFileFlowDeclaration);
+@@ -295,9 +295,9 @@
+     uint32_t instructions;size_t bytes,declaration_bytes;
+     NvmFileFlowStatus status=file_cyclic_budget(m,extension?extension->extra_bytes:0,
+                                                &instructions,&bytes,&declaration_bytes);
+-    if(status!=NVM_FILE_FLOW_OK)return status;
++    if(status!=NVM_FILE_FLOW_OK){fprintf(stderr,"CYCLIC failure line %d status %u\n",__LINE__,status);return status;}
+     NvmFileCodePlan *p=NULL;status=file_code_prepare_profile(m,&p,false,extension!=NULL);
+-    if(status!=NVM_FILE_FLOW_OK)return status;
++    if(status!=NVM_FILE_FLOW_OK){fprintf(stderr,"CYCLIC failure line %d status %u\n",__LINE__,status);return status;}
+     if(extension) {
+         uint64_t done=0;
+         for(uint32_t rank=0;rank<p->count;rank++) {

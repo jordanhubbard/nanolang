@@ -1,0 +1,389 @@
+{
+  "nsi_version": 0,
+  "interface": {
+    "id": "nsi:nanolang/net",
+    "name": "net"
+  },
+  "methods": [
+    {
+      "id": "nsi:nanolang/net#begin_connect",
+      "name": "begin_connect",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/net#begin_connect.endpoint",
+          "name": "endpoint",
+          "type": "nsi:nanolang/net#Endpoint",
+          "direction": "in",
+          "ownership": "copy",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/net#begin_connect.result",
+          "name": "result",
+          "type": "nsi:nanolang/net#ConnectResult",
+          "direction": "return",
+          "ownership": "transfer",
+          "lifetime": "resource",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/net#send_byte",
+      "name": "send_byte",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/net#send_byte.connection",
+          "name": "connection",
+          "type": "nsi:nanolang/net#Conn",
+          "direction": "in",
+          "ownership": "borrow",
+          "lifetime": "call",
+          "mutability": "mutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/net#send_byte.value",
+          "name": "value",
+          "type": "nsi:core/int",
+          "direction": "in",
+          "ownership": "copy",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/net#send_byte.result",
+          "name": "result",
+          "type": "nsi:nanolang/net#SendResult",
+          "direction": "return",
+          "ownership": "copy",
+          "lifetime": "caller",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/net#finish_connect",
+      "name": "finish_connect",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/net#finish_connect.connection",
+          "name": "connection",
+          "type": "nsi:nanolang/net#Conn",
+          "direction": "in",
+          "ownership": "borrow",
+          "lifetime": "call",
+          "mutability": "mutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/net#finish_connect.result",
+          "name": "result",
+          "type": "nsi:nanolang/net#ConnectStatus",
+          "direction": "return",
+          "ownership": "copy",
+          "lifetime": "caller",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/net#receive_byte",
+      "name": "receive_byte",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/net#receive_byte.connection",
+          "name": "connection",
+          "type": "nsi:nanolang/net#Conn",
+          "direction": "in",
+          "ownership": "borrow",
+          "lifetime": "call",
+          "mutability": "mutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/net#receive_byte.result",
+          "name": "result",
+          "type": "nsi:nanolang/net#ReceiveResult",
+          "direction": "return",
+          "ownership": "copy",
+          "lifetime": "caller",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/net#close",
+      "name": "close",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/net#close.connection",
+          "name": "connection",
+          "type": "nsi:nanolang/net#Conn",
+          "direction": "in",
+          "ownership": "transfer",
+          "lifetime": "callee",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/net#close.result",
+          "name": "result",
+          "type": "nsi:nanolang/net#CloseResult",
+          "direction": "return",
+          "ownership": "copy",
+          "lifetime": "caller",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "id": "nsi:nanolang/net#Conn",
+      "name": "Conn",
+      "kind": "resource"
+    },
+    {
+      "id": "nsi:nanolang/net#SocketError",
+      "name": "SocketError",
+      "kind": "record",
+      "fields": [
+        {
+          "id": "nsi:nanolang/net#SocketError.status",
+          "name": "status",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#SocketError.host_errno",
+          "name": "host_errno",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#SocketError.cleanup_errno",
+          "name": "cleanup_errno",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#SocketError.bytes",
+          "name": "bytes",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#SocketError.close_attempts",
+          "name": "close_attempts",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#SocketError.closed_count",
+          "name": "closed_count",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#SocketError.eof",
+          "name": "eof",
+          "type": "nsi:core/bool"
+        },
+        {
+          "id": "nsi:nanolang/net#SocketError.consumed",
+          "name": "consumed",
+          "type": "nsi:core/bool"
+        },
+        {
+          "id": "nsi:nanolang/net#SocketError.cleanup_failed",
+          "name": "cleanup_failed",
+          "type": "nsi:core/bool"
+        },
+        {
+          "id": "nsi:nanolang/net#SocketError.closure_unknown",
+          "name": "closure_unknown",
+          "type": "nsi:core/bool"
+        },
+        {
+          "id": "nsi:nanolang/net#SocketError.connect_pending",
+          "name": "connect_pending",
+          "type": "nsi:core/bool"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/net#ReadByte",
+      "name": "ReadByte",
+      "kind": "record",
+      "fields": [
+        {
+          "id": "nsi:nanolang/net#ReadByte.value",
+          "name": "value",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#ReadByte.eof",
+          "name": "eof",
+          "type": "nsi:core/bool"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/net#ConnectResult",
+      "name": "ConnectResult",
+      "kind": "variant",
+      "cases": [
+        {
+          "id": "nsi:nanolang/net#ConnectResult.Ok",
+          "name": "Ok",
+          "type": "nsi:nanolang/net#Conn"
+        },
+        {
+          "id": "nsi:nanolang/net#ConnectResult.Error",
+          "name": "Error",
+          "type": "nsi:nanolang/net#SocketError"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/net#SendResult",
+      "name": "SendResult",
+      "kind": "variant",
+      "cases": [
+        {
+          "id": "nsi:nanolang/net#SendResult.Ok",
+          "name": "Ok",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#SendResult.Error",
+          "name": "Error",
+          "type": "nsi:nanolang/net#SocketError"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/net#ConnectStatus",
+      "name": "ConnectStatus",
+      "kind": "variant",
+      "cases": [
+        {
+          "id": "nsi:nanolang/net#ConnectStatus.Ok",
+          "name": "Ok"
+        },
+        {
+          "id": "nsi:nanolang/net#ConnectStatus.Error",
+          "name": "Error",
+          "type": "nsi:nanolang/net#SocketError"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/net#ReceiveResult",
+      "name": "ReceiveResult",
+      "kind": "variant",
+      "cases": [
+        {
+          "id": "nsi:nanolang/net#ReceiveResult.Ok",
+          "name": "Ok",
+          "type": "nsi:nanolang/net#ReadByte"
+        },
+        {
+          "id": "nsi:nanolang/net#ReceiveResult.Error",
+          "name": "Error",
+          "type": "nsi:nanolang/net#SocketError"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/net#CloseResult",
+      "name": "CloseResult",
+      "kind": "variant",
+      "cases": [
+        {
+          "id": "nsi:nanolang/net#CloseResult.Ok",
+          "name": "Ok"
+        },
+        {
+          "id": "nsi:nanolang/net#CloseResult.Error",
+          "name": "Error",
+          "type": "nsi:nanolang/net#SocketError"
+        }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/net#Endpoint",
+      "name": "Endpoint",
+      "kind": "record",
+      "fields": [
+        {
+          "id": "nsi:nanolang/net#Endpoint.family",
+          "name": "family",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#Endpoint.address0",
+          "name": "address0",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#Endpoint.address1",
+          "name": "address1",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#Endpoint.address2",
+          "name": "address2",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#Endpoint.address3",
+          "name": "address3",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#Endpoint.port",
+          "name": "port",
+          "type": "nsi:core/int"
+        },
+        {
+          "id": "nsi:nanolang/net#Endpoint.scope_id",
+          "name": "scope_id",
+          "type": "nsi:core/int"
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "id": "nsi:nanolang/net#io",
+      "name": "io",
+      "version": "1"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap:nanolang/net.connect",
+      "name": "connect"
+    }
+  ]
+}

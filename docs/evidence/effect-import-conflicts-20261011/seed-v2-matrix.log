@@ -1,0 +1,19 @@
+test_conflicting_aliases_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_conflicting_aliases_preserve_output) ... ok
+test_conflicting_wildcards_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_conflicting_wildcards_preserve_output) ... ok
+test_distinct_argument_and_result_records (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_argument_and_result_records) ... ok
+test_distinct_record_mismatches_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_record_mismatches_preserve_output) ... ok
+test_distinct_record_signatures (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_record_signatures) ... ok
+test_local_declaration_shadows_import_name (tests.test_imported_effect_identity.ImportedEffectIdentity.test_local_declaration_shadows_import_name) ... ok
+test_private_effect_does_not_ambiguate_local_handler (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_effect_does_not_ambiguate_local_handler) ... ok
+test_private_effect_remains_local (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_effect_remains_local) ... ok
+test_private_handler_preserves_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_handler_preserves_output) ... ok
+test_private_imports_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_imports_preserve_output) ... ok
+test_qualified_perform (tests.test_imported_effect_identity.ImportedEffectIdentity.test_qualified_perform) ... ok
+test_repeated_same_target_alias (tests.test_imported_effect_identity.ImportedEffectIdentity.test_repeated_same_target_alias) ... ok
+test_same_named_effects (tests.test_imported_effect_identity.ImportedEffectIdentity.test_same_named_effects) ... ok
+test_selective_alias (tests.test_imported_effect_identity.ImportedEffectIdentity.test_selective_alias) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 2.906s
+
+OK

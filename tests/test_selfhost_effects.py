@@ -1,0 +1,207 @@
+"""I require effect semantics and refusal parity through both NanoISA frontends."""
+import os
+import shlex
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+DRIVERS = os.environ.get('NANOLANG_EFFECT_COMPILERS', os.pathsep.join(
+    str(ROOT/'bin'/name) for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'))).split(os.pathsep)
+
+TARGETS = os.environ.get('NANOLANG_EFFECT_TARGETS', 'vm').split(',')
+if not TARGETS or any(target not in ('vm', 'native') for target in TARGETS):
+    raise ValueError('I require vm or native effect execution targets')
+
+
+class SelfhostEffects(unittest.TestCase):
+    def compile(self, driver, source, output):
+        return subprocess.run([driver, str(source), '--emit-nvm', '-o', str(output)],
+                              cwd=ROOT, capture_output=True, text=True, timeout=120)
+
+    def execute_module(self, output, expected):
+        for target in TARGETS:
+            with self.subTest(target=target):
+                command = [ROOT/'bin/nano_vm', output]
+                if target == 'native':
+                    source, binary = output.with_suffix('.c'), output.with_suffix('.native')
+                    translated = subprocess.run([os.environ.get('NANOLANG_NVM2C', str(ROOT/'bin/nvm2c')), output, '-o', source],
+                                                capture_output=True, text=True, timeout=60)
+                    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+                    runtime = [ROOT/'bin/nano_aot_runtime.o', '-lm']
+                    if sys.platform.startswith('linux'):
+                        runtime += ['-Wl,--export-dynamic', '-ldl']
+                    built = subprocess.run([*shlex.split(os.environ.get('NANOLANG_EFFECT_CC', os.environ.get('CC', 'cc'))), '-std=c11', '-Wall', '-Wextra', '-Werror',
+                                            *shlex.split(os.environ.get('NANOLANG_EFFECT_CFLAGS', '')), source, '-o', binary, *runtime],
+                                           capture_output=True, text=True, timeout=60)
+                    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+                    command = [binary]
+                ran = subprocess.run(command, capture_output=True, text=True, timeout=30)
+                self.assertEqual(ran.returncode, expected, ran.stdout+ran.stderr)
+
+    def test_dynamic_handlers_resume_and_lexical_returns(self):
+        sources = [
+            ('resume', '''effect Ask{ask:int->int}
+fn send(x:int)->int {return (+ 10 perform Ask.ask(x))}
+shadow send{assert true}
+fn main()->int {return handle {(send 3)} with {ask value->{(+ value 1)}}}''', 14),
+            ('lexical_return', '''effect Ask{ask:int->int}
+let mut trace:int=0
+fn send()->int{let x:int=perform Ask.ask(7) set trace 100 return x}
+shadow send{assert true}
+fn leave()->int{let x:int=handle {(send)} with {ask n->{return n}} return (+ x 1000)}
+shadow leave{assert true}
+fn main()->int{set trace 0 let x:int=(leave) assert (== trace 0) return x}''', 7),
+            ('nested', '''effect Ask{ask:int->int}
+fn main()->int{return handle {perform Ask.ask(4)} with {ask value->{let inner:int=handle {perform Ask.ask(2)} with {ask value->{(+ value 1)}} (+ value inner)}}}''', 7),
+            ('ordered_arguments', '''effect Calc{mix:int int->int,tick:void->int}
+let mut trace:int=0
+fn argument(n:int)->int{set trace (+ (* trace 10) n) return n}
+shadow argument{assert true}
+fn main()->int{set trace 0 let left:int=handle {perform Calc.mix((argument 1) (argument 2))} with {mix first second->{(+ first second)}} let right:int=handle {perform Calc.tick()} with {tick ()->{4}} assert (== trace 12) return (+ left right)}''', 7),
+            ('typed', '''effect Calc{mix:int string bool float->int}
+fn main()->int{return handle {perform Calc.mix(3 "abc" true 2.5)} with {mix number text flag amount->{assert flag assert (== amount 2.5) (+ number (str_length text))}}}''', 6),
+            ('void', '''effect Record{emit:int->void}
+let mut recorded:int=0
+fn send()->void{perform Record.emit(7)}
+shadow send{assert true}
+fn main()->int{set recorded 0 let ignored=handle {(send)} with {emit value->{set recorded value}} return recorded}''', 7),
+            ('void_return', '''effect Record{emit:int->void}
+let mut recorded:int=0
+fn send()->void{return perform Record.emit(7)}
+shadow send{assert true}
+fn main()->int{set recorded 0 let ignored=handle {(send)} with {emit value->{set recorded value}} return recorded}''', 7),
+            ('handled_void_return', '''effect Record{emit:int->void}
+let mut recorded:int=0
+fn send()->void{return handle {perform Record.emit(9)} with {emit value->{set recorded value}}}
+shadow send{assert true}
+fn main()->int{set recorded 0 (send) return recorded}''', 9),
+            ('captured_mutation', """effect Ask{ask:int->int}
+fn main()->int{let mut total:int=1 let ignored=handle {(+ perform Ask.ask(2) perform Ask.ask(3))} with {ask value->{set total (+ total value) total}} return total}""", 6),
+            ('recursive_arm', """effect Ask{ask:int->int}
+fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{let mut result:int=0 if (> value 0){set result (+ value perform Ask.ask((- value 1)))} result}}}""", 6),
+            ('string_result', """effect Text{join:string->string}
+fn send(text:string)->string{return perform Text.join(text)}
+shadow send{assert true}
+fn main()->int{let prefix:string="abc" let value:string=handle {(send "def")} with {join text->{(str_concat prefix text)}} assert (== value "abcdef") return (str_length value)}""", 6),
+            ('array_result', """effect Values{append:array<int>->array<int>}
+fn send(values:array<int>)->array<int>{return perform Values.append(values)}
+shadow send{assert true}
+fn main()->int{let values:array<int> = handle {(send [2, 3])} with {append items->{(array_push items 4)}} assert (== (array_length values) 3) return (at values 2)}""", 4),
+            ('aggregate_result', """struct Point{x:int,text:string}
+effect Move{move:Point->Point}
+fn main()->int{let point:Point=handle {perform Move.move(Point{x:2,text:"abc"})} with {move point->{Point{x:(+ point.x 1),text:(str_concat point.text "def")}}} assert (== point.text "abcdef") return point.x}""", 3),
+            ('lexical_string', """effect Ask{ask:int->int}
+let mut trace:int=0
+fn send()->int{let allocated:string=(str_concat "abc" "def") let value:int=perform Ask.ask((str_length allocated)) set trace 1 return value}
+shadow send{assert true}
+fn leave()->string{let ignored=handle {(send)} with {ask value->{return (str_concat "result" "!")}} return "wrong"}
+shadow leave{assert true}
+fn main()->int{set trace 0 let result:string=(leave) assert (== trace 0) assert (== result "result!") return (str_length result)}""", 7),
+            ('handler_removal', """effect Ask{ask:int->int}
+fn main()->int{return handle {let first:int=handle {perform Ask.ask(2)} with {ask value->{(+ value 10)}} (+ first perform Ask.ask(3))} with {ask value->{value}}}""", 15),
+            ('managed_loop', """effect Text{join:string->string}
+fn main()->int{let mut i:int=0 let mut kept:string="" while (< i 1200){set kept handle {perform Text.join("abc")} with {join text->{(str_concat text "def")}} set i (+ i 1)} assert (== kept "abcdef") return (str_length kept)}""", 6),
+            ('indirect_arm', """effect Ask{ask:int->int}
+fn plus(x:int)->int{return (+ x 2)}
+shadow plus{assert (== (plus 2) 4)}
+fn main()->int{let callback:fn(int)->int=plus return handle {perform Ask.ask(3)} with {ask value->{(callback value)}}}""", 5),
+            ('local_loop', '''effect Ask{ask:int->int}
+fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{let mut total:int=0 let mut i:int=0 while (< i value){set total (+ total i) set i (+ i 1)} total}}}''', 3),
+        ]
+        for driver in DRIVERS:
+            for name, body, expected in sources:
+                with self.subTest(driver=driver, case=name), tempfile.TemporaryDirectory() as directory:
+                    work = Path(directory)
+                    source, output = work/'source.nano', work/'source.nvm'
+                    source.write_text(body+'\nshadow main{assert (== (main) '+str(expected)+')}\n')
+                    built = self.compile(driver, source, output)
+                    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+                    self.execute_module(output, expected)
+
+    def test_declaration_types_and_forward_references(self):
+        declarations = [
+            ('effect Ask{ask:Missing->int}', False),
+            ('effect Ask{ask:int->Missing}', False),
+            ('effect Ask{ask:array<Missing>->int}', False),
+            ('effect Ask{ask:int->array<Missing>}', False),
+            ('effect Ask{ask:int->(int,Missing)}', False),
+            ('effect Ask{ask:int->fn(Missing)->int}', False),
+            ('effect Ask{ask:fn(int)->Missing->int}', False),
+            ('effect Ask{ask:int->int,ask:int->int}', False),
+            ('effect Ask{ask:void int->int}', False),
+            ('effect Ask{ask:Box->int} union Box<T>{Some{value:T}}', False),
+            ('effect Ask{ask:Box<int,string>->int} union Box<T>{Some{value:T}}', False),
+            ('effect Ask{ask:Point<int>->int} struct Point{x:int}', False),
+            ('effect Ask{ask:List<Missing>->int}', False),
+            ('effect Ask{ask:int->List<Missing>}', False),
+            ('effect Ask{ask:HashMap<string,Missing>->int}', False),
+            ('effect Ask{ask:List<Point>->int} struct Point{x:int}', True),
+            ('effect Ask{ask:HashMap<string,Point>->int} struct Point{x:int}', True),
+            ('effect Ask{ask:array<HashMap<string,Missing>>->int}', False),
+            ('effect Ask{ask:int->fn(int)->HashMap<string,Point>} struct Point{x:int}', True),
+            ('effect Ask{ask:Box<HashMap<string,Point>>->int} struct Point{x:int} union Box<T>{Some{value:T}}', True),
+            ('effect Ask{ask:{field:Missing}->int}', False),
+            ('effect Ask{ask:int->{field:array<Missing>}}', False),
+            ('effect Ask{ask:{nested:{field:Missing}}->int}', False),
+            ('effect Ask{ask:{a:int,a:string}->int}', False),
+            ('effect Ask{ask:{a:int|}->int}', False),
+            ('effect Ask{ask:{field:int}->int}', True),
+            ('effect Ask{ask:{}->{}}', True),
+            ('effect Ask{ask:{field:Point|rest}->{items:array<Point>}} struct Point{x:int}', True),
+            ('effect Ask{ask:fn({a:int,b:string},int)->int->int}', True),
+            ('effect Ask{ask:({a:int,b:string},int)->int}', True),
+            ('effect Ask{ask:Box<{a:int,b:string}>->int} union Box<T>{Some{value:T}}', True),
+            ('effect Ask{ask:Point->array<Point>} struct Point{x:int}', True),
+            ('effect Ask{ask:Choice->Choice} enum Choice{First,Second}', True),
+            ('effect Ask{ask:Handle->Handle} opaque type Handle', True),
+            ('effect Ask{ask:Box<int>->Box<string>} union Box<T>{Some{value:T}}', True),
+            ('effect Ask{ask:int->fn(int)->Point} struct Point{x:int}', True),
+            ('effect Ask{ask:array<array<int>>->(int,string)}', True),
+        ]
+        for driver in DRIVERS:
+            for declaration, accepted in declarations:
+                with self.subTest(driver=driver, declaration=declaration), tempfile.TemporaryDirectory() as directory:
+                    work = Path(directory)
+                    source, output = work/'source.nano', work/'source.nvm'
+                    source.write_text(declaration+'\nfn main()->int{return 0}\nshadow main{assert true}\n')
+                    output.write_bytes(b'previous artifact')
+                    built = self.compile(driver, source, output)
+                    if accepted:
+                        self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+                        ran = subprocess.run([ROOT/'bin/nano_vm', output], capture_output=True, text=True, timeout=30)
+                        self.assertEqual(ran.returncode, 0, ran.stdout+ran.stderr)
+                    else:
+                        self.assertNotEqual(built.returncode, 0, built.stdout+built.stderr)
+                        self.assertEqual(output.read_bytes(), b'previous artifact')
+
+    def test_invalid_effects_preserve_previous_output(self):
+        sources = [
+            'effect Ask{ask:int->int} fn main()->int{let value=handle {let hidden:int=3 hidden} with {ask n->{n}} return hidden}',
+            'fn main()->int{return perform Missing.ask(1)}',
+            'effect Ask{ask:int->int} fn main()->int{return perform Ask.missing(1)}',
+            'effect Ask{ask:int->int} fn main()->int{return perform Ask.ask(true)}',
+            'effect Ask{ask:int->int} fn main()->int{return perform Ask.ask()}',
+            'effect Ask{ask:int->int} fn main()->int{return handle {perform Ask.ask(1)} with {ask n->{true}}}',
+            'effect Ask{ask:int->int} fn main()->int{return handle {perform Ask.ask(1)} with {ask n m->{n}}}',
+            'effect Ask{ask:int->int} fn main()->int{return handle {perform Ask.ask(1)} with {ask n->{n} ask n->{n}}}',
+            'effect A{ask:int->int} effect B{ask:int->int} fn main()->int{return handle {perform A.ask(1)} with {ask n->{n}}}',
+            'effect Ask{ask:int->int} fn main()->int{let x:int=handle {perform Ask.ask(1)} with {ask hidden->{hidden}} return hidden}',
+            'effect Ask{ask:int->int} fn main()->int{while true{let x:int=handle {perform Ask.ask(1)} with {ask n->{break}} return x} return 0}',
+        ]
+        for driver in DRIVERS:
+            for body in sources:
+                with self.subTest(driver=driver, source=body), tempfile.TemporaryDirectory() as directory:
+                    work = Path(directory)
+                    source, output = work/'source.nano', work/'source.nvm'
+                    source.write_text(body+'\nshadow main{assert true}\n')
+                    output.write_bytes(b'previous artifact')
+                    built = self.compile(driver, source, output)
+                    self.assertNotEqual(built.returncode, 0, built.stdout+built.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous artifact')
+
+
+if __name__ == '__main__':
+    unittest.main()

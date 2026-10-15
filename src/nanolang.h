@@ -115,6 +115,9 @@ typedef enum {
 /* Extended type information for arrays and generics */
 typedef struct TypeInfo {
     Type base_type;
+    /* I retain service origin separately from visible spelling and opaque tags.
+     * Zero declaration is the ordinary-type sentinel. These fields own no heap. */
+    uint32_t service_declaration, service_module, service_ordinal, service_category;
     struct TypeInfo *element_type;  /* For arrays: array<int> has element_type = int */
     
     /* For generic types: List<int> */
@@ -124,6 +127,7 @@ typedef struct TypeInfo {
     
     /* For tuple types: (int, string, bool) */
     Type *tuple_types;               /* Array of tuple element types */
+    struct TypeInfo **tuple_elements; /* I own complete element annotations. */
     char **tuple_type_names;         /* For struct/enum/union tuple elements */
     int tuple_element_count;         /* Number of tuple elements */
     
@@ -143,6 +147,7 @@ typedef struct TypeInfo {
     char  *row_var_name;       /* Name of the row variable, e.g. "r" (NULL = closed) */
     char **row_field_names;    /* Field names array (NULL-terminated or row_field_count) */
     Type  *row_field_types;    /* Field types parallel to row_field_names */
+    struct TypeInfo **row_field_type_info; /* I own complete row field annotations. */
     char **row_field_type_names; /* Struct/enum names for TYPE_STRUCT fields */
     int    row_field_count;    /* Number of known fields */
 
@@ -270,6 +275,7 @@ struct ASTNode {
     /* I borrow the hoisted anonymous declaration at its lexical expression.
      * The program owns that declaration; this link does not own or free it. */
     ASTNode *lambda_definition;
+    char *contextual_func_name; /* Owned native specialization selected for this function value. */
     union {
         long long number;
         double float_val;
@@ -300,11 +306,13 @@ struct ASTNode {
             ASTNode **args;
             int arg_count;
             char *return_struct_type_name;  /* For calls that return struct types */
+            FunctionSignature *checked_signature; /* Owned concrete qualified-call context. */
         } module_qualified_call;
         struct {
             ASTNode **elements;
             int element_count;
             Type element_type;  /* Type of array elements */
+            bool has_element_annotation; /* I retain a checked contextual storage kind. */
         } array_literal;
         struct {
             char *name;
@@ -314,7 +322,9 @@ struct ASTNode {
             FunctionSignature *fn_sig;  /* For TYPE_FUNCTION: function signature */
             TypeInfo *type_info;     /* For generic types: Result<int, string>, List<Point>, etc. */
             bool is_mut;
+            bool is_pub;
             ASTNode *value;
+            bool is_generated; /* I omit parser-owned temporaries from original-name metadata. */
             bool is_destructure;
             bool is_destructure_projection;
             int destructure_count;
@@ -412,6 +422,7 @@ struct ASTNode {
         } field_access;
         struct {
             char *name;               // Enum name
+            char *original_name;      /* I retain the source spelling after module binding. */
             char **variant_names;     // Array of variant names
             int *variant_values;      // Array of variant values (or NULL for auto)
             int variant_count;        // Number of variants
@@ -423,6 +434,7 @@ struct ASTNode {
          * Generic union: union Result<T, E> { Ok { value: T }, Err { error: E } } */
         struct {
             char *name;
+            char *original_name;      /* I retain my source spelling after owner binding. */
             int variant_count;
             char **variant_names;
             int *variant_field_counts;
@@ -497,6 +509,7 @@ struct ASTNode {
             ASTNode **elements;    /* Array of element expressions */
             int element_count;     /* Number of elements */
             Type *element_types;   /* Types of each element (filled by type checker) */
+            TypeInfo *type_info;   /* I own the checked recursive tuple shape. */
         } tuple_literal;
         /* Tuple index access: tuple.0, tuple.1 */
         struct {
@@ -530,6 +543,7 @@ struct ASTNode {
             Parameter **op_params;      /* Parameter list for each operation */
             int *op_param_counts;       /* Param count for each operation */
             Type *op_return_types;      /* Return type for each operation */
+            TypeInfo **op_return_type_infos; /* I own complete operation results. */
             char **op_return_type_names;/* For struct return types */
             bool is_pub;
             /* Alternative simple-type layout (used by parse_effect_def) */
@@ -606,6 +620,7 @@ typedef struct {
     bool is_mut;
     Value value;
     bool is_global;     /* Top-level binding, not a retained function local */
+    ASTNode *global_declaration; /* Borrowed checked declaration; aliases share this identity. */
     bool is_used;        /* Track if variable is ever used (for warnings) */
     bool is_resource;    /* True if this variable's type is a resource type */
     ResourceUseState resource_state;  /* For resource types: track usage state */
@@ -640,6 +655,7 @@ typedef struct {
     TypeInfo *return_type_info;  /* For TYPE_TUPLE returns: tuple element types */
     ASTNode *body;
     ASTNode *shadow_test;
+    ASTNode *lexical_scope; /* Borrowed enclosing block for named local functions. */
     bool is_extern;  /* Mark external C functions */
     bool is_gpu;     /* @gpu annotation: function targets GPU / PTX */
     bool is_async;   /* Mark async functions (declared with `async fn`) */
@@ -679,6 +695,7 @@ typedef struct {
 /* Enum definition entry */
 typedef struct {
     char *name;
+    char *original_name;
     char **variant_names;
     int *variant_values;
     int variant_count;
@@ -690,6 +707,7 @@ typedef struct {
 /* Union definition entry */
 typedef struct {
     char *name;
+    char *original_name; /* I own the source spelling independently of the AST. */
     int variant_count;
     char **variant_names;
     int *variant_field_counts;
@@ -717,11 +735,13 @@ typedef struct {
     int param_count;
     Type return_type;        /* Return type */
     char *return_type_name;  /* For struct return types */
+    TypeInfo *return_type_info; /* I borrow the complete declaration annotation. */
 } EffectOp;
 
 /* Effect definition entry: effect IO { print : String -> Unit } */
 typedef struct {
     char *name;              /* Effect name (e.g., "IO") */
+    char *original_name;     /* I retain the source spelling before module qualification. */
     EffectOp *ops;           /* Operations */
     int op_count;
     bool is_pub;
@@ -753,6 +773,7 @@ typedef struct {
     Type *bound_types;       /* Concrete types: [TYPE_INT] */
     char **bound_type_names; /* For TYPE_STRUCT bounds: ["Point"]; NULL for primitives */
     int binding_count;       /* Number of unique type variables */
+    FunctionSignature *signature; /* Owned complete contextual signature, or NULL for legacy instances. */
 } GenericFuncInstance;
 
 /* Module namespace for import aliases */
@@ -797,14 +818,38 @@ typedef struct {
     int import_capacity;
 } ImportTracker;
 
+/* I keep imported enum names as references, not duplicate declarations. */
+typedef struct EnumImport {
+    char *name;
+    char *owner_module;
+    char *target_name;
+    struct EnumImport *next;
+} EnumImport;
+
+typedef struct EffectImport {
+    char *name;
+    char *owner_module;
+    char *target_name;
+    struct EffectImport *next;
+} EffectImport;
+
+typedef struct GlobalImport {
+    const char *owner_file;
+    const char *name;
+    ASTNode *declaration;
+    struct GlobalImport *next;
+} GlobalImport;
+
 /* Environment for variable and function storage */
 typedef struct {
     Symbol *symbols;
+    GlobalImport *global_imports;
     int symbol_count;
     int symbol_capacity;
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
     Function *functions;
+    struct EnvSymbolIndex *function_index; /* I index names; declarations remain authoritative. */
     int function_count;
     int function_capacity;
     StructDef *structs;
@@ -828,6 +873,8 @@ typedef struct {
     GenericFuncInstance *generic_func_instances;   /* User-defined generic function instances */
     int generic_func_instance_count;
     int generic_func_instance_capacity;
+    EnumImport *enum_imports;
+    EffectImport *effect_imports;
     ModuleNamespace *namespaces;  /* Module alias → symbols mapping */
     int namespace_count;
     int namespace_capacity;
@@ -861,6 +908,17 @@ typedef struct {
     /* File whose code is being processed; stamped onto definitions and used to
      * keep source-position lookups inside one file. Borrowed, not owned. */
     const char *current_file;
+    /* I own canonical origins for service-bearing source modules separately
+     * from their declared names and import aliases. Indices remain stable. */
+    char *service_origins[16];
+    int service_origin_count;
+    struct NlFileSourceSnapshots *service_inputs;
+    struct NlServiceBodyCheck *service_bodies; /* Owned nominal body facts; not execution authority. */
+    struct NlServiceOwnershipCheck *service_ownership; /* Owned lexical transfer facts. */
+    struct NlServiceNamespace *service_namespace;
+    int service_import_depth;
+    size_t service_snapshot_indices[16];
+    bool service_snapshot_bound[16];
 } Environment;
 
 /* Function declarations */
@@ -890,6 +948,8 @@ typedef struct {
 
 ASTNode *parse_program(Token *tokens, int token_count);
 bool ast_has_service_declaration(const ASTNode *program);
+bool bind_service_origin(ASTNode *program, Environment *env, const char *source_file);
+bool acquire_service_input(ASTNode *program, Environment *env);
 bool ast_is_value_expression(ASTNodeType type);
 bool ast_always_returns(const ASTNode *node);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */
@@ -937,6 +997,12 @@ void free_environment(Environment *env);
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);
+bool env_import_global(Environment *env, const char *owner_file, const char *name, ASTNode *declaration);
+const GlobalImport *env_lookup_global_import(Environment *env, const char *name);
+const GlobalImport *env_lookup_global_import_at(Environment *env, const char *owner_file, const char *name);
+Symbol *env_global_import_symbol(Environment *env, const char *name);
+ASTNode *env_qualified_import_literal(Environment *env, ASTNode *expr);
+Symbol *env_global_import_symbol_at(Environment *env, const char *owner_file, const char *name);
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);
@@ -952,12 +1018,15 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);
+Function *env_get_function_at(Environment *env, const char *name, int line, int column);
 bool env_array_push_is_builtin(Environment *env, int line, int column);
+const char *env_array_operation(Environment *env, ASTNode *call);
 bool is_builtin_function(const char *name);
 void env_define_struct(Environment *env, StructDef struct_def);
 StructDef *env_get_struct(Environment *env, const char *name);
 StructDef *env_get_struct_owned(Environment *env, const char *name, const char *owner);
 bool bind_nominal_records(ASTNode *program, Environment *env);
+bool bind_service_annotations(ASTNode *program, Environment *env, const char *source);
 void env_register_namespace(Environment *env, const char *alias, const char *module_name,
                             char **function_names, int function_count,
                             char **struct_names, int struct_count,
@@ -972,6 +1041,7 @@ void env_add_module_exported_function(Environment *env, const char *module_name,
 void env_add_module_exported_struct(Environment *env, const char *module_name, const char *struct_name);
 void env_define_enum(Environment *env, EnumDef enum_def);
 EnumDef *env_get_enum(Environment *env, const char *name);
+bool env_import_enum(Environment *env, const char *alias, const EnumDef *target);
 void env_register_list_instantiation(Environment *env, const char *element_type);
 void env_register_hashmap_instantiation(Environment *env, const char *key_type, const char *value_type);
 /* I return an owned recursive C specialization spelling. */
@@ -994,6 +1064,9 @@ void env_register_generic_func_instance(Environment *env, const char *orig_name,
 /* Effect system */
 void env_define_effect(Environment *env, EffectDef effect_def);
 EffectDef *env_get_effect(Environment *env, const char *name);
+EffectDef *env_get_effect_owned(Environment *env, const char *name, const char *owner);
+bool env_import_effect(Environment *env, const char *alias, const EffectDef *target);
+bool env_effect_visible(Environment *env, const EffectDef *effect);
 EffectOp *effect_get_op(EffectDef *effect, const char *op_name);
 
 /* Utilities */
@@ -1015,11 +1088,15 @@ Value create_function(const char *function_name, FunctionSignature *signature);
 FunctionSignature *create_function_signature(Type *param_types, int param_count, Type return_type);
 FunctionSignature *function_signature_from_function(const Function *function);
 FunctionSignature *copy_function_signature(const FunctionSignature *signature);
+FunctionSignature *copy_contextual_callable_signature(ASTNode *value, Environment *env,
+                                                      const FunctionSignature *expected);
 void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
 bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);
 void free_type_info(TypeInfo *info);
 TypeInfo *copy_payload_type_info(const TypeInfo *info);
+const TypeInfo *tuple_element_info(const TypeInfo *info, int index, TypeInfo *fallback);
+const TypeInfo *row_field_info(const TypeInfo *info, int index, TypeInfo *fallback);
 void free_payload_type_info(TypeInfo *info);
 TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field, const TypeInfo *arguments);
 
@@ -1053,6 +1130,8 @@ int64_t module_get_import_count(const char *module_path);
 const char *module_get_import_path(const char *module_path, int64_t index);
 const char *module_generate_forward_declarations(const char *module_path);
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
+/* Only independently lowering File consumers may opt into retained facts. */
+bool process_imports_for_service(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
 void clear_module_cache(void);
 bool compile_module_to_object(const char *module_path,
                               const char *output_obj,

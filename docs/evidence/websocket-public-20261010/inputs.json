@@ -1,0 +1,23 @@
+{
+  "Makefile.gnu": "07553f90f2af3cf8bca3aef3a9e1308f6008d4a9f28484f75228fe6d22410148",
+  "docs/NSI_WEBSOCKET_CATALOG.md": "a720e975219b2e87de50176f6f0f8eb00a97ade010bddcdb78ff0e0a5c2b106c",
+  "docs/ROADMAP.md": "1156f6e66ebe0b69dce95d06b69224218ec17020d141fe669a8890a6839ac687",
+  "src/nanoisa/service_indirect_native_emit.inc": "852cde5242c5725acd595343e5960bb51c939e429b01256bc3db2400b5d78613",
+  "src/nanoisa/websocket_dispatch_config.h": "6e1f19e4289610eba658e485f8ce13f4e186c8063bcc2d257fbfde3c82443e60",
+  "src/nanoisa/websocket_host_grant.c": "9f4ab823b0512a70a602526152fd3c7eabc3a1da586b12c65c84b1b674f3922a",
+  "src/nanoisa/websocket_host_grant.h": "b43c544fd6f8304024b19c7125496d9bc5f249f2364c3fe9560aca2eebca9eea",
+  "src/nanoisa/websocket_host_grant_internal.h": "4ef83bf5d3caec8db57458f238bfbd7e3be84e383ccb5828fbba85c142225996",
+  "src/nanoisa/websocket_indirect_native_public.h": "0c2143270c5cd7d539ea32a6e38931aefe6aee197ef7dfc5bf4b53847e9fce5a",
+  "src/nanoisa/websocket_indirect_public.h": "f0208044180f4b86e069e591f3ce81c74406631c09493fb684965bc2a62c6ee2",
+  "src/nanoisa/websocket_indirect_public_abi.c": "30098f635e7a9bf549f9689230db719dd396c7f694fb68c654ed5fd1b28662f8",
+  "src/nanoisa/websocket_indirect_public_internal.h": "ca560df2a5cb4113fcd79aa6b9f19f1e1b04a034d7434787499b9127c76da56c",
+  "src/nanoisa/websocket_indirect_public_native.c": "2226a8f3c2671599d37746d760473fd0b147684e6bce9530eb3c7921c1698907",
+  "src/nanoisa/websocket_public.h": "31c464f05c1687b7ad8c87ab507c33ac4d5d35b5eddad9a85df9f6f6694d40ae",
+  "src/nanoisa/websocket_public_internal.h": "fb50cd4578f7b2629f00634acfab9ceda6dfed764f0009f2765ca9d0dcf46ca8",
+  "src/nanovm/websocket_indirect_public_vm.c": "2a4d8457f41736e6af56718a1ee139d720439936b4a8dc5a52f7ae281c3d97a0",
+  "tests/nanoisa/test_websocket_dispatch.c": "38bd40f6c9931f2343878dadcf33d5b9c7ac2278c52079686557dc5cb0fc3083",
+  "tests/nanoisa/test_websocket_public.c": "f0be3480d9fa3ef1810b677fafdcc87d201451f8e36942b19b708269dd454de8",
+  "tests/nanoisa/test_websocket_public_grant.c": "fabd08afc190b6e68711371056492f1033659b96eec2bdcc6de6c9529e2f4785",
+  "tests/test_websocket_dispatch.py": "866d257362f3e5cfff11317f006db81e5a0590996c7dc5aca70232fcc9d1c963",
+  "tests/test_websocket_public.py": "b3e2b1d4e7cd956a58e288c851f35feeb76048ab3dd8f1dbfdd8b62c4e45faae"
+}

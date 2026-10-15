@@ -1,0 +1,32 @@
+[
+  {
+    "payload": "Handle",
+    "returncode": 1,
+    "diagnostic": "I require explicit source owner consumption at scope exit in my source borrow profile\n\n",
+    "artifact_preserved": true
+  },
+  {
+    "payload": "array<Handle>",
+    "returncode": 1,
+    "diagnostic": "I require exact concrete scalar union signatures in my source borrow profile\n\n",
+    "artifact_preserved": true
+  },
+  {
+    "payload": "List<Handle>",
+    "returncode": 1,
+    "diagnostic": "unsupported local type Box<List<Handle>>\n\n",
+    "artifact_preserved": true
+  },
+  {
+    "payload": "Wrapper",
+    "returncode": 1,
+    "diagnostic": "I require explicit source owner consumption at scope exit in my source borrow profile\n\n",
+    "artifact_preserved": true
+  },
+  {
+    "payload": "Box<Handle>",
+    "returncode": 1,
+    "diagnostic": "I require explicit source owner consumption at scope exit in my source borrow profile\n\n",
+    "artifact_preserved": true
+  }
+]

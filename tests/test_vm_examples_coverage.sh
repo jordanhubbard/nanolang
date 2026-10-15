@@ -125,6 +125,8 @@ while read -r src; do
     else
         rc=$?
     fi
+    printf '  Compiler diagnostics for %s:\n' "$src"
+    sed 's/^/       /' "$log"
     reason=$(grep -m1 '^error:' "$log" | sed 's/^error: //')
     if [ -z "$reason" ]; then
         reason=$(sed -n '/[^[:space:]]/ { p; q; }' "$log")

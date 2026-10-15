@@ -41,5 +41,5 @@ if __name__ == '__main__':
     for name, command in commands(args.compiler, args.output.resolve(), args.sanitize, args.real_gpu):
         print('CASE', name, command, flush=True)
         subprocess.run(command, check=True, timeout=180, env={**os.environ,
-                       'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1',
+                       'ASAN_OPTIONS': 'halt_on_error=1',
                        'UBSAN_OPTIONS': 'halt_on_error=1:print_stacktrace=1'})

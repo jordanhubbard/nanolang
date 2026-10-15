@@ -1,0 +1,3 @@
+['/private/tmp/nanolang-retirement-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-yiaapfyv/remove-int-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-yiaapfyv/remove-int-seed.c']
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-yiaapfyv/remove-int-seed.nvm': I cannot classify unsupported opcode ARR_POP (0x52) in function 0 at offset 207

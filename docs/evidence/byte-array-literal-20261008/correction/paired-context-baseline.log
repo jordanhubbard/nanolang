@@ -1,0 +1,119 @@
+test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) ... 
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='local', backend='vm') ... FAIL
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='assignment', backend='vm') ... FAIL
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='return', backend='c') ... FAIL
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='return', backend='vm') ... FAIL
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='argument', backend='c') ... FAIL
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='argument', backend='vm') ... FAIL
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='field', backend='c') ... FAIL
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='field', backend='vm') ... FAIL
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='local', backend='vm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 34, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-byte-literal-jrmnbumh/local.nano:1:46
+I could not execute the module: Assertion failed
+  Assertion failed
+
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='assignment', backend='vm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 34, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-byte-literal-jrmnbumh/assignment.nano:1:63
+I could not execute the module: Assertion failed
+  Assertion failed
+
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='return', backend='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 34, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : Assertion failed: (arr->elem_type == ELEM_U8 && "DynArray: Type mismatch"), function dyn_array_get_u8, file dyn_array.c, line 351.
+
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='return', backend='vm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 34, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-byte-literal-jrmnbumh/return.nano:1:57
+I could not execute the module: Assertion failed
+  Assertion failed
+
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='argument', backend='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 34, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : Assertion failed: (arr->elem_type == ELEM_U8 && "DynArray: Type mismatch"), function dyn_array_get_u8, file dyn_array.c, line 351.
+
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='argument', backend='vm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 34, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-byte-literal-jrmnbumh/argument.nano:1:72
+I could not execute the module: Assertion failed
+  Assertion failed
+
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='field', backend='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 34, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : Assertion failed: (arr->elem_type == ELEM_U8 && "DynArray: Type mismatch"), function dyn_array_get_u8, file dyn_array.c, line 351.
+
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='field', backend='vm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 34, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-byte-literal-jrmnbumh/field.nano:1:85
+I could not execute the module: Assertion failed
+  Assertion failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 7.892s
+
+FAILED (failures=8)

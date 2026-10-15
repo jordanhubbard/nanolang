@@ -1,0 +1,1 @@
+I cannot translate '/tmp/nanolang-5.1-20261007/recursive-tagged.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 0, offset 31: narr_t versus nsarr_t at parameter 1 of function 1)

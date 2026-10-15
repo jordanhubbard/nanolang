@@ -1,0 +1,39 @@
+{
+  "parent": "205ff8f1b",
+  "sources": {
+    "Makefile.gnu": "f84825714668d3ed154a4d9a8c1880c95c09381187ee68834a2ac017170923ff",
+    "docs/NANOISA_FILE_SOURCE_IMPLEMENTATION.md": "b5b011500230c245a38a7f6c30aacf0361b758c301e10e8a22b085f645d683b8",
+    "spec/nanoisa.yaml": "140aecfa44e2022f2c1428eefbadd0fbc731f40f02a2149583acf1814ee78191",
+    "src/nanoisa/file_body.inc": "6ecd1fc306cb65ee7c17f8be94f0f5c09e74917369d44e0a0aca1cf1d929088b",
+    "src/nanoisa/file_code.h": "ebbad35c12db3f66c793c6974613ba8d651e3a28af451094b7db883b0f7dce76",
+    "src/nanoisa/file_code.inc": "7d7934c2c225dea0a4d6bee29194c53c289542997f1bad89d1ccc35c3c16ebf3",
+    "src/nanoisa/file_cyclic_dispatch.inc": "1c3333d0012dba2838e7f6fd2d8f409fd78c6b67a7512e8ec76515412fafb40a",
+    "src/nanoisa/file_cyclic_hosted.inc": "96335845b8644159d5638d547e233e5e7a5777ca1f6c854e145e796d2a0090ce",
+    "src/nanoisa/file_cyclic_native_emit.inc": "73adece39aef894d641f65623eae772baadac7b2ea599ebbca2cc9d1e2ac0daf",
+    "src/nanoisa/file_cyclic_runtime.inc": "e01dcd9c5d017bec36d346f9eb6a91ecf25dcbf7bed8d2888912092b7bfa7b4f",
+    "src/nanoisa/file_indirect_targets.inc": "121658e21023f32f2bcf2eaa3c361b954d5f0048af3925c4d4b256a798d712c2",
+    "src/nanoisa/file_native_emit.inc": "96907365e2d5d688225a7988087a3e4ad064af47fb2b063900db27626ae75a43",
+    "src/nanoisa/file_runtime_frames.inc": "49600835744fa165eabac860785d69a14adc7e55bf40aa1677b58e55f91794e6",
+    "src/nanoisa/generated_schema.h": "f72ea65a4a05275e185f2065a337816c0ba03bcb8fd8e4e46b06afa7fa40582d",
+    "src/nanoisa/isa.c": "49943fa4e239c1c5e31432e4b14501167db3221c34f9554ba37fa9cdaa4f7779",
+    "src/nanoisa/isa.h": "e11ffea1d912a1714b510cdb1cf9bbe7b985fe2f11cdb49d211b54fc6edb55f7",
+    "src/nanovm/file_vm_cyclic_engine.inc": "596fbe8d774cdc47e23c04c345fdc2555d159e6f695b694cd6bffbefd795fdcf",
+    "src/nanovm/file_vm_engine.inc": "5646a4a5ffc3b8b2f16e9def6d9ab9ae3ca7ddd72dd0eaaaa6688ce1b750bc15",
+    "src/service_lowering.c": "e98478b70b21f09783dbdc53fc81b78f6b1c7a11045aef8708327ec932fb861b",
+    "src_nano/compiler/service_lowering.nano": "b4e1e1c528421b83881c9b98eb7dd12de05c5ce5524d2f92021d6d343205338b",
+    "src_nano/compiler/service_wire.nano": "36d2ace16ba157726aad7d4d0caa607d2b50b4a212c1682c049d47629e5adb6c",
+    "tests/nanoisa/test_file_opcodes.c": "a1f3fb78e3225591c8c29ea24a0022a1176bc89ea6f4d07b782c2f92f11df938",
+    "tests/test_service_drivers.py": "47d0d52498d9a941cf233b2b95be27b79bbd8fd50b803a7cb93b0d2830625003",
+    "tests/test_service_lowering.c": "a306675f6dc59e28b0a17913914089b7845b4623eabc173b45046f29c7580495",
+    "tests/test_service_lowering.py": "057868ca099f3112690f4e1adf85a8f47a5d670cd3a3608ca4ee217f22330fe7",
+    "docs/NANOISA_FILE_MULTI_BORROW.md": "f67e92cc61507ab85f0a2c232695c0c21834094697f19f0b36e92e98d7f0de96",
+    "tests/fixtures/file_multiborrow.nano": "3dd0c1646689b1c9cef289ab85a3c4ebef9b1c641cbcdb5e6c47dd839d35f662",
+    "tests/fixtures/file_multiborrow_owned.nano": "5711e567e6251d0ad3aea7b65bb11819966d6b92db801eb5cba160e65406cf4e"
+  },
+  "artifacts": {
+    "/private/tmp/nanolang-multiborrow-final-driver.nvm": "2277486eca9eec9d34366cabbfa8c1fa9f43a72de2ececb5d18fe03199e47e7d",
+    "/private/tmp/nanolang-multiborrow-final-driver.native": "b3af4f7381f598f3fa0899cf7b1a1074c1e9e378e5496283809e6f65e92a55fa",
+    "modules/file_product/.build/current/libfile_product.dylib": "6eb7b94378b6fb1fb1583847329d943015bbbaaf6d5782d2e81e875a48e11e23",
+    "obj/test_service_lowering_sanitize": "8d5b5691971ce77552262a3ec307eab2e6a65bb04b1641606366d2dd91a5cb31"
+  }
+}

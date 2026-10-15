@@ -1,0 +1,42 @@
+['/private/tmp/nanolang-list-free-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-8w7wknx2/free-temporary.nano', 'program']
+.types 0 0 0
+.entry 0
+
+.string s0 "temporary-"
+
+.function main 0 0 0 int 1
+  CALL make
+  POP
+  LOAD_GLOBAL 0
+  PUSH_I64 1
+  I64_EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.end
+
+.function make 0 1 0 array 1
+  LOAD_GLOBAL 0
+  PUSH_I64 1
+  I64_ADD
+  STORE_GLOBAL 0
+  ARR_NEW 5
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  PUSH_STR s0
+  LOAD_GLOBAL 0
+  CAST_STRING
+  STR_CONCAT
+  ARR_PUSH
+  POP
+  LOAD_LOCAL 0
+  RET
+.end
+
+.function __init__ 0 0 0 void 0
+  PUSH_I64 0
+  STORE_GLOBAL 0
+  RET
+.end
+
+

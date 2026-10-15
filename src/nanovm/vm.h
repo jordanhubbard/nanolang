@@ -169,6 +169,8 @@ typedef struct VmState {
     /* I preserve the borrowed entry/helper contexts and preallocate deeper
      * value-only frames so context storage cannot fail after transfer. */
     VmReferenceActivation value_references[NVM_OWNED_MAX_FUNCTIONS-2];
+    /* I allocate deeper effect contexts before transferring any argument. */
+    VmReferenceActivation *effect_references[VM_MAX_FRAMES-NVM_OWNED_MAX_FUNCTIONS];
     uint64_t reference_generation;
     VmEffectHandler handlers[VM_MAX_FRAMES];
     uint32_t handler_count;

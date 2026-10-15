@@ -1,0 +1,7 @@
+{
+  "command": "bin/nanoc src_nano/typecheck_driver.nano -o /private/tmp/nl51-typecheck-driver",
+  "shadow_timeout": "default 10 seconds",
+  "trace": true,
+  "exit": 0,
+  "seconds": 96.632
+}

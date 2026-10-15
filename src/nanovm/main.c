@@ -12,6 +12,11 @@
 
 #include "../nanoisa/file_public.h"
 #include "../nanoisa/file_cyclic_public.h"
+#include "../nanoisa/file_indirect_public.h"
+#include "../nanoisa/socket_indirect_public.h"
+#include "../nanoisa/websocket_indirect_public.h"
+#include "../nanoisa/services_indirect_public.h"
+#include "../runtime/service_policy.h"
 #include "../nanoisa/file_cli.h"
 #include "vm.h"
 #include "vm_ffi.h"
@@ -89,7 +94,7 @@ static bool file_instruction_limit(const char *text, uint64_t *out) {
     *out = value;
     return true;
 }
-static int run_file_standalone(const char *path, const NvmFileCyclicOptions *options) {
+static int run_file_standalone(const char *path, const NvmFileCyclicOptions *options, bool indirect) {
     uint8_t *bytes = NULL;
     size_t size = 0;
     char diagnostic[256] = {0};
@@ -108,15 +113,22 @@ static int run_file_standalone(const char *path, const NvmFileCyclicOptions *opt
     NvmFileCyclicExecutionReport cyclic = {0};
     NvmFileRuntimeReport report;
     if (options) {
-        cyclic = nvm_file_execute_cyclic_bytes(grant,bytes,size,options,&scalar);
+        if (indirect) {
+            NvmFileIndirectOptions selected = {NVM_FILE_INDIRECT_RUNTIME_REVISION, options->instruction_limit};
+            NvmFileIndirectExecutionReport result = nvm_file_execute_indirect_bytes(grant,bytes,size,&selected,&scalar);
+            cyclic.runtime = result.runtime;
+            cyclic.instruction_limit = result.instruction_limit;
+            cyclic.instructions_started = result.instructions_started;
+            cyclic.fuel_exhausted = result.fuel_exhausted;
+        } else cyclic = nvm_file_execute_cyclic_bytes(grant,bytes,size,options,&scalar);
         report = cyclic.runtime;
     } else report = nvm_file_execute_bytes(grant,bytes,size,&scalar);
     free(bytes);
     NvmFileHostStatus destroyed = nvm_file_host_grant_destroy(&grant);
     if (report.status != NVM_FILE_RUNTIME_OK || destroyed != NVM_FILE_HOST_OK) {
         if (options) fprintf(stderr,
-                "I refuse cyclic File execution (status %u, site %u:%u, limit %llu, started %llu, exhausted %u, cleanup %llu, grant %u)\n",
-                (unsigned)report.status,report.function,report.instruction,
+                "I refuse %s File execution (status %u, site %u:%u, limit %llu, started %llu, exhausted %u, cleanup %llu, grant %u)\n",
+                indirect ? "indirect" : "cyclic", (unsigned)report.status,report.function,report.instruction,
                 (unsigned long long)cyclic.instruction_limit,
                 (unsigned long long)cyclic.instructions_started,(unsigned)cyclic.fuel_exhausted,
                 (unsigned long long)report.cleanup.cleanup_failures,(unsigned)destroyed);
@@ -126,6 +138,71 @@ static int run_file_standalone(const char *path, const NvmFileCyclicOptions *opt
         return 1;
     }
     return (int)((uint64_t)scalar.value & UINT64_C(255));
+}
+
+static int run_socket_standalone(const char *path,const NvmSocketIndirectOptions *options) {
+    uint8_t *bytes=NULL;size_t size=0;char diagnostic[256]={0};
+    if(!nvm_file_cli_read(path,&bytes,&size,diagnostic,sizeof diagnostic)){fprintf(stderr,"%s\n",diagnostic);return 1;}
+    NvmSocketHostGrant *grant=NULL;
+    if(nvm_socket_host_grant_create_tcp_connections(&grant)!=NVM_SOCKET_HOST_OK){free(bytes);return 1;}
+    NvmSocketScalar scalar={0};
+    NvmSocketIndirectExecutionReport report=nvm_socket_execute_indirect_bytes(grant,bytes,size,options,&scalar);
+    free(bytes);
+    NvmSocketHostStatus revoked=nvm_socket_host_grant_revoke(grant);
+    NvmSocketHostStatus destroyed=nvm_socket_host_grant_destroy(&grant);
+    if(report.runtime.status!=NVM_SOCKET_RUNTIME_OK || !report.runtime.acquired || report.runtime.cleanup.cleanup_failures ||
+       revoked!=NVM_SOCKET_HOST_OK || destroyed!=NVM_SOCKET_HOST_OK || grant) {
+        fprintf(stderr,"I refuse TCP execution (status %u, limit %llu, started %llu, exhausted %u).\n",
+            (unsigned)report.runtime.status,(unsigned long long)report.instruction_limit,
+            (unsigned long long)report.instructions_started,(unsigned)report.fuel_exhausted);return 1;
+    }
+    return (int)((uint64_t)scalar.value&255u);
+}
+
+static int run_websocket_standalone(const char *path,const NvmWebSocketIndirectOptions *options,const NvmWebSocketHostPolicy *policy) {
+    uint8_t *bytes=NULL;size_t size=0;char diagnostic[256]={0};
+    if(!nvm_file_cli_read(path,&bytes,&size,diagnostic,sizeof diagnostic)){fprintf(stderr,"%s\n",diagnostic);return 1;}
+    NvmWebSocketHostGrant *grant=NULL;
+    if(nvm_websocket_host_grant_create(policy,&grant)!=NVM_WEBSOCKET_HOST_OK){free(bytes);return 1;}
+    NvmWebSocketScalar scalar={0};
+    NvmWebSocketIndirectExecutionReport report=nvm_websocket_execute_indirect_bytes(grant,bytes,size,options,&scalar);
+    free(bytes);
+    NvmWebSocketHostStatus revoked=nvm_websocket_host_grant_revoke(grant);
+    NvmWebSocketHostStatus destroyed=nvm_websocket_host_grant_destroy(&grant);
+    if(report.runtime.status!=NVM_WEBSOCKET_RUNTIME_OK || !report.runtime.acquired || report.runtime.cleanup.cleanup_failures ||
+       revoked!=NVM_WEBSOCKET_HOST_OK || destroyed!=NVM_WEBSOCKET_HOST_OK || grant) {
+        fprintf(stderr,"I refuse WebSocket execution (status %u, limit %llu, started %llu, exhausted %u).\n",
+            (unsigned)report.runtime.status,(unsigned long long)report.instruction_limit,
+            (unsigned long long)report.instructions_started,(unsigned)report.fuel_exhausted);return 1;
+    }
+    return (int)((uint64_t)scalar.value&255u);
+}
+
+static int run_services_standalone(const char *path,const NvmServicesIndirectOptions *options,bool files,bool tcp,const NvmWebSocketHostPolicy *websocket) {
+    uint8_t *bytes=NULL;size_t size=0;char diagnostic[256]={0};
+    if(!nvm_file_cli_read(path,&bytes,&size,diagnostic,sizeof diagnostic)){fprintf(stderr,"%s\n",diagnostic);return 1;}
+    NlServicePolicy policy;
+    if(!nl_service_policy_read(bytes,size,files,tcp,websocket && websocket->allow_connections,&policy) || policy.profile!=3){free(bytes);return 1;}
+    if(!policy.allowed) {
+        if(policy.requires_file && !files)fputs("I require --allow-temporary-files for these service instances.\n",stderr);
+        if(policy.requires_tcp && !tcp)fputs("I require --allow-tcp-connections for these service instances.\n",stderr);
+        if(policy.requires_websocket && !(websocket && websocket->allow_connections))fputs("I require --allow-websocket-connections for these service instances.\n",stderr);
+        free(bytes);return 1;
+    }
+    NvmServicesHostGrant *grant=NULL;
+    if(nl_service_policy_grant(&policy,websocket,&grant)!=NVM_SERVICES_HOST_OK){free(bytes);return 1;}
+    NvmServicesScalar scalar={0};
+    NvmServicesIndirectExecutionReport report=nvm_services_execute_indirect_bytes(grant,bytes,size,options,&scalar);
+    free(bytes);
+    NvmServicesHostStatus revoked=nvm_services_host_grant_revoke(grant);
+    NvmServicesHostStatus destroyed=nvm_services_host_grant_destroy(&grant);
+    if(report.runtime.status!=NVM_SERVICES_RUNTIME_OK || !report.runtime.acquired || report.runtime.cleanup.cleanup_failures ||
+       revoked!=NVM_SERVICES_HOST_OK || destroyed!=NVM_SERVICES_HOST_OK || grant) {
+        fprintf(stderr,"I refuse mixed-service execution (status %u, limit %llu, started %llu, exhausted %u).\n",
+            (unsigned)report.runtime.status,(unsigned long long)report.instruction_limit,
+            (unsigned long long)report.instructions_started,(unsigned)report.fuel_exhausted);return 1;
+    }
+    return (int)((uint64_t)scalar.value&255u);
 }
 
 static int run_standalone(const char *path, bool verify_only) {
@@ -303,15 +380,22 @@ static int run_shadow_module(void) {
 }
 
 int main(int argc, char *argv[]) {
-    bool allow_temporary_files = false;
-    bool file_cyclic = false, file_limit_set = false;
+    bool allow_temporary_files = false, allow_tcp_connections = false, socket_limit_set = false;
+    NvmSocketIndirectOptions socket_options={1,0};
+    NvmWebSocketHostPolicy websocket_policy={1,false,false,60000,NULL};
+    NvmWebSocketIndirectOptions websocket_options={1,0};bool websocket_limit_set=false;
+    bool services=false,service_limit_set=false;NvmServicesIndirectOptions service_options={1,0};
+    bool file_cyclic = false, file_indirect = false, file_limit_set = false;
     NvmFileCyclicOptions file_options = {NVM_FILE_CYCLIC_RUNTIME_REVISION, 0};
     g_argc = argc;
     g_argv = argv;
 
     if (argc < 2) {
         fprintf(stderr, "Usage: %s [--verify-only | --daemon | --check-shadows | --allow-temporary-files] [--debug] [--profile-isa FILE] <file.nvm> [-- guest-args...]\n", argv[0]);
-        fprintf(stderr, "For cyclic File execution I require --allow-temporary-files --file-cyclic --file-instruction-limit N.\n");
+        fprintf(stderr, "For mixed services I require --services, --service-instruction-limit N, and opt-ins for each declared catalog.\n");
+        fprintf(stderr, "For WebSocket execution I require --allow-websocket-connections and --websocket-instruction-limit N.\n");
+        fprintf(stderr, "For TCP execution I require --allow-tcp-connections and --socket-instruction-limit N.\n");
+        fprintf(stderr, "For cyclic or indirect File execution I require --allow-temporary-files, one of --file-cyclic/--file-indirect, and --file-instruction-limit N.\n");
         return 1;
     }
 
@@ -334,14 +418,44 @@ int main(int argc, char *argv[]) {
             }
             guest_start = i;
             break;
+        } else if (strcmp(argv[i], "--allow-websocket-connections") == 0) {
+            if(websocket_policy.allow_connections)return 1;
+            websocket_policy.allow_connections=true;
+        } else if (strcmp(argv[i], "--allow-websocket-lookup") == 0) {
+            if(websocket_policy.allow_lookup)return 1;
+            websocket_policy.allow_lookup=true;
+        } else if (strcmp(argv[i], "--websocket-resolver-helper") == 0) {
+            if(websocket_policy.resolver_helper || i+1>=argc)return 1;
+            websocket_policy.resolver_helper=argv[++i];
+        } else if (strcmp(argv[i], "--websocket-instruction-limit") == 0) {
+            if(websocket_limit_set || i+1>=argc || !file_instruction_limit(argv[++i],&websocket_options.instruction_limit))return 1;
+            websocket_limit_set=true;
+        } else if (strcmp(argv[i], "--services") == 0) {
+            if(services)return 1;
+            services=true;
+        } else if (strcmp(argv[i], "--service-instruction-limit") == 0) {
+            if(service_limit_set || i+1>=argc || !file_instruction_limit(argv[++i],&service_options.instruction_limit))return 1;
+            service_limit_set=true;
+        } else if (strcmp(argv[i], "--allow-tcp-connections") == 0) {
+            if(allow_tcp_connections)return 1;
+            allow_tcp_connections=true;
+        } else if (strcmp(argv[i], "--socket-instruction-limit") == 0) {
+            if(socket_limit_set || i+1>=argc || !file_instruction_limit(argv[++i],&socket_options.instruction_limit))return 1;
+            socket_limit_set=true;
         } else if (strcmp(argv[i], "--allow-temporary-files") == 0) {
             allow_temporary_files = true;
         } else if (strcmp(argv[i], "--file-cyclic") == 0) {
-            if (file_cyclic) {
+            if (file_cyclic || file_indirect) {
                 fprintf(stderr,"I accept --file-cyclic once.\n");
                 return 1;
             }
             file_cyclic = true;
+        } else if (strcmp(argv[i], "--file-indirect") == 0) {
+            if (file_cyclic || file_indirect) {
+                fprintf(stderr,"I accept one explicit File execution profile.\n");
+                return 1;
+            }
+            file_indirect = true;
         } else if (strcmp(argv[i], "--file-instruction-limit") == 0) {
             if (file_limit_set || i + 1 >= argc ||
                 !file_instruction_limit(argv[++i], &file_options.instruction_limit)) {
@@ -383,8 +497,31 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (file_cyclic != file_limit_set || (file_cyclic && !allow_temporary_files)) {
-        fprintf(stderr,"I require --file-cyclic, --file-instruction-limit and --allow-temporary-files together.\n");
+    if(services || service_limit_set) {
+        if(!services || !service_limit_set || websocket_limit_set || socket_limit_set || file_cyclic || file_indirect || file_limit_set ||
+           check_shadows || verify_only || daemon_mode || repeat_requested || g_profile_path || g_isolate_ffi || g_debug_mode || guest_start) {
+            fputs("I require --services and --service-instruction-limit together, without other execution modes.\n",stderr);return 1;
+        }
+        return run_services_standalone(nvm_path,&service_options,allow_temporary_files,allow_tcp_connections,&websocket_policy);
+    }
+    if(websocket_policy.allow_connections || websocket_policy.allow_lookup || websocket_policy.resolver_helper || websocket_limit_set) {
+        if(!websocket_policy.allow_connections || !websocket_limit_set ||
+           websocket_policy.allow_lookup!=(websocket_policy.resolver_helper!=NULL) ||
+           services || service_limit_set || allow_tcp_connections || socket_limit_set || allow_temporary_files || file_cyclic || file_indirect || file_limit_set ||
+           check_shadows || verify_only || daemon_mode || repeat_requested || g_profile_path || g_isolate_ffi || g_debug_mode || guest_start) {
+            fputs("I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n",stderr);return 1;
+        }
+        return run_websocket_standalone(nvm_path,&websocket_options,&websocket_policy);
+    }
+    if(allow_tcp_connections || socket_limit_set) {
+        if(!allow_tcp_connections || !socket_limit_set || allow_temporary_files || file_cyclic || file_indirect || file_limit_set ||
+           check_shadows || verify_only || daemon_mode || repeat_requested || g_profile_path || g_isolate_ffi || g_debug_mode || guest_start) {
+            fputs("I require --allow-tcp-connections and --socket-instruction-limit together, without other execution modes.\n",stderr);return 1;
+        }
+        return run_socket_standalone(nvm_path,&socket_options);
+    }
+    if ((file_cyclic || file_indirect) != file_limit_set || ((file_cyclic || file_indirect) && !allow_temporary_files)) {
+        fprintf(stderr,"I require one of --file-cyclic/--file-indirect, --file-instruction-limit and --allow-temporary-files together.\n");
         return 1;
     }
     if (allow_temporary_files) {
@@ -393,7 +530,7 @@ int main(int argc, char *argv[]) {
             fprintf(stderr,"I run the explicit temporary-file profile without other execution modes or guest arguments.\n");
             return 1;
         }
-        return run_file_standalone(nvm_path, file_cyclic ? &file_options : NULL);
+        return run_file_standalone(nvm_path, (file_cyclic || file_indirect) ? &file_options : NULL, file_indirect);
     }
 
     if (check_shadows && (verify_only || daemon_mode || repeat_requested ||

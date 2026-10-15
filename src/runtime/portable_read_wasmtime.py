@@ -73,12 +73,13 @@ def _value_types(cursor):
     return result
 
 
-def _module_envelope(data):
+def _module_envelope(data, binary=False):
     cursor = _Cursor(data)
     if cursor.take(8) != b"\0asm\1\0\0\0":
         _refuse()
     sections, functions = 0, 0
-    types = import_type = exports = None
+    types = exports = None
+    import_types = []
     memory, seen = False, set()
     while cursor.pos < len(data):
         sections += 1
@@ -103,10 +104,17 @@ def _module_envelope(data):
                     _refuse()
                 types.append((_value_types(part), _value_types(part)))
         elif kind == 2:
-            if (part.u32() != 1 or part.name() != _NAMESPACE or
-                    part.name() != _NAME or part.u8() != 0):
+            count, names = part.u32(), set()
+            if count != (2 if binary else 1):
                 _refuse()
-            import_type = part.u32()
+            for _ in range(count):
+                if part.name() != _NAMESPACE:
+                    _refuse()
+                name = part.name()
+                if (name != _NAME and not (binary and name == "read_bytes")) or name in names or part.u8() != 0:
+                    _refuse()
+                names.add(name)
+                import_types.append(part.u32())
         elif kind == 3:
             functions = part.u32()
             if functions >= _FUNCTION_LIMIT:
@@ -134,18 +142,18 @@ def _module_envelope(data):
             # I leave other section contents/order to the engine's validator.
             part.pos = len(part.data)
         part.done()
-    if (types is None or import_type is None or import_type >= len(types) or
-            not memory or exports is None):
+    if types is None or len(import_types) != (2 if binary else 1) or not memory or exports is None:
         _refuse()
-    if types[import_type] != ([0x7f] * 5, [0x7f]):
-        _refuse()
+    for import_type in import_types:
+        if import_type >= len(types) or types[import_type] != ([0x7f] * 5, [0x7f]):
+            _refuse()
     memories = 0
     for name, (kind, index) in exports.items():
         if kind == 2:
             if name != "memory" or index != 0:
                 _refuse()
             memories += 1
-        if kind == 0 and index >= functions + 1:
+        if kind == 0 and index >= functions + len(import_types):
             _refuse()
     if memories != 1:
         _refuse()
@@ -169,15 +177,16 @@ def _spans(size, path, length, destination, capacity, output):
 
 
 class _ReadTextInstance:
-    def __init__(self, module_bytes, paths):
+    def __init__(self, module_bytes, paths, byte_paths=None):
         self._engine = self._store = self._module = self._linker = None
         self._instance = self._memory = None
-        self._allowlist = ()
+        self._allowlist = self._byte_allowlist = ()
         self._ready = self._terminal = self._export_active = self._callback_active = False
         self._last = dict(status=NPR_OK, opened=False, closeAttempted=False,
                           closeError=False, bytesRead=0)
         data = _bytes_copy(module_bytes, _MODULE_LIMIT)
-        self._envelope = _module_envelope(data)
+        binary = byte_paths is not None
+        self._envelope = _module_envelope(data, binary)
         if not isinstance(paths, (list, tuple)) or len(paths) > 64:
             _refuse()
         copied = []
@@ -187,6 +196,16 @@ class _ReadTextInstance:
                 _refuse()
             copied.append(row)
         self._allowlist = tuple(copied)
+        if binary:
+            if not isinstance(byte_paths, (list, tuple)) or len(byte_paths) > 64:
+                _refuse()
+            copied = []
+            for path in byte_paths:
+                row = _bytes_copy(path, _PATH_LIMIT)
+                if not row or b"\0" in row:
+                    _refuse()
+                copied.append(row)
+            self._byte_allowlist = tuple(copied)
         if version("wasmtime") != "43.0.0":
             raise ValueError("I require my pinned Wasmtime43.0.0 binding")
         try:
@@ -200,13 +219,16 @@ class _ReadTextInstance:
                 config.close()
             self._module = wt.Module(self._engine, data)
             imports = self._module.imports
-            if (len(imports) != 1 or imports[0].module != _NAMESPACE or
-                    imports[0].name != _NAME or not isinstance(imports[0].type, wt.FuncType)):
+            if len(imports) != (2 if binary else 1):
                 _refuse()
-            function_type = imports[0].type
-            if (function_type.params != [wt.ValType.i32()] * 5 or
-                    function_type.results != [wt.ValType.i32()]):
-                _refuse()
+            for imported in imports:
+                if (imported.module != _NAMESPACE or
+                    (imported.name != _NAME and not (binary and imported.name == "read_bytes")) or
+                    not isinstance(imported.type, wt.FuncType)):
+                    _refuse()
+                if (imported.type.params != [wt.ValType.i32()] * 5 or
+                    imported.type.results != [wt.ValType.i32()]):
+                    _refuse()
             actual = self._module.exports
             if len(actual) != len(self._envelope):
                 _refuse()
@@ -217,8 +239,10 @@ class _ReadTextInstance:
                     _refuse()
             self._store = wt.Store(self._engine)
             self._linker = wt.Linker(self._engine)
-            self._linker.define_func(_NAMESPACE, _NAME, function_type,
-                                     self._callback, access_caller=True)
+            for imported in imports:
+                callback = self._callback if imported.name == _NAME else self._byte_callback
+                self._linker.define_func(_NAMESPACE, imported.name, imported.type,
+                                         callback, access_caller=True)
             self._instance = self._linker.instantiate(self._store, self._module)
             self._memory = self._instance.exports(self._store)["memory"]
             if not isinstance(self._memory, wt.Memory):
@@ -235,7 +259,13 @@ class _ReadTextInstance:
                 primary.add_note("I also encountered teardown failure: " + type(cleanup).__name__)
             raise
 
-    def _callback(self, caller, path_offset, path_length, destination_offset, capacity, length_offset):
+    def _callback(self, caller, *args):
+        return self._read(False, caller, *args)
+
+    def _byte_callback(self, caller, *args):
+        return self._read(True, caller, *args)
+
+    def _read(self, binary, caller, path_offset, path_length, destination_offset, capacity, length_offset):
         if not self._ready or self._terminal or self._callback_active or not self._export_active:
             return NPR_INVALID
         self._callback_active = True
@@ -253,7 +283,7 @@ class _ReadTextInstance:
                 status = NPR_INVALID
                 return status
             path = bytes(memory.read(caller, p, p + n))
-            if not path or b"\0" in path or path not in self._allowlist:
+            if not path or b"\0" in path or path not in (self._byte_allowlist if binary else self._allowlist):
                 status = NPR_DENIED
                 return status
             data, cell = bytearray(cap + 1), bytearray(4)
@@ -290,7 +320,7 @@ class _ReadTextInstance:
             if status != NPR_OK:
                 return status
             length = 0 if empty else count
-            if data.find(b"\0", 0, length) >= 0:
+            if not binary and data.find(b"\0", 0, length) >= 0:
                 length = 0
             if memory.data_len(caller) != size or not _spans(size, p, n, d, cap, out):
                 status = NPR_INVALID
@@ -340,7 +370,7 @@ class _ReadTextInstance:
             return NPR_INVALID
         self._ready, self._terminal = False, True
         self._memory = self._instance = None
-        self._allowlist = ()
+        self._allowlist = self._byte_allowlist = ()
         # Linker callback storage releases its bound-method reference before Store.
         failure = None
         for name in ("_linker", "_store", "_module", "_engine"):
@@ -369,3 +399,10 @@ def create_read_text_instance(module_bytes, paths):
     My underscore members are private conventions, not a Python sandbox.
     """
     return _ReadTextInstance(module_bytes, paths)
+
+
+def create_file_read_instance(module_bytes, text_paths, byte_paths):
+    """I copy separate text and binary allowlists before creating my instance."""
+    if byte_paths is None:
+        _refuse()
+    return _ReadTextInstance(module_bytes, text_paths, byte_paths)

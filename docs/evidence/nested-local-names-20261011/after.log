@@ -1,0 +1,14 @@
+test_aggregate_and_callable_parameters_and_locals (tests.test_local_binding_metadata.LocalBindingMetadata.test_aggregate_and_callable_parameters_and_locals) ... ok
+test_array_name_is_retained (tests.test_local_binding_metadata.LocalBindingMetadata.test_array_name_is_retained) ... ok
+test_generated_tuple_owner_is_omitted_without_reserving_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_generated_tuple_owner_is_omitted_without_reserving_names) ... ok
+test_global_initializer_lambda_and_imported_passive_offsets (tests.test_local_binding_metadata.LocalBindingMetadata.test_global_initializer_lambda_and_imported_passive_offsets) ... ok
+test_imported_generated_owner_and_source_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_imported_generated_owner_and_source_names) ... ok
+test_nested_functions_keep_separate_local_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_nested_functions_keep_separate_local_names) ... ok
+test_parameters_shadowed_bindings_and_loop (tests.test_local_binding_metadata.LocalBindingMetadata.test_parameters_shadowed_bindings_and_loop) ... ok
+test_shadowed_array_intervals (tests.test_local_binding_metadata.LocalBindingMetadata.test_shadowed_array_intervals) ... ok
+test_specialized_array_parameter_keeps_source_name (tests.test_local_binding_metadata.LocalBindingMetadata.test_specialized_array_parameter_keeps_source_name) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 3.724s
+
+OK

@@ -1,0 +1,48 @@
+{
+  "base_commit": "248f046da1cccfd41f20a1f70d2cf41b72f92482",
+  "source_sha256": {
+    "src/nanoisa/nvm2c.c": "81a94bf60527ca0d81562729a246e32020af68550ab27f416411900b7f7521e0",
+    "src/nanoisa/nvm2c_shape.c": "72db73fca1c76bc1d4b71156c7c833acc32d20d25d2b0d6598f91b5d3a16f80d",
+    "src/nanoisa/nvm2c_callables.c": "f2b6c15fe4c205028e0f0bd54bfc40c52b532e0440eb1a44d174fd0e15a13e93",
+    "src/nanoisa/nvm2c_callables.h": "13ddb19dc55128b9bed8f4a925817284a79931d245d32a443269bc827d5a5827",
+    "tests/nanoisa/test_nvm2c_callables.c": "0baf4994ba0d4f43ee0b9edfbc952905eac288a0a70d812094170a4b7a0f407f",
+    "Makefile.gnu": "2e140a7d0b3d9c9e1f181e01b45fe99bd28b90204453e2e5775d68c454990d03"
+  },
+  "logs": {
+    "first-build.log": "3a52bb725d0fd7aad5dc418c712d1dfed8e397403117d0f1c5d08f02ffdfa96a",
+    "first-control-flow.log": "36e3ce24053f5bd7e006226fd5dad1abbfe14487feffd52c7cd37ce7fbb527ac",
+    "first-native-integration.log": "5d683e94f93284c7bce1cb8590d4a2fc815bb76cc12bf31e9345a888bb706f37",
+    "analysis.log": "c6472d73c1c2b0914093b2946bbd72523ed74a1d1bb5e1c80355eaf4ca67e0c1",
+    "source-analysis.log": "9659c66264ea28d9cf9f1369e153259c081461837a1038599a1c7edb693c1925",
+    "sanitized.log": "e1b4da7d24e026524a40b58f8f98448120d043ee192fd96d711a62685abb867f",
+    "source-sanitized.log": "9659c66264ea28d9cf9f1369e153259c081461837a1038599a1c7edb693c1925",
+    "native-returned-open.log": "22324b301cd72b2e60f483175fecfcba2d6fec929781c2e23b61a913e3a6b497",
+    "native.log": "3e0fa9c91276433ee33dcccad2db8be305225eba834ad70cf540acb7f90a0199"
+  },
+  "terminals": {
+    "analysis": 0,
+    "source_analysis": 0,
+    "sanitized": 0,
+    "source_sanitized": 0,
+    "native_returned_calls": 1,
+    "native": 0
+  },
+  "sanitizer_options": "detect_leaks=1",
+  "instrumentation": {
+    "nvm2c": {
+      "sha256": "e27c6f516af7deebaf5bc9ace25532fad2de2166702789aa94d163ef09e80d43",
+      "asan": true,
+      "ubsan": true
+    },
+    "nvm2c_shape": {
+      "sha256": "a62664d77652d5f9e408575f336e09ae6f966d45fdf72a8ef97a631182b8a2ff",
+      "asan": true,
+      "ubsan": true
+    },
+    "nvm2c_callables": {
+      "sha256": "b554dd1776437ead1672b2bc40fe63e5c29bade56de82dd3dfbbcf4918d571b4",
+      "asan": true,
+      "ubsan": true
+    }
+  }
+}

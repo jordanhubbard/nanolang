@@ -1,0 +1,7 @@
+I retain mixed WebSocket value evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-ct_2fnyl
+test_installed_denied_network (tests.test_mixed_websocket_values.MixedWebSocketValues.test_installed_denied_network) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 10.712s
+
+OK

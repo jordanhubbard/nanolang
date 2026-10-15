@@ -1,0 +1,21 @@
+==========================================
+CI dependency-install helper tests
+==========================================
+[0;32m✅[0m apt helper retries a failing mirror and succeeds within budget
+[0;32m✅[0m brew helper retries a failing download and succeeds within budget
+[0;32m✅[0m apt helper recovers interrupted unpacking and missing dependencies
+[0;32m✅[0m apt helper bounds recovery failures without claiming installation
+[0;32m✅[0m apt helper fails after exhausting its attempt budget
+[0;32m✅[0m brew helper fails after exhausting its attempt budget
+[0;32m✅[0m brew helper skips a formula the runner image already provides
+[0;32m✅[0m brew helper installs the remaining formulae after a skip
+[0;32m✅[0m apt helper reports the package manager's real exit code
+[0;32m✅[0m brew helper reports the package manager's real exit code
+[0;32m✅[0m ci-apt-install.sh reports a usage error when given no packages
+[0;32m✅[0m ci-brew-install.sh reports a usage error when given no packages
+[0;32m✅[0m no workflow installs dependencies outside the retry helpers
+[0;32m✅[0m apt helper still retries and installs on a host without GNU timeout
+[0;32m✅[0m apt helper still exhausts its budget on a host without GNU timeout
+[0;32m✅[0m brew helper still retries and installs on a host without GNU timeout
+==========================================
+[0;32mAll CI dependency-install helper tests passed[0m

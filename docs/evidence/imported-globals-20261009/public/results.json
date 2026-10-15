@@ -1,0 +1,56 @@
+[
+  {
+    "case": "qualified",
+    "compiler": "nano_virt",
+    "exit": 1,
+    "prior_output_preserved": true
+  },
+  {
+    "case": "qualified",
+    "compiler": "nanoc_stage1",
+    "exit": 1,
+    "prior_output_preserved": true
+  },
+  {
+    "case": "qualified",
+    "compiler": "nanoc_stage2",
+    "exit": 1,
+    "prior_output_preserved": true
+  },
+  {
+    "case": "selective",
+    "compiler": "nano_virt",
+    "exit": 1,
+    "prior_output_preserved": true
+  },
+  {
+    "case": "selective",
+    "compiler": "nanoc_stage1",
+    "exit": 1,
+    "prior_output_preserved": true
+  },
+  {
+    "case": "selective",
+    "compiler": "nanoc_stage2",
+    "exit": 1,
+    "prior_output_preserved": true
+  },
+  {
+    "case": "function_control",
+    "compiler": "nano_virt",
+    "exit": 1,
+    "prior_output_preserved": true
+  },
+  {
+    "case": "function_control",
+    "compiler": "nanoc_stage1",
+    "exit": 0,
+    "prior_output_preserved": false
+  },
+  {
+    "case": "function_control",
+    "compiler": "nanoc_stage2",
+    "exit": 0,
+    "prior_output_preserved": false
+  }
+]

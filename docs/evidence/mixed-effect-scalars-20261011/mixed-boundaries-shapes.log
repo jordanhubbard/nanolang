@@ -1,0 +1,18 @@
+test_activation_errors_trap (tests.test_native_effects.NativeEffectBoundaries.test_activation_errors_trap) ... ok
+test_activation_temporaries_start_void (tests.test_native_effects.NativeEffectBoundaries.test_activation_temporaries_start_void) ... ok
+test_backward_handler_entry (tests.test_native_effects.NativeEffectBoundaries.test_backward_handler_entry) ... ok
+test_callable_arguments_and_results_retain_targets (tests.test_native_effects.NativeEffectBoundaries.test_callable_arguments_and_results_retain_targets) ... ok
+test_distinct_scalar_resumptions_keep_tags (tests.test_native_effects.NativeEffectBoundaries.test_distinct_scalar_resumptions_keep_tags) ... ok
+test_entry_argument_count (tests.test_native_effects.NativeEffectBoundaries.test_entry_argument_count) ... ok
+test_halt_in_arm (tests.test_native_effects.NativeEffectBoundaries.test_halt_in_arm) ... ok
+test_halt_preserves_suspended_integer_top (tests.test_native_effects.NativeEffectBoundaries.test_halt_preserves_suspended_integer_top) ... ok
+test_halt_releases_allocated_strings (tests.test_native_effects.NativeEffectBoundaries.test_halt_releases_allocated_strings) ... ok
+test_implicit_arm_completion_resumes (tests.test_native_effects.NativeEffectBoundaries.test_implicit_arm_completion_resumes) ... ok
+test_lexical_return_prunes_intervening_handlers (tests.test_native_effects.NativeEffectBoundaries.test_lexical_return_prunes_intervening_handlers) ... ok
+test_mixed_scalar_arguments_and_resume_results (tests.test_native_effects.NativeEffectBoundaries.test_mixed_scalar_arguments_and_resume_results) ... ok
+test_ordinary_halt_unwinds_without_handlers (tests.test_native_effects.NativeEffectBoundaries.test_ordinary_halt_unwinds_without_handlers) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 9.018s
+
+OK

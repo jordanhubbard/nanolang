@@ -1,0 +1,4 @@
+/usr/bin/clang -std=c99 -D_GNU_SOURCE -Isrc -Wall -Wextra -Werror -Wbitwise-instead-of-logical -fsyntax-only src/service_lowering.c src/runtime/service_product.c
+exit=0
+/opt/homebrew/opt/llvm/bin/clang -std=c99 -D_GNU_SOURCE -Isrc -Wall -Wextra -Werror -Wbitwise-instead-of-logical -fsyntax-only src/service_lowering.c src/runtime/service_product.c
+exit=0

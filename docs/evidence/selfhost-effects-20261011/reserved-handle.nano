@@ -1,0 +1,3 @@
+opaque type Handle
+fn main()->int { let handle:Handle = 0 return 0 }
+shadow main { assert true }

@@ -1,0 +1,2 @@
+pub fn value(x:int)->int{(println "right") return x}
+shadow value {assert (== (value 9) 9)}

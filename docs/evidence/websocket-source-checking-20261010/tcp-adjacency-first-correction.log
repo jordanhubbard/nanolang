@@ -1,0 +1,19 @@
+test_endpoint_calls_results_and_shadows (tests.test_socket_service_source.SocketBodies.test_endpoint_calls_results_and_shadows) ... ok
+test_exact_constructor_and_nominal_refusals (tests.test_socket_service_source.SocketBodies.test_exact_constructor_and_nominal_refusals) ... ok
+test_callable_transport_and_borrowed_signatures (tests.test_socket_service_source.SocketOwnership.test_callable_transport_and_borrowed_signatures) ... ok
+test_invalid_ownership_and_constructor_effects (tests.test_socket_service_source.SocketOwnership.test_invalid_ownership_and_constructor_effects) ... ok
+test_lowering_does_not_reinterpret_tcp_as_file (tests.test_socket_service_source.SocketOwnership.test_lowering_does_not_reinterpret_tcp_as_file) ... FAIL
+
+======================================================================
+FAIL: test_lowering_does_not_reinterpret_tcp_as_file (tests.test_socket_service_source.SocketOwnership.test_lowering_does_not_reinterpret_tcp_as_file)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 109, in test_lowering_does_not_reinterpret_tcp_as_file
+    self.assertIn('I have not connected TCP wire and runtime lowering',run.stdout+run.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'I have not connected TCP wire and runtime lowering' not found in 'I require --allow-tcp-connections for selected service shadows or execution.\n'
+
+----------------------------------------------------------------------
+Ran 5 tests in 89.343s
+
+FAILED (failures=1)

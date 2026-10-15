@@ -1,0 +1,7 @@
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 1) 1)}
+union Choice {Number {value:int}, Flag {value:bool}}
+fn read(value:Choice)->int{match value{Number(p)=>{return p.value} Flag(p)=>{if p.value{return 7} return 0}}}
+shadow read {assert (== (read Choice.Number {value:7}) 7)}
+fn main()->int{assert (== (read (identity Choice.Number {value:7})) 7) assert (== (read (identity Choice.Flag {value:true})) 7) return 0}
+shadow main {assert (== (main) 0)}

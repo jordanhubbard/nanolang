@@ -1,0 +1,35 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2871, column 9: Unused variable 'rejected'
+Warning at line 3169, column 9: Unused variable 'rejected'
+Warning at line 3173, column 9: Unused variable 'rejected'
+Warning at line 3177, column 9: Unused variable 'rejected'
+Warning at line 3181, column 9: Unused variable 'rejected'
+Warning at line 3188, column 13: Unused variable 'rejected'
+Warning at line 3337, column 9: Unused variable 'rejected'
+Warning at line 3341, column 9: Unused variable 'rejected'
+Warning at line 3348, column 13: Unused variable 'rejected'
+Warning at line 7267, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2871, column 9: Unused variable 'rejected'
+Warning at line 3169, column 9: Unused variable 'rejected'
+Warning at line 3173, column 9: Unused variable 'rejected'
+Warning at line 3177, column 9: Unused variable 'rejected'
+Warning at line 3181, column 9: Unused variable 'rejected'
+Warning at line 3188, column 13: Unused variable 'rejected'
+Warning at line 3337, column 9: Unused variable 'rejected'
+Warning at line 3341, column 9: Unused variable 'rejected'
+Warning at line 3348, column 13: Unused variable 'rejected'
+Warning at line 7267, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Error: Failed to compile module '/Users/jordanh/Src/nanolang/src_nano/compiler/service_inputs.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-sQejJq/source.c:29:10: fatal error: 'file_source_inputs.h' file not found
+   29 | #include "file_source_inputs.h"  /* priority: 0 */
+      |          ^~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-sQejJq/source.c
+Error: Failed to compile module '/Users/jordanh/Src/nanolang/src_nano/compiler/service_inputs.nano'
+Error: Failed to compile modules

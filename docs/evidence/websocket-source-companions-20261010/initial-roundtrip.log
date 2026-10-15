@@ -1,0 +1,18 @@
+I retain strict binding artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-binding-69ok8hn1
+test_complete_document_lifetime_and_allocation (tests.test_nsi_websocket_binding.WebSocketBindingPlan.test_complete_document_lifetime_and_allocation) ... FAIL
+
+======================================================================
+FAIL: test_complete_document_lifetime_and_allocation (tests.test_nsi_websocket_binding.WebSocketBindingPlan.test_complete_document_lifetime_and_allocation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_nsi_file_binding.py", line 56, in test_complete_document_lifetime_and_allocation
+    out,_=self.command(mode+'-run',[exe,self.work,self.work/'expected.json',ROOT/f'tests/fixtures/nsi_{self.kind}_binding_expected.nano.txt'],timeout=900)
+          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_file_source_plan.py", line 110, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('linked-run', {'returncode': -6, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': -6}, b'', b'I failed line 124: binding_prepare(copy,size,&p)==NL_BINDING_OK\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 4.775s
+
+FAILED (failures=1)

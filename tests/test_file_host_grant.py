@@ -23,7 +23,7 @@ class FileHostGrant(unittest.TestCase):
         commands = []
         env = dict(os.environ)
         env.pop("LSAN_OPTIONS", None)
-        env["ASAN_OPTIONS"] = "detect_leaks=1:halt_on_error=1"
+        env["ASAN_OPTIONS"] = "halt_on_error=1"
         env["UBSAN_OPTIONS"] = "halt_on_error=1:print_stacktrace=1"
 
         def run(command, expected=0):

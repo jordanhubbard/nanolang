@@ -1,0 +1,18 @@
+I retain SQLite artifact evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-zz3r82e5
+test_native_refuses_wrong_signature_kind_path_and_symbol (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_native_refuses_wrong_signature_kind_path_and_symbol) ... ok
+test_same_symbol_retains_artifact_owner (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_same_symbol_retains_artifact_owner) ... ok
+test_seed_real_sqlite_and_borrowed_strings (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_seed_real_sqlite_and_borrowed_strings) ... ok
+test_selfhost_real_sqlite_and_borrowed_strings (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_selfhost_real_sqlite_and_borrowed_strings) ... ok
+test_selfhost_refuses_wrong_abi_and_preserves_output (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_selfhost_refuses_wrong_abi_and_preserves_output) ... ok
+test_unused_typed_imports_compile_without_opening_library (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_unused_typed_imports_compile_without_opening_library) ... ok
+test_verifier_refuses_relative_artifact_path (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_verifier_refuses_relative_artifact_path) ... ok
+test_default_components_build_and_execute_nanoisa (tests.test_bootstrap_components.BootstrapComponents.test_default_components_build_and_execute_nanoisa) ... ok
+test_failed_component_compile_or_entry_refuses_validation_stamp (tests.test_bootstrap_components.BootstrapComponents.test_failed_component_compile_or_entry_refuses_validation_stamp) ... ok
+test_nested_make_exports_flags_needed_by_instrumented_native_link (tests.test_bootstrap_components.BootstrapComponents.test_nested_make_exports_flags_needed_by_instrumented_native_link) ... ok
+test_profile_uses_diagnostic_seed_and_propagates_failures (tests.test_bootstrap_components.BootstrapComponents.test_profile_uses_diagnostic_seed_and_propagates_failures) ... ok
+test_real_emitter_driver_executes_in_vm_and_sanitized_native (tests.test_bootstrap_components.BootstrapComponents.test_real_emitter_driver_executes_in_vm_and_sanitized_native) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 50.891s
+
+OK

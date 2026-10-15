@@ -1,0 +1,4 @@
+module "a.nano" as first
+module "b.nano" as second
+fn main()->int{assert (== (first.read_answer) 41) assert (== (second.read_answer) "second") return 0}
+shadow main {assert (== (main) 0)}

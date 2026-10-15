@@ -1,0 +1,2 @@
+# I declare catalog1; this declaration alone grants no host authority.
+service "nsi:nanolang/net" catalog 1 from "interface.nsi.json"

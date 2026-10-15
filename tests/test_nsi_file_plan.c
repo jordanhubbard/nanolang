@@ -97,6 +97,7 @@ int main(int argc,char **argv) {
     CHECK(nl_file_plan_type(sentinel,8)==NULL);CHECK(nl_file_plan_type(sentinel,SIZE_MAX)==NULL);
     CHECK(nl_file_plan_method_count(NULL)==0);CHECK(nl_file_plan_type_count(NULL)==0);CHECK(nl_file_plan_interface(NULL)==NULL);
     CHECK(nl_file_plan_method(NULL,0)==NULL);CHECK(nl_file_plan_type(NULL,0)==NULL);
+    NlNsi *other=nl_nsi_load_path("tests/fixtures/nsi_socket_plan.json");CHECK(other);invalid(other);nl_nsi_free(other);
     nl_file_plan_free(sentinel);nl_file_plan_free(NULL);
     printf("PASS %u checks; exact private file plan, no service execution\n",checks);return 0;
 }

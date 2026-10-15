@@ -1,0 +1,3 @@
+module "hidden.nano" as hidden
+fn main()->int{return handle {perform Secret.ask(7)} with {ask n->{n}}}
+shadow main{assert (== (main) 7)}

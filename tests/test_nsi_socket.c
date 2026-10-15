@@ -1,6 +1,8 @@
 /* I use real local sockets with deterministic boundary failures, never raw FFI. */
 #include <errno.h>
 #include <fcntl.h>
+#include <netinet/in.h>
+#include <poll.h>
 #include <signal.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -16,6 +18,9 @@ static unsigned manual_closes, io_calls, config_calls;
 static int descriptors[128], last_pair[2], fail_pair, fail_config, fail_send, fail_recv;
 static long allocation_budget = -1;
 static int close_faults[4], close_fault_index;
+static int fail_socket, fail_connect, fail_poll, fail_get_error, pending_connect;
+static int poll_override = -1, socket_error, short_error;
+static unsigned socket_calls, connect_calls, poll_calls, get_error_calls;
 #define CHECK(x) do { checks++; if (!(x)) { fprintf(stderr,"FAIL line %d: %s\n",__LINE__,#x); exit(1); } } while (0)
 static void *checked_calloc(size_t n, size_t size) {
     if (!allocation_budget) return NULL;
@@ -35,6 +40,51 @@ static int checked_socketpair(int domain,int type,int protocol,int pair[2]) {
     int rc=socketpair(domain,type,protocol,pair);if(rc)return rc;
     for(unsigned n=0;n<2;n++){unsigned i=0;while(i<128 && descriptors[i]>=0)i++;CHECK(i<128);descriptors[i]=pair[n];host_opens++;last_pair[n]=pair[n];}
     return 0;
+}
+static int checked_socket(int domain, int type, int protocol) {
+    socket_calls++;
+    if (fail_socket) { errno = fail_socket; return -1; }
+    int fd = socket(domain, type, protocol);
+    if (fd >= 0) {
+        unsigned i = 0;
+        while (i < 128 && descriptors[i] >= 0) i++;
+        CHECK(i < 128);
+        descriptors[i] = fd;
+        host_opens++;
+    }
+    return fd;
+}
+static int checked_connect(int fd, const struct sockaddr *address, socklen_t length) {
+    connect_calls++;
+    CHECK(fcntl(fd, F_GETFL) & O_NONBLOCK);
+    CHECK(fcntl(fd, F_GETFD) & FD_CLOEXEC);
+    if (pending_connect < 0) return 0; /* I isolate immediate-publication control. */
+    if (fail_connect || pending_connect) {
+        errno = fail_connect ? fail_connect : EINPROGRESS;
+        return -1;
+    }
+    return connect(fd, address, length);
+}
+static int checked_poll(struct pollfd *fds, nfds_t count, int timeout) {
+    poll_calls++;
+    CHECK(count == 1 && timeout == 0 && fds[0].events == POLLOUT);
+    if (fail_poll) { errno = fail_poll; return -1; }
+    if (poll_override >= 0) {
+        fds[0].revents = (short)poll_override;
+        return poll_override != 0;
+    }
+    return poll(fds, count, timeout);
+}
+static int checked_getsockopt(int fd, int level, int name, void *value, socklen_t *size) {
+    get_error_calls++;
+    CHECK(level == SOL_SOCKET && name == SO_ERROR && *size == sizeof(int));
+    if (fail_get_error) { errno = fail_get_error; return -1; }
+    if (pending_connect) {
+        *(int *)value = socket_error;
+        *size = short_error ? 1 : sizeof(int);
+        return 0;
+    }
+    return getsockopt(fd, level, name, value, size);
 }
 static int checked_fcntl(int fd,int command,...) {
     config_calls++;if(fail_config && config_calls==(unsigned)fail_config){errno=EACCES;return -1;}
@@ -64,6 +114,10 @@ static int checked_close(int fd) {
 #define calloc checked_calloc
 #define free checked_free
 #define socketpair checked_socketpair
+#define socket checked_socket
+#define connect checked_connect
+#define poll checked_poll
+#define getsockopt checked_getsockopt
 #define fcntl checked_fcntl
 #ifdef __APPLE__
 #define setsockopt checked_setsockopt
@@ -76,6 +130,10 @@ static int checked_close(int fd) {
 #undef calloc
 #undef free
 #undef socketpair
+#undef socket
+#undef connect
+#undef poll
+#undef getsockopt
 #undef fcntl
 #ifdef __APPLE__
 #undef setsockopt
@@ -83,6 +141,7 @@ static int checked_close(int fd) {
 #undef send
 #undef recv
 #undef close
+#include "socket_tcp_fixture.h"
 
 static void faults(int first,int second) {
     memset(close_faults,0,sizeof close_faults);close_faults[0]=first;close_faults[1]=second;close_fault_index=0;
@@ -187,9 +246,14 @@ static void close_outcomes(void) {
     s=create();p=pair(s,SOCKET_RIGHTS,SOCKET_RIGHTS);faults(EIO,ENOSPC);r=nl_socket_service_destroy(s);CHECK(r.status==NL_SOCKET_IO && r.host_errno==EIO && r.cleanup_failed && r.cleanup_errno==ENOSPC && r.close_attempts==2 && r.closure_unknown);faults(0,0);empty();
     s=create();NlSocketPair saved=p;config_calls=0;fail_config=1;faults(EIO,ENOSPC);r=nl_socket_acquire_pair(s,SOCKET_RIGHTS,SOCKET_RIGHTS,&p);fail_config=0;CHECK(r.status==NL_SOCKET_IO && r.host_errno==EACCES && r.cleanup_failed && r.cleanup_errno==EIO && r.close_attempts==2 && r.closure_unknown && !memcmp(&p,&saved,sizeof p));faults(0,0);CHECK(nl_socket_service_destroy(s).status==NL_SOCKET_IO);empty();
 }
+#include "socket_tcp_faults.h"
 int main(void) {
     CHECK(signal(SIGPIPE,SIG_DFL)!=SIG_ERR); /* I qualify the real default-disposition path in this test process. */
     for(unsigned i=0;i<128;i++)descriptors[i]=-1;
     io_and_identity();rights_and_io_errors();capacity_and_reuse();setup_and_allocation_faults();close_outcomes();
+    tcp_real_connections(NL_SOCKET_IPV4); empty();
+    tcp_real_connections(NL_SOCKET_IPV6); empty();
+    tcp_arguments_and_limits(); tcp_setup_faults(); tcp_pending_and_completion();
+    tcp_publication_and_transfer_limits();
     printf("PASS %u Socket checks; real opens=%u closes=%u; adapter close attempts=%u; harness-only recovery closes=%u\n",checks,host_opens,host_closes,close_attempts,manual_closes);return 0;
 }

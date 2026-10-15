@@ -1,0 +1,131 @@
+{
+  "revision": "da452bb61b0c1692043aad19d24df3a80096d320",
+  "inputs": {
+    "src/parser.c": "080106eaf67de8137712a04755bdcf56b02a185241885c7c96859011df5d0628",
+    "src/nominal_types.c": "9d6ffb99d83a8cd7a79b0d49e6f31d5abc0869b6d594ebdd658b44f14a5b735d",
+    "src_nano/compiler/lexer.nano": "4dc9927774fa2e2a2b0bf4cc3de0b9a330a96122e4c84e7206e709bbbdf88cf4",
+    "src_nano/compiler/effect_declarations.nano": "35244c84bd38ab609e8e9036a2845dbdaf115b23f0665f743c98b21f754c0dd6",
+    "src_nano/generated/compiler_schema.nano": "1b043a43cf22f18b8df6433a1b3c84b36bdde2231f860b8d0e3e882d2058f2ea",
+    "src/nanoisa/assembler.c": "44b700dc91c93598ed3b1717ec75936d7aebf4d87f0f2da505668f29c15a5bb7",
+    "schema/compiler_schema.json": "0a5b3ecd46caad1638c6aeeb699d1643d8fabcd4a667861daade8ad69ccb8116",
+    "src/generated/compiler_schema.h": "70ece2b0dd7a55511653ba917dccde0dde24e3a345daef407a5c36442c19dcef",
+    "src_nano/generated/compiler_ast.nano": "6dee8b493881897f3e444eb61c10ed063ce49573d5105fc49a08d4916a7e0447",
+    "src_nano/parser.nano": "40f9f5029848ebf76f8169df3388f3bc14efcb8d3d082b2c1eb543aea13e7ad9",
+    "src_nano/typecheck.nano": "0cbcea30621c05dd38c53a97c80cc68763969c5e3b855b38cb6eb3ccfb54650d",
+    "src_nano/nanoc_v06.nano": "197cd3e338aa8c1cf47729b740bad19a58a9dabc99efd192ea3003912727a6a6",
+    "src_nano/compiler/nanoisa_codegen.nano": "478f9e3462c13e257d259762c8fc0fbda6f706a3a68a18d6e6af2e31bc88ed90",
+    "src_nano/compiler/nominal_bindings.nano": "55556a1ad0614d843673e2527783d4f60148bc1265d139c5e29b9e55bc46d110",
+    "src/nanolang.h": "b7b65352b2415185ff8fd42e1f7e68adc28980da6a44f604cc9ded8db889efb4",
+    "src/env.c": "ceb084d28295b575ef6d497c5769ed462392ed8833d1751e00ea3a3ae7359ba8",
+    "src/typechecker.c": "e743b5d8a8216868a73165730e503c18689507de8de1ceb64410833aefa47540",
+    "src/nanovirt/codegen.c": "b59d47e18c431f8744487c7580b20c7dc8b4d3c925d200035d43c8adf141787b",
+    "src/nanovm/vm.c": "582bc7f815b0ad0cc1b2e0406c67384c9e0278839760384ff50ea39e2484b258",
+    "src/nanoisa/nvm2c.c": "e94d20eb315758957d206bbf1e8e9db7a6f3445e57d9b4a180469778f4000e81"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "-o",
+        "/private/tmp/nl51-effect-contracts-final/seed"
+      ],
+      "returncode": 0,
+      "seconds": 174.36333508300595,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-effect-contracts-final/seed",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-effect-contracts-final/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 309.3667361669941,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-effect-contracts-final/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.12686270801350474,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-effect-contracts-final/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-effect-contracts-final/compiler.c"
+      ],
+      "returncode": 0,
+      "seconds": 19.26487700000871,
+      "log": "product-03.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-effect-contracts-final/compiler.c",
+        "-o",
+        "/private/tmp/nl51-effect-contracts-final/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "returncode": 0,
+      "seconds": 6.741315999999642,
+      "log": "product-04.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-effect-contracts-final/compiler",
+        "--help"
+      ],
+      "returncode": 0,
+      "seconds": 0.01968741707969457,
+      "log": "product-05.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "tests/test_selfhost_effects.py"
+      ],
+      "returncode": 0,
+      "seconds": 1.8525929159950465,
+      "log": "product-06.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "tests/test_effect_binding_metadata.py"
+      ],
+      "returncode": 0,
+      "seconds": 0.5887125409208238,
+      "log": "product-07.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_opaque_imports",
+        "tests.test_selfhost_union_storage",
+        "tests.test_selfhost_layout_validation",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 3.4116766249062493,
+      "log": "product-08.log"
+    }
+  ],
+  "inputs_unchanged": true
+}

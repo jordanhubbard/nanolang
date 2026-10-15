@@ -1,0 +1,7 @@
+{
+  "src_nano/typecheck.nano": "e77fd74e37b2ed9a5faadef4a5c184c2dd0a5017cb2f77217c73ddbc25031856",
+  "src_nano/compiler/nanoisa_codegen.nano": "7733182f1671edf6d30fb1456367e3d8d3b4aa785a21d7f8346e63065e486cd9",
+  "src_nano/compiler/generic_types.nano": "659385876c2b581b8d4bef312797944473dd390f8f66d73ecbbea067f45f3572",
+  "tests/nanoisa/fixtures/generic_checker_driver.nano.txt": "9cb20be5a1ef5879008a0aa9368da92e6fa8f45d34a38de5b2f0af29ecf66680",
+  "tests/nanoisa/fixtures/generic_emitter_driver.nano.txt": "264d1afa68ce0e52b0ff6ac3b5eef94b2966ca61e51b318309668a533f1c9733"
+}

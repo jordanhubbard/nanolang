@@ -1,0 +1,34 @@
+{
+  "base_commit": "f701198adb3b5eac7909a4ba4ea841bc2b71e616",
+  "source_sha256": {
+    "src/nanoisa/nvm2c.c": "d2a79e391ae7f0ed5e1d0fb1f117509e950a756ab18e1444ef04f45c200131c3",
+    "tests/test_native_callables.py": "099041a233daca723b5ea334b3f39e96b8e7a6e3bf8e5ecffdff0603443d4b76"
+  },
+  "checks": [
+    {
+      "command": "PATH=/private/tmp/nanolang-cutover-llvm-tools:/opt/homebrew/opt/llvm/bin:$PATH NANOLANG_SELFHOST_COMPILER=/private/tmp/nanolang-computed-calls-final NANOLANG_ROOT=/Users/jordanh/Src/nanolang python3 -m unittest -v tests.test_selfhost_returned_calls tests.test_selfhost_function_values tests.test_native_callables",
+      "exit_code": 0,
+      "methods": 24,
+      "log": "qualified.log"
+    },
+    {
+      "command": "make -j2 test-nvm2c",
+      "exit_code": 0,
+      "native_checks": 2431,
+      "shape_checks": 2535,
+      "callable_checks": 204,
+      "log": "native.log"
+    },
+    {
+      "command": "bin/nvm2c docs/evidence/native-callable-execution-20261007/function-containers.nvm -o /private/tmp/nanolang-function-containers.c",
+      "exit_code": 1,
+      "log": "remaining-containers.log"
+    }
+  ],
+  "log_sha256": {
+    "remaining-containers.log": "0fd81ff971ed6f4a5401b1e42b26a878a6701cac71cfccda8a58c088d95ef1b9",
+    "native.log": "8c0ad95cf4803e822cfcfff705a93032f1a8dcbff01d1c9d5f1efb42976d563c",
+    "collection-first.log": "d4caa9868a04c9fac3dd774f3e1a16ec7107c40b7950b63672f797164f23e0a8",
+    "qualified.log": "d319345f4205cea2e2c76b58a34e918d51a52c9a335f364fc523255498a68246"
+  }
+}

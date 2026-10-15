@@ -1,0 +1,8 @@
+I retain source lowering artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-s1ulzc0a
+I build independent File lowerer with producer 0.
+test_mixed_source_bytes_and_execution (tests.test_service_lowering_nano.ServiceLoweringNano.test_mixed_source_bytes_and_execution) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 95.172s
+
+OK

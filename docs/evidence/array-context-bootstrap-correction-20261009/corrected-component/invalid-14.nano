@@ -1,0 +1,2 @@
+fn consume(values:array<u8>)->int { return 0 } fn main()->int { return (consume ["text"]) }
+shadow main { assert true }

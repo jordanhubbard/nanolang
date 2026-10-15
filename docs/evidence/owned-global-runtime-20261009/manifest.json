@@ -1,0 +1,81 @@
+{
+  "command": [
+    "make",
+    "-j2",
+    "test-owned-global-runtime",
+    "test-affine-bytecode",
+    "test-ownership-contracts",
+    "test-owned-union-runtime",
+    "test-consuming-calls",
+    "test-multiple-consuming-calls",
+    "test-owned-assertions",
+    "test-owned-string-print",
+    "test-ownership-declaration-projection",
+    "CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "exit_code": 0,
+  "seconds": 15.524430082994513,
+  "base": "1f36e3ab6f3a05d7d0b64391404268fc1e1e863d",
+  "before": {
+    "src/nanoisa/nvm2c_owned.h": "422de7a5e55a33b0ebcc6429d212d4ff1ea276971edfc7ec3fc745fde526ae15",
+    "src/nanoisa/verifier.c": "0e9cd3d7bc444d29f780eb1a860ed5a5c071aa0df9daebcff6be9d010ebb9b71",
+    "src/nanovm/vm.c": "304e7bd032df3a2103ca97d4fda5ade4aada0b1db6a6c090642fa1b6e19b2e52",
+    "tests/nanoisa/test_affine_globals.inc": "e172ecf16fa86b524d89ff101180e861286bd88b8c2047c6fa10026997ef9ee2",
+    "tests/nanoisa/owned_global_fixture.h": "a7ce98d00ff24aa1b25e449b04663e9bcdf21ea15cae801390e82cdcbd36e21d",
+    "tests/nanoisa/test_owned_global_runtime.c": "b26204b169942a15c3a66f7856ba578d7e570f0dbd91822d34839499286cb4a6",
+    "tests/nanoisa/test_owned_global_runtime_alloc.c": "d384b0afe62aa04eea43c5f4e92b230c844fc82794170f06f3e4ca3443111736",
+    "tests/test_owned_global_runtime.py": "5fe9cb69ab9e10a62b1519e5a3b4950231cb2013b434ac6b570ba38ca5616880",
+    "Makefile.gnu": "c64cac7f3696aeea6f3d1c74013138e232801b905ba316985344e90e1ca6819d"
+  },
+  "after": {
+    "src/nanoisa/nvm2c_owned.h": "422de7a5e55a33b0ebcc6429d212d4ff1ea276971edfc7ec3fc745fde526ae15",
+    "src/nanoisa/verifier.c": "0e9cd3d7bc444d29f780eb1a860ed5a5c071aa0df9daebcff6be9d010ebb9b71",
+    "src/nanovm/vm.c": "304e7bd032df3a2103ca97d4fda5ade4aada0b1db6a6c090642fa1b6e19b2e52",
+    "tests/nanoisa/test_affine_globals.inc": "e172ecf16fa86b524d89ff101180e861286bd88b8c2047c6fa10026997ef9ee2",
+    "tests/nanoisa/owned_global_fixture.h": "a7ce98d00ff24aa1b25e449b04663e9bcdf21ea15cae801390e82cdcbd36e21d",
+    "tests/nanoisa/test_owned_global_runtime.c": "b26204b169942a15c3a66f7856ba578d7e570f0dbd91822d34839499286cb4a6",
+    "tests/nanoisa/test_owned_global_runtime_alloc.c": "d384b0afe62aa04eea43c5f4e92b230c844fc82794170f06f3e4ca3443111736",
+    "tests/test_owned_global_runtime.py": "5fe9cb69ab9e10a62b1519e5a3b4950231cb2013b434ac6b570ba38ca5616880",
+    "Makefile.gnu": "c64cac7f3696aeea6f3d1c74013138e232801b905ba316985344e90e1ca6819d"
+  },
+  "unchanged": true,
+  "earlier_runs": {
+    "first": {
+      "exit_code": 0,
+      "scope": "Analysis and declaration transport after runtime wiring"
+    },
+    "paired": {
+      "exit_code": 2,
+      "cause": "Correct copyable-union result retained a cycle-buffered shell after global release; unchanged VM live-object assertion failed"
+    },
+    "recovered": {
+      "exit_code": 0,
+      "scope": "Eight paired cases after buffered root cleanup"
+    },
+    "faults": {
+      "exit_code": 0,
+      "scope": "Repeated union overwrite, all-public-route traps, native trap cleanup and VM allocation recovery; predates final fail-closed declaration-query guard"
+    }
+  },
+  "counts": {
+    "global_runtime": 1170,
+    "global_vm_allocation": 377,
+    "global_python_methods": 2,
+    "bytecode": [
+      1150,
+      1787
+    ],
+    "owned_union_runtime": 2380,
+    "owned_union_vm_allocation": 96,
+    "consuming_calls": 3091,
+    "multiple_consuming_calls": 4542,
+    "owned_assertion_lifecycle": 959,
+    "owned_string_allocation": 600,
+    "owned_string_proof": 150
+  },
+  "limitations": [
+    "Copyable global execution only; record/resource global transfers remain refused",
+    "Source frontends and original once-only counter corpus not yet qualified",
+    "Final Linux/Darwin release gates remain open"
+  ]
+}

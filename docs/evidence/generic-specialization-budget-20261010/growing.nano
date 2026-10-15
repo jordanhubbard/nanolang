@@ -1,0 +1,6 @@
+fn grow(value:T, remaining:int) -> void {
+ if (> remaining 0) { (grow [value] (- remaining 1)) }
+}
+shadow grow { (grow 1 0) }
+fn main() -> int { (grow 1 0) return 0 }
+shadow main { assert (== (main) 0) }

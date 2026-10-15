@@ -1,0 +1,147 @@
+{
+  "revision": "bac57d794d74e33bbe1ab600b428b2c226dcf61b",
+  "inputs": {
+    "src/resource_flow.c": "1a7972180e95a3d0622783394acb4d0febcc3a52862b5790b1c8b52dfe8b4293",
+    "src/resource_effect_summary.inc": "494ce46ba95abc475d89a6068d021f8341133bfee4b7434c935f3c82e40a7879",
+    "src/builtins_registry.c": "a7f90862758081a9ebf60c5d1ab16a787be777fe710b4c121d0ccb2e45c297c6",
+    "src/builtins_registry.h": "4fe016c5961647cc9e09981c6cd7c73539bae0f8de8f9b60b021c98eed702c4d",
+    "tests/test_array_builtin_aliases.py": "62560b4ddb20e0897cff26c29039335e24332497c705f2afc05c4ea0e7c69bfb",
+    "tests/test_resource_effect_frontend.py": "6b91b46131b8fe4dad996475104c2b16925c74cfe5669d932d378060a8e2e4ca",
+    "src/nanolang.h": "5401c97da32915e0dae25e48e37c2cd9b9c2a24b67c5dd04c005040a49ba6586",
+    "src/typechecker.c": "5dcd6ab28ea957556e3449fc0b08eb054fb7805ce4da03f8d1a7c4de5f2e7fdc",
+    "src_nano/typecheck.nano": "adf840863ff2086d108e6ef0075531090289a0b85410ceb684a320bddf7f88a7",
+    "src/nanovirt/codegen.c": "0ee0fcf1882d9677ea5cab68602c4c6f50f999132e4b543a1f177d2ca21f490a",
+    "src/nanovirt/generic_codegen.inc": "37699303476f906782114c026f9f2fb017dfe37ab3dfd8f8edf00a9c5a540797",
+    "src_nano/compiler/nanoisa_codegen.nano": "deaa42fb1d2f922b4b16e00ef95d9aa59bbc48ca4998ccab7c5431798c30bca8",
+    "tests/test_effect_signature_identity.py": "2048dc1ea3243e5a2274d4b424c2fa2fae41f972460de71b3c85b9f459c68abd",
+    "src/nanoisa/nvm2c.c": "2c70d3cb4e9bdd22da6a8476e11494bc2243173244c6473b4ae0849251f2822b",
+    "tests/test_union_arrays.py": "97ea26c82daf6fe3c0fafc62718f54528229b93da526b3129f6bb6946586a493",
+    "tests/test_imported_effect_identity.py": "c4e2a33f2f8731ae86a1024d65051ad7e84f45cb837577f83b54f127499549ad",
+    "src/env.c": "936e2e57e342083f911c1c21e796376e731ff7f5f3b40330c541d11733e18e5f",
+    "src/module.c": "de165b18b8ee3877065ab52c2ad816382e967ab32c6f6788cfb86c341ab5e6d5",
+    "src/parser.c": "947f1cb836391b47afe2a9568bc865b8a1b3e07a3fde50bd8c868ca6c8d99468",
+    "src/transpiler.c": "680c223885eddb9a8c3b2a96d9e5b79d5cad904966e74c322e6a252ddeb348b8",
+    "src/transpiler_iterative_v3_twopass.c": "d85a10bd76733673af1fba6bb294fedea6bbd584ecd74cce10611da5a51b2232",
+    "src_nano/nanoc_v06.nano": "ad8ad84b1f4637bbf6cc0f1e794681ddce40a04fbdf5f63628c6f5869eb4ba48",
+    "src_nano/parser.nano": "0904a4a93529fe21bf040d6a5de7ac6a6a6a00e853c4c86ce65010fc19bcdb26",
+    "src_nano/compiler/effect_declarations.nano": "0c75fa41fe7ce3483eaf3aab5dccf84784319c6e01b28054c3a0e15713701dd8",
+    "src_nano/compiler/effect_bindings.nano": "d00ba2e95aca1d1308b996de875b34ff52012fedd508a38a33133f919eb82a5e"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_effects",
+        "tests.test_effect_signature_identity",
+        "tests.test_union_arrays",
+        "tests.test_imported_effect_identity",
+        "tests.test_array_builtin_aliases",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 29.993957333965227,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-array-aliases/product-audit/seed",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-array-aliases/product-audit/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 317.48611254198477,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-array-aliases/product-audit/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.14003350003622472,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-array-aliases/product-audit/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-array-aliases/product-audit/compiler.c"
+      ],
+      "returncode": 0,
+      "seconds": 19.88805216597393,
+      "log": "product-03.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-array-aliases/product-audit/compiler.c",
+        "-o",
+        "/private/tmp/nl51-array-aliases/product-audit/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "returncode": 0,
+      "seconds": 6.885557999950834,
+      "log": "product-04.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-array-aliases/product-audit/compiler",
+        "--help"
+      ],
+      "returncode": 0,
+      "seconds": 0.022013084031641483,
+      "log": "product-05.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_effects",
+        "tests.test_effect_signature_identity",
+        "tests.test_union_arrays",
+        "tests.test_imported_effect_identity",
+        "tests.test_array_builtin_aliases",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 24.920467042014934,
+      "log": "product-06.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_generic_binding_metadata",
+        "tests.test_function_purity_metadata",
+        "tests.test_generic_union_parameters",
+        "tests.test_contextual_generic_functions",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 17.01723454205785,
+      "log": "product-07.log"
+    }
+  ],
+  "seed_provenance": "Fresh C-built Nano compiler; 1151 shadow tests passed; array alias emitter changes included",
+  "inputs_unchanged": true,
+  "artifacts": {
+    "seed": "b994278ea978fffca5bfd1f71f6225a37284e2c750d7cab3b39376e589f3389b",
+    "compiler.nvm": "e1465c55712522024922003d118336f75c38f2304ed729824f5de068cd456568",
+    "compiler.c": "3ab58ba9ebf94f7040a0b892fe38cd8ab959b05eef4c7e2dc7af6cc8aea1e322",
+    "compiler": "478cd10a7137a7bea249bde4a2c181f6c20fe3ec57689db8879b5c22bde11acb"
+  }
+}

@@ -11,6 +11,7 @@ import sys
 import tempfile
 import time
 import unittest
+from tests.bootstrap_native_guard import retained_input_names
 
 ROOT = Path(os.environ.get('NANOLANG_BOOTSTRAP_ROOT', Path(__file__).resolve().parents[1])).resolve()
 
@@ -26,22 +27,28 @@ class VMBytecodeBootstrap(unittest.TestCase):
             self.assertEqual(list(evidence.iterdir()), [], 'I require a fresh evidence directory.')
         print(f'I retain my bootstrap evidence at {evidence}', flush=True)
         env = os.environ.copy()
-        env['NANO_AS_CAPTURE_HELPER'] = str(ROOT / 'bin/nano_as_capture.so')
+        capture_helper = ROOT / 'bin/nano_as_capture.so' if sys.platform.startswith('linux') else None
+        if capture_helper:
+            env['NANO_AS_CAPTURE_HELPER'] = str(capture_helper)
         native_marker = evidence / 'unexpected-native-compiler'
         guarded_cc = evidence / 'guard-native-compiler'
         probe_log = evidence / 'host-cache-probes.log'
         compiler_command = shlex.split(env.get('NANO_CC') or env.get('CC') or 'cc')
         self.assertTrue(compiler_command)
+        retained_inputs = evidence / 'retained-host-inputs.json'
+        host_metadata = {}
         native_sources = []
         module_build_roots = []
         for name in ('compiler_support', 'nanoisa', 'std'):
             module_root = ROOT / 'modules' / name
             metadata = json.loads((module_root / 'module.json').read_text())
+            host_metadata[name] = metadata
             native_sources.extend(str((module_root / source).resolve())
                                   for key in ('c_sources', 'shared_c_sources')
                                   for source in metadata.get(key, []))
             module_build_roots.append(str(module_root / '.build'))
         guard_config = {'compiler': compiler_command, 'native_sources': native_sources,
+                        'retained_host_inputs': str(retained_inputs),
                         'module_build_roots': module_build_roots,
                         'native_marker': str(native_marker), 'probe_log': str(probe_log)}
         guarded_cc.write_text('#!' + sys.executable + '\nconfig = ' + repr(guard_config) + '\n' +
@@ -91,7 +98,7 @@ class VMBytecodeBootstrap(unittest.TestCase):
 
         self.assertEqual(git('status', '--porcelain'), '', 'I require a clean pinned compiler source.')
         manifest['source_commit'] = git('rev-parse', 'HEAD')
-        manifest['helper_sha256'] = digest(env['NANO_AS_CAPTURE_HELPER'])
+        manifest['helper_sha256'] = digest(capture_helper) if capture_helper else None
         manifest['labels'] = {'seed': 'C-seed NanoVirt output, a different lowering implementation',
                               'stage1': 'VM execution of seed compiling the same source',
                               'stage2': 'VM execution of stage1 compiling the same source',
@@ -103,6 +110,16 @@ class VMBytecodeBootstrap(unittest.TestCase):
         run('seed-verify', [ROOT / 'bin/nano_vm', '--verify-only', seed])
         hosts = imports(seed, 'seed')
         manifest['host_libraries'] = hosts
+        retained = {}
+        for library in hosts:
+            path = Path(library)
+            self.assertTrue(path.parent.name.startswith('.nano-gen-'))
+            name = path.name.removeprefix('lib').split('.')[0]
+            self.assertIn(name, host_metadata)
+            metadata = host_metadata[name]
+            retained[str(path.parent.parent)] = retained_input_names(name, metadata)
+        retained_inputs.write_text(json.dumps(retained, indent=2) + '\n')
+        manifest['retained_host_inputs'] = retained
         save()
         # I retain the seed's compiler identity and immutable artifact cache.
         # Changing CC here would request new host-library builds before shadows.
@@ -126,7 +143,8 @@ class VMBytecodeBootstrap(unittest.TestCase):
         run('hello-verify', [ROOT / 'bin/nano_vm', '--verify-only', product])
         run('hello-execute', [ROOT / 'bin/nano_vm', product])
         self.assertEqual({p: digest(p) for p in hosts}, hosts)
-        self.assertEqual(digest(env['NANO_AS_CAPTURE_HELPER']), manifest['helper_sha256'])
+        if capture_helper:
+            self.assertEqual(digest(capture_helper), manifest['helper_sha256'])
         self.assertEqual(git('rev-parse', 'HEAD'), manifest['source_commit'])
         self.assertEqual(git('status', '--porcelain'), '')
         self.assertFalse(native_marker.exists(), 'I invoked native code generation during VM generations.')

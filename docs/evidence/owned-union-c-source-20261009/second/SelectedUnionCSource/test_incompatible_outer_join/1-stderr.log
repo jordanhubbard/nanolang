@@ -1,0 +1,8 @@
+I cannot verify affine ownership at line 6, column 2: match arms disagree on ownership — extra
+Warning at line 7, column 21: Unused variable 'label'
+Warning at line 7, column 70: Unused variable 'a'
+Warning at line 7, column 103: Unused variable 'b'
+Warning at line 7, column 137: Unused variable 'c'
+Warning at line 6, column 2: Unused variable 'payload'
+Warning at line 6, column 2: Unused variable 'payload'
+error: type check failed

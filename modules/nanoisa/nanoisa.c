@@ -128,27 +128,23 @@ NvmModule *nanoisa_load_bytes(const uint8_t *data, uint32_t size,
          * value must be one the verifier agrees with, because a disagreement
          * between producer and verifier is exactly the kind of thing that
          * otherwise shows up as a stack overflow at run time. */
-        for (uint32_t i = 0; i < v2.functions.count; i++) {
-            uint16_t declared = v2.functions.items[i].max_stack;
-            if (declared == 0) continue;
-            uint16_t computed = 0;
-            NvmVerifyResult vr = nvm_verify_function_max_stack(mod, i, &computed);
-            if (!vr.ok) {
-                nvm_v2_module_free(&v2);
-                nvm_module_free(mod);
-                set_error(err, NANOISA_ERR_FORMAT, 0,
-                          "NVM v2 function %u does not verify: %s",
-                          i, vr.error_msg);
-                return NULL;
-            }
-            if (declared < computed) {
-                nvm_v2_module_free(&v2);
-                nvm_module_free(mod);
-                set_error(err, NANOISA_ERR_FORMAT, 0,
-                          "NVM v2 function %u declares max_stack %u but reaches %u",
-                          i, (unsigned)declared, (unsigned)computed);
-                return NULL;
-            }
+        uint16_t *declared = calloc(v2.functions.count ? v2.functions.count : 1,
+                                    sizeof *declared);
+        if (!declared) {
+            nvm_v2_module_free(&v2);
+            nvm_module_free(mod);
+            set_error(err, NANOISA_ERR_MEMORY, 0, "I could not allocate declared stack depths");
+            return NULL;
+        }
+        for (uint32_t i = 0; i < v2.functions.count; ++i)
+            declared[i] = v2.functions.items[i].max_stack;
+        NvmVerifyResult vr = nvm_verify_declared_max_stacks(mod, declared, v2.functions.count);
+        free(declared);
+        if (!vr.ok) {
+            nvm_v2_module_free(&v2);
+            nvm_module_free(mod);
+            set_error(err, NANOISA_ERR_FORMAT, 0, "NVM v2 module does not verify: %s", vr.error_msg);
+            return NULL;
         }
 
         nvm_v2_module_free(&v2);

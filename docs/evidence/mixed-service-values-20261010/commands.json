@@ -1,0 +1,329 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-c",
+      "src/nsi_services_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_services_values-False.o"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-c",
+      "src/nsi_file_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_file_values-False.o"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-c",
+      "src/nsi_file.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_file-False.o"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-c",
+      "src/nsi_socket_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_socket_values-False.o"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-c",
+      "src/nsi_socket.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_socket-False.o"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-c",
+      "src/nsi_cap.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_cap-False.o"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "tests/test_nsi_services_values.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_services_values-False.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_file_values-False.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_file-False.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_socket_values-False.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_socket-False.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_cap-False.o",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/values-False"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/values-False"
+    ],
+    "returncode": 0,
+    "output": "PASS 873 mixed instance value checks\n"
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-include",
+      "tests/services_values_alloc.h",
+      "-Dcalloc=services_test_calloc",
+      "-Dfree=services_test_free",
+      "-Dclose=services_test_close",
+      "-Dfclose=services_test_fclose",
+      "-c",
+      "src/nsi_services_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_services_values-True.o"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-include",
+      "tests/services_values_alloc.h",
+      "-Dcalloc=services_test_calloc",
+      "-Dfree=services_test_free",
+      "-Dclose=services_test_close",
+      "-Dfclose=services_test_fclose",
+      "-c",
+      "src/nsi_file_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_file_values-True.o"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-include",
+      "tests/services_values_alloc.h",
+      "-Dcalloc=services_test_calloc",
+      "-Dfree=services_test_free",
+      "-Dclose=services_test_close",
+      "-Dfclose=services_test_fclose",
+      "-c",
+      "src/nsi_file.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_file-True.o"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-include",
+      "tests/services_values_alloc.h",
+      "-Dcalloc=services_test_calloc",
+      "-Dfree=services_test_free",
+      "-Dclose=services_test_close",
+      "-Dfclose=services_test_fclose",
+      "-c",
+      "src/nsi_socket_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_socket_values-True.o"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-include",
+      "tests/services_values_alloc.h",
+      "-Dcalloc=services_test_calloc",
+      "-Dfree=services_test_free",
+      "-Dclose=services_test_close",
+      "-Dfclose=services_test_fclose",
+      "-c",
+      "src/nsi_socket.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_socket-True.o"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-include",
+      "tests/services_values_alloc.h",
+      "-Dcalloc=services_test_calloc",
+      "-Dfree=services_test_free",
+      "-Dclose=services_test_close",
+      "-Dfclose=services_test_fclose",
+      "-c",
+      "src/nsi_cap.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_cap-True.o"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-DSERVICES_ALLOC_TEST",
+      "tests/test_nsi_services_values.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_services_values-True.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_file_values-True.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_file-True.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_socket_values-True.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_socket-True.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/nsi_cap-True.o",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/values-True"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4/values-True"
+    ],
+    "returncode": 0,
+    "output": "PASS 1507 mixed instance value checks\n"
+  }
+]

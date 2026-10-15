@@ -1,0 +1,17 @@
+python3 -m unittest -v tests.test_github_issue_tracking
+test_create_preserves_literal_multiline_body_and_deduplicates_run (tests.test_github_issue_tracking.GitHubTracking.test_create_preserves_literal_multiline_body_and_deduplicates_run) ... ok
+test_dry_run_never_contacts_github (tests.test_github_issue_tracking.GitHubTracking.test_dry_run_never_contacts_github) ... ok
+test_fingerprint_finds_issue_after_title_change (tests.test_github_issue_tracking.GitHubTracking.test_fingerprint_finds_issue_after_title_change) ... ok
+test_legacy_entry_point_routes_to_github_without_network_in_dry_run (tests.test_github_issue_tracking.GitHubTracking.test_legacy_entry_point_routes_to_github_without_network_in_dry_run) ... ok
+test_new_issue_limit_does_not_suppress_existing_updates (tests.test_github_issue_tracking.GitHubTracking.test_new_issue_limit_does_not_suppress_existing_updates) ... ok
+test_offline_preserves_failure_and_still_runs_examples (tests.test_github_issue_tracking.GitHubTracking.test_offline_preserves_failure_and_still_runs_examples) ... ok
+test_paginated_issues_exclude_pull_requests (tests.test_github_issue_tracking.GitHubTracking.test_paginated_issues_exclude_pull_requests) ... ok
+test_recurrence_reopens_closed_issue_without_creating_duplicate (tests.test_github_issue_tracking.GitHubTracking.test_recurrence_reopens_closed_issue_without_creating_duplicate) ... ok
+test_success_never_creates_summary_and_closes_only_managed_issue (tests.test_github_issue_tracking.GitHubTracking.test_success_never_creates_summary_and_closes_only_managed_issue) ... ok
+test_summary_failure_reopens_and_records_nonzero_exit (tests.test_github_issue_tracking.GitHubTracking.test_summary_failure_reopens_and_records_nonzero_exit) ... ok
+test_summary_zero_limit_leaves_failure_unfiled (tests.test_github_issue_tracking.GitHubTracking.test_summary_zero_limit_leaves_failure_unfiled) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.086s
+
+OK

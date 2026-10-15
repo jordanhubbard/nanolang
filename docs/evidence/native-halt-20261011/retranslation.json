@@ -1,0 +1,7 @@
+{
+  "/private/tmp/nl51-native-effects/compiler.c": "5dc1ab3ac807fda0c07ac8d8ae22e59dd261bddff3d9a43797401f86c229d294",
+  "/private/tmp/nl51-native-effects/compiler-halt.c": "5dc1ab3ac807fda0c07ac8d8ae22e59dd261bddff3d9a43797401f86c229d294",
+  "src/nanoisa/nvm2c.c": "8196a57fea4c5304c5dd167f33d91f99a6510d96dba71e30e2bd605d7e28e528",
+  "src/nanoisa/nvm2c_effects.h": "d5abe221d02383f2da9c9be4addba6f6f7501c343fd9b1d9680d01f0e76f15e5",
+  "tests/test_native_effects.py": "b31f7d5ef9774794bfa6d72a7638994df9e01280f6010e5811a3c8a658416240"
+}

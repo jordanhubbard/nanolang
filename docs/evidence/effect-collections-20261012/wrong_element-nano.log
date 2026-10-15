@@ -1,0 +1,4 @@
+NSType checking failed
+Diagnostics:
+  [E0001] I require each array literal element to match its declared storage type. (/private/tmp/nl51-effect-collections/wrong_element.nano:5:57)
+  [E0040] I require each performed argument to match its declared type. (/private/tmp/nl51-effect-collections/wrong_element.nano:5:42)

@@ -1,0 +1,23 @@
+test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-keyh0jh8
+
+  test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt')) ... FAIL
+
+======================================================================
+FAIL: test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 50, in canonical
+    self.command(ROOT/'bin/nvm2c', module, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nvm2c command=['/Users/jordanh/Src/nanolang/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-keyh0jh8/nano_virt.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-keyh0jh8/nano_virt.c']
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-keyh0jh8/nano_virt.nvm': function 0: only void or a single supported value result is supported
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.558s
+
+FAILED (failures=1)

@@ -1,0 +1,5 @@
+{
+  "src/nanovirt/codegen.c": "15d2ef5c86dc3146cd5d30b0eb5bb1bdd19b3ac9f5996479e7fc59c92ddef93a",
+  "tests/test_header_constant_functions.py": "addfa23326bfaeac24c979a7003201c0b3c4164ff8bb9c1d522710c072bec367",
+  "Makefile.gnu": "8351ee386950c856fc3c81aaa97e3020dda64776ca15882ec40c1cc61689e1eb"
+}

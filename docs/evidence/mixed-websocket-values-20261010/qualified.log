@@ -1,0 +1,24 @@
+I retain mixed WebSocket value evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-rv3meqks
+test_controlled_transport_lifetimes_and_faults (tests.test_mixed_websocket_values.MixedWebSocketValues.test_controlled_transport_lifetimes_and_faults) ... PASS 510 mixed WebSocket value checks with controlled transport
+I checked 151 mixed creation allocation prefixes.
+PASS 12484 mixed WebSocket value checks with controlled transport
+ok
+test_real_denied_network (tests.test_mixed_websocket_values.MixedWebSocketValues.test_real_denied_network) ... ok
+test_real_peer_lifetimes (tests.test_mixed_websocket_values.MixedWebSocketValues.test_real_peer_lifetimes) ... ERROR
+
+======================================================================
+ERROR: test_real_peer_lifetimes (tests.test_mixed_websocket_values.MixedWebSocketValues.test_real_peer_lifetimes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_mixed_websocket_values.py", line 71, in test_real_peer_lifetimes
+    port, messages = self.server()
+                     ~~~~~~~~~~~^^
+  File "/Users/jordanh/Src/nanolang/tests/test_websocket_dispatch.py", line 42, in server
+    listener.bind(("127.0.0.1", 0))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted
+
+----------------------------------------------------------------------
+Ran 3 tests in 7.674s
+
+FAILED (errors=1)

@@ -1,0 +1,1 @@
+{"message": "I rejected unclassified compiler work.", "inputs": ["/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/obj/module_cache/v2-ab5057d90f42e0a2672cf4ef001e8efe420502a650d968f477d1f4b627dff767/.nano-build-bmSDq8/__snapshot_0_0.s"], "options": ["-c", "-fPIC", "-x", "-o"]}

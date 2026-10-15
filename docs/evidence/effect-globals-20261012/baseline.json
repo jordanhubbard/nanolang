@@ -1,0 +1,72 @@
+[
+  {
+    "case": "handler_write",
+    "producer": "c",
+    "returncode": 1,
+    "prior_preserved": true,
+    "diagnostic": "I could not compile shadows at line 0: I require effect signatures in my standalone value graph without global or ARRAY flow in my source borrow profile\n"
+  },
+  {
+    "case": "handler_write",
+    "producer": "nano",
+    "returncode": 1,
+    "prior_preserved": true,
+    "diagnostic": "I could not verify the shadow module: Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[2] at 0: I require effect-aware global flow before combining these contracts\n"
+  },
+  {
+    "case": "helper_write",
+    "producer": "c",
+    "returncode": 1,
+    "prior_preserved": true,
+    "diagnostic": "I could not compile shadows at line 0: I require effect signatures in my standalone value graph without global or ARRAY flow in my source borrow profile\n"
+  },
+  {
+    "case": "helper_write",
+    "producer": "nano",
+    "returncode": 1,
+    "prior_preserved": true,
+    "diagnostic": "I could not verify the shadow module: Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[2] at 0: I require effect-aware global flow before combining these contracts\n"
+  },
+  {
+    "case": "lexical_return",
+    "producer": "c",
+    "returncode": 1,
+    "prior_preserved": true,
+    "diagnostic": "I could not compile shadows at line 0: I require effect signatures in my standalone value graph without global or ARRAY flow in my source borrow profile\n"
+  },
+  {
+    "case": "lexical_return",
+    "producer": "nano",
+    "returncode": 1,
+    "prior_preserved": true,
+    "diagnostic": "I could not verify the shadow module: Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[2] at 0: I require effect-aware global flow before combining these contracts\n"
+  },
+  {
+    "case": "initializer",
+    "producer": "c",
+    "returncode": 1,
+    "prior_preserved": true,
+    "diagnostic": "I could not compile shadows at line 0: I require effect signatures in my standalone value graph without global or ARRAY flow in my source borrow profile\n"
+  },
+  {
+    "case": "initializer",
+    "producer": "nano",
+    "returncode": 1,
+    "prior_preserved": true,
+    "diagnostic": "I could not verify the shadow module: Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[0] at 0: I require effect-aware global flow before combining these contracts\n"
+  },
+  {
+    "case": "string_write",
+    "producer": "c",
+    "returncode": 1,
+    "prior_preserved": true,
+    "diagnostic": "I could not compile shadows at line 0: I require effect signatures in my standalone value graph without global or ARRAY flow in my source borrow profile\n"
+  },
+  {
+    "case": "string_write",
+    "producer": "nano",
+    "returncode": 1,
+    "prior_preserved": true,
+    "diagnostic": "I could not verify the shadow module: Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[2] at 0: I require effect-aware global flow before combining these contracts\n"
+  }
+]

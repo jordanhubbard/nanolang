@@ -1,4 +1,8 @@
 #include "nanolang.h"
+#include "nanoisa/file_source_snapshot.h"
+#include "service_namespace.h"
+#include "service_bodies.h"
+#include "service_ownership.h"
 #include "builtins_registry.h"
 #include "runtime/gc.h"
 #include <string.h>
@@ -115,6 +119,84 @@ static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file)
             return sym;
     }
     return NULL;
+}
+
+/* I keep function slots in reverse declaration order within each name bucket.
+ * Names do not change after registration; module ownership and bodies remain
+ * live slot data and are never cached. Reallocation cannot stale slot indices. */
+static void function_index_free(Environment *env) {
+    struct EnvSymbolIndex *index = env->function_index;
+    if (!index) return;
+    free(index->heads); free(index->links); free(index);
+    env->function_index = NULL;
+}
+
+static struct EnvSymbolIndex *function_index_sync(Environment *env) {
+    struct EnvSymbolIndex *index = env->function_index;
+    size_t needed = (size_t)env->function_count;
+    if (index && (index->count > env->function_count || needed > index->capacity)) {
+        function_index_free(env);
+        index = NULL;
+    }
+    if (!index) {
+        size_t capacity = 16;
+        while (capacity < needed) {
+            if (capacity > SIZE_MAX / 2) return NULL;
+            capacity *= 2;
+        }
+        if (capacity > SIZE_MAX / (2 * sizeof(int)) ||
+            capacity > SIZE_MAX / sizeof(EnvSymbolLink)) return NULL;
+        index = calloc(1, sizeof *index);
+        if (!index) return NULL;
+        index->capacity = capacity;
+        index->bucket_count = capacity * 2;
+        index->heads = calloc(index->bucket_count, sizeof *index->heads);
+        index->links = calloc(capacity, sizeof *index->links);
+        env->function_index = index;
+        if (!index->heads || !index->links) { function_index_free(env); return NULL; }
+    }
+    while (index->count < env->function_count) {
+        int slot = index->count++;
+        const char *name = env->functions[slot].name;
+        if (!name) continue;
+        EnvSymbolLink *link = &index->links[slot];
+        link->hash = symbol_name_hash(name);
+        size_t bucket = link->hash & (index->bucket_count - 1);
+        link->previous = index->heads[bucket];
+        index->heads[bucket] = slot + 1;
+    }
+    return index;
+}
+
+static Function *function_named(Environment *env, const char *name,
+                                 const char *owner, bool owned_only, bool body_only, int line, int column) {
+    struct EnvSymbolIndex *index = function_index_sync(env);
+    uint64_t hash = symbol_name_hash(name);
+    int next = index ? index->heads[hash & (index->bucket_count - 1)] : env->function_count;
+    Function *first = NULL;
+    while (next) {
+        int slot = next - 1;
+        next = index ? index->links[slot].previous : slot;
+        if (index && index->links[slot].hash != hash) continue;
+        Function *function = &env->functions[slot];
+        if (!function->name || strcmp(function->name, name)) continue;
+        if (body_only && (function->is_extern || !function->body)) continue;
+        if (owned_only && !((!owner && !function->module_name) ||
+            (owner && function->module_name && !strcmp(owner, function->module_name)))) continue;
+        if (line > 0 && function->lexical_scope) {
+            ASTNode *scope = function->lexical_scope;
+            ASTNode *body = function->body;
+            if (function->source_file && env->current_file &&
+                strcmp(function->source_file, env->current_file)) continue;
+            if (body && (line < body->line ||
+                (line == body->line && column > 0 && column < body->column))) continue;
+            if (scope->scope_end_line > 0 && (line > scope->scope_end_line ||
+                (line == scope->scope_end_line && column >= scope->scope_end_column))) continue;
+            return function; /* I prefer the nearest visible lexical declaration. */
+        }
+        first = function; /* I retain the earliest matching module declaration. */
+    }
+    return first;
 }
 
 /* I retain checker allocations independently of mutable symbol/function slots.
@@ -342,6 +424,9 @@ static void env_release_array(EnvArrayReclaim *ctx, Array *arr) {
             free(sv->struct_name);
             free(sv);
         }
+    } else if (arr->element_type == VAL_FUNCTION) {
+        Value *elems = (Value *)arr->data;
+        for (int i = 0; i < arr->length; ++i) env_free_value(elems[i]);
     } else if (arr->element_type == VAL_STRING) {
         char **elems = (char **)arr->data;
         for (int i = 0; i < arr->length; i++) free(elems[i]);
@@ -399,6 +484,11 @@ void env_reclaim_static_arrays(Environment *env) {
 
 /* Free environment */
 void free_environment(Environment *env) {
+    nl_service_ownership_free(env->service_ownership);
+    nl_service_body_check_free(env->service_bodies);
+    nl_service_namespace_free(env->service_namespace);
+    nl_file_source_snapshots_free(env->service_inputs);
+    for (int i = 0; i < env->service_origin_count; ++i) free(env->service_origins[i]);
     env_symbol_index_invalidate(env);
     /* I reclaim every static array exactly once before the string/record
      * teardown below, so shared containers and their elements do not leak. */
@@ -421,6 +511,7 @@ void free_environment(Environment *env) {
         /* Note: function names are not owned by environment - they point to AST */
         /* Freeing them causes double-free crashes */
     }
+    function_index_free(env);
     free(env->functions);
     
     for (int i = 0; i < env->struct_count; i++) {
@@ -434,8 +525,19 @@ void free_environment(Environment *env) {
     }
     free(env->structs);
     
+    while (env->effect_imports) {
+        EffectImport *item = env->effect_imports;
+        env->effect_imports = item->next;
+        free(item->name); free(item->owner_module); free(item->target_name); free(item);
+    }
+    while (env->enum_imports) {
+        EnumImport *item = env->enum_imports;
+        env->enum_imports = item->next;
+        free(item->name); free(item->owner_module); free(item->target_name); free(item);
+    }
     for (int i = 0; i < env->enum_count; i++) {
         free(env->enums[i].name);
+        free(env->enums[i].original_name);
         for (int j = 0; j < env->enums[i].variant_count; j++) {
             free(env->enums[i].variant_names[j]);
         }
@@ -447,6 +549,7 @@ void free_environment(Environment *env) {
     /* Free unions */
     for (int i = 0; i < env->union_count; i++) {
         free(env->unions[i].name);
+        free(env->unions[i].original_name);
         for (int j = 0; j < env->unions[i].variant_count; j++) {
             free(env->unions[i].variant_names[j]);
             if (env->unions[i].variant_field_type_info && env->unions[i].variant_field_type_info[j]) {
@@ -505,6 +608,7 @@ void free_environment(Environment *env) {
             GenericFuncInstance *inst = &env->generic_func_instances[i];
             free(inst->orig_name);
             free(inst->mono_name);
+            free_function_signature(inst->signature);
             for (int j = 0; j < inst->binding_count; j++) {
                 free(inst->var_names[j]);
                 if (inst->bound_type_names[j]) free(inst->bound_type_names[j]);
@@ -617,6 +721,7 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.is_mut = is_mut;
     sym.value = value;
     sym.is_global = false;
+    sym.global_declaration = NULL;
     sym.is_used = false;  /* Initialize as unused */
     sym.is_resource = false;  /* Will be set by type checker if type is a resource struct */
     sym.resource_state = RESOURCE_UNUSED;  /* Initialize resource state */
@@ -681,6 +786,85 @@ const char *env_current_file(Environment *env) {
     return env ? env->current_file : NULL;
 }
 
+/* I retain import spellings separately from the declaration and runtime storage. */
+bool env_import_global(Environment *env, const char *owner_file, const char *name, ASTNode *declaration) {
+    if (!env || !owner_file || !name || !declaration) return false;
+    for (GlobalImport *item = env->global_imports; item; item = item->next) {
+        if (!strcmp(item->owner_file, owner_file) && !strcmp(item->name, name))
+            return item->declaration == declaration;
+    }
+    size_t owner_size = strlen(owner_file) + 1, name_size = strlen(name) + 1;
+    GlobalImport *item = calloc(1, sizeof *item + owner_size + name_size);
+    if (!item) return false;
+    char *strings = (char *)(item + 1);
+    memcpy(strings, owner_file, owner_size);
+    memcpy(strings + owner_size, name, name_size);
+    item->owner_file = strings;
+    item->name = strings + owner_size;
+    item->declaration = declaration;
+    item->next = env->global_imports;
+    env->global_imports = env_own_checker_allocation(env, item);
+    return true;
+}
+
+const GlobalImport *env_lookup_global_import_at(Environment *env, const char *owner_file, const char *name) {
+    if (!env || !owner_file || !name) return NULL;
+    for (GlobalImport *item = env->global_imports; item; item = item->next) {
+        if (!strcmp(item->name, name) && !strcmp(item->owner_file, owner_file)) return item;
+    }
+    return NULL;
+}
+
+Symbol *env_global_import_symbol_at(Environment *env, const char *owner_file, const char *name) {
+    const GlobalImport *import = env_lookup_global_import_at(env, owner_file, name);
+    if (!import) return NULL;
+    for (int i = env->symbol_count - 1; i >= 0; --i) {
+        if (env->symbols[i].global_declaration == import->declaration) return &env->symbols[i];
+    }
+    return NULL;
+}
+
+const GlobalImport *env_lookup_global_import(Environment *env, const char *name) {
+    return env_lookup_global_import_at(env, env_current_file(env), name);
+}
+
+Symbol *env_global_import_symbol(Environment *env, const char *name) {
+    return env_global_import_symbol_at(env, env_current_file(env), name);
+}
+
+/* I resolve immutable literals by declaration identity, never by a module's
+ * unqualified symbol name. A visible receiver still denotes an ordinary value. */
+ASTNode *env_qualified_import_literal(Environment *env, ASTNode *expr) {
+    if (!expr || expr->type != AST_FIELD_ACCESS) return NULL;
+    ASTNode *receiver = expr->as.field_access.object;
+    const char *field = expr->as.field_access.field_name;
+    if (!receiver || receiver->type != AST_IDENTIFIER || !field ||
+        env_get_var_visible_at(env, receiver->as.identifier, receiver->line, receiver->column)) return NULL;
+    const char *owner = env_current_file(env);
+    if (!owner) return NULL;
+    size_t prefix_length = strlen(receiver->as.identifier);
+    for (const GlobalImport *item = env->global_imports; item; item = item->next) {
+        if (strcmp(item->owner_file, owner) ||
+            strncmp(item->name, receiver->as.identifier, prefix_length) ||
+            item->name[prefix_length] != '.' ||
+            strcmp(item->name + prefix_length + 1, field)) continue;
+        ASTNode *declaration = item->declaration;
+        if (!declaration || declaration->type != AST_LET || declaration->as.let.is_mut) return NULL;
+        ASTNode *value = declaration->as.let.value;
+        if (!value) return NULL;
+        switch (value->type) {
+            case AST_NUMBER:
+            case AST_FLOAT:
+            case AST_BOOL:
+            case AST_STRING:
+                return value;
+            default:
+                return NULL;
+        }
+    }
+    return NULL;
+}
+
 Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column) {
     if (!env || !name) return NULL;
     if (line <= 0) return env_get_var(env, name);
@@ -695,10 +879,18 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
      * incorrectly shadow well-scoped locals in earlier functions.
      */
     Symbol *best_unknown = NULL;
+    /* I visit only this name's hash chain, in the original newest-first order.
+     * Locations and files remain live symbol facts, never cached decisions. */
+    struct EnvSymbolIndex *index = symbol_index_sync(env);
+    uint64_t hash = symbol_name_hash(name);
+    int head = index ? index->heads[hash & (index->bucket_count - 1)] : env->symbol_count;
 
     /* Pass 1: from most-recent to oldest, return first visible symbol WITH a source location. */
-    for (int i = env->symbol_count - 1; i >= 0; i--) {
-        Symbol *sym = &env->symbols[i];
+    for (int next = head; next;) {
+        int slot = next - 1;
+        Symbol *sym = &env->symbols[slot];
+        next = index ? index->links[slot].previous : slot;
+        if (index && index->links[slot].hash != hash) continue;
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
 
@@ -731,9 +923,15 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
         return sym;
     }
 
+    Symbol *imported = env_global_import_symbol(env, name);
+    if (imported) return imported;
+
     /* Pass 2: fall back to most-recent symbol without a source location. */
-    for (int i = env->symbol_count - 1; i >= 0; i--) {
-        Symbol *sym = &env->symbols[i];
+    for (int next = head; next;) {
+        int slot = next - 1;
+        Symbol *sym = &env->symbols[slot];
+        next = index ? index->links[slot].previous : slot;
+        if (index && index->links[slot].hash != hash) continue;
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
 
@@ -831,7 +1029,7 @@ static bool namespace_owned_by(const ModuleNamespace *ns, const char *owner) {
 }
 
 /* Get function */
-Function *env_get_function(Environment *env, const char *name) {
+Function *env_get_function_at(Environment *env, const char *name, int line, int column) {
     if (!name) {
         return NULL;
     }
@@ -857,16 +1055,7 @@ Function *env_get_function(Environment *env, const char *name) {
                     if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
                         /* Look up the actual function by its original name AND module name */
                         const char *orig_mod = env->namespaces[i].module_name;
-                        for (int k = 0; k < env->function_count; k++) {
-                            if (safe_strcmp(env->functions[k].name, func_name) == 0) {
-                                /* I bind a qualified name only to its namespace owner. */
-                                if ((!orig_mod && !env->functions[k].module_name) ||
-                                    (orig_mod && env->functions[k].module_name &&
-                                     strcmp(env->functions[k].module_name, orig_mod) == 0)) {
-                                    return &env->functions[k];
-                                }
-                            }
-                        }
+                        return function_named(env, func_name, orig_mod, true, false, line, column);
                     }
                 }
                 /* Function not found in this module's namespace */
@@ -878,16 +1067,9 @@ Function *env_get_function(Environment *env, const char *name) {
     }
 
     /* I permit this non-reserved declaration only in its own module. */
-    if (strcmp(name, "array_push") == 0) {
-        for (int i = 0; i < env->function_count; i++) {
-            Function *function = &env->functions[i];
-            if (function->name && strcmp(function->name, name) == 0 &&
-                !function->is_extern && function->body &&
-                ((!env->current_module && !function->module_name) ||
-                 (env->current_module && function->module_name &&
-                  strcmp(env->current_module, function->module_name) == 0)))
-                return function;
-        }
+    if (strcmp(name, "array_push") == 0 || builtin_is_array_operation(name)) {
+        Function *function = function_named(env, name, env->current_module, true, true, line, column);
+        if (function) return function;
     }
 
     /* Check built-in functions via unified registry (only BUILTIN_LANG entries) */
@@ -912,32 +1094,12 @@ Function *env_get_function(Environment *env, const char *name) {
         }
     }
 
-    /* Check user-defined functions */
-    /* First pass: prefer functions in the current module */
-    {
-        for (int i = 0; i < env->function_count; i++) {
-            if (env->functions[i].name && safe_strcmp(env->functions[i].name, name) == 0) {
-                if ((!env->current_module && !env->functions[i].module_name) ||
-                    (env->current_module && env->functions[i].module_name &&
-                     strcmp(env->functions[i].module_name, env->current_module) == 0)) {
-                    return &env->functions[i];
-                }
-            }
-        }
-    }
+    Function *local = function_named(env, name, env->current_module, true, false, line, column);
+    return local ? local : function_named(env, name, NULL, false, false, line, column);
+}
 
-    /* Second pass: check all functions (global or other modules) */
-    for (int i = 0; i < env->function_count; i++) {
-        /* Skip functions with NULL names */
-        if (!env->functions[i].name) {
-            continue;
-        }
-        if (safe_strcmp(env->functions[i].name, name) == 0) {
-            return &env->functions[i];
-        }
-    }
-
-    return NULL;
+Function *env_get_function(Environment *env, const char *name) {
+    return env_get_function_at(env, name, 0, 0);
 }
 
 /* I share push identity across inference and native lowering. */
@@ -945,6 +1107,17 @@ bool env_array_push_is_builtin(Environment *env, int line, int column) {
     if (env_get_var_visible_at(env, "array_push", line, column)) return false;
     Function *function = env_get_function(env, "array_push");
     return !function || !function->body;
+}
+
+/* I classify a call only after lexical and declared function resolution. */
+const char *env_array_operation(Environment *env, ASTNode *call) {
+    if (!call || call->type != AST_CALL || call->as.call.func_expr ||
+        !builtin_is_array_operation(call->as.call.name)) return "";
+    const char *name = call->as.call.name;
+    if (env_get_var_visible_at(env, name, call->line, call->column)) return "";
+    Function *function = env_get_function_at(env, name, call->line, call->column);
+    if (function && (function->body || function->is_extern)) return "";
+    return builtin_array_operation(name);
 }
 
 /* Value creation functions */
@@ -1027,7 +1200,8 @@ Value create_array(ValueType elem_type, int length, int capacity) {
         case VAL_FLOAT:  elem_size = sizeof(double); break;
         case VAL_BOOL:   elem_size = sizeof(bool); break;
         case VAL_STRING: elem_size = sizeof(char*); break;
-        case VAL_ARRAY:  elem_size = sizeof(Value); break;
+        case VAL_ARRAY:
+        case VAL_FUNCTION: elem_size = sizeof(Value); break;
         default:         elem_size = sizeof(void*); break;
     }
     v.as.array_val->data = calloc(v.as.array_val->capacity, elem_size);
@@ -1233,6 +1407,26 @@ void env_define_enum(Environment *env, EnumDef enum_def) {
     env->enums[env->enum_count++] = enum_def;
 }
 
+/* I scope aliases to their importer and retain the canonical declaration. */
+bool env_import_enum(Environment *env, const char *alias, const EnumDef *target) {
+    if (!env || !alias || !target || !target->name) return false;
+    for (EnumImport *item = env->enum_imports; item; item = item->next) {
+        bool same_owner = (!item->owner_module && !env->current_module) ||
+            (item->owner_module && env->current_module && !strcmp(item->owner_module, env->current_module));
+        if (same_owner && !strcmp(item->name, alias)) return !strcmp(item->target_name, target->name);
+    }
+    EnumImport *item = calloc(1, sizeof *item);
+    if (!item) return false;
+    item->name = strdup(alias);
+    item->target_name = strdup(target->name);
+    item->owner_module = env->current_module ? strdup(env->current_module) : NULL;
+    if (!item->name || !item->target_name || (env->current_module && !item->owner_module)) {
+        free(item->name); free(item->target_name); free(item->owner_module); free(item); return false;
+    }
+    item->next = env->enum_imports; env->enum_imports = item;
+    return true;
+}
+
 /* Get enum definition */
 EnumDef *env_get_enum(Environment *env, const char *name) {
     if (!env || !name) return NULL;
@@ -1244,6 +1438,16 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
         return NULL;
     }
     
+    for (EnumImport *item = env->enum_imports; item; item = item->next) {
+        bool same_owner = (!item->owner_module && !env->current_module) ||
+            (item->owner_module && env->current_module && !strcmp(item->owner_module, env->current_module));
+        if (same_owner && !strcmp(item->name, name)) {
+            for (int i = 0; i < env->enum_count; ++i)
+                if (!strcmp(env->enums[i].name, item->target_name)) return &env->enums[i];
+            return NULL;
+        }
+    }
+
     /* Check for Module.Type pattern */
     const char *dot = strchr(name, '.');
     if (dot) {
@@ -1264,9 +1468,9 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
                         /* Look up the actual enum by its original name AND module name */
                         const char *orig_mod = env->namespaces[i].module_name;
                         for (int k = 0; k < env->enum_count; k++) {
-                            if (safe_strcmp(env->enums[k].name, type_name) == 0) {
-                                if (!orig_mod || !env->enums[k].module_name ||
-                                    strcmp(env->enums[k].module_name, orig_mod) == 0) {
+                            if ((safe_strcmp(env->enums[k].name, type_name) == 0 || (env->enums[k].original_name && strcmp(env->enums[k].original_name, type_name) == 0))) {
+                                if ((!orig_mod && !env->enums[k].module_name) ||
+                                    (orig_mod && env->enums[k].module_name && strcmp(env->enums[k].module_name, orig_mod) == 0)) {
                                     return &env->enums[k];
                                 }
                             }
@@ -1280,11 +1484,11 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
     }
     
     /* First pass: prefer enums in the current module */
-    if (env->current_module) {
+    {
         for (int i = 0; i < env->enum_count; i++) {
-            if (env->enums[i].name && safe_strcmp(env->enums[i].name, name) == 0) {
-                if (env->enums[i].module_name && 
-                    strcmp(env->enums[i].module_name, env->current_module) == 0) {
+            if (env->enums[i].name && (safe_strcmp(env->enums[i].name, name) == 0 || (env->enums[i].original_name && strcmp(env->enums[i].original_name, name) == 0))) {
+                if ((!env->current_module && !env->enums[i].module_name) ||
+                    (env->current_module && env->enums[i].module_name && strcmp(env->enums[i].module_name, env->current_module) == 0)) {
                     return &env->enums[i];
                 }
             }
@@ -1293,7 +1497,7 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
 
     for (int i = 0; i < env->enum_count; i++) {
         /* Use safe_strcmp which handles NULL pointers */
-        if (safe_strcmp(env->enums[i].name, name) == 0) {
+        if ((safe_strcmp(env->enums[i].name, name) == 0 || (env->enums[i].original_name && strcmp(env->enums[i].original_name, name) == 0))) {
             return &env->enums[i];
         }
     }
@@ -1333,59 +1537,45 @@ void env_define_union(Environment *env, UnionDef union_def) {
 
 /* Get union definition */
 UnionDef *env_get_union(Environment *env, const char *name) {
-    /* Check for Module.Type pattern */
+    if (!env || !name) return NULL;
+    /* I preserve canonical identities even outside their declaration owner. */
+    for (int i = 0; i < env->union_count; ++i)
+        if (env->unions[i].name && !strcmp(env->unions[i].name, name))
+            return &env->unions[i];
     const char *dot = strchr(name, '.');
     if (dot) {
-        char module_alias[256];
-        size_t module_len = dot - name;
-        if (module_len >= sizeof(module_alias)) {
-            module_len = sizeof(module_alias) - 1;
-        }
-        strncpy(module_alias, name, module_len);
-        module_alias[module_len] = '\0';
-        const char *type_name = dot + 1;
-        
-        for (int i = 0; i < env->namespace_count; i++) {
-            if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
-                strcmp(env->namespaces[i].alias, module_alias) == 0) {
-                for (int j = 0; j < env->namespaces[i].union_count; j++) {
-                    if (strcmp(env->namespaces[i].union_names[j], type_name) == 0) {
-                        /* Look up the actual union by its original name AND module name */
-                        const char *orig_mod = env->namespaces[i].module_name;
-                        for (int k = 0; k < env->union_count; k++) {
-                            if (safe_strcmp(env->unions[k].name, type_name) == 0) {
-                                if (!orig_mod || !env->unions[k].module_name ||
-                                    strcmp(env->unions[k].module_name, orig_mod) == 0) {
-                                    return &env->unions[k];
-                                }
-                            }
-                        }
-                    }
+        size_t length = (size_t)(dot - name);
+        for (int i = 0; i < env->namespace_count; ++i) {
+            ModuleNamespace *space = &env->namespaces[i];
+            if (!namespace_owned_by(space, env->current_module) ||
+                strlen(space->alias) != length || strncmp(space->alias, name, length)) continue;
+            for (int j = 0; j < space->union_count; ++j) {
+                if (strcmp(space->union_names[j], dot + 1)) continue;
+                for (int k = 0; k < env->union_count; ++k) {
+                    UnionDef *definition = &env->unions[k];
+                    const char *source = definition->original_name ? definition->original_name : definition->name;
+                    bool owner = (!space->module_name && !definition->module_name) ||
+                        (space->module_name && definition->module_name && !strcmp(space->module_name, definition->module_name));
+                    if (owner && source && !strcmp(source, dot + 1)) return definition;
                 }
-                return NULL;
             }
+            return NULL;
         }
         return NULL;
     }
-    
-    /* First pass: prefer unions in the current module */
-    if (env->current_module) {
-        for (int i = 0; i < env->union_count; i++) {
-            if (env->unions[i].name && safe_strcmp(env->unions[i].name, name) == 0) {
-                if (env->unions[i].module_name && 
-                    strcmp(env->unions[i].module_name, env->current_module) == 0) {
-                    return &env->unions[i];
-                }
-            }
-        }
+    UnionDef *fallback = NULL;
+    bool ambiguous = false;
+    for (int i = 0; i < env->union_count; ++i) {
+        UnionDef *definition = &env->unions[i];
+        if (!definition->original_name || strcmp(definition->original_name, name)) continue;
+        bool owner = (!env->current_module && !definition->module_name) ||
+            (env->current_module && definition->module_name && !strcmp(env->current_module, definition->module_name));
+        if (owner) return definition;
+        if (fallback) ambiguous = true;
+        fallback = definition;
     }
-
-    for (int i = 0; i < env->union_count; i++) {
-        if (safe_strcmp(env->unions[i].name, name) == 0) {
-            return &env->unions[i];
-        }
-    }
-    return NULL;
+    /* I keep unambiguous legacy imports without choosing an arbitrary owner. */
+    return ambiguous ? NULL : fallback;
 }
 
 /* Get variant index in union (returns -1 if not found) */
@@ -1738,39 +1928,17 @@ void free_function_signature(FunctionSignature *sig) {
     free(sig);
 }
 
-void free_type_info(TypeInfo *info) {
-    if (!info) return;
+const TypeInfo *tuple_element_info(const TypeInfo *info, int index, TypeInfo *fallback) {
+    if (!info || index < 0 || index >= info->tuple_element_count) return NULL;
+    if (info->tuple_elements && info->tuple_elements[index]) return info->tuple_elements[index];
+    if (!info->tuple_types || !fallback) return NULL;
+    *fallback = (TypeInfo){.base_type = info->tuple_types[index],
+        .generic_name = info->tuple_type_names ? info->tuple_type_names[index] : NULL};
+    return fallback;
+}
 
-    if (info->element_type) {
-        free_type_info(info->element_type);
-    }
-    if (info->generic_name) {
-        free(info->generic_name);
-    }
-    if (info->type_params) {
-        for (int i = 0; i < info->type_param_count; i++) {
-            free_type_info(info->type_params[i]);
-        }
-        free(info->type_params);
-    }
-    if (info->tuple_types) {
-        free(info->tuple_types);
-    }
-    if (info->tuple_type_names) {
-        for (int i = 0; i < info->tuple_element_count; i++) {
-            if (info->tuple_type_names[i]) {
-                free(info->tuple_type_names[i]);
-            }
-        }
-        free(info->tuple_type_names);
-    }
-    if (info->opaque_type_name) {
-        free(info->opaque_type_name);
-    }
-    if (info->fn_sig) {
-        free_function_signature(info->fn_sig);
-    }
-    free(info);
+void free_type_info(TypeInfo *info) {
+    free_payload_type_info(info);
 }
 
 /* Payload annotations own their complete parsed tree. I never borrow a nested
@@ -1831,6 +1999,15 @@ static FunctionSignature *payload_signature(const FunctionSignature *source, uns
     copy->return_type_info = payload_copy(source->return_type_info, depth + 1);
     return copy;
 }
+const TypeInfo *row_field_info(const TypeInfo *info, int index, TypeInfo *fallback) {
+    if (!info || index < 0 || index >= info->row_field_count) return NULL;
+    if (info->row_field_type_info && info->row_field_type_info[index]) return info->row_field_type_info[index];
+    if (!fallback || !info->row_field_types) return NULL;
+    *fallback = (TypeInfo){.base_type = info->row_field_types[index],
+        .generic_name = info->row_field_type_names ? info->row_field_type_names[index] : NULL};
+    return fallback;
+}
+
 static TypeInfo *payload_copy(const TypeInfo *source, unsigned depth) {
     if (!source) return NULL;
     if (depth > 512) {
@@ -1854,6 +2031,14 @@ static TypeInfo *payload_copy(const TypeInfo *source, unsigned depth) {
         memcpy(copy->tuple_types, source->tuple_types, (size_t)source->tuple_element_count * sizeof(Type));
     }
     copy->tuple_type_names = payload_names(source->tuple_type_names, source->tuple_element_count);
+    copy->tuple_elements = NULL;
+    if (source->tuple_element_count > 0) {
+        copy->tuple_elements = payload_alloc((size_t)source->tuple_element_count, sizeof(TypeInfo *));
+        for (int i = 0; i < source->tuple_element_count; ++i) {
+            TypeInfo view;
+            copy->tuple_elements[i] = payload_copy(tuple_element_info(source, i, &view), depth + 1);
+        }
+    }
     copy->fn_sig = payload_signature(source->fn_sig, depth + 1);
     copy->row_var_name = payload_name(source->row_var_name);
     copy->row_field_names = payload_names(source->row_field_names, source->row_field_count);
@@ -1863,6 +2048,14 @@ static TypeInfo *payload_copy(const TypeInfo *source, unsigned depth) {
         memcpy(copy->row_field_types, source->row_field_types, (size_t)source->row_field_count * sizeof(Type));
     }
     copy->row_field_type_names = payload_names(source->row_field_type_names, source->row_field_count);
+    copy->row_field_type_info = NULL;
+    if (source->row_field_count > 0) {
+        copy->row_field_type_info = payload_alloc((size_t)source->row_field_count, sizeof(TypeInfo*));
+        for (int i = 0; i < source->row_field_count; ++i) {
+            TypeInfo fallback;
+            copy->row_field_type_info[i] = payload_copy(row_field_info(source, i, &fallback), depth + 1);
+        }
+    }
     copy->type_var_names = payload_names(source->type_var_names, source->type_var_count);
     return copy;
 }
@@ -1875,11 +2068,17 @@ void free_payload_type_info(TypeInfo *info) {
     free(info->type_params);
     free(info->generic_name);
     free(info->opaque_type_name);
+    for (int i = 0; info->tuple_elements && i < info->tuple_element_count; ++i)
+        free_payload_type_info(info->tuple_elements[i]);
+    free(info->tuple_elements);
     free(info->tuple_types);
     payload_free_names(info->tuple_type_names, info->tuple_element_count);
     free_function_signature(info->fn_sig);
     free(info->row_var_name);
     payload_free_names(info->row_field_names, info->row_field_count);
+    for (int i = 0; info->row_field_type_info && i < info->row_field_count; ++i)
+        free_payload_type_info(info->row_field_type_info[i]);
+    free(info->row_field_type_info);
     free(info->row_field_types);
     payload_free_names(info->row_field_type_names, info->row_field_count);
     payload_free_names(info->type_var_names, info->type_var_count);
@@ -1903,6 +2102,54 @@ static void payload_substitute(TypeInfo **slot, const UnionDef *def, const TypeI
     if (info->element_type) payload_substitute(&info->element_type, def, arguments);
     for (int i = 0; info->type_params && i < info->type_param_count; ++i)
         payload_substitute(&info->type_params[i], def, arguments);
+    for (int i = 0; info->tuple_elements && i < info->tuple_element_count; ++i) {
+        payload_substitute(&info->tuple_elements[i], def, arguments);
+        TypeInfo *element = info->tuple_elements[i];
+        if (info->tuple_types) info->tuple_types[i] = element->base_type;
+        if (info->tuple_type_names) {
+            free(info->tuple_type_names[i]);
+            info->tuple_type_names[i] = payload_name(element->generic_name);
+        }
+    }
+    for (int i = 0; info->row_field_type_info && i < info->row_field_count; ++i) {
+        payload_substitute(&info->row_field_type_info[i], def, arguments);
+        TypeInfo *field = info->row_field_type_info[i];
+        if (!field) continue;
+        if (info->row_field_types) info->row_field_types[i] = field->base_type;
+        if (info->row_field_type_names) {
+            free(info->row_field_type_names[i]);
+            info->row_field_type_names[i] = payload_name(field->generic_name);
+        }
+    }
+    FunctionSignature *sig = info->fn_sig;
+    if (sig) {
+        if (!sig->param_type_info)
+            sig->param_type_info = payload_alloc((size_t)sig->param_count, sizeof(TypeInfo *));
+        for (int i = 0; i < sig->param_count; ++i) {
+            if (!sig->param_type_info[i]) {
+                TypeInfo view = {.base_type=sig->param_types[i],
+                    .generic_name=sig->param_struct_names ? sig->param_struct_names[i] : NULL};
+                sig->param_type_info[i] = copy_payload_type_info(&view);
+            }
+            payload_substitute(&sig->param_type_info[i], def, arguments);
+            sig->param_types[i] = sig->param_type_info[i]->base_type;
+            if (sig->param_struct_names) {
+                free(sig->param_struct_names[i]);
+                sig->param_struct_names[i] = payload_name(sig->param_type_info[i]->generic_name);
+            }
+        }
+        if (!sig->return_type_info) {
+            TypeInfo view = {.base_type=sig->return_type, .generic_name=sig->return_struct_name,
+                             .fn_sig=sig->return_fn_sig};
+            sig->return_type_info = copy_payload_type_info(&view);
+        }
+        payload_substitute(&sig->return_type_info, def, arguments);
+        sig->return_type = sig->return_type_info->base_type;
+        free(sig->return_struct_name);
+        sig->return_struct_name = payload_name(sig->return_type_info->generic_name);
+        free_function_signature(sig->return_fn_sig);
+        sig->return_fn_sig = copy_function_signature(sig->return_type_info->fn_sig);
+    }
 }
 TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field, const TypeInfo *arguments) {
     if (!def || arm < 0 || arm >= def->variant_count || field < 0 ||
@@ -1926,6 +2173,15 @@ FunctionSignature *function_signature_from_function(const Function *function) {
     sig->return_struct_name = payload_name(function->return_struct_type_name);
     sig->return_fn_sig = payload_signature(function->return_fn_sig, 0);
     sig->return_type_info = payload_copy(function->return_type_info, 0);
+    /* I retain nested callable results in both complete annotation views. */
+    if (sig->return_type == TYPE_FUNCTION && sig->return_fn_sig) {
+        if (!sig->return_type_info) {
+            sig->return_type_info = payload_alloc(1, sizeof *sig->return_type_info);
+            sig->return_type_info->base_type = TYPE_FUNCTION;
+        }
+        if (!sig->return_type_info->fn_sig)
+            sig->return_type_info->fn_sig = payload_signature(sig->return_fn_sig, 0);
+    }
     if (sig->param_count) {
         sig->param_types = payload_alloc((size_t)sig->param_count, sizeof(Type));
         sig->param_struct_names = payload_alloc((size_t)sig->param_count, sizeof(char*));
@@ -1948,6 +2204,13 @@ static bool annotation_names_equal(const char *left, const char *right) {
 static bool signatures_equal_depth(const FunctionSignature *, const FunctionSignature *, unsigned);
 static bool annotations_equal(const TypeInfo *a, const TypeInfo *b, unsigned depth) {
     if (a == b) return true;
+    if (a && b && (a->service_declaration || b->service_declaration)) {
+        return a->base_type == b->base_type &&
+            a->service_declaration == b->service_declaration &&
+            a->service_module == b->service_module &&
+            a->service_ordinal == b->service_ordinal &&
+            a->service_category == b->service_category;
+    }
     if (!a || !b || depth > 128 || a->base_type != b->base_type ||
         a->type_param_count != b->type_param_count ||
         a->tuple_element_count != b->tuple_element_count ||
@@ -1960,17 +2223,20 @@ static bool annotations_equal(const TypeInfo *a, const TypeInfo *b, unsigned dep
     for (int i = 0; i < a->type_param_count; ++i)
         if (!a->type_params || !b->type_params ||
             !annotations_equal(a->type_params[i], b->type_params[i], depth + 1)) return false;
-    for (int i = 0; i < a->tuple_element_count; ++i)
-        if (!a->tuple_types || !b->tuple_types || a->tuple_types[i] != b->tuple_types[i] ||
-            !annotation_names_equal(a->tuple_type_names ? a->tuple_type_names[i] : NULL,
-                                    b->tuple_type_names ? b->tuple_type_names[i] : NULL)) return false;
-    for (int i = 0; i < a->row_field_count; ++i)
+    for (int i = 0; i < a->tuple_element_count; ++i) {
+        TypeInfo av, bv;
+        if (!annotations_equal(tuple_element_info(a, i, &av), tuple_element_info(b, i, &bv), depth + 1)) return false;
+    }
+    for (int i = 0; i < a->row_field_count; ++i) {
+        TypeInfo af, bf;
+        if (!annotations_equal(row_field_info(a, i, &af), row_field_info(b, i, &bf), depth + 1)) return false;
         if (!a->row_field_types || !b->row_field_types ||
             a->row_field_types[i] != b->row_field_types[i] ||
             !annotation_names_equal(a->row_field_names ? a->row_field_names[i] : NULL,
                                     b->row_field_names ? b->row_field_names[i] : NULL) ||
             !annotation_names_equal(a->row_field_type_names ? a->row_field_type_names[i] : NULL,
                                     b->row_field_type_names ? b->row_field_type_names[i] : NULL)) return false;
+    }
     for (int i = 0; i < a->type_var_count; ++i)
         if (!a->type_var_names || !b->type_var_names ||
             !annotation_names_equal(a->type_var_names[i], b->type_var_names[i])) return false;
@@ -2033,6 +2299,11 @@ Value create_tuple(Value *elements, int element_count) {
             /* Deep copy strings */
             if (elements[i].type == VAL_STRING) {
                 val.as.tuple_val->elements[i].as.string_val = strdup(elements[i].as.string_val);
+            } else if (elements[i].type == VAL_FUNCTION) {
+                /* I retain tuple callbacks beyond their source call frame. */
+                val.as.tuple_val->elements[i] = create_function(
+                    elements[i].as.function_val.function_name,
+                    copy_function_signature(elements[i].as.function_val.signature));
             }
         }
     } else {
@@ -2050,6 +2321,9 @@ void free_tuple(TupleValue *tuple) {
     for (int i = 0; i < tuple->element_count; i++) {
         if (tuple->elements[i].type == VAL_STRING && tuple->elements[i].as.string_val) {
             free(tuple->elements[i].as.string_val);
+        } else if (tuple->elements[i].type == VAL_FUNCTION) {
+            free(tuple->elements[i].as.function_val.function_name);
+            free_function_signature(tuple->elements[i].as.function_val.signature);
         }
     }
     
@@ -2196,7 +2470,7 @@ void env_add_module_exported_struct(Environment *env, const char *module_name, c
 void env_define_effect(Environment *env, EffectDef effect_def) {
     if (!env) return;
     /* Prevent duplicates */
-    if (env_get_effect(env, effect_def.name) != NULL) return;
+    if (env_get_effect_owned(env, effect_def.original_name ? effect_def.original_name : effect_def.name, effect_def.module_name)) return;
 
     if (env->effect_count >= env->effect_capacity) {
         env->effect_capacity = env->effect_capacity ? env->effect_capacity * 2 : 8;
@@ -2205,12 +2479,60 @@ void env_define_effect(Environment *env, EffectDef effect_def) {
     env->effects[env->effect_count++] = effect_def;
 }
 
+static bool effect_same_owner(const char *left, const char *right) {
+    return (!left && !right) || (left && right && !strcmp(left, right));
+}
+
+EffectDef *env_get_effect_owned(Environment *env, const char *name, const char *owner) {
+    if (!env || !name) return NULL;
+    for (int i = 0; i < env->effect_count; ++i) {
+        EffectDef *effect = &env->effects[i];
+        const char *original = effect->original_name ? effect->original_name : effect->name;
+        if (original && !strcmp(original, name) && effect_same_owner(owner, effect->module_name)) return effect;
+    }
+    return NULL;
+}
+
+bool env_import_effect(Environment *env, const char *alias, const EffectDef *target) {
+    if (!env || !alias || !target || !target->name || !target->is_pub) return false;
+    for (EffectImport *item = env->effect_imports; item; item = item->next)
+        if (effect_same_owner(item->owner_module, env->current_module) && !strcmp(item->name, alias))
+            return !strcmp(item->target_name, target->name);
+    EffectImport *item = calloc(1, sizeof *item);
+    if (!item) return false;
+    item->name = strdup(alias);
+    item->target_name = strdup(target->name);
+    item->owner_module = env->current_module ? strdup(env->current_module) : NULL;
+    if (!item->name || !item->target_name || (env->current_module && !item->owner_module)) {
+        free(item->name); free(item->target_name); free(item->owner_module); free(item); return false;
+    }
+    item->next = env->effect_imports; env->effect_imports = item;
+    return true;
+}
+
+bool env_effect_visible(Environment *env, const EffectDef *effect) {
+    if (!env || !effect) return false;
+    if (effect_same_owner(env->current_module, effect->module_name)) return true;
+    if (!effect->is_pub) return false;
+    for (EffectImport *item = env->effect_imports; item; item = item->next)
+        if (effect_same_owner(item->owner_module, env->current_module) && !strcmp(item->target_name, effect->name)) return true;
+    return false;
+}
+
 EffectDef *env_get_effect(Environment *env, const char *name) {
     if (!env || !name) return NULL;
-    for (int i = 0; i < env->effect_count; i++) {
-        if (env->effects[i].name && strcmp(env->effects[i].name, name) == 0) {
-            return &env->effects[i];
-        }
+    EffectDef *local = env_get_effect_owned(env, name, env->current_module);
+    if (local) return local;
+    /* My internal names contain @, which source identifiers cannot spell. */
+    if (name[0] == '@') {
+        for (int i = 0; i < env->effect_count; ++i)
+            if (!strcmp(env->effects[i].name, name)) return &env->effects[i];
+        return NULL;
+    }
+    for (EffectImport *item = env->effect_imports; item; item = item->next) {
+        if (!effect_same_owner(item->owner_module, env->current_module) || strcmp(item->name, name)) continue;
+        for (int i = 0; i < env->effect_count; ++i)
+            if (!strcmp(env->effects[i].name, item->target_name)) return &env->effects[i];
     }
     return NULL;
 }
@@ -2241,6 +2563,7 @@ void env_register_generic_func_instance(Environment *env, const char *orig_name,
             sizeof(GenericFuncInstance) * env->generic_func_instance_capacity);
     }
     GenericFuncInstance inst;
+    inst.signature = NULL;
     inst.orig_name = strdup(orig_name);
     inst.mono_name = strdup(mono_name);
     inst.binding_count = binding_count;

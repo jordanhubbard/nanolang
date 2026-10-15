@@ -1,0 +1,1 @@
+effect Ask{ask:HashMap<string,Missing>->int} struct Point{x:int} fn main()->int{return 0} shadow main{assert true}

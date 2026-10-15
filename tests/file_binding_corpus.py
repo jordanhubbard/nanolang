@@ -41,8 +41,9 @@ def arrays(value, prefix=()):
         for index, item in enumerate(value):
             yield from arrays(item, prefix+(index,))
 
-def corpus(root, output):
-    base=json.loads((root/'tests/fixtures/nsi_file_plan.json').read_text())
+def corpus(root, output, kind='file'):
+    fixture=root/f'tests/fixtures/nsi_{kind}_plan.json'
+    base=json.loads(fixture.read_text())
     canonical=encoded(base)
     (output/'expected.json').write_bytes(canonical)
     entries=[]
@@ -50,7 +51,7 @@ def corpus(root, output):
         filename=filename or f'case-{len(entries):04}.json'
         (output/filename).write_bytes(data)
         entries.append(dict(name=name,filename=filename,statuses=list(statuses),preallocation=preallocation))
-    add('valid',(root/'tests/fixtures/nsi_file_plan.json').read_bytes(),(OK,),filename='valid.json')
+    add('valid',fixture.read_bytes(),(OK,),filename='valid.json')
     add('canonical',canonical,(OK,))
     add('reversed-object-keys',encoded(reversed_keys(base)),(OK,))
     add('escaped-slashes',canonical.replace(b'/',b'\\/'),(OK,))
@@ -80,7 +81,7 @@ def corpus(root, output):
             'lifetime':('call','caller','callee','resource'),
             'mutability':('immutable','mutable'),
             'streaming':('none','in','out','bidi'),
-            'type':('nsi:core/int','nsi:core/bool','nsi:core/unit','nsi:nanolang/filesystem#FileError')}
+            'type':('nsi:core/int','nsi:core/bool','nsi:core/unit',base['types'][1]['id'])}
         for alternative in alternatives.get(path[-1],()):
             if alternative==value:continue
             changed=copy.deepcopy(base);at(changed,path[:-1])[path[-1]]=alternative
@@ -97,10 +98,15 @@ def corpus(root, output):
     for key in base:
         changed=copy.deepcopy(base);changed.pop(key)
         add('missing-root-'+key,encoded(changed))
-    for kind,field,value in [('array','element','nsi:core/int'),('callback','method','nsi:nanolang/filesystem#temp'),('async','result','nsi:core/int')]:
-        changed=copy.deepcopy(base);changed['types'][0]['kind']=kind;changed['types'][0][field]=value
-        add('allocation-shape-'+kind,encoded(changed),(INVALID,),filename='alloc-'+kind+'.json')
-    add('legacy-open-path-catalog',(root/'schema/nsi/modules/filesystem.nsi.json').read_bytes())
+    for shape,field,value in [('array','element','nsi:core/int'),('callback','method',base['methods'][0]['id']),('async','result','nsi:core/int')]:
+        changed=copy.deepcopy(base);changed['types'][0]['kind']=shape;changed['types'][0][field]=value
+        add('allocation-shape-'+shape,encoded(changed),(INVALID,),filename='alloc-'+shape+'.json')
+    legacy='filesystem' if kind=='file' else 'net'
+    add('legacy-service-catalog',(root/f'schema/nsi/modules/{legacy}.nsi.json').read_bytes())
+    other='socket' if kind=='file' else 'file'
+    add('cross-service-catalog',(root/f'tests/fixtures/nsi_{other}_plan.json').read_bytes())
+    if kind=='socket':
+        add('private-socket-substitution',canonical.replace(b'#Conn',b'#Socket').replace(b'"Conn"',b'"Socket"'))
     invalid=[('empty',b''),('trailing-document',canonical+b'{}'),('trailing-garbage',canonical+b'x'),
         ('raw-nul',canonical+b'\0'),('counted-nul-middle',canonical[:20]+b'\0'+canonical[20:]),
         ('raw-control-in-string',b'{"x":"\x01"}'),('invalid-utf8',b'{"x":"\xff"}'),

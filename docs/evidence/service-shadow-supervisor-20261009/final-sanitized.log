@@ -1,0 +1,2 @@
+I require NANO_SHADOW_TIMEOUT_SECONDS to be an integer from 1 to 300.
+I pass File shadow supervision, whole-suite timeout and refusal controls.

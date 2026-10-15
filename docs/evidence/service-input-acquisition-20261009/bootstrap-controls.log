@@ -1,0 +1,13 @@
+test_native_codegen_marker_and_changed_artifact_are_refused (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_native_codegen_marker_and_changed_artifact_are_refused) ... ok
+test_native_link_uses_effective_flags_for_covered_runtime (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_native_link_uses_effective_flags_for_covered_runtime) ... I run probe-native; I retain its log at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-vd63daym/obj/bootstrap-nanoisa/run-gbc4_fe4/00-probe-native.log.
+I run probe-native; I retain its log at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-vd63daym/obj/bootstrap-nanoisa/run-jxauyt02/00-probe-native.log.
+ok
+test_source_membership_changes_are_refused_but_host_cache_growth_is_allowed (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_source_membership_changes_are_refused_but_host_cache_growth_is_allowed) ... ok
+test_source_tool_and_host_mutation_are_refused (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_source_tool_and_host_mutation_are_refused) ... ok
+test_host_inputs_work_and_generated_product_is_refused (tests.test_bootstrap_native_guard.BootstrapNativeGuard.test_host_inputs_work_and_generated_product_is_refused) ... ok
+test_retained_inputs_require_exact_seed_cache_and_snapshot_names (tests.test_bootstrap_native_guard.BootstrapNativeGuard.test_retained_inputs_require_exact_seed_cache_and_snapshot_names) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.536s
+
+OK

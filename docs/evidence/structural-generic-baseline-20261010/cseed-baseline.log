@@ -1,0 +1,13 @@
+-- E001 TYPE MISMATCH --- docs/evidence/structural-generic-baseline-20261010/array-parameter.nano
+I expected array elements of type struct, but found int.
+
+4|  assert (== (first [3, 4]) 3)
+                      ^
+Hint: Use elements matching the array annotation.
+-- E001 TYPE MISMATCH --- docs/evidence/structural-generic-baseline-20261010/array-parameter.nano
+I expected array elements of type struct, but found bool.
+
+5|  assert (== (first [true, false]) true)
+                      ^
+Hint: Use elements matching the array annotation.
+error: type check failed

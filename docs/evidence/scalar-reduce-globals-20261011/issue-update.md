@@ -1,0 +1,5 @@
+I repair canonical scalar reduce execution under #976. C AOT inference discarded exact array result storage when a mutated tagged global array was stored back into itself. I discover constructor-backed global array kinds before ordinary inference and retain exact storage across checked array writes and stores. Dynamic/conflicting global result storage remains refused without replacing prior output.
+
+My eight-method scalar source suite passes fresh seed and retranslated self-hosted products, C-native and C-NanoISA routes, VM and sanitized C AOT. I replace an obsolete Boolean refusal with executed true/false/empty reductions and retain invalid-signature controls. Four scalar array element kinds pass empty-return, push and replacement checks. The full C AOT gate passes its prerequisites and 2,443 structured C tests. Pinned compiler-module retranslation passes seven recorded stages, including 16 nominal and 16 payload/resource/layout methods.
+
+Evidence: docs/evidence/scalar-reduce-globals-20261011/README.md. Installed Stage 1/2 ordered-shadow failures remain retained and final candidate/platform qualification stays open. I keep #976 and the full 5.1 scope active.

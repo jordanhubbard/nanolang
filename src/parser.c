@@ -61,6 +61,35 @@ static char *join_qualified_type_name(const char *owner, const char *name) {
     return qualified;
 }
 
+/* I retain every identifier in a re-exported call path. Zero means an
+ * expression rather than a name; negative means allocation/size failure. */
+static int qualified_call_path(const ASTNode *node, char **out) {
+    const ASTNode *base = node;
+    size_t length = 0;
+    while (base && base->type == AST_FIELD_ACCESS) {
+        size_t field = strlen(base->as.field_access.field_name);
+        if (field == SIZE_MAX || length > SIZE_MAX - field - 1) return -1;
+        length += field + 1;
+        base = base->as.field_access.object;
+    }
+    if (!base || base->type != AST_IDENTIFIER) return 0;
+    size_t prefix = strlen(base->as.identifier);
+    if (prefix == SIZE_MAX || length > SIZE_MAX - prefix - 1) return -1;
+    length += prefix;
+    char *name = malloc(length + 1);
+    if (!name) return -1;
+    name[length] = '\0';
+    for (const ASTNode *part = node; part != base; part = part->as.field_access.object) {
+        size_t field = strlen(part->as.field_access.field_name);
+        length -= field;
+        memcpy(name + length, part->as.field_access.field_name, field);
+        name[--length] = '.';
+    }
+    memcpy(name, base->as.identifier, prefix);
+    *out = name;
+    return 1;
+}
+
 static Token *current_token(Stage1Parser *p) {
     if (!p) {
         return NULL;
@@ -239,7 +268,19 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
             char *struct_name = NULL;
             FunctionSignature *nested_fn_sig = NULL;
             TypeInfo *param_info = NULL;
+            Type borrow_type=TYPE_UNKNOWN;
+            if(match(p,TOKEN_AMPERSAND)) {
+                advance(p);borrow_type=TYPE_BORROW_SHARED;
+                if(match(p,TOKEN_MUT)){advance(p);borrow_type=TYPE_BORROW_MUT;}
+            }
             Type param_type = parse_type_with_element(p, NULL, &struct_name, &nested_fn_sig, &param_info);
+            if(param_type!=TYPE_UNKNOWN && borrow_type!=TYPE_UNKNOWN) {
+                if(!param_info){param_info=calloc(1,sizeof *param_info);param_info->base_type=param_type;
+                    param_info->generic_name=struct_name?strdup(struct_name):NULL;}
+                if(nested_fn_sig){param_info->fn_sig=nested_fn_sig;nested_fn_sig=NULL;}
+                TypeInfo *wrapper=calloc(1,sizeof *wrapper);wrapper->base_type=borrow_type;
+                wrapper->element_type=param_info;param_info=wrapper;param_type=borrow_type;
+            }
             
             if (param_type == TYPE_UNKNOWN) {
                 /* Error already reported */
@@ -267,14 +308,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
             }
             sig->param_type_info[sig->param_count - 1] = param_info;
             
-            /* TODO: Handle nested function signatures in function parameters */
-            /* For now, we don't support fn(fn(int)->int)->int */
-            if (nested_fn_sig) {
-                parser_error(p, 0, 0, "Error: Nested function types not yet supported\n");
-                free_function_signature(nested_fn_sig);
-                free_function_signature(sig);
-                return NULL;
-            }
+            if(nested_fn_sig)param_info->fn_sig=nested_fn_sig;
             
             tok = current_token(p);
             if (!tok) {
@@ -332,6 +366,8 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     }
     sig->return_struct_name = return_struct_name;  /* May be NULL */
     sig->return_fn_sig = return_fn_sig;  /* Store function signature for function return types */
+    if (return_fn_sig && !sig->return_type_info->fn_sig)
+        sig->return_type_info->fn_sig = copy_function_signature(return_fn_sig);
     
     if (sig->return_type == TYPE_UNKNOWN) {
         /* Error already reported */
@@ -373,6 +409,14 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             if (sig) {
                 if (fn_sig_out) {
                     *fn_sig_out = sig;
+                } else if (type_info_out) {
+                    TypeInfo *info = calloc(1, sizeof *info);
+                    if (!info) { free_function_signature(sig); return TYPE_UNKNOWN; }
+                    info->base_type = TYPE_FUNCTION;
+                    info->fn_sig = sig;
+                    *type_info_out = info;
+                } else {
+                    free_function_signature(sig);
                 }
                 return TYPE_FUNCTION;
             }
@@ -399,8 +443,8 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                 char *type_name = strdup(tok->value);
                 advance(p);  /* consume type name */
 
-                /* Check for Module.Type pattern */
-                if (current_token(p)->token_type == TOKEN_DOT) {
+                /* I retain every qualifier through re-exported type paths. */
+                while (current_token(p)->token_type == TOKEN_DOT) {
                     advance(p);  /* consume '.' */
                     Token *type_tok = current_token(p);
                     if (type_tok->token_type != TOKEN_IDENTIFIER) {
@@ -816,6 +860,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             int count = 0;
             Type *tuple_types = malloc(sizeof(Type) * capacity);
             char **tuple_type_names = malloc(sizeof(char*) * capacity);
+            TypeInfo **tuple_elements = calloc((size_t)capacity, sizeof(TypeInfo *));
             
             /* Parse first type */
             if (!match(p, TOKEN_RPAREN)) {
@@ -824,12 +869,19 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         capacity *= 2;
                         tuple_types = realloc(tuple_types, sizeof(Type) * capacity);
                         tuple_type_names = realloc(tuple_type_names, sizeof(char*) * capacity);
+                        tuple_elements = realloc(tuple_elements, sizeof(TypeInfo *) * capacity);
                     }
                     
                     char *elem_type_name = NULL;
                     TypeInfo *elem_type_info = NULL;
-                    Type elem_type = parse_type_with_element(p, NULL, &elem_type_name, NULL, &elem_type_info);
+                    FunctionSignature *signature = NULL;
+                    Type elem_type = parse_type_with_element(p, NULL, &elem_type_name, &signature, &elem_type_info);
                     if (elem_type == TYPE_UNKNOWN) {
+                        if (!elem_type_info || signature != elem_type_info->fn_sig) free_function_signature(signature);
+                        free_payload_type_info(elem_type_info);
+                        free(elem_type_name);
+                        for (int e = 0; e < count; ++e) free_payload_type_info(tuple_elements[e]);
+                        free(tuple_elements);
                         free(tuple_types);
                         for (int i = 0; i < count; i++) {
                             if (tuple_type_names[i]) free(tuple_type_names[i]);
@@ -838,6 +890,14 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         return TYPE_UNKNOWN;
                     }
                     
+                    if (!elem_type_info) {
+                        elem_type_info = calloc(1, sizeof *elem_type_info);
+                        elem_type_info->base_type = elem_type;
+                        elem_type_info->generic_name = elem_type_name ? strdup(elem_type_name) : NULL;
+                    }
+                    if (!elem_type_info->fn_sig) elem_type_info->fn_sig = signature;
+                    else if (signature != elem_type_info->fn_sig) free_function_signature(signature);
+                    tuple_elements[count] = elem_type_info;
                     tuple_types[count] = elem_type;
                     tuple_type_names[count] = elem_type_name;  /* May be NULL for primitive types */
                     count++;
@@ -851,6 +911,8 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             }
             
             if (!expect(p, TOKEN_RPAREN, "Expected ')' after tuple types")) {
+                for (int e = 0; e < count; ++e) free_payload_type_info(tuple_elements[e]);
+                free(tuple_elements);
                 free(tuple_types);
                 for (int i = 0; i < count; i++) {
                     if (tuple_type_names[i]) free(tuple_type_names[i]);
@@ -864,12 +926,15 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                 /* Must zero-init so unused pointer fields (e.g., generic_name) are NULL. */
                 TypeInfo *info = calloc(1, sizeof(TypeInfo));
                 info->base_type = TYPE_TUPLE;
+                info->tuple_elements = tuple_elements;
                 info->tuple_types = tuple_types;
                 info->tuple_type_names = tuple_type_names;
                 info->tuple_element_count = count;
                 *type_info_out = info;
             } else {
                 /* Free if not needed */
+                for (int e = 0; e < count; ++e) free_payload_type_info(tuple_elements[e]);
+                free(tuple_elements);
                 free(tuple_types);
                 for (int i = 0; i < count; i++) {
                     if (tuple_type_names[i]) free(tuple_type_names[i]);
@@ -880,47 +945,80 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             return TYPE_TUPLE;
         }
         case TOKEN_LBRACE: {
-            /* Open record type: {field: Type, field: Type | rowvar} */
-            advance(p);  /* consume '{' */
-            int field_cap = 4, field_cnt = 0;
-            char **fnames = malloc(sizeof(char*) * field_cap);
-            Type  *ftypes = malloc(sizeof(Type)  * field_cap);
+            advance(p);
+            TypeInfo *info = calloc(1, sizeof(*info));
+            if (!info) return TYPE_UNKNOWN;
+            info->base_type = TYPE_OPEN_RECORD;
+            int capacity = 4;
+            info->row_field_names = calloc(capacity, sizeof(char*));
+            info->row_field_types = calloc(capacity, sizeof(Type));
+            info->row_field_type_names = calloc(capacity, sizeof(char*));
+            info->row_field_type_info = calloc(capacity, sizeof(TypeInfo*));
+            if (!info->row_field_names || !info->row_field_types ||
+                !info->row_field_type_names || !info->row_field_type_info) goto row_error;
             while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_BAR) && !match(p, TOKEN_EOF)) {
-                if (field_cnt >= field_cap) {
-                    field_cap *= 2;
-                    fnames = realloc(fnames, sizeof(char*) * field_cap);
-                    ftypes = realloc(ftypes, sizeof(Type)  * field_cap);
+                if (!match(p, TOKEN_IDENTIFIER)) goto row_error;
+                int field = info->row_field_count;
+                for (int previous = 0; previous < field; ++previous) {
+                    if (!strcmp(info->row_field_names[previous], current_token(p)->value)) {
+                        parser_error(p, tok->line, tok->column, "I require distinct row field names\n");
+                        goto row_error;
+                    }
                 }
-                if (!match(p, TOKEN_IDENTIFIER)) break;
-                fnames[field_cnt] = strdup(current_token(p)->value);
+                if (field == capacity) {
+                    capacity *= 2;
+                    char **names = realloc(info->row_field_names, capacity * sizeof(char*));
+                    if (!names) goto row_error;
+                    info->row_field_names = names;
+                    Type *types = realloc(info->row_field_types, capacity * sizeof(Type));
+                    if (!types) goto row_error;
+                    info->row_field_types = types;
+                    char **type_names = realloc(info->row_field_type_names, capacity * sizeof(char*));
+                    if (!type_names) goto row_error;
+                    info->row_field_type_names = type_names;
+                    TypeInfo **annotations = realloc(info->row_field_type_info, capacity * sizeof(TypeInfo*));
+                    if (!annotations) goto row_error;
+                    info->row_field_type_info = annotations;
+                }
+                info->row_field_names[field] = strdup(current_token(p)->value);
+                info->row_field_type_names[field] = NULL;
+                info->row_field_type_info[field] = NULL;
+                info->row_field_count++;
+                if (!info->row_field_names[field]) goto row_error;
                 advance(p);
-                if (!expect(p, TOKEN_COLON, "Expected ':' in record type field")) { free(fnames[field_cnt]); break; }
-                TypeInfo *dummy_ti = NULL;
-                ftypes[field_cnt] = parse_type_with_element(p, NULL, NULL, NULL, &dummy_ti);
-                field_cnt++;
+                if (!expect(p, TOKEN_COLON, "I require ':' after a row field name")) goto row_error;
+                FunctionSignature *signature = NULL;
+                info->row_field_types[field] = parse_type_with_element(p, NULL,
+                    &info->row_field_type_names[field], &signature, &info->row_field_type_info[field]);
+                if (info->row_field_types[field] == TYPE_UNKNOWN) {
+                    if (!info->row_field_type_info[field] || info->row_field_type_info[field]->fn_sig != signature)
+                        free_function_signature(signature);
+                    goto row_error;
+                }
+                if (!info->row_field_type_info[field]) {
+                    info->row_field_type_info[field] = calloc(1, sizeof(TypeInfo));
+                    if (!info->row_field_type_info[field]) { free_function_signature(signature); goto row_error; }
+                    info->row_field_type_info[field]->base_type = info->row_field_types[field];
+                    info->row_field_type_info[field]->generic_name = info->row_field_type_names[field]
+                        ? strdup(info->row_field_type_names[field]) : NULL;
+                    info->row_field_type_info[field]->fn_sig = signature;
+                }
                 if (match(p, TOKEN_COMMA)) advance(p);
             }
-            char *rowvar = NULL;
             if (match(p, TOKEN_BAR)) {
                 advance(p);
-                if (match(p, TOKEN_IDENTIFIER)) {
-                    rowvar = strdup(current_token(p)->value);
-                    advance(p);
-                }
+                if (!match(p, TOKEN_IDENTIFIER)) goto row_error;
+                info->row_var_name = strdup(current_token(p)->value);
+                info->is_open_row = true;
+                advance(p);
             }
-            if (!expect(p, TOKEN_RBRACE, "Expected '}' closing record type")) {
-                free(fnames); free(ftypes); free(rowvar); return TYPE_UNKNOWN;
-            }
-            if (type_info_out) {
-                if (!*type_info_out) *type_info_out = calloc(1, sizeof(TypeInfo));
-                (*type_info_out)->tuple_type_names = fnames;
-                (*type_info_out)->tuple_types = ftypes;
-                (*type_info_out)->tuple_element_count = field_cnt;
-                (*type_info_out)->generic_name = rowvar ? rowvar : strdup("_");
-            } else {
-                free(fnames); free(ftypes); free(rowvar);
-            }
+            if (!expect(p, TOKEN_RBRACE, "I require '}' after a row type")) goto row_error;
+            if (type_info_out) *type_info_out = info;
+            else free_type_info(info);
             return TYPE_OPEN_RECORD;
+row_error:
+            free_type_info(info);
+            return TYPE_UNKNOWN;
         }
         default:
             parser_error(p, tok->line, tok->column, "Error at line %d, column %d: Expected type annotation\n", tok->line, tok->column);
@@ -971,25 +1069,6 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
                 if (match(p, TOKEN_MUT)) { advance(p); borrow_type = TYPE_BORROW_MUT; }
             }
 
-            /* Type - check if it's a struct type (identifier) */
-            Token *type_token = current_token(p);
-            char *struct_name = NULL;
-            if (type_token->token_type == TOKEN_IDENTIFIER) {
-                /* I retain the declaring-module qualifier. */
-                Token *dot = peek_token(p, 1);
-                Token *rhs = peek_token(p, 2);
-                if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
-                    struct_name = join_qualified_type_name(type_token->value, rhs->value);
-                    if (!struct_name) {
-                        free(param_list);
-                        parser_error(p, type_token->line, type_token->column, "I cannot allocate a qualified parameter type\n");
-                        return false;
-                    }
-                } else {
-                    struct_name = strdup(type_token->value);
-                }
-            }
-            
             /* Parse type with element_type support for arrays and generics */
             Type element_type = TYPE_UNKNOWN;
             char *type_param_name = NULL;
@@ -1024,13 +1103,6 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
                 type_info->fn_sig = fn_sig;
             }
             param_list[count].type_info = type_info;  /* Retain the borrow and referent separately. */
-            
-            /* If it's a struct type, save the struct name */
-            if (param_list[count].type == TYPE_STRUCT && struct_name) {
-                param_list[count].struct_type_name = struct_name;
-            } else if (struct_name) {
-                free(struct_name);
-            }
             
             count++;
 
@@ -1211,14 +1283,19 @@ static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name)
         
         /* Parse a type parameter */
         TypeInfo *param_type_info = NULL;
-        Type param_type = parse_type_with_element(p, NULL, NULL, NULL, &param_type_info);
+        char *param_name = NULL;
+        FunctionSignature *param_signature = NULL;
+        Type param_type = parse_type_with_element(p, NULL, &param_name, &param_signature, &param_type_info);
         
         if (param_type == TYPE_UNKNOWN) {
+            free(param_name);
+            free_function_signature(param_signature);
+            free_payload_type_info(param_type_info);
             parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Failed to parse generic type parameter\n",
                     current_token(p)->line, current_token(p)->column);
             /* Cleanup */
             for (int i = 0; i < count; i++) {
-                free(type_params[i]);
+                free_payload_type_info(type_params[i]);
             }
             free(type_params);
             free(type_info->generic_name);
@@ -1230,6 +1307,12 @@ static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name)
         if (!param_type_info) {
             param_type_info = calloc(1, sizeof(TypeInfo));
             param_type_info->base_type = param_type;
+            /* I retain nominal names and signatures in explicit constructor arguments. */
+            param_type_info->generic_name = param_name;
+            param_type_info->fn_sig = param_signature;
+        } else {
+            free(param_name);
+            free_function_signature(param_signature);
         }
         
         type_params[count++] = param_type_info;
@@ -1243,7 +1326,7 @@ static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name)
     if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) {
         /* Cleanup */
         for (int i = 0; i < count; i++) {
-            free(type_params[i]);
+            free_payload_type_info(type_params[i]);
         }
         free(type_params);
         free(type_info->generic_name);
@@ -1271,6 +1354,19 @@ static ASTNode *parse_perform(Stage1Parser *p, bool allow_bare_argument) {
     if (!match(p, TOKEN_IDENTIFIER)) goto malformed;
     node->as.effect_op.op_name = strdup(current_token(p)->value);
     advance(p);
+    while (match(p, TOKEN_DOT)) {
+        size_t length = strlen(node->as.effect_op.effect_name) + strlen(node->as.effect_op.op_name) + 2;
+        char *qualified = malloc(length);
+        if (!qualified) goto failed;
+        snprintf(qualified, length, "%s.%s", node->as.effect_op.effect_name, node->as.effect_op.op_name);
+        free(node->as.effect_op.effect_name);
+        node->as.effect_op.effect_name = qualified;
+        advance(p);
+        if (!match(p, TOKEN_IDENTIFIER)) goto malformed;
+        free(node->as.effect_op.op_name);
+        node->as.effect_op.op_name = strdup(current_token(p)->value);
+        advance(p);
+    }
     bool parenthesized = match(p, TOKEN_LPAREN);
     if (!parenthesized && !allow_bare_argument) return node;
     if (parenthesized) advance(p);
@@ -1693,34 +1789,22 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 return parse_perform(p, true);
             }
 
-            /* Check if this is a struct literal: StructName { ... } or Module.StructName { ... } */
-            /* Only parse as struct literal if identifier starts with uppercase (type convention) */
-            /* AND it's not followed by code keywords that indicate it's a condition */
-            Token *next = peek_token(p, 1);
-            Token *after_next = peek_token(p, 2);
-            Token *after_brace = peek_token(p, 2);
-            bool looks_like_struct = tok->value && tok->value[0] >= 'A' && tok->value[0] <= 'Z';
-            
-            /* Check for Module.Type pattern */
-            bool is_qualified = next && next->token_type == TOKEN_DOT && 
-                               after_next && after_next->token_type == TOKEN_IDENTIFIER;
-            if (is_qualified) {
-                after_brace = peek_token(p, 3);  /* { comes after Module.Type */
-                looks_like_struct = after_next->value && after_next->value[0] >= 'A' && after_next->value[0] <= 'Z';
-            }
-            
-            /* Heuristic: if the token after { is a keyword like 'if', 'return', 'let', etc., 
-               this is NOT a struct literal, it's a code block after a condition */
+            /* I recognize the complete owner/type/variant path before fields. */
+            int name_end = 0;
+            while (peek_token(p, name_end + 1) && peek_token(p, name_end + 2) &&
+                   peek_token(p, name_end + 1)->token_type == TOKEN_DOT &&
+                   peek_token(p, name_end + 2)->token_type == TOKEN_IDENTIFIER)
+                name_end += 2;
+            Token *last_name = peek_token(p, name_end);
+            Token *brace = peek_token(p, name_end + 1);
+            Token *after_brace = peek_token(p, name_end + 2);
+            bool looks_like_struct = last_name && last_name->value &&
+                last_name->value[0] >= 'A' && last_name->value[0] <= 'Z';
             bool looks_like_code_block = after_brace && (
-                after_brace->token_type == TOKEN_IF ||
-                after_brace->token_type == TOKEN_RETURN ||
-                after_brace->token_type == TOKEN_LET ||
-                after_brace->token_type == TOKEN_WHILE ||
-                after_brace->token_type == TOKEN_FOR
-            );
-            
-            bool has_lbrace = (next && next->token_type == TOKEN_LBRACE) ||
-                             (is_qualified && peek_token(p, 3) && peek_token(p, 3)->token_type == TOKEN_LBRACE);
+                after_brace->token_type == TOKEN_IF || after_brace->token_type == TOKEN_RETURN ||
+                after_brace->token_type == TOKEN_LET || after_brace->token_type == TOKEN_WHILE ||
+                after_brace->token_type == TOKEN_FOR);
+            bool has_lbrace = brace && brace->token_type == TOKEN_LBRACE;
 
             /* Dotted uppercase literals are parsed as struct literals first.
              * The typechecker resolves `Union.Variant { ... }` by checking
@@ -1736,24 +1820,17 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 char *struct_name = strdup(tok->value);
                 advance(p);  /* consume struct name */
                 
-                /* Check for Module.StructName pattern */
-                if (current_token(p)->token_type == TOKEN_DOT) {
-                    advance(p);  /* consume '.' */
-                    Token *type_tok = current_token(p);
-                    if (type_tok->token_type != TOKEN_IDENTIFIER) {
-                        parser_error(p, type_tok->line, type_tok->column, "Error at line %d, column %d: Expected struct name after '.'\n",
-                                type_tok->line, type_tok->column);
-                        free(struct_name);
-                        return NULL;
-                    }
-                    /* Build qualified name: Module.StructName */
-                    char qualified_name[512];
-                    snprintf(qualified_name, sizeof(qualified_name), "%s.%s", struct_name, type_tok->value);
-                    free(struct_name);
-                    struct_name = strdup(qualified_name);
-                    advance(p);  /* consume struct name */
+                while (match(p, TOKEN_DOT)) {
+                    advance(p);
+                    Token *part = current_token(p);
+                    size_t size = strlen(struct_name) + strlen(part->value) + 2;
+                    char *qualified = malloc(size);
+                    if (!qualified) { free(struct_name); return NULL; }
+                    snprintf(qualified, size, "%s.%s", struct_name, part->value);
+                    free(struct_name); struct_name = qualified;
+                    advance(p);
                 }
-                
+
                 advance(p);  /* consume '{' */
                 
                 int capacity = 4;
@@ -1852,7 +1929,28 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     /* Check if followed by '<' for generic type instantiation.
                      * Only try this for uppercase identifiers (type names) to avoid
                      * ambiguity with infix '<' operator on variables. */
-                    bool looks_like_type = name_parts[0][0] >= 'A' && name_parts[0][0] <= 'Z';
+                    int qualified_end = 0;
+                    while (peek_token(p, qualified_end) && peek_token(p, qualified_end + 1) &&
+                           peek_token(p, qualified_end)->token_type == TOKEN_DOT &&
+                           peek_token(p, qualified_end + 1)->token_type == TOKEN_IDENTIFIER)
+                        qualified_end += 2;
+                    Token *last_part = qualified_end ? peek_token(p, qualified_end - 1) : NULL;
+                    if (last_part && last_part->value[0] >= 'A' && last_part->value[0] <= 'Z' &&
+                        peek_token(p, qualified_end) && peek_token(p, qualified_end)->token_type == TOKEN_LT) {
+                        while (match(p, TOKEN_DOT)) {
+                            advance(p);
+                            Token *part = current_token(p);
+                            size_t size = strlen(name_parts[0]) + strlen(part->value) + 2;
+                            char *qualified = malloc(size);
+                            if (!qualified) { free(name_parts[0]); free(name_parts); return NULL; }
+                            snprintf(qualified, size, "%s.%s", name_parts[0], part->value);
+                            free(name_parts[0]); name_parts[0] = qualified;
+                            advance(p);
+                        }
+                    }
+                    const char *type_start = strrchr(name_parts[0], '.');
+                    type_start = type_start ? type_start + 1 : name_parts[0];
+                    bool looks_like_type = type_start[0] >= 'A' && type_start[0] <= 'Z';
                     if (looks_like_type && match(p, TOKEN_LT)) {
                         generic_type_info = parse_generic_type_args(p, name_parts[0]);
                         if (!generic_type_info) {
@@ -2109,7 +2207,13 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                  * If first_expr is an identifier, treat it as a function call with zero arguments.
                  * This ensures (main) calls main() instead of returning the function value.
                  */
-                if (first_expr->type == AST_IDENTIFIER) {
+                if (first_expr->type == AST_IDENTIFIER && first_expr->lambda_definition) {
+                    /* I preserve the anonymous declaration on its callee expression. */
+                    advance(p);
+                    ASTNode *call = create_node(AST_CALL, line, column);
+                    call->as.call.func_expr = first_expr;
+                    return call;
+                } else if (first_expr->type == AST_IDENTIFIER) {
                     /* Treat as function call with zero arguments */
                     advance(p);  /* consume ')' */
                     
@@ -2125,18 +2229,25 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     return node;
                 } else if (first_expr->type == AST_FIELD_ACCESS) {
                     /* Module.function call with zero arguments - use AST_MODULE_QUALIFIED_CALL */
-                    if (first_expr->as.field_access.object->type == AST_IDENTIFIER) {
-                        char *module = first_expr->as.field_access.object->as.identifier;
+                    char *module = NULL;
+                    int path = qualified_call_path(first_expr->as.field_access.object, &module);
+                    if (path < 0) {
+                        parser_error(p, line, column, "I cannot allocate a qualified call path\n");
+                        free_ast(first_expr);
+                        return NULL;
+                    }
+                    if (path > 0) {
                         char *field = first_expr->as.field_access.field_name;
                         
                         advance(p);  /* consume ')' */
                         
                         ASTNode *node = create_node(AST_MODULE_QUALIFIED_CALL, line, column);
-                        node->as.module_qualified_call.module_alias = strdup(module);
+                        node->as.module_qualified_call.module_alias = module;
                         node->as.module_qualified_call.function_name = strdup(field);
                         node->as.module_qualified_call.args = NULL;
                         node->as.module_qualified_call.arg_count = 0;
                         node->as.module_qualified_call.return_struct_type_name = NULL;
+                        node->as.module_qualified_call.checked_signature = NULL;
                         
                         /* Free the field_access node */
                         free_ast(first_expr);
@@ -2164,26 +2275,28 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 char *module_alias = NULL;
                 char *qualified_func_name = NULL;
                 
-                if (first_expr->type == AST_IDENTIFIER) {
+                if (first_expr->type == AST_IDENTIFIER && first_expr->lambda_definition) {
+                    func_expr = first_expr;
+                } else if (first_expr->type == AST_IDENTIFIER) {
                     /* Regular function call */
                     func_name = first_expr->as.identifier;
                 } else if (first_expr->type == AST_FIELD_ACCESS) {
                     /* Module.function call - use AST_MODULE_QUALIFIED_CALL */
-                    if (first_expr->as.field_access.object->type == AST_IDENTIFIER) {
-                        char *module = first_expr->as.field_access.object->as.identifier;
+                    int path = qualified_call_path(first_expr->as.field_access.object, &module_alias);
+                    if (path > 0) {
                         char *field = first_expr->as.field_access.field_name;
                         
                         /* Mark as module-qualified for later processing */
                         is_module_qualified = true;
-                        module_alias = strdup(module);
                         qualified_func_name = strdup(field);
                         
                         /* Free the field_access node */
                         free_ast(first_expr);
                         first_expr = NULL;
                     } else {
-                        parser_error(p, line, column, "Error at line %d, column %d: Complex field access not supported in function calls\n",
-                                line, column);
+                        parser_error(p, line, column, "%s\n", path < 0 ?
+                                "I cannot allocate a qualified call path" :
+                                "I require a named qualified call path");
                         free_ast(first_expr);
                         return NULL;
                     }
@@ -2252,6 +2365,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     node->as.module_qualified_call.args = args;
                     node->as.module_qualified_call.arg_count = count;
                     node->as.module_qualified_call.return_struct_type_name = NULL;
+                    node->as.module_qualified_call.checked_signature = NULL;
                 } else {
                     /* Create regular call node */
                     node = create_node(AST_CALL, line, column);
@@ -2814,6 +2928,7 @@ static bool parse_record_bindings(Stage1Parser *p, ASTNode ***items, int *count,
     owner->as.let.var_type = TYPE_STRUCT;
     owner->as.let.type_name = pattern_type;
     owner->as.let.is_destructure = true;
+    owner->as.let.is_generated = true;
     for (int i = 0; i <= after_type; i++) advance(p);
     while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
         if (!match(p, TOKEN_IDENTIFIER)) {
@@ -2987,6 +3102,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
             /* Emit: let __tdN = rhs (inferred type) */
             ASTNode *temp_let = create_node(AST_LET, td_line, td_col);
             temp_let->as.let.name = strdup(temp_name);
+            temp_let->as.let.is_generated = true;
             temp_let->as.let.var_type = TYPE_UNKNOWN;
             temp_let->as.let.type_name = NULL;
             temp_let->as.let.element_type = TYPE_UNKNOWN;
@@ -3908,6 +4024,7 @@ static ASTNode *parse_effect_decl(Stage1Parser *p, bool is_pub) {
     Parameter **op_params = malloc(sizeof(Parameter*) * capacity);
     int *op_param_counts = malloc(sizeof(int) * capacity);
     Type *op_return_types = malloc(sizeof(Type) * capacity);
+    TypeInfo **op_return_type_infos = malloc(sizeof(*op_return_type_infos) * capacity);
     char **op_return_type_names = malloc(sizeof(char*) * capacity);
     int op_count = 0;
 
@@ -3918,6 +4035,7 @@ static ASTNode *parse_effect_decl(Stage1Parser *p, bool is_pub) {
             op_params = realloc(op_params, sizeof(Parameter*) * capacity);
             op_param_counts = realloc(op_param_counts, sizeof(int) * capacity);
             op_return_types = realloc(op_return_types, sizeof(Type) * capacity);
+            op_return_type_infos = realloc(op_return_type_infos, sizeof(*op_return_type_infos) * capacity);
             op_return_type_names = realloc(op_return_type_names, sizeof(char*) * capacity);
         }
 
@@ -3991,6 +4109,16 @@ static ASTNode *parse_effect_decl(Stage1Parser *p, bool is_pub) {
         FunctionSignature *ret_sig = NULL;
         TypeInfo *ret_info = NULL;
         Type ret_type = parse_type_with_element(p, NULL, &ret_name, &ret_sig, &ret_info);
+        if (ret_type == TYPE_FUNCTION && ret_sig && !ret_info) {
+            ret_info = calloc(1, sizeof(*ret_info));
+            if (!ret_info) {
+                fprintf(stderr, "I cannot allocate an effect result signature.\n");
+                exit(EXIT_FAILURE);
+            }
+            ret_info->base_type = TYPE_FUNCTION;
+            ret_info->fn_sig = ret_sig;
+        }
+        op_return_type_infos[op_count] = ret_info;
         op_return_types[op_count] = ret_type;
         op_return_type_names[op_count] = ret_name;
 
@@ -4014,6 +4142,7 @@ static ASTNode *parse_effect_decl(Stage1Parser *p, bool is_pub) {
         node->as.effect_decl.op_params = op_params;
         node->as.effect_decl.op_param_counts = op_param_counts;
         node->as.effect_decl.op_return_types = op_return_types;
+        node->as.effect_decl.op_return_type_infos = op_return_type_infos;
         node->as.effect_decl.op_return_type_names = op_return_type_names;
         node->as.effect_decl.is_pub = is_pub;
         return node;
@@ -4024,11 +4153,13 @@ effect_error:
         free(op_names[i]);
         free(op_params[i]);
         free(op_return_type_names[i]);
+        free_type_info(op_return_type_infos[i]);
     }
     free(op_names);
     free(op_params);
     free(op_param_counts);
     free(op_return_types);
+    free(op_return_type_infos);
     free(op_return_type_names);
     free(effect_name);
     return NULL;
@@ -4046,23 +4177,12 @@ static ASTNode *parse_handle_expr(Stage1Parser *p) {
 
     if (!expect(p, TOKEN_HANDLE, "Expected 'handle'")) return NULL;
 
-    /* Accept both `handle { expr }` and `handle expr` (no braces) forms.
-     * When expr starts with '(', that's a prefix-call: (fn args) — parse_expression handles it. */
+    /* I retain braced bodies as expression blocks, like handler arms. */
     ASTNode *body = NULL;
     bool brace_form = match(p, TOKEN_LBRACE);
     if (brace_form) {
-        advance(p); /* consume '{' */
-        body = parse_expression(p);
-        if (!body) {
-            parser_error(p, current_token(p)->line, current_token(p)->column,
-                "Error at line %d, column %d: Expected expression in handle body\n",
-                current_token(p)->line, current_token(p)->column);
-            return NULL;
-        }
-        if (!expect(p, TOKEN_RBRACE, "Expected '}' after handle body")) {
-            free_ast(body);
-            return NULL;
-        }
+        body = parse_block(p);
+        if (!body) return NULL;
     } else {
         /* Bare expression form: handle (fn args) with { ... } */
         body = parse_expression(p);
@@ -4719,6 +4839,7 @@ static ASTNode *clone_ast_node(const ASTNode *node) {
     cloned->type = node->type;
     cloned->line = node->line;
     cloned->column = node->column;
+    cloned->contextual_func_name = node->contextual_func_name ? strdup(node->contextual_func_name) : NULL;
     switch (node->type) {
         case AST_SERVICE_DECL:
             cloned->as.service_decl = node->as.service_decl;
@@ -5534,7 +5655,8 @@ static ASTNode *parse_service_declaration(Stage1Parser *p) {
         if (strlen(decoded[i]) != (size_t)texts[i]->value_bytes ||
             !nl_utf8_validate(decoded[i], (size_t)texts[i]->value_bytes, NULL)) goto invalid;
     }
-    if (strcmp(decoded[0], "nsi:nanolang/filesystem") || decoded[1][0] == '/') goto invalid;
+    if ((strcmp(decoded[0], "nsi:nanolang/filesystem") && strcmp(decoded[0], "nsi:nanolang/net") && strcmp(decoded[0], "nsi:nanolang/websocket")) ||
+        decoded[1][0] == '/') goto invalid;
     ASTNode *node = calloc(1, sizeof(*node));
     if (!node) goto invalid;
     node->type = AST_SERVICE_DECL;
@@ -5716,6 +5838,13 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                     /* Assume it's a pub extern fn declarations */
                     parsed = parse_function(&parser, true, true);  /* is_extern=true, is_pub=true */
                 }
+            } else if (match(&parser, TOKEN_LET)) {
+                parsed = parse_statement(&parser);
+                if (parsed && parsed->type == AST_LET && !parsed->as.let.is_destructure) {
+                    parsed->as.let.is_pub = true;
+                } else {
+                    parser_error(&parser, 0, 0, "I require one named binding after pub let.\n");
+                }
             } else if (match(&parser, TOKEN_FN)) {
                 /* pub fn declarations */
                 parsed = parse_function(&parser, false, true);  /* is_extern=false, is_pub=true */
@@ -5730,6 +5859,19 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                 parsed = parse_function(&parser, pub_pure_is_extern, true);
                 if (parsed && parsed->type == AST_FUNCTION) {
                     parsed->as.function.is_pure = true;
+                }
+            } else if (match(&parser, TOKEN_RESOURCE)) {
+                advance(&parser);
+                if (!match(&parser, TOKEN_STRUCT)) {
+                    Token *token = current_token(&parser);
+                    if (token) parser_error(&parser, token->line, token->column,
+                        "I require struct after pub resource.\n");
+                    continue;
+                }
+                parsed = parse_struct_def(&parser);
+                if (parsed && parsed->type == AST_STRUCT_DEF) {
+                    parsed->as.struct_def.is_pub = true;
+                    parsed->as.struct_def.is_resource = true;
                 }
             } else if (match(&parser, TOKEN_STRUCT)) {
                 parsed = parse_struct_def(&parser);
@@ -5754,7 +5896,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             } else {
                 Token *err_tok = current_token(&parser);
                 if (err_tok) {
-                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by fn, pure, struct, enum, union, use, opaque, or effect\n",
+                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by let, fn, pure, resource, struct, enum, union, use, opaque, or effect\n",
                             err_tok->line, err_tok->column);
                 }
                 continue;
@@ -5948,6 +6090,7 @@ ASTNode *parse_repl_input(Token *tokens, int token_count) {
 /* Free AST */
 void free_ast(ASTNode *node) {
     if (!node) return;
+    free(node->contextual_func_name);
 
     switch (node->type) {
         case AST_STRING:
@@ -5977,6 +6120,7 @@ void free_ast(ASTNode *node) {
             free(node->as.call.args);
             break;
         case AST_MODULE_QUALIFIED_CALL:
+            free_function_signature(node->as.module_qualified_call.checked_signature);
             free(node->as.module_qualified_call.module_alias);
             free(node->as.module_qualified_call.function_name);
             if (node->as.module_qualified_call.return_struct_type_name) {
@@ -6126,6 +6270,7 @@ void free_ast(ASTNode *node) {
                 free_ast(node->as.tuple_literal.elements[i]);
             }
             free(node->as.tuple_literal.elements);
+            free_payload_type_info(node->as.tuple_literal.type_info);
             if (node->as.tuple_literal.element_types) {
                 free(node->as.tuple_literal.element_types);
             }
@@ -6152,11 +6297,13 @@ void free_ast(ASTNode *node) {
                 }
                 free(node->as.effect_decl.op_params[i]);
                 free(node->as.effect_decl.op_return_type_names[i]);
+                if (node->as.effect_decl.op_return_type_infos) free_type_info(node->as.effect_decl.op_return_type_infos[i]);
             }
             free(node->as.effect_decl.op_names);
             free(node->as.effect_decl.op_params);
             free(node->as.effect_decl.op_param_counts);
             free(node->as.effect_decl.op_return_types);
+            free(node->as.effect_decl.op_return_type_infos);
             free(node->as.effect_decl.op_return_type_names);
             break;
         case AST_HANDLE_EXPR:
@@ -6245,6 +6392,7 @@ void free_ast(ASTNode *node) {
             break;
         case AST_ENUM_DEF:
             free(node->as.enum_def.name);
+            free(node->as.enum_def.original_name);
             for (int i = 0; i < node->as.enum_def.variant_count; i++) {
                 free(node->as.enum_def.variant_names[i]);
             }
@@ -6253,6 +6401,7 @@ void free_ast(ASTNode *node) {
             break;
         case AST_UNION_DEF:
             free(node->as.union_def.name);
+            free(node->as.union_def.original_name);
             for (int i = 0; i < node->as.union_def.variant_count; i++) {
                 free(node->as.union_def.variant_names[i]);
                 for (int j = 0; j < node->as.union_def.variant_field_counts[i]; j++) {

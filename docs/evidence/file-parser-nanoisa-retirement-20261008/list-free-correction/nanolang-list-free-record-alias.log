@@ -1,0 +1,22 @@
+I retain list insertion evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-ggqi67bt
+test_record_alias_keeps_independent_owner (tests.test_nanoisa_list_free.ListFree.test_record_alias_keeps_independent_owner) ... 
+  test_record_alias_keeps_independent_owner (tests.test_nanoisa_list_free.ListFree.test_record_alias_keeps_independent_owner) (case='free-record-alias', producer='seed') ... FAIL
+
+======================================================================
+FAIL: test_record_alias_keeps_independent_owner (tests.test_nanoisa_list_free.ListFree.test_record_alias_keeps_independent_owner) (case='free-record-alias', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_list_insert.py", line 41, in qualify
+    self.command(ROOT / "bin/nano_virt", path, "--emit-nvm", "-o", module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-types-20261008/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-ggqi67bt/free-record-alias.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-ggqi67bt/free-record-alias-seed.nvm']: 1
+
+I could not compile shadows at line 6: I require a matching list release receiver
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.341s
+
+FAILED (failures=1)

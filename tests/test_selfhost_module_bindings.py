@@ -11,6 +11,10 @@ COMPILER = Path(os.environ.get("NANOLANG_SELFHOST_COMPILER", ROOT / "bin/nanoc_s
 
 
 class ModuleBindings(unittest.TestCase):
+    def test_binding_table_matches_linear_reference(self):
+        source = (ROOT / "tests/fixtures/module_binding_reference.nano.txt").read_text()
+        self.check({}, source.replace("@MODULE_BINDINGS@", str(ROOT / "src_nano/compiler/module_bindings.nano")))
+
     def check(self, modules, source):
         with tempfile.TemporaryDirectory(prefix="nano-bindings-") as tmp:
             directory = Path(tmp)

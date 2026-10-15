@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.test_local_binding_metadata",
+    "tests.test_legacy_par_let",
+    "tests.test_named_nested_functions",
+    "-v"
+  ],
+  "environment": {
+    "NANOLANG_LOCAL_NAME_COMPILERS": "bin/nano_virt",
+    "NANOLANG_LEGACY_COMPILERS": "bin/nano_virt",
+    "CC": "/opt/homebrew/opt/llvm/bin/clang -fsanitize=address,undefined -fno-sanitize-recover=all",
+    "ASAN_OPTIONS": "detect_leaks=1"
+  },
+  "result": "21 methods passed"
+}

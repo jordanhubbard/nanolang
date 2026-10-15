@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "../../src/nanoisa/file_source_plan.h"
+#include "../../src/nanoisa/service_source_catalog.h"
 static size_t checks;
 #define CHECK(x) do { checks++; if(!(x)){fprintf(stderr,"I failed line %d: %s\n",__LINE__,#x);abort();} } while(0)
 #ifdef SOURCE_PLAN_INSTRUMENT
@@ -28,7 +29,44 @@ static void expect(NlFileSourceRequest *q,size_t nq,NlFileSourceAlias *a,size_t 
  CHECK(nl_file_source_plan_build(q,nq,a,na,o,no,&p)==status);
  if(status==NL_FILE_SOURCE_OK){CHECK(p!=sentinel);nl_file_source_plan_free(p);}else CHECK(p==sentinel);
 }
+static void mixed_ownership(void) {
+ char views[2][32768];size_t sizes[2];NlFileSourceBinding b[2][14];NlFileSourceRequest q[2];
+ char module[]="network";
+ for(unsigned c=0;c<2;c++) {
+  unsigned types=c?9:8,count=types+5;
+  CHECK(nl_service_source_catalog_view(c+1,views[c],sizeof views[c],&sizes[c]));
+  for(unsigned i=0;i<count;i++) {
+   unsigned kind=i>=types,ordinal=kind?i-types:i;
+   b[c][i]=(NlFileSourceBinding){1+100*c+i,kind,ordinal,text(nl_service_source_catalog_string(c+1,kind+1,ordinal,1,0))};
+  }
+  q[c]=(NlFileSourceRequest){text(c?module:"files"),text(nl_service_source_catalog_string(c+1,0,0,0,0)),text(views[c]),1,7,9,b[c],count};
+ }
+ NlFileSourceAlias aliases[]={{text("user"),text("Handle"),501,101},{text("user"),text("Address"),502,109}};
+ NlFileSourcePlan *p=NULL;CHECK(nl_service_source_plan_build(q,2,aliases,2,NULL,0,&p)==NL_FILE_SOURCE_OK);
+ CHECK(nl_file_source_plan_count(p)==29);
+ NlFileSourceRow row;CHECK(nl_file_source_plan_row(p,27,&row));CHECK(row.catalog==2&&row.request==1&&row.target==101&&row.category==1);
+ CHECK(nl_file_source_plan_row(p,28,&row));CHECK(row.catalog==2&&row.ordinal==8&&row.category==3);
+ memset(module,'z',7);memset(views,0,sizeof views);memset(b,0,sizeof b);
+ CHECK(nl_file_source_plan_row(p,13,&row));CHECK(row.catalog==2&&row.module.size==7&&!memcmp(row.module.data,"network",7));
+ CHECK(row.name.size==4&&!memcmp(row.name.data,"Conn",4));nl_file_source_plan_free(p);
+#ifdef SOURCE_PLAN_INSTRUMENT
+ /* The shared engine has one owning allocation after complete validation. */
+ for(unsigned c=0;c<2;c++) {
+  unsigned types=c?9:8;
+  CHECK(nl_service_source_catalog_view(c+1,views[c],sizeof views[c],&sizes[c]));
+  for(unsigned i=0;i<types+5;i++) {
+   unsigned kind=i>=types,ordinal=kind?i-types:i;
+   b[c][i]=(NlFileSourceBinding){1+100*c+i,kind,ordinal,text(nl_service_source_catalog_string(c+1,kind+1,ordinal,1,0))};
+  }
+  q[c].catalog_view=text(views[c]);
+ }
+ p=(NlFileSourcePlan *)(uintptr_t)1;size_t prior=calls;fail_alloc=true;
+ CHECK(nl_service_source_plan_build(q,2,aliases,2,NULL,0,&p)==NL_FILE_SOURCE_MEMORY);
+ CHECK(p==(NlFileSourcePlan *)(uintptr_t)1&&calls==prior+1&&live==0);fail_alloc=false;
+#endif
+}
 int main(void){
+ mixed_ownership();
  char catalog[32768];size_t needed=0;CHECK(nl_file_source_catalog_view(NULL,0,&needed));CHECK(needed>100 && needed<=sizeof catalog);
  memset(catalog,0xa5,sizeof catalog);size_t unchanged=17;
  CHECK(!nl_file_source_catalog_view(catalog,needed-1,&unchanged));CHECK(unchanged==17);CHECK((unsigned char)catalog[0]==0xa5);
