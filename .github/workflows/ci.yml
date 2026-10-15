@@ -698,22 +698,15 @@ jobs:
           echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
           echo "Coverage: $COVERAGE%"
 
-      - name: Enforce coverage threshold
+      - name: Report coverage (informational, not a gate)
         run: |
-          # Ratchet: the floor is the measured baseline (40.4% on 2026-10-04), not
-          # an aspirational target. Raise it as tests land; never lower it.
+          # Report-only by decision (2026-10-14): a line-coverage floor rewards unit
+          # tests that do not guard behaviour in an agentic harness. The number is
+          # published for trend visibility; behaviour gates are the product
+          # invariants, bootstrap identity and the strict examples.
           COVERAGE=${{ steps.coverage.outputs.coverage }}
-          THRESHOLD=${COVERAGE_THRESHOLD:-40.0}
-          echo "Current coverage: $COVERAGE%"
-          echo "Required threshold: $THRESHOLD%"
-          if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
-            echo "❌ Coverage $COVERAGE% is below threshold $THRESHOLD%"
-            echo "Please add tests to improve coverage."
-            exit 1
-          else
-            echo "✅ Coverage $COVERAGE% meets threshold $THRESHOLD%"
-          fi
-
+          echo "Current coverage: $COVERAGE% (informational; no threshold enforced)"
+          echo "### Line coverage: ${COVERAGE}% (report-only)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload coverage report to artifacts
         uses: actions/upload-artifact@v4
@@ -729,7 +722,7 @@ jobs:
         with:
           script: |
             const coverage = '${{ steps.coverage.outputs.coverage }}';
-            const body = `## Code Coverage Report\n\n📊 **Coverage: ${coverage}%**\n\n✅ Coverage threshold (40%) met.\n\n[View detailed report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            const body = `## Code Coverage Report\n\n📊 **Coverage: ${coverage}%**\n\nℹ️ Coverage is report-only; no threshold is enforced.\n\n[View detailed report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
             const [repoOwner, repoName] = process.env.GITHUB_REPOSITORY.split('/');
             github.rest.issues.createComment({
               issue_number: context.issue.number,

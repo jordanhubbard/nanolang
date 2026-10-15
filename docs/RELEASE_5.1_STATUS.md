@@ -264,3 +264,7 @@ remain open even when an older bootstrap or focused suite passed.
 | closeout-1 | Unclosed | Keep main CI green and run the clean release/platform gates on the exact candidate revision. | [Checkpoint; full acceptance open](RELEASE_5.1_SCOPE.md) |
 | closeout-2 | Unclosed | Draft `RELEASE_5.1.md` after the required implementation rows close, using `RELEASE_5.0.md` as the format. | [Checkpoint; full acceptance open](RELEASE_5.1_SCOPE.md) |
 | closeout-3 | Unclosed | Tag and publish `v5.1.0` after the complete scope and exact-candidate release gates pass. | [Checkpoint; full acceptance open](RELEASE_5.1_SCOPE.md) |
+
+## Addendum 2026-10-14: coverage is report-only
+
+By owner decision, the `Code Coverage` job no longer enforces a line-coverage floor. It still builds, runs the test suite and publishes the percentage (job summary, PR comment, artifact), so the required check fails only when the instrumented tests fail. Rationale: a percentage floor steers an agentic harness toward unit tests that do not guard behaviour. Behaviour gates remain the product-invariants test, bootstrap identity and the strict examples. `make coverage-check` keeps its local threshold for developers.
