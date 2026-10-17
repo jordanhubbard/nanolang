@@ -15227,6 +15227,12 @@ I retain [my fresh local bootstrap and both-generation File source evidence](evi
 
 - [x] Under #982 I diagnose Memory Sanitizers job114130281071 in CI38023812998 at77880c27a. Its component build passed, but the real Stage1 bootstrap first ran inside tests and timed out after1800 seconds; coverage was cancelled separately. I retain the job log and distinguish an actual sanitizer report, assertion, timeout or resource failure before choosing a correction.
 
+- [ ] Under #982 I diagnose the instrumented Stage1 self-compilation timeout in hosted run38690873098 at6fc4bca18. I retain its empty stage log and manifest, measure the active VM/compiler path, and require a corrected sanitizer bootstrap with raw generation equality without disabling instrumentation, shadows or refusals. Raising a deadline alone does not establish the cause or acceptance.
+
+- [ ] Under #982 I remove repeated immutable File-opcode scans from immediate VM FFI dispatch using the existing invocation-scoped code fact. My Darwin Stage1 sample spends422/443 samples in that scan. I retain fresh mutable binding checks, full public FFI checks, module identity and host-reentry refusals; I measure corrected execution and run actual FFI plus modeled admission controls before claiming a sanitizer fix.
+
+- [ ] Under #982 I invalidate invocation-local File-opcode facts when embedding APIs rebuild, invalidate or append module code. Review finds `vm_sync_new_functions` supports active callers, so an unconditional immutable-code assumption is insufficient. I require active host append/rebuild refusals, fresh public entry, unchanged-code reuse and bounded revision overflow behavior before admitting the FFI optimization.
+
 - [ ] Under #982 I invoke the real `bootstrap3` in the sanitizer workflow before unit tests and use consistent `-O3` ASan/UBSan compile/link settings. I retain the job114130281071 timeout and actual VM build command, which already used `-O3`; I do not attribute the timeout to missing optimization. Workflow checks precede a new hosted result; I do not claim that configuration alone resolves the timeout.
 
 - [x] Under #982 I repair the CI shadow-deadline check that still expected60 seconds after the workflow moved to120. I check the supported finite1–300-second range rather than hardcoding an obsolete value, preserving the compiler deadline policy.
