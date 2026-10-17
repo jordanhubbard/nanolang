@@ -60,6 +60,53 @@ double nl_ffi_test_wide(int64_t a, double b, int64_t c, double d,
 
 /* ── Lifecycle tests ───────────────────────────────────────────────────── */
 
+static VmState *active_mutation_vm;
+static unsigned active_mutation_mode;
+int64_t nl_ffi_test_mutate_active_module(void) {
+    VmState *vm=active_mutation_vm;
+    NvmModule *m=(NvmModule *)vm->module;
+    NanoValue nested=val_void();
+    if(vm_invoke_callable(vm,val_function(1),NULL,0,&nested)!=VM_OK ||
+       nested.tag!=TAG_INT || nested.as.i64!=73)return -1;
+    if(active_mutation_mode==1) {
+        vm_invalidate_module(vm,m);
+        m->code[m->functions[1].code_offset+2]=OP_FILE_DROP_STACK;
+        if(!vm_rebuild_module(vm,m))return -2;
+    } else {
+        uint32_t offset=m->code_size;
+        uint8_t *code=realloc(m->code,(size_t)offset+2);
+        if(!code)return -3;
+        m->code=code;m->code_size=offset+2;
+        code[offset]=OP_FILE_DROP_STACK;code[offset+1]=OP_RET;
+        NvmFunctionEntry fn=m->functions[1];fn.code_offset=offset;fn.code_length=2;
+        if(nvm_add_function(m,&fn)==UINT32_MAX || !vm_sync_new_functions(vm,m))return -4;
+    }
+    return 7;
+}
+
+TEST(active_native_code_mutation) {
+    for(unsigned mode=1;mode<=2;mode++) {
+        AsmResult assembly;
+        NvmModule *mod=asm_assemble_unverified(
+            ".entry 0\n.function main 0 0 0 int 1\n"
+            "CALL_EXTERN 0\nPOP\nPUSH_I64 42\nRET\n.end\n"
+            ".function helper 0 0 0 int 1\n"
+            "PUSH_BOOL 1\nASSERT\nPUSH_I64 73\nRET\n.end\n", &assembly);
+        ASSERT(mod);
+        uint32_t library=nvm_add_string(mod,"",0);
+        const char *symbol="nl_ffi_test_mutate_active_module";
+        uint32_t name=nvm_add_string(mod,symbol,(uint32_t)strlen(symbol));
+        ASSERT(nvm_add_import(mod,library,name,0,TAG_INT,NULL)==0);
+        VmState vm;vm_init(&vm,mod);vm_ffi_init();
+        active_mutation_vm=&vm;active_mutation_mode=mode;
+        NanoValue result=val_void();
+        ASSERT(vm_invoke(&vm,0,NULL,0,&result)==VM_ERR_TYPE_ERROR);
+        ASSERT(vm.module_revision>0 && !vm.stack_size && !vm.frame_count);
+        active_mutation_vm=NULL;
+        vm_destroy(&vm);nvm_module_free(mod);vm_ffi_shutdown();
+    }
+}
+
 TEST(scoped_service_dispatch) {
     AsmResult assembly;
     NvmModule *mod = asm_assemble_unverified(
@@ -1230,6 +1277,7 @@ int main(void) {
         }
         return 1;
     }
+    RUN(active_native_code_mutation);
     RUN(scoped_service_dispatch);
     RUN(builtin_path_normalize_aliases);
     RUN(retained_native_strings);

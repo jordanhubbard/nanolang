@@ -3,7 +3,8 @@
 #define NANOVM_FFI_PRIVATE_H
 #include "vm_ffi.h"
 #include "../nanoisa/service_classification_private.h"
-/* The caller owns immutable code facts within one invocation and refreshes
+/* The caller validates invocation-local code facts against mutation revisions
+ * and structural identity, and refreshes
  * mutable bindings immediately before this call. NULL or mismatched facts
  * take the full public service check. I never retain facts across host code. */
 bool vm_ffi_call_vm_classified(VmState *vm, const NvmModule *module,

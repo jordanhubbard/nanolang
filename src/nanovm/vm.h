@@ -146,6 +146,8 @@ typedef struct VmState {
     /* True once cross-module OP_CALL_MODULE handles have been resolved
      * against the linked-module table. Reset when linking changes. */
     bool module_calls_resolved;
+    /* Mutation APIs advance this revision; saturated revisions disable fact reuse. */
+    uint64_t module_revision;
     VmDispatchModule dispatch_module;
     bool dispatch_module_valid;
     /* True once every module the VM will execute (root plus all linked
