@@ -1,0 +1,6 @@
+python3 tests/test_nominal_record_array_contracts.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 5.495s
+
+OK

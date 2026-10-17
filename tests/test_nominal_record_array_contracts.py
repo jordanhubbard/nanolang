@@ -13,6 +13,9 @@ class NominalRecordArrays(unittest.TestCase):
         return subprocess.run(cmd,cwd=ROOT,capture_output=True,text=True,timeout=120)
     def test_wrong_nominal_contexts(self):
         programs=[
+          'fn main() -> int { let values: array<First> = (array_push [] Second { a: 2 }) return 0 }',
+          'fn main() -> int { let values: array<First> = (array_push (array_push [] First { a: 1 }) Second { a: 2 }) return 0 }',
+          'fn main() -> int { let initial: array<First> = [First { a: 1 }] let values: array<First> = (array_push initial Second { a: 2 }) return 0 }',
           "fn main() -> int { let value: Values = Values.Some { values: [Second { a: 2 }] } return 0 }",
           'fn main() -> int { let values: array<First> = (array_new 2 Second { a: 2 }) return 0 }',
           'fn main() -> int { let wrong: array<Second> = [Second { a: 2 }] let values: array<First> = (array_slice wrong 0 1) return 0 }',
@@ -45,6 +48,9 @@ fn main() -> int {
  let sliced: array<First> = (array_slice filled 0 1)
  assert (== (array_length sliced) 1)
  let empty: array<First> = []
+ let pushed: array<First> = (array_push (array_push [] First { a: 4 }) First { a: 9 })
+ assert (== (array_length pushed) 2)
+ assert (== (+ (at pushed 0).a (at pushed 1).a) 13)
  let holder: Holder = Holder { values: initial }
  assert (== (take holder.values) 1)
  assert (== (take empty) 0)
@@ -80,4 +86,49 @@ fn main() -> int {
                   cmd=[output] if compiler=='nanoc_c' else [ROOT/'bin/nano_vm',output]
                   p=subprocess.run(cmd,cwd=ROOT,capture_output=True,text=True,timeout=30)
                   self.assertEqual(p.returncode,0,p.stdout+p.stderr)
+    def test_declared_push_keeps_its_result_identity(self):
+        text=DECL+'''fn array_push(ignored: array<First>, item: First) -> array<Second> {
+ return [Second { a: item.a }]
+}
+shadow array_push { assert (== (at (array_push [] First { a: 42 }) 0).a 42) }
+fn main() -> int {
+ let values: array<Second> = (array_push [] First { a: 42 })
+ assert (== (at values 0).a 42)
+ return 0
+}'''+END
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);source=root/'declared.nano';source.write_text(text)
+            for compiler in ('nanoc_c','nano_virt'):
+                with self.subTest(compiler=compiler):
+                    output=root/compiler;compiled=self.compile(compiler,source,output)
+                    self.assertEqual(compiled.returncode,0,compiled.stdout+compiled.stderr)
+                    command=[output] if compiler=='nanoc_c' else [ROOT/'bin/nano_vm',output]
+                    run=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=30)
+                    self.assertEqual(run.returncode,0,run.stdout+run.stderr)
+
+    def test_imported_push_identity(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for module in ('Left','Right'):
+                (root/(module.lower()+'.nano')).write_text('module '+module+'\npub struct Entry { a: int }\n')
+            for wrong in (False,True):
+                source=root/'main.nano';output=root/'result'
+                stored='right' if wrong else 'left'
+                source.write_text('module "left.nano" as left\nmodule "right.nano" as right\n'
+                    'fn main() -> int { let values: array<left.Entry> = '
+                    '(array_push [] '+stored+'.Entry { a: 42 }) '
+                    'assert (== (at values 0).a 42) return 0 }'+END)
+                for compiler in ('nanoc_c','nano_virt'):
+                    with self.subTest(wrong=wrong,compiler=compiler):
+                        output.write_text('prior-output');p=self.compile(compiler,source,output)
+                        if wrong:
+                            self.assertNotEqual(p.returncode,0)
+                            self.assertIn('declared nominal record type',p.stdout+p.stderr)
+                            self.assertEqual(output.read_text(),'prior-output')
+                        else:
+                            self.assertEqual(p.returncode,0,p.stdout+p.stderr)
+                            command=[output] if compiler=='nanoc_c' else [ROOT/'bin/nano_vm',output]
+                            run=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=30)
+                            self.assertEqual(run.returncode,0,run.stdout+run.stderr)
+
 if __name__=='__main__':unittest.main()
