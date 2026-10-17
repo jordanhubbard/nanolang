@@ -3293,7 +3293,7 @@ test-unit: build
 	@./tests/run_all_tests.sh --unit
 
 # Quick test (language tests only, fastest)
-test-quick: build
+test-quick: build test-websocket-service-network test-mixed-websocket-source
 	@./tests/run_all_tests.sh --lang
 	@$(MAKE) --no-print-directory test-build-toolchain
 	@$(MAKE) --no-print-directory test-bootstrap-dependencies
