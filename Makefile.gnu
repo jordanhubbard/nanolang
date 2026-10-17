@@ -4810,6 +4810,7 @@ test-global-resource-boundary: bootstrap
 
 .PHONY: test-resource-generic-records
 test-units: test-resource-generic-records
+test-quick: test-resource-generic-records
 test-resource-generic-records: $(COMPILER_C)
 	python3 -m unittest -v tests.test_resource_generic_records
 
