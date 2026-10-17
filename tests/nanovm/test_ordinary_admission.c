@@ -2,20 +2,20 @@
 #include <assert.h>
 #include <limits.h>
 #include "../../src/nanovm/vm.h"
-#include "../../src/nanovm/vm_ffi.h"
+#include "../../src/nanovm/vm_ffi_private.h"
 #include "../../src/nanoisa/service_bindings_module.h"
 #include "../../src/nanoisa/assembler.h"
 #include "../../src/nanoisa/retained_layouts.h"
 static unsigned pending_calls, prints, external_calls, pumps, nested_calls;
 static void observe_print(NanoValue v, FILE *out);
-static bool observe_ffi(VmState *,const NvmModule *,uint32_t,NanoValue *,int,NanoValue *,char *,size_t);
+static bool observe_ffi(VmState *,const NvmModule *,uint32_t,NanoValue *,int,NanoValue *,char *,size_t,const NvmServiceClassification *);
 static int observe_pump(VmState *,bool);
 #define val_print observe_print
-#define vm_ffi_call_vm observe_ffi
+#define vm_ffi_call_vm_classified observe_ffi
 #define vm_callback_pump observe_pump
 #include "../../src/nanovm/vm.c"
 #undef val_print
-#undef vm_ffi_call_vm
+#undef vm_ffi_call_vm_classified
 #undef vm_callback_pump
 int g_argc; char **g_argv;
 static unsigned checks;
@@ -23,6 +23,7 @@ static unsigned checks;
 #include "../nanoisa/owned_fixture.h"
 static VmState *host_vm;
 static bool mutate_at_host, mutate_service_at_host, reenter_at_host, modeled_pump;
+static unsigned mutate_code_at_host;
 static bool record_pending;
 static const NvmModule *pending_modules[64];
 static unsigned pending_module_count;
@@ -44,6 +45,22 @@ static void host_boundary(void) {
         CHECK(result.tag==TAG_INT && result.as.i64==73);
         ++nested_calls;
     }
+    if (mutate_code_at_host) {
+        NvmModule *m=(NvmModule *)host_vm->module;
+        if (mutate_code_at_host==1) {
+            m->code[m->functions[1].code_offset+2]=OP_FILE_DROP_STACK;
+            CHECK(vm_rebuild_module(host_vm,m));
+        } else {
+            uint32_t offset=m->code_size;
+            m->code=realloc(m->code,(size_t)offset+2); CHECK(m->code);
+            m->code[offset]=OP_FILE_DROP_STACK; m->code[offset+1]=OP_RET;
+            m->code_size=offset+2;
+            NvmFunctionEntry fn=m->functions[1];
+            fn.code_offset=offset; fn.code_length=2;
+            CHECK(nvm_add_function(m,&fn)!=UINT32_MAX);
+            CHECK(vm_sync_new_functions(host_vm,m));
+        }
+    }
     if (mutate_at_host) {
         NvmModule *m=(NvmModule *)host_vm->module;
         CHECK(!m->ownership_data && !m->ownership_size);
@@ -62,9 +79,11 @@ static void observe_print(NanoValue v,FILE *out) {
     val_print(v,out); /* Real formatting/output after modeled embedding hook. */
 }
 static bool observe_ffi(VmState *vm,const NvmModule *m,uint32_t index,
-                        NanoValue *args,int count,NanoValue *out,char *error,size_t size) {
+                        NanoValue *args,int count,NanoValue *out,char *error,size_t size,
+                        const NvmServiceClassification *facts) {
     (void)args; (void)error; (void)size;
     CHECK(vm==host_vm && m==vm->module && index==0 && count==0);
+    CHECK(facts && facts->module==m && !facts->pending);
     ++external_calls; host_boundary(); *out=val_int(7); return true;
 }
 static int observe_pump(VmState *vm,bool wait) {
@@ -177,29 +196,52 @@ static void host_paths(VmDispatchProfile profile) {
 }
 static void invocation_service_cache(void) {
     NvmModule *m=ordinary("PUSH_I64 42\nRET\n",false);
+    VmState vm;vm_init(&vm,m);
     VmOrdinaryAdmission first={0};pending_calls=0;
     m->service_size=1;
-    NvmServiceClassification facts=vm_invocation_service_classify(m,&first);
+    NvmServiceClassification facts=vm_invocation_service_classify(&vm,m,&first);
     CHECK(facts.module==m && facts.pending && pending_calls==1);
     m->service_size=0;
-    facts=vm_invocation_service_classify(m,&first);
+    facts=vm_invocation_service_classify(&vm,m,&first);
     CHECK(facts.module==m && !facts.pending && pending_calls==1);
 
     /* One invocation treats code as immutable. A fresh invocation observes
      * the replacement and retains that File fact if mutable bindings vanish. */
     m->code[m->functions[0].code_offset]=OP_FILE_DROP_STACK;
     VmOrdinaryAdmission next={0};m->service_size=1;
-    facts=vm_invocation_service_classify(m,&next);
+    facts=vm_invocation_service_classify(&vm,m,&next);
     CHECK(facts.module==m && facts.pending && pending_calls==2);
     m->service_size=0;
-    facts=vm_invocation_service_classify(m,&next);
+    facts=vm_invocation_service_classify(&vm,m,&next);
     CHECK(facts.module==m && facts.pending && pending_calls==2);
 
     NvmModule *other=ordinary("PUSH_I64 8\nRET\n",false);
     unsigned before_other=pending_calls;
-    facts=vm_invocation_service_classify(other,&next);
+    facts=vm_invocation_service_classify(&vm,other,&next);
     CHECK(facts.module==other && !facts.pending && pending_calls==before_other+1);
-    nvm_module_free(other);nvm_module_free(m);
+    facts=vm_invocation_service_classify(&vm,m,&next);
+    CHECK(vm_rebuild_module(&vm,m));
+    unsigned before_revision=pending_calls;
+    facts=vm_invocation_service_classify(&vm,m,&next);
+    CHECK(facts.pending && pending_calls==before_revision+1);
+    vm.module_revision=UINT64_MAX;
+    facts=vm_invocation_service_classify(&vm,m,&next);
+    facts=vm_invocation_service_classify(&vm,m,&next);
+    CHECK(facts.pending && pending_calls==before_revision+3);
+    vm_destroy(&vm);nvm_module_free(other);nvm_module_free(m);
+}
+static void active_code_changes(VmDispatchProfile profile) {
+    for(unsigned change=1;change<=2;change++)for(unsigned reenter=0;reenter<2;reenter++) {
+        NvmModule *m=ordinary("CALL_EXTERN 0\nPOP\nPUSH_I64 42\nRET\n",true);
+        VmState vm;vm_init(&vm,m);vm_set_dispatch_profile(&vm,profile);
+        host_vm=&vm;mutate_code_at_host=change;external_calls=nested_calls=0;
+        reenter_at_host=reenter;
+        NanoValue out=val_void();
+        CHECK(vm_invoke(&vm,0,NULL,0,&out)==VM_ERR_TYPE_ERROR);
+        CHECK(external_calls==1 && nested_calls==reenter && !vm.stack_size && !vm.frame_count);
+        host_vm=NULL;mutate_code_at_host=0;reenter_at_host=false;
+        vm_destroy(&vm);nvm_module_free(m);
+    }
 }
 static void fused_managed_effects(VmDispatchProfile profile) {
     const char *bodies[]={
@@ -343,6 +385,7 @@ int main(void) {
         public_and_direct(profile);
         exclusions(profile);
         host_paths(profile);
+        active_code_changes(profile);
         fused_managed_effects(profile);
     }
     refusal_and_owned();
