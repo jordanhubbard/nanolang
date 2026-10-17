@@ -1,0 +1,195 @@
+Call graph:
+    407 Thread_4066479   DispatchQueue_1: com.apple.main-thread  (serial)
+      407 start  (in dyld) + 6688  [0x19093be80]
+        407 run_standalone  (in nano_vm) + 984  [0x10104c490]  main.c:308
+          407 vm_execute  (in nano_vm) + 256  [0x100e9b774]  vm.c:5410
+            407 vm_call_function_scoped  (in nano_vm) + 516  [0x100e99a44]  vm.c:5136
+              402 vm_call_function_impl  (in nano_vm) + 1216  [0x100e9b280]  vm.c:4977
+              + 75 vm_core_execute_scoped  (in nano_vm) + 7676,7496,...  [0x100e9157c,0x100e914c8,...]  vm.c:0
+              + 20 vm_core_execute_scoped  (in nano_vm) + 15400  [0x100e933a8]  vm.c:0
+              + ! 11 vm_gc_collect_cycles  (in nano_vm) + 412  [0x100e8b9f8]  heap_cycles.c:382
+              + ! : 10 for_each_child  (in nano_vm) + 272  [0x100e8c6a4]  heap_cycles.c:70
+              + ! : | 3 for_each_child  (in nano_vm) + 400  [0x100e8c724]  heap_cycles.c:76
+              + ! : | + 2 scan_black_child  (in nano_vm) + 160  [0x100e8c934]  heap_cycles.c:185
+              + ! : | + 1 scan_black_child  (in nano_vm) + 0  [0x100e8c894]  heap_cycles.c:179
+              + ! : | 3 for_each_child  (in nano_vm) + 384,404  [0x100e8c714,0x100e8c728]  heap_cycles.c:76
+              + ! : | 1 for_each_child  (in nano_vm) + 12  [0x100e8c5a0]  heap_cycles.c:64
+              + ! : | 1 for_each_child  (in nano_vm) + 36  [0x100e8c5b8]  heap_cycles.c:65
+              + ! : | 1 scan_black_child  (in nano_vm) + 36  [0x100e8c8b8]  heap_cycles.c:182
+              + ! : | 1 scan_black_child  (in nano_vm) + 160  [0x100e8c934]  heap_cycles.c:185
+              + ! : 1 for_each_child  (in nano_vm) + 256  [0x100e8c694]  heap_cycles.c:70
+              + ! 8 vm_gc_collect_cycles  (in nano_vm) + 368  [0x100e8b9cc]  heap_cycles.c:378
+              + ! : 7 for_each_child  (in nano_vm) + 272  [0x100e8c6a4]  heap_cycles.c:70
+              + ! : | 3 for_each_child  (in nano_vm) + 400  [0x100e8c724]  heap_cycles.c:76
+              + ! : | + 2 mark_gray_child  (in nano_vm) + 0,12  [0x100e8c808,0x100e8c814]  heap_cycles.c:162
+              + ! : | + 1 mark_gray_child  (in nano_vm) + 116  [0x100e8c87c]  heap_cycles.c:166
+              + ! : | 3 for_each_child  (in nano_vm) + 384  [0x100e8c714]  heap_cycles.c:76
+              + ! : | 1 for_each_child  (in nano_vm) + 12  [0x100e8c5a0]  heap_cycles.c:64
+              + ! : 1 for_each_child  (in nano_vm) + 248  [0x100e8c68c]  heap_cycles.c:70
+              + ! 1 vm_gc_collect_cycles  (in nano_vm) + 156  [0x100e8b8f8]  heap_cycles.c:368
+              + !   1 release_array  (in nano_vm) + 112  [0x100e894f8]  heap.c:287
+              + !     1 vm_release  (in nano_vm) + 0  [0x100e892fc]  heap.c:218
+              + 20 vm_core_execute_scoped  (in nano_vm) + 7316  [0x100e91414]  vm.c:1871
+              + ! 12 isa_get_info  (in nano_vm) + 104  [0x100eeef84]  isa.c:70
+              + ! 8 isa_get_info  (in nano_vm) + 4  [0x100eeef20]  isa.c:68
+              + 18 vm_core_execute_scoped  (in nano_vm) + 27992  [0x100e964d8]  vm.c:0
+              + ! 8 vm_retain  (in nano_vm) + 0,12  [0x100e892b0,0x100e892bc]  heap.c:140
+              + ! 5 vm_retain  (in nano_vm) + 68  [0x100e892f4]  heap.c:145
+              + ! 3 vm_retain  (in nano_vm) + 72  [0x100e892f8]  heap.c:146
+              + ! 2 vm_retain  (in nano_vm) + 40  [0x100e892d8]  heap.c:142
+              + 13 vm_core_execute_scoped  (in nano_vm) + 8632  [0x100e91938]  vm.c:1972
+              + 12 vm_core_execute_scoped  (in nano_vm) + 7564  [0x100e9150c]  vm.c:1910
+              + 11 vm_core_execute_scoped  (in nano_vm) + 4516  [0x100e90924]  vm.c:1819
+              + 11 vm_core_execute_scoped  (in nano_vm) + 7348,7340,...  [0x100e91434,0x100e9142c,...]  vm.c:1874
+              + 10 vm_core_execute_scoped  (in nano_vm) + 4536,4548  [0x100e90938,0x100e90944]  vm.c:1824
+              + 10 vm_core_execute_scoped  (in nano_vm) + 5516,5524  [0x100e90d0c,0x100e90d14]  vm.c:1834
+              + 10 vm_core_execute_scoped  (in nano_vm) + 5580  [0x100e90d4c]  vm.c:1843
+              + ! 6 vm_dispatch_advance  (in nano_vm) + 56  [0x100f36bd8]  vm_dispatch.c:263
+              + ! 4 vm_dispatch_advance  (in nano_vm) + 20,16  [0x100f36bb4,0x100f36bb0]  vm_dispatch.c:255
+              + 8 vm_core_execute_scoped  (in nano_vm) + 20692  [0x100e94854]  vm.c:0
+              + ! 6 stack_push  (in nano_vm) + 16  [0x100e9be4c]  vm.c:1111
+              + ! 2 stack_push  (in nano_vm) + 0  [0x100e9be3c]  vm.c:1110
+              + 8 vm_core_execute_scoped  (in nano_vm) + 28008  [0x100e964e8]  vm.c:0
+              + ! 8 stack_push  (in nano_vm) + 16,28,...  [0x100e9be4c,0x100e9be58,...]  vm.c:1111
+              + 8 vm_core_execute_scoped  (in nano_vm) + 5484  [0x100e90cec]  vm.c:1833
+              + 8 vm_core_execute_scoped  (in nano_vm) + 5688,5692  [0x100e90db8,0x100e90dbc]  vm.c:1861
+              + 7 vm_core_execute_scoped  (in nano_vm) + 4596,4604  [0x100e90974,0x100e9097c]  vm.c:1829
+              + 7 vm_core_execute_scoped  (in nano_vm) + 6484  [0x100e910d4]  vm.c:1864
+              + 6 stack_push  (in nano_vm) + 180  [0x100e9bef0]  vm.c:1115
+              + 6 vm_core_execute_scoped  (in nano_vm) + 5596  [0x100e90d5c]  vm.c:1845
+              + ! 5 vm_dispatch_seek  (in nano_vm) + 0  [0x100f36b18]  vm_dispatch.c:237
+              + ! 1 vm_dispatch_seek  (in nano_vm) + 32  [0x100f36b38]  vm_dispatch.c:239
+              + 6 vm_core_execute_scoped  (in nano_vm) + 5660,5628,...  [0x100e90d9c,0x100e90d7c,...]  vm.c:1858
+              + 6 vm_core_execute_scoped  (in nano_vm) + 8412  [0x100e9185c]  vm.c:1929
+              + 6 vm_core_execute_scoped  (in nano_vm) + 9484  [0x100e91c8c]  vm.c:2289
+              + 6 vm_core_execute_scoped  (in nano_vm) + 26020  [0x100e95d24]  vm.c:4300
+              + ! 5 vm_gc_collect_cycles  (in nano_vm) + 412  [0x100e8b9f8]  heap_cycles.c:382
+              + ! : 4 for_each_child  (in nano_vm) + 272  [0x100e8c6a4]  heap_cycles.c:70
+              + ! : | 2 for_each_child  (in nano_vm) + 404  [0x100e8c728]  heap_cycles.c:76
+              + ! : | 1 for_each_child  (in nano_vm) + 400  [0x100e8c724]  heap_cycles.c:76
+              + ! : | + 1 scan_black_child  (in nano_vm) + 160  [0x100e8c934]  heap_cycles.c:185
+              + ! : | 1 scan_black_child  (in nano_vm) + 60  [0x100e8c8d0]  heap_cycles.c:184
+              + ! : 1 for_each_child  (in nano_vm) + 620  [0x100e8c800]  heap_cycles.c:115
+              + ! 1 vm_gc_collect_cycles  (in nano_vm) + 368  [0x100e8b9cc]  heap_cycles.c:378
+              + !   1 for_each_child  (in nano_vm) + 272  [0x100e8c6a4]  heap_cycles.c:70
+              + !     1 for_each_child  (in nano_vm) + 404  [0x100e8c728]  heap_cycles.c:76
+              + 5 vm_core_execute_scoped  (in nano_vm) + 30876  [0x100e9701c]  value.h:0
+              + ! 3 stack_push  (in nano_vm) + 28,36  [0x100e9be58,0x100e9be60]  vm.c:1111
+              + ! 2 stack_push  (in nano_vm) + 0  [0x100e9be3c]  vm.c:1110
+              + 5 vm_core_execute_scoped  (in nano_vm) + 336  [0x100e8f8d0]  vm.c:1539
+              + ! 5 nvm_service_bindings_present  (in nano_vm) + 52,56  [0x100ebdb9c,0x100ebdba0]  service_bindings_module.c:13
+              + 5 vm_core_execute_scoped  (in nano_vm) + 7316  [0x100e91414]  vm.c:1872
+              + 5 vm_core_execute_scoped  (in nano_vm) + 7572,7600,...  [0x100e91514,0x100e91530,...]  vm.c:1911
+              + 5 vm_core_execute_scoped  (in nano_vm) + 10436  [0x100e92044]  vm.c:2716
+              + ! 3 stack_pop  (in nano_vm) + 32  [0x100e991ec]  vm.c:0
+              + ! 2 stack_pop  (in nano_vm) + 0  [0x100e991cc]  vm.c:1142
+              + 5 vm_core_execute_scoped  (in nano_vm) + 11380  [0x100e923f4]  vm.c:2947
+              + ! 5 val_truthy  (in nano_vm) + 40,0  [0x100e88fd8,0x100e88fb0]  value.c:218
+              + 4 vm_core_execute_scoped  (in nano_vm) + 5708  [0x100e90dcc]  vm.c:1863
+              + 4 vm_core_execute_scoped  (in nano_vm) + 7500  [0x100e914cc]  vm.c:1906
+              + 4 vm_core_execute_scoped  (in nano_vm) + 20476  [0x100e9477c]  vm.c:2231
+              + ! 4 stack_pop  (in nano_vm) + 0  [0x100e991cc]  vm.c:1142
+              + 3 vm_core_execute_scoped  (in nano_vm) + 20400  [0x100e94730]  vm.c:2228
+              + 3 vm_core_execute_scoped  (in nano_vm) + 18408  [0x100e93f68]  vm.c:2659
+              + ! 1 val_equal  (in nano_vm) + 52  [0x100e88cd8]  value.c:141
+              + ! 1 vmstring_equal  (in nano_vm) + 76  [0x100e89c40]  heap.c:0
+              + ! 1 vmstring_equal  (in nano_vm) + 0  [0x100e89bf4]  heap.c:438
+              + 3 vm_core_execute_scoped  (in nano_vm) + 10452  [0x100e92054]  vm.c:2717
+              + ! 3 stack_pop  (in nano_vm) + 32  [0x100e991ec]  vm.c:0
+              + 3 vm_core_execute_scoped  (in nano_vm) + 11368  [0x100e923e8]  vm.c:2946
+              + ! 2 stack_pop  (in nano_vm) + 0  [0x100e991cc]  vm.c:1142
+              + ! 1 stack_pop  (in nano_vm) + 32  [0x100e991ec]  vm.c:0
+              + 3 vm_core_execute_scoped  (in nano_vm) + 11384  [0x100e923f8]  vm.c:2948
+              + 3 vm_core_execute_scoped  (in nano_vm) + 5972  [0x100e90ed4]  vm.c:3401
+              + ! 3 vm_release  (in nano_vm) + 0,12  [0x100e892fc,0x100e89308]  heap.c:218
+              + 2 vm_core_execute_scoped  (in nano_vm) + 17264  [0x100e93af0]  vm.c:0
+              + ! 2 vm_string_concat  (in nano_vm) + 156  [0x100e89b58]  heap.c:415
+              + !   2 vm_string_new  (in nano_vm) + 96  [0x100e898f0]  heap.c:366
+              + 2 vm_core_execute_scoped  (in nano_vm) + 20188  [0x100e9465c]  vm.c:0
+              + ! 1 vm_gc_note_suspect  (in nano_vm) + 72  [0x100e8b780]  heap_cycles.c:0
+              + ! 1 vm_release  (in nano_vm) + 72  [0x100e89344]  heap.c:224
+              + 2 vm_core_execute_scoped  (in nano_vm) + 21880  [0x100e94cf8]  vm.c:0
+              + ! 2 vm_release  (in nano_vm) + 0,12  [0x100e892fc,0x100e89308]  heap.c:218
+              + 2 vm_core_execute_scoped  (in nano_vm) + 5596  [0x100e90d5c]  vm.c:1845
+              + 2 vm_core_execute_scoped  (in nano_vm) + 18592  [0x100e94020]  vm.c:2218
+              + 2 vm_core_execute_scoped  (in nano_vm) + 28260  [0x100e965e4]  vm.c:2222
+              + ! 2 vm_retain  (in nano_vm) + 12  [0x100e892bc]  heap.c:140
+              + 2 vm_core_execute_scoped  (in nano_vm) + 9544  [0x100e91cc8]  vm.c:2290
+              + 2 vm_core_execute_scoped  (in nano_vm) + 10480  [0x100e92070]  vm.c:2719
+              + 2 vm_core_execute_scoped  (in nano_vm) + 24420  [0x100e956e4]  vm.c:2725
+              + 2 vm_core_execute_scoped  (in nano_vm) + 10212  [0x100e91f64]  vm.c:2932
+              + ! 1 stack_pop  (in nano_vm) + 32  [0x100e991ec]  vm.c:0
+              + ! 1 stack_pop  (in nano_vm) + 0  [0x100e991cc]  vm.c:1142
+              + 2 vm_core_execute_scoped  (in nano_vm) + 21964  [0x100e94d4c]  vm.c:2952
+              + 2 vm_core_execute_scoped  (in nano_vm) + 32796  [0x100e9779c]  vm.c:3048
+              + 2 vm_core_execute_scoped  (in nano_vm) + 16236  [0x100e936ec]  vm.c:3596
+              + ! 1 vm_string_new  (in nano_vm) + 344  [0x100e899e8]  heap.c:369
+              + ! : 1 _platform_memcmp  (in libsystem_platform.dylib) + 272  [0x190d19280]
+              + ! 1 vm_string_new  (in nano_vm) + 116  [0x100e89904]  heap.c:369
+              + 2 vm_core_execute_scoped  (in nano_vm) + 16704  [0x100e938c0]  vm.c:3637
+              + ! 2 stack_pop  (in nano_vm) + 0  [0x100e991cc]  vm.c:1142
+              + 1 vm_core_execute_scoped  (in nano_vm) + 32520  [0x100e97688]  vm.c:0
+              + ! 1 stack_push  (in nano_vm) + 16  [0x100e9be4c]  vm.c:1111
+              + 1 vm_core_execute_scoped  (in nano_vm) + 36  [0x100e8f7a4]  vm.c:1518
+              + 1 vm_core_execute_scoped  (in nano_vm) + 1076  [0x100e8fbb4]  vm.c:1563
+              + ! 1 vm_ownership_supported_scoped  (in nano_vm) + 148  [0x100e9bd90]  vm.c:258
+              + !   1 vm_module_ownership_supported  (in nano_vm) + 176  [0x100e9d174]  vm.c:243
+              + 1 vm_core_execute_scoped  (in nano_vm) + 5400  [0x100e90c98]  vm.c:1832
+              + 1 vm_core_execute_scoped  (in nano_vm) + 5608  [0x100e90d68]  vm.c:1846
+              + ! 1 vm_dispatch_current  (in nano_vm) + 4  [0x100f36b70]  vm_dispatch.c:247
+              + 1 vm_core_execute_scoped  (in nano_vm) + 18416  [0x100e93f70]  vm.c:2194
+              + 1 vm_core_execute_scoped  (in nano_vm) + 25248  [0x100e95a20]  vm.c:2199
+              + ! 1 vm_retain  (in nano_vm) + 12  [0x100e892bc]  heap.c:140
+              + 1 vm_core_execute_scoped  (in nano_vm) + 9136  [0x100e91b30]  vm.c:2301
+              + 1 vm_core_execute_scoped  (in nano_vm) + 20288  [0x100e946c0]  vm.c:2578
+              + ! 1 stack_pop  (in nano_vm) + 32  [0x100e991ec]  vm.c:0
+              + 1 vm_core_execute_scoped  (in nano_vm) + 20332  [0x100e946ec]  vm.c:2581
+              + 1 vm_core_execute_scoped  (in nano_vm) + 18372  [0x100e93f44]  vm.c:2657
+              + ! 1 stack_pop  (in nano_vm) + 0  [0x100e991cc]  vm.c:1142
+              + 1 vm_core_execute_scoped  (in nano_vm) + 18388  [0x100e93f54]  vm.c:2658
+              + ! 1 stack_pop  (in nano_vm) + 0  [0x100e991cc]  vm.c:1142
+              + 1 vm_core_execute_scoped  (in nano_vm) + 10228  [0x100e91f74]  vm.c:2934
+              + 1 vm_core_execute_scoped  (in nano_vm) + 32604  [0x100e976dc]  vm.c:3020
+              + ! 1 stack_reserve_frame  (in nano_vm) + 0  [0x100e9bf34]  vm.c:1118
+              + 1 vm_core_execute_scoped  (in nano_vm) + 32676  [0x100e97724]  vm.c:3032
+              + 1 vm_core_execute_scoped  (in nano_vm) + 4724  [0x100e909f4]  vm.c:3334
+              + 1 vm_core_execute_scoped  (in nano_vm) + 6080  [0x100e90f40]  vm.c:3412
+              + 1 vm_core_execute_scoped  (in nano_vm) + 6148  [0x100e90f84]  vm.c:3427
+              + 1 vm_core_execute_scoped  (in nano_vm) + 16136  [0x100e93688]  vm.c:3585
+              + ! 1 stack_pop  (in nano_vm) + 0  [0x100e991cc]  vm.c:1142
+              + 1 vm_core_execute_scoped  (in nano_vm) + 16772  [0x100e93904]  vm.c:3646
+              + ! 1 vmstring_len  (in nano_vm) + 0  [0x100e89be8]  heap.c:434
+              + 1 vm_core_execute_scoped  (in nano_vm) + 16824  [0x100e93938]  vm.c:3648
+              + ! 1 vm_release  (in nano_vm) + 12  [0x100e89308]  heap.c:218
+              + 1 vm_core_execute_scoped  (in nano_vm) + 16840  [0x100e93948]  vm.c:3649
+              +   1 vm_gc_note_suspect  (in nano_vm) + 36  [0x100e8b75c]  heap_cycles.c:120
+              5 vm_call_function_impl  (in nano_vm) + 1320  [0x100e9b2e8]  vm.c:4994
+                2 fputs  (in libsystem_c.dylib) + 220  [0x190bc6248]
+                ! 1 ???  (in <unknown binary>)  [0x19856094c]
+                ! 1 flockfile  (in libsystem_c.dylib) + 44  [0x190ba95c4]
+                !   1 __error  (in libsystem_kernel.dylib) + 4  [0x190ccd608]
+                2 fputs  (in libsystem_c.dylib) + 268  [0x190bc6278]
+                ! 1 funlockfile  (in libsystem_c.dylib) + 24  [0x190ba975c]
+                ! : 1 __error  (in libsystem_kernel.dylib) + 4  [0x190ccd608]
+                ! 1 funlockfile  (in libsystem_c.dylib) + 40  [0x190ba976c]
+                !   1 _pthread_mutex_unlock_init_slow  (in libsystem_pthread.dylib) + 92  [0x190d0cb48]
+                1 funlockfile  (in libsystem_c.dylib) + 56  [0x190ba977c]
+
+Total number in stack (recursive counted multiple, when >=5):
+        8       stack_pop  (in nano_vm) + 0  [0x100e991cc]  vm.c:1142
+        5       stack_pop  (in nano_vm) + 0  [0x100e991cc]  vm.c:0
+
+Sort by top of stack, same collapsed (when >= 5):
+        vm_core_execute_scoped  (in nano_vm)        238
+        stack_push  (in nano_vm)        28
+        stack_pop  (in nano_vm)        23
+        vm_retain  (in nano_vm)        21
+        isa_get_info  (in nano_vm)        20
+        for_each_child  (in nano_vm)        15
+        vm_dispatch_advance  (in nano_vm)        10
+        vm_release  (in nano_vm)        8
+        scan_black_child  (in nano_vm)        7
+        vm_dispatch_seek  (in nano_vm)        6
+        nvm_service_bindings_present  (in nano_vm)        5
+        val_truthy  (in nano_vm)        5
+

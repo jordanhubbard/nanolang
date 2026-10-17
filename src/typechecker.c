@@ -682,7 +682,17 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
         const char *name = array->as.call.name;
         bool builtin_push = !strcmp(name, "array_push") &&
             env_array_push_is_builtin(env, array->line, array->column);
-        if (((builtin_push || !strcmp(env_array_operation(env, array), "filter")) && array->as.call.arg_count == 2) ||
+        if (builtin_push && array->as.call.arg_count == 2) {
+            ASTNode *receiver = array->as.call.args[0];
+            const char *stored_name = get_struct_type_name(array->as.call.args[1], env);
+            if (receiver->type == AST_ARRAY_LITERAL && receiver->as.array_literal.element_count == 0)
+                return stored_name;
+            const char *receiver_name = array_record_name(receiver, env);
+            StructDef *expected = receiver_name ? env_get_struct(env, receiver_name) : NULL;
+            StructDef *actual = stored_name ? env_get_struct(env, stored_name) : NULL;
+            return expected && expected != actual ? NULL : receiver_name;
+        }
+        if ((!strcmp(env_array_operation(env, array), "filter") && array->as.call.arg_count == 2) ||
             (!strcmp(name, "array_slice") && array->as.call.arg_count == 3))
             return array_record_name(array->as.call.args[0], env);
         if (!strcmp(name, "array_new") && array->as.call.arg_count == 2)
@@ -1150,7 +1160,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             
             /* Special handling for generic list get functions: List_TypeName_get */
             const char *func_name = expr->as.call.name;
-            if (func_name && strncmp(func_name, "List_", 5) == 0) {
+            if (func_name && (!strncmp(func_name, "List_", 5) || !strncmp(func_name, "list_", 5))) {
                 const char *func_suffix = strrchr(func_name, '_');
                 if (func_suffix && strcmp(func_suffix, "_get") == 0) {
                     /* Extract type name: "List_MyToken_get" -> "MyToken" */
@@ -1164,10 +1174,9 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                         /* Check if this type name exists as a struct */
                         StructDef *sdef = env_get_struct(env, type_name);
                         if (sdef) {
-                            /* Return a copy that will be used by the caller */
-                            char *result = strdup(type_name);
+                            /* I borrow the registered identity like other resolver paths. */
                             free(type_name);
-                            return result;
+                            return sdef->name;
                         }
                         free(type_name);
                     }

@@ -1,3 +1,4 @@
+#include "vm_ffi_private.h"
 #include "../nanoisa/service_bindings_module.h"
 #include "../nanoisa/service_classification_private.h"
 #include "../nanoisa/affine_state.h"
@@ -293,7 +294,8 @@ static bool vm_owned_proof_matches(const VmState *vm, const VmOwnedInvocationPro
 
 /* I retain ordinary admission only between synchronous ASSERT resumes. The
  * File-opcode presence below is a narrower code fact: one public invocation
- * may reuse it after host traps because its executing bytecode is immutable.
+ * may reuse it after host traps while code identity and the VM mutation revision
+ * remain unchanged. Supported active append/rebuild APIs invalidate that fact.
  * Mutable service and ownership metadata are still read on every admission. */
 typedef struct {
     const VmState *vm;
@@ -302,6 +304,10 @@ typedef struct {
     const NvmModule *service_module;
     bool service_file_known;
     bool service_file_pending;
+    uint64_t service_revision;
+    const uint8_t *service_code;
+    const NvmFunctionEntry *service_functions;
+    uint32_t service_code_size, service_function_count;
 } VmOrdinaryAdmission;
 
 static bool vm_ordinary_admission_eligible(const VmState *vm) {
@@ -316,13 +322,24 @@ static bool vm_ordinary_admission_matches(const VmState *vm,
 }
 
 static NvmServiceClassification vm_invocation_service_classify(
-        const NvmModule *module, VmOrdinaryAdmission *ordinary) {
-    if (!module || !ordinary) return nvm_service_classify(module);
-    if (!ordinary->service_file_known || ordinary->service_module != module) {
+        const VmState *vm, const NvmModule *module, VmOrdinaryAdmission *ordinary) {
+    if (!vm || !module || !ordinary) return nvm_service_classify(module);
+    if (!ordinary->service_file_known || ordinary->service_module != module ||
+        vm->module_revision == UINT64_MAX ||
+        ordinary->service_revision != vm->module_revision ||
+        ordinary->service_code != module->code ||
+        ordinary->service_functions != module->functions ||
+        ordinary->service_code_size != module->code_size ||
+        ordinary->service_function_count != module->function_count) {
         NvmServiceClassification first = nvm_service_classify(module);
         bool bindings = nvm_service_bindings_present(module);
         ordinary->service_module = module;
         ordinary->service_file_known = true;
+        ordinary->service_revision = vm->module_revision;
+        ordinary->service_code = module->code;
+        ordinary->service_functions = module->functions;
+        ordinary->service_code_size = module->code_size;
+        ordinary->service_function_count = module->function_count;
         /* A negative complete query proves both terms absent. A positive
          * binding query needs one explicit code query so later metadata
          * removal cannot hide a File instruction. */
@@ -817,11 +834,16 @@ static VmModuleConstants *module_constants_for(VmState *vm,
     return NULL;
 }
 
+static void vm_note_module_change(VmState *vm) {
+    if (vm->module_revision != UINT64_MAX) ++vm->module_revision;
+}
+
 void vm_invalidate_module(VmState *vm, const NvmModule *module) {
     if (!vm || !module) return;
     bool *valid = NULL;
     VmDecodedModule *decoded = decoded_module_for(vm, module, &valid);
     if (!decoded) return;
+    vm_note_module_change(vm);
     vm_decoded_module_free(decoded);
     *valid = false;
     /* Freed decoded instructions invalidate resolved handles. */
@@ -841,6 +863,7 @@ bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
     bool *valid = NULL;
     VmDecodedModule *slot = decoded_module_for(vm, module, &valid);
     if (!slot) return false;
+    vm_note_module_change(vm);
     VmDecodedModule replacement;
     char decode_error[VM_DECODE_ERROR_SIZE];
     if (!vm_decode_module(module, &replacement, decode_error)) {
@@ -948,6 +971,7 @@ bool vm_sync_new_functions(VmState *vm, const NvmModule *module) {
         return vm_rebuild_module(vm, module);
     }
     if (decoded->function_count >= module->function_count) return true;
+    vm_note_module_change(vm);
 
     old = decoded->function_count;
     n = module->function_count;
@@ -1535,7 +1559,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
         NvmServiceClassification service;
         const NvmServiceClassification *facts=NULL;
         if (vm && vm->module) {
-            service=vm_invocation_service_classify(vm->module,ordinary);
+            service=vm_invocation_service_classify(vm,vm->module,ordinary);
             facts=&service;
         }
         if(vm && nvm_owned_array_route_classified(vm->module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED && !vm_owned_proof_matches(vm,proof))
@@ -5024,9 +5048,14 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
                         &trap.data.extern_call.args[i], scratch, sizeof(scratch));
                 }
             }
-            ffi_ok = vm_ffi_call_vm(vm, vm->module, trap.data.extern_call.import_idx,
+            /* I refresh mutable service bindings now and reuse only this
+             * invocation's immutable File-opcode fact. No host code runs
+             * between classification and the FFI boundary check. */
+            NvmServiceClassification ffi_service =
+                vm_invocation_service_classify(vm, vm->module, &ordinary);
+            ffi_ok = vm_ffi_call_vm_classified(vm, vm->module, trap.data.extern_call.import_idx,
                                     trap.data.extern_call.args, trap.data.extern_call.argc,
-                                    &ext_result, ext_err, sizeof(ext_err));
+                                    &ext_result, ext_err, sizeof(ext_err), &ffi_service);
             if (vm->profile.enabled) {
                 clock_gettime(CLOCK_MONOTONIC, &ffi_stop);
                 int64_t seconds = ffi_stop.tv_sec - ffi_start.tv_sec;

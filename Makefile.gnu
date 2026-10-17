@@ -3293,7 +3293,7 @@ test-unit: build
 	@./tests/run_all_tests.sh --unit
 
 # Quick test (language tests only, fastest)
-test-quick: build
+test-quick: build test-empty-record-array-fields test-nominal-record-array-contracts
 	@./tests/run_all_tests.sh --lang
 	@$(MAKE) --no-print-directory test-build-toolchain
 	@$(MAKE) --no-print-directory test-bootstrap-dependencies
@@ -4810,6 +4810,7 @@ test-global-resource-boundary: bootstrap
 
 .PHONY: test-resource-generic-records
 test-units: test-resource-generic-records
+test-quick: test-resource-generic-records
 test-resource-generic-records: $(COMPILER_C)
 	python3 -m unittest -v tests.test_resource_generic_records
 

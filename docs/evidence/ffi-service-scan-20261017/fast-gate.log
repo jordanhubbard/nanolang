@@ -1,0 +1,10 @@
+python3 scripts/fast_gate.py
+clang (/usr/bin/clang): 222 compiles, 0 failed, 3.7s
+gcc (/opt/homebrew/bin/gcc-16): 222 compiles, 0 failed, 8.8s
+fast gate: ok
+python3 -m unittest tests.test_bootstrap_tools
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.427s
+
+OK

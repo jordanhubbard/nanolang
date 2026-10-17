@@ -3,7 +3,8 @@
 #include "service_bindings_module.h"
 #include "owned_array_admission.h"
 /* I bind one service query to one read-only synchronous classification call
- * tree. I am not an admission proof and must not survive into dispatch. */
+ * tree. I am not an admission proof: I may reach an immediate dispatch
+ * boundary check, but must not be retained across host or bytecode execution. */
 typedef struct {
     const NvmModule *module;
     bool pending;
