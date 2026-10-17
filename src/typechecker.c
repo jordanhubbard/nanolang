@@ -1160,7 +1160,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             
             /* Special handling for generic list get functions: List_TypeName_get */
             const char *func_name = expr->as.call.name;
-            if (func_name && strncmp(func_name, "List_", 5) == 0) {
+            if (func_name && (!strncmp(func_name, "List_", 5) || !strncmp(func_name, "list_", 5))) {
                 const char *func_suffix = strrchr(func_name, '_');
                 if (func_suffix && strcmp(func_suffix, "_get") == 0) {
                     /* Extract type name: "List_MyToken_get" -> "MyToken" */

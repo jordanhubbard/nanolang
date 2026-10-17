@@ -48,6 +48,10 @@ fn main() -> int {
  let sliced: array<First> = (array_slice filled 0 1)
  assert (== (array_length sliced) 1)
  let empty: array<First> = []
+ let entries: List<First> = (list_First_new)
+ (list_First_push entries First { a: 12 })
+ let from_list: array<First> = (array_push [] (list_First_get entries 0))
+ assert (== (at from_list 0).a 12)
  let pushed: array<First> = (array_push (array_push [] First { a: 4 }) First { a: 9 })
  assert (== (array_length pushed) 2)
  assert (== (+ (at pushed 0).a (at pushed 1).a) 13)
