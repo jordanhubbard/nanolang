@@ -17,7 +17,7 @@ char **g_argv = NULL;
 char g_project_root[4096] = ".";
 const char *get_project_root(void) { return g_project_root; }
 
-#include "../../src/nanovm/vm_ffi.h"
+#include "../../src/nanovm/vm_ffi_private.h"
 #include "../../src/nanovm/heap.h"
 #include "../../src/nanovm/value.h"
 #include "../../src/nanoisa/nvm_format.h"
@@ -59,6 +59,42 @@ double nl_ffi_test_wide(int64_t a, double b, int64_t c, double d,
     g_fail++; return; } } while(0)
 
 /* ── Lifecycle tests ───────────────────────────────────────────────────── */
+
+TEST(scoped_service_dispatch) {
+    AsmResult assembly;
+    NvmModule *mod = asm_assemble_unverified(
+        ".entry 0\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n", &assembly);
+    ASSERT(mod);
+    uint32_t library = nvm_add_string(mod, "", 0);
+    uint32_t name = nvm_add_string(mod, "abs", 3);
+    uint8_t tag = TAG_INT;
+    uint32_t imported = nvm_add_import(mod, library, name, 1, TAG_INT, &tag);
+    VmState vm;
+    vm_init(&vm, mod);
+    vm_ffi_init();
+    NanoValue arg = val_int(-42), result = val_void();
+    char error[256] = {0};
+    NvmServiceClassification facts = nvm_service_classify(mod);
+    ASSERT(!facts.pending);
+    ASSERT(vm_ffi_call_vm_classified(&vm, mod, imported, &arg, 1, &result,
+                                    error, sizeof error, &facts));
+    ASSERT(result.tag == TAG_INT && result.as.i64 == 42);
+    /* Mutable service bindings cannot be hidden by an earlier negative fact. */
+    mod->service_size = 1;
+    ASSERT(!vm_ffi_call_vm_classified(&vm, mod, imported, &arg, 1, &result,
+                                     error, sizeof error, &facts));
+    mod->service_size = 0;
+    /* Code mutation is outside an active invocation. A new public call and
+     * a mismatched private fact must both inspect the replacement bytes. */
+    mod->code[mod->functions[0].code_offset] = OP_FILE_DROP_STACK;
+    ASSERT(!vm_ffi_call_vm(&vm, mod, imported, &arg, 1, &result, error, sizeof error));
+    facts.module = NULL;
+    ASSERT(!vm_ffi_call_vm_classified(&vm, mod, imported, &arg, 1, &result,
+                                     error, sizeof error, &facts));
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
 
 TEST(wide_mixed_signature) {
     vm_ffi_init();
@@ -1194,6 +1230,7 @@ int main(void) {
         }
         return 1;
     }
+    RUN(scoped_service_dispatch);
     RUN(builtin_path_normalize_aliases);
     RUN(retained_native_strings);
     printf("\n[vm_ffi] FFI bridge unit tests...\n\n");

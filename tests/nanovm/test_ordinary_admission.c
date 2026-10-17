@@ -2,20 +2,20 @@
 #include <assert.h>
 #include <limits.h>
 #include "../../src/nanovm/vm.h"
-#include "../../src/nanovm/vm_ffi.h"
+#include "../../src/nanovm/vm_ffi_private.h"
 #include "../../src/nanoisa/service_bindings_module.h"
 #include "../../src/nanoisa/assembler.h"
 #include "../../src/nanoisa/retained_layouts.h"
 static unsigned pending_calls, prints, external_calls, pumps, nested_calls;
 static void observe_print(NanoValue v, FILE *out);
-static bool observe_ffi(VmState *,const NvmModule *,uint32_t,NanoValue *,int,NanoValue *,char *,size_t);
+static bool observe_ffi(VmState *,const NvmModule *,uint32_t,NanoValue *,int,NanoValue *,char *,size_t,const NvmServiceClassification *);
 static int observe_pump(VmState *,bool);
 #define val_print observe_print
-#define vm_ffi_call_vm observe_ffi
+#define vm_ffi_call_vm_classified observe_ffi
 #define vm_callback_pump observe_pump
 #include "../../src/nanovm/vm.c"
 #undef val_print
-#undef vm_ffi_call_vm
+#undef vm_ffi_call_vm_classified
 #undef vm_callback_pump
 int g_argc; char **g_argv;
 static unsigned checks;
@@ -62,9 +62,11 @@ static void observe_print(NanoValue v,FILE *out) {
     val_print(v,out); /* Real formatting/output after modeled embedding hook. */
 }
 static bool observe_ffi(VmState *vm,const NvmModule *m,uint32_t index,
-                        NanoValue *args,int count,NanoValue *out,char *error,size_t size) {
+                        NanoValue *args,int count,NanoValue *out,char *error,size_t size,
+                        const NvmServiceClassification *facts) {
     (void)args; (void)error; (void)size;
     CHECK(vm==host_vm && m==vm->module && index==0 && count==0);
+    CHECK(facts && facts->module==m && !facts->pending);
     ++external_calls; host_boundary(); *out=val_int(7); return true;
 }
 static int observe_pump(VmState *vm,bool wait) {

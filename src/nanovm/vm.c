@@ -1,3 +1,4 @@
+#include "vm_ffi_private.h"
 #include "../nanoisa/service_bindings_module.h"
 #include "../nanoisa/service_classification_private.h"
 #include "../nanoisa/affine_state.h"
@@ -5024,9 +5025,14 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
                         &trap.data.extern_call.args[i], scratch, sizeof(scratch));
                 }
             }
-            ffi_ok = vm_ffi_call_vm(vm, vm->module, trap.data.extern_call.import_idx,
+            /* I refresh mutable service bindings now and reuse only this
+             * invocation's immutable File-opcode fact. No host code runs
+             * between classification and the FFI boundary check. */
+            NvmServiceClassification ffi_service =
+                vm_invocation_service_classify(vm->module, &ordinary);
+            ffi_ok = vm_ffi_call_vm_classified(vm, vm->module, trap.data.extern_call.import_idx,
                                     trap.data.extern_call.args, trap.data.extern_call.argc,
-                                    &ext_result, ext_err, sizeof(ext_err));
+                                    &ext_result, ext_err, sizeof(ext_err), &ffi_service);
             if (vm->profile.enabled) {
                 clock_gettime(CLOCK_MONOTONIC, &ffi_stop);
                 int64_t seconds = ffi_stop.tv_sec - ffi_start.tv_sec;

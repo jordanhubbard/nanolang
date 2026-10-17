@@ -37,7 +37,8 @@ class OrdinaryAdmission(unittest.TestCase):
         self.assertFalse(any(Path(p).name in ('vm.o', 'service_bindings_module.o') for p in objects))
         libraries = shlex.split(os.environ['ORDINARY_ADMISSION_LDFLAGS'])
         inputs = [Path(cc[0]), *(ROOT / p for p in objects),
-                  ROOT / 'src/nanovm/vm.c', ROOT / 'src/nanoisa/service_bindings_module.c',
+                  ROOT / 'src/nanovm/vm.c', ROOT / 'src/nanovm/vm_ffi_private.h',
+                  ROOT / 'src/nanoisa/service_bindings_module.c',
                   ROOT / 'src/nanoisa/service_classification_private.h',
                   ROOT / 'tests/nanovm/test_ordinary_admission.c',
                   ROOT / 'tests/nanoisa/owned_fixture.h', Path(__file__), Path(retained.__file__)]
