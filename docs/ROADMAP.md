@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #982 I separate imported module initialization from the field-lookup allocation assertion. My OneIR corpus reports `lookup_maps=1` after the module-binding cache gains a global map; I require zero allocations during guest lookups, preserve every VM/native semantic assertion, and add an injected guest-allocation negative control. Both sanitized controls pass in 64.597 seconds; I retain [the full baseline and focused correction](evidence/field-lookup-allocation-20261017/README.md) and add the method to hosted quick gates.
+
 - [x] Under #990 I repair my mixed live-peer fixture URL: the client asks for `/test` while the shared peer requires `/?mode=test`. I preserve the exact request assertion, all numeric/DNS host and mixed-service cases, and the expected message count. I now pass that real peer gate on Darwin in 63.990 seconds, retaining [the original failure and successful execution](evidence/mixed-websocket-peer-20261017/README.md). Linux and exact-release qualification remain open.
 
 - [x] Scope decision 2026-10-14: my user demoted rows 10663 and 10664 (portable read-text) to optional for 5.1, and decided 5.1 does not require an instrumented full bootstrap. The checkpoint evidence stays linked in [the status inventory](RELEASE_5.1_STATUS.md); neither row is a release gate.
