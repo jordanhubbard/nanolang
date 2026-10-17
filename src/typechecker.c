@@ -1174,10 +1174,9 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                         /* Check if this type name exists as a struct */
                         StructDef *sdef = env_get_struct(env, type_name);
                         if (sdef) {
-                            /* Return a copy that will be used by the caller */
-                            char *result = strdup(type_name);
+                            /* I borrow the registered identity like other resolver paths. */
                             free(type_name);
-                            return result;
+                            return sdef->name;
                         }
                         free(type_name);
                     }
