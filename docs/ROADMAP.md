@@ -16175,3 +16175,13 @@ Read-only existing finite caller planning estimates209→127 without new pattern
 Independent review identified a profile overlap: caller own_assign could enter the older all-function planner after new caller-only planning, replan helper1 and enroll scratch storage. I explicitly refuse this unqualified composition before rendering, preserving old profiles and the new caller-only contract; a focused regression will retain this boundary.
 
 I qualify the exact single-exclusive helper-local slice with the [receipt](evidence/single-exclusive-helper-reconstruction-20261019/README.md): six scoped methods36.262s plus original-verifier/control and old-[2] golden2methods0.098s, through seed/both fresh3446 stages and O0/O2 native paths. Actual ordinary/original-shadow127/29, generated consistency shadow60/29 and128/129 boundary pass. Four old-[2,1] outputs remain byte-identical. The initial209 refusal, named-replacement test correction and reassignment-composition exclusion remain explicit. No C/provider/runtime change; full #999/platform gates remain open.
+
+## I map empty resource reconstruction (#999, 2026-10-19)
+
+I own design/baseline-only `design/5.1-empty-owned-reconstruction` from765a698d4, limited to the exact unchanged empty-resource producer fixture, design/evidence and appended historical scope reconciliation. I preserve nominal identity, once-only creation/consumption and all existing bounds; no production or admission change is authorized before actual baseline review.
+
+- [x] I map the existing accepted Empty{} fixture and current nonempty-layout guards.
+- [ ] I retain three ordinary and independently selected original-shadow verifier/VM/refusal baselines.
+- [ ] I review zero-field lifecycle/identity and actual format/runtime obligations before implementation.
+
+I retain the [empty-resource baseline](evidence/empty-owned-baseline-20261019/README.md): all three ordinary producers verify/VM execute main2/close3, independent C-hosted original shadow entry1/close3/main2; exact Empty layout1 has zero-field pack/move/unpack without POPs. All four facts/reconstruction refusals preserve outputs. Ten selected inputs remain unchanged. No production admission or regenerated representation claim is made.
