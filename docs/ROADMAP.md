@@ -15986,3 +15986,5 @@ fixture remains whole-module byte-identical to the previous C provider.
 I preserve first build/comparator failures and exact final source/tool pins.
 Fresh aggregate raw generations and exact Linux/Darwin gates remain open;
 C-hosted qualification does not satisfy those gates or close full #998.
+
+- I integrate checked field-read facts as 65d86ecf2 after retaining both append-only ROADMAP sides. I will qualify the new event/result record shapes through fresh raw Stage 1/Stage 2, fixed-point verification and the existing three-producer metadata gates. Component C-hosted results do not replace this aggregate evidence.
