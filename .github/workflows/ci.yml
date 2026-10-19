@@ -475,6 +475,8 @@ jobs:
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
       # I bound each instrumented self-compilation separately from shadow tests.
       BOOTSTRAP_NANOISA_TIMEOUT: "7200"
+      # I use the same component compilation budget as my platform/coverage jobs.
+      CMD_TIMEOUT: "1800"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
       LDFLAGS: "-lm -lcrypto -fsanitize=address,undefined"
     runs-on: ubuntu-latest

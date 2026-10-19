@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #982 I repair the October 18 hosted gates without dropping assertions: service native publication must preserve inherited instrumentation link flags after relocation; generated sanitized lowerer compilation needs a build budget distinct from guest execution; the sanitizer component build must use the established CI compilation budget. I retain [the exact failures and focused controls](evidence/hosted-qualification-repair-20261018/README.md) and require current hosted qualification; local fixes alone do not close this gate.
+
 - [x] Under #982 I separate imported module initialization from the field-lookup allocation assertion. My OneIR corpus reports `lookup_maps=1` after the module-binding cache gains a global map; I require zero allocations during guest lookups, preserve every VM/native semantic assertion, and add an injected guest-allocation negative control. Both sanitized controls pass in 64.597 seconds; I retain [the full baseline and focused correction](evidence/field-lookup-allocation-20261017/README.md) and add the method to hosted quick gates.
 
 - [x] Under #990 I repair my mixed live-peer fixture URL: the client asks for `/test` while the shared peer requires `/?mode=test`. I preserve the exact request assertion, all numeric/DNS host and mixed-service cases, and the expected message count. I now pass that real peer gate on Darwin in 63.990 seconds, retaining [the original failure and successful execution](evidence/mixed-websocket-peer-20261017/README.md). Linux and exact-release qualification remain open.

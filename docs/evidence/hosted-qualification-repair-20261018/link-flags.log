@@ -1,0 +1,7 @@
+test_cleanup_accepts_only_regular_nonexecutable_coverage_metadata (tests.test_service_link_flags.ServiceLinkFlags.test_cleanup_accepts_only_regular_nonexecutable_coverage_metadata) ... ok
+test_relocated_instrumented_runtime_and_override_precedence (tests.test_service_link_flags.ServiceLinkFlags.test_relocated_instrumented_runtime_and_override_precedence) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.672s
+
+OK

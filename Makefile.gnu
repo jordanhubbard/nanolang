@@ -6748,6 +6748,12 @@ test-websocket-service-drivers: $(COMPILER_C) nano_virt nano_vm nvm2c websocket-
 
 test-units: test-websocket-service-drivers
 
+.PHONY: test-service-link-flags
+test-service-link-flags: $(COMPILER_C) nano_virt websocket-public-runtime
+	@python3 -m unittest -v tests.test_service_link_flags
+
+test-quick: test-service-link-flags
+
 .PHONY: test-websocket-service-network
 test-websocket-service-network: test-websocket-service-drivers $(BIN_DIR)/nano-resolver
 	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -f -v tests.test_websocket_service_network

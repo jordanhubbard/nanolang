@@ -1,0 +1,7 @@
+I retain source lowering artifacts at /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-service-lowering-u8x_koub
+test_paired_source_bytes (tests.test_mixed_websocket_source.MixedWebSocketLowering.test_paired_source_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 143.564s
+
+OK
