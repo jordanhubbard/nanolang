@@ -279,8 +279,8 @@ class Analyze:
                 if self.code[branch]['op'] == 'JMP_TRUE':
                     condition = Expr(BOOL, 'not', None, (condition,))
                 self.touch(branch)
-                body, _, returns = self.region(branch + 1, back, initialized, depth + 1)
-                require(not returns, 'do not reconstruct terminal loop bodies yet')
+                body, _, _ = self.region(branch + 1, back, initialized, depth + 1)
+                # I preserve a body return, while a false pretest still reaches the continuation.
                 self.touch(back)
                 statements.append(('while', condition, body))
                 index = back + 1

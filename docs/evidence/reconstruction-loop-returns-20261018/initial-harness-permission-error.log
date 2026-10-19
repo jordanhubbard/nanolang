@@ -1,0 +1,414 @@
+test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) ... 
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='direct', start=0) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='direct', start=2) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='direct', start=3) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='diamond', start=0) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='diamond', start=2) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='diamond', start=3) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='nested', start=0) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='nested', start=2) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='nested', start=3) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='multiple', start=0) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='multiple', start=2) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='multiple', start=3) ... ERROR
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='direct', start=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 162, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 109, in paired
+    self.checked([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 89, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/Users/jkh/Src/nanolang-51-reconstruction/bin/nvm2hl'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='direct', start=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 162, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 109, in paired
+    self.checked([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 89, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/Users/jkh/Src/nanolang-51-reconstruction/bin/nvm2hl'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='direct', start=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 162, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 109, in paired
+    self.checked([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 89, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/Users/jkh/Src/nanolang-51-reconstruction/bin/nvm2hl'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='diamond', start=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 162, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 109, in paired
+    self.checked([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 89, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/Users/jkh/Src/nanolang-51-reconstruction/bin/nvm2hl'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='diamond', start=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 162, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 109, in paired
+    self.checked([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 89, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/Users/jkh/Src/nanolang-51-reconstruction/bin/nvm2hl'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='diamond', start=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 162, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 109, in paired
+    self.checked([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 89, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/Users/jkh/Src/nanolang-51-reconstruction/bin/nvm2hl'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='nested', start=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 162, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 109, in paired
+    self.checked([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 89, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/Users/jkh/Src/nanolang-51-reconstruction/bin/nvm2hl'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='nested', start=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 162, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 109, in paired
+    self.checked([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 89, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/Users/jkh/Src/nanolang-51-reconstruction/bin/nvm2hl'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='nested', start=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 162, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 109, in paired
+    self.checked([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 89, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/Users/jkh/Src/nanolang-51-reconstruction/bin/nvm2hl'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='multiple', start=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 162, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 109, in paired
+    self.checked([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 89, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/Users/jkh/Src/nanolang-51-reconstruction/bin/nvm2hl'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='multiple', start=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 162, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 109, in paired
+    self.checked([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 89, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/Users/jkh/Src/nanolang-51-reconstruction/bin/nvm2hl'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='multiple', start=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 162, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 109, in paired
+    self.checked([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 89, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: '/Users/jkh/Src/nanolang-51-reconstruction/bin/nvm2hl'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.722s
+
+FAILED (errors=12)

@@ -138,6 +138,29 @@ class ScalarReconstruction(unittest.TestCase):
 shadow nlr_f1_walk {{ assert (== (nlr_f1_walk 0) 3) assert (== (nlr_f1_walk 2) 3) assert (== (nlr_f1_walk 3) 3) }}'''
                 self.paired(LOOP.format(start=start),3,shadows,True)
 
+    def test_terminal_pretest_loop_bodies(self):
+        bodies = {
+            'direct': 'PUSH_I64 7\nRET\n',
+            'diamond': ('LOAD_LOCAL 0\nPUSH_I64 0\nI64_EQ\nJMP_FALSE other\n'
+                        'PUSH_I64 7\nRET\nJMP end_body\nother:\nPUSH_I64 8\nRET\nend_body:\n'),
+            'nested': ('inner:\nLOAD_LOCAL 0\nPUSH_I64 2\nI64_LT_S\nJMP_FALSE inner_done\n'
+                       'PUSH_I64 7\nRET\nJMP inner\ninner_done:\nPUSH_I64 8\nRET\n'),
+            'multiple': ('LOAD_LOCAL 0\nPUSH_I64 2\nI64_EQ\nJMP_FALSE advance\n'
+                         'PUSH_I64 7\nRET\nadvance:\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nSTORE_LOCAL 0\n'),
+        }
+        for kind, body in bodies.items():
+            for start in (0, 2, 3):
+                with self.subTest(kind=kind, start=start):
+                    expected = start if start == 3 else 8 if kind in ('diamond', 'nested') and start == 2 else 7
+                    text = ('.entry main\n.function main 0 0 0 int 1\n'
+                            f'PUSH_I64 {start}\nCALL walk\nRET\n.end\n'
+                            '.function walk 1 1 0 int 1\nloop:\n'
+                            'LOAD_LOCAL 0\nPUSH_I64 3\nI64_LT_S\nJMP_FALSE done\n' + body +
+                            'JMP loop\ndone:\nLOAD_LOCAL 0\nRET\n.end\n.parameters walk int\n')
+                    shadows = (f'shadow nlr_f0_main {{ assert (== (nlr_f0_main) {expected}) }}\n'
+                               f'shadow nlr_f1_walk {{ assert (== (nlr_f1_walk {start}) {expected}) }}')
+                    self.paired(text, expected, shadows)
+
     def test_diamond_both_results_and_definite_assignment(self):
         for flag in (0,1):
             with self.subTest(flag=flag):
@@ -219,6 +242,9 @@ shadow nlr_f1_smaller { assert (nlr_f1_smaller -2 3) assert (not (nlr_f1_smaller
             'stack_join':'.function main 0 0 0 int 1\nPUSH_BOOL 1\nJMP_FALSE other\nPUSH_I64 1\nJMP done\nother:\nPUSH_I64 2\ndone:\nRET\n.end\n.entry main\n',
             'unstructured':'.function main 0 0 0 int 1\nJMP done\nPUSH_I64 1\nRET\ndone:\nPUSH_I64 2\nRET\n.end\n.entry main\n',
             'irreducible':'.function main 0 0 0 int 1\nPUSH_BOOL 1\nJMP_FALSE b\na:\nNOP\nJMP c\nb:\nNOP\nJMP c\nc:\nPUSH_BOOL 0\nJMP_TRUE a\nPUSH_I64 0\nRET\n.end\n.entry main\n',
+            'terminal_loop_uninitialized_exit': ('.function main 0 1 0 int 1\nloop:\nPUSH_BOOL 0\n'
+                'JMP_FALSE done\nPUSH_I64 7\nSTORE_LOCAL 0\nPUSH_I64 7\nRET\nJMP loop\n'
+                'done:\nLOAD_LOCAL 0\nRET\n.end\n.entry main\n'),
             'recursive':'.function main 0 0 0 int 1\nCALL main\nRET\n.end\n.entry main\n',
             'global':'.function main 0 0 0 int 1\nPUSH_I64 1\nSTORE_GLOBAL 0\nPUSH_I64 1\nRET\n.end\n.entry main\n',
         }

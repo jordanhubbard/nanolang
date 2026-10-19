@@ -47,6 +47,13 @@ entries, unsupported exits, irreducible graphs and stack-valued joins before
 publishing output. Each decoded instruction must belong to the accepted tree;
 I do not hide unhandled reachable code behind a fallback interpreter.
 
+I also preserve explicit terminal returns inside an admitted pretest loop body,
+including nested loops and diamonds. A body return exits the function only when
+that body executes; a false loop condition still reaches the continuation. I
+therefore retain the enclosing function's explicit-return requirement and do not
+propagate body initialization facts to the zero-iteration path. This admits no
+new branch topology or value type.
+
 I refuse imports, module links, globals, aggregates, retained ownership/passive
 contracts and effects. This is a closed executable reconstruction slice, not
 host ABI or general compute-profile completion. Existing production `nvm2c`

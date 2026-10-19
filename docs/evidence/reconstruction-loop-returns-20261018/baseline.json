@@ -1,0 +1,36 @@
+[
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-loop-return-baseline-20261018/input.nasm",
+      "-o",
+      "/private/tmp/nanolang-loop-return-baseline-20261018/input.nvm"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-loop-return-baseline-20261018/input.nvm"
+    ],
+    "status": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "--language",
+      "c",
+      "/private/tmp/nanolang-loop-return-baseline-20261018/input.nvm",
+      "-o",
+      "/private/tmp/nanolang-loop-return-baseline-20261018/output.c"
+    ],
+    "status": 1,
+    "stdout": "",
+    "stderr": "I do not reconstruct terminal loop bodies yet\nI did not publish reconstructed source\n"
+  }
+]
