@@ -15835,3 +15835,13 @@ I retain [six green three-producer methods, exact input/output hashes, unchanged
 - [x] I record [my contract-only call-borrow event map](NANOISA_CHECKED_CALL_BORROW_FACTS.md) on `design/5.1-call-borrow-facts` from `8161bfc1f`. `workspace_repairs` owns this review; no schema, production or blocked primitive edits occur at this checkpoint.
 - [ ] I resolve owned snapshot lifetime, exact call-site/function identity, clone/reset/free behavior and the Nano generated-list ABI before implementing an independent advisory fact.
 - [ ] I preserve existing checked shared/exclusive call-place events through paired producers and transport, with raw/generic/stale UNKNOWN, refusal and allocation/lifetime controls; I require fresh generations/platform qualification and do not add branch-summary certificates.
+
+
+### Checked call-borrow lifetime design revision (#998)
+
+I replaced the proposed owning ASTCall payload with an invocation-local ledger
+after tracing PGO/DCE/TCO shallow copies and overwrites. I mapped VM/nvm2c
+managed roots separately from C-hosted compilation-lifetime strings, fixed the
+40-byte advisory codec and bounded capture policy, and retained C collector /
+Nano final-phase interface threading as the next review gate. I made no
+production/schema change and ran no builds. Full #998 remains open.
