@@ -15833,3 +15833,5 @@ I pass my C-hosted compiler build and 33 focused methods across the retained met
 I retain [six green three-producer methods, exact input/output hashes, unchanged noncollision bytes and colliding index/metadata comparison](evidence/imported-affine-facts-20261019/README.md). My production correction reuses the existing wire-name helper with the synthetic-source diagnostic guard; #998 and exact hosted qualification remain open.
 
 - [x] I qualify imported/branch affine facts and guarded resource wire names in aggregate `8161bfc1f`: all nine methods pass in 78.873 seconds through rebuilt NanoVirt and fresh `74a565150` stages (`docs/evidence/imported-affine-aggregate-20261019/`). Full #998 and hosted gates remain open.
+
+- [x] I qualify integrated exact wrapping pretests at `62673cd2c`: all 14 three-producer wrapping/observation/loop/assertion methods pass in 263.150 seconds; I retain `docs/evidence/owned-wrapping-aggregate-20261019/` and add the suite to my regular owned reconstruction target. Full #999 and hosted platform gates remain open.
