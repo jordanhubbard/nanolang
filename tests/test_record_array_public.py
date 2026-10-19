@@ -29,6 +29,8 @@ class RecordArrayPublic(unittest.TestCase):
         excluded = {Path(source).stem for source in providers}
         common = [obj for obj in shlex.split(os.environ['RECORD_ARRAY_PUBLIC_OBJECTS'])
                   if Path(obj).stem not in excluded]
+        # I preserve single-pass Unix archive resolution after object users.
+        common = [p for p in common if Path(p).suffix != '.a'] + [p for p in common if Path(p).suffix == '.a']
         flags = [*shlex.split(os.environ.get('RECORD_ARRAY_PUBLIC_CFLAGS', '')),
                  '-std=c11', '-D_DEFAULT_SOURCE', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-Isrc', '-Isrc/nanoisa']

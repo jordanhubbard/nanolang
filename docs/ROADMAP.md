@@ -15412,3 +15412,5 @@ I retain [my local-pressure correction evidence](evidence/reconstruction-local-p
 - [x] #1001: I preserve proved exact array-global storage when passing its checked payload to an ARRAY parameter. My public global/initializer/helper fixture now passes VM and v2 transport but native packing loses the helper result's element storage (`cannot resolve AGG_PACK field 0`). I carry the existing exact payload hint through the typed call boundary without rewriting the tagged global's other consumers, and retain dynamic-global refusal/representation controls.
 
 - [x] #1001: I reject a retained v2 layout table with a nonzero count and NULL items before iteration, retain NULL output, and exercise this malformed direct API under ASan/UBSan. I retain [my bounded public consumer evidence](evidence/public-record-arrays-20261018/README.md); full public allocation prefixes and source/platform qualification remain open.
+
+- [x] #1001: I order retained static archives after object users in both public-array test links, applying the confirmed Linux parser-link lesson before hosted qualification of this new target. I preserve every provider and runtime assertion.
