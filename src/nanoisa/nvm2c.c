@@ -2631,6 +2631,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             for (ai = 0; ai < count; ai++) {
                 Nvm2cSimSlot v;
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
+                if (b->canonical_records && v.kind == NVM2C_VK_VALUE && v.array_payload_kind) {
+                    v.shape = shape_child(b, v.shape, 0);
+                    v.kind = v.array_payload_kind; v.scalar_tags = 0;
+                    int generic = b->shape_generic_array; b->shape_generic_array = 0;
+                    int valid = shape_kind(b, v.shape, v.kind);
+                    b->shape_generic_array = generic;
+                    if (!valid) return 0;
+                }
                 if (v.kind != NVM2C_VK_INT && v.kind != NVM2C_VK_STR &&
                     !word_array_storage(v.kind) && v.kind != NVM2C_VK_SARR &&
                     v.kind != NVM2C_VK_RARR && v.kind != NVM2C_VK_REC && v.kind != NVM2C_VK_VALUE &&
@@ -2667,6 +2675,38 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!shape_type(b, shape_child(b, aggregate.shape, 0), NVM_SHAPE_RECORD)) return 0;
             } else mark_origin(local_kind, nloc, aggregate.origin, NVM2C_VK_REC);
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            break;
+        }
+        case OP_AGG_SET: {
+            Nvm2cSimSlot value, rec;
+            uint16_t fi = ins.operands[0].u16;
+            if (!b->canonical_records || fi >= b->record_width) {
+                nvm2c_fail(b, "I require admitted canonical record field mutation");
+                return 0;
+            }
+            if (!sim_pop(b, idx, stk, &sp, &value) ||
+                !sim_pop(b, idx, stk, &sp, &rec)) return 0;
+            if (rec.kind == NVM2C_VK_VALUE) {
+                rec.shape = shape_child(b, rec.shape, 0);
+                rec.kind = NVM2C_VK_REC;
+                rec.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
+                if (!rec.rec_k) return 0;
+            } else mark_origin(local_kind, nloc, rec.origin, NVM2C_VK_REC);
+            NvmShapeId replacement = value.shape;
+            if (value.kind == NVM2C_VK_VALUE) {
+                replacement = shape_child(b, replacement, 0);
+                if (value.array_payload_kind) {
+                    int generic = b->shape_generic_array; b->shape_generic_array = 0;
+                    int valid = shape_kind(b, replacement, value.array_payload_kind);
+                    b->shape_generic_array = generic;
+                    if (!valid) return 0;
+                }
+            }
+            if (!shape_type(b, rec.shape, NVM_SHAPE_RECORD) ||
+                !shape_equal(b, shape_child(b, rec.shape, fi), replacement) ||
+                !shape_equal(b, shape_variable(b, b->shape_current), rec.shape)) return 0;
+            rec.kind = NVM2C_VK_REC;
+            if (!sim_push_slot(b, idx, stk, &sp, rec)) return 0;
             break;
         }
         case OP_AGG_GET: {
@@ -5485,7 +5525,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             for (ei = (int)count - 1; ei >= 0; ei--) {
                 uint8_t vk = NVM2C_VK_INT;
-                elems[ei] = stack_pop_kind(b, &st, &vk);
+                uint8_t exact = b->canonical_records ? resolved_shape_kind(b,
+                    nvm_shape_lookup(&b->shapes, b->shape_outputs[idx][start], (uint32_t)ei)) : NVM2C_VK_UNK;
+                if (b->canonical_records && st.sp > 0 && st.kinds[st.sp - 1] == NVM2C_VK_VALUE &&
+                    (word_array_storage(exact) || exact == NVM2C_VK_SARR)) {
+                    vk = exact; elems[ei] = stack_pop_expect(b, &st, exact, "AGG_PACK exact array field");
+                } else elems[ei] = stack_pop_kind(b, &st, &vk);
                 if (b->failed) goto done;
                 if (vk != NVM2C_VK_INT && vk != NVM2C_VK_STR &&
                     !word_array_storage(vk) && vk != NVM2C_VK_SARR &&
@@ -5591,6 +5636,40 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     kind == NVM2C_VK_SARR ? "sa" : kind == NVM2C_VK_RARR ? "ra" : kind == NVM2C_VK_MAP ? "m" : "f";
                 nvm2c_printf(b, "    nenv->%s[%u] = %s[%d];\n", field, u, stack_array_name(kind), value);
             }
+            break;
+        }
+        case OP_AGG_SET: {
+            uint16_t fi = ins.operands[0].u16;
+            if (!b->canonical_records || fi >= b->record_width) {
+                nvm2c_fail(b, "I require admitted canonical record field mutation");
+                goto done;
+            }
+            uint8_t kind = resolved_shape_kind(b,
+                nvm_shape_lookup(&b->shapes, b->shape_outputs[idx][start], fi));
+            if (!shape_ok(b) || (kind != NVM2C_VK_INT && kind != NVM2C_VK_BOOL &&
+                kind != NVM2C_VK_FLOAT && kind != NVM2C_VK_STR &&
+                kind != NVM2C_VK_REC && kind != NVM2C_VK_SARR && !word_array_storage(kind))) {
+                nvm2c_fail(b, "function %u at offset %zu: I require an exact ordinary record replacement representation for field %u (kind %u)", idx, start, fi, kind);
+                goto done;
+            }
+            int value = stack_pop_expect(b, &st, kind, "AGG_SET value");
+            int rec = stack_pop_expect(b, &st, NVM2C_VK_REC, "AGG_SET receiver");
+            if (b->failed) goto done;
+            nvm2c_printf(b, "    if (!r[%d].identity || r[%d].kind != 0 || %u >= r[%d].n || r[%d].k[%u] != %u) NVM2C_ABORT();\n",
+                rec, rec, fi, rec, rec, fi, kind);
+            if (kind == NVM2C_VK_FLOAT)
+                nvm2c_printf(b, "    memcpy(&r[%d].f[%u], &f[%d], sizeof f[%d]);\n", rec, fi, value, value);
+            else if (kind == NVM2C_VK_REC)
+                nvm2c_printf(b, "    r[%d].rec[%u] = nrec_snapshot(r[%d]);\n", rec, fi, value);
+            else {
+                const char *field = kind == NVM2C_VK_STR ? "s" :
+                    kind == NVM2C_VK_SARR ? "sa" : word_array_storage(kind) ? "a" : "f";
+                nvm2c_printf(b, "    r[%d].%s[%u] = %s[%d];\n", rec, field, fi,
+                    stack_array_name(kind), value);
+            }
+            /* No allocation or collection occurs between the checked operands
+             * and publication of the replacement edge in the canonical owner. */
+            st.slots[st.sp] = rec; st.kinds[st.sp++] = NVM2C_VK_REC;
             break;
         }
         case OP_LOAD_UPVALUE:

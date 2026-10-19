@@ -43,7 +43,7 @@ NvmArrayEligibilityResult nvm_record_array_admit(const NvmModule *m,NvmRecordArr
     for(uint32_t i=0;i<counts.instructions;i++) {
         NvmRecordArrayExecutionInstruction instruction;
         if(!nvm_record_array_execution_instruction(plan,i,&instruction) ||
-           instruction.opcode==OP_STRUCT_LITERAL || instruction.opcode==OP_STRUCT_GET || instruction.opcode==OP_STRUCT_SET || instruction.opcode==OP_AGG_SET) {
+           instruction.opcode==OP_STRUCT_LITERAL || instruction.opcode==OP_STRUCT_GET || instruction.opcode==OP_STRUCT_SET) {
             nvm_record_array_execution_free(plan);result.status=NVM_ARRAY_UNRESOLVED;
             snprintf(result.message,sizeof result.message,"I require aggregate record opcodes shared by both public runtimes.");return result;
         }

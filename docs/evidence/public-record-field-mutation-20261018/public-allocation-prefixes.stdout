@@ -1,0 +1,20 @@
+I checked 472 transient and persistent public allocation prefixes for tag 1.
+PASS 6651 public record-array allocation checks
+I checked 472 transient and persistent public allocation prefixes for tag 2.
+PASS 6651 public record-array allocation checks
+I checked 472 transient and persistent public allocation prefixes for tag 3.
+PASS 6651 public record-array allocation checks
+I checked 472 transient and persistent public allocation prefixes for tag 4.
+PASS 6651 public record-array allocation checks
+I checked 472 transient and persistent public allocation prefixes for tag 5.
+PASS 6651 public record-array allocation checks
+I checked 1845 transient and persistent public mutation allocation prefixes for tag 1.
+PASS 26044 public record-array allocation checks
+I checked 1845 transient and persistent public mutation allocation prefixes for tag 2.
+PASS 26044 public record-array allocation checks
+I checked 1845 transient and persistent public mutation allocation prefixes for tag 3.
+PASS 26044 public record-array allocation checks
+I checked 1845 transient and persistent public mutation allocation prefixes for tag 4.
+PASS 26044 public record-array allocation checks
+I checked 1845 transient and persistent public mutation allocation prefixes for tag 5.
+PASS 26044 public record-array allocation checks
