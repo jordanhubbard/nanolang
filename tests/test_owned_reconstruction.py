@@ -136,13 +136,31 @@ class OwnedReconstruction(unittest.TestCase):
                 self.assertIn('I did not publish', result.stderr)
                 self.assertNotIn('checksum', result.stderr.lower())
 
-    def test_verified_control_path_outside_slice_refuses(self):
-        with tempfile.TemporaryDirectory(prefix='nano-owned-outside-') as tmp:
+    def test_verified_scalar_branch_preserves_live_owner(self):
+        with tempfile.TemporaryDirectory(prefix='nano-owned-branch-') as tmp:
             work = Path(tmp)
-            # I retain a valid resource program whose branch is outside this slice.
             text = SOURCE.replace('set counter (+ counter 17)',
                                   'if (> counter 0) { set counter (+ counter 17) }')
             source, module = work/'branch.nano', work/'branch.nvm'
+            source.write_text(text)
+            self.command([ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', module])
+            self.command([ROOT/'bin/nano_vm', module], expected=74)
+            for language in ('c', 'nano'):
+                output = work/('rebuilt.'+language)
+                self.command([ROOT/'bin/nvm2hl', '--language', language, module, '-o', output])
+                if language == 'c':
+                    self.native(output, work/'native')
+                else:
+                    rebuilt = work/'rebuilt.nvm'
+                    self.command([ROOT/'bin/nano_virt', output, '--emit-nvm', '-o', rebuilt])
+                    self.command([ROOT/'bin/nano_vm', rebuilt], expected=74)
+
+    def test_verified_loop_outside_slice_refuses(self):
+        with tempfile.TemporaryDirectory(prefix='nano-owned-outside-') as tmp:
+            work = Path(tmp)
+            text = SOURCE.replace('set counter (+ counter 17)',
+                                  'while (< counter 18) { set counter (+ counter 17) }')
+            source, module = work/'loop.nano', work/'loop.nvm'
             source.write_text(text)
             self.command([ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', module])
             self.command([ROOT/'bin/nano_vm', module], expected=74)
@@ -153,7 +171,7 @@ class OwnedReconstruction(unittest.TestCase):
                                       module, '-o', output], cwd=ROOT, timeout=30, text=True)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertEqual(output.read_text(), 'previous checked output')
-                self.assertIn('unsupported resource-route instruction', result.stderr)
+                self.assertIn('forward branches', result.stderr)
 
     def test_corrupt_ownership_and_regions_preserve_prior_output(self):
         with tempfile.TemporaryDirectory(prefix='nano-owned-refuse-') as tmp:

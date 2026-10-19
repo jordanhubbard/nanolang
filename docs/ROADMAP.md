@@ -15713,3 +15713,9 @@ I pass the complete scoped lifetime sequence with a fresh consistent Homebrew Cl
 ### Combined nested STRING and dispatch checkpoint (#976/#1001)
 
 - [ ] I wire the nested STRING consumer into exact compiler-contracts qualification and run a fresh combined raw bootstrap after byte-field, nested STRING and measured dispatch integration. I retain the older full native self-rebuild and sanitizer diagnostic as separately pinned runs.
+
+### Structured resource reconstruction investigation (#999, 2026-10-19)
+
+- [ ] I own `fix/5.1-owned-structured-branches` from `5bb06c298` for a bounded source-driven branch slice. I first retain actual C/Nano producer fixtures and submit an explicit contract before expanding facts or admission. Candidate regions use once-only conditions, empty operand-stack boundaries, scalar initialization intersection and exact live-owner agreement; branch-local owner declarations cannot escape as invented joins. Original verifier admission, nominal identity, atomic refusal and the shared owned region tree stay mandatory. Loops, general owner phi and borrow escape remain open; I do not claim full #999.
+
+- [x] I implement the approved bounded structured branch slice and pass 14 focused tests in 132.501 seconds: nine actual fixtures through two retained producers, original VM, C/Nano reconstruction, cross-producer Nano roundtrips and O0/O2 ASan/UBSan native execution. I separately pass added staged-owner and crossing-region negatives. Exact original signatures and owned-call counts remain preserved; existing generated scalar arithmetic helpers are allowed. My [receipt](evidence/owned-structured-branches-20261019/README.md) retains commands, hashes and failed harness/obsolete-expectation attempts. Independent review found no remaining blocker. Fresh aggregate stages and full #999 remain open.

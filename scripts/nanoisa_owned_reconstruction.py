@@ -45,19 +45,72 @@ class OwnedAnalyze(Analyze):
         self.calls = set()
         self.code = self.fn['code']
         require(0 < len(self.code) <= 4096, 'require bounded function instructions')
+        self.positions = {ins['pc']: n for n, ins in enumerate(self.code)}
+        require(len(self.positions) == len(self.code), 'require unique instruction boundaries')
+        self.positions[self.fn['size']] = len(self.code)
+        interiors = {n + offset for n, ins in enumerate(self.code)
+                     if ins['op'] == 'REGION_BEGIN' for offset in (1, 2, 3)}
+        for n, ins in enumerate(self.code):
+            if ins['op'] in ('JMP', 'JMP_TRUE', 'JMP_FALSE'):
+                require(ins.get('target') in self.positions, 'require exact owned branch boundaries')
+                target = self.positions[ins['target']]
+                require(n < target and target not in interiors,
+                        'require forward branches outside ephemeral read interiors')
 
     def owner_local(self, slot):
         require(slot in self.live, 'require a live exact local owner')
         return self.live[slot]
 
-    def run(self):
+    def region(self, start, end, initialized, live, used, depth=0):
+        require(depth <= 32, 'limit owned region nesting to 32')
+        initialized = set(initialized)
+        self.live, self.used = dict(live), set(used)
         stack = []
-        body = [('own_parameter', i, layout) for i, layout in self.live.items()]
-        initialized = set(range(len(self.params)))
-        i = 0
-        while i < len(self.code):
+        body = []
+        i = start
+        while i < end:
             ins = self.code[i]
             op, arg, pc = ins['op'], ins['arg'], ins['pc']
+            if op in ('JMP_TRUE', 'JMP_FALSE'):
+                self.touch(i)
+                condition = self.pop(stack, BOOL)
+                require(not stack, 'require empty operand stacks at owned branches')
+                target = self.positions[ins['target']]
+                require(i < target <= end, 'require a forward owned region boundary')
+                if op == 'JMP_TRUE':
+                    condition = Expr(BOOL, 'not', None, (condition,))
+                separator = target - 1
+                has_else = separator > i and self.code[separator]['op'] == 'JMP'
+                join = self.positions[self.code[separator]['target']] if has_else else target
+                require(target <= join <= end, 'require a non-crossing owned diamond')
+                entry_live, entry_used = dict(self.live), set(self.used)
+                left, li, ll, lu, lr = self.region(i + 1, separator if has_else else target,
+                                                  initialized, entry_live, entry_used, depth + 1)
+                if has_else:
+                    self.touch(separator)
+                    right, ri, rl, ru, rr = self.region(target, join, initialized,
+                                                       entry_live, entry_used, depth + 1)
+                else:
+                    right, ri, rl, ru, rr = [], set(initialized), entry_live, entry_used, False
+                body.append(('if', condition, left, right))
+                self.used = lu | ru
+                if lr and rr:
+                    require(join == end, 'do not discard a terminal owned continuation')
+                    return body, initialized, {}, self.used, True
+                if lr:
+                    initialized, self.live = ri, rl
+                elif rr:
+                    initialized, self.live = li, ll
+                else:
+                    require(ll == rl, 'require exact live-owner agreement at joins')
+                    initialized, self.live = li & ri, ll
+                require(all(entry_live.get(slot) == layout for slot, layout in self.live.items()),
+                        'refuse branch-local owners escaping a structured region')
+                i = join
+                continue
+            require(op != 'JMP', 'refuse unstructured owned jumps')
+            if op not in SIMPLE or op == 'CALL':
+                self.touch(i)
             if op == 'OWN_PACK':
                 require(0 <= arg < len(self.layouts), 'require a retained nominal layout')
                 fields = self.layouts[arg]['fields']
@@ -88,10 +141,12 @@ class OwnedAnalyze(Analyze):
                 del self.live[arg]
                 stack.extend(values)
             elif op == 'REGION_BEGIN':
-                require(i + 3 < len(self.code), 'require a complete ephemeral read region')
-                borrow, read, end = self.code[i + 1:i + 4]
+                require(i + 3 < end, 'require a complete ephemeral read within its owned region')
+                for offset in (1, 2, 3):
+                    self.touch(i + offset)
+                borrow, read, region_end_instruction = self.code[i + 1:i + 4]
                 require(borrow['op'] == 'BORROW_LOCAL_SHARED' and read['op'] == 'REF_GET' and
-                        end['op'] == 'REGION_END' and len(borrow['args']) == 2 and
+                        region_end_instruction['op'] == 'REGION_END' and len(borrow['args']) == 2 and
                         len(read['args']) == 2 and borrow['args'][0] == read['args'][0],
                         'require one matching ephemeral shared scalar-field read')
                 slot, field = borrow['args'][1], read['args'][1]
@@ -114,11 +169,12 @@ class OwnedAnalyze(Analyze):
                 stack.append(target)
                 self.calls.add(arg)
             elif op == 'RET':
-                require(i == len(self.code) - 1 and not self.live,
+                require(i == end - 1 and not self.live,
                         'require all owners consumed before terminal return')
                 result = self.pop(stack, self.result)
                 require(not stack, 'require an empty operand stack after exact return')
                 body.append(('return', result))
+                return body, initialized, self.live, self.used, True
             else:
                 require(op in SIMPLE and op not in ('CALL', 'PUSH_U8', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG'),
                         'refuse unsupported resource-route instruction ' + op)
@@ -133,8 +189,16 @@ class OwnedAnalyze(Analyze):
                         'require exact scalar resource-route values')
                 stack = prefix + scalar
             i += 1
-        require(body and body[-1][0] == 'return', 'require an explicit terminal return')
-        return Function(self.fn['name'], self.params, self.result, self.types, self.fn['names'], body)
+        require(not stack, 'require an empty operand stack at owned region exit')
+        return body, initialized, self.live, self.used, False
+
+    def run(self):
+        parameters = [('own_parameter', i, layout) for i, layout in self.live.items()]
+        body, _, _, _, returns = self.region(0, len(self.code), set(range(len(self.params))),
+                                             self.live, self.used)
+        require(returns, 'require every owned function path to return')
+        require(len(self.seen) == len(self.code), 'require complete owned instruction coverage')
+        return Function(self.fn['name'], self.params, self.result, self.types, self.fn['names'], parameters + body)
 
 
 class OwnedEmit(Emit):
