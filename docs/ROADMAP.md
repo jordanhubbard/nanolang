@@ -15414,3 +15414,7 @@ I retain [my local-pressure correction evidence](evidence/reconstruction-local-p
 - [x] #1001: I reject a retained v2 layout table with a nonzero count and NULL items before iteration, retain NULL output, and exercise this malformed direct API under ASan/UBSan. I retain [my bounded public consumer evidence](evidence/public-record-arrays-20261018/README.md); full public allocation prefixes and source/platform qualification remain open.
 
 - [x] #1001: I order retained static archives after object users in both public-array test links, applying the confirmed Linux parser-link lesson before hosted qualification of this new target. I preserve every provider and runtime assertion.
+
+- [x] #1001: I qualify allocation-failure prefixes through actual public VM root execution, rebuilding the existing proof/VM/heap providers with counted allocator hooks. I inject only after successful VM setup, require drained activation state and zero tracked ownership after destruction, restore allocation and rerun the same module, and keep allocations before injection and uninstrumented common providers explicitly outside the failure-prefix receipt.
+
+I retain [the public VM allocation-prefix receipt](evidence/public-record-array-allocations-20261018/README.md): all 472 execution allocation positions, transient/persistent, across five flat tags pass with recovery and no tracked owners. Setup, transport/native allocation prefixes and final platform gates remain separate.

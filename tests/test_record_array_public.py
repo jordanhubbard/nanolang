@@ -45,6 +45,25 @@ class RecordArrayPublic(unittest.TestCase):
             *shlex.split(os.environ.get('RECORD_ARRAY_PUBLIC_LDFLAGS', '-lm')),
             '-o', str(instrumented)], build=True)
         run('public-api-instrumented', [str(instrumented), str(artifacts)])
+        observed = []
+        for source in VM_PROVIDERS:
+            obj = artifacts / ('observed-' + Path(source).stem + '.o')
+            run(obj.stem + '-build', [*cc, *flags, '-DRA_ALLOC_WRAP',
+                '-include', 'tests/nanoisa/record_array_alloc.h', '-c', source,
+                '-o', str(obj)], build=True)
+            observed.append(str(obj))
+        observed_names = {Path(source).stem for source in VM_PROVIDERS}
+        observed_common = [obj for obj in shlex.split(os.environ['RECORD_ARRAY_PUBLIC_OBJECTS'])
+                           if Path(obj).stem not in observed_names]
+        observed_common = [p for p in observed_common if Path(p).suffix != '.a'] + [p for p in observed_common if Path(p).suffix == '.a']
+        observed_exe = artifacts / 'public-api-allocation-prefixes'
+        run('observed-link', [*cc, *flags, '-DRA_PUBLIC_ALLOCATIONS',
+            'tests/nanoisa/test_record_array_public.c', 'tests/nanoisa/record_array_alloc.c',
+            *observed, *observed_common,
+            *shlex.split(os.environ.get('RECORD_ARRAY_PUBLIC_LDFLAGS', '-lm')),
+            '-o', str(observed_exe)], build=True)
+        observed_output = run('public-allocation-prefixes', [str(observed_exe), str(artifacts)])
+        self.assertEqual(observed_output.stdout.count(b'transient and persistent public allocation prefixes'), 5)
         receipt = run('public-api', [str(ROOT / 'bin/test_record_array_public'), str(artifacts)])
         self.assertIn(b'public record-array checks', receipt.stdout)
         sources = sorted([*artifacts.glob('array-*.c'), *artifacts.glob('flow-*.c')])

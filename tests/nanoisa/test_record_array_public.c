@@ -127,9 +127,47 @@ static void exercise_flow(uint8_t tag,const char *directory) {
     }
 }
 
+#ifdef RA_PUBLIC_ALLOCATIONS
+static void public_allocation_prefixes(uint8_t tag) {
+    Input c;public_flow(&c,tag,0);
+    CHECK(ra_live==0 && ra_bytes==0);
+    VmState vm;vm_init(&vm,&c.m);
+    ra_calls=0;CHECK(vm_execute(&vm)==VM_OK);size_t total=ra_calls;
+    vm_destroy(&vm);CHECK(ra_live==0 && ra_bytes==0);
+    CHECK(total>0);
+    for(int persistent_failure=0;persistent_failure<2;persistent_failure++) {
+        for(size_t fail=0;fail<total;fail++) {
+            ra_fail=SIZE_MAX;ra_persistent=0;vm_init(&vm,&c.m);
+            ra_calls=0;ra_fail=fail;ra_persistent=persistent_failure;
+            VmResult result=vm_execute(&vm);
+            /* A best-effort GC allocation may fail without failing execution. */
+            CHECK(ra_calls>fail);
+            bool proof_refusal=result==VM_ERR_TYPE_ERROR &&
+                !strcmp(vm.error_msg,"I require reference lifetime and ownership instruction verification before execution");
+            /* The existing boolean ownership revalidation API maps proof OOM
+             * to its exact refusal; runtime allocation failures remain MEMORY. */
+            if(result!=VM_OK && result!=VM_ERR_MEMORY && !proof_refusal)
+                fprintf(stderr,"I failed allocation prefix %zu mode %d tag %u with status %u: %s\n",fail,persistent_failure,tag,result,vm.error_msg);
+            CHECK(result==VM_OK || result==VM_ERR_MEMORY || proof_refusal);
+            if(result==VM_OK)CHECK(vm.stack_size==1 && vm.stack[0].tag==TAG_INT && vm.stack[0].as.i64==0);
+            CHECK(vm.frame_count==0);
+            if(result!=VM_OK)CHECK(vm.stack_size==0);
+            ra_fail=SIZE_MAX;ra_persistent=0;vm_destroy(&vm);
+            CHECK(ra_live==0 && ra_bytes==0);
+            vm_init(&vm,&c.m);CHECK(vm_execute(&vm)==VM_OK);vm_destroy(&vm);
+            CHECK(ra_live==0 && ra_bytes==0);
+        }
+    }
+    printf("I checked %zu transient and persistent public allocation prefixes for tag %u.\n",total,tag);
+}
+#endif
+
 int main(int argc,char **argv) {
     CHECK(argc==2);
     for(uint8_t tag=TAG_INT;tag<=TAG_STRING;tag++) {
+#ifdef RA_PUBLIC_ALLOCATIONS
+        public_allocation_prefixes(tag);
+#endif
         Input c;public_basic(&c,tag,false);
         NvmRecordArrayExecutionPlan *plan=NULL;
         NvmArrayEligibilityResult admission=nvm_record_array_admit(&c.m,&plan);
