@@ -78,7 +78,7 @@ static int owned_facts(const NvmModule *m) {
             count=fn->arity;
             for(uint16_t p=0;p<count;p++) {
                 if(!nvm_affine_parameter_at(state,p,&parameters[p],&modes[p]) ||
-                   (count==1 ? (modes[p]!=NVM_REFERENCE_SHARED && (paths || modes[p]!=NVM_REFERENCE_EXCLUSIVE)) :
+                   (count==1 ? (modes[p]!=NVM_REFERENCE_SHARED && modes[p]!=NVM_REFERENCE_EXCLUSIVE) :
                     modes[p]!=((paths && count==2) || p==(paths?2:1)?NVM_REFERENCE_SHARED:NVM_REFERENCE_EXCLUSIVE)))goto done;
                 if(parameters[p].tag!=TAG_STRUCT || parameters[p].layout>=layouts.count)goto done;
                 const NvmV2Layout *leaf=&layouts.items[parameters[p].layout];

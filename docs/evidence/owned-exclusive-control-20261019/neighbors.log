@@ -1,0 +1,18 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-i6w81rl0
+test_shared_output_is_byte_identical (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_shared_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-c2ptstvv
+test_single_exclusive_output_is_byte_identical (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_single_exclusive_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gnzu37ab
+test_v2_exclusive_outputs_remain_byte_identical (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_v2_exclusive_outputs_remain_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-hdcsgtbe
+test_old_two_shared_path_outputs_remain_byte_identical (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_old_two_shared_path_outputs_remain_byte_identical) ... ok
+test_unchanged_anchor_and_whole_tree_shadow_measurement (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_unchanged_anchor_and_whole_tree_shadow_measurement) ... I measure shared control {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "original": [23, 2], "generated": [101, 5], "shadow": 60}
+I measure shared control {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "original": [23, 2], "generated": [101, 5], "shadow": 60}
+ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-z8nzkjfv
+test_actual_path_call_pretest_preserves_false_path_mutation (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_actual_path_call_pretest_preserves_false_path_mutation) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 28.574s
+
+OK

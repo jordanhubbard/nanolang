@@ -1,0 +1,53 @@
+resource struct Leaf { value: int, enabled: bool }
+fn read(view: &mut Leaf) -> int {
+ while view.enabled {
+  if (< view.value 3) {
+   set view.value 3
+   let answer: int = view.value
+   return answer
+  } else {
+   let answer: int = view.value
+   return answer
+  }
+ }
+ if (== view.value 4) { return 4 }
+ return 1
+}
+shadow read {
+ let mut first: Leaf = Leaf { value: 1, enabled: true }
+ let mut second: Leaf = Leaf { value: 5, enabled: true }
+ let mut third: Leaf = Leaf { value: 4, enabled: false }
+ let mut fourth: Leaf = Leaf { value: 0, enabled: false }
+ assert (== (read &mut first) 3)
+ assert (== (read &mut second) 5)
+ assert (== (read &mut third) 4)
+ assert (== (read &mut fourth) 1)
+ let Leaf { value, enabled } = first
+ assert (== value 3) assert enabled
+ let Leaf { value, enabled } = second
+ assert (== value 5) assert enabled
+ let Leaf { value, enabled } = third
+ assert (== value 4) assert (not enabled)
+ let Leaf { value, enabled } = fourth
+ assert (== value 0) assert (not enabled)
+}
+fn main() -> int {
+ let mut first: Leaf = Leaf { value: 1, enabled: true }
+ let mut second: Leaf = Leaf { value: 5, enabled: true }
+ let mut third: Leaf = Leaf { value: 4, enabled: false }
+ let mut fourth: Leaf = Leaf { value: 0, enabled: false }
+ assert (== (read &mut first) 3)
+ assert (== (read &mut second) 5)
+ assert (== (read &mut third) 4)
+ assert (== (read &mut fourth) 1)
+ let Leaf { value, enabled } = first
+ assert (== value 3) assert enabled
+ let Leaf { value, enabled } = second
+ assert (== value 5) assert enabled
+ let Leaf { value, enabled } = third
+ assert (== value 4) assert (not enabled)
+ let Leaf { value, enabled } = fourth
+ assert (== value 0) assert (not enabled)
+ if true { let code: int = 0 return code } else { return 1 }
+}
+shadow main { if true { let checked: bool = true assert checked } }
