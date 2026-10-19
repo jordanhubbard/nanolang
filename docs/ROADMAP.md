@@ -15514,3 +15514,4 @@ I retain [local resource reconstruction evidence](evidence/owned-local-reconstru
 - [x] I integrate bounded source-array publication, actual allocation-failure repairs, concrete generic authority controls and local owned reconstruction, preserving every component acceptance boundary.
 - [x] I wire both fresh installed stages into source publication, imported/generic authority and owned reconstruction in hosted qualification.
 - [ ] I require another fresh combined bootstrap and exact Linux/Darwin results before treating these integrated sources as qualified.
+- [ ] Under #1001 I review [my direct record-array tail-transfer proposal](NANOISA_RECORD_ARRAY_TAIL_CALLS.md) before implementation: bounded non-cyclic tail edges, complete result/global/origin transfer, explicit recipe/VM preflight, native roots, transport and failure qualification. Existing CALL-only recursion remains unchanged; recursive tail admission is separate.
