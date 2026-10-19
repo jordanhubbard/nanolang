@@ -66,21 +66,22 @@ class OwnedAnalyze(Analyze):
             return owned_type(layout) if tag == 8 else tag
         self.params = [declared(t) for t in self.fn['params']]
         self.modes = self.fn.get('param_modes', [0] * len(self.params))
-        require(len(self.modes) == len(self.params) and all(m in (0, 1) for m in self.modes),
-                'require exact value or shared parameter modes')
+        require(len(self.modes) == len(self.params) and all(m in (0, 1, 2) for m in self.modes),
+                'require exact value or borrowed parameter modes')
         self.borrowed = any(any(f.get('param_modes', [])) for f in module['functions'])
         if self.borrowed:
             require(all(all(t in (INT, BOOL) for t in fields) for fields in self.fields),
                     'retain scalar-only layouts in the borrowed helper profile')
             require(len(module['functions']) == 2 and
                     module['functions'][0].get('param_modes', []) == [] and
-                    module['functions'][1].get('param_modes') == [1],
-                    'require the separate entry-to-shared-helper profile')
+                    module['functions'][1].get('param_modes') in ([1], [2]),
+                    'require the separate entry-to-borrowed-helper profile')
+        self.exclusive = self.borrowed and module['functions'][1].get('param_modes') == [2]
         self.helper = self.borrowed and index == 1
         if self.helper:
             require(len(self.params) == 1 and isinstance(self.params[0], tuple),
-                    'require one exact shared resource parameter')
-            self.params[0] = ('borrow', self.params[0][1])
+                    'require one exact borrowed resource parameter')
+            self.params[0] = ('borrow', self.params[0][1], self.modes[0])
         self.result = VOID if self.fn['result_type'] == [VOID, 4294967295] else declared(self.fn['result_type'])
         require(self.fn.get('result_count') == (0 if self.result == VOID else 1),
                 'require the exact owned helper result count')
@@ -97,8 +98,8 @@ class OwnedAnalyze(Analyze):
         self.code = self.fn['code']
         if self.helper:
             require(self.result in (INT, BOOL) and
-                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} for ins in self.code),
-                    'require a straight-line scalar observation helper')
+                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) for ins in self.code),
+                    'require a straight-line scalar borrowed helper')
         require(0 < len(self.code) <= 4096, 'require bounded function instructions')
         self.positions = {ins['pc']: n for n, ins in enumerate(self.code)}
         require(len(self.positions) == len(self.code), 'require unique instruction boundaries')
@@ -125,22 +126,25 @@ class OwnedAnalyze(Analyze):
         for offset in (1, 2, 3):
             self.touch(i + offset)
         borrow, read, region_end_instruction = self.code[i + 1:i + 4]
-        require(borrow['op'] == 'BORROW_LOCAL_SHARED' and
+        require(borrow['op'] in ('BORROW_LOCAL_SHARED', 'BORROW_LOCAL_EXCLUSIVE') and
                 read['op'] in ('REF_GET', 'CALL_REF') and
                 region_end_instruction['op'] == 'REGION_END' and len(borrow['args']) == 2 and
                 len(read['args']) == 2,
-                'require one complete ephemeral shared observation')
+                'require one complete ephemeral reference operation')
         slot = borrow['args'][1]
         layout = self.owner_local(slot)
         if read['op'] == 'CALL_REF':
             require(allow_call, 'refuse calls in owned observation pretests')
+            require(borrow['op'] == ('BORROW_LOCAL_EXCLUSIVE' if self.exclusive else 'BORROW_LOCAL_SHARED'),
+                    'require the exact helper reference mode')
             require(self.borrowed and self.index == 0 and read['args'] == [1, borrow['args'][0]] and
                     self.module['functions'][1]['params'] == [[8, layout]],
-                    'require exact caller owner and shared helper identity')
+                    'require exact caller owner and borrowed helper identity')
             target = Expr(self.module['functions'][1]['result'], 'temporary', read['pc'])
             body.append(('borrow_call', target, slot))
             self.calls.add(1)
         else:
+            require(borrow['op'] == 'BORROW_LOCAL_SHARED', 'require shared ephemeral field reads')
             field = read['args'][1]
             require(borrow['args'][0] == read['args'][0] and
                     0 <= field < len(self.fields[layout]),
@@ -278,11 +282,18 @@ class OwnedAnalyze(Analyze):
                 body.append(('own_unpack', arg, layout, values))
                 del self.live[arg]
                 stack.extend(values)
+            elif op == 'REF_SET':
+                require(self.helper and self.exclusive and len(ins['args']) == 2 and arg == 0,
+                        'require the exact exclusive helper reference')
+                field, layout = ins['args'][1], self.params[0][1]
+                require(0 <= field < len(self.fields[layout]), 'require an exact exclusive field')
+                value = self.pop(stack, self.fields[layout][field])
+                body.append(('borrow_write', field, value))
             elif op == 'REF_GET':
                 require(self.helper and len(ins['args']) == 2 and arg == 0,
-                        'require the exact shared helper parameter reference')
+                        'require the exact borrowed helper parameter reference')
                 field, layout = ins['args'][1], self.params[0][1]
-                require(0 <= field < len(self.fields[layout]), 'require an exact shared parameter field')
+                require(0 <= field < len(self.fields[layout]), 'require an exact borrowed parameter field')
                 require(self.fields[layout][field] in (INT, BOOL), 'require a scalar shared field')
                 target = Expr(self.fields[layout][field], 'temporary', pc)
                 body.append(('borrow_read', target, field))
@@ -349,9 +360,55 @@ class OwnedEmit(Emit):
     def __init__(self, functions, language, layouts):
         super().__init__(functions, language)
         self.layouts = layouts
+        self.exclusive = any(isinstance(t, tuple) and t[0] == 'borrow' and len(t) == 3 and t[2] == 2
+                             for fn in functions for t in fn.params)
+        self.inline_add = self.exclusive and language == 'nano'
+        if self.inline_add:
+            def validate_inline(node, direct=False):
+                if isinstance(node, Expr):
+                    require(node.kind != 'arithmetic' or node.value != 'add' or direct,
+                            'require ADD at an explicit inline statement boundary')
+                    for child in node.args:
+                        validate_inline(child)
+                elif isinstance(node, (list, tuple)):
+                    if node and node[0] == 'let':
+                        validate_inline(node[1])
+                        validate_inline(node[2], True)
+                    else:
+                        for child in node:
+                            validate_inline(child)
+            for function in functions:
+                validate_inline(function.body)
         self.fields = [[owned_type(child) if tag == 8 else tag
                         for tag, child in layout.get('field_types', [[t, 4294967295] for t in layout['fields']])]
                        for layout in layouts]
+
+    def nano_local_cost(self, function):
+        # My emitted subset allocates named lets, constructor staging and pattern slots.
+        def statements_cost(body):
+            total = 0
+            for stmt in body:
+                kind = stmt[0]
+                if kind == 'let':
+                    value = stmt[2]
+                    total += 7 if value.kind == 'arithmetic' and value.value == 'add' else 1
+                elif kind in ('borrow_read', 'borrow_call', 'own_store', 'own_move', 'own_read'):
+                    total += 1
+                elif kind == 'own_pack':
+                    total += 1 + len(stmt[3])
+                elif kind == 'own_unpack':
+                    total += 1 + 2 * len(stmt[3])
+                elif kind == 'if':
+                    total += statements_cost(stmt[2]) + statements_cost(stmt[3])
+                elif kind == 'while':
+                    total += statements_cost(stmt[2])
+                elif kind == 'while_observe':
+                    total += statements_cost(stmt[2]) + statements_cost(stmt[3])
+                else:
+                    require(kind in ('store', 'borrow_write', 'assert', 'return'),
+                            'require counted exclusive Nano statement storage')
+            return total
+        return len(function.locals) + len(function.params) + statements_cost(function.body)
 
     def name(self, index):
         return 'main' if self.language == 'nano' and index == 0 else super().name(index)
@@ -360,16 +417,52 @@ class OwnedEmit(Emit):
         if tag == VOID:
             return 'void'
         if isinstance(tag, tuple) and tag[0] == 'borrow':
-            return f'const NlrOwned{tag[1]} *' if self.language == 'c' else f'&NlrOwned{tag[1]}'
+            mutable = len(tag) == 3 and tag[2] == 2
+            return (('' if mutable else 'const ') + f'NlrOwned{tag[1]} *' if self.language == 'c' else
+                    ('&mut ' if mutable else '&') + f'NlrOwned{tag[1]}')
         if isinstance(tag, tuple) and tag[0] == 'owner':
             return f'NlrOwned{tag[1]}'
         return super().type(tag)
+
+    def inline_add_statement(self, target, value, indent):
+        name = self.expression(target)
+        a, b = name + '_a', name + '_b'
+        low, high, boundary = name + '_low', name + '_high', name + '_boundary'
+        self.line(f'let {a}: int = {self.expression(value.args[0])}', indent)
+        self.line(f'let {b}: int = {self.expression(value.args[1])}', indent)
+        self.line(f'let {low}: int = (- -9223372036854775807 1)', indent)
+        self.line(f'let {high}: int = 9223372036854775807', indent)
+        self.line(f'let mut {name}: int = 0', indent)
+        # I use exactly the helper formulas; only result assignment replaces return.
+        from nanoisa_reconstruction import NANO_INTEGER_HELPERS
+        helper = NANO_INTEGER_HELPERS['add']
+        positive = 'return (+ low (- (- a boundary) 1))'
+        negative = 'return (+ high (+ (- a boundary) 1))'
+        require(positive in helper and negative in helper and 'return (+ a b)' in helper,
+                'require unchanged guarded ADD formulas')
+        def formula(text):
+            import re
+            names = {'a': a, 'b': b, 'low': low, 'high': high, 'boundary': boundary}
+            return re.sub(r'\b(a|b|low|high|boundary)\b', lambda m: names[m[0]], text[7:])
+        self.line(f'if (> {b} 0) {{', indent)
+        self.line(f'let {boundary}: int = (- {high} {b})', indent + 1)
+        self.line(f'if (> {a} {boundary}) {{ set {name} {formula(positive)} }} else {{ set {name} (+ {a} {b}) }}', indent + 1)
+        self.line(f'}} else {{ if (< {b} 0) {{', indent)
+        self.line(f'let {boundary}: int = (- {low} {b})', indent + 1)
+        self.line(f'if (< {a} {boundary}) {{ set {name} {formula(negative)} }} else {{ set {name} (+ {a} {b}) }}', indent + 1)
+        self.line(f'}} else {{ set {name} (+ {a} {b}) }} }}', indent)
 
     def statements(self, statements, indent=1):
         c = self.language == 'c'
         for stmt in statements:
             kind = stmt[0]
-            if kind == 'while_observe':
+            if kind == 'let' and self.inline_add and stmt[2].kind == 'arithmetic' and stmt[2].value == 'add':
+                self.inline_add_statement(stmt[1], stmt[2], indent)
+            elif kind == 'borrow_write':
+                _, field, value = stmt
+                self.line(f'nlr_a0->f{field} = {self.expression(value)};' if c else
+                          f'set nlr_a0.f{field} {self.expression(value)}', indent)
+            elif kind == 'while_observe':
                 _, condition, observations, loop_body = stmt
                 self.line('while (true) {' if c else 'while true {', indent)
                 self.statements(observations, indent + 1)
@@ -383,7 +476,7 @@ class OwnedEmit(Emit):
                 if kind == 'borrow_read':
                     value = f'nlr_a0->f{operand}' if c else f'nlr_a0.f{operand}'
                 else:
-                    value = f'{self.name(1)}(&{self.local(operand)})' if c else f'({self.name(1)} &{self.local(operand)})'
+                    value = f'{self.name(1)}(&{self.local(operand)})' if c else f'({self.name(1)} {"&mut " if self.exclusive else "&"}{self.local(operand)})'
                 self.line(f'{self.type(target.tag)} {self.expression(target)} = {value};' if c else
                           f'let {self.expression(target)}: {self.type(target.tag)} = {value}', indent)
                 if c:
@@ -415,7 +508,7 @@ class OwnedEmit(Emit):
                 else:
                     _, target, slot = stmt
                     name, typ, value = self.expression(target), self.type(target.tag), self.local(slot)
-                self.line(f'{typ} {name} = {value};' if c else f'let {name}: {typ} = {value}', indent)
+                self.line(f'{typ} {name} = {value};' if c else f'let {"mut " if self.exclusive else ""}{name}: {typ} = {value}', indent)
             elif kind == 'own_read':
                 _, target, slot, field = stmt
                 name, typ, value = self.expression(target), self.type(target.tag), f'{self.local(slot)}.f{field}'
@@ -438,6 +531,9 @@ class OwnedEmit(Emit):
 
     def run(self, entry):
         c = self.language == 'c'
+        if self.inline_add:
+            require(all(self.nano_local_cost(fn) <= 128 for fn in self.functions),
+                    'limit generated exclusive Nano functions to 128 local slots')
         declarations = ['#include <stdint.h>\n#include <stdbool.h>\n#include <stdio.h>\n#include <stdlib.h>'] if c else []
         for i, layout in enumerate(self.layouts):
             fields = (' '.join(f'{self.type(t)} f{j};' for j, t in enumerate(self.fields[i])) if c else
@@ -465,13 +561,26 @@ class OwnedEmit(Emit):
             values = ['0' if tag == INT else 'false' for tag in fields]
             entries = ', '.join(f'f{i}: {value}' for i, value in enumerate(values))
             names = ', '.join(f'f{i}' for i in range(len(fields)))
-            body += f'\nshadow {self.name(1)} {{\n    let owner: NlrOwned{layout} = NlrOwned{layout} {{ {entries} }}\n'
-            body += f'    let observed: {self.type(self.functions[1].result)} = ({self.name(1)} &owner)\n'
-            body += f'    assert (== observed ({self.name(1)} &owner))\n'
-            body += f'    let NlrOwned{layout} {{ {names} }} = owner\n'
-            for i, value in enumerate(values):
-                body += f'    assert (== f{i} {value})\n'
-            body += '}\n'
+            if self.exclusive:
+                body += f'\nshadow {self.name(1)} {{\n'
+                for suffix in ('first', 'second'):
+                    body += f'    let mut owner_{suffix}: NlrOwned{layout} = NlrOwned{layout} {{ {entries} }}\n'
+                    body += f'    let result_{suffix}: {self.type(self.functions[1].result)} = ({self.name(1)} &mut owner_{suffix})\n'
+                    body += f'    let NlrOwned{layout} {{ {names} }} = owner_{suffix}\n'
+                    for i, tag in enumerate(fields):
+                        body += f'    let field_{suffix}_{i}: {self.type(tag)} = f{i}\n'
+                body += '    assert (== result_first result_second)\n'
+                for i in range(len(fields)):
+                    body += f'    assert (== field_first_{i} field_second_{i})\n'
+                body += '}\n'
+            else:
+                body += f'\nshadow {self.name(1)} {{\n    let owner: NlrOwned{layout} = NlrOwned{layout} {{ {entries} }}\n'
+                body += f'    let observed: {self.type(self.functions[1].result)} = ({self.name(1)} &owner)\n'
+                body += f'    assert (== observed ({self.name(1)} &owner))\n'
+                body += f'    let NlrOwned{layout} {{ {names} }} = owner\n'
+                for i, value in enumerate(values):
+                    body += f'    assert (== f{i} {value})\n'
+                body += '}\n'
         return '\n'.join(declarations) + '\n' + body
 
 
