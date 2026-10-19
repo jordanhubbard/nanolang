@@ -1,0 +1,14 @@
+resource struct Box { value: int, flag: bool }
+fn pick(owner: Box, left: int, right: int, expected: int) -> int {
+ let mut i: int = 0
+ while (and owner.flag (and (< i 3) (== (* left right) expected))) { set i (+ i 1) }
+ let Box { value, flag } = owner
+ return (+ value i)
+}
+shadow pick { assert (== (main) 23) }
+fn main() -> int {
+ let enabled: int = (pick Box { value: 10, flag: true } -3 7 -21)
+ let disabled: int = (pick Box { value: 10, flag: false } -3 7 -21)
+ return (+ enabled disabled)
+}
+shadow main { assert (== (main) 23) }
