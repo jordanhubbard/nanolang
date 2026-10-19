@@ -39,3 +39,21 @@ directory refusals and the actual Make schema rule. The final directory metadata
 pass runs deepest-first. I record 91 visible source-directory prerequisites.
 Exact hosted successful restore, coverage execution and the full release gates
 remain open.
+
+## Complete artifact validation
+
+I subsequently validate the complete 1,875,670,968-byte downloaded ZIP against
+GitHub's published SHA-256 and validate its stored member CRC. The actual
+checkpoint reader then validates all 87,319 tar members, exact manifest coverage,
+modes, sizes, link identities and regular-file hashes in 102.243 seconds overall.
+The fully validated manifest confirms zero directory records. No provider is
+restored or executed. The earlier partial-download diagnosis remains identified
+as such; this later receipt supplies independent complete integrity evidence.
+
+The archive records checkout commit `445ddb5b3efc29b27f6dfaacfb6a432acf53ef00`.
+GitHub's commit API identifies it as the PR merge of head
+`bb423a116cd0d6435fed40f7c40367d9411c6c66` into
+`6fc4bca180569bcd23bb55cf8fd9ceea265dd8e2`; the artifact API records that PR head.
+These are distinct checkout/head identities, not a source mismatch. The retained
+validation script, terminal, summary and official artifact metadata document the
+check. Corrected hosted restoration and coverage execution remain pending.
