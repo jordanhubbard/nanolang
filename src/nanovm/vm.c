@@ -1986,49 +1986,50 @@ vm_dispatch_top:
             if(checked!=VM_OK)return trap_error(vm,checked,"I require the complete private opcode root contract.");
         }
 #endif
-        DecodedInstruction instr = decoded->instruction;
+        /* I borrow this checked instruction only until this dispatch returns or advances. */
+        const DecodedInstruction *instr = &decoded->instruction;
         uint32_t instr_start = vm->ip;
         uint32_t stack_before = vm->stack_size;
         vm->ip = cur_fn->code_offset + decoded->next_byte_offset;
         cursor_offset = vm->ip;
-        profile_instruction(vm, instr.opcode);
+        profile_instruction(vm, instr->opcode);
         if (vm->opcode_trace)
-            vm_trace_instruction(vm, instr_start, &instr, stack_before);
+            vm_trace_instruction(vm, instr_start, instr, stack_before);
 
         /* Check the whole input requirement before a handler mutates
          * anything. A guarded pop alone cannot reject an operation atomically,
          * and the caller's values and frame locals are not operands. */
         {
-            const InstructionInfo *info = isa_get_info(instr.opcode);
+            const InstructionInfo *info = isa_get_info(instr->opcode);
             int32_t required = info ? info->pop_count : -1;
             int32_t produced = info ? info->push_count : -1;
-            switch (instr.opcode) {
+            switch (instr->opcode) {
             case OP_PERFORM:
-                required = instr.operands[1].u16;
+                required = instr->operands[1].u16;
                 produced = 1;
                 break;
             case OP_ARR_LITERAL:
             case OP_STRUCT_LITERAL:
             case OP_CLOSURE_NEW:
-                required = instr.operands[1].u16;
+                required = instr->operands[1].u16;
                 produced = 1;
                 break;
             case OP_UNION_CONSTRUCT:
-                required = instr.operands[2].u16;
+                required = instr->operands[2].u16;
                 produced = 1;
                 break;
             case OP_TUPLE_NEW:
-                required = instr.operands[0].u16;
+                required = instr->operands[0].u16;
                 produced = 1;
                 break;
             case OP_AGG_PACK:
-                required = instr.operands[3].u16;
+                required = instr->operands[3].u16;
                 produced = 1;
                 break;
             case OP_PICK:
             case OP_ROLL:
-                required = (int32_t)instr.operands[0].u16 + 1;
-                produced = required + (instr.opcode == OP_PICK ? 1 : 0);
+                required = (int32_t)instr->operands[0].u16 + 1;
+                produced = required + (instr->opcode == OP_PICK ? 1 : 0);
                 break;
             default:
                 break;
@@ -2066,7 +2067,7 @@ vm_dispatch_top:
             switch (decoded->super_op) {
             case VM_SUPER_LOAD_LOCAL_FIELD: {
                 /* Fused OP_LOAD_LOCAL idx ; OP_AGG_GET field. */
-                uint16_t idx = instr.operands[0].u16;
+                uint16_t idx = instr->operands[0].u16;
                 uint16_t field = decoded->super_operand;
                 uint32_t abs_idx = effect_local_index(vm, frame, idx);
                 if (abs_idx >= vm->stack_size) {
@@ -2075,7 +2076,7 @@ vm_dispatch_top:
                 }
                 /* I have completed the local-load phase. The field access
                  * retains its own portable source location under fusion. */
-                frame->instruction_ip = instr_start + instr.byte_length;
+                frame->instruction_ip = instr_start + instr->byte_length;
                 NanoValue aggregate = vm->stack[abs_idx];
                 NanoValue value = val_void();
                 if (aggregate.tag == TAG_STRUCT && aggregate.as.sval
@@ -2105,7 +2106,7 @@ vm_dispatch_top:
             VM_NEXT();
         }
 
-        VM_DISPATCH_BEGIN(instr.opcode)
+        VM_DISPATCH_BEGIN(instr->opcode)
 
         /* ============================================================
          * Stack & Constants
@@ -2118,12 +2119,12 @@ vm_dispatch_top:
             if (!owned_execution)
                 return trap_error(vm, VM_ERR_NOT_IMPLEMENTED,
                                   "I require owned-transfer execution semantics before execution");
-            uint8_t op=instr.opcode;
+            uint8_t op=instr->opcode;
             if (op==OP_OWN_PACK) {
                 NvmV2Layouts layouts={0};
                 if (nvm_v2_layouts_decode(vm->module->layout_data, vm->module->layout_size, &layouts)!=NVM_V2_OK)
                     return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned record fields");
-                uint32_t layout=instr.operands[0].u32;
+                uint32_t layout=instr->operands[0].u32;
                 uint16_t count=layouts.items[layout].field_count;
                 nvm_v2_layouts_free(&layouts);
                 if (!stack_has_operands(vm,count))
@@ -2135,7 +2136,7 @@ vm_dispatch_top:
                 for (uint16_t i=count;i>0;i--) record->fields[i-1]=stack_pop(vm);
                 stack_push(vm,val_struct(record));
             } else {
-                uint32_t index=effect_local_index(vm,frame,instr.operands[0].u16);
+                uint32_t index=effect_local_index(vm,frame,instr->operands[0].u16);
                 if (index>=vm->stack_size)
                     return trap_error(vm,VM_ERR_OUT_OF_BOUNDS,"I require an owned local slot");
                 if (op==OP_OWN_STORE_LOCAL) {
@@ -2174,8 +2175,8 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_CALL_REF) {
-            uint32_t target=instr.operands[0].u32;
-            uint16_t reference=instr.operands[1].u16;
+            uint32_t target=instr->operands[0].u32;
+            uint16_t reference=instr->operands[1].u16;
             if (!owned_execution || vm->frame_count!=1 || vm->current_fn!=0 || target!=1 ||
                 vm->module->function_count!=2 || vm->callee_references.active ||
                 vm->reference_generation==UINT64_MAX)
@@ -2234,21 +2235,21 @@ vm_dispatch_top:
         VM_CASE(OP_BORROW_PATH_EXCLUSIVE)
         VM_CASE(OP_BORROW_LOCAL_SHARED)
         VM_CASE(OP_BORROW_LOCAL_EXCLUSIVE) {
-            uint16_t ref=instr.operands[0].u16,root=instr.operands[1].u16;
+            uint16_t ref=instr->operands[0].u16,root=instr->operands[1].u16;
             if (!owned_execution || ref>=frame->local_count || root>=frame->local_count ||
                 !reference_context->region || reference_context->slots[ref].live)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need an available reference slot and owner");
             reference_context->slots[ref]=(VmReferenceSlot){root,reference_context->region,
-                instr.opcode==OP_BORROW_LOCAL_EXCLUSIVE || instr.opcode==OP_BORROW_PATH_EXCLUSIVE,
-                (instr.opcode==OP_BORROW_PATH_SHARED || instr.opcode==OP_BORROW_PATH_EXCLUSIVE)?
-                    instr.operands[2].u32:NVM_V2_NO_INDEX,UINT16_MAX,true,
+                instr->opcode==OP_BORROW_LOCAL_EXCLUSIVE || instr->opcode==OP_BORROW_PATH_EXCLUSIVE,
+                (instr->opcode==OP_BORROW_PATH_SHARED || instr->opcode==OP_BORROW_PATH_EXCLUSIVE)?
+                    instr->operands[2].u32:NVM_V2_NO_INDEX,UINT16_MAX,true,
                 (uint16_t)(vm->frame_count-1),reference_context->generation};
             VM_NEXT();
         }
         VM_CASE(OP_REBORROW_SHARED)
         VM_CASE(OP_REBORROW_EXCLUSIVE) {
-            uint16_t ref=instr.operands[0].u16,parent=instr.operands[1].u16;
-            bool exclusive=instr.opcode==OP_REBORROW_EXCLUSIVE;
+            uint16_t ref=instr->operands[0].u16,parent=instr->operands[1].u16;
+            bool exclusive=instr->opcode==OP_REBORROW_EXCLUSIVE;
             if (!owned_execution || ref>=frame->local_count || parent>=frame->local_count ||
                 reference_context->slots[ref].live || !reference_context->slots[parent].live ||
                 reference_context->slots[parent].region>=reference_context->region ||
@@ -2262,7 +2263,7 @@ vm_dispatch_top:
         }
         VM_CASE(OP_REF_GET)
         VM_CASE(OP_REF_SET) {
-            uint16_t ref=instr.operands[0].u16,field=instr.operands[1].u16;
+            uint16_t ref=instr->operands[0].u16,field=instr->operands[1].u16;
             if (!owned_execution || ref>=frame->local_count || !reference_context->slots[ref].live)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need a live reference slot");
             VmReferenceSlot slot=reference_context->slots[ref];
@@ -2283,9 +2284,9 @@ vm_dispatch_top:
                 }
             }
             if (owner.tag!=TAG_STRUCT || field>=owner.as.sval->field_count ||
-                (instr.opcode==OP_REF_SET && !slot.exclusive))
+                (instr->opcode==OP_REF_SET && !slot.exclusive))
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need a permitted scalar reference field");
-            if (instr.opcode==OP_REF_GET) stack_push(vm,owner.as.sval->fields[field]);
+            if (instr->opcode==OP_REF_GET) stack_push(vm,owner.as.sval->fields[field]);
             else {
                 NanoValue value=stack_peek(vm,0);
                 if (value.tag!=owner.as.sval->fields[field].tag)
@@ -2314,19 +2315,19 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_PUSH_I64)
-            stack_push(vm, val_int(instr.operands[0].i64));
+            stack_push(vm, val_int(instr->operands[0].i64));
             VM_NEXT();
 
         VM_CASE(OP_PUSH_F64)
-            stack_push(vm, val_float(instr.operands[0].f64));
+            stack_push(vm, val_float(instr->operands[0].f64));
             VM_NEXT();
 
         VM_CASE(OP_PUSH_BOOL)
-            stack_push(vm, val_bool(instr.operands[0].u8 != 0));
+            stack_push(vm, val_bool(instr->operands[0].u8 != 0));
             VM_NEXT();
 
         VM_CASE(OP_PUSH_STR) {
-            uint32_t idx = instr.operands[0].u32;
+            uint32_t idx = instr->operands[0].u32;
             VmModuleConstants *constants = module_constants_for(vm, vm->module);
             if (!constants || idx >= constants->count || !constants->strings[idx])
                 return trap_error(vm, VM_ERR_DECODE,
@@ -2342,11 +2343,11 @@ vm_dispatch_top:
             VM_NEXT();
 
         VM_CASE(OP_PUSH_U8)
-            stack_push(vm, val_u8(instr.operands[0].u8));
+            stack_push(vm, val_u8(instr->operands[0].u8));
             VM_NEXT();
 
         VM_CASE(OP_FUNCREF)
-            stack_push(vm, val_function_owned(instr.operands[0].u32,
+            stack_push(vm, val_function_owned(instr->operands[0].u32,
                                               vm_callable_module_id(vm, vm->module)));
             VM_NEXT();
 
@@ -2393,7 +2394,7 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_PICK) {
-            uint16_t depth = instr.operands[0].u16;
+            uint16_t depth = instr->operands[0].u16;
             if (!stack_has_operands(vm, (uint32_t)depth + 1))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "I have no operand at PICK depth %u.", depth);
@@ -2404,7 +2405,7 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_ROLL) {
-            uint16_t depth = instr.operands[0].u16;
+            uint16_t depth = instr->operands[0].u16;
             if (!stack_has_operands(vm, (uint32_t)depth + 1))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "I have no operand at ROLL depth %u.", depth);
@@ -2421,7 +2422,7 @@ vm_dispatch_top:
          * ============================================================ */
 
         VM_CASE(OP_LOAD_LOCAL) {
-            uint16_t idx = instr.operands[0].u16;
+            uint16_t idx = instr->operands[0].u16;
             uint32_t abs_idx = effect_local_index(vm, frame, idx);
             if (abs_idx >= vm->stack_size) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Local %u out of range", idx);
@@ -2433,7 +2434,7 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_STORE_LOCAL) {
-            uint16_t idx = instr.operands[0].u16;
+            uint16_t idx = instr->operands[0].u16;
             uint32_t abs_idx = effect_local_index(vm, frame, idx);
             if (abs_idx >= vm->stack_size) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Local %u out of range", idx);
@@ -2446,7 +2447,7 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_LOAD_GLOBAL) {
-            uint32_t idx = instr.operands[0].u32;
+            uint32_t idx = instr->operands[0].u32;
             if (idx >= vm->global_capacity) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
             }
@@ -2457,7 +2458,7 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_STORE_GLOBAL) {
-            uint32_t idx = instr.operands[0].u32;
+            uint32_t idx = instr->operands[0].u32;
             if (idx >= VM_MAX_GLOBALS) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
             }
@@ -2478,7 +2479,7 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_LOAD_UPVALUE) {
-            uint16_t idx = instr.operands[1].u16;
+            uint16_t idx = instr->operands[1].u16;
             /* depth (operands[0]) is always 0: codegen flattens upvalue chains so
              * every captured variable lives in the immediate closure's capture array. */
             if (frame->closure && idx < frame->closure->capture_count) {
@@ -2492,7 +2493,7 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_STORE_UPVALUE) {
-            uint16_t idx = instr.operands[1].u16;
+            uint16_t idx = instr->operands[1].u16;
             /* depth (operands[0]) always 0 — see OP_LOAD_UPVALUE note above */
             NanoValue v = stack_pop(vm);
             if (frame->closure && idx < frame->closure->capture_count) {
@@ -2718,13 +2719,13 @@ dynamic_div:
             if (a.tag != TAG_INT || b.tag != TAG_INT)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "%s requires two integers",
-                                  isa_get_info(instr.opcode)->name);
+                                  isa_get_info(instr->opcode)->name);
             int64_t result = 0;
             /* Unsigned intermediates implement modulo-2^64 arithmetic. */
-            if (instr.opcode == OP_I64_ADD) result = (int64_t)((uint64_t)a.as.i64 + (uint64_t)b.as.i64);
-            else if (instr.opcode == OP_I64_SUB) result = (int64_t)((uint64_t)a.as.i64 - (uint64_t)b.as.i64);
-            else if (instr.opcode == OP_I64_MUL) result = (int64_t)((uint64_t)a.as.i64 * (uint64_t)b.as.i64);
-            else if (instr.opcode == OP_I64_DIV_S) {
+            if (instr->opcode == OP_I64_ADD) result = (int64_t)((uint64_t)a.as.i64 + (uint64_t)b.as.i64);
+            else if (instr->opcode == OP_I64_SUB) result = (int64_t)((uint64_t)a.as.i64 - (uint64_t)b.as.i64);
+            else if (instr->opcode == OP_I64_MUL) result = (int64_t)((uint64_t)a.as.i64 * (uint64_t)b.as.i64);
+            else if (instr->opcode == OP_I64_DIV_S) {
                 if (b.as.i64 == 0) result = 0;
                 else if (a.as.i64 == INT64_MIN && b.as.i64 == -1) result = INT64_MIN;
                 else result = a.as.i64 / b.as.i64;
@@ -2754,11 +2755,11 @@ dynamic_div:
             if (a.tag != TAG_FLOAT || b.tag != TAG_FLOAT)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "%s requires two floats",
-                                  isa_get_info(instr.opcode)->name);
+                                  isa_get_info(instr->opcode)->name);
             double result = 0.0;
-            if (instr.opcode == OP_F64_ADD) result = nano_rt_f64_add(a.as.f64, b.as.f64);
-            else if (instr.opcode == OP_F64_SUB) result = nano_rt_f64_sub(a.as.f64, b.as.f64);
-            else if (instr.opcode == OP_F64_MUL) result = nano_rt_f64_mul(a.as.f64, b.as.f64);
+            if (instr->opcode == OP_F64_ADD) result = nano_rt_f64_add(a.as.f64, b.as.f64);
+            else if (instr->opcode == OP_F64_SUB) result = nano_rt_f64_sub(a.as.f64, b.as.f64);
+            else if (instr->opcode == OP_F64_MUL) result = nano_rt_f64_mul(a.as.f64, b.as.f64);
             else result = nano_rt_f64_div(a.as.f64, b.as.f64);
             stack_push(vm, val_float(result));
             VM_NEXT();
@@ -2767,7 +2768,7 @@ dynamic_div:
         VM_CASE(OP_F64_FROM_BITS)
         VM_CASE(OP_F64_TO_BITS) {
             NanoValue value = stack_pop(vm);
-            uint8_t expected = instr.opcode == OP_F64_FROM_BITS ? TAG_INT : TAG_FLOAT;
+            uint8_t expected = instr->opcode == OP_F64_FROM_BITS ? TAG_INT : TAG_FLOAT;
             if (value.tag != expected) {
                 vm_release(&vm->heap, value);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "I require the exact input tag for binary64 bit transport.");
@@ -2856,13 +2857,13 @@ dynamic_div:
             if (a.tag != TAG_INT || b.tag != TAG_INT)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "%s requires two integers",
-                                  isa_get_info(instr.opcode)->name);
+                                  isa_get_info(instr->opcode)->name);
             bool result = false;
-            if (instr.opcode == OP_I64_EQ) result = a.as.i64 == b.as.i64;
-            else if (instr.opcode == OP_I64_NE) result = a.as.i64 != b.as.i64;
-            else if (instr.opcode == OP_I64_LT_S) result = a.as.i64 < b.as.i64;
-            else if (instr.opcode == OP_I64_LE_S) result = a.as.i64 <= b.as.i64;
-            else if (instr.opcode == OP_I64_GT_S) result = a.as.i64 > b.as.i64;
+            if (instr->opcode == OP_I64_EQ) result = a.as.i64 == b.as.i64;
+            else if (instr->opcode == OP_I64_NE) result = a.as.i64 != b.as.i64;
+            else if (instr->opcode == OP_I64_LT_S) result = a.as.i64 < b.as.i64;
+            else if (instr->opcode == OP_I64_LE_S) result = a.as.i64 <= b.as.i64;
+            else if (instr->opcode == OP_I64_GT_S) result = a.as.i64 > b.as.i64;
             else result = a.as.i64 >= b.as.i64;
             stack_push(vm, val_bool(result));
             VM_NEXT();
@@ -2879,13 +2880,13 @@ dynamic_div:
             if (a.tag != TAG_FLOAT || b.tag != TAG_FLOAT)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "%s requires two floats",
-                                  isa_get_info(instr.opcode)->name);
+                                  isa_get_info(instr->opcode)->name);
             bool result = false;
-            if (instr.opcode == OP_F64_EQ) result = a.as.f64 == b.as.f64;
-            else if (instr.opcode == OP_F64_NE) result = a.as.f64 != b.as.f64;
-            else if (instr.opcode == OP_F64_LT) result = a.as.f64 < b.as.f64;
-            else if (instr.opcode == OP_F64_LE) result = a.as.f64 <= b.as.f64;
-            else if (instr.opcode == OP_F64_GT) result = a.as.f64 > b.as.f64;
+            if (instr->opcode == OP_F64_EQ) result = a.as.f64 == b.as.f64;
+            else if (instr->opcode == OP_F64_NE) result = a.as.f64 != b.as.f64;
+            else if (instr->opcode == OP_F64_LT) result = a.as.f64 < b.as.f64;
+            else if (instr->opcode == OP_F64_LE) result = a.as.f64 <= b.as.f64;
+            else if (instr->opcode == OP_F64_GT) result = a.as.f64 > b.as.f64;
             else result = a.as.f64 >= b.as.f64;
             stack_push(vm, val_bool(result));
             VM_NEXT();
@@ -2927,8 +2928,8 @@ dynamic_div:
             if (a.tag != TAG_BOOL || b.tag != TAG_BOOL)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "%s requires two booleans",
-                                  isa_get_info(instr.opcode)->name);
-            stack_push(vm, val_bool(instr.opcode == OP_BOOL_AND
+                                  isa_get_info(instr->opcode)->name);
+            stack_push(vm, val_bool(instr->opcode == OP_BOOL_AND
                                     ? a.as.boolean && b.as.boolean
                                     : a.as.boolean || b.as.boolean));
             VM_NEXT();
@@ -2959,11 +2960,11 @@ dynamic_div:
             if (a.tag != TAG_INT || b.tag != TAG_INT)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "%s requires two integers",
-                                  isa_get_info(instr.opcode)->name);
+                                  isa_get_info(instr->opcode)->name);
             uint64_t ua = (uint64_t)a.as.i64;
             uint64_t ub = (uint64_t)b.as.i64;
             uint32_t shift = (uint32_t)(ub & 63U);
-            switch (instr.opcode) {
+            switch (instr->opcode) {
                 case OP_I64_DIV_U: stack_push(vm, val_int(ub ? (int64_t)(ua / ub) : 0)); break;
                 case OP_I64_REM_U: stack_push(vm, val_int(ub ? (int64_t)(ua % ub) : 0)); break;
                 case OP_I64_LT_U: stack_push(vm, val_bool(ua < ub)); break;
@@ -2997,13 +2998,13 @@ dynamic_div:
             if (a.tag != TAG_INT || b.tag != TAG_INT || carry.tag != TAG_INT)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "%s requires three integers",
-                                  isa_get_info(instr.opcode)->name);
+                                  isa_get_info(instr->opcode)->name);
             uint64_t ua = (uint64_t)a.as.i64;
             uint64_t ub = (uint64_t)b.as.i64;
             uint64_t uc = (uint64_t)carry.as.i64 & 1U;
             uint64_t low;
             uint64_t high;
-            if (instr.opcode == OP_I64_ADD_CARRY) {
+            if (instr->opcode == OP_I64_ADD_CARRY) {
                 low = ua + ub;
                 high = low < ua;
                 uint64_t with_carry = low + uc;
@@ -3028,11 +3029,11 @@ dynamic_div:
             if (a.tag != TAG_INT || b.tag != TAG_INT)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "%s requires two integers",
-                                  isa_get_info(instr.opcode)->name);
+                                  isa_get_info(instr->opcode)->name);
             uint64_t low;
             uint64_t high;
 #if defined(__SIZEOF_INT128__)
-            if (instr.opcode == OP_I64_MUL_WIDE_S) {
+            if (instr->opcode == OP_I64_MUL_WIDE_S) {
                 __int128 product = (__int128)a.as.i64 * (__int128)b.as.i64;
                 low = (uint64_t)product;
                 high = (uint64_t)((unsigned __int128)product >> 64);
@@ -3272,7 +3273,7 @@ dynamic_div:
 
         VM_CASE(OP_CALL_INDIRECT) {
             if (vm->profile.enabled) vm->profile.indirect_calls++;
-            if (!stack_has_operands(vm, (uint32_t)instr.operands[0].u16 + 1))
+            if (!stack_has_operands(vm, (uint32_t)instr->operands[0].u16 + 1))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "I need the callable and all indirect-call arguments.");
             NanoValue fn_val = stack_peek(vm, 0);
@@ -3291,11 +3292,11 @@ dynamic_div:
                  * known now, so this is where the two are compared: a
                  * mismatch means the proof does not describe what is about to
                  * run. */
-                if (instr.operands[0].u16 != callee->arity
-                        || instr.operands[1].u16 != callee->result_count) {
+                if (instr->operands[0].u16 != callee->arity
+                        || instr->operands[1].u16 != callee->result_count) {
                     return trap_error(vm, VM_ERR_TYPE_ERROR,
                                       "Indirect call declares %u->%u but function %u is %u->%u",
-                                      instr.operands[0].u16, instr.operands[1].u16,
+                                      instr->operands[0].u16, instr->operands[1].u16,
                                       callee_idx, callee->arity, callee->result_count);
                 }
 
@@ -3346,19 +3347,19 @@ dynamic_div:
         }
 
         VM_CASE(OP_HANDLER_PUSH) {
-            if (instr.operands[0].u32 >= vm->module->string_count ||
-                (uint32_t)instr.operands[2].u16 + instr.operands[3].u16 > frame->local_count)
+            if (instr->operands[0].u32 >= vm->module->string_count ||
+                (uint32_t)instr->operands[2].u16 + instr->operands[3].u16 > frame->local_count)
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "I require valid handler names and local slots.");
             if (vm->handler_count == VM_MAX_FRAMES)
                 return trap_error(vm, VM_ERR_CALL_DEPTH, "I exceeded my effect handler limit.");
             VmEffectHandler *handler = &vm->handlers[vm->handler_count++];
-            *handler = (VmEffectHandler){vm->module, instr.operands[0].u32,
+            *handler = (VmEffectHandler){vm->module, instr->operands[0].u32,
                 decoded->branch_target_offset, vm->frame_count - 1,
-                instr.operands[2].u16, instr.operands[3].u16};
+                instr->operands[2].u16, instr->operands[3].u16};
             VM_NEXT();
         }
         VM_CASE(OP_HANDLER_POP) {
-            uint16_t count = instr.operands[0].u16;
+            uint16_t count = instr->operands[0].u16;
             if (count > vm->handler_count)
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "I cannot pop absent effect handlers.");
             for (uint16_t i = 0; i < count; i++) {
@@ -3369,9 +3370,9 @@ dynamic_div:
             VM_NEXT();
         }
         VM_CASE(OP_PERFORM) {
-            if (instr.operands[0].u32 >= vm->module->string_count)
+            if (instr->operands[0].u32 >= vm->module->string_count)
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "I require a valid effect name.");
-            const char *operation = vm->module->strings[instr.operands[0].u32];
+            const char *operation = vm->module->strings[instr->operands[0].u32];
             VmEffectHandler *handler = NULL;
             for (uint32_t i = vm->handler_count; i > 0; i--) {
                 VmEffectHandler *candidate = &vm->handlers[i - 1];
@@ -3382,7 +3383,7 @@ dynamic_div:
             }
             if (!handler)
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "I found no handler for %s.", operation);
-            uint16_t argc = instr.operands[1].u16;
+            uint16_t argc = instr->operands[1].u16;
             if (argc != handler->parameter_count)
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "I require matching effect argument counts.");
             if (vm->frame_count == VM_MAX_FRAMES)
@@ -3579,7 +3580,7 @@ vm_return_values: ;
                 vm->profile.extern_calls++;
                 vm->profile.traps++;
             }
-            uint32_t import_idx = instr.operands[0].u32;
+            uint32_t import_idx = instr->operands[0].u32;
 
             /* Determine arg count from import table */
             if (import_idx >= vm->module->import_count) {
@@ -3629,8 +3630,8 @@ vm_return_values: ;
              * link time; report the same errors the pair would have. */
             const VmCallHandle *handle = &decoded->call_handle;
             if (!handle->resolved) {
-                uint32_t mod_idx = instr.operands[0].u32;
-                uint32_t fn_idx_bad = instr.operands[1].u32;
+                uint32_t mod_idx = instr->operands[0].u32;
+                uint32_t fn_idx_bad = instr->operands[1].u32;
                 if (mod_idx >= vm->linked_module_count) {
                     return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
                         "Module index %u out of range (have %u)", mod_idx,
@@ -3643,11 +3644,11 @@ vm_return_values: ;
             uint32_t fn_idx_m = handle->function_index;
             const NvmFunctionEntry *callee = handle->function;
 
-            if (instr.operands[2].u16 != callee->arity
-                    || instr.operands[3].u16 != callee->result_count)
+            if (instr->operands[2].u16 != callee->arity
+                    || instr->operands[3].u16 != callee->result_count)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "I declared a linked call %u->%u, but its target is %u->%u.",
-                                  instr.operands[2].u16, instr.operands[3].u16,
+                                  instr->operands[2].u16, instr->operands[3].u16,
                                   callee->arity, callee->result_count);
 
             if (vm->frame_count >= VM_MAX_FRAMES) {
@@ -3844,7 +3845,7 @@ vm_return_values: ;
 
         VM_CASE(OP_STR_TO_LOWER)
         VM_CASE(OP_STR_TO_UPPER) {
-            bool to_lower = (instr.opcode == OP_STR_TO_LOWER);
+            bool to_lower = (instr->opcode == OP_STR_TO_LOWER);
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING) {
                 vm_release(&vm->heap, s);
@@ -3887,7 +3888,7 @@ vm_return_values: ;
 
         VM_CASE(OP_STR_STARTS_WITH)
         VM_CASE(OP_STR_ENDS_WITH) {
-            bool starts = (instr.opcode == OP_STR_STARTS_WITH);
+            bool starts = (instr->opcode == OP_STR_STARTS_WITH);
             NanoValue affix_v = stack_pop(vm);
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING || affix_v.tag != TAG_STRING) {
@@ -4055,7 +4056,7 @@ vm_return_values: ;
          * ============================================================ */
 
         VM_CASE(OP_ARR_NEW) {
-            uint8_t elem_type = instr.operands[0].u8;
+            uint8_t elem_type = instr->operands[0].u8;
             VmArray *a = vm_array_new(&vm->heap, elem_type, 8);
             if (!a) return trap_error(vm, VM_ERR_MEMORY, "I could not create the array.");
             stack_push(vm, val_array(a));
@@ -4193,8 +4194,8 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_ARR_LITERAL) {
-            uint8_t elem_type = instr.operands[0].u8;
-            uint16_t count = instr.operands[1].u16;
+            uint8_t elem_type = instr->operands[0].u8;
+            uint16_t count = instr->operands[1].u16;
             VmArray *a = vm_array_new(&vm->heap, elem_type, count > 0 ? count : 8);
             if (!a) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array.");
             /* Pop count values in reverse (they were pushed in order). The
@@ -4214,7 +4215,7 @@ vm_return_values: ;
          * ============================================================ */
 
         VM_CASE(OP_STRUCT_NEW) {
-            uint32_t def_idx = instr.operands[0].u32;
+            uint32_t def_idx = instr->operands[0].u32;
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
             if(record_execution)def_idx=record_array->record_layouts[def_idx];
 #endif
@@ -4225,7 +4226,7 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_STRUCT_GET) {
-            uint16_t field_idx = instr.operands[0].u16;
+            uint16_t field_idx = instr->operands[0].u16;
             NanoValue sv = stack_pop(vm);
             if (sv.tag != TAG_STRUCT || !sv.as.sval) {
                 vm_release(&vm->heap, sv);
@@ -4243,7 +4244,7 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_STRUCT_SET) {
-            uint16_t field_idx = instr.operands[0].u16;
+            uint16_t field_idx = instr->operands[0].u16;
             NanoValue v = stack_pop(vm);
             NanoValue sv = stack_pop(vm);
             if (sv.tag != TAG_STRUCT || !sv.as.sval) {
@@ -4264,8 +4265,8 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_STRUCT_LITERAL) {
-            uint32_t def_idx = instr.operands[0].u32;
-            uint16_t field_count = instr.operands[1].u16;
+            uint32_t def_idx = instr->operands[0].u32;
+            uint16_t field_count = instr->operands[1].u16;
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
             if(record_execution)def_idx=record_array->record_layouts[def_idx];
 #endif
@@ -4284,9 +4285,9 @@ vm_return_values: ;
          * ============================================================ */
 
         VM_CASE(OP_UNION_CONSTRUCT) {
-            uint32_t def_idx = instr.operands[0].u32;
-            uint16_t variant = instr.operands[1].u16;
-            uint16_t fcount = instr.operands[2].u16;
+            uint32_t def_idx = instr->operands[0].u32;
+            uint16_t variant = instr->operands[1].u16;
+            uint16_t fcount = instr->operands[2].u16;
             VmUnion *u = vm_union_new(&vm->heap, def_idx, variant, fcount);
             if (!u) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the union.");
             for (uint16_t i = 0; i < fcount; i++) {
@@ -4309,7 +4310,7 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_UNION_FIELD) {
-            uint16_t field_idx = instr.operands[0].u16;
+            uint16_t field_idx = instr->operands[0].u16;
             NanoValue uv = stack_pop(vm);
             if (uv.tag != TAG_UNION || !uv.as.uval) {
                 vm_release(&vm->heap, uv);
@@ -4327,7 +4328,7 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_MATCH_TAG) {
-            uint16_t variant = instr.operands[0].u16;
+            uint16_t variant = instr->operands[0].u16;
             NanoValue top = stack_peek(vm, 0);
             if (top.tag == TAG_UNION && top.as.uval && top.as.uval->variant == variant) {
                 /* Match - jump to arm */
@@ -4338,8 +4339,8 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_ENUM_VAL) {
-            uint32_t def_idx = instr.operands[0].u32;
-            uint16_t variant = instr.operands[1].u16;
+            uint32_t def_idx = instr->operands[0].u32;
+            uint16_t variant = instr->operands[1].u16;
             (void)def_idx;
             stack_push(vm, val_enum((int32_t)variant));
             VM_NEXT();
@@ -4350,7 +4351,7 @@ vm_return_values: ;
          * ============================================================ */
 
         VM_CASE(OP_TUPLE_NEW) {
-            uint16_t count = instr.operands[0].u16;
+            uint16_t count = instr->operands[0].u16;
             VmTuple *t = vm_tuple_new(&vm->heap, count);
             if (!t) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the tuple.");
             for (uint16_t i = 0; i < count; i++) {
@@ -4361,7 +4362,7 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_TUPLE_GET) {
-            uint16_t index = instr.operands[0].u16;
+            uint16_t index = instr->operands[0].u16;
             NanoValue tv = stack_pop(vm);
             if (tv.tag != TAG_TUPLE || !tv.as.tuple) {
                 vm_release(&vm->heap, tv);
@@ -4379,10 +4380,10 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_AGG_PACK) {
-            uint8_t kind = instr.operands[0].u8;
-            uint32_t layout = instr.operands[1].u32;
-            uint16_t variant = instr.operands[2].u16;
-            uint16_t count = instr.operands[3].u16;
+            uint8_t kind = instr->operands[0].u8;
+            uint32_t layout = instr->operands[1].u32;
+            uint16_t variant = instr->operands[2].u16;
+            uint16_t count = instr->operands[3].u16;
             if (!stack_has_operands(vm, count))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "AGG_PACK needs %u values", count);
@@ -4424,7 +4425,7 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_AGG_GET) {
-            uint16_t index = instr.operands[0].u16;
+            uint16_t index = instr->operands[0].u16;
             NanoValue aggregate = stack_pop(vm);
             NanoValue value = val_void();
             if (aggregate.tag == TAG_STRUCT && aggregate.as.sval
@@ -4448,7 +4449,7 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_AGG_SET) {
-            uint16_t index = instr.operands[0].u16;
+            uint16_t index = instr->operands[0].u16;
             NanoValue value = stack_pop(vm);
             NanoValue aggregate = stack_pop(vm);
             NanoValue *field = NULL;
@@ -4493,8 +4494,8 @@ vm_return_values: ;
          * ============================================================ */
 
         VM_CASE(OP_HM_NEW) {
-            uint8_t key_type = instr.operands[0].u8;
-            uint8_t val_type = instr.operands[1].u8;
+            uint8_t key_type = instr->operands[0].u8;
+            uint8_t val_type = instr->operands[1].u8;
             VmHashMap *m = vm_hashmap_new(&vm->heap, key_type, val_type);
             if (!m) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate a hashmap.");
             stack_push(vm, val_hashmap(m));
@@ -4749,7 +4750,7 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_TYPE_CHECK) {
-            uint8_t expected = instr.operands[0].u8;
+            uint8_t expected = instr->operands[0].u8;
             NanoValue v = stack_pop(vm);
             stack_push(vm, val_bool(v.tag == expected));
             vm_release(&vm->heap, v);
@@ -4761,8 +4762,8 @@ vm_return_values: ;
          * ============================================================ */
 
         VM_CASE(OP_CLOSURE_NEW) {
-            uint32_t fn_idx_c = instr.operands[0].u32;
-            uint16_t capture_count = instr.operands[1].u16;
+            uint32_t fn_idx_c = instr->operands[0].u32;
+            uint16_t capture_count = instr->operands[1].u16;
             VmClosure *c = vm_closure_new(&vm->heap, fn_idx_c, capture_count);
             if (!c) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the closure.");
             c->callable_module = vm_callable_module_id(vm, vm->module);
@@ -4804,7 +4805,7 @@ vm_return_values: ;
         VM_CASE(OP_DEBUG_LINE)
             /* Track source line in the current frame for stack traces.
              * Column is resolved via debug_entries; reset to 0 here. */
-            frame->current_line = instr.operands[0].u32;
+            frame->current_line = instr->operands[0].u32;
             frame->current_col  = 0;
             /* Resolve column from debug_entries if available */
             {
@@ -4856,10 +4857,10 @@ vm_return_values: ;
             if (address.tag != TAG_INT || address.as.i64 < 0)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "%s requires a non-negative integer address",
-                                  isa_get_info(instr.opcode)->name);
-            uint64_t width = instr.opcode == OP_MEM_LOAD8 ? 1
-                : instr.opcode == OP_MEM_LOAD16 ? 2
-                : instr.opcode == OP_MEM_LOAD32 ? 4 : 8;
+                                  isa_get_info(instr->opcode)->name);
+            uint64_t width = instr->opcode == OP_MEM_LOAD8 ? 1
+                : instr->opcode == OP_MEM_LOAD16 ? 2
+                : instr->opcode == OP_MEM_LOAD32 ? 4 : 8;
             uint64_t start = (uint64_t)address.as.i64;
             if (start > vm->memory_size || width > vm->memory_size - start)
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
@@ -4884,10 +4885,10 @@ vm_return_values: ;
             if (address.tag != TAG_INT || value.tag != TAG_INT || address.as.i64 < 0)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "%s requires integer address and value",
-                                  isa_get_info(instr.opcode)->name);
-            uint64_t width = instr.opcode == OP_MEM_STORE8 ? 1
-                : instr.opcode == OP_MEM_STORE16 ? 2
-                : instr.opcode == OP_MEM_STORE32 ? 4 : 8;
+                                  isa_get_info(instr->opcode)->name);
+            uint64_t width = instr->opcode == OP_MEM_STORE8 ? 1
+                : instr->opcode == OP_MEM_STORE16 ? 2
+                : instr->opcode == OP_MEM_STORE32 ? 4 : 8;
             uint64_t start = (uint64_t)address.as.i64;
             if (start > vm->memory_size || width > vm->memory_size - start)
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
@@ -4901,7 +4902,7 @@ vm_return_values: ;
         }
 
         VM_DEFAULT
-            return trap_error(vm, VM_ERR_INVALID_OPCODE, "Unknown opcode 0x%02x", instr.opcode);
+            return trap_error(vm, VM_ERR_INVALID_OPCODE, "Unknown opcode 0x%02x", instr->opcode);
 
         VM_DISPATCH_END() /* switch */
 #ifdef NANO_COMPUTED_GOTO
