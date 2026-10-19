@@ -15950,3 +15950,15 @@ I reproduced the coverage packaging failure after all seventeen bootstrap steps 
 
 - I integrate shared-path reconstruction as e473681c1, pass 24 aggregate methods in 352.096s through current NanoVirt and both retained fresh stages, and wire its suite into test-owned-reconstruction. I retain docs/evidence/owned-shared-path-aggregate-20261019/. Full #999 and hosted qualification remain open.
 - I repair the coverage checkpoint representation in 754840536 with version-two indexed tracked membership, preserving the 32 MiB bound and all identity checks. Twenty archive/workflow tests pass; the exact old path set measures 21,833,358 representative manifest bytes after correction versus 37,200,653 before. Independent review finds no blocking issue. Hosted full checkpoint transfer remains required.
+### Checked resource field-read projection design (#998)
+
+- [x] I record contract-only ownership by `workspace_repairs` on
+  `design/5.1-checked-field-read-facts` from `c56b6ef67`. My previous call-borrow
+  component has passed fresh aggregate bootstrap and metadata qualification.
+- [ ] I review the existing accepted field-read event and exact emission mapping
+  in [my bounded design](NANOISA_CHECKED_FIELD_READ_FACTS.md) before changing any
+  schema, producer or test. This is the existing row10407 affine projection
+  obligation; I do not invent branch certificates or extend executable profiles.
+- [ ] After explicit interface review, I qualify any approved retention through
+  both producers, transport, failure/lifetime controls and fresh platform gates.
+
