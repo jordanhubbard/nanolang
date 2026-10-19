@@ -16175,3 +16175,7 @@ Read-only existing finite caller planning estimates209→127 without new pattern
 Independent review identified a profile overlap: caller own_assign could enter the older all-function planner after new caller-only planning, replan helper1 and enroll scratch storage. I explicitly refuse this unqualified composition before rendering, preserving old profiles and the new caller-only contract; a focused regression will retain this boundary.
 
 I qualify the exact single-exclusive helper-local slice with the [receipt](evidence/single-exclusive-helper-reconstruction-20261019/README.md): six scoped methods36.262s plus original-verifier/control and old-[2] golden2methods0.098s, through seed/both fresh3446 stages and O0/O2 native paths. Actual ordinary/original-shadow127/29, generated consistency shadow60/29 and128/129 boundary pass. Four old-[2,1] outputs remain byte-identical. The initial209 refusal, named-replacement test correction and reassignment-composition exclusion remain explicit. No C/provider/runtime change; full #999/platform gates remain open.
+
+### 2026-10-19: integrated single-exclusive helper qualification
+
+Candidate `765a698d4` passes all7 focused methods in39.911s through the current wrapper-corrected seed and fresh3446 stages. I retain actual127/29 output, consistency-shadow60/29,128/129 boundary, exact descriptor/formal/owner controls and explicit reassignment-composition refusal. [Receipt](evidence/single-exclusive-helper-aggregate-20261019/README.md). Exact hosted and remaining required scope stay open under #999.
