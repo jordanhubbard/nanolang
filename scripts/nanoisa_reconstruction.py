@@ -78,7 +78,7 @@ class Analyze:
         self.calls = set()
         self.backedges = {}
         for n, i in enumerate(self.code):
-            require(i['op'] in SIMPLE | BRANCH | {'JMP', 'RET'},
+            require(i['op'] in SIMPLE | BRANCH | {'JMP', 'RET', 'TAIL_CALL'},
                     'do not reconstruct opcode ' + i['op'])
             if i['op'] in BRANCH | {'JMP'}:
                 require(i['target'] in self.positions, 'require exact branch boundaries')
@@ -250,7 +250,9 @@ class Analyze:
             self.calls.add(arg)
         else:
             raise Refusal('I require a simple scalar instruction here')
-        if pure:
+        # I retain immutable literals directly; they need no evaluation snapshot.
+        # Byte literals keep typed bindings because bare Nano numerals are INT.
+        if pure or (expr.kind in ('constant', 'float_bits') and expr.tag != U8):
             stack.append(expr)
         else:
             temporary = Expr(expr.tag, 'temporary', ins['pc'])
@@ -279,8 +281,8 @@ class Analyze:
                 if self.code[branch]['op'] == 'JMP_TRUE':
                     condition = Expr(BOOL, 'not', None, (condition,))
                 self.touch(branch)
-                body, _, returns = self.region(branch + 1, back, initialized, depth + 1)
-                require(not returns, 'do not reconstruct terminal loop bodies yet')
+                body, _, _ = self.region(branch + 1, back, initialized, depth + 1)
+                # I preserve a body return, while a false pretest still reaches the continuation.
                 self.touch(back)
                 statements.append(('while', condition, body))
                 index = back + 1
@@ -313,6 +315,18 @@ class Analyze:
                 initialized = right_init if left_ret else left_init if right_ret else left_init & right_init
                 index = join
                 continue
+            if op == 'TAIL_CALL':
+                self.touch(index)
+                callee_index = ins['arg']
+                require(0 <= callee_index < len(self.module['functions']), 'require an existing direct callee')
+                callee = self.module['functions'][callee_index]
+                require(callee['result'] == self.fn['result'], 'require exact tail-call result types')
+                args = [self.pop(stack, tag) for tag in reversed(callee['params'])]
+                require(not stack and index + 1 == end, 'require explicit terminal scalar tail calls')
+                self.calls.add(callee_index)
+                statements.append(('return', Expr(callee['result'], 'call', callee_index,
+                                                  tuple(reversed(args)))))
+                return statements, initialized, True
             if op == 'RET':
                 self.touch(index)
                 value = self.pop(stack, self.fn['result'])
@@ -330,7 +344,46 @@ class Analyze:
         require(returns, 'require every function path to return explicitly')
         require(len(self.seen) == len(self.code), 'require complete instruction coverage')
         return Function(self.fn['name'], self.fn['params'], self.fn['result'],
-                        self.types, self.fn['names'], body), self.calls
+                        self.types, self.fn['names'], compact_stores(body)), self.calls
+
+
+def compact_stores(body):
+    """I fold only an adjacent temporary's sole use into its local assignment."""
+    uses = {}
+
+    def expression(expr):
+        if expr.kind == 'temporary':
+            uses[expr.value] = uses.get(expr.value, 0) + 1
+        for arg in expr.args:
+            expression(arg)
+
+    def count(statements):
+        for statement in statements:
+            op = statement[0]
+            if op in ('let', 'store'):
+                expression(statement[2])
+            elif op == 'return':
+                expression(statement[1])
+            else:
+                expression(statement[1])
+                for child in statement[2:]:
+                    count(child)
+
+    def fold(statements):
+        result = []
+        for statement in statements:
+            op = statement[0]
+            if op in ('if', 'while'):
+                statement = (op, statement[1], *(fold(child) for child in statement[2:]))
+            if (op == 'store' and result and result[-1][0] == 'let' and
+                    statement[2] == result[-1][1] and uses.get(statement[2].value) == 1):
+                previous = result.pop()
+                statement = ('store', statement[1], previous[2])
+            result.append(statement)
+        return result
+
+    count(body)
+    return fold(body)
 
 
 def analyze(module):

@@ -1,0 +1,12 @@
+test_diamond_both_results_and_definite_assignment (tests.test_scalar_reconstruction.ScalarReconstruction.test_diamond_both_results_and_definite_assignment) ... ok
+test_int_boundaries_and_boolean_call (tests.test_scalar_reconstruction.ScalarReconstruction.test_int_boundaries_and_boolean_call) ... ok
+test_loaded_value_snapshot_survives_later_store (tests.test_scalar_reconstruction.ScalarReconstruction.test_loaded_value_snapshot_survives_later_store) ... ok
+test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) ... ok
+test_optional_names_do_not_alias_slots (tests.test_scalar_reconstruction.ScalarReconstruction.test_optional_names_do_not_alias_slots) ... ok
+test_refusal_preserves_prior_outputs (tests.test_scalar_reconstruction.ScalarReconstruction.test_refusal_preserves_prior_outputs) ... ok
+test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 40.208s
+
+OK
