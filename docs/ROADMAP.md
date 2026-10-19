@@ -16033,3 +16033,5 @@ normalizer refusal, reviewed correction and source/product pins. Fresh aggregate
 raw generations and exact Linux/Darwin qualification remain open under #998.
 
 - I integrate the qualified reference-call pretests, shared conditional helper and exclusive field-write components together, preserving both append-only roadmap histories. I wire both reconstruction suites into the regular target and require a fresh combined raw bootstrap, fixed-point check, three-producer metadata neighbors and reconstruction qualification before crediting aggregate success. Exact Linux/Darwin and full required-scope gates remain open.
+
+- I qualify combined 282d7a9f1 with all 17 fresh bootstrap steps and identical raw generations18e46f065f5743499943d08b413f86a53460da76886c80376ae8f2c614462f05, 13 checked metadata methods94.779s, 54 metadata neighbors228.019s and 40 reconstruction methods599.935s. Eight providers remain unchanged; I retain docs/evidence/checked-field-write-bootstrap-20261019/. Exact Linux/Darwin and full remaining reconstruction scope stay open.
