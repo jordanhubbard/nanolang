@@ -1,0 +1,18 @@
+struct Box { rows:array<array<int>> }
+fn main()->int {
+ let box:Box=Box{rows:[[]]}
+ let alias:array<array<int>> =box.rows
+ (array_set box.rows 0 [])
+ let row:array<int> =(at alias 0)
+ let filled:array<int> =(array_push row 7)
+ assert (== (at filled 0) 7)
+ let added:array<array<int>> =(array_push box.rows [])
+ let last:array<int> =(array_push (at added 1) 7)
+ assert (== (at last 0) 7)
+ (array_set added 0 [7])
+ assert (== (at (at added 0) 0) 7)
+ let literal:array<array<int>> =(array_push added [7])
+ assert (== (at (at literal 2) 0) 7)
+ return 0
+}
+shadow main {assert (== (main) 0)}

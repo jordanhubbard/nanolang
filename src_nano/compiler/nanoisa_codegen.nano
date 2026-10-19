@@ -5372,12 +5372,13 @@ fn nisa_emit_push_call(parser: Parser, call: ASTCall, name: string) -> string {
         let declared: string = (str_substring name 5 (- (str_length name) 10))
         if (!= declared element) { return (nisa_fail "I require the list append to match its element type") }
     }
-    if (and (not (nisa_function_type_ok parser element)) (not (nisa_array_value_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
+    let contextual_literal: bool = (and (str_starts_with element "array<") (== value.node_type ParseNodeType.PNODE_ARRAY_LITERAL))
+    if (and (not (or contextual_literal (nisa_function_type_ok parser element))) (not (nisa_array_value_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
         return (nisa_fail "I require an append value matching the element type")
     }
     let receiver: string = (nisa_emit_expected_expr parser object.node_id object.node_type container)
     let mut appended: string = ""
-    if (nisa_function_type_ok parser element) { set appended (nisa_emit_expected_expr parser value.node_id value.node_type element) }
+    if (or contextual_literal (nisa_function_type_ok parser element)) { set appended (nisa_emit_expected_expr parser value.node_id value.node_type element) }
     else { set appended (nisa_emit_expr parser value.node_id value.node_type) }
     return (+ receiver (+ appended (nisa_line "ARR_PUSH")))
 }
@@ -5392,6 +5393,11 @@ shadow nisa_emit_push_call {
     assert (== (nisa_emit_push_call parser (parser_get_call parser 0) "array_push") "")
     assert (not nisa_ok)
     let reset_again: int = (nisa_reset)
+    let nested: string = (nanoisa_emit_nasm "fn main() -> int { let rows:array<array<string>> = [] let changed:array<array<string>> = (array_push rows []) return (array_length changed) }")
+    assert (str_contains nested "ARR_LITERAL 5 0")
+    assert (str_contains nested "ARR_PUSH")
+    assert (== (nanoisa_emit_nasm "fn main() -> int { let rows:array<array<string>> = [] let changed:array<array<string>> = (array_push rows [true]) return 0 }") "")
+    let reset_nested: int = (nisa_reset)
 }
 
 fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
@@ -5408,13 +5414,14 @@ fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
         let declared: string = (str_substring name 5 (- (str_length name) 9))
         if (!= declared element) { return (nisa_fail "I require the list setter to match its element type") }
     }
-    if (and (not (nisa_function_type_ok parser element)) (not (nisa_array_value_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
+    let contextual_literal: bool = (and (str_starts_with element "array<") (== value.node_type ParseNodeType.PNODE_ARRAY_LITERAL))
+    if (and (not (or contextual_literal (nisa_function_type_ok parser element))) (not (nisa_array_value_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
         return (nisa_fail "I require a replacement value matching the element type")
     }
     let receiver: string = (nisa_emit_expr parser object.node_id object.node_type)
     let position: string = (nisa_emit_expr parser index.node_id index.node_type)
     let mut replacement: string = ""
-    if (nisa_function_type_ok parser element) { set replacement (nisa_emit_expected_expr parser value.node_id value.node_type element) }
+    if (or contextual_literal (nisa_function_type_ok parser element)) { set replacement (nisa_emit_expected_expr parser value.node_id value.node_type element) }
     else { set replacement (nisa_emit_expr parser value.node_id value.node_type) }
     return (+ receiver (+ position (+ replacement (+ (nisa_line "ARR_SET") (nisa_line "POP")))))
 }
@@ -5427,6 +5434,11 @@ shadow nisa_emit_set_call {
     let text: string = (nisa_emit_set_call parser (parser_get_call parser 0) "array_set")
     assert (str_contains text "ARR_SET\n  POP")
     let reset: int = (nisa_reset)
+    let nested: string = (nanoisa_emit_nasm "fn main() -> int { let rows:array<array<string>> = [[\"before\"]] (array_set rows 0 []) return 0 }")
+    assert (str_contains nested "ARR_LITERAL 5 0")
+    assert (str_contains nested "ARR_SET")
+    assert (== (nanoisa_emit_nasm "fn main() -> int { let rows:array<array<string>> = [[]] (array_set rows 0 [true]) return 0 }") "")
+    let reset_nested: int = (nisa_reset)
 }
 
 # I resolve checked callback expressions and retain their exact signatures.

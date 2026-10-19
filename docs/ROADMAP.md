@@ -15713,3 +15713,17 @@ I pass the complete scoped lifetime sequence with a fresh consistent Homebrew Cl
 ### Combined nested STRING and dispatch checkpoint (#976/#1001)
 
 - [ ] I wire the nested STRING consumer into exact compiler-contracts qualification and run a fresh combined raw bootstrap after byte-field, nested STRING and measured dispatch integration. I retain the older full native self-rebuild and sanitizer diagnostic as separately pinned runs.
+
+### Contextual nested-array replacement repair (#1001/#976)
+
+- [ ] I reproduce the existing nested STRING field replacement test on retained fresh generations, preserve its failures, and trace both NanoISA producers.
+- [ ] I carry exact checked container element context into literal replacement/append lowering without changing nonliteral type compatibility, scalar byte conversion, or evaluation order.
+- [ ] I qualify empty/nonempty nested literals, alias/refill, wrong-type prior-output controls and existing array suites before fresh-generation integration.
+
+I reproduce `tests.test_selfhost_array_field_setter.ArrayFieldSetter.test_nested_array_replacement_context` on pinned a36cf09d1 source/4cfad3737 providers: the legacy C-native compiler passes; both installed self-hosted generations refuse replacement element type (1.991 seconds). I retain `/private/tmp/nanolang-oneir-empty-array-context.log`. This is an existing required-test failure, not evidence that an explicit typed workaround completes parity. I own the isolated `fix/5.1-empty-nested-array-context` branch from5bb06c298, contextual array mutation codegen and focused regression tests; aggregate bootstrap inputs remain frozen.
+
+I retain the first focused seed terminal (13.170s): four nonbyte storage cases and ordered operands pass; the byte fixture used nonexistent `cast_u8` (corrected to `cast_int` on observed bytes), and a nonliteral wrong child array was silently accepted. I extend the same exact builtin receiver context check to nonliteral stored children, reusing its existing storage mismatch validation; this is a reproduced safety gap, not a relaxed negative test.
+
+The corrected seed matrix passes five storage cases, ordered mutation and wrong-type prior-output checks. My additional declared-name probe attempts to redefine `array_set`, but that existing name remains builtin/void in this route and the program is refused. I retain this terminal and constrain the shadowing regression to the already-supported declared `array_push` boundary; I do not claim new setter-name shadowing support.
+
+I pass the corrected mutation matrix through changed C and freshly C-hosted Nano producers: four methods in 11.762s, all five primitive nested leaves, empty/nonempty mutation, once-only order, declared array_push identity and unchanged-output refusals. Two existing C-native/VM neighbors pass in 2.532s; strict 444 compiles and relink pass. I retain [the component receipt and original failures](evidence/nested-array-mutation-context-20261019/README.md). Fresh installed generations and platform qualification remain open.

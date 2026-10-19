@@ -6975,3 +6975,8 @@ test-record-array-nested-string: test-record-array-tail-build
 	RECORD_ARRAY_NESTED_CC="$(CC)" RECORD_ARRAY_NESTED_CFLAGS="$(CFLAGS)" RECORD_ARRAY_NESTED_OBJECTS="$(filter-out %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(filter %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)))" RECORD_ARRAY_NESTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_record_array_nested_string
 
 test-units: test-record-array-nested-string
+
+.PHONY: test-nested-array-mutation-context
+test-nested-array-mutation-context: bootstrap3 nano_virt nano_vm nvm2c bin/nano_aot_runtime.o
+	python3 -m unittest -v tests.test_nested_array_mutation_context
+test-units: test-nested-array-mutation-context

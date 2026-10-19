@@ -1,0 +1,28 @@
+test_nested_array_replacement_context (tests.test_selfhost_array_field_setter.ArrayFieldSetter.test_nested_array_replacement_context) ... 
+  test_nested_array_replacement_context (tests.test_selfhost_array_field_setter.ArrayFieldSetter.test_nested_array_replacement_context) (compiler='nanoc_stage1') ... FAIL
+  test_nested_array_replacement_context (tests.test_selfhost_array_field_setter.ArrayFieldSetter.test_nested_array_replacement_context) (compiler='nanoc_stage2') ... FAIL
+
+======================================================================
+FAIL: test_nested_array_replacement_context (tests.test_selfhost_array_field_setter.ArrayFieldSetter.test_nested_array_replacement_context) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-oneir-a36cf09d1/tests/test_selfhost_array_field_setter.py", line 20, in run_program
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a replacement value matching the element type
+
+
+======================================================================
+FAIL: test_nested_array_replacement_context (tests.test_selfhost_array_field_setter.ArrayFieldSetter.test_nested_array_replacement_context) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-oneir-a36cf09d1/tests/test_selfhost_array_field_setter.py", line 20, in run_program
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a replacement value matching the element type
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.991s
+
+FAILED (failures=2)

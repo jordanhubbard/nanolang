@@ -1,0 +1,56 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-rl80wtfh
+test_empty_replacement_and_append_retain_storage (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_empty_replacement_and_append_retain_storage) ... 
+  test_empty_replacement_and_append_retain_storage (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_empty_replacement_and_append_retain_storage) (case='storage-u8', compiler='/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt') ... FAIL
+test_receiver_index_and_value_execute_once_in_order (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_receiver_index_and_value_execute_once_in_order) ... ok
+test_wrong_literal_and_nonliteral_storage_preserve_output (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_wrong_literal_and_nonliteral_storage_preserve_output) ... FAIL
+
+======================================================================
+FAIL: test_empty_replacement_and_append_retain_storage (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_empty_replacement_and_append_retain_storage) (case='storage-u8', compiler='/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-empty-array-context/tests/test_optional_record_join.py", line 112, in paired
+    self.run_retained(label+'-produce', [compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-empty-array-context/tests/test_optional_record_join.py", line 102, in run_retained
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E027 UNDEFINED FUNCTION --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-rl80wtfh/storage-u8.nano
+I cannot find a function named `cast_u8`.
+
+8|  assert (== (at filled 0) (cast_u8 44))
+                             ^^^^^^^
+Hint: Check spelling or ensure the function is defined/imported.
+-- E027 UNDEFINED FUNCTION --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-rl80wtfh/storage-u8.nano
+I cannot find a function named `cast_u8`.
+
+11|  assert (== (at last 0) (cast_u8 44))
+                            ^^^^^^^
+Hint: Check spelling or ensure the function is defined/imported.
+-- E027 UNDEFINED FUNCTION --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-rl80wtfh/storage-u8.nano
+I cannot find a function named `cast_u8`.
+
+13|  assert (== (at (at added 0) 0) (cast_u8 44))
+                                    ^^^^^^^
+Hint: Check spelling or ensure the function is defined/imported.
+-- E027 UNDEFINED FUNCTION --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-rl80wtfh/storage-u8.nano
+I cannot find a function named `cast_u8`.
+
+15|  assert (== (at (at literal 2) 0) (cast_u8 44))
+                                      ^^^^^^^
+Hint: Check spelling or ensure the function is defined/imported.
+error: type check failed
+
+
+======================================================================
+FAIL: test_wrong_literal_and_nonliteral_storage_preserve_output (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_wrong_literal_and_nonliteral_storage_preserve_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-empty-array-context/tests/test_nested_array_mutation_context.py", line 71, in test_wrong_literal_and_nonliteral_storage_preserve_output
+    self.assertNotEqual(result.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+----------------------------------------------------------------------
+Ran 3 tests in 13.170s
+
+FAILED (failures=2)
