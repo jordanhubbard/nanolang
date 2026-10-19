@@ -1,0 +1,35 @@
+test_adjacent_add_snapshot_folding_keeps_effect_boundaries (tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_adjacent_add_snapshot_folding_keeps_effect_boundaries) ... ok
+test_every_continuing_backedge_is_checked (tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_every_continuing_backedge_is_checked) ... ok
+test_guarded_add_work_covers_full_emitted_syntax (tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_guarded_add_work_covers_full_emitted_syntax) ... ok
+test_only_continuing_arm_update_counts_join (tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_only_continuing_arm_update_counts_join) ... ok
+test_rank_loop_work_and_unchanged_ir (tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_rank_loop_work_and_unchanged_ir) ... ok
+test_return_only_loop_counts_pretest_and_preserves_false_path_facts (tests.test_owned_exclusive_control_reconstruction.ExclusiveHelperWorkProof.test_return_only_loop_counts_pretest_and_preserves_false_path_facts) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-k66ty3bp
+test_actual_unproved_rank_and_work_limit_refuse_atomically (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_actual_unproved_rank_and_work_limit_refuse_atomically) ... ok
+test_generated_local_cap_remains_atomic_after_folding (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_generated_local_cap_remains_atomic_after_folding) ... I retain exclusive cap {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt", "actual": [130, 21]}
+I retain exclusive cap {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1", "actual": [130, 21]}
+I retain exclusive cap {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2", "actual": [130, 21]}
+ok
+test_original_reference_verifier_and_defensive_control_refusals (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_original_reference_verifier_and_defensive_control_refusals) ... ok
+test_rank_zero_one_three_and_returning_arm_sources (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_rank_zero_one_three_and_returning_arm_sources) ... ok
+test_return_caller_variants_preserve_complete_owner_consumption (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_return_caller_variants_preserve_complete_owner_consumption) ... ok
+test_unchanged_anchors_and_generated_shadow_measurement (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_unchanged_anchors_and_generated_shadow_measurement) ... I measure exclusive control {"fixture": "source_borrow_control_flow.nano", "provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt", "original": [23, 3], "generated": [128, 21], "shadow": 60, "proof": {"work": 1076, "loops": [{"form": "rank", "slot": 2, "initial": 0, "bound": 2, "iterations": 2, "work": 1062}], "add_work": 256, "limit": 4096}}
+I measure exclusive control {"fixture": "source_borrow_control_flow.nano", "provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1", "original": [23, 3], "generated": [128, 21], "shadow": 60, "proof": {"work": 1076, "loops": [{"form": "rank", "slot": 2, "initial": 0, "bound": 2, "iterations": 2, "work": 1062}], "add_work": 256, "limit": 4096}}
+I measure exclusive control {"fixture": "source_borrow_control_flow.nano", "provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2", "original": [23, 3], "generated": [128, 21], "shadow": 60, "proof": {"work": 1076, "loops": [{"form": "rank", "slot": 2, "initial": 0, "bound": 2, "iterations": 2, "work": 1062}], "add_work": 256, "limit": 4096}}
+I measure exclusive control {"fixture": "source_borrow_returns.nano", "provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt", "original": [25, 3], "generated": [120, 12], "shadow": 20, "proof": {"work": 37, "loops": [], "add_work": 256, "limit": 4096}}
+I measure exclusive control {"fixture": "source_borrow_returns.nano", "provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1", "original": [25, 3], "generated": [120, 12], "shadow": 20, "proof": {"work": 37, "loops": [], "add_work": 256, "limit": 4096}}
+I measure exclusive control {"fixture": "source_borrow_returns.nano", "provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2", "original": [25, 3], "generated": [120, 12], "shadow": 20, "proof": {"work": 37, "loops": [], "add_work": 256, "limit": 4096}}
+ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-0ybe64e3
+test_shared_output_is_byte_identical (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_shared_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x9invvhy
+test_single_exclusive_output_is_byte_identical (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_single_exclusive_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-2wu440cp
+test_v2_exclusive_outputs_remain_byte_identical (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_v2_exclusive_outputs_remain_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-nmwu7_vh
+test_old_two_shared_path_outputs_remain_byte_identical (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_old_two_shared_path_outputs_remain_byte_identical) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 191.594s
+
+OK
