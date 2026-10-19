@@ -1,10 +1,10 @@
-# My borrowed helper local-owner reconstruction design
+# My borrowed helper local-owner reconstruction contract
 
-I own this design-only #999 checkpoint on
-`design/5.1-borrowed-helper-local-owners`, based on aggregate `6a58133c9`.
-I change no admission, schema, producer, verifier or renderer here. The FLOAT
-component owns shared implementation files and the build slot. My witness
-interface awaits review; baseline execution and implementation remain pending.
+I retain my design checkpoints from aggregate `6a58133c9`, rebased onto
+`3446ec677` after FLOAT integration. My reviewed implementation is isolated on
+`design/5.1-borrowed-helper-local-owners`. The design chronology below records
+what required proof before admission; my implementation and measured limits
+are recorded at the end. Full #999 remains open.
 
 ## My accepted source and retained evidence
 
@@ -55,7 +55,7 @@ left/right origins unchanged, and exports no body-local owner. Every successful
 return consumes all helper owners. Assertion failure is a trap with established
 cleanup semantics, not successful affine consumption.
 
-## My unresolved witness interface
+## My reviewed witness interface
 
 My first actual call provides literal target(3,true), source(4,false). The
 unchanged helper returns7 then11 on repeated calls and preserves source(4,false).
@@ -63,7 +63,8 @@ Its assertions depend on shared INT4, local fields100/true and8/false,
 branch1/false or2/true, and an item field equal to the index snapshot taken
 before increment. They do not constrain the changing exclusive target value.
 A representative first-call witness is therefore plausible for both variants;
-this source argument is not yet an implemented proof.
+this source argument alone is not admission authority. My bounded static proof
+implements the following rules before either output is published.
 
 I require a reviewed, bounded static provenance interface before admission:
 exact shared INT/BOOL literals from the actual first-call owner snapshots;
@@ -125,8 +126,15 @@ revisits and saved-state copies are charged again. I check before allocating or
 inserting, and refuse atomically on exhaustion. Flat token comparison is constant
 size; owner traversal follows the already validated depth/layout bounds and
 charges each field. No recursive symbolic expression or implicit uncharged
-state cloning is permitted. These proposed caps and their implementation
-interface still require review and boundary controls before admission.
+state cloning is permitted. These caps remain subject to actual boundary controls before admission.
+My implementation draft conservatively counts cumulative retained binding
+allocations against4096, including saved-state copies, rather than reclaiming
+that allowance when a state dies. This may refuse below the peak-live cap.
+The retained-state cap is not a claim that every Python allocation is counted:
+transient expression operand staging is independently bounded to two operands,
+constructor field staging to sixteen fields and nesting to32, before those
+lists are constructed. Retained insertions/copies reserve their allowance
+before mutation; operand/field inspection also consumes traversal work.
 
 Current `multi_witness` only proves direct shared-BOOL assertions and straight
 line scalar operations. I do not broaden that rule by merely accepting [2,1].
@@ -148,8 +156,8 @@ not a new VM runtime limit. The zero-trip variant must not gain initialization.
 
 I first measure both unchanged/alternate ordinary modules and independently
 produced original shadows, then ordinary reconstructed entry/helper/shadow
-local counts through actual regenerated products. Feasibility under128 locals
-and the existing two-function borrowed admission is **unmeasured**. I preserve
+local counts through actual regenerated products. At design time, feasibility under128 locals
+and the existing two-function borrowed admission was unmeasured. I preserve
 all assertions if a bound fails and stop for representation review. I do not
 automatically extend finite rendering patterns or borrow old shadow cost formulas.
 Original VM/native, reconstructed C/Nano and regenerated sanitized native must
@@ -164,10 +172,47 @@ Old profiles must retain exact output bytes.
   incoming origin at a backedge, body-local escape and uninitialized zero-trip use.
 - I preserve inherited reads/writes after descriptor2 observations, repeated
   invocation generations and same-numbered caller/helper local separation.
-- I test unchanged, else/zero-loop and former-refusal source variants; actual
-  assertions include100/8/1/2/index and source4, with target7/11 for combine.
+- I qualify unchanged and else/zero-loop source variants; actual assertions
+  include100/8/1/2/index and source4, with target7/11 for combine. The historical
+  former-refusal single-[2] variant remains a separate open composition; this
+  exact [2,1] change does not claim to reconstruct it.
 - I reject invalid or nonliteral witnesses and unsupported assertion provenance;
   a later false assertion must preserve prior effects and terminate correctly.
 - I retain original-verifier refusals separately from defensive facts checks,
   complete literal/type/count bounds, atomic old-output preservation and old
   byte goldens. Full required rows9538/10409 and #999 remain open.
+
+## My reviewed representation routing after the first refusal
+
+I retain the actual ordinary Nano refusal at estimated49/179 locals. The
+reviewed correction opts only the new-profile Nano helper index1 into existing
+`plan_reassignment_nano`, after proving the original immutable origin/work/
+witness IR. I leave entry index0, C and old profiles unchanged. I add no planner
+patterns, scratch ADD bank or extra assertion folding. The diagnostic plan
+uses5 constructor bundles,6 pack/store,10 move/store,10 read/store fusions,
+10 unused scalar-unpack copies and3 sole-use snapshot/assert substitutions.
+All151 statements are covered and all19 assertions remain. Helper120 is only
+an estimator hypothesis until ordinary regenerated products measure it.
+
+## My implemented representation and measured boundary
+
+I prove original helper and caller owner origins, helper rank/work and the
+first-call witness before rendering. Before a symbolic loop iteration I
+invalidate every loop-written scalar and borrowed field recursively, retaining
+only invariants and fresh same-iteration snapshots. The retained draft failures
+show why the separate rank proof cannot establish those invariants.
+
+My first ordinary Nano publication refused at the unchanged128-local bound:
+entry49/helper179 were syntax estimates, not regenerated counts. After review
+I reuse only the existing finite rendering planner on a cloned Nano helper1;
+caller0, C output, guarded ADD implementation and old profiles remain unchanged.
+I introduce no new planning patterns or scratch bank. All151 helper statements
+are covered and all19 assertions remain. The measured regenerated ordinary
+entry/helper counts are49/120. The independent consistency shadow measures34/120;
+its existing38-local estimate is conservatively four slots higher for this
+two-parameter profile. I retain that overestimate rather than weaken the cap.
+Original ordinary and independently produced original-shadow inputs each have
+exactly two functions with12/41 locals. Original shadows are separate executable
+inputs; generated consistency shadows do not recover source shadows or claim
+branch coverage. Exact current qualification and provider pins accompany my
+final receipt.

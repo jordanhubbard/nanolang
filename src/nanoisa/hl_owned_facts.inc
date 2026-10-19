@@ -82,7 +82,11 @@ static int owned_facts(const NvmModule *m) {
             for(uint16_t p=0;p<count;p++) {
                 if(!nvm_affine_parameter_at(state,p,&parameters[p],&modes[p]) ||
                    (count==1 ? (modes[p]!=NVM_REFERENCE_SHARED && modes[p]!=NVM_REFERENCE_EXCLUSIVE) :
-                    modes[p]!=((paths && count==2) || p==(paths?2:1)?NVM_REFERENCE_SHARED:NVM_REFERENCE_EXCLUSIVE)))goto done;
+                    (paths && count==2 ? (p==1 ? modes[p]!=NVM_REFERENCE_SHARED :
+                        (modes[p]!=NVM_REFERENCE_SHARED && modes[p]!=NVM_REFERENCE_EXCLUSIVE)) :
+                     modes[p]!=(p==(paths?2:1)?NVM_REFERENCE_SHARED:NVM_REFERENCE_EXCLUSIVE))))goto done;
+                if(paths && count==2 && p==0 && modes[p]==NVM_REFERENCE_EXCLUSIVE)
+                    for(uint32_t layout=0;layout<layouts.count;layout++)if(depths[layout]>2)goto done;
                 if(parameters[p].tag!=TAG_STRUCT || parameters[p].layout>=layouts.count)goto done;
                 const NvmV2Layout *leaf=&layouts.items[parameters[p].layout];
                 for(uint16_t field=0;field<leaf->field_count;field++)
