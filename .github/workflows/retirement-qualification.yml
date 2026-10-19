@@ -1,0 +1,217 @@
+name: Release qualification
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - '.github/workflows/retirement-qualification.yml'
+      - 'Makefile.gnu'
+      - 'src/**'
+      - 'src_nano/**'
+      - 'modules/**'
+      - 'spec/**'
+      - 'schema/**'
+      - 'std/**'
+      - 'stdlib/**'
+      - 'tests/**'
+      - 'scripts/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/retirement-qualification.yml'
+      - 'Makefile.gnu'
+      - 'src/**'
+      - 'src_nano/**'
+      - 'modules/**'
+      - 'spec/**'
+      - 'schema/**'
+      - 'std/**'
+      - 'stdlib/**'
+      - 'tests/**'
+      - 'scripts/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  retirement:
+    name: Qualification (${{ matrix.corpus }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    # I keep this corpus separate from the already full platform quick job.
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14]
+        corpus: [retirement, compiler-contracts]
+    env:
+      CMD_TIMEOUT: '1800'
+      BOOTSTRAP_NANOISA_TIMEOUT: '5400'
+      NANO_SHADOW_TIMEOUT_SECONDS: '120'
+      NANO_SHADOW_TRACE: '1'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        timeout-minutes: 10
+        run: |
+          ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev \
+            libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev \
+            libsdl2-ttf-dev libutf8proc-dev
+
+      - name: Install Darwin dependencies
+        if: runner.os == 'macOS'
+        timeout-minutes: 20
+        run: |
+          ./scripts/ci-brew-install.sh llvm pkg-config openssl sqlite sdl2 \
+            sdl2_image sdl2_mixer sdl2_ttf utf8proc
+          # I expose the installed keg-only header to my declared constant search path.
+          sqlite_header="$(brew --prefix)/include/sqlite3.h"
+          if [[ ! -e "$sqlite_header" ]]; then
+            ln -s "$(brew --prefix sqlite)/include/sqlite3.h" "$sqlite_header"
+          fi
+          printf 'CC=%s/bin/clang\n' "$(brew --prefix llvm)" >> "$GITHUB_ENV"
+          printf 'NANO_NATIVE_TEST_CC=%s/bin/clang\n' "$(brew --prefix llvm)" >> "$GITHUB_ENV"
+
+      - name: Install Python dependencies
+        run: |
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user pyyaml \
+            || python3 -m pip install --user --break-system-packages pyyaml
+          python3 -c 'import yaml'
+
+      - name: Require real SQLite header qualification
+        run: |
+          python3 - <<'PYHEADER'
+          from tests.test_header_constant_functions import HEADERS
+          assert any(path.is_file() for path in HEADERS), "I require the real SQLite header gate to execute."
+          PYHEADER
+
+      - name: Record source identity
+        run: |
+          mkdir -p .test_output/retirement
+          git rev-parse HEAD > .test_output/retirement/revision.txt
+          git ls-tree -r HEAD > .test_output/retirement/source-tree.txt
+          git diff --exit-code HEAD
+          uname -a > .test_output/retirement/host.txt
+          "${CC:-cc}" --version > .test_output/retirement/compiler.txt
+
+      - name: Build and verify fresh compiler generations
+        timeout-minutes: 150
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu CC="${CC:-cc}" bootstrap3 nano_virt nano_vm nvm2c obj/test_module_generation_probe \
+            2>&1 | tee .test_output/retirement/bootstrap.log
+          shasum -a 256 obj/test_module_generation_probe bin/nano_virt bin/nano_vm bin/nvm2c \
+            bin/nanoc_c bin/nanoc_stage1 \
+            bin/nanoc_stage2 bin/nanoc_stage1.nvm bin/nanoc_stage2.nvm \
+            > .test_output/retirement/providers-before.sha256
+
+      - name: Qualify complete File parser retirement
+        if: matrix.corpus == 'retirement'
+        timeout-minutes: 40
+        env:
+          NANO_SERVICE_PARSER_REPORT_DIR: ${{ github.workspace }}/.test_output/retirement
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu CC="${CC:-cc}" test-file-service-parser \
+            2>&1 | tee .test_output/retirement/file-parser.log
+
+      - name: Qualify array slicing and checked identity
+        if: matrix.corpus == 'retirement'
+        timeout-minutes: 40
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu CC="${CC:-cc}" test-selfhost-native-array-slice test-selfhost-array-literal-context \
+            test-native-array-identity 2>&1 | tee .test_output/retirement/array-slice.log
+
+      - name: Qualify installed header constants and imported globals
+        if: matrix.corpus == 'retirement'
+        timeout-minutes: 40
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu CC="${CC:-cc}" test-selfhost-header-constants test-public-global-declarations \
+            test-cseed-global-identity test-cseed-imported-globals test-selfhost-imported-globals \
+            2>&1 | tee .test_output/retirement/headers-globals.log
+
+      - name: Qualify affine identity with sanitized native products
+        if: matrix.corpus == 'retirement'
+        timeout-minutes: 30
+        env:
+          NANO_CFLAGS: '-fsanitize=address,undefined -fno-omit-frame-pointer'
+          NANO_LDFLAGS: '-fsanitize=address,undefined'
+        run: |
+          set -o pipefail
+          NANO_NATIVE_TEST_CC="${CC:-cc} -fsanitize=address,undefined -fno-omit-frame-pointer" \
+            make -f Makefile.gnu CC="${CC:-cc}" test-affine-selfhost \
+            2>&1 | tee .test_output/retirement/affine-identity.log
+
+      - name: Qualify complete source snapshots
+        if: matrix.corpus == 'retirement'
+        # I retain every applicable case; the previous Darwin corpus took 89 minutes.
+        timeout-minutes: 150
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_source_snapshots \
+            2>&1 | tee .test_output/retirement/source-snapshots.log
+
+      - name: Qualify complete native compiler and managed-runtime corpus
+        if: matrix.corpus == 'compiler-contracts'
+        timeout-minutes: 120
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu CC="${CC:-cc}" test-one-ir-compiler \
+            test-native-nested-arrays test-native-array-identity \
+            test-native-generic-record-fields test-native-nominal-order \
+            2>&1 | tee .test_output/retirement/compiler-managed.log
+
+      - name: Qualify advisory metadata and paired source effects
+        if: matrix.corpus == 'compiler-contracts'
+        timeout-minutes: 45
+        env:
+          NANOLANG_EFFECT_TARGETS: 'vm,native'
+          NANOLANG_EFFECT_CFLAGS: '-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer'
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu CC="${CC:-cc}" test-local-binding-producers \
+            test-effect-binding-metadata test-function-purity-metadata \
+            test-generic-binding-metadata test-owned-effect-c-source test-selfhost-effects \
+            2>&1 | tee .test_output/retirement/metadata-effects.log
+
+      - name: Qualify module-derived compiler products and reconstruction
+        if: matrix.corpus == 'compiler-contracts'
+        timeout-minutes: 45
+        run: |
+          set -o pipefail
+          for stage in 1 2; do
+            NANOLANG_SELFHOST_MODULE="$PWD/bin/nanoc_stage${stage}.nvm" \
+              make -f Makefile.gnu CC="${CC:-cc}" test-selfhost-product-derivation \
+              2>&1 | tee ".test_output/retirement/product-stage${stage}.log"
+          done
+          make -f Makefile.gnu CC="${CC:-cc}" test-scalar-reconstruction \
+            2>&1 | tee .test_output/retirement/reconstruction.log
+
+      - name: Verify unchanged source and compiler providers
+        if: always()
+        run: |
+          git diff --exit-code HEAD
+          shasum -a 256 -c .test_output/retirement/providers-before.sha256 \
+            > .test_output/retirement/providers-after.log
+
+      - name: Retain qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qualification-${{ matrix.corpus }}-${{ matrix.os }}
+          path: |
+            .test_output/retirement/
+            obj/bootstrap-nanoisa/**/manifest.json
+            obj/bootstrap-nanoisa/**/*.log
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
