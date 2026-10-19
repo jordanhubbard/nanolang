@@ -1,0 +1,25 @@
+{
+  "focused": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-source-plan-sw2etcw5",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-string-reconstruction-em18zju4"
+  ],
+  "final": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-string-reconstruction-6lnzuty9"
+  ],
+  "neighbors": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-string-reconstruction-bnud7gpg",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-9in1fr_x",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-nvkdlc87",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-vrnw1vi2",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-un1n_we3"
+  ],
+  "defensive-final": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-string-reconstruction-mm3bimiq"
+  ],
+  "first-measurement": [
+    "/private/tmp/owned-string-first-20261019"
+  ],
+  "exact-parent-golden": [
+    "/private/tmp/owned-string-parent-golden"
+  ]
+}

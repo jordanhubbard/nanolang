@@ -2,6 +2,8 @@
 from nanoisa_reconstruction import Analyze, Emit, Expr, Function, INT, BOOL, SIMPLE, require
 
 
+from nanoisa_owned_strings import STRING, literal_facts, nano_literal, literals_in
+
 VOID = 0
 
 # I inline only nontrapping scalar pretests without duplicated/discarded operands.
@@ -27,6 +29,8 @@ class OwnedAnalyze(Analyze):
         self.module = module
         require(module.get('profile') == 'owned-local-v1' and module['entry'] == 0 and
                 0 < len(module['functions']) <= 8, 'require bounded verified resource functions')
+        self.string_literals = literal_facts(module)
+        self.borrowed = any(any(f.get('param_modes', [])) for f in module['functions'])
         self.fn = module['functions'][index]
         self.index = index
         self.layouts = module['layouts']
@@ -61,13 +65,16 @@ class OwnedAnalyze(Analyze):
                 'require complete local declarations')
         self.types = {i: t for i, (t, _) in enumerate(self.declarations) if t in (INT, BOOL)}
 
-        def declared(pair):
+        def declared(pair, parameter=False):
             tag, layout = pair
-            require(tag in (INT, BOOL) and layout == 4294967295 or
+            require((tag in (INT, BOOL) or parameter and not self.borrowed and tag == STRING) and layout == 4294967295 or
                     tag == 8 and 0 <= layout < len(self.layouts),
                     'require exact scalar or nominal resource declarations')
             return owned_type(layout) if tag == 8 else tag
-        self.params = [declared(t) for t in self.fn['params']]
+        self.params = [declared(t, True) for t in self.fn['params']]
+        self.string_params = {i for i, t in enumerate(self.params) if t == STRING}
+        require(all(pair[0] != STRING or i in self.string_params and pair == [STRING, 4294967295]
+                    for i, pair in enumerate(self.declarations)), 'require STRING only in exact parameter slots')
         self.modes = self.fn.get('param_modes', [0] * len(self.params))
         require(len(self.modes) == len(self.params) and all(m in (0, 1, 2) for m in self.modes),
                 'require exact value or borrowed parameter modes')
@@ -115,7 +122,7 @@ class OwnedAnalyze(Analyze):
                 'require the exact owned helper result count')
         require(self.fn['result'] == self.fn['result_type'][0], 'require matching result declarations')
         require(len(self.params) <= 8 and len(self.params) <= len(self.declarations) and
-                all(declared(self.declarations[i]) == (owned_type(t[1]) if self.modes[i] else t) for i, t in enumerate(self.params)),
+                all(declared(self.declarations[i], True) == (owned_type(t[1]) if self.modes[i] else t) for i, t in enumerate(self.params)),
                 'require exact initial parameter slots')
         require(index != 0 or not self.params and self.result == INT,
                 'require a scalar entry without parameters')
@@ -124,6 +131,8 @@ class OwnedAnalyze(Analyze):
         self.seen = set()
         self.calls = set()
         self.code = self.fn['code']
+        require(not any(ins['op'] == 'STORE_LOCAL' and ins['arg'] in self.string_params for ins in self.code),
+                'refuse writes to immutable STRING parameters')
         if self.helper:
             require(self.result in (INT, BOOL) and
                     all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) | ({'SUB', 'ASSERT'} if self.multi else set()) | ({'ADD', 'MUL'} if self.shared_paths else set()) | ({'JMP', 'JMP_TRUE', 'JMP_FALSE'} if self.single_shared_path or self.exclusive_control else set()) for ins in self.code),
@@ -418,7 +427,17 @@ class OwnedAnalyze(Analyze):
             require(op != 'JMP', 'refuse unstructured owned jumps')
             if op not in SIMPLE or op == 'CALL':
                 self.touch(i)
-            if op == 'OWN_PACK':
+            if op == 'PUSH_STR':
+                require(not self.borrowed and arg in self.string_literals, 'require a retained executable string literal')
+                stack.append(Expr(STRING, 'string_literal', (arg, self.string_literals[arg])))
+            elif op == 'LOAD_LOCAL' and arg in self.string_params:
+                self.touch(i)
+                require(arg in initialized, 'require an initialized immutable string parameter')
+                stack.append(Expr(STRING, 'string_parameter', arg))
+            elif op in ('PRINT', 'PRINTLN'):
+                require(not self.borrowed and ins['args'] == [], 'require an exact consuming string print')
+                body.append(('print_string', self.pop(stack, STRING), op == 'PRINTLN'))
+            elif op == 'OWN_PACK':
                 require(0 <= arg < len(self.layouts), 'require a retained nominal layout')
                 fields = self.fields[arg]
                 values = tuple(reversed([self.pop(stack, t) for t in reversed(fields)]))
@@ -1028,7 +1047,7 @@ class OwnedEmit(Emit):
                         continue
                     total += (1 if id(function) in self.scratch_functions and value.kind == 'arithmetic' and value.value == 'add' else
                               7 if value.kind == 'arithmetic' and value.value in ({'add', 'sub'} if self.inline_sub else {'add'}) else 1)
-                elif kind in ('borrow_read', 'borrow_call', 'multi_borrow_read', 'multi_borrow_call', 'path_read', 'path_borrow_call', 'own_store', 'own_move', 'own_read'):
+                elif kind in ('borrow_read', 'borrow_call', 'multi_borrow_read', 'multi_borrow_call', 'path_read', 'path_borrow_call', 'own_store', 'own_move', 'own_read', 'own_parameter'):
                     total += 1
                 elif kind == 'own_pack':
                     total += 1 + len(stmt[3])
@@ -1049,7 +1068,7 @@ class OwnedEmit(Emit):
                 elif kind == 'while_observe':
                     total += statements_cost(stmt[2]) + statements_cost(stmt[3])
                 else:
-                    require(kind in ('store', 'own_assign', 'borrow_write', 'multi_borrow_write', 'assert', 'return', 'break', 'continue'),
+                    require(kind in ('store', 'own_assign', 'borrow_write', 'multi_borrow_write', 'assert', 'return', 'break', 'continue', 'call_void', 'return_void', 'print_string'),
                             'require counted exclusive Nano statement storage')
             return total
         return len(function.locals) + len(function.params) + statements_cost(function.body) + (5 if id(function) in self.scratch_functions else 0)
@@ -1057,7 +1076,17 @@ class OwnedEmit(Emit):
     def name(self, index):
         return 'main' if self.language == 'nano' and index == 0 else super().name(index)
 
+    def expression(self, expr):
+        if expr.kind == 'string_parameter':
+            return f'nlr_a{expr.value}'
+        if expr.kind == 'string_literal':
+            index, data = expr.value
+            return (f'(NlrString){{nlr_string_{index}, {len(data)}}}' if self.language == 'c' else nano_literal(data))
+        return super().expression(expr)
+
     def type(self, tag):
+        if tag == STRING:
+            return 'NlrString' if self.language == 'c' else 'string'
         if tag == VOID:
             return 'void'
         if isinstance(tag, tuple) and tag[0] == 'borrow':
@@ -1215,9 +1244,20 @@ class OwnedEmit(Emit):
         if c and (self.shared_paths or self.single_shared_path or self.exclusive_control) and statements is self.function.body and indent == 1:
             for parameter in range(len(self.function.params)):
                 self.line(f'(void)nlr_a{parameter};', indent)
+        if c and statements is self.function.body and indent == 1:
+            for parameter, tag in enumerate(self.function.params):
+                if tag == STRING:
+                    self.line(f'(void)nlr_a{parameter};', indent)
         for stmt in statements:
             kind = stmt[0]
-            if kind in ('break', 'continue'):
+            if kind == 'print_string':
+                value = self.expression(stmt[1])
+                if c:
+                    self.line(f'(void)fwrite(({value}).data, 1, ({value}).length, stdout);', indent)
+                    if stmt[2]: self.line("(void)fputc('\\n', stdout);", indent)
+                else:
+                    self.line(f'({"println" if stmt[2] else "print"} {value})', indent)
+            elif kind in ('break', 'continue'):
                 require(self.loop_exits, 'require an exit-aware structured transfer')
                 self.line(kind + (';' if c else ''), indent)
             elif kind == 'let' and self.inline_div and stmt[2].kind == 'arithmetic' and stmt[2].value == 'div':
@@ -1283,7 +1323,8 @@ class OwnedEmit(Emit):
                 self.line('return;' if c else 'return', indent)
             elif kind == 'assert':
                 expression = self.expression(stmt[1])
-                self.line(f'if (!({expression})) {{ fputs("Assertion failed\\n", stderr); abort(); }}' if c else
+                flush = '(void)fflush(stdout); ' if c and getattr(self, 'has_strings', False) else ''
+                self.line(f'if (!({expression})) {{ {flush}fputs("Assertion failed\\n", stderr); abort(); }}' if c else
                           f'assert {expression}', indent)
             elif kind == 'own_parameter':
                 _, slot, layout = stmt
@@ -1378,10 +1419,17 @@ class OwnedEmit(Emit):
 
     def run(self, entry):
         c = self.language == 'c'
-        if self.inline_add:
+        string_literals = literals_in(self.functions)
+        self.has_strings = bool(string_literals) or any(STRING in fn.params for fn in self.functions)
+        if self.inline_add or self.has_strings and not c:
             require(all(self.nano_local_cost(fn) <= 128 for fn in self.functions),
                     'limit generated exclusive Nano functions to 128 local slots')
         declarations = ['#include <stdint.h>\n#include <stdbool.h>\n#include <stdio.h>\n#include <stdlib.h>'] if c else []
+        if c and self.has_strings:
+            declarations.append('typedef struct { const unsigned char *data; size_t length; } NlrString;')
+            for index, data in string_literals.items():
+                declarations.append(f'static const unsigned char nlr_string_{index}[] = {{' +
+                                    ', '.join(str(byte) for byte in data or b'\0') + '};')
         for i, layout in enumerate(self.layouts):
             fields = (' '.join(f'{self.type(t)} f{j};' for j, t in enumerate(self.fields[i])) if c else
                       ', '.join(f'f{j}: {self.type(t)}' for j, t in enumerate(self.fields[i])))

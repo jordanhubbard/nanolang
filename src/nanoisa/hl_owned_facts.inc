@@ -5,7 +5,8 @@
 static int owned_facts(const NvmModule *m) {
     NvmV2Layouts layouts={0};NvmAffineState *state=NULL;
     VmDecodedFunction code={0};char error[VM_DECODE_ERROR_SIZE];
-    bool ok=false;uint32_t total=0;uint8_t depths[16]={0};
+    bool ok=false,strings=false;uint32_t total=0;uint8_t depths[16]={0};
+    uint32_t string_indexes[4096],string_count=0,string_bytes=0;
     if(m->ownership_size<4 || !m->ownership_data ||
        (m->ownership_data[0]!=NVM_OWNERSHIP_VERSION && m->ownership_data[0]!=NVM_OWNERSHIP_PATH_VERSION) || m->ownership_data[1] ||
        m->ownership_data[2] || m->ownership_data[3] || !m->function_count || m->function_count>NVM_OWNED_MAX_FUNCTIONS || m->header.entry_point!=0 || m->import_count ||
@@ -71,6 +72,7 @@ static int owned_facts(const NvmModule *m) {
             NvmAffineType t;
             if(!(helper && i<fn->arity ? nvm_affine_parameter_at(state,i,&t,&mode) : nvm_affine_local_type(state,i,&t)) ||
                (t.tag!=TAG_INT && t.tag!=TAG_BOOL &&
+                !(!borrowed && i<fn->arity && t.tag==TAG_STRING && t.layout==NVM_V2_NO_INDEX) &&
                 !(t.tag==TAG_STRUCT && t.layout<layouts.count && nvm_affine_type_is_owned(state,t))))goto done;
         }
 
@@ -95,7 +97,9 @@ static int owned_facts(const NvmModule *m) {
         if(helper && (result.tag!=TAG_INT && result.tag!=TAG_BOOL))goto done;
         for(uint16_t p=0;p<count;p++)
             if(parameters[p].tag!=TAG_INT && parameters[p].tag!=TAG_BOOL &&
+               !(!borrowed && parameters[p].tag==TAG_STRING && parameters[p].layout==NVM_V2_NO_INDEX) &&
                !(parameters[p].tag==TAG_STRUCT && parameters[p].layout<layouts.count && nvm_affine_type_is_owned(state,parameters[p])))goto done;
+        for(uint16_t p=0;p<count;p++)if(parameters[p].tag==TAG_STRING)strings=true;
         if(function)putchar(',');
         printf("{\"name\":\"owned_%u\",\"locals\":%u,\"result_type\":[%u,%u],\"result\":%u,\"result_count\":%u,\"params\":[",function,fn->local_count,result.tag,result.layout,result.tag,fn->result_count);
         for(uint16_t p=0;p<count;p++){if(p)putchar(',');printf("[%u,%u]",parameters[p].tag,parameters[p].layout);}
@@ -120,6 +124,23 @@ static int owned_facts(const NvmModule *m) {
                 case OPERAND_I64:args[a]=in->operands[a].i64;break;
                 default:break;
             }
+            if(in->opcode==OP_PUSH_STR) {
+                if(borrowed || in->operand_count!=1)goto done;
+                uint32_t index=in->operands[0].u32,at=0;
+                if(index>=m->string_count || !nvm_get_string(m,index))goto done;
+                while(at<string_count && string_indexes[at]!=index)at++;
+                if(at==string_count) {
+                    uint32_t length=nvm_get_string_len(m,index);
+                    if(string_count>=4096 || length>1048576-string_bytes ||
+                       memchr(nvm_get_string(m,index),0,length))goto done;
+                    string_indexes[string_count++]=index;string_bytes+=length;
+                }
+                strings=true;
+            }
+            if(in->opcode==OP_STORE_LOCAL) {
+                NvmAffineType destination;
+                if(!nvm_affine_local_type(state,in->operands[0].u16,&destination) || destination.tag==TAG_STRING)goto done;
+            }
             if(i){putchar(',');}printf("{\"pc\":%u,\"op\":\"%s\",\"arg\":%" PRId64 ",\"args\":[",di->byte_offset,isa_get_info(in->opcode)->name,args[0]);
             for(uint8_t a=0;a<in->operand_count && a<4;a++){if(a)putchar(',');printf("%" PRId64,args[a]);}
             printf("],\"target\":%u", di->resolved_target==UINT32_MAX ? UINT32_MAX :
@@ -137,7 +158,20 @@ static int owned_facts(const NvmModule *m) {
         printf("]}");
         vm_decoded_function_free(&code);nvm_affine_state_free(state);state=NULL;
     }
-    puts("]}");ok=!ferror(stdout);
+    putchar(']');
+    if(strings) {
+        printf(",\"string_constant_count\":%u,\"string_literals\":[",m->string_count);
+        for(uint32_t i=0;i<string_count;i++) {
+            uint32_t index=string_indexes[i],length=nvm_get_string_len(m,index);
+            const unsigned char *bytes=(const unsigned char *)nvm_get_string(m,index);
+            if(i)putchar(',');
+            printf("{\"index\":%u,\"length\":%u,\"hex\":\"",index,length);
+            for(uint32_t n=0;n<length;n++)printf("%02x",bytes[n]);
+            printf("\"}");
+        }
+        putchar(']');
+    }
+    puts("}");ok=!ferror(stdout);
 done:
     vm_decoded_function_free(&code);nvm_affine_state_free(state);nvm_v2_layouts_free(&layouts);
     if(!ok)fputs("I require a verified bounded resource module with exact fields.\n",stderr);
