@@ -114,7 +114,7 @@ class OwnedObservationReconstruction(unittest.TestCase):
             elif case=='partial-region':code[region+3].update(op='NOP',args=[],arg=0)
             else:
                 after=region+4
-                code[after].update(op={'write':'STORE_LOCAL','move':'OWN_MOVE_LOCAL','pop':'POP','dup':'DUP','arithmetic':'ADD'}[case])
+                code[after].update(op={'write':'STORE_LOCAL','move':'OWN_MOVE_LOCAL','pop':'POP','dup':'DUP','arithmetic':'DIV'}[case])
             for language in ('c','nano'):
                 with self.subTest(case=case,language=language),self.assertRaises(Refusal):
                     reconstruct_owned(facts,language)

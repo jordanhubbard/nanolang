@@ -14,6 +14,10 @@ OWNED_PRETEST = {
 }
 
 
+# I materialize only the source-qualified exact-INT wrapping operations.
+OWNED_WRAPPING_PRETEST = {"ADD", "SUB", "MUL"}
+
+
 def owned_type(layout):
     return ('owner', layout)
 
@@ -166,7 +170,8 @@ class OwnedAnalyze(Analyze):
                 require(self.positions[self.code[branch]['target']] == back + 1,
                         'require an owned pretest exit immediately after its backedge')
                 condition_stack, condition_statements = [], []
-                materialized = any(self.code[n]['op'] == 'REGION_BEGIN' for n in range(i, branch))
+                materialized = any(self.code[n]['op'] == 'REGION_BEGIN' or
+                                   self.code[n]['op'] in OWNED_WRAPPING_PRETEST for n in range(i, branch))
                 n = i
                 while n < branch:
                     condition_instruction = self.code[n]
@@ -175,7 +180,7 @@ class OwnedAnalyze(Analyze):
                         self.observation(n, branch, condition_stack, condition_statements, allow_call=False)
                         n += 4
                         continue
-                    require(condition_instruction['op'] in OWNED_PRETEST,
+                    require(condition_instruction['op'] in OWNED_PRETEST | OWNED_WRAPPING_PRETEST,
                             'require a nontrapping pure scalar owned pretest')
                     if condition_instruction['op'] == 'LOAD_LOCAL':
                         require(condition_instruction['arg'] in self.types,
