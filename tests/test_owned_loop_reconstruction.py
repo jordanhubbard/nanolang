@@ -27,7 +27,7 @@ class OwnedLoopReconstruction(unittest.TestCase):
 
     def test_actual_loop_lifetimes_and_both_outputs(self):
         for case,expected in {'preserve':17,'borrow-body':35,'fresh-body':20,
-                              'early-return':114,'body-return':15,'nested':26}.items():
+                              'early-return':114,'body-return':15,'nested':26,'borrow-condition':17}.items():
             for compiler in self.compilers:
                 with self.subTest(case=case,producer=str(compiler)):
                     module=self.module(case,compiler);facts=self.facts(module)
@@ -53,8 +53,8 @@ class OwnedLoopReconstruction(unittest.TestCase):
                                 self.command([ROOT/'bin/nvm2c',rebuilt,'-o',native])
                                 self.native(native,expected)
 
-    def test_actual_borrow_and_arithmetic_pretests_refuse_atomically(self):
-        for case in ('borrow-condition','arithmetic-condition'):
+    def test_actual_arithmetic_pretests_refuse_atomically(self):
+        for case in ('arithmetic-condition',):
             for compiler in self.compilers:
                 module=self.module(case,compiler)
                 self.command([ROOT/'bin/nano_vm','--verify-only',module])

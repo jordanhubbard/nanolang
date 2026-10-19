@@ -1,0 +1,15 @@
+{
+  "bin/nano_virt": "04269be440ea6826fe401d1f9265c2cb012709a8bbed00cf3118a26556402731",
+  "bin/nanoc_u8_context": "d7c3c1369042dfa16c8a54decdb7a96b5a43166ba2cee604f495f2302eb8977e",
+  "bin/nano_vm": "843a6bdc2d1defcb5ba8c5af424c31f4dc64a2877293bdebd7aadb2a957726b6",
+  "bin/nanoisa": "66c5e8e6305adfd51ad1c9c2382cb397ae12d2eb1b368166cada603f42a1a27a",
+  "bin/nanoisa_hl_facts": "754ab45e28a291dae3715bde3e4e73c2451a0f91b4c56bb8d1a41cc10b0f7129",
+  "bin/nvm2c": "fcf99a346801130aebd03b68b8c238c21c586100fd4e6c4e0b487e51c74bfdf4",
+  "bin/nano_aot_runtime.o": "fd6fd0145d1de21cfeba2e8f7a0214029825becffda1ce5ff01ead2fbee046c9",
+  "tests/nanoisa/fixtures/owned_observation_loops/multiple.nano": "900671b62f0a98535c055feb3bb40f3f30e83ec4a971f58a690643a4eee1c539",
+  "tests/nanoisa/fixtures/owned_observation_loops/nested-return.nano": "ee4301da99c9bf456d35c76dfe5833889a1dfa2f7fb21c8487b5644357369029",
+  "tests/nanoisa/fixtures/owned_loops/borrow-condition.nano": "11218a00e86031d86342cfb2797c03be352481b2e618fc3d899541948a429671",
+  "scripts/nanoisa_owned_reconstruction.py": "5e37098939845150387ef18adc08e573fe70f12598031fbee1a62fd5adeb8c9c",
+  "tests/test_owned_loop_reconstruction.py": "c9e8460ab1766344105423083895831b4268801f40412de66477a04882813edd",
+  "tests/test_owned_observation_reconstruction.py": "2d4cd0290ff8aafdfea4201d1e0372fd1314f6bfb2c97938bc13df21eca1b105"
+}

@@ -116,6 +116,38 @@ class OwnedAnalyze(Analyze):
         require(slot in self.live, 'require a live exact local owner')
         return self.live[slot]
 
+    def observation(self, i, end, stack, body, allow_call=True):
+        require(i + 3 < end, 'require a complete ephemeral read within its owned region')
+        for offset in (1, 2, 3):
+            self.touch(i + offset)
+        borrow, read, region_end_instruction = self.code[i + 1:i + 4]
+        require(borrow['op'] == 'BORROW_LOCAL_SHARED' and
+                read['op'] in ('REF_GET', 'CALL_REF') and
+                region_end_instruction['op'] == 'REGION_END' and len(borrow['args']) == 2 and
+                len(read['args']) == 2,
+                'require one complete ephemeral shared observation')
+        slot = borrow['args'][1]
+        layout = self.owner_local(slot)
+        if read['op'] == 'CALL_REF':
+            require(allow_call, 'refuse calls in owned observation pretests')
+            require(self.borrowed and self.index == 0 and read['args'] == [1, borrow['args'][0]] and
+                    self.module['functions'][1]['params'] == [[8, layout]],
+                    'require exact caller owner and shared helper identity')
+            target = Expr(self.module['functions'][1]['result'], 'temporary', read['pc'])
+            body.append(('borrow_call', target, slot))
+            self.calls.add(1)
+        else:
+            field = read['args'][1]
+            require(borrow['args'][0] == read['args'][0] and
+                    0 <= field < len(self.fields[layout]),
+                    'require a field within the exact owner layout')
+            require(all(t in (INT, BOOL) for t in self.fields[layout]),
+                    'require a scalar-leaf owner for ephemeral field observation')
+            require(self.fields[layout][field] in (INT, BOOL), 'require a scalar shared field')
+            target = Expr(self.fields[layout][field], 'temporary', read['pc'])
+            body.append(('own_read', target, slot, field))
+        stack.append(target)
+
     def region(self, start, end, initialized, live, used, depth=0):
         require(depth <= 32, 'limit owned region nesting to 32')
         initialized = set(initialized)
@@ -133,17 +165,25 @@ class OwnedAnalyze(Analyze):
                 require(branch is not None, 'require an owned loop pretest')
                 require(self.positions[self.code[branch]['target']] == back + 1,
                         'require an owned pretest exit immediately after its backedge')
-                condition_stack = []
-                for n in range(i, branch):
+                condition_stack, condition_statements = [], []
+                materialized = any(self.code[n]['op'] == 'REGION_BEGIN' for n in range(i, branch))
+                n = i
+                while n < branch:
                     condition_instruction = self.code[n]
+                    if materialized and condition_instruction['op'] == 'REGION_BEGIN':
+                        self.touch(n)
+                        self.observation(n, branch, condition_stack, condition_statements, allow_call=False)
+                        n += 4
+                        continue
                     require(condition_instruction['op'] in OWNED_PRETEST,
                             'require a nontrapping pure scalar owned pretest')
                     if condition_instruction['op'] == 'LOAD_LOCAL':
                         require(condition_instruction['arg'] in self.types,
                                 'require a scalar owned pretest local')
-                    self.simple(n, condition_stack, initialized, [], pure=True)
+                    self.simple(n, condition_stack, initialized, condition_statements, pure=not materialized)
                     require(all(value.tag in (INT, BOOL) for value in condition_stack),
                             'require exact scalar owned pretest values')
+                    n += 1
                 condition = self.pop(condition_stack, BOOL)
                 require(not condition_stack, 'require one owned loop condition')
                 if self.code[branch]['op'] == 'JMP_TRUE':
@@ -155,7 +195,8 @@ class OwnedAnalyze(Analyze):
                 require(loop_returns or loop_live == entry_live,
                         'require exact carried owner identities at the backedge')
                 self.touch(back)
-                body.append(('while', condition, loop_body))
+                body.append(('while_observe', condition, condition_statements, loop_body) if materialized else
+                            ('while', condition, loop_body))
                 # I retain the zero-iteration state. Body-local declarations execute
                 # inside while on each iteration; I analyze their syntax only once.
                 self.live, self.used = entry_live, entry_used | loop_used
@@ -242,35 +283,7 @@ class OwnedAnalyze(Analyze):
                 body.append(('borrow_read', target, field))
                 stack.append(target)
             elif op == 'REGION_BEGIN':
-                require(i + 3 < end, 'require a complete ephemeral read within its owned region')
-                for offset in (1, 2, 3):
-                    self.touch(i + offset)
-                borrow, read, region_end_instruction = self.code[i + 1:i + 4]
-                require(borrow['op'] == 'BORROW_LOCAL_SHARED' and
-                        read['op'] in ('REF_GET', 'CALL_REF') and
-                        region_end_instruction['op'] == 'REGION_END' and len(borrow['args']) == 2 and
-                        len(read['args']) == 2,
-                        'require one complete ephemeral shared observation')
-                slot = borrow['args'][1]
-                layout = self.owner_local(slot)
-                if read['op'] == 'CALL_REF':
-                    require(self.borrowed and self.index == 0 and read['args'] == [1, borrow['args'][0]] and
-                            self.module['functions'][1]['params'] == [[8, layout]],
-                            'require exact caller owner and shared helper identity')
-                    target = Expr(self.module['functions'][1]['result'], 'temporary', read['pc'])
-                    body.append(('borrow_call', target, slot))
-                    self.calls.add(1)
-                else:
-                    field = read['args'][1]
-                    require(borrow['args'][0] == read['args'][0] and
-                            0 <= field < len(self.fields[layout]),
-                            'require a field within the exact owner layout')
-                    require(all(t in (INT, BOOL) for t in self.fields[layout]),
-                            'require a scalar-leaf owner for ephemeral field observation')
-                    require(self.fields[layout][field] in (INT, BOOL), 'require a scalar shared field')
-                    target = Expr(self.fields[layout][field], 'temporary', read['pc'])
-                    body.append(('own_read', target, slot, field))
-                stack.append(target)
+                self.observation(i, end, stack, body)
                 i += 3
             elif op == 'CALL':
                 require(not self.borrowed, 'refuse mixed consuming and borrowed calls')
@@ -351,7 +364,16 @@ class OwnedEmit(Emit):
         c = self.language == 'c'
         for stmt in statements:
             kind = stmt[0]
-            if kind in ('borrow_read', 'borrow_call'):
+            if kind == 'while_observe':
+                _, condition, observations, loop_body = stmt
+                self.line('while (true) {' if c else 'while true {', indent)
+                self.statements(observations, indent + 1)
+                value = self.expression(condition)
+                self.line(f'if (!({value})) {{ break; }}' if c else
+                          f'if (not {value}) {{ break }}', indent + 1)
+                self.statements(loop_body, indent + 1)
+                self.line('}', indent)
+            elif kind in ('borrow_read', 'borrow_call'):
                 _, target, operand = stmt
                 if kind == 'borrow_read':
                     value = f'nlr_a0->f{operand}' if c else f'nlr_a0.f{operand}'
