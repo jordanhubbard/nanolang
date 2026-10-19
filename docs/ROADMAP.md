@@ -15837,3 +15837,5 @@ I retain [six green three-producer methods, exact input/output hashes, unchanged
 - [x] I qualify imported/branch affine facts and guarded resource wire names in aggregate `8161bfc1f`: all nine methods pass in 78.873 seconds through rebuilt NanoVirt and fresh `74a565150` stages (`docs/evidence/imported-affine-aggregate-20261019/`). Full #998 and hosted gates remain open.
 
 - [x] I qualify integrated exact wrapping pretests at `62673cd2c`: all 14 three-producer wrapping/observation/loop/assertion methods pass in 263.150 seconds; I retain `docs/evidence/owned-wrapping-aggregate-20261019/` and add the suite to my regular owned reconstruction target. Full #999 and hosted platform gates remain open.
+
+- [x] I qualify integrated exclusive resource helpers at `b3e29ee4d`: all 15 exclusive/shared methods pass in 115.974 seconds through NanoVirt and fresh `74a565150` stages; I retain `docs/evidence/owned-exclusive-aggregate-20261019/` and wire the suite into my regular target. Full #999 and hosted gates remain open.
