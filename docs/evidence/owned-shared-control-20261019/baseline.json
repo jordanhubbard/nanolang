@@ -1,0 +1,25 @@
+{
+  "revision": "9b8667ae9efffcf55c0ab3f155536457453f9511",
+  "source_sha256": "32c3b6ad3606a05c64be735b9fc8afe1e43de3e9284dadf5711923ac8de81375",
+  "kind": "exact prior analyzer API replay on actual original-verified anchor facts; not a new CLI run",
+  "results": [
+    {
+      "language": "c",
+      "exception": "Refusal",
+      "message": "I require the exact nested-path helper profile"
+    },
+    {
+      "language": "nano",
+      "exception": "Refusal",
+      "message": "I require the exact nested-path helper profile"
+    }
+  ],
+  "imported_helpers": [
+    {
+      "path": "scripts/nanoisa_reconstruction.py",
+      "revision": "9b8667ae9efffcf55c0ab3f155536457453f9511",
+      "sha256": "99fb618ca5fc7f336dd7a8d2781b95295d8fb19131b7d82bb3975a7a23ded74a",
+      "current_bytes_equal": true
+    }
+  ]
+}

@@ -22,9 +22,17 @@ I must first measure the unchanged anchor through ordinary CLI and the actual re
 
 ## I require ordered acceptance
 
-- [ ] I obtain review of this design before source changes.
-- [ ] I add only the symmetric single-shared-path signature/facts gate, then the separately bounded helper diamond grammar and exact four-instruction caller region.
-- [ ] I qualify the unchanged anchor first: original VM/native, both reconstructed targets, canonical authority/layout/signature checks, actual2 functions and exact local counts including selected shadows.
-- [ ] I qualify enabled/disabled branches, continuing-arm initialization intersection, nested caller zero/one/multiple loops, immutable scalar snapshots, final tree consumption and repeated observations of the same root.
-- [ ] I retain wrong mode/nominal/path/root/slot/result, split/interior region, helper writes/calls/loops/ASSERT, uninitialized result and capability overlap negatives. Original verifier rejection and independent facts defenses stay distinct; all refusals preserve old output.
-- [ ] I qualify ADD endpoints/order and measured below/above128 boundaries, old-profile byte goldens and relevant path/shared/control neighbors; preserve first failures and exact providers. Full #999 and platform qualification remain open.
+- [x] I obtain review of this design before source changes.
+- [x] I add only the symmetric single-shared-path signature/facts gate, then the separately bounded helper diamond grammar and exact four-instruction caller region.
+- [x] I qualify the unchanged anchor first: original VM/native, both reconstructed targets, canonical authority/layout/signature checks, actual2 functions and exact local counts including selected shadows.
+- [x] I qualify enabled/disabled branches, continuing-arm initialization intersection, nested caller zero/one/multiple loops, immutable scalar snapshots, final tree consumption and repeated observations of the same root.
+- [x] I retain wrong mode/nominal/path/root/slot/result, split/interior region, helper writes/calls/loops/ASSERT, uninitialized result and capability overlap negatives. Original verifier rejection and independent facts defenses stay distinct; all refusals preserve old output.
+- [x] I qualify ADD endpoints/order and measured below/above128 boundaries, old-profile byte goldens and relevant path/shared/control neighbors; preserve first failures and exact providers. Full #999 and platform qualification remain open.
+
+## I record reviewed implementation authority
+
+The integration owner reviewed this design and the finite scope map on2026-10-19 and approved source-only implementation on `fix/5.1-owned-shared-control` from design commitf51ec8ff8. I preserve the total-helper/no-ASSERT distinction, the exact original anchor/result9, old output bytes and measured ordinary local/function limits. The synthesized shadow asserts zero/false field invariants as well as cross-copy consistency; it still does not establish branch coverage. Compiler/facts/native jobs wait for explicit serial-slot release while the integration bootstrap is frozen.
+
+## I retain component qualification
+
+The unchanged anchor now measures ordinary entry/helper101/5 and selected full-tree shadow60/5 through both retained producers. Caller expansion127/5 passes; actual producer-admitted135/5 remains an atomic Nano-output refusal. I retain ten new methods, five existing neighbors, the stale initial golden-selection failure and exact prior9b corrected equality in [the component receipt](evidence/owned-shared-control-20261019/README.md). All original verifier/admission and output budget boundaries stay intact. Current-stage/platform qualification and the other required families in the finite scope map remain open.
