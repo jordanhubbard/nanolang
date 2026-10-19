@@ -1,0 +1,45 @@
+test_concrete_generic_equal_shapes_keep_forward_ordinals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_concrete_generic_equal_shapes_keep_forward_ordinals) ... ok
+test_distinct_equal_shape_and_forward_ordinals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_distinct_equal_shape_and_forward_ordinals) ... ok
+test_generic_repeated_variable_refuses_equal_shape_distinct_nominals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_generic_repeated_variable_refuses_equal_shape_distinct_nominals) ... ok
+test_imported_field_identity_preserves_distinct_same_spelling (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_imported_field_identity_preserves_distinct_same_spelling) ... ok
+test_imported_generic_instances_preserve_source_owners (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_imported_generic_instances_preserve_source_owners) ... ok
+test_nested_array_schema_retains_existing_unknown_boundary (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_nested_array_schema_retains_existing_unknown_boundary) ... ok
+test_repeated_direct_and_transitive_import_retains_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_repeated_direct_and_transitive_import_retains_authority) ... ok
+test_same_spelling_in_distinct_imports_retains_distinct_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_same_spelling_in_distinct_imports_retains_distinct_authority) ... ok
+I retain producer build evidence at <private-artifact>
+test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) ... 
+  test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) (compiler='bin/nano_virt') ... ERROR
+  test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) (compiler='/private/tmp/nanolang-flat-array-emitter-final') ... ERROR
+  test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) (compiler='/private/tmp/nanolang-flat-array-canonical-final') ... ERROR
+
+======================================================================
+ERROR: test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) (compiler='bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 56, in exercise
+    self.assertEqual(struct.unpack_from('<II',facts),(3,layout_count))
+                     ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+struct.error: unpack_from requires a buffer of at least 8 bytes for unpacking 8 bytes at offset 0 (actual buffer size is 0)
+
+======================================================================
+ERROR: test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) (compiler='/private/tmp/nanolang-flat-array-emitter-final')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 56, in exercise
+    self.assertEqual(struct.unpack_from('<II',facts),(3,layout_count))
+                     ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+struct.error: unpack_from requires a buffer of at least 8 bytes for unpacking 8 bytes at offset 0 (actual buffer size is 0)
+
+======================================================================
+ERROR: test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) (compiler='/private/tmp/nanolang-flat-array-canonical-final')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 56, in exercise
+    self.assertEqual(struct.unpack_from('<II',facts),(3,layout_count))
+                     ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+struct.error: unpack_from requires a buffer of at least 8 bytes for unpacking 8 bytes at offset 0 (actual buffer size is 0)
+
+----------------------------------------------------------------------
+Ran 9 tests in 5.014s
+
+FAILED (errors=3)

@@ -62,6 +62,19 @@ class OrdinaryDeclarationProvenance(unittest.TestCase):
                     actual.append(row)
                 self.assertEqual(actual, fields)
                 self.assertEqual(at, len(layouts))
+                # Concrete specializations retain exact coarse function facts;
+                # no advisory type spelling becomes an invented nominal index.
+                cursor=8+((len(fields)+3)&~3)
+                functions=struct.unpack_from('<I',authority,cursor)[0];cursor+=4
+                self.assertEqual(functions,len(re.findall(r'^\.function ',dump,re.M)))
+                for _ in range(functions):
+                    locals_,parameters=struct.unpack_from('<HH',authority,cursor);cursor+=4
+                    self.assertLessEqual(parameters,locals_)
+                    for slot in range(locals_+1):
+                        tag,reserved,nominal=struct.unpack_from('<B3sI',authority,cursor);cursor+=8
+                        self.assertEqual((reserved,nominal),(b'\0'*3,0xffffffff))
+                        self.assertIn(tag,range(0 if slot==0 else 1,9))
+                self.assertEqual(cursor,len(authority))
             native, binary = work/'main.c', work/'native'
             self.command(ROOT/'bin/nvm2c', module, '-o', native)
             self.command(*shlex.split(os.environ.get('CC', 'cc')), '-std=c11', '-O1',
@@ -130,6 +143,91 @@ fn main() -> int { let entries: Entries = Entries { values: [[7, 11]] }
  assert (== (at (at entries.values 0) 1) 11) return 0 }
 shadow main { assert (== (main) 0) }
 ''')
+
+
+    def test_concrete_generic_equal_shapes_keep_forward_ordinals(self):
+        self.check('''struct Root { first: First, second: Second }
+struct First { value: int }
+struct Second { value: int }
+fn identity(value: T) -> T { let copy: T = value return copy }
+shadow identity { assert (== (identity 7) 7) }
+fn forward(value: T) -> T { let copy: T = (identity value) return (identity copy) }
+shadow forward { assert (== (forward true) true) }
+fn main() -> int {
+ let first: First = (forward First { value: 7 })
+ let second: Second = (forward Second { value: 11 })
+ let root: Root = (identity Root { first: first, second: second })
+ assert (== root.first.value 7) assert (== root.second.value 11) return 0
+}
+shadow main { assert (== (main) 0) }
+''', fields=[[(8, 1), (8, 2)], [(1, 0xffffffff)], [(1, 0xffffffff)]])
+
+    def test_imported_generic_instances_preserve_source_owners(self):
+        modules={}
+        for name,value in [('Left',7),('Right',11)]:
+            chosen='first' if name=='Left' else 'second'
+            arguments='7 97' if name=='Left' else '97 11'
+            modules[name.lower()+'.nano']=f'''module {name}
+pub struct Entry {{ value: int }}
+pub fn select(first: T, second: T) -> T {{ return {chosen} }}
+shadow select {{ assert (== (select {arguments}) {value}) }}
+'''
+        self.check('''module "left.nano" as left
+module "right.nano" as right
+struct Root { first: left.Entry, second: right.Entry }
+fn main() -> int {
+ let first: left.Entry = (left.select left.Entry { value: 7 } left.Entry { value: 97 })
+ let second: right.Entry = (right.select right.Entry { value: 97 } right.Entry { value: 11 })
+ let root: Root = Root { first: first, second: second }
+ assert (== root.first.value 7) assert (== root.second.value 11) return 0
+}
+shadow main { assert (== (main) 0) }
+''', modules, fields=[[(1, 0xffffffff)], [(1, 0xffffffff)], [(8, 0), (8, 1)]])
+
+    def test_generic_repeated_variable_refuses_equal_shape_distinct_nominals(self):
+        for compiler in os.environ.get('NANO_ORDINARY_COMPILERS','nano_virt').split(','):
+            with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix='nano-generic-authority-refusal-') as directory:
+                work=Path(directory);source=work/'main.nano';output=work/'main.nvm'
+                source.write_text('''struct First { value: int }
+struct Second { value: int }
+fn choose(first: T, second: T) -> T { return first }
+shadow choose { assert (== (choose 1 2) 1) }
+fn main() -> int {
+ let first: First = (choose First { value: 7 } Second { value: 11 })
+ return first.value
+}
+shadow main { assert true }
+''')
+                output.write_bytes(b'prior-output')
+                result=subprocess.run([str(ROOT/'bin'/compiler),str(source),'--emit-nvm','-o',str(output)],
+                                      cwd=ROOT,capture_output=True,text=True,timeout=120)
+                self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+                self.assertIn('one concrete identity',result.stdout+result.stderr)
+                self.assertEqual(output.read_bytes(),b'prior-output')
+
+
+    def test_generic_repeated_variable_refuses_distinct_import_owners(self):
+        for compiler in os.environ.get('NANO_ORDINARY_COMPILERS','nano_virt').split(','):
+            with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix='nano-generic-import-refusal-') as directory:
+                work=Path(directory);source=work/'main.nano';output=work/'main.nvm'
+                for name in ('Left','Right'):
+                    (work/(name.lower()+'.nano')).write_text(f'module {name}\npub struct Entry {{ value: int }}\n')
+                source.write_text('''module "left.nano" as left
+module "right.nano" as right
+fn choose(first: T, second: T) -> T { return first }
+shadow choose { assert (== (choose 1 2) 1) }
+fn main() -> int {
+ let first: left.Entry = (choose left.Entry { value: 7 } right.Entry { value: 11 })
+ return first.value
+}
+shadow main { assert true }
+''')
+                output.write_bytes(b'prior-output')
+                result=subprocess.run([str(ROOT/'bin'/compiler),str(source),'--emit-nvm','-o',str(output)],
+                                      cwd=ROOT,capture_output=True,text=True,timeout=120)
+                self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+                self.assertIn('one concrete identity',result.stdout+result.stderr)
+                self.assertEqual(output.read_bytes(),b'prior-output')
 
 
 if __name__ == '__main__':

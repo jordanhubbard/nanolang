@@ -1,0 +1,17 @@
+test_concrete_generic_equal_shapes_keep_forward_ordinals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_concrete_generic_equal_shapes_keep_forward_ordinals) ... ok
+test_distinct_equal_shape_and_forward_ordinals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_distinct_equal_shape_and_forward_ordinals) ... ok
+test_generic_repeated_variable_refuses_distinct_import_owners (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_generic_repeated_variable_refuses_distinct_import_owners) ... ok
+test_generic_repeated_variable_refuses_equal_shape_distinct_nominals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_generic_repeated_variable_refuses_equal_shape_distinct_nominals) ... ok
+test_imported_field_identity_preserves_distinct_same_spelling (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_imported_field_identity_preserves_distinct_same_spelling) ... ok
+test_imported_generic_instances_preserve_source_owners (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_imported_generic_instances_preserve_source_owners) ... ok
+test_nested_array_schema_retains_existing_unknown_boundary (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_nested_array_schema_retains_existing_unknown_boundary) ... ok
+test_repeated_direct_and_transitive_import_retains_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_repeated_direct_and_transitive_import_retains_authority) ... ok
+test_same_spelling_in_distinct_imports_retains_distinct_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_same_spelling_in_distinct_imports_retains_distinct_authority) ... ok
+I retain producer build evidence at <private-artifact>
+test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) ... ok
+test_generic_tail_calls_omit_unproved_array_profile (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_generic_tail_calls_omit_unproved_array_profile) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 7.307s
+
+OK

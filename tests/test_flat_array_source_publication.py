@@ -38,7 +38,7 @@ class FlatArraySourcePublication(unittest.TestCase):
     def producers(self):
         return self.compilers
 
-    def exercise(self, source, elements, run=True, modules=None, layout_count=1, array_layout=0):
+    def exercise(self, source, elements, run=True, modules=None, layout_count=1, array_layout=0, expected_opcode=None):
         for compiler in self.producers():
             with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix='nano-flat-source-') as directory:
                 work=Path(directory); program=work/'source.nano'; module=work/'source.nvm'
@@ -48,6 +48,8 @@ class FlatArraySourcePublication(unittest.TestCase):
                 self.run_command(compiler, program, '--emit-nvm', '-o', module)
                 self.run_command(ROOT/'bin/nano_vm', '--verify-only', module)
                 dump=self.run_command(ROOT/'bin/nanoisa', 'dump', module).stdout
+                if expected_opcode:
+                    self.assertIn('\n  '+expected_opcode+' ',dump)
                 raw=lambda key: bytes.fromhex(''.join(re.findall(r'^\.'+key+r' "([0-9a-f]*)"$',dump,re.M)))
                 layouts, facts=raw('layouts'),raw('ownership')
                 if elements is None:
@@ -195,6 +197,38 @@ shadow main { assert (== (main) 0) }
 
     def test_foreign_module_omits_optional_envelope(self):
         self.exercise('extern fn get_argc() -> int\nstruct Box { values: array<int> }\nfn main() -> int { let box: Box = Box { values: [7] }\n assert (== (at box.values 0) 7) unsafe { return (get_argc) } }\nshadow main { assert true }\n',None,run=False)
+
+
+    def test_concrete_generic_array_record_arguments_and_results(self):
+        self.exercise('''struct Box { values: array<int> }
+fn identity(value: T) -> T { let copy: T = value return copy }
+shadow identity { assert (== (identity 7) 7) }
+fn forward(value: T) -> T { let copy: T = (identity value) let result: T = (identity copy) return result }
+shadow forward { assert (== (forward true) true) }
+fn main() -> int {
+ let values: array<int> = [7, 11]
+ let box: Box = (forward Box { values: values })
+ let copy: Box = (identity box)
+ assert (== (at copy.values 1) 11)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''',[1])
+    def test_generic_tail_calls_omit_unproved_array_profile(self):
+        self.exercise('''struct Box { values: array<int> }
+fn identity(value: T) -> T { let copy: T = value return copy }
+shadow identity { assert (== (identity 7) 7) }
+fn forward(value: T) -> T { let copy: T = (identity value) return (identity copy) }
+shadow forward { assert (== (forward true) true) }
+fn main() -> int {
+ let values: array<int> = [7, 11]
+ let box: Box = (forward Box { values: values })
+ let copy: Box = (identity box)
+ assert (== (at copy.values 1) 11)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''',None,expected_opcode='TAIL_CALL')
 
 if __name__=='__main__':
     unittest.main()

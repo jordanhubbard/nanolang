@@ -15444,3 +15444,7 @@ I retain [my native identity prerequisite evidence](evidence/native-record-ident
 I retain [my source-publication allocation receipt](evidence/flat-array-publication-allocations-20261018/README.md): 1,022 prefix cases, explicit growth/query/atomic-save controls and 3,018 adjacent Nanoisa checks pass. Fresh combined compiler generations and platform gates remain open.
 
 - [x] Under #1001 I reuse the aggregate native-process runner for publication qualification, preserving bounded teardown on timeout/interruption and its real descendant-cleanup controls rather than maintaining a weaker duplicate.
+
+- [x] Under #1001 I qualify already-implemented concrete generic function specializations against exact ordinary declaration/runtime ordinals: distinct equal-shaped records, forward references, imported source owners, repeated-variable nominal refusal and flat-array record arguments/results. I inspect complete metadata and keep callable/union/resource/nested-array generic paths separate; I do not invent generic struct syntax or derive authority from advisory specialization strings.
+
+I retain [my concrete generic authority receipt](evidence/concrete-generic-authority-20261018/README.md). The flat-array selected-flow proof still omits authority for TAIL_CALL; I preserve that explicit boundary and keep full #1001 and fresh generation/platform gates open.
