@@ -1,0 +1,11 @@
+test_break_only_bound_write_cannot_seed_a_later_rank_proof (tests.test_owned_loop_exit_reconstruction.LoopExitProof.test_break_only_bound_write_cannot_seed_a_later_rank_proof) ... ok
+test_break_writes_invalidate_postloop_rank_and_work_stays_bounded (tests.test_owned_loop_exit_reconstruction.LoopExitProof.test_break_writes_invalidate_postloop_rank_and_work_stays_bounded) ... ok
+test_cached_facts_crossing_side_entry_and_zero_trip_initialization_refuse (tests.test_owned_loop_exit_reconstruction.LoopExitProof.test_cached_facts_crossing_side_entry_and_zero_trip_initialization_refuse) ... ok
+test_every_continue_is_ranked_but_break_and_return_need_no_increment (tests.test_owned_loop_exit_reconstruction.LoopExitProof.test_every_continue_is_ranked_but_break_and_return_need_no_increment) ... ok
+test_origin_cleanup_and_replacement_are_checked_on_all_exit_edges (tests.test_owned_loop_exit_reconstruction.LoopExitProof.test_origin_cleanup_and_replacement_are_checked_on_all_exit_edges) ... ok
+test_stale_rank_snapshot_and_changed_bound_refuse (tests.test_owned_loop_exit_reconstruction.LoopExitProof.test_stale_rank_snapshot_and_changed_bound_refuse) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.003s
+
+OK

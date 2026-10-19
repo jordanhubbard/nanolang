@@ -1,0 +1,22 @@
+resource struct Counter { value: int, active: bool }
+fn bump(view: &mut Counter) -> int { set view.value (+ view.value 1) return view.value }
+shadow bump {
+ let mut owner: Counter = Counter { value: 0, active: true }
+ assert (== (bump &mut owner) 1)
+ let Counter { value, active } = owner
+ assert (== value 1) assert active
+}
+fn main() -> int {
+ let mut owner: Counter = Counter { value: 0, active: true }
+ let mut index: int = 0
+ while (< index 3) {
+  set index (+ index 1)
+  if (== index 2) { break }
+  assert (== (bump &mut owner) 1)
+ }
+ assert (== index 2)
+ let Counter { value, active } = owner
+ assert (== value 1) assert active
+ return 0
+}
+shadow main { assert true }

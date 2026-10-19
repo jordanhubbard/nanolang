@@ -1,0 +1,62 @@
+resource struct Counter { value: int, active: bool }
+fn bump(view: &mut Counter) -> int {
+ let mut turns: int = 0
+ while (< turns 3) {
+  set turns (+ turns 1)
+  if (== turns 1) { continue }
+  set view.value (+ view.value 1)
+  break
+ }
+ return view.value
+}
+shadow bump {
+ let mut owner: Counter = Counter { value: 0, active: true }
+ let mut i: int = 0
+ while (< i 4) {
+  set i (+ i 1)
+  let transient: Counter = Counter { value: i, active: true }
+  let Counter { value, active } = transient
+  assert (== value i) assert active
+  if (== i 1) { continue }
+  if (== i 4) { break }
+  let mut j: int = 0
+  while (< j 3) {
+   set j (+ j 1)
+   if true { break } else { continue }
+  }
+  assert (== j 1)
+  assert (== (bump &mut owner) (- i 1))
+ }
+ while false { break }
+ while false { continue }
+ assert (== i 4)
+ let Counter { value, active } = owner
+ assert (== value 2) assert active
+}
+fn main() -> int {
+ let mut owner: Counter = Counter { value: 0, active: true }
+ let mut i: int = 0
+ while (< i 4) {
+  set i (+ i 1)
+  let transient: Counter = Counter { value: i, active: true }
+  let Counter { value, active } = transient
+  assert (== value i) assert active
+  if (== i 1) { continue }
+  if (== i 4) { break }
+  let mut j: int = 0
+  while (< j 3) {
+   set j (+ j 1)
+   if true { break } else { continue }
+  }
+  assert (== j 1)
+  assert (== (bump &mut owner) (- i 1))
+ }
+ while false { break }
+ while false { continue }
+ assert (== i 4)
+ let Counter { value, active } = owner
+ assert (== value 2) assert active
+ while true { if true { return 0 } else { break } }
+ return 0
+}
+shadow main { assert true }

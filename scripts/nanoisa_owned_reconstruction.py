@@ -93,6 +93,12 @@ class OwnedAnalyze(Analyze):
         self.exclusive_control = self.borrowed and module['functions'][1].get('param_modes') == [2] and (
             self.paths or any(ins['op'] in ('JMP', 'JMP_TRUE', 'JMP_FALSE')
                               for ins in module['functions'][1]['code']))
+        from nanoisa_owned_exits import needs_loop_exits
+        self.loop_exits = needs_loop_exits(module)
+        if self.loop_exits:
+            require(not self.paths and self.borrowed and len(self.layouts) == 1 and self.fields[0] == [INT, BOOL] and
+                    module['functions'][1].get('param_modes') == [2],
+                    'require the exact v1 single-exclusive scalar-leaf loop-exit profile')
         self.shared_root = None
         self.multi = self.borrowed and len(module['functions'][1].get('param_modes', [])) > 1
         self.exclusive = self.borrowed and 2 in module['functions'][1].get('param_modes', [])
@@ -103,6 +109,8 @@ class OwnedAnalyze(Analyze):
                         'require exact scalar-leaf borrowed helper parameters')
                 self.params[slot] = ('borrow', param[1], self.modes[slot])
         self.result = VOID if self.fn['result_type'] == [VOID, 4294967295] else declared(self.fn['result_type'])
+        if self.loop_exits:
+            require(self.result == INT, 'retain exact INT results in the loop-exit profile')
         require(self.fn.get('result_count') == (0 if self.result == VOID else 1),
                 'require the exact owned helper result count')
         require(self.fn['result'] == self.fn['result_type'][0], 'require matching result declarations')
@@ -149,7 +157,7 @@ class OwnedAnalyze(Analyze):
                 target = self.positions[ins['target']]
                 require(target not in interiors, 'require branches outside ephemeral read interiors')
                 if target <= n:
-                    require(ins['op'] == 'JMP' and target not in self.backedges,
+                    require(ins['op'] == 'JMP' and (self.loop_exits or target not in self.backedges),
                             'require one unconditional backedge per owned loop header')
                     self.backedges[target] = n
         if self.helper and self.single_shared_path:
@@ -501,7 +509,93 @@ class OwnedAnalyze(Analyze):
         require(not stack, 'require an empty operand stack at owned region exit')
         return body, initialized, self.live, self.used, False
 
+    def exit_step(self, i, end, stack, initialized, body):
+        ins = self.code[i]
+        op, arg, pc = ins['op'], ins['arg'], ins['pc']
+        if op not in SIMPLE or op == 'CALL':
+            self.touch(i)
+        if op == 'OWN_PACK':
+            require(0 <= arg < len(self.layouts), 'require a retained nominal layout')
+            fields = self.fields[arg]
+            values = tuple(reversed([self.pop(stack, t) for t in reversed(fields)]))
+            target = Expr(owned_type(arg), 'temporary', pc)
+            body.append(('own_pack', target, arg, values))
+            stack.append(target)
+        elif op == 'OWN_STORE_LOCAL':
+            require(0 <= arg < len(self.declarations) and arg not in self.live,
+                    'require a consumed declared owner destination')
+            repeated = arg in self.used
+            require(not repeated or (self.index == 0 and self.borrowed and
+                    self.module['functions'][1].get('param_modes') == [2]),
+                    'require single-exclusive entry owner reassignment')
+            tag, layout = self.declarations[arg]
+            require(tag == 8, 'require an owned record local')
+            value = self.pop(stack, owned_type(layout))
+            body.append(('own_assign' if repeated else 'own_store', arg, layout, value))
+            self.live[arg] = layout
+            self.used.add(arg)
+        elif op == 'OWN_MOVE_LOCAL':
+            layout = self.owner_local(arg)
+            target = Expr(owned_type(layout), 'temporary', pc)
+            body.append(('own_move', target, arg))
+            del self.live[arg]
+            stack.append(target)
+        elif op == 'OWN_UNPACK_LOCAL':
+            layout = self.owner_local(arg)
+            values = tuple(Expr(t, 'temporary', f'{pc}_{f}')
+                           for f, t in enumerate(self.fields[layout]))
+            body.append(('own_unpack', arg, layout, values))
+            del self.live[arg]
+            stack.extend(values)
+        elif op == 'REF_SET':
+            require(self.helper and self.exclusive and len(ins['args']) == 2 and 0 <= arg < len(self.params) and self.modes[arg] == 2,
+                    'require the exact exclusive helper reference')
+            field, layout = ins['args'][1], self.params[arg][1]
+            require(0 <= field < len(self.fields[layout]), 'require an exact exclusive field')
+            value = self.pop(stack, self.fields[layout][field])
+            body.append(('multi_borrow_write', arg, field, value) if self.multi else ('borrow_write', field, value))
+        elif op == 'REF_GET':
+            self.helper_read(ins, stack, body)
+        elif op == 'REGION_BEGIN':
+            self.observation(i, end, stack, body)
+            i += self.reference_region_length(i) - 1
+        elif op == 'CALL':
+            require(not self.borrowed, 'refuse mixed consuming and borrowed calls')
+            require(0 < arg < len(self.module['functions']), 'require a direct non-entry callee')
+            callee = self.module['functions'][arg]
+            params = [owned_type(t[1]) if t[0] == 8 else t[0] for t in callee['params']]
+            values = tuple(reversed([self.pop(stack, t) for t in reversed(params)]))
+            tag, layout = callee['result_type']
+            result_type = owned_type(layout) if tag == 8 else tag
+            call = Expr(result_type, 'call', arg, values)
+            if result_type == VOID:
+                body.append(('call_void', call))
+            else:
+                target = Expr(result_type, 'temporary', pc)
+                body.append(('let', target, call))
+                stack.append(target)
+            self.calls.add(arg)
+        elif op == 'ASSERT':
+            body.append(('assert', self.pop(stack, BOOL)))
+        else:
+            require(op in SIMPLE and op not in ('CALL', 'PUSH_U8', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG'),
+                    'refuse unsupported resource-route instruction ' + op)
+            # I isolate the suffix above the last staged owner before scalar evaluation.
+            split = max((n + 1 for n, value in enumerate(stack)
+                         if value.tag not in (INT, BOOL)), default=0)
+            prefix, scalar = stack[:split], stack[split:]
+            if op in ('LOAD_LOCAL', 'STORE_LOCAL'):
+                require(arg in self.types, 'require a declared scalar local')
+            self.simple(i, scalar, initialized, body)
+            require(all(value.tag in (INT, BOOL) for value in scalar),
+                    'require exact scalar resource-route values')
+            stack[:] = prefix + scalar
+        return i + 1
+
     def run(self):
+        if self.loop_exits:
+            from nanoisa_owned_exits import ExitRegions
+            return ExitRegions(self).run()
         parameters = [('own_parameter', i, layout) for i, layout in self.live.items()]
         body, _, _, _, returns = self.region(0, len(self.code), set(range(len(self.params))),
                                              self.live, self.used)
@@ -520,6 +614,12 @@ class OwnedEmit(Emit):
         self.exclusive = any(isinstance(t, tuple) and t[0] == 'borrow' and len(t) == 3 and t[2] == 2
                              for fn in functions for t in fn.params)
         modes = [t[2] if isinstance(t, tuple) and t[0] == 'borrow' else 0 for t in functions[1].params] if len(functions) == 2 else []
+        self.loop_exits = any(getattr(fn, 'loop_exits', False) for fn in functions)
+        if self.loop_exits:
+            require(len(functions) == 2 and modes == [2] and all(getattr(fn, 'loop_exits', False) for fn in functions),
+                    'require one complete exit-aware single-exclusive graph')
+            from nanoisa_owned_exits import prove_exit_origins
+            prove_exit_origins(functions[0])
         self.reassigned = frozenset()
         if any(stmt[0] == 'own_assign' for function in functions for stmt in self.walk_statements(function.body)):
             require(modes == [2] and not any(stmt[0] == 'own_assign' for stmt in self.walk_statements(functions[1].body)),
@@ -531,12 +631,16 @@ class OwnedEmit(Emit):
             stmt[0] == 'path_borrow_call' for stmt in self.walk_statements(functions[0].body))
         self.single_exclusive_path = modes == [2] and any(
             stmt[0] == 'path_borrow_call' for stmt in self.walk_statements(functions[0].body))
-        self.exclusive_control = modes == [2] and (self.single_exclusive_path or any(
+        self.exclusive_control = modes == [2] and (self.loop_exits or self.single_exclusive_path or any(
             stmt[0] in ('if', 'while', 'while_observe') for stmt in self.walk_statements(functions[1].body)))
         self.control_proof = None
         if self.exclusive_control:
             from nanoisa_owned_control import prove_exclusive_helper_control
-            self.control_proof = prove_exclusive_helper_control(functions[1])
+            if self.loop_exits:
+                from nanoisa_owned_exits import prove_exit_helper
+                self.control_proof = prove_exit_helper(functions[1])
+            else:
+                self.control_proof = prove_exclusive_helper_control(functions[1])
         self.paths = modes in ([2, 2, 1], [1, 1]) or self.single_shared_path or self.single_exclusive_path
         self.multi = modes in ([2, 1, 2], [2, 2, 1], [1, 1])
         self.witness = (self.exclusive_control_tree(functions, layouts) if self.exclusive_control else
@@ -553,11 +657,12 @@ class OwnedEmit(Emit):
                     function.body = self.fold_add_snapshots(function.body)
         self.inline_add = (self.exclusive or self.shared_paths or self.single_shared_path) and language == 'nano'
         self.inline_mul = self.shared_paths and language == 'nano'
-        self.inline_sub = self.multi and language == 'nano'
+        self.inline_sub = (self.multi or self.loop_exits) and language == 'nano'
+        self.inline_div = self.loop_exits and language == 'nano'
         if self.inline_add:
             def validate_inline(node, direct=False):
                 if isinstance(node, Expr):
-                    require(node.kind != 'arithmetic' or node.value not in (({'add', 'sub'} if self.inline_sub else {'add'}) | ({'mul'} if self.inline_mul else set())) or direct,
+                    require(node.kind != 'arithmetic' or node.value not in (({'add', 'sub'} if self.inline_sub else {'add'}) | ({'mul'} if self.inline_mul else set()) | ({'div'} if self.inline_div else set())) or direct,
                             'require guarded arithmetic at an explicit inline statement boundary')
                     for child in node.args:
                         validate_inline(child)
@@ -575,7 +680,7 @@ class OwnedEmit(Emit):
                        for layout in layouts]
         self.reassignment_plans = []
         self.scratch_functions = set()
-        if self.reassigned and language == 'nano':
+        if (self.reassigned or self.loop_exits) and language == 'nano':
             from nanoisa_owned_rendering import plan_reassignment_nano
             planned = []
             for function in self.functions:
@@ -915,6 +1020,9 @@ class OwnedEmit(Emit):
                 kind = stmt[0]
                 if kind == 'let':
                     value = stmt[2]
+                    if self.inline_div and value.kind == 'arithmetic' and value.value == 'div':
+                        total += 4
+                        continue
                     if self.inline_mul and value.kind == 'arithmetic' and value.value == 'mul':
                         total += 27
                         continue
@@ -941,7 +1049,7 @@ class OwnedEmit(Emit):
                 elif kind == 'while_observe':
                     total += statements_cost(stmt[2]) + statements_cost(stmt[3])
                 else:
-                    require(kind in ('store', 'own_assign', 'borrow_write', 'multi_borrow_write', 'assert', 'return'),
+                    require(kind in ('store', 'own_assign', 'borrow_write', 'multi_borrow_write', 'assert', 'return', 'break', 'continue'),
                             'require counted exclusive Nano statement storage')
             return total
         return len(function.locals) + len(function.params) + statements_cost(function.body) + (5 if id(function) in self.scratch_functions else 0)
@@ -1014,6 +1122,21 @@ class OwnedEmit(Emit):
         self.line(f'set {boundary} (- {low} {b})', indent + 1)
         self.line(f'if (< {a} {boundary}) {{ set {name} {formula(negative)} }} else {{ set {name} (+ {a} {b}) }}', indent + 1)
         self.line(f'}} else {{ set {name} (+ {a} {b}) }} }}', indent)
+
+    def inline_div_statement(self, target, value, indent):
+        name = self.expression(target)
+        a, b, low = name + '_a', name + '_b', name + '_low'
+        self.line(f'let {a}: int = {self.expression(value.args[0])}', indent)
+        self.line(f'let {b}: int = {self.expression(value.args[1])}', indent)
+        self.line(f'let {low}: int = (- -9223372036854775807 1)', indent)
+        self.line(f'let mut {name}: int = 0', indent)
+        self.line(f'if (!= {b} 0) {{', indent)
+        self.line(f'if (and (== {a} {low}) (== {b} -1)) {{', indent + 1)
+        self.line(f'set {name} {low}', indent + 2)
+        self.line('} else {', indent + 1)
+        self.line(f'set {name} (/ {a} {b})', indent + 2)
+        self.line('}', indent + 1)
+        self.line('}', indent)
 
     def inline_sub_statement(self, target, value, indent):
         name = self.expression(target)
@@ -1094,7 +1217,12 @@ class OwnedEmit(Emit):
                 self.line(f'(void)nlr_a{parameter};', indent)
         for stmt in statements:
             kind = stmt[0]
-            if kind == 'let' and self.inline_add and stmt[2].kind == 'arithmetic' and stmt[2].value == 'add':
+            if kind in ('break', 'continue'):
+                require(self.loop_exits, 'require an exit-aware structured transfer')
+                self.line(kind + (';' if c else ''), indent)
+            elif kind == 'let' and self.inline_div and stmt[2].kind == 'arithmetic' and stmt[2].value == 'div':
+                self.inline_div_statement(stmt[1], stmt[2], indent)
+            elif kind == 'let' and self.inline_add and stmt[2].kind == 'arithmetic' and stmt[2].value == 'add':
                 self.inline_add_statement(stmt[1], stmt[2], indent)
             elif kind == 'let' and self.inline_sub and stmt[2].kind == 'arithmetic' and stmt[2].value == 'sub':
                 self.inline_sub_statement(stmt[1], stmt[2], indent)

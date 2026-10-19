@@ -1,0 +1,35 @@
+test_break_writes_invalidate_postloop_rank_and_work_stays_bounded (tests.test_owned_loop_exit_reconstruction.LoopExitProof.test_break_writes_invalidate_postloop_rank_and_work_stays_bounded) ... ok
+test_every_continue_is_ranked_but_break_and_return_need_no_increment (tests.test_owned_loop_exit_reconstruction.LoopExitProof.test_every_continue_is_ranked_but_break_and_return_need_no_increment) ... ok
+test_origin_cleanup_and_replacement_are_checked_on_all_exit_edges (tests.test_owned_loop_exit_reconstruction.LoopExitProof.test_origin_cleanup_and_replacement_are_checked_on_all_exit_edges) ... ok
+test_stale_rank_snapshot_and_changed_bound_refuse (tests.test_owned_loop_exit_reconstruction.LoopExitProof.test_stale_rank_snapshot_and_changed_bound_refuse) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-loq1ssil
+test_unchanged_native_roundtrips_and_selected_shadows (tests.test_owned_loop_exit_reconstruction.OwnedLoopExitReconstruction.test_unchanged_native_roundtrips_and_selected_shadows) ... ok
+test_total_division_subtraction_and_once_only_operand_calls (tests.test_owned_loop_exit_reconstruction.OwnedLoopExitReconstruction.test_total_division_subtraction_and_once_only_operand_calls) ... ok
+test_generated_128_and_129_are_measured_without_cap_changes (tests.test_owned_loop_exit_reconstruction.OwnedLoopExitReconstruction.test_generated_128_and_129_are_measured_without_cap_changes) ... FAIL
+test_original_reference_corruption_and_defensive_loop_edges_refuse (tests.test_owned_loop_exit_reconstruction.OwnedLoopExitReconstruction.test_original_reference_corruption_and_defensive_loop_edges_refuse) ... ok
+test_zero_trip_keeps_entry_initialization_and_live_owner (tests.test_owned_loop_exit_reconstruction.OwnedLoopExitReconstruction.test_zero_trip_keeps_entry_initialization_and_live_owner) ... ok
+
+======================================================================
+FAIL: test_generated_128_and_129_are_measured_without_cap_changes (tests.test_owned_loop_exit_reconstruction.OwnedLoopExitReconstruction.test_generated_128_and_129_are_measured_without_cap_changes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_loop_exit_reconstruction.py", line 147, in test_generated_128_and_129_are_measured_without_cap_changes
+    self.assertEqual(costs,[108+count,14])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [168, 14] != [128, 14]
+
+First differing element 0:
+168
+128
+
+- [168, 14]
+?   ^
+
++ [128, 14]
+?   ^
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 54.210s
+
+FAILED (failures=1)
