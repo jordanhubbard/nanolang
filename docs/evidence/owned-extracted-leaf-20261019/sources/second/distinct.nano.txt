@@ -1,0 +1,30 @@
+resource struct Left { value: int }
+resource struct Right { value: int }
+resource struct Pair { left: Left, right: Right }
+fn pass(pair: Pair, choice: bool) -> Pair {
+ if choice { return pair } else { return pair }
+}
+shadow pass { assert true }
+fn consume(pair: Pair) -> int {
+ let Pair { right, left } = pair
+ let Left { value } = left
+ let a: int = value
+ let Right { value } = right
+ assert (== a 1)
+ assert (== value 2)
+ return (+ a value)
+}
+shadow consume { assert true }
+fn main() -> int {
+ let left: Left = Left { value: 1 }
+ let right: Right = Right { value: 2 }
+ let pair: Pair = Pair { right: right, left: left }
+ let first: int = (consume (pass pair true))
+ let second_left: Left = Left { value: 1 }
+ let second_right: Right = Right { value: 2 }
+ let second: Pair = Pair { right: second_right, left: second_left }
+ let mut again: bool = true
+ while again { set again false }
+ return (+ first (consume (pass second false)))
+}
+shadow main { assert (== (main) 6) }

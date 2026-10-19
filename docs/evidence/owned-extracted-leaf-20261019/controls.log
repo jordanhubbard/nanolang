@@ -1,0 +1,9 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-ykj_2609
+test_actual_multiple_reference_fixture_stays_outside_profile (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_actual_multiple_reference_fixture_stays_outside_profile) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-s9z1blf7
+test_shared_output_is_byte_identical (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_shared_output_is_byte_identical) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.825s
+
+OK
