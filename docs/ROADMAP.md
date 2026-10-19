@@ -16142,3 +16142,9 @@ Candidate `3446ec677` passed fresh bootstrap `run-mjg4sby8` (17 steps, raw Stage
 ### 2026-10-19: integrated borrowed helper local-owner qualification
 
 Candidate `4bee9c151` passes all 18 focused methods in 92.550s through the current seed and fresh3446 stages after its facts rebuild; the 14-provider snapshot remains unchanged afterward. Actual ordinary49/120 and consistency-shadow34/120, all19 assertions,128/129 boundary and later-call termination remain qualified. Receipt: `docs/evidence/owned-helper-local-aggregate-20261019/README.md`. Single-exclusive composition and hosted scope remain open; no #999 closure claim.
+
+### 2026-10-19: packaged-interpreter ledger linkage
+
+- [x] Under #976 I correct my packaged interpreter's explicit common-object list to include `checked_borrow_facts.o`. Hosted Linux job118149401316 and the unchanged current Darwin wrapper test reproduce undefined ledger symbols from `env.o` and `resource_flow.o`. I retain both failures, rebuild the affected seed wrapper, and require the existing packaged-interpreter tests before claiming local correction. Exact hosted qualification remains pending.
+
+I retain the [wrapper linkage receipt](evidence/wrapper-ledger-link-20261019/README.md): all12 existing packaged/publication methods pass6.403s after the one-provider correction. Exact hosted qualification remains pending.

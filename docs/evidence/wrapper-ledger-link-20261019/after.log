@@ -1,0 +1,17 @@
+test_default_output_is_a_packaged_interpreter (tests.test_wrapper_packaged_interpreter.WrapperPackagedInterpreter.test_default_output_is_a_packaged_interpreter) ... ok
+test_documentation_keeps_wrapper_gen_packaged_only (tests.test_wrapper_packaged_interpreter.WrapperPackagedInterpreter.test_documentation_keeps_wrapper_gen_packaged_only) ... ok
+test_usage_names_packaged_interpreter_and_not_native (tests.test_wrapper_packaged_interpreter.WrapperPackagedInterpreter.test_usage_names_packaged_interpreter_and_not_native) ... ok
+test_destination_symlink_is_replaced_not_followed (tests.test_wrapper_publication.WrapperPublication.test_destination_symlink_is_replaced_not_followed) ... ok
+test_failed_compilers_preserve_existing_output (tests.test_wrapper_publication.WrapperPublication.test_failed_compilers_preserve_existing_output) ... ok
+test_failed_publication_preserves_directory (tests.test_wrapper_publication.WrapperPublication.test_failed_publication_preserves_directory) ... ok
+test_import_path_is_a_c_string_not_source (tests.test_wrapper_publication.WrapperPublication.test_import_path_is_a_c_string_not_source) ... ok
+test_killed_compilation_leaves_output_and_ignores_orphan (tests.test_wrapper_publication.WrapperPublication.test_killed_compilation_leaves_output_and_ignores_orphan) ... ok
+test_literal_paths_in_both_modes (tests.test_wrapper_publication.WrapperPublication.test_literal_paths_in_both_modes) ... ok
+test_long_quoted_object_alias_in_both_modes (tests.test_wrapper_publication.WrapperPublication.test_long_quoted_object_alias_in_both_modes) ... ok
+test_overlapping_failure_does_not_replace_success (tests.test_wrapper_publication.WrapperPublication.test_overlapping_failure_does_not_replace_success) ... ok
+test_readable_non_object_override_falls_back_to_build_objects (tests.test_wrapper_publication.WrapperPublication.test_readable_non_object_override_falls_back_to_build_objects) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 6.403s
+
+OK
