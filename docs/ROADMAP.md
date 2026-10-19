@@ -15853,3 +15853,11 @@ I retain [six green three-producer methods, exact input/output hashes, unchanged
 ### 2026-10-19: I qualify the integrated depth-three consuming slice
 
 I rebuild the facts provider at `f129a7986` and pass all four depth-three methods through NanoVirt and both fresh `74a565150` stages in 25.021 seconds. I retain exact providers and command evidence in `docs/evidence/owned-depth-three-aggregate-20261019/`. I wire this suite into owned reconstruction qualification, preserve the separate borrowed depth-two limit and leave full #999/release gates open.
+
+### 2026-10-19: I repair the measured sanitizer bootstrap job boundary
+
+Run39224053627/job117966632441 times out after240minutes during Stage2 native compilation, after both raw generation/verification prefixes complete. I retain exact manifest/timing evidence in `docs/evidence/sanitizer-stage-timeout-20261019/` and record the unchanged-test Stage1 checkpoint split contract in `docs/SANITIZER_CHECKPOINT_QUALIFICATION.md` before implementation. Full hosted sanitizer acceptance remains open under #976.
+
+- I also preserve the existing coverage suite budget by moving its completed two-generation bootstrap into a prerequisite job: my current 150-minute bootstrap and 240-minute suite cannot both fit a 360-minute worker. I transfer only a fully verified phase-two checkpoint, preserve coverage data, and fail the final gate on producer or identity failure. My historical threshold assertion must match the recorded October 14 report-only policy; I do not introduce a new threshold decision.
+
+- I qualified eighteen local checkpoint archive/workflow methods and reviewed phase-one/phase-two continuation independently. I preserve first failures, all sanitizer instrumentation/test gates and the existing coverage report-only policy. Exact hosted transfer and full qualification remain open; I do not call the release green.

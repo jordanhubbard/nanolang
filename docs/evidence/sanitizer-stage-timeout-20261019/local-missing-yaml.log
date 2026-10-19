@@ -1,0 +1,24 @@
+test_changed_bytes_duplicate_entries_and_unlisted_paths_refuse (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_changed_bytes_duplicate_entries_and_unlisted_paths_refuse) ... ok
+test_existing_parent_escape_refuses_all_restore_writes (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_existing_parent_escape_refuses_all_restore_writes) ... ok
+test_incomplete_generation_and_changed_identity_refuse (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_incomplete_generation_and_changed_identity_refuse) ... ok
+test_member_beneath_archived_link_refuses (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_member_beneath_archived_link_refuses) ... ok
+test_real_archive_preserves_bytes_modes_links_and_nanosecond_times (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_real_archive_preserves_bytes_modes_links_and_nanosecond_times) ... ok
+test_traversal_and_escaping_links_refuse_before_write (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_traversal_and_escaping_links_refuse_before_write) ... ok
+test_ci_workflow (unittest.loader._FailedTest.test_ci_workflow) ... ERROR
+
+======================================================================
+ERROR: test_ci_workflow (unittest.loader._FailedTest.test_ci_workflow)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_ci_workflow
+Traceback (most recent call last):
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/loader.py", line 141, in loadTestsFromName
+    module = __import__(module_name)
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_ci_workflow.py", line 4, in <module>
+    import yaml
+ModuleNotFoundError: No module named 'yaml'
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.010s
+
+FAILED (errors=1)
