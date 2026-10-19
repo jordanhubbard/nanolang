@@ -1,0 +1,11 @@
+# I retain depth-two consuming resource fields
+
+I extend #999 from 605da2a6f using my existing accepted source_owned_value_nested.nano fixture. Both retained C and Nano producers compile, original-verify and execute zero; my scalar-field reconstruction refuses it. VOID/ASSERT dependencies are already qualified.
+
+I admit only complete prior-layout resource graphs of depth at most two: nonempty INT/BOOL scalar leaves, and nonempty parents whose fields are exact leaf resources. Mixed scalar/child parents, deeper graphs, forward/cyclic layouts, unions and arrays remain outside this slice. I preserve exact tag/layout identity per field, original nvm_verify admission, the existing acyclic consuming graph, and existing function/instruction/layout/local budgets. My shared borrowed-helper profile remains scalar-field-only.
+
+OWN_PACK consumes each child token exactly once in declaration order, preserving already-staged producer evaluation order. OWN_UNPACK consumes the complete parent and pushes exact owned child tokens in declaration order; each child must be stored, moved, repacked, returned or completely consumed. I refuse scalar POP/copy operations on staged owners and live-child loss. Existing structured branch/loop ownership joins remain exact. I admit no nested reference paths or aggregate-valued reference reads.
+
+I emit prior child declarations before parent declarations, nested C structs and Nano resource constructors/destructuring through the same region tree. No VM, goto or hidden dispatcher is introduced. Original shadows remain omitted. I preserve atomic output refusal and make no broader ownership or release claim.
+
+I first qualify the unchanged nested fixture, then exact distinct nominal children, source constructor/destructure order, and independent child consumption. I retain raw malformed module refusals (wrong child identities, authority, cycles/forward references and child loss), actual-facts profile refusals, source/provider hashes, VM and paired C/Nano roundtrips, and O0/O2 ASan/UBSan native evidence. I require production review before final qualification and one coordinated facts/test slot after the aggregate suite finishes; I do not run a bootstrap. Full #999 remains open.
