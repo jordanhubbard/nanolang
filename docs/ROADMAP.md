@@ -16153,3 +16153,5 @@ two-formal helper component and make no production or admission changes.
 
 I have not executed a baseline for this extension. Source syntax does not prove
 that destructuring emits no local observations.
+
+I retain the [single-exclusive helper baseline](evidence/single-exclusive-helper-baseline-20261019/README.md): three ordinary producers plus one independent C-hosted original-shadow input verify/VM execute at52/7locals. Facts succeeds; both reconstructions atomically refuse bounded exclusive helper control. Actual destructuring emits two descriptor1 local observations before inherited descriptor0 mutation and final local consumption. All nine selected provider/source pins remain unchanged. No admission or generated-local feasibility claim is made.
