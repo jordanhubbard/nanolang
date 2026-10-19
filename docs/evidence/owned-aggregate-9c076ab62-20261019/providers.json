@@ -1,0 +1,12 @@
+{
+  "bin/nano_virt": "5f79f32cc86812dd943e2cf89062e02b3a6c3e4b91656c9029d2802345d8a242",
+  "bin/nanoc_stage1": "b07896f8a84457b62e13111d0ff2b71635a567c0a80a2c8e03d4e87a0870f5a3",
+  "bin/nanoc_stage2": "4e7ac7aed1df4814271e646fc37f7bc28fb6fe505369c3fa8abae2a18e5243d8",
+  "bin/nanoc_stage1.nvm": "03f6b51b37909a9c9aa6b7a26e69efecc11303f7776029dc56771fd648f769bb",
+  "bin/nanoc_stage2.nvm": "03f6b51b37909a9c9aa6b7a26e69efecc11303f7776029dc56771fd648f769bb",
+  "bin/nvm2hl": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c",
+  "bin/nano_vm": "e276f5a37e379d3da08801608d7262704df287c001defaf9fae1745080e5ddcf",
+  "bin/nvm2c": "4ac9e35c283d8c8643f3df287bf64ae49c33cddb72bb4bfd9c65953bfc65711f",
+  "scripts/nanoisa_owned_reconstruction.py": "f08e9ac444ce4d850ac1d1a84c3732699670fa6a6802a619380a2fe5f965624f",
+  "src/nanoisa/hl_owned_facts.inc": "38ddbc1d0d887110b05cb222b6e8e7ba7d502c2bfa561191cc12f9348b69d516"
+}

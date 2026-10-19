@@ -15769,3 +15769,5 @@ I stopped my newly launched reproduction on local worker overload (load122.38 wi
 I integrate the reviewed loop and VOID/assert components into my aggregate owned reconstruction target. Their retained component gates passed; I defer the combined aggregate rerun until worker pressure clears and rebuild my facts extractor first because VOID results add an exact result-count field. My concurrent parser run uses unchanged compiler providers.
 
 I complete both fresh paired parser methods in 1597.282 seconds using unchanged `16eb3b1f9` compiler providers, including C and both installed parser products, schema/token consumers and prior-output refusals. I retain [my exact paired parser receipt](evidence/parser-paired-16eb3b1f9-20261019/README.md); hosted join and full release obligations remain open.
+
+I rebuild my aggregate facts extractor and pass all 23 local/call/branch/loop/VOID reconstruction methods in 229.816 seconds against NanoVirt and both fresh `16eb3b1f9` installed generations. I retain [my aggregate receipt](evidence/owned-aggregate-9c076ab62-20261019/README.md). Hosted and broader #999 obligations remain open.
