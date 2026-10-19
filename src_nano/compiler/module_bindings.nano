@@ -295,3 +295,49 @@ shadow mb_source {
     assert (== (mb_source -1) "")
     (mb_reset [])
 }
+
+# I query declaration provenance without exporting my mutable binding tables.
+pub fn mb_declared_type_bound(line: int, target: string) -> bool {
+    if (or (not (mb_active)) (!= (array_length mb_source_paths) (array_length mb_file_starts))) { return false }
+    let bindings: int = (array_length mb_targets)
+    if (or (!= bindings (array_length mb_names)) (or (!= bindings (array_length mb_owners)) (!= bindings (array_length mb_definition_owners)))) { return false }
+    let mut i: int = 0
+    while (< i (array_length mb_source_paths)) {
+        if (== (mb_source i) "") { return false }
+        let mut j: int = 0
+        while (< j i) {
+            if (== (mb_source i) (mb_source j)) { return false }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    let owner: int = (mb_owner line)
+    if (or (< owner 0) (== (mb_source owner) "")) { return false }
+    let mut matches: int = 0
+    set i 0
+    while (< i bindings) {
+        if (and (== (at mb_owners i) owner) (and (== (at mb_definition_owners i) owner) (and (str_starts_with (at mb_names i) "#type:") (== (at mb_targets i) target)))) {
+            set matches (+ matches 1)
+        }
+        set i (+ i 1)
+    }
+    return (== matches 1)
+}
+shadow mb_declared_type_bound {
+    (mb_reset [])
+    assert (not (mb_declared_type_bound 1 "Plain"))
+    (mb_reset [1, 5])
+    (mb_set_sources ["/one.nano", "/two.nano"])
+    (mb_add 0 "#type:Plain" "First")
+    (mb_add 1 "#type:Plain" "Second")
+    assert (mb_declared_type_bound 1 "First")
+    assert (mb_declared_type_bound 5 "Second")
+    assert (not (mb_declared_type_bound 5 "First"))
+    (mb_add_target 1 "#type:Alias" "First" 0)
+    assert (not (mb_declared_type_bound 5 "First"))
+    (mb_add 0 "#type:Other" "First")
+    assert (not (mb_declared_type_bound 1 "First"))
+    (mb_set_sources ["/one.nano"])
+    assert (not (mb_declared_type_bound 5 "Second"))
+    (mb_reset [])
+}

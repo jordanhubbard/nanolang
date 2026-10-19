@@ -15360,3 +15360,18 @@ I retain [my mixed/repeated service transport evidence](evidence/multi-service-t
 I retain [my checked mixed-service flow evidence](evidence/mixed-service-flow-20261010/README.md): exact instance identities pass logical, CODE, body, cyclic, indirect and hosted checks, including all catalog methods, 64 instances, wrong-instance refusal and allocation failures. Existing File/TCP query and real VM/native dispatch regressions pass. Mixed runtime and source publication remain open.
 
 - [ ] Under #976 I qualify my standalone compiler-product, managed-runtime, advisory-metadata and scalar-reconstruction gates on fresh Linux/Darwin compiler generations. I select VM and sanitized native source-effect execution explicitly; I preserve separate job budgets for the complete retirement corpus and this compiler-contract corpus. Passing these existing gates does not complete missing frontend-fact or ordinary-authority implementation in #998/#1001.
+## Ordinary declaration provenance prerequisite — #1001
+
+- [x] I retain the exact checked AST declaration for each C-seed runtime record ordinal at local, direct-import and transitive-import registration. Repeated registration of the same declaration preserves identity; distinct same-spelled declarations leave optional ordinary authority UNKNOWN. I preserve executable registration and all existing import/generic/array publication guards.
+- [x] I derive the existing bounded local publisher from those recorded declarations without reordering layouts or inferring authority from names. I qualify positive local/forward publication, repeated and colliding registrations, unsupported-schema UNKNOWN behavior and unchanged source execution. My [Darwin C-seed evidence](evidence/ordinary-declaration-provenance-20261018/README.md) passes four paired VM/sanitized-native methods and 90 codegen checks; fresh generations and Linux remain unqualified.
+- [ ] I retain source pins, focused tests and platform limits in review evidence before extending the paired imported producer contract. This prerequisite does not close #1001 or required row10648.
+
+- [x] Under #1001 I review [bounded imported ordinary authority](NANOISA_IMPORTED_ORDINARY_AUTHORITY.md), preserving exact root/dependency declaration identity and explicit canonical binding provenance before publication.
+- [x] I implement root/cache AST coverage in the C publisher and a separately validated canonical-bound selfhost entrypoint; raw emitters retain import omission and invocation resets cannot inherit authority.
+- [ ] I qualify direct/transitive/repeated and same-spelled imported identities, forward fields, selected shadows, negative UNKNOWN boundaries and raw metadata roundtrips through fresh C-seed/Stage1/Stage2 on Linux and Darwin. I keep array/generic and full parent acceptance open.
+
+- [x] I preserve the first #1001 selfhost build refusal: the initial draft referenced private module-binding tables across an import. I replace those accesses with a checked read-only provenance query and require its own owner/alias/ambiguity/reset shadows before repeating compilation.
+
+- [x] I retain the first imported-field fixture failure: its expected string tag and C-seed declaration order were wrong. I use the retained layout contract (string tag 5) and both checked producers' dependency-first declaration order, then repeat exact ordinal and VM/native checks without changing producer behavior.
+
+I retain [my focused imported-authority evidence](evidence/imported-ordinary-authority-20261018/README.md): both C and C-seed-hosted canonical Nano producers pass five VM/native methods, and 90 codegen checks pass. Fresh selfhosted generations and Linux remain required; I keep #1001 open.

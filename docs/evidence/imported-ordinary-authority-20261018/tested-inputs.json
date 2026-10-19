@@ -1,0 +1,24 @@
+{
+  "base": "2a1fde214ebb5bc425d0581a5e8b9e3b181e7306",
+  "inputs": {
+    "src/nanovirt/codegen.c": "2355f03f4cdee72a178dba428695a0bdfa74be903054f46fb0ad33afcf0452e3",
+    "src/nanovirt/ordinary_authority.inc": "682c84b6b5d24c6e662c2fa56e3dbd53a00a0f416626ca0eeef1938198d1b741",
+    "src_nano/compiler/module_bindings.nano": "a595274a3818a9e054ea541745fb0f4874774ad1ec03d9367450d87da574d0e8",
+    "src_nano/compiler/nanoisa_codegen.nano": "06d253d4d0a7b5cae81f7adddf09f2d6bb43022184c4b113a29d155f1b4d462c",
+    "src_nano/nanoc_v06.nano": "2357a7d42b7e51c45a9ead81097bddbb64ce6b370185ae9ef17d2b94f5a9cd84",
+    "tests/test_ordinary_declaration_provenance.py": "1bd4c9e05a0930269f531d8ddb9f0f92b2a204fa526dbc6f0fdad9055bcee629",
+    "Makefile.gnu": "2226caa04913ff9f02e5f70a2de307648c65cb2bb73df416449ae328d7c54346"
+  },
+  "tools": {
+    "bin/nano_virt": "7f1b1fd68361cf599f7868d8a56973e905c00751fc63435e2626d47527b27ada",
+    "bin/nano_vm": "d1a07f3b3d34178d9bd4c31945977e56d2cee6011f0760258eac2c400110ebad",
+    "bin/nanoisa": "ea45b7124756ed66c5a48bc499c846b905ba115a24f055b3a0c39804de7bca7b",
+    "bin/nvm2c": "bb86dab0f5880feb4c6357b94734570f33c67350f5c0ac5f2908b9f3432ce8e8",
+    "bin/nanoc_c": "409ada9e42b612bb59fe07221e4912aa5dbb3260f69b1862144cc275675dddfa",
+    "/private/tmp/nanolang-1001-canonical": "a2b8e1895db6dd7b83f7a5af65763500ed47dacc1e3dd790ce727c6e50f0f82b",
+    "/private/tmp/nanolang-1001-emitter": "61f5d5d4ecab7bbd4c2deccbea7a3dee955bdb5ebcdc364aca073786ee849e6b"
+  },
+  "native_cc": "Homebrew clang version 23.1.2\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /opt/homebrew/Cellar/llvm/23.1.2/bin\nConfiguration file: /opt/homebrew/Cellar/llvm/23.1.2/etc/clang/arm64-apple-darwin27.cfg\n",
+  "host": "Darwin puck 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:05:48 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T6041 arm64\n",
+  "generations": "C-seed and C-seed-hosted current canonical Nano source only; fresh Stage1/Stage2 pending"
+}
