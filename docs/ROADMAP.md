@@ -15533,6 +15533,8 @@ I retain [my direct-tail receipt](evidence/record-array-tail-20261018/README.md)
 
 ### Checked affine identifier-use facts (#998)
 
+- [x] I qualify borrowed resource field-root OBSERVE parity on `fix/5.1-affine-borrowed-roots` from `7c7f3f5af`: reuse exact declared target classification after one canonical borrow qualifier, keep consume/ownership semantics and owner/epoch/completion gates unchanged, and require actual shared/mutable helper observations, unknown/nested-prefix and stale-owner controls, refusal preservation and advisory-independent execution. Full #998 and fresh aggregate/platform acceptance remain open.
+
 - [ ] I review and implement [retained checked identifier-use facts](NANOISA_AFFINE_USE_FACTS.md) through both real resource and ordinary producer routes, retaining UNKNOWN for unsupported identities and exact checker-node provenance before advisory publication.
 - [ ] I qualify paired consume/observe, refusal, canonical transport and advisory independence controls, then fresh combined generations/platforms; function completion alone does not satisfy this child.
 

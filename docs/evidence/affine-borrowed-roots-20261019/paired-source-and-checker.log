@@ -1,0 +1,10 @@
+test_actual_checker_epoch_and_raw_boundary (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_checker_epoch_and_raw_boundary) ... ok
+test_actual_observe_consume_and_advisory_independence (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_observe_consume_and_advisory_independence) ... ok
+test_borrowed_resource_misuse_preserves_output (tests.test_affine_use_metadata.AffineUseMetadata.test_borrowed_resource_misuse_preserves_output) ... ok
+test_borrowed_resource_roots_observe_without_consuming (tests.test_affine_use_metadata.AffineUseMetadata.test_borrowed_resource_roots_observe_without_consuming) ... ok
+test_invalid_resource_uses_preserve_output (tests.test_affine_use_metadata.AffineUseMetadata.test_invalid_resource_uses_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 71.367s
+
+OK

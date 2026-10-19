@@ -61,6 +61,43 @@ fn main() -> int {
         assert (== (parser_identifier_affine_use parser slot (parser_get_function parser 0)) 0)
         set slot (+ slot 1)
     }
+    # I retain only OBSERVE for checked shared and exclusive resource roots.
+    let modes: array<string> = ["&", "&mut "]
+    let mut mode: int = 0
+    while (< mode (array_length modes)) {
+        let source: string = (+ "resource struct R { value:int } fn read(view:" (+ (at modes mode) (+ "R)->int{return view.value} fn main()->int{let mut owner:R=R{value:7} assert (== (read " (+ (at modes mode) "owner) 7) let R{value}=owner return 0}"))))
+        let tokens: List<LexerToken> = (tokenize_string source "borrowed.nano" (list_CompilerDiagnostic_new))
+        let borrowed: Parser = (parse_program tokens (list_LexerToken_length tokens) "borrowed.nano")
+        assert (not (parser_has_error borrowed))
+        let raw: string = (nanoisa_emit_parser_nasm borrowed)
+        assert (not (str_contains raw ".affine_use "))
+        assert (not (typecheck_phase borrowed "borrowed.nano").had_error)
+        let completed: ASTFunction = (parser_get_function borrowed 0)
+        let mut root: int = -1
+        let mut slot: int = 0
+        while (< slot (parser_get_identifier_count borrowed)) {
+            let node: ASTIdentifier = (parser_get_identifier borrowed slot)
+            if (== node.name "view") {
+                set root slot
+                assert (== (parser_identifier_affine_use borrowed slot completed) 1)
+            }
+            set slot (+ slot 1)
+        }
+        assert (>= root 0)
+        let checked: string = (nanoisa_emit_parser_nasm borrowed)
+        assert (str_contains checked ".affine_use ")
+        let other: Parser = (parse_program tokens (list_LexerToken_length tokens) "borrowed.nano")
+        assert (not (typecheck_phase other "borrowed.nano").had_error)
+        let other_function: ASTFunction = (parser_get_function other 0)
+        assert (== completed.affine_completed_epoch other_function.affine_completed_epoch)
+        assert (== (parser_identifier_affine_use borrowed root other_function) 0)
+        (parser_set_function_affine borrowed 0 0)
+        assert (== (parser_identifier_affine_use borrowed root (parser_get_function borrowed 0)) 0)
+        assert (not (typecheck_phase borrowed "borrowed.nano").had_error)
+        assert (== (parser_identifier_affine_use borrowed root completed) 0)
+        assert (== (parser_identifier_affine_use borrowed root (parser_get_function borrowed 0)) 1)
+        set mode (+ mode 1)
+    }
     let external_tokens: List<LexerToken> = (tokenize_string "resource struct R {value:int} extern fn outside()->int fn main()->int{return 0}" "external.nano" (list_CompilerDiagnostic_new))
     let external: Parser = (parse_program external_tokens (list_LexerToken_length external_tokens) "external.nano")
     (parser_set_function_affine external 0 1)

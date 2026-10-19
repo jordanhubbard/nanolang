@@ -374,6 +374,34 @@ fn resource_type_is_declared(parser: Parser, type_name: string) -> bool {
     return (resource_classify parser type_name false)
 }
 
+# I classify an observation target without making its reference an owner.
+fn resource_observation_type(parser: Parser, type_name: string) -> bool {
+    if (resource_type_is_declared parser type_name) { return true }
+    let mut offset: int = 0
+    if (str_starts_with type_name "&mut ") { set offset 5 }
+    else { if (str_starts_with type_name "&") { set offset 1 } }
+    if (== offset 0) { return false }
+    let target: string = (str_substring type_name offset (- (str_length type_name) offset))
+    return (resource_type_is_declared parser target)
+}
+shadow resource_observation_type {
+    let parser: Parser = (resource_test_parser "resource struct Counter { value: int } struct Plain { value: int }")
+    assert (resource_observation_type parser "Counter")
+    assert (resource_observation_type parser "&Counter")
+    assert (resource_observation_type parser "&mut Counter")
+    assert (resource_observation_type parser "&#record:0")
+    assert (resource_observation_type parser "&mut #record:0")
+    assert (not (resource_type_is_declared parser "&Counter"))
+    assert (not (resource_type_is_declared parser "&mut Counter"))
+    assert (not (resource_observation_type parser "&Unknown"))
+    assert (not (resource_observation_type parser "&Plain"))
+    assert (not (resource_observation_type parser "&int"))
+    assert (not (resource_observation_type parser "&&Counter"))
+    assert (not (resource_observation_type parser "&mut &Counter"))
+    assert (not (resource_observation_type parser "&mut  Counter"))
+    assert (not (resource_observation_type parser "borrow Counter"))
+}
+
 fn resource_has_collection_payload(parser: Parser, type_name: string) -> bool {
     return (resource_classify parser type_name true)
 }
@@ -1508,7 +1536,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             if (resource_place_conflict state.held_places (resource_place_path parser node_id node_type) false) {
                 (resource_flow_error diags file_name field.line field.column "I cannot access an exclusively borrowed place")
             }
-            if (and (== root_kind ParseNodeType.PNODE_IDENTIFIER) (and (> fact_epoch 0) (and (resource_type_is_declared parser state.type_name) (== use_errors (Diagnostics.diag_list_count diags))))) {
+            if (and (== root_kind ParseNodeType.PNODE_IDENTIFIER) (and (> fact_epoch 0) (and (resource_observation_type parser state.type_name) (== use_errors (Diagnostics.diag_list_count diags))))) {
                 (parser_set_identifier_affine parser root_id fact_owner fact_epoch 1)
             }
             return flow

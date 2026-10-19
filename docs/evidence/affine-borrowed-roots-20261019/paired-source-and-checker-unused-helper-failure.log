@@ -1,0 +1,62 @@
+test_actual_checker_epoch_and_raw_boundary (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_checker_epoch_and_raw_boundary) ... FAIL
+test_actual_observe_consume_and_advisory_independence (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_observe_consume_and_advisory_independence) ... ok
+test_borrowed_resource_misuse_preserves_output (tests.test_affine_use_metadata.AffineUseMetadata.test_borrowed_resource_misuse_preserves_output) ... ok
+test_borrowed_resource_roots_observe_without_consuming (tests.test_affine_use_metadata.AffineUseMetadata.test_borrowed_resource_roots_observe_without_consuming) ... ok
+test_invalid_resource_uses_preserve_output (tests.test_affine_use_metadata.AffineUseMetadata.test_invalid_resource_uses_preserve_output) ... ok
+
+======================================================================
+FAIL: test_actual_checker_epoch_and_raw_boundary (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_checker_epoch_and_raw_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_affine_use_metadata.py", line 157, in test_actual_checker_epoch_and_raw_boundary
+    work=Path(directory); source=work/'checker.nano'; binary=work/'checker'
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    source.write_text((ROOT/'tests/nanoisa/fixtures/affine_use_checker_facts.nano.txt').read_text())
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_affine_use_metadata.py", line 20, in command
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 6424, column 9: Unused variable 'checked_body'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 3177, column 9: Unused variable 'rejected'
+Warning at line 3486, column 9: Unused variable 'rejected'
+Warning at line 3490, column 9: Unused variable 'rejected'
+Warning at line 3494, column 9: Unused variable 'rejected'
+Warning at line 3498, column 9: Unused variable 'rejected'
+Warning at line 3505, column 13: Unused variable 'rejected'
+Warning at line 3654, column 9: Unused variable 'rejected'
+Warning at line 3658, column 9: Unused variable 'rejected'
+Warning at line 3665, column 13: Unused variable 'rejected'
+Warning at line 7955, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 6424, column 9: Unused variable 'checked_body'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 6424, column 9: Unused variable 'checked_body'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 3177, column 9: Unused variable 'rejected'
+Warning at line 3486, column 9: Unused variable 'rejected'
+Warning at line 3490, column 9: Unused variable 'rejected'
+Warning at line 3494, column 9: Unused variable 'rejected'
+Warning at line 3498, column 9: Unused variable 'rejected'
+Warning at line 3505, column 13: Unused variable 'rejected'
+Warning at line 3654, column 9: Unused variable 'rejected'
+Warning at line 3658, column 9: Unused variable 'rejected'
+Warning at line 3665, column 13: Unused variable 'rejected'
+Warning at line 7955, column 17: Unused variable 'imported'
+  Shadow test 'main' FAILED: 2 failure(s)
+  First failure at line 88, column 9
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 71.125s
+
+FAILED (failures=1)
