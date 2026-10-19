@@ -79,16 +79,20 @@ class OwnedAnalyze(Analyze):
             require(all('field_types' in layout for layout in self.layouts),
                     'require complete exact path layout descriptors')
             require(self.borrowed and len(module['functions']) == 2 and
-                    module['functions'][1].get('param_modes') in ([2, 2, 1], [1, 1], [1]),
+                    module['functions'][1].get('param_modes') in ([2, 2, 1], [1, 1], [1], [2]),
                     'require the exact nested-path helper profile')
         if self.borrowed:
             require(max(self.depths) <= (3 if self.paths else 2), 'retain nested borrowed modules at depth three' if self.paths else 'retain borrowed modules at depth two')
             require(len(module['functions']) == 2 and
                     module['functions'][0].get('param_modes', []) == [] and
-                    module['functions'][1].get('param_modes') in (([2, 2, 1], [1, 1], [1]) if self.paths else ([1], [2], [2, 1, 2])),
+                    module['functions'][1].get('param_modes') in (([2, 2, 1], [1, 1], [1], [2]) if self.paths else ([1], [2], [2, 1, 2])),
                     'require the separate entry-to-borrowed-helper profile')
         self.shared_paths = self.paths and module['functions'][1].get('param_modes') == [1, 1]
         self.single_shared_path = self.paths and module['functions'][1].get('param_modes') == [1]
+        self.single_exclusive_path = self.paths and module['functions'][1].get('param_modes') == [2]
+        self.exclusive_control = self.borrowed and module['functions'][1].get('param_modes') == [2] and (
+            self.paths or any(ins['op'] in ('JMP', 'JMP_TRUE', 'JMP_FALSE')
+                              for ins in module['functions'][1]['code']))
         self.shared_root = None
         self.multi = self.borrowed and len(module['functions'][1].get('param_modes', [])) > 1
         self.exclusive = self.borrowed and 2 in module['functions'][1].get('param_modes', [])
@@ -114,7 +118,8 @@ class OwnedAnalyze(Analyze):
         self.code = self.fn['code']
         if self.helper:
             require(self.result in (INT, BOOL) and
-                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) | ({'SUB', 'ASSERT'} if self.multi else set()) | ({'ADD', 'MUL'} if self.shared_paths else set()) | ({'JMP', 'JMP_TRUE', 'JMP_FALSE'} if self.single_shared_path else set()) for ins in self.code),
+                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) | ({'SUB', 'ASSERT'} if self.multi else set()) | ({'ADD', 'MUL'} if self.shared_paths else set()) | ({'JMP', 'JMP_TRUE', 'JMP_FALSE'} if self.single_shared_path or self.exclusive_control else set()) for ins in self.code),
+                    'require bounded exclusive helper control' if self.exclusive_control else
                     'require total scalar shared-helper diamonds' if self.single_shared_path else
                     'require a straight-line scalar borrowed helper')
         require(0 < len(self.code) <= 4096, 'require bounded function instructions')
@@ -178,10 +183,11 @@ class OwnedAnalyze(Analyze):
 
     def observation(self, i, end, stack, body, allow_call=True):
         length = self.reference_region_length(i)
-        if length in (5, 6) or (self.single_shared_path and i + 2 < len(self.code) and
+        if length in (5, 6) or ((self.single_shared_path or self.single_exclusive_path) and i + 2 < len(self.code) and
                                   self.code[i + 2]['op'] == 'CALL_REF'):
             count = length - 3
             require(allow_call and self.index == 0 and i + length - 1 < end,
+                    'require a complete single-exclusive-path caller region' if self.single_exclusive_path else
                     'require a complete single-shared-path caller region' if self.single_shared_path else
                     'require a complete two-reference caller region' if self.shared_paths else 'require a complete three-reference caller region')
             require(len(self.code[i + 1]['args']) == (3 if self.paths else 2), 'require an exact first reference operand pair')
@@ -190,6 +196,7 @@ class OwnedAnalyze(Analyze):
             borrows = self.code[i + 1:i + 1 + count]
             call, finish = self.code[i + 1 + count:i + length]
             require(call['args'] == [1, base] and finish['op'] == 'REGION_END' and not finish['args'] and not self.code[i]['args'],
+                    'require exact single-exclusive-path call and region end' if self.single_exclusive_path else
                     'require exact single-shared-path call and region end' if self.single_shared_path else
                     'require exact two-reference call and region end' if self.shared_paths else 'require exact three-reference call and region end')
             slots, places = [], []
@@ -209,9 +216,10 @@ class OwnedAnalyze(Analyze):
                 slots.append(slot)
             if self.paths:
                 require(len(set(slots)) == 1, 'require one live nested root')
-                if self.single_shared_path:
+                if self.single_shared_path or self.single_exclusive_path:
                     root = (slots[0], self.owner_local(slots[0]))
                     require(self.shared_root is None or self.shared_root == root,
+                            'require one exact root slot and layout for exclusive path calls' if self.single_exclusive_path else
                             'require one exact root slot and layout for shared path calls')
                     self.shared_root = root
                 require(self.shared_paths or all(left[:min(len(left), len(right))] != right[:min(len(left), len(right))]
@@ -275,6 +283,17 @@ class OwnedAnalyze(Analyze):
             body.append(('own_read', target, slot, field))
         stack.append(target)
 
+    def helper_read(self, ins, stack, body):
+        arg = ins['arg']
+        require(self.helper and len(ins['args']) == 2 and 0 <= arg < len(self.params),
+                'require the exact borrowed helper parameter reference')
+        field, layout = ins['args'][1], self.params[arg][1]
+        require(0 <= field < len(self.fields[layout]), 'require an exact borrowed parameter field')
+        require(self.fields[layout][field] in (INT, BOOL), 'require a scalar shared field')
+        target = Expr(self.fields[layout][field], 'temporary', ins['pc'])
+        body.append(('multi_borrow_read', target, arg, field) if self.multi else ('borrow_read', target, field))
+        stack.append(target)
+
     def region(self, start, end, initialized, live, used, depth=0):
         require(depth <= 32, 'limit owned region nesting to 32')
         initialized = set(initialized)
@@ -294,7 +313,9 @@ class OwnedAnalyze(Analyze):
                         'require an owned pretest exit immediately after its backedge')
                 condition_stack, condition_statements = [], []
                 materialized = any(self.code[n]['op'] == 'REGION_BEGIN' or
-                                   self.code[n]['op'] in OWNED_WRAPPING_PRETEST for n in range(i, branch))
+                                   self.code[n]['op'] in OWNED_WRAPPING_PRETEST or
+                                   (self.helper and self.exclusive_control and self.code[n]['op'] == 'REF_GET')
+                                   for n in range(i, branch))
                 n, pretest_calls = i, 0
                 while n < branch:
                     condition_instruction = self.code[n]
@@ -303,13 +324,20 @@ class OwnedAnalyze(Analyze):
                         length = self.reference_region_length(n)
                         is_call = any(ins['op'] == 'CALL_REF' for ins in self.code[n:n + length])
                         if is_call:
-                            require(self.index == 0 and self.paths and not self.shared_paths and
-                                    length == 6 and self.module['functions'][1]['param_modes'] == [2, 2, 1] and
-                                    pretest_calls == 0,
+                            require(self.index == 0 and pretest_calls == 0 and
+                                    ((self.paths and not self.shared_paths and length == 6 and
+                                      self.module['functions'][1]['param_modes'] == [2, 2, 1]) or
+                                     (self.single_exclusive_path and length == 4)),
+                                    'require one exact exclusive path call per owned pretest' if self.single_exclusive_path else
                                     'require one exact three-path reference call per owned pretest')
                             pretest_calls += 1
                         self.observation(n, branch, condition_stack, condition_statements, allow_call=is_call)
                         n += length
+                        continue
+                    if self.helper and self.exclusive_control and condition_instruction['op'] == 'REF_GET':
+                        self.touch(n)
+                        self.helper_read(condition_instruction, condition_stack, condition_statements)
+                        n += 1
                         continue
                     require(condition_instruction['op'] in OWNED_PRETEST | OWNED_WRAPPING_PRETEST,
                             'require a nontrapping pure scalar owned pretest')
@@ -417,14 +445,7 @@ class OwnedAnalyze(Analyze):
                 value = self.pop(stack, self.fields[layout][field])
                 body.append(('multi_borrow_write', arg, field, value) if self.multi else ('borrow_write', field, value))
             elif op == 'REF_GET':
-                require(self.helper and len(ins['args']) == 2 and 0 <= arg < len(self.params),
-                        'require the exact borrowed helper parameter reference')
-                field, layout = ins['args'][1], self.params[arg][1]
-                require(0 <= field < len(self.fields[layout]), 'require an exact borrowed parameter field')
-                require(self.fields[layout][field] in (INT, BOOL), 'require a scalar shared field')
-                target = Expr(self.fields[layout][field], 'temporary', pc)
-                body.append(('multi_borrow_read', target, arg, field) if self.multi else ('borrow_read', target, field))
-                stack.append(target)
+                self.helper_read(ins, stack, body)
             elif op == 'REGION_BEGIN':
                 self.observation(i, end, stack, body)
                 i += self.reference_region_length(i) - 1
@@ -479,8 +500,9 @@ class OwnedAnalyze(Analyze):
         body, _, _, _, returns = self.region(0, len(self.code), set(range(len(self.params))),
                                              self.live, self.used)
         require(returns, 'require every owned function path to return')
-        if self.single_shared_path and self.index == 0:
-            require(self.shared_root is not None, 'require an actual single-shared-path caller region')
+        if (self.single_shared_path or self.single_exclusive_path) and self.index == 0:
+            require(self.shared_root is not None, 'require an actual single-exclusive-path caller region' if self.single_exclusive_path else
+                    'require an actual single-shared-path caller region')
         require(len(self.seen) == len(self.code), 'require complete owned instruction coverage')
         return Function(self.fn['name'], self.params, self.result, self.types, self.fn['names'], parameters + body)
 
@@ -495,16 +517,28 @@ class OwnedEmit(Emit):
         self.shared_paths = modes == [1, 1]
         self.single_shared_path = modes == [1] and any(
             stmt[0] == 'path_borrow_call' for stmt in self.walk_statements(functions[0].body))
-        self.paths = modes in ([2, 2, 1], [1, 1]) or self.single_shared_path
+        self.single_exclusive_path = modes == [2] and any(
+            stmt[0] == 'path_borrow_call' for stmt in self.walk_statements(functions[0].body))
+        self.exclusive_control = modes == [2] and (self.single_exclusive_path or any(
+            stmt[0] in ('if', 'while', 'while_observe') for stmt in self.walk_statements(functions[1].body)))
+        self.control_proof = None
+        if self.exclusive_control:
+            from nanoisa_owned_control import prove_exclusive_helper_control
+            self.control_proof = prove_exclusive_helper_control(functions[1])
+        self.paths = modes in ([2, 2, 1], [1, 1]) or self.single_shared_path or self.single_exclusive_path
         self.multi = modes in ([2, 1, 2], [2, 2, 1], [1, 1])
-        self.witness = (self.total_shared_tree(functions, layouts) if self.single_shared_path else
+        self.witness = (self.exclusive_control_tree(functions, layouts) if self.exclusive_control else
+                        self.total_shared_tree(functions, layouts) if self.single_shared_path else
                         self.path_witness(functions, layouts) if self.paths else
                         self.multi_witness(functions) if self.multi else None)
-        if self.paths and language == 'nano':
+        if (self.paths or self.exclusive_control) and language == 'nano':
             from copy import deepcopy
             self.functions = deepcopy(functions)
             for function in self.functions:
-                function.body = self.fold_adjacent_assertions(function.body)
+                if self.paths:
+                    function.body = self.fold_adjacent_assertions(function.body)
+                if self.exclusive_control:
+                    function.body = self.fold_add_snapshots(function.body)
         self.inline_add = (self.exclusive or self.shared_paths or self.single_shared_path) and language == 'nano'
         self.inline_mul = self.shared_paths and language == 'nano'
         self.inline_sub = self.multi and language == 'nano'
@@ -556,6 +590,10 @@ class OwnedEmit(Emit):
         require(all(stmt[0] in ('let', 'store', 'borrow_read', 'if', 'return')
                     for stmt in OwnedEmit.walk_statements(functions[1].body)) and total(functions[1].body),
                 'require a total observation-only helper for the synthesized tree fixture')
+        return OwnedEmit.zero_path_tree(functions, layouts)
+
+    @staticmethod
+    def zero_path_tree(functions, layouts):
         statements = list(OwnedEmit.walk_statements(functions[0].body))
         calls = [stmt for stmt in statements if stmt[0] == 'path_borrow_call']
         require(calls and all(stmt[2] == calls[0][2] and len(stmt[3]) == 1 for stmt in calls),
@@ -567,6 +605,60 @@ class OwnedEmit(Emit):
                     Expr(tag, 'constant', 0 if tag == INT else False)
                     for tag, child in layouts[layout]['field_types']))
         return zero_tree(roots[0]), calls[0][3], ()
+
+    @staticmethod
+    def exclusive_control_tree(functions, layouts):
+        if any(stmt[0] == 'path_borrow_call' for stmt in OwnedEmit.walk_statements(functions[0].body)):
+            return OwnedEmit.zero_path_tree(functions, layouts)
+        layout = functions[1].params[0][1]
+        fields = layouts[layout]['field_types']
+        require(all(tag in (INT, BOOL) for tag, _ in fields), 'require a scalar exclusive shadow leaf')
+        return (layout, tuple(Expr(tag, 'constant', 0 if tag == INT else False)
+                              for tag, _ in fields)), None, ()
+
+    @staticmethod
+    def fold_add_snapshots(body):
+        # I move only a sole-use scalar local read into the immediately following
+        # guarded ADD operand snapshot. I retain its result let and every store.
+        from collections import Counter
+        occurrences = Counter()
+        def count(node):
+            if isinstance(node, Expr):
+                occurrences[node] += 1
+                for arg in node.args:
+                    count(arg)
+            elif isinstance(node, (list, tuple)):
+                for arg in node:
+                    count(arg)
+        count(body)
+        def rewrite(statements):
+            result, index = [], 0
+            while index < len(statements):
+                stmt = statements[index]
+                if stmt[0] == 'let' and stmt[1].tag == INT and stmt[1].kind == 'temporary' and \
+                        stmt[2].tag == INT and stmt[2].kind == 'local' and not stmt[2].args and \
+                        occurrences[stmt[1]] == 2 and index + 1 < len(statements):
+                    following = statements[index + 1]
+                    if following[0] == 'let':
+                        value = following[2]
+                        if value.tag == INT and value.kind == 'arithmetic' and value.value == 'add' and \
+                                len(value.args) == 2 and stmt[1] in value.args and all(
+                                    arg.tag == INT and arg.kind in ('constant', 'local', 'temporary') and not arg.args
+                                    for arg in value.args):
+                            args = tuple(stmt[2] if arg == stmt[1] else arg for arg in value.args)
+                            result.append(('let', following[1], Expr(INT, 'arithmetic', 'add', args)))
+                            index += 2
+                            continue
+                if stmt[0] == 'if':
+                    stmt = (stmt[0], stmt[1], rewrite(stmt[2]), rewrite(stmt[3]))
+                elif stmt[0] == 'while':
+                    stmt = (stmt[0], stmt[1], rewrite(stmt[2]))
+                elif stmt[0] == 'while_observe':
+                    stmt = (stmt[0], stmt[1], rewrite(stmt[2]), rewrite(stmt[3]))
+                result.append(stmt)
+                index += 1
+            return result
+        return rewrite(body)
 
     @staticmethod
     def fold_adjacent_assertions(body):
@@ -754,7 +846,8 @@ class OwnedEmit(Emit):
         for _ in range(2):
             root = store(pack(tree), tree[0])
             result = temporary(self.functions[1].result)
-            body.append(('path_borrow_call', result, root, paths))
+            body.append(('borrow_call', result, root) if paths is None else
+                        ('path_borrow_call', result, root, paths))
             results.append(result)
             fields = []
             consume(root, tree, fields)
@@ -771,6 +864,16 @@ class OwnedEmit(Emit):
     def path_shadow(self):
         function = self.path_shadow_function()
         require(self.nano_local_cost(function) <= 128, 'limit generated tree shadow to 128 local slots')
+        if self.exclusive_control:
+            # I count every emitted tree statement and operand conservatively,
+            # then include both independently proved helper invocations.
+            def work(node):
+                if isinstance(node, Expr):
+                    return 1 + sum(work(arg) for arg in node.args)
+                if isinstance(node, (list, tuple)):
+                    return 1 + sum(work(arg) for arg in node)
+                return 1
+            self.control_proof['shadow_work'] = 2 * self.control_proof['work'] + 4 * work(function.body)
         saved_lines, saved_function = self.lines, self.function
         self.lines, self.function = [], function
         try:
@@ -921,7 +1024,7 @@ class OwnedEmit(Emit):
 
     def statements(self, statements, indent=1):
         c = self.language == 'c'
-        if c and (self.shared_paths or self.single_shared_path) and statements is self.function.body and indent == 1:
+        if c and (self.shared_paths or self.single_shared_path or self.exclusive_control) and statements is self.function.body and indent == 1:
             for parameter in range(len(self.function.params)):
                 self.line(f'(void)nlr_a{parameter};', indent)
         for stmt in statements:
@@ -1087,7 +1190,7 @@ class OwnedEmit(Emit):
             values = ['0' if tag == INT else 'false' for tag in fields]
             entries = ', '.join(f'f{i}: {value}' for i, value in enumerate(values))
             names = ', '.join(f'f{i}' for i in range(len(fields)))
-            if self.paths:
+            if self.paths or self.exclusive_control:
                 body += self.path_shadow()
             elif self.multi:
                 body += self.multi_shadow()
