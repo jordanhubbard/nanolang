@@ -184,6 +184,7 @@ jobs:
           NANOLANG_EFFECT_CFLAGS: '-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer'
         run: |
           set -o pipefail
+          NANOLANG_AFFINE_USE_NATIVE_COMPILER="$PWD/bin/nanoc_stage2" \
           NANOLANG_AFFINE_USE_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
           NANOLANG_AFFINE_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
           NANOLANG_MATCH_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
