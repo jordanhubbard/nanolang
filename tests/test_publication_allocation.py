@@ -2,11 +2,11 @@
 import os
 from pathlib import Path
 import re
-import signal
 import shlex
 import subprocess
 import tempfile
 import unittest
+from tests.native_process import run_captured
 
 ROOT=Path(__file__).resolve().parents[1]
 PROVIDERS=[
@@ -28,19 +28,16 @@ class PublicationAllocation(unittest.TestCase):
             clean_env.pop(key,None)
         def run(name,args,env=None):
             build=name.startswith('build-') or name=='link'
-            process=subprocess.Popen([str(x) for x in args],cwd=ROOT,stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE,env=env or clean_env,start_new_session=True)
             try:
-                stdout,stderr=process.communicate(timeout=600 if build else 30)
-            except subprocess.TimeoutExpired:
-                os.killpg(process.pid,signal.SIGKILL)
-                stdout,stderr=process.communicate()
-                (work/(name+'.stdout')).write_bytes(stdout)
-                (work/(name+'.stderr')).write_bytes(stderr)
+                result=run_captured(args,cwd=ROOT,env=env or clean_env,timeout=30,build=build)
+            except subprocess.TimeoutExpired as error:
+                (work/(name+'.stdout')).write_bytes(error.output or b'')
+                (work/(name+'.stderr')).write_bytes(error.stderr or b'')
                 self.fail(f'{name}: process group exceeded its {"build" if build else "execution"} budget')
+            stdout,stderr=result.stdout,result.stderr
             (work/(name+'.stdout')).write_bytes(stdout)
             (work/(name+'.stderr')).write_bytes(stderr)
-            self.assertEqual(process.returncode,0,f'{name}: '+stdout.decode(errors='replace')+stderr.decode(errors='replace'))
+            self.assertEqual(result.returncode,0,f'{name}: '+stdout.decode(errors='replace')+stderr.decode(errors='replace'))
             return stdout.decode()
         cc=shlex.split(os.environ.get('PUBLICATION_CC','cc'))
         flags=[*shlex.split(os.environ['PUBLICATION_CFLAGS']),'-O1','-g',

@@ -6900,6 +6900,6 @@ test-units: test-flat-array-source-publication
 
 .PHONY: test-publication-allocation
 test-publication-allocation: nano_virt nanoisa_dump
-	PUBLICATION_CC='$(CC)' PUBLICATION_CFLAGS='$(CFLAGS)' PUBLICATION_LDFLAGS='$(LDFLAGS)' PUBLICATION_OBJECTS='$(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a' python3 -m unittest -v tests.test_publication_allocation
+	PUBLICATION_CC='$(CC)' PUBLICATION_CFLAGS='$(CFLAGS)' PUBLICATION_LDFLAGS='$(LDFLAGS)' PUBLICATION_OBJECTS='$(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a' python3 -m unittest -v tests.test_native_process tests.test_publication_allocation
 
 test-units: test-publication-allocation

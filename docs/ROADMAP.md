@@ -15442,3 +15442,5 @@ I retain [my native identity prerequisite evidence](evidence/native-record-ident
 - [x] Under #1001 I preserve the assembler function buffer and propagate a memory error when its growth allocation fails. My valid large-function host-query probe reproduced undefined behavior from an unchecked `realloc`; I require the injected growth failure to return a hard error with cleanup and independent recovery.
 
 I retain [my source-publication allocation receipt](evidence/flat-array-publication-allocations-20261018/README.md): 1,022 prefix cases, explicit growth/query/atomic-save controls and 3,018 adjacent Nanoisa checks pass. Fresh combined compiler generations and platform gates remain open.
+
+- [x] Under #1001 I reuse the aggregate native-process runner for publication qualification, preserving bounded teardown on timeout/interruption and its real descendant-cleanup controls rather than maintaining a weaker duplicate.
