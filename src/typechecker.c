@@ -3146,6 +3146,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 ASTNode *array = expr->as.call.args[0];
                 check_expression(array, env);
                 TypeInfo *info = try_get_expr_type_info(array, env);
+                ASTNode *stored = expr->as.call.args[stored_index];
+                /* I carry exact nested storage through builtin mutation,
+                 * without treating a declared or lexical function as a builtin. */
+                if ((!func || (!func->body && !func->is_extern)) &&
+                    !env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column) &&
+                    info && info->base_type == TYPE_ARRAY &&
+                    info->element_type && info->element_type->base_type == TYPE_ARRAY)
+                    check_concrete_union_arrays(env, info->element_type, stored, 0);
                 if (info && info->base_type == TYPE_ARRAY && info->element_type &&
                     info->element_type->base_type == TYPE_FUNCTION &&
                     !indirect_argument_matches(expr->as.call.args[stored_index], env,

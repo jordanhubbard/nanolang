@@ -1,0 +1,11 @@
+# I preserve nested array mutation context
+
+I repair an existing installed-stage failure: `array_set box.rows 0 []` loses the exact nested STRING element context. My Nano push/set lowering now sends array literals through the existing contextual expression emitter, which recursively checks contents and emits the exact element tag. My C checker applies its existing recursive storage validator at builtin nested mutation boundaries. I preserve declared/lexical function guards and once-only receiver/index/value evaluation.
+
+I additionally reproduce and repair a C checker gap: storing a nonliteral `array<int>` into `array<array<string>>` was silently accepted. The same existing exact storage validator now rejects it; I do not annotate or coerce nonliteral values.
+
+I pass four focused methods through changed NanoVirt and a freshly C-hosted canonical Nano compiler in 11.762s, including all five primitive leaves, empty and nonempty append/replacement, aliases/refill, U8 modulo behavior, operand ordering, declared array_push identity, and wrong literal/nonliteral prior-output preservation. Every positive executes original verified VM plus O0/O2 ASan/UBSan native products. Two existing C-native/VM nested-literal methods pass in 2.532s. The strict gate passes 222 Clang and 222 GCC compilations plus its relink fixture. The canonical compiler build executes dependency and root shadows.
+
+I preserve failed attempts: the baseline existing test fails both retained fresh 4cfad stages; my first new byte fixture uses nonexistent cast_u8 (corrected to cast_int on observed bytes); the nonliteral storage negative exposes the genuine gap fixed above; a declared array_set probe is outside that name's existing builtin semantics (the supported declared array_push regression remains). The first build command names a nonexistent make target nanoisa; the corrected nanoisa_dump prerequisite builds successfully. No product assertion is weakened.
+
+I retain commands, statuses, source fixtures and provider hashes here. Compiler build log lines longer than 2000 characters are omitted from the copied build logs only; originals remain under /private/tmp/nanolang-empty-context-*. Fresh raw generations, Linux and final aggregate qualification remain required. This slice does not establish arbitrary deeper array context or change scalar byte conversion rules.

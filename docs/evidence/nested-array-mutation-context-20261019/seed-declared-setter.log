@@ -1,0 +1,47 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-tysdqr2o
+test_declared_mutation_names_keep_their_own_signatures (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_declared_mutation_names_keep_their_own_signatures) ... 
+  test_declared_mutation_names_keep_their_own_signatures (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_declared_mutation_names_keep_their_own_signatures) (case='declared-names', compiler='/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt') ... FAIL
+test_empty_replacement_and_append_retain_storage (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_empty_replacement_and_append_retain_storage) ... ok
+test_receiver_index_and_value_execute_once_in_order (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_receiver_index_and_value_execute_once_in_order) ... ok
+test_wrong_literal_and_nonliteral_storage_preserve_output (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_wrong_literal_and_nonliteral_storage_preserve_output) ... ok
+
+======================================================================
+FAIL: test_declared_mutation_names_keep_their_own_signatures (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_declared_mutation_names_keep_their_own_signatures) (case='declared-names', compiler='/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-empty-array-context/tests/test_optional_record_join.py", line 112, in paired
+    self.run_retained(label+'-produce', [compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-empty-array-context/tests/test_optional_record_join.py", line 102, in run_retained
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 1, column 1: Cannot redefine built-in function 'array_set'
+  Built-in functions cannot be shadowed
+  Choose a different function name
+-- E001 TYPE MISMATCH --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-tysdqr2o/declared-names.nano
+Return type mismatch: got int, expected void.
+
+2|  return (+ index (array_length value))
+    ^
+Hint: Ensure the returned value matches the function's declared return type.
+Warning at line 1, column 1: Unused variable 'rows'
+Warning at line 5, column 1: Unused variable 'rows'
+-- E001 TYPE MISMATCH --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-tysdqr2o/declared-names.nano
+I require elements matching the nested array annotation.
+
+9|  assert (== (array_set rows 2 [true]) 3)
+                                 ^
+Hint: Use elements compatible with the declared array type.
+-- E001 TYPE MISMATCH --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-tysdqr2o/declared-names.nano
+Equality requires both operands to be the same type (got void and int).
+
+9|  assert (== (array_set rows 2 [true]) 3)
+           ^
+Hint: Convert operands to the same type before checking equality.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 4.627s
+
+FAILED (failures=1)
