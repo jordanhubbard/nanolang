@@ -15528,3 +15528,10 @@ My fresh all-stage publisher qualification exposed a harness prerequisite: confi
 - [x] I repair and qualify the distinct public tail path: its scoped handler needs staged retain headroom before mutation, and root-tail assertion resumption must track the actual invocation-local replacement identity while preserving original host-entry authorization.
 
 I retain [my direct-tail receipt](evidence/record-array-tail-20261018/README.md), including the reproduced public root-resume defect, scoped repair and independent public/private lifetime evidence.
+
+### Bounded nested integer-array field authority (#1001)
+
+- [ ] I review [my exact depth-two contract](NANOISA_NESTED_INT_ARRAY_AUTHORITY.md) and normalized proof obligations before admission changes; `workspace_repairs` owns isolated branch `fix/5.1-nested-array-authority` from `0f9ca2300`.
+- [ ] I implement exact retained nested element constraints and independent public transport proof, preserving typed budgets and all existing flat/non-array boundaries.
+- [ ] I qualify copied private and actual public VM lifetime/error paths plus canonical native record aliases under forced collection.
+- [ ] I qualify paired source publication, unsupported omissions, forged controls and allocation failures; fresh raw generations and Linux/Darwin remain aggregate-owned gates, and full #1001 remains open.
