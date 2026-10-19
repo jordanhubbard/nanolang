@@ -15789,3 +15789,9 @@ After worker recovery I compile the full corrected emitter product in 16.739 sec
 My final local boolean-join strict gate passes all 444 Clang/GCC compilations with zero failures. Hosted CI for `c6fcfd59d` is queued; I retain that distinction.
 
 - [x] I qualify integrated shared-helper reconstruction through my installed C seed and both current NanoISA generations: all 27 local/call/branch/loop/VOID/shared methods pass in 240.140 seconds, with exact unchanged providers and GCC 16 strict facts syntax retained in `docs/evidence/owned-shared-aggregate-20261019/` (#999; full scope and hosted qualification remain open).
+
+### Invocation-local checked global effects (#998)
+
+- [x] I record [my checked-global effects bridge contract](NANOISA_CHECKED_GLOBAL_EFFECTS.md) before implementation. `workspace_repairs` owns isolated `fix/5.1-checked-global-effects` fromdfc8708b6; primitive work remains untouched.
+- [ ] I retain actual checked global effects through a synchronous private summary/emission scope, preserving raw no-global behavior, function identity, bounded analysis and failure/no-publication controls.
+- [ ] I qualify the canonical callsite, imported globals, selected shadows, unchanged affine facts and exact aggregate generations/platforms before closing #998.
