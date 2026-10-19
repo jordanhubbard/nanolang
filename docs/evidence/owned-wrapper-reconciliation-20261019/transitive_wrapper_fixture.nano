@@ -1,0 +1,26 @@
+resource struct Leaf { value: int }
+struct Inner { leaf: Leaf, yes: bool }
+struct Outer { inner: Inner, extra: int }
+fn scalar(value: int, text: string) -> int { (print text) return value }
+shadow scalar { assert true }
+fn take(owner: Outer) -> int {
+    let Outer { inner, extra } = owner
+    let Inner { leaf, yes } = inner
+    let Leaf { value } = leaf
+    assert yes
+    return (+ value extra)
+}
+shadow take { assert true }
+fn main() -> int {
+    for index in (range 0 1) {
+        let leaf: Leaf = Leaf { value: (scalar 7 "A") }
+        let inner: Inner = Inner { leaf: leaf, yes: true }
+        let owner: Outer = Outer { inner: inner, extra: (scalar 9 "B") }
+        assert (== (take owner) 16)
+        let second_leaf: Leaf = Leaf { value: (scalar 7 "A") }
+        let second_inner: Inner = Inner { leaf: second_leaf, yes: true }
+        assert (== (take Outer { inner: second_inner, extra: (scalar 9 "B") }) 16)
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }
