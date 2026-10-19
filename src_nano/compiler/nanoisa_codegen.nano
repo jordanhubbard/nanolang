@@ -1,4 +1,4 @@
-from "src_nano/typecheck.nano" import frontend_advisory_effects
+from "src_nano/typecheck.nano" import frontend_advisory_effects, typecheck_for_immediate_emission
 from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
 import "src_nano/compiler/generic_types.nano"
 from "src_nano/compiler/function_signature.nano" import function_type_parts
@@ -7472,6 +7472,11 @@ shadow nisa_result_tag {
 
 fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     if (not nisa_ok) { return "" }
+    return (nisa_emit_function_effects parser func (frontend_advisory_effects parser func))
+}
+
+fn nisa_emit_function_effects(parser: Parser, func: ASTFunction, advisory: int) -> string {
+    if (not nisa_ok) { return "" }
     set nisa_capture_frame (array_length nisa_capture_frames)
     set nisa_capture_frames (array_push nisa_capture_frames (NisaCaptureFrame {
         parent: nisa_capture_parent, names: [], types: [], captures: [], capture_types: [], sources: []
@@ -7582,7 +7587,8 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         let mut affine: int = func.checked_affine
         if (>= nisa_generic_active 0) { set affine 0 }
         set header (+ header (+ ".function_affine " (+ (int_to_string affine) "\n")))
-        set header (+ header (+ ".function_effects " (+ (int_to_string (frontend_advisory_effects parser func)) "\n")))
+        let effects: int = (cond ((>= nisa_generic_active 0) 8) (else advisory))
+        set header (+ header (+ ".function_effects " (+ (int_to_string effects) "\n")))
         if (>= nisa_generic_active 0) {
             let instance: NisaGeneric = (at nisa_generics nisa_generic_active)
             if (== func.name instance.name) {
@@ -7895,6 +7901,82 @@ pub fn nanoisa_emit_nasm(source: string) -> string {
     return (nanoisa_emit_parser_nasm parser)
 }
 
+struct NanoisaCheckedText {
+    phase: TypecheckPhaseOutput,
+    program: string,
+    shadows: string,
+    lowering_error: string,
+    lowering_stage: int
+}
+
+fn nisa_immediate_effect(parser: Parser, function: ASTFunction, index: int, context: array<CheckedAdvisoryOutput>) -> int {
+    if (not nisa_ok) { return 8 }
+    if (== (array_length context) 0) { return (frontend_advisory_effects parser function) }
+    if (or (>= nisa_generic_active 0) (or (< index 0) (!= function.node_type ParseNodeType.PNODE_FUNCTION))) { return 8 }
+    let checked: CheckedAdvisoryOutput = (at context 0)
+    if (or checked.phase.had_error (or (>= index (array_length checked.masks)) (or (>= index (array_length checked.functions)) (>= index (array_length checked.epochs))))) { return 8 }
+    let original: ASTFunction = (at checked.functions index)
+    let current: ASTFunction = (parser_get_function parser index)
+    let epoch: int = (at checked.epochs index)
+    if (or (<= epoch 0) (or (not (parser_affine_owner_same original.affine_owner function.affine_owner)) (not (parser_affine_owner_same current.affine_owner function.affine_owner)))) { return 8 }
+    if (or (!= (at function.affine_owner 0) epoch) (or (!= original.name function.name) (!= original.body function.body))) { return 8 }
+    return (at checked.masks index)
+}
+
+# I own checking and consume its facts synchronously; callers cannot supply facts.
+pub fn nanoisa_check_and_emit(parser: Parser, file_name: string, first_shadow: int, emit_shadows: bool) -> NanoisaCheckedText {
+    let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission parser file_name first_shadow)
+    if checked.phase.had_error {
+        return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: "", lowering_stage: 0 }
+    }
+    let context: array<CheckedAdvisoryOutput> = [checked]
+    let program: string = (nisa_emit_module_context parser true true context)
+    if (== program "") {
+        return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: (nanoisa_last_lowering_error), lowering_stage: 1 }
+    }
+    let mut shadows: string = ""
+    if emit_shadows {
+        set shadows (nisa_emit_shadows_context parser first_shadow true context)
+        if (== shadows "") {
+            return NanoisaCheckedText { phase: checked.phase, program: "", shadows: "", lowering_error: (nanoisa_last_lowering_error), lowering_stage: 2 }
+        }
+    }
+    return NanoisaCheckedText { phase: checked.phase, program: program, shadows: shadows, lowering_error: "", lowering_stage: 0 }
+}
+
+shadow nanoisa_check_and_emit {
+    (mb_reset [])
+    let source: string = "let fixed:int=7 fn main()->int{return fixed} shadow main {assert (== (main) 7)}"
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string source "checked-effects.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "checked-effects.nano")
+    let result: NanoisaCheckedText = (nanoisa_check_and_emit parser "checked-effects.nano" 0 true)
+    assert (not result.phase.had_error)
+    assert (== result.lowering_stage 0)
+    assert (str_contains result.program ".function_effects 0")
+    assert (str_contains result.shadows ".function_effects 8")
+    let raw: string = (nanoisa_emit_bound_program_nasm parser)
+    assert (str_contains raw ".function_effects 8")
+    let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission parser "checked-effects.nano" 0)
+    let _: int = (nisa_reset)
+    let original: ASTFunction = (parser_get_function parser 0)
+    assert (== (nisa_immediate_effect parser original 0 [checked]) 0)
+    let other_tokens: List<LexerToken> = (tokenize_string source "other.nano" diagnostics)
+    let other: Parser = (parse_program other_tokens (list_LexerToken_length other_tokens) "other.nano")
+    assert (== (nisa_immediate_effect parser (parser_get_function other 0) 0 [checked]) 8)
+    set nisa_generic_active 0
+    assert (== (nisa_immediate_effect parser original 0 [checked]) 8)
+    let _: int = (nisa_reset)
+    let bad_tokens: List<LexerToken> = (tokenize_string "fn main()->int{return true}" "bad.nano" diagnostics)
+    let bad: Parser = (parse_program bad_tokens (list_LexerToken_length bad_tokens) "bad.nano")
+    let failed: NanoisaCheckedText = (nanoisa_check_and_emit bad "bad.nano" 0 false)
+    assert failed.phase.had_error
+    assert (and (== failed.program "") (== failed.shadows ""))
+    let recovered: NanoisaCheckedText = (nanoisa_check_and_emit parser "checked-effects.nano" 0 true)
+    assert (not recovered.phase.had_error)
+    assert (str_contains recovered.program ".function_effects 0")
+}
+
 # My caller supplies an already merged and checked parser when using the
 # canonical frontend. Both entrypoints share this lowering implementation.
 pub fn nanoisa_emit_parser_nasm(parser: Parser) -> string {
@@ -7961,6 +8043,9 @@ shadow nanoisa_emit_bound_shadows_nasm {
     assert (== (nanoisa_emit_bound_shadows_nasm parser 0) (nanoisa_emit_shadows_nasm parser 0))
 }
 fn nisa_emit_shadows_nasm(parser: Parser, first_shadow: int, bound: bool) -> string {
+    return (nisa_emit_shadows_context parser first_shadow bound [])
+}
+fn nisa_emit_shadows_context(parser: Parser, first_shadow: int, bound: bool, context: array<CheckedAdvisoryOutput>) -> string {
     if (> parser.services_count 0) { return (nisa_fail "I have not resolved File service declarations for this consumer.") }
     let _: int = (nisa_reset)
     if (not (nisa_module_declarations_valid parser)) { return "" }
@@ -8020,7 +8105,7 @@ fn nisa_emit_shadows_nasm(parser: Parser, first_shadow: int, bound: bool) -> str
         let origin: int = (at queue_shadows i)
         if (and (< function.body 0) (!= (nisa_module_result function.name) "")) { set out (+ out (nisa_emit_module_function parser function)) }
         else if (< function.body 0) { let _: int = (nisa_register_extern parser function) }
-        else { set out (+ out (nisa_emit_function parser function)) }
+        else { set out (+ out (nisa_emit_function_effects parser function (nisa_immediate_effect parser function queued context))) }
         while (< (array_length queue_shadows) (array_length nisa_function_queue)) {
             set queue_shadows (array_push queue_shadows origin)
         }
@@ -8062,6 +8147,9 @@ shadow nanoisa_emit_shadows_nasm {
 }
 
 fn nisa_emit_module_nasm(parser: Parser, program: bool, bound: bool) -> string {
+    return (nisa_emit_module_context parser program bound [])
+}
+fn nisa_emit_module_context(parser: Parser, program: bool, bound: bool, context: array<CheckedAdvisoryOutput>) -> string {
     if (> parser.services_count 0) { return (nisa_fail "I have not resolved File service declarations for this consumer.") }
     let _: int = (nisa_reset)
     if (not (nisa_module_declarations_valid parser)) { return "" }
@@ -8116,7 +8204,7 @@ fn nisa_emit_module_nasm(parser: Parser, program: bool, bound: bool) -> string {
                 } else {
                     (print "")
                 }
-                set out (+ out (nisa_emit_function parser func))
+                set out (+ out (nisa_emit_function_effects parser func (nisa_immediate_effect parser func function_index context)))
                 if (not nisa_ok) { return "" }
                 set out (+ out "\n")
                 set emitted (+ emitted 1)

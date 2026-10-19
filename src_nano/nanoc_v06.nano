@@ -1968,7 +1968,8 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
             let mut first_shadow: int = 0
             if (not test_imports) { set first_shadow (native_shadow_start parser merge_result.root_line) }
             let has_shadows: bool = (< first_shadow parser.shadows_count)
-            let tc: TypecheckPhaseOutput = (typecheck_phase_with_shadows parser source_to_compile imported_symbols first_shadow)
+            let emitted: NanoisaCheckedText = (nanoisa_check_and_emit parser source_to_compile first_shadow (and has_shadows (not emit_c)))
+            let tc: TypecheckPhaseOutput = emitted.phase
             if tc.had_error {
                 (remap_diagnostics tc.diagnostics source_files source_lines)
                 (println "NSType checking failed")
@@ -2013,15 +2014,19 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
             } else { (print "") }
 
             # I lower once, check selected shadows, then publish the requested product.
-                let assembly: string = (nanoisa_emit_bound_program_nasm parser)
+                let assembly: string = emitted.program
+                if (== emitted.lowering_stage 2) {
+                    (println (+ "I cannot lower the selected shadows: " emitted.lowering_error))
+                    return 1
+                }
                 if (== assembly "") {
-                    (println (+ "I cannot lower this checked program: " (nanoisa_last_lowering_error)))
+                    (println (+ "I cannot lower this checked program: " emitted.lowering_error))
                     return 1
                 }
                 if (and has_shadows (not emit_c)) {
-                    let shadow_assembly: string = (nanoisa_emit_bound_shadows_nasm parser first_shadow)
+                    let shadow_assembly: string = emitted.shadows
                     if (== shadow_assembly "") {
-                        (println (+ "I cannot lower the selected shadows: " (nanoisa_last_lowering_error)))
+                        (println (+ "I cannot lower the selected shadows: " emitted.lowering_error))
                         return 1
                     }
                     let directory: string = (mktemp_dir "nano_bytecode_shadows_")

@@ -1,0 +1,71 @@
+test_body_budget_does_not_become_closed_empty (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_body_budget_does_not_become_closed_empty) ... ok
+test_callback_is_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_callback_is_unknown) ... ok
+test_checked_global_context_and_local_shadowing (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_checked_global_context_and_local_shadowing) ... 
+  test_checked_global_context_and_local_shadowing (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_checked_global_context_and_local_shadowing) (driver=PosixPath('/Users/jkh/Src/nanolang-51-harness/bin/nano_virt')) ... FAIL
+  test_checked_global_context_and_local_shadowing (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_checked_global_context_and_local_shadowing) (driver=PosixPath('/private/tmp/nanolang-checked-global-effects-compiler')) ... FAIL
+test_closed_calls_io_mutation_and_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_closed_calls_io_mutation_and_unknown) ... ok
+test_failed_check_and_shadow_preserve_prior_output (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_failed_check_and_shadow_preserve_prior_output) ... ok
+test_imported_globals_keep_bound_identity (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_imported_globals_keep_bound_identity) ... 
+  test_imported_globals_keep_bound_identity (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_imported_globals_keep_bound_identity) (driver=PosixPath('/Users/jkh/Src/nanolang-51-harness/bin/nano_virt')) ... FAIL
+  test_imported_globals_keep_bound_identity (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_imported_globals_keep_bound_identity) (driver=PosixPath('/private/tmp/nanolang-checked-global-effects-compiler')) ... FAIL
+test_module_budget_is_explicit_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_module_budget_is_explicit_unknown) ... ok
+
+======================================================================
+FAIL: test_checked_global_context_and_local_shadowing (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_checked_global_context_and_local_shadowing) (driver=PosixPath('/Users/jkh/Src/nanolang-51-harness/bin/nano_virt'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_function_effects_metadata.py", line 53, in exercise
+    self.assertEqual(set(facts), set(functions))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the second set but not the first:
+'__init__'
+
+======================================================================
+FAIL: test_checked_global_context_and_local_shadowing (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_checked_global_context_and_local_shadowing) (driver=PosixPath('/private/tmp/nanolang-checked-global-effects-compiler'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_function_effects_metadata.py", line 53, in exercise
+    self.assertEqual(set(facts), set(functions))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the second set but not the first:
+'__init__'
+
+======================================================================
+FAIL: test_imported_globals_keep_bound_identity (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_imported_globals_keep_bound_identity) (driver=PosixPath('/Users/jkh/Src/nanolang-51-harness/bin/nano_virt'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_function_effects_metadata.py", line 33, in exercise
+    self.run_checked([driver, src, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_function_effects_metadata.py", line 20, in run_checked
+    self.assertEqual(p.returncode, expected, p.stdout + p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E009 PRIVATE ACCESS --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-effects-b4o288o9/case.nano
+Function 'fetch' is private to module 'left'.
+
+3| fn left_call()->int{return (left.fetch)}
+                              ^^^^^
+Hint: Use 'pub fn fetch(...)' to make it accessible from other modules.
+-- E009 PRIVATE ACCESS --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-effects-b4o288o9/case.nano
+Function 'fetch' is private to module 'right'.
+
+5| fn right_call()->int{return (right.fetch)}
+                               ^^^^^
+Hint: Use 'pub fn fetch(...)' to make it accessible from other modules.
+error: type check failed
+
+
+======================================================================
+FAIL: test_imported_globals_keep_bound_identity (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_imported_globals_keep_bound_identity) (driver=PosixPath('/private/tmp/nanolang-checked-global-effects-compiler'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_function_effects_metadata.py", line 53, in exercise
+    self.assertEqual(set(facts), set(functions))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the second set but not the first:
+'__init__'
+
+----------------------------------------------------------------------
+Ran 7 tests in 3.129s
+
+FAILED (failures=4)

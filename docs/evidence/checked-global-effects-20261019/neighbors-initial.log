@@ -1,0 +1,155 @@
+test_body_budget_does_not_become_closed_empty (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_body_budget_does_not_become_closed_empty) ... ok
+test_callback_is_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_callback_is_unknown) ... ok
+test_checked_global_context_and_local_shadowing (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_checked_global_context_and_local_shadowing) ... ok
+test_closed_calls_io_mutation_and_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_closed_calls_io_mutation_and_unknown) ... ok
+test_failed_check_and_shadow_preserve_prior_output (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_failed_check_and_shadow_preserve_prior_output) ... ok
+test_imported_globals_keep_bound_identity (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_imported_globals_keep_bound_identity) ... ok
+test_module_budget_is_explicit_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_module_budget_is_explicit_unknown) ... ok
+test_anonymous_capture (tests.test_function_purity_metadata.FunctionPurityMetadata.test_anonymous_capture) ... ok
+test_declared_and_undeclared_purity (tests.test_function_purity_metadata.FunctionPurityMetadata.test_declared_and_undeclared_purity) ... ok
+test_generic_pure_refusal_preserves_prior_artifact (tests.test_function_purity_metadata.FunctionPurityMetadata.test_generic_pure_refusal_preserves_prior_artifact) ... ok
+test_generic_specialization (tests.test_function_purity_metadata.FunctionPurityMetadata.test_generic_specialization) ... ok
+test_imported_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_imported_declarations) ... ok
+test_imported_same_name_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_imported_same_name_declarations) ... ok
+test_nested_and_captured_functions (tests.test_function_purity_metadata.FunctionPurityMetadata.test_nested_and_captured_functions) ... ok
+test_transitive_imported_same_name_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_transitive_imported_same_name_declarations) ... ok
+test_checked_sites_and_advisory_transport (tests.test_match_coverage_metadata.MatchCoverageMetadata.test_checked_sites_and_advisory_transport) ... ok
+test_generic_templates_remain_unknown (tests.test_match_coverage_metadata.MatchCoverageMetadata.test_generic_templates_remain_unknown) ... ok
+test_refusal_preserves_output (tests.test_match_coverage_metadata.MatchCoverageMetadata.test_refusal_preserves_output) ... ok
+test_called_resource_routes (tests.test_function_affine_metadata.FunctionAffineMetadata.test_called_resource_routes) ... ok
+test_checked_generic_instances_stay_unknown (tests.test_function_affine_metadata.FunctionAffineMetadata.test_checked_generic_instances_stay_unknown) ... ok
+test_no_resource_pass_is_unknown (tests.test_function_affine_metadata.FunctionAffineMetadata.test_no_resource_pass_is_unknown) ... ok
+test_raw_parser_checker_and_external_reset (tests.test_function_affine_metadata.FunctionAffineMetadata.test_raw_parser_checker_and_external_reset) ... ok
+test_resource_refusals_preserve_output (tests.test_function_affine_metadata.FunctionAffineMetadata.test_resource_refusals_preserve_output) ... ok
+test_actual_checker_epoch_and_raw_boundary (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_checker_epoch_and_raw_boundary) ... ok
+test_actual_observe_consume_and_advisory_independence (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_observe_consume_and_advisory_independence) ... ok
+test_borrowed_resource_misuse_preserves_output (tests.test_affine_use_metadata.AffineUseMetadata.test_borrowed_resource_misuse_preserves_output) ... ok
+test_borrowed_resource_roots_observe_without_consuming (tests.test_affine_use_metadata.AffineUseMetadata.test_borrowed_resource_roots_observe_without_consuming) ... ok
+test_invalid_resource_uses_preserve_output (tests.test_affine_use_metadata.AffineUseMetadata.test_invalid_resource_uses_preserve_output) ... ok
+test_bound_transitive_import (tests.test_purity_contract.PurityContract.test_bound_transitive_import) ... 
+  test_bound_transitive_import (tests.test_purity_contract.PurityContract.test_bound_transitive_import) (compiler='nanolang-checked-global-effects-compiler') ... FAIL
+test_c_global_summary_uses_source_owner (tests.test_purity_contract.PurityContract.test_c_global_summary_uses_source_owner) ... ok
+test_c_match_guard_effect_is_not_hidden (tests.test_purity_contract.PurityContract.test_c_match_guard_effect_is_not_hidden) ... ok
+test_generated_intrinsic_contract (tests.test_purity_contract.PurityContract.test_generated_intrinsic_contract) ... ok
+test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) ... 
+  test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='recursive', compiler='nanolang-checked-global-effects-compiler') ... FAIL
+  test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='transitive_unannotated', compiler='nanolang-checked-global-effects-compiler') ... FAIL
+  test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='ordinary_record_allocation', compiler='nanolang-checked-global-effects-compiler') ... FAIL
+  test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='private_gc', compiler='nanolang-checked-global-effects-compiler') ... FAIL
+  test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='array_and_lexical_shadow', compiler='nanolang-checked-global-effects-compiler') ... FAIL
+  test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='immutable_global', compiler='nanolang-checked-global-effects-compiler') ... FAIL
+  test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='match_expression', compiler='nanolang-checked-global-effects-compiler') ... FAIL
+  test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='function_reference', compiler='nanolang-checked-global-effects-compiler') ... FAIL
+
+======================================================================
+FAIL: test_bound_transitive_import (tests.test_purity_contract.PurityContract.test_bound_transitive_import) (compiler='nanolang-checked-global-effects-compiler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_purity_contract.py", line 105, in test_bound_transitive_import
+    self.assertEqual(result.returncode, 0, result.stdout[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/Users/jkh/Src/nanolang-51-checked-effects/bin/nano_aot_runtime.o'
+I could not compile translated C to native output
+I could not publish the requested product: 
+
+
+======================================================================
+FAIL: test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='recursive', compiler='nanolang-checked-global-effects-compiler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_purity_contract.py", line 87, in test_shared_frontend_contract
+    self.assertEqual(result.returncode, 0, result.stdout[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/Users/jkh/Src/nanolang-51-checked-effects/bin/nano_aot_runtime.o'
+I could not compile translated C to native output
+I could not publish the requested product: 
+
+
+======================================================================
+FAIL: test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='transitive_unannotated', compiler='nanolang-checked-global-effects-compiler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_purity_contract.py", line 87, in test_shared_frontend_contract
+    self.assertEqual(result.returncode, 0, result.stdout[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/Users/jkh/Src/nanolang-51-checked-effects/bin/nano_aot_runtime.o'
+I could not compile translated C to native output
+I could not publish the requested product: 
+
+
+======================================================================
+FAIL: test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='ordinary_record_allocation', compiler='nanolang-checked-global-effects-compiler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_purity_contract.py", line 87, in test_shared_frontend_contract
+    self.assertEqual(result.returncode, 0, result.stdout[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/Users/jkh/Src/nanolang-51-checked-effects/bin/nano_aot_runtime.o'
+I could not compile translated C to native output
+I could not publish the requested product: 
+
+
+======================================================================
+FAIL: test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='private_gc', compiler='nanolang-checked-global-effects-compiler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_purity_contract.py", line 87, in test_shared_frontend_contract
+    self.assertEqual(result.returncode, 0, result.stdout[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/Users/jkh/Src/nanolang-51-checked-effects/bin/nano_aot_runtime.o'
+I could not compile translated C to native output
+I could not publish the requested product: 
+
+
+======================================================================
+FAIL: test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='array_and_lexical_shadow', compiler='nanolang-checked-global-effects-compiler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_purity_contract.py", line 87, in test_shared_frontend_contract
+    self.assertEqual(result.returncode, 0, result.stdout[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/Users/jkh/Src/nanolang-51-checked-effects/bin/nano_aot_runtime.o'
+I could not compile translated C to native output
+I could not publish the requested product: 
+
+
+======================================================================
+FAIL: test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='immutable_global', compiler='nanolang-checked-global-effects-compiler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_purity_contract.py", line 87, in test_shared_frontend_contract
+    self.assertEqual(result.returncode, 0, result.stdout[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/Users/jkh/Src/nanolang-51-checked-effects/bin/nano_aot_runtime.o'
+I could not compile translated C to native output
+I could not publish the requested product: 
+
+
+======================================================================
+FAIL: test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='match_expression', compiler='nanolang-checked-global-effects-compiler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_purity_contract.py", line 87, in test_shared_frontend_contract
+    self.assertEqual(result.returncode, 0, result.stdout[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/Users/jkh/Src/nanolang-51-checked-effects/bin/nano_aot_runtime.o'
+I could not compile translated C to native output
+I could not publish the requested product: 
+
+
+======================================================================
+FAIL: test_shared_frontend_contract (tests.test_purity_contract.PurityContract.test_shared_frontend_contract) (case='function_reference', compiler='nanolang-checked-global-effects-compiler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_purity_contract.py", line 87, in test_shared_frontend_contract
+    self.assertEqual(result.returncode, 0, result.stdout[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/Users/jkh/Src/nanolang-51-checked-effects/bin/nano_aot_runtime.o'
+I could not compile translated C to native output
+I could not publish the requested product: 
+
+
+----------------------------------------------------------------------
+Ran 33 tests in 176.350s
+
+FAILED (failures=9)

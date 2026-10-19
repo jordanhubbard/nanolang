@@ -20,7 +20,7 @@ class FunctionEffectsMetadata(unittest.TestCase):
         self.assertEqual(p.returncode, expected, p.stdout + p.stderr)
         return p.stdout
 
-    def exercise(self, source, expected, inspect, files=None):
+    def exercise(self, source, expected, inspect, files=None, synthetic=()):
         with tempfile.TemporaryDirectory(prefix='nano-effects-') as directory:
             work = Path(directory)
             src = work / 'case.nano'
@@ -50,7 +50,8 @@ class FunctionEffectsMetadata(unittest.TestCase):
                         self.assertLess(index, len(functions))
                         self.assertNotIn(functions[index], facts)
                         facts[functions[index]] = declared
-                    self.assertEqual(set(facts), set(functions))
+                    self.assertEqual(set(facts), set(functions) - set(synthetic))
+                    self.assertTrue(set(synthetic).issubset(functions))
                     inspect(facts)
                     assembly = work/'cycle.nasm'; rebuilt = work/'cycle.nvm'
                     assembly.write_text(canonical)
@@ -117,6 +118,67 @@ fn recur(n:int)->int{if (<= n 0) {return 2} return (recur (- n 1))}
 shadow recur {assert (== (recur 1) 2)}
 fn main()->int{assert (== (changed) 2) assert (== (loop 2) 2) assert (== (recur 2) 2) return (noisy)}
 """, 2, inspect)
+
+    def test_checked_global_context_and_local_shadowing(self):
+        def inspect(facts):
+            for name in ('immutable', 'local', 'clean'):
+                self.assertEqual(facts[name], 0, facts)
+            for name in ('mutable', 'chain', 'main'):
+                self.assertEqual(facts[name], 2, facts)
+        self.exercise("""let fixed:int=7
+let mut changing:int=9
+fn immutable()->int{return fixed}
+shadow immutable {assert (== (immutable) 7)}
+fn mutable()->int{return changing}
+shadow mutable {assert (== (mutable) 9)}
+fn chain()->int{return (mutable)}
+shadow chain {assert (== (chain) 9)}
+fn local()->int{let changing:int=2 return changing}
+shadow local {assert (== (local) 2)}
+fn clean()->int{return (+ (immutable) (local))}
+shadow clean {assert (== (clean) 9)}
+fn main()->int{assert (== (clean) 9) assert (== (chain) 9) return 0}
+""", 0, inspect, synthetic=('__init__',))
+
+    def test_imported_globals_keep_bound_identity(self):
+        files = {
+            'left.nano': 'let value:int=7\npub fn fetch()->int{return value}\nshadow fetch {assert (== (fetch) 7)}\n',
+            'right.nano': 'let mut value:int=9\npub fn fetch()->int{return value}\nshadow fetch {assert (== (fetch) 9)}\n',
+        }
+        def inspect(facts):
+            self.assertEqual(facts['left_call'], 0, facts)
+            self.assertEqual(facts['right_call'], 2, facts)
+            self.assertEqual(facts['main'], 2, facts)
+        self.exercise("""module "left.nano" as left
+module "right.nano" as right
+fn left_call()->int{return (left.fetch)}
+shadow left_call {assert (== (left_call) 7)}
+fn right_call()->int{return (right.fetch)}
+shadow right_call {assert (== (right_call) 9)}
+fn main()->int{assert (== (left_call) 7) assert (== (right_call) 9) return 0}
+""", 0, inspect, files, synthetic=('__init__',))
+
+    def test_failed_check_and_shadow_preserve_prior_output(self):
+        cases = {
+            'check': 'fn main()->int{return "wrong"}\n',
+            'shadow': 'fn main()->int{return 0}\nshadow main {assert false}\n',
+            'shadow-lowering': 'extern fn unsupported()->array<array<float>>\nfn unused()->array<array<float>>{return (unsupported)}\nshadow unused {let values:array<array<float>> = (unused)}\nfn main()->int{return 0}\nshadow main {assert true}\n',
+        }
+        with tempfile.TemporaryDirectory(prefix='nano-effects-failure-') as directory:
+            work = Path(directory)
+            for driver in DRIVERS:
+                for name, source in cases.items():
+                    with self.subTest(driver=driver, case=name):
+                        program, output = work/'case.nano', work/'prior.nvm'
+                        program.write_text(source)
+                        output.write_bytes(b'prior-output')
+                        result = subprocess.run([str(driver), str(program), '--emit-nvm', '-o', str(output)],
+                                                cwd=ROOT, capture_output=True, text=True, timeout=180)
+                        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                        self.assertEqual(output.read_bytes(), b'prior-output')
+                        if name == 'shadow-lowering' and driver.name != 'nano_virt':
+                            self.assertIn('I cannot lower the selected shadows:', result.stdout + result.stderr)
+
 
     def test_module_budget_is_explicit_unknown(self):
         source = ''.join(f'fn f{i}()->int{{return {i}}}\nshadow f{i} {{assert (== (f{i}) {i})}}\n'

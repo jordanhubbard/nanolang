@@ -15793,3 +15793,11 @@ My final local boolean-join strict gate passes all 444 Clang/GCC compilations wi
 - [x] I qualify integrated shared-helper reconstruction through my installed C seed and both current NanoISA generations: all 27 local/call/branch/loop/VOID/shared methods pass in 240.140 seconds, with exact unchanged providers and GCC 16 strict facts syntax retained in `docs/evidence/owned-shared-aggregate-20261019/` (#999; full scope and hosted qualification remain open).
 
 - [x] I qualify integrated depth-two nested resource reconstruction through NanoVirt and both installed stages: eight nested/shared methods pass in 44.787 seconds, with unchanged compiler/runtime hashes retained in `docs/evidence/owned-nested-aggregate-20261019/`; the component also passes all 31 ownership methods (#999; full scope and hosted qualification remain open).
+
+### Invocation-local checked global effects (#998)
+
+- [x] I record [my checked-global effects bridge contract](NANOISA_CHECKED_GLOBAL_EFFECTS.md) before implementation. `workspace_repairs` owns isolated `fix/5.1-checked-global-effects` from `dfc8708b6`; primitive work remains untouched.
+- [x] I retain actual checked global effects through a synchronous private summary/emission scope, preserving raw no-global behavior, function identity, bounded analysis and failure/no-publication controls.
+- [ ] I qualify the canonical callsite, imported globals, selected shadows, unchanged affine facts and exact aggregate generations/platforms before closing #998.
+
+I pass my C-hosted compiler build and 33 focused methods across the retained metadata and prerequisite-corrected purity runs. I preserve initial fixture and missing-runtime-object failures in [my checked-global receipt](evidence/checked-global-effects-20261019/README.md). My new compiler record shapes still require fresh raw Stage 1/Stage 2 and exact hosted qualification; #998 remains open.
