@@ -105,8 +105,12 @@ class CheckpointArchive(unittest.TestCase):
             else: altered['steps'][-1]['exit_code'] = 1
             with self.subTest(change=change), self.assertRaises(ValueError):
                 checkpoint.require_stage1(altered)
-        manifest = {**self.metadata, 'tracked': {'tool': 'recorded'}}
+        manifest = {**self.metadata, 'tracked': {'tool': 'recorded'},
+                    'files': {'tool': {'sha256': 'recorded'}}}
         checkpoint.require_identity(manifest, self.root, 'exact', {'tool':'recorded'})
+        altered = json.loads(json.dumps(manifest)); altered['files']['tool']['sha256'] = 'different archive source'
+        with self.assertRaises(ValueError):
+            checkpoint.require_identity(altered, self.root, 'exact', {'tool':'recorded'})
         for root, commit, sources in ((self.base,'exact',{'tool':'recorded'}),
                                       (self.root,'different',{'tool':'recorded'}),
                                       (self.root,'exact',{'tool':'changed'})):

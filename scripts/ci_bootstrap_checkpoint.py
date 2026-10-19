@@ -196,6 +196,9 @@ def require_identity(manifest, root, commit, sources):
     require(manifest['root'] == str(root) and manifest['commit'] == commit,
             'the original checkout root and exact commit')
     require(manifest['tracked'] == sources, 'the exact tracked source tree before restoring providers')
+    require(all(name in manifest['files'] and manifest['files'][name]['sha256'] == digest
+                for name, digest in sources.items()),
+            'archive source bytes matching the unchanged tracked checkout')
 
 
 def require_continuation(current, prior, phase):
