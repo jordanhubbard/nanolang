@@ -15745,3 +15745,12 @@ I pass the corrected mutation matrix through changed C and freshly C-hosted Nano
 - [x] I complete pinned `4cfad3737` Darwin O3 ASan/UBSan Stage 1 generation in 2036.234 seconds after provisioning omitted tracked fixture directories. I retain both terminals and exact limits under `docs/evidence/instrumented-stage1-4cfad-20261019/`; I do not claim hosted Linux or final-candidate sanitizer completion.
 - [x] I reproduce conservative missing global-effect context under #998 with actual seed/fresh Stage 1 providers and retain `docs/evidence/effects-global-context-map-20261019/`.
 - [ ] I complete final paired parser/platform/product gates and the remaining #976/#998/#999/#1001 scope before release.
+
+### I diagnose my hosted emitter join refusal (2026-10-19, #976)
+
+- [x] I retain completed coverage job `117966632166` from run `39224053627` at `5bb06c298`. All emitter shadows and entry assertions pass before native publication refuses `function 589: join at 213 has a value-kind mismatch`. This is not a timeout.
+- [x] I trace the failure to `record_join_storage` after classification/shape solving; current aggregate has unchanged backend code, so I cannot credit a fix yet.
+- [ ] I reproduce with the actual generated module and record the function identity, both concrete carriers, failing slot and solved destination shape before changing admission or emission.
+- [ ] I repair the demonstrated root cause without weakening shape checks and qualify the original component under the affected coverage profile.
+
+I stopped my newly launched reproduction on local worker overload (load122.38 with unrelated concurrent test fanout), preserving its partial log. That interrupted attempt is not compiler-failure evidence. Full parser qualification keeps its existing deadline; no unrelated jobs were stopped.

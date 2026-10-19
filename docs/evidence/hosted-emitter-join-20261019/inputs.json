@@ -1,0 +1,10 @@
+{
+  "run": 39224053627,
+  "job": 117966632166,
+  "source": "5bb06c298",
+  "artifact": 12176824833,
+  "artifact_sha256": "99116c9d245b5d43901683bfe1ee4ff865b12e604aff976450feec58c40256a6",
+  "original_log": "/private/tmp/nanolang-5bb-coverage-artifact/obj/component-logs/stage2_nanoisa_emitter.log",
+  "original_log_sha256": "20e9a9cef10720c22924598297d580b734975d076fccb3f420d44ae36cc7c2a4",
+  "normalized_log_sha256": "f4ad4bcb2c817146bc55fa4960c7fa2104e5b0931d713ec9b581cca5fc5b69c2"
+}
