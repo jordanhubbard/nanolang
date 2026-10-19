@@ -43,13 +43,13 @@ exit prevents publication through the existing completed-function/epoch gate.
 I do not treat syntax `borrow_mode`, a field chain alone or successful lowering
 as evidence of checker acceptance.
 
-The proposed storage is an optional event on the explicit address AST_CALL,
-containing its exact source-site pointer, enclosing source function pointer,
-check epoch, enclosing call/site and argument ordinal, accepted mode, and an
-owned immutable snapshot of root spelling and field-chain bytes. The snapshot
-is descriptive; the pointers/epoch identify the checked source event. A fresh
-check clears the prior event before traversing that address. Parser-created
-nodes begin with no event. Saturated epochs permanently disable publication.
+I retain events in an invocation-owned ledger, never in owning AST_CALL fields.
+Each entry identifies the original source function and explicit address node,
+enclosing call, argument ordinal and check epoch. It owns copied immutable source
+path/root/projection bytes. The synchronous checked producer owns and destroys
+this ledger on every success/error exit before freeing the source AST. No caller
+can supply a trusted completed ledger. A fresh function check invalidates its
+previous segment; nested checks have independent function/epoch segments.
 
 ### Nano producer
 
@@ -61,46 +61,59 @@ successful checker boundary, with the diagnostic delta and completed-function
 conditions above. Its held-place strings are transient flow state, not an
 independently retained certificate.
 
-The proposed ASTCall fields carry the exact function owner token/current epoch,
-original call-list index, enclosing call identity/argument ordinal, checked mode
-and immutable root/path snapshots. An accessor accepts the original parser site
-and exact original function, requiring positive current/completed epoch and
-matching owner token; it must not accept caller-supplied trusted facts. A rebuilt
-or synthetic call starts UNKNOWN. A shallow copy of the same unchanged parser
-site may refer to that same event; a copied/rebound graph or new index may not.
+I retain events in the private checked-emission invocation, keyed by exact
+function owner token/epoch, original call-list index, enclosing call index and
+argument ordinal. I do not add ASTCall fields. Only the final resource-check
+phase (`typecheck.nano:7717`) collects; the earlier standalone function check
+(`:6717`) keeps absent context. Program and shadow emission share this completed
+context synchronously; the public result contains diagnostics/text only.
+Generic-active, synthetic, rebuilt and raw emission have absent context.
 
-Current ASTCall is eight scalar fields in `schema/compiler_schema.json`. Adding
-these fields requires regenerating its C/Nano/list ABI and updating constructors
-at `parser_store_call`, explicit borrow parsing, and `nisa_get_call`'s qualified
-call adapter. The adapter is synthetic and must not copy checked events.
-Generic-active/shared-template emission remains UNKNOWN even if a source
-snapshot exists. No process-global event cache is proposed.
+## Lifetime and rewrite findings
 
-## Lifetime and rewrite prerequisites
+C's `OwnHold.path` is temporary. The ledger copies it after the successful hold,
+then frees its own bytes independently. Per-call ownership was rejected because
+PGO clones by `*dst=*src` and overwrites calls/substitutions
+(`pgo_pass.c:210,304,432`); DCE moves retained nodes (`dce_pass.c:244`), and TCO
+moves nodes (`tco_pass.c:317,490,496`). Parser cloning reconstructs calls while
+`free_ast` frees them. Invocation storage avoids introducing double ownership
+at these sites. Exact identity/epoch validation still excludes transformed sites;
+no optimization or semantic mutation is permitted between completion and use.
 
-C must never retain the temporary `OwnHold.path` pointer. A capture allocates a
-single owned immutable payload for the root/path snapshot; it is released on
-reset and AST_CALL destruction. Allocation failure reports the existing compiler
-error and prevents publication; it is not relabeled an unsupported UNKNOWN.
-All borrowed owner/site pointers are valid only while their source AST is alive.
+The managed VM route lowers generated list operations to ARR operations
+(`nanovirt/codegen.c:2178–2284`), not foreign struct-list calls. STRUCT_LITERAL
+transfers field owners; ARR_PUSH retains the record; ARR_SET publishes its new
+edge before releasing the old record. Struct destruction recursively releases
+fields (`nanovm/vm.c:4069,4123,4270`, `nanovm/heap.c:296,637`). Native translated
+record-array roots trace every record, its string fields and array owner fields
+before sweeping (`nanoisa/nvm2c_map_roots.inc:65–104`).
 
-I must audit PGO's bitwise AST clone (`src/pgo_pass.c:211`): a clone clears the new
-payload and identity fields rather than sharing owned storage. DCE's retained
-node move and TCO's node transfer must move ownership exactly once; a relocated
-site cannot retain its old self-identity as checked evidence. Any rewrite of a
-borrow argument, mode, enclosing call or field chain must invalidate that event
-or its function epoch before publication. Emit-time comparison against the
-snapshot is an additional guard, not a substitute for this mutation audit.
+The C-hosted route is distinct. Generated `list_ASTIdentifier.c` shallow-copies
+records and frees only list storage. `stdlib_runtime.c:413` builds concatenated
+strings with `gc_alloc_string`; C transpiler scope cleanup deliberately excludes
+STRING and array locals (`transpiler_iterative_v3_twopass.c:377–400`). Native
+compatibility `gc_collect_all` does not collect cycles (`runtime/gc.c:311–320`).
+I rely on bounded compilation-lifetime string/token storage here, and make no
+per-event reclamation claim. I do not add frees for these borrowed strings.
+Managed routes must independently qualify collection with a live ledger.
+Fresh raw Stage 1/Stage 2 and fixed-point qualification remains required for new
+checker-result/event record shapes even without an ASTCall ABI change.
 
-Nano snapshots must outlive temporary resource-flow strings across actual seed,
-VM and native list/FFI paths. The generated list currently assigns structs by
-value; that alone does not establish retention of newly added string/token
-fields. I must map and qualify the existing compiler-schema marshalling/lifetime
-rules, including replacement, copied parser state and collection, before schema
-implementation is considered sound. If that ownership cannot be established,
-implementation stops for a revised storage contract rather than adding a dangling
-foreign pointer. Fresh raw Stage 1/Stage 2 bootstrap is mandatory after this ABI
-change; a C-hosted compiler is not sufficient evidence.
+## Bounds and failure policy
+
+I allow at most 4096 events, 4096 combined root/projection bytes per event,
+32 field projections, 1 MiB cumulative copied source-path/root/projection bytes,
+and 131072 charged capture/path visits per invocation. I check additions,
+multiplications and lengths before allocation. All capture and path traversal
+work is charged; counters never refund on recheck or invalidation. Reaching a
+limit disables and clears only this optional ledger; checker execution and
+existing facts continue unchanged. Allocation failure is a hard compiler error,
+not optional absence, and cannot replace a prior output artifact.
+
+A later failed argument, function exit or final phase diagnostic discards every
+prospective fact. Repeated checks invalidate earlier function segments and
+emission validates the exact completed current epoch. No process-global collector
+or reusable caller-supplied trusted context is permitted.
 
 ## Actual emission routes
 
@@ -120,12 +133,24 @@ of whole-module collection completeness.
 ## Proposed independent transport
 
 I propose a new `nano.borrow-place.v1` key; `nano.affine-use.v1` is unchanged.
-The versioned payload identifies emitted function index, enclosing call and
-argument source coordinates plus argument ordinal, coordinate provenance,
-checked mode, source-path byte count, root-spelling byte count and projection
-byte count, followed by counted immutable bytes. Exact byte offsets will be
-fixed in the codec review before implementation. No runtime layout index,
-capability, borrow duration or executable authority is encoded.
+The fixed header is 40 bytes: offsets 0/4/8/12/16/20 are six LE u32 values
+(function index, enclosing-call line/column, argument line/column, argument
+ordinal); offsets 24/25 are mode and coordinate provenance; offsets 26/27 must
+be zero; offsets 28/32/36 are LE u32 lengths of source path, root and projection.
+The three counted byte strings follow in that order, with exact checked total
+length, UTF-8 and no embedded NUL. Source path and root must be nonempty;
+projection may be empty for a root borrow. A producer omits optional events
+whose OS source-path bytes are not valid UTF-8, rather than rejecting an
+otherwise accepted program. Decoder malformed-data refusal remains independent.
+No runtime authority is encoded.
+
+Both source lexers start at line/column 1. Explicit borrowed calls retain their
+ampersand token coordinates (`parser.c:1429`, `parser.nano:2896`). All four
+coordinates must be positive and fit u32. Unknown/zero/synthetic sites omit the
+record; the decoder rejects zero in this positive-event version. Duplicate site
+identity is function + both coordinate pairs + ordinal + provenance + source
+path. Mode/root/projection are descriptive and cannot distinguish duplicate
+sites. A duplicate with changed descriptive bytes remains ambiguous.
 
 Mode 1 means checked shared and mode 2 checked exclusive. UNKNOWN is explicit
 absence for raw/generic/unproved events, never a proved negative or permission;
@@ -151,8 +176,8 @@ existing typed ownership proof independent.
 
 ## Ordered acceptance before completion
 
-1. Complete constructor/clone/reset/free and Nano foreign-list lifetime mapping;
-   specify exact v1 codec and failure categories before code changes.
+1. Review explicit C collector threading and the Nano final-phase bridge before
+   production changes; retain the lifetime distinctions and codec above.
 2. Prove paired checker capture on existing root, nested shared and disjoint
    exclusive call arguments. Reject overlap and shared-to-exclusive upgrade;
    preserve prior artifacts. Check both import orders and same-spelled owners.
@@ -170,3 +195,175 @@ existing typed ownership proof independent.
 6. Integrate reviewed changes, then run fresh raw generations/fixed point and
    exact Linux/Darwin gates. Full #998 stays open until its complete acceptance
    is met; this bounded borrow-event slice does not invent or close join facts.
+
+## Proposed implementation ownership and remaining interface review
+
+I own the ledger/capture and advisory codec slice only after interface approval:
+C `resource_flow.c`, `resource_tracking.h`, `typechecker.c` and its declaration
+header, `nanovirt/main.c`, `nanovirt/codegen.h`/`codegen.c` and
+`borrow_codegen.inc`; Nano `typecheck.nano`, `nanoisa_codegen.nano` and
+`nanoisa_borrows.nano`; dedicated codec files/tests and this contract. I do not
+change ASTCall schema, parser constructors, runtime borrow authority or the
+blocked primitive files. Generated record/list providers are touched only if
+actual new record generation requires them and are separately reviewed.
+
+Proposed C shape: opaque invocation collector create/destroy, checked entry
+wrappers taking a private optional collector, and capture into the current
+function-check segment. Existing public type-check/codegen entrypoints remain
+absent-context wrappers. The exact API threading through nested checks,
+module checks, semantic shadows and runtime shadow execution remains the next
+read-only review checkpoint; these names are interface roles, not an approved
+signature patch. No global mutable collector is an acceptable shortcut.
+
+Proposed Nano shape: a private call-borrow context in the existing checked
+emission bridge; final resource checks accept an optional collector, while
+existing standalone wrappers pass absent context. Internal emission accepts the
+completed context and performs original identity/epoch validation. Public
+`nanoisa_check_and_emit` continues returning only diagnostics and text; raw
+wrappers preserve existing no-global and affine-use behavior. The actual
+recursive ResourceFlow threading signature is still to be reviewed before code.
+
+### Concrete C routing proposal for final review
+
+`nanovirt/main.c:179–243` owns one Environment from before import loading through
+root type checking, semantic shadows, runtime shadows and codegen.
+`module.c:726` checks imported modules using that same Environment while setting
+and restoring the actual cached module source identity. Capturing only the root
+checker would miss those imported events.
+
+I propose an opaque `CheckedBorrowLedger` owned by this Environment solely during
+that synchronous invocation. Proposed private interfaces are:
+
+```c
+bool checked_borrow_begin(Environment *env); /* refuses an already active scope */
+void checked_borrow_finish_capture(Environment *env); /* before runtime shadows */
+bool checked_borrow_seal(Environment *env);  /* after all checks/shadows succeed */
+void checked_borrow_end(Environment *env);   /* frees owned copies; sets NULL */
+```
+
+The Environment owns the scope while its nullable opaque pointer is attached;
+this field is initialized absent by calloc and is never inherited as an owning
+pointer.
+`free_environment` is the error-exit backstop that destroys it. Success explicitly
+ends the scope immediately after checked emission. This is neither process-global
+nor persistent AST storage. No event-creation API accepts caller-asserted trust.
+The capture functions stay checker-internal; lookup stays checked-emitter-internal.
+Raw `codegen_compile` remains absent-context; a private checked variant accepts
+only this sealed scope for that exact Environment/source invocation. Existing
+non-NanoVirt callers never start a scope and preserve their current behavior.
+
+`check_function_ownership` obtains the active unsealed collector into OwnFlow,
+begins a segment for its exact function/epoch and records successful holds.
+Nested function checks share the invocation budget but have distinct segments.
+Capture is disabled immediately after semantic shadow checks, before runtime
+shadow execution or lowering. Sealing is a separate step after runtime shadows
+succeed; it does not resume collection.
+`type_check`, `type_check_module` and semantic shadow signatures need not change.
+After sealing, further checker calls cannot add facts: changed epochs invalidate
+old events. Runtime shadow failure never seals/publishes. Import failure destroys
+the ledger before cached AST teardown; failure copies remain separately owned.
+
+This scoped Environment-pointer choice still requires coordinator approval; it
+avoids broad extra parameters across import-loader/checker APIs but adds explicit
+Environment lifecycle ownership. It is not implemented by this contract.
+
+### Concrete Nano routing proposal for final review
+
+I propose `BorrowFactEvent` plus `BorrowFactContext` internal records: events,
+monotonic budgets/disabled/error status, and exact function owner/epoch/site data.
+The optional context is an empty-or-one-element array, so legacy wrappers can
+pass `[]`. Capture mutates only its owned event/budget arrays, not Parser fields.
+`resource_check_function_context(..., context)` owns segment begin/completion;
+existing `resource_check_function(...)` delegates with `[]`. Internal resource
+flow helpers thread this optional context recursively; their existing wrappers
+and checker shadows preserve absent-context behavior. No function-local global
+collector is used.
+
+The final `typecheck_advisory_core` resource pass supplies this context; earlier
+`check_function` resource checks do not. On any final diagnostic it returns no
+events. `CheckedAdvisoryOutput` carries the completed internal context through
+`nanoisa_check_and_emit` into its private program/shadow emitters; public
+`NanoisaCheckedText` still exposes only diagnostics/text. Lookup validates exact
+original function token/completed epoch and original call/argument indices, and
+never synthesizes facts for the qualified-call adapter or a generic clone.
+A standalone/raw emitter passes absent context while preserving all existing
+no-global effects and affine-use facts.
+
+Additional proposed C ownership is `src/nanolang.h` (opaque pointer declaration)
+and `src/env.c` (lifecycle backstop), plus a dedicated private ledger module/header;
+this replaces the earlier broad typechecker signature changes. Module loader
+behavior and cache ownership remain unchanged. These file/interface choices are
+pending final review, not production authorization.
+
+### Environment lifetime audit and cleanup order
+
+The actual C Environment (`nanolang.h`, ending at line 930) has no parent pointer.
+`create_environment` uses calloc (`env.c:228`); targeted allocation, whole-struct
+assignment and memcpy inspection found no shallow Environment clone. Imported
+checks share the same pointer, not an inherited owning field. Separate REPL and
+other driver environments start with absent collection. No parent lookup or
+implicit copying of the scope is permitted.
+
+The private begin/finish-capture/seal/end operations operate only on that exact
+Environment. Begin fails rather than replacing an active scope. End first clears
+the pointer, then frees ledger-owned bytes; it never dereferences AST identities.
+`free_environment` calls end before other teardown as a backstop for every early
+import/typecheck/shadow/codegen failure. Some existing driver branches free the
+AST before Environment, so destructor independence from AST is mandatory.
+Success ends collection immediately after checked codegen, before package/save
+or actual VM execution. The existing late VM verifier exit at main.c:411 skips
+Environment teardown, but has no live ledger under this ordering; I do not expand
+this slice into unrelated driver cleanup.
+
+Cached imported ASTs not actually checked during this invocation have no matching
+ledger entries. They remain absent, never inferred from a stale completed epoch.
+The current driver clears its module cache before processing imports, while
+reusable library callers retain this conservative missing-entry behavior.
+
+### Final recursive/interface outline
+
+The private C header declares the lifecycle signatures above and:
+
+```c
+CodegenResult codegen_compile_checked(ASTNode *program, Environment *env,
+                                     ModuleList *modules, const char *input_file);
+```
+
+This entry obtains only the sealed ledger attached to the exact Environment;
+the shared internal codegen routine gets an optional borrowed `const` ledger.
+Existing `codegen_compile`, `codegen_compile_shadows` and
+`codegen_compile_shadow_scope` pass NULL. Runtime shadow emission therefore
+cannot publish these events. The checked production emitter validates the
+source function/call/epoch again at lookup. The emitter cannot create an event.
+Private checker helpers begin/end function segments and capture holds into
+`OwnFlow`'s borrowed active collector. Internal module/source identities are
+captured while the actual checker has them selected.
+
+For Nano I propose internal records `BorrowFactEvent` (exact owner token, epoch,
+function index, enclosing/address call indices, ordinal, mode, coordinates,
+source/root/projection strings) and `BorrowFactContext` (event array plus a small
+shared integer state array for enabled/hard-error/counters). No Symbol or Parser
+is stored. Empty `array<BorrowFactContext>` means absent collection.
+
+I split these three existing recursive entrypoints into `_context` internal
+implementations with one appended `context: array<BorrowFactContext>` parameter:
+
+- `resource_flow_block` (currently line 1131)
+- `resource_flow_value` (currently line 1275)
+- `resource_flow_node` (currently line 1346)
+
+Their existing signatures remain wrappers passing `[]`; all recursive internal
+calls pass the same context. `ResourceFlow` and its state/next semantics remain
+unchanged. The existing `resource_check_function` signature remains an absent
+wrapper around `resource_check_function_context(parser, func, diags, file_name,
+context)`; only the final phase calls the contextual variant. Branch copies may
+share the ledger because it records static checked sites, not runtime branch
+execution. No branch joins or path summaries are inferred from ledger contents.
+
+`CheckedAdvisoryOutput` gains an internal optional borrow context. Every empty or
+failed result sets it absent; successful final diagnostics return it with the
+existing owner/mask arrays. The current synchronous program/shadow internal
+emission context carries it to borrowed lowering. Public/raw wrappers supply
+absence and keep prior facts unchanged. Capture limits disable/clear only this
+context; allocation failure creates a diagnostic and yields no assembly. This
+record-shape addition requires fresh raw stages after local paired qualification.
