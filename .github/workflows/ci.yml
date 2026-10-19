@@ -473,14 +473,15 @@ jobs:
     if: needs.fast-gate.outputs.code == 'true'
     env:
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
-      # I bound each instrumented self-compilation separately from shadow tests.
-      BOOTSTRAP_NANOISA_TIMEOUT: "7200"
+      # I retain a three-hour instrumented generation budget after the hosted
+      # raw compiler exceeded 7200 seconds; shadow deadlines remain separate.
+      BOOTSTRAP_NANOISA_TIMEOUT: "10800"
       # I use the same component compilation budget as my platform/coverage jobs.
       CMD_TIMEOUT: "1800"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
       LDFLAGS: "-lm -lcrypto -fsanitize=address,undefined"
     runs-on: ubuntu-latest
-    timeout-minutes: 210
+    timeout-minutes: 270
     permissions:
       contents: read
 
@@ -525,7 +526,7 @@ jobs:
           make sanitize CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Compile and verify Stage 1 with sanitizers
-        timeout-minutes: 150
+        timeout-minutes: 210
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           make bootstrap1 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
@@ -578,14 +579,14 @@ jobs:
     if: always() && needs.fast-gate.outputs.code == 'true'
     env:
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
-      # I bound each instrumented self-compilation separately from shadow tests.
-      BOOTSTRAP_NANOISA_TIMEOUT: "7200"
+      # I match the Stage 1 environment for exact checkpoint validation.
+      BOOTSTRAP_NANOISA_TIMEOUT: "10800"
       # I use the same component compilation budget as my platform/coverage jobs.
       CMD_TIMEOUT: "1800"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
       LDFLAGS: "-lm -lcrypto -fsanitize=address,undefined"
     runs-on: ubuntu-latest
-    timeout-minutes: 315
+    timeout-minutes: 360
     permissions:
       contents: read
 
@@ -635,7 +636,7 @@ jobs:
           python3 scripts/ci_bootstrap_checkpoint.py restore "$RUNNER_TEMP/sanitizer-checkpoint/sanitizer-stage1.tar.gz"
 
       - name: Continue Stage 2 and verify both compiler generations with sanitizers
-        timeout-minutes: 150
+        timeout-minutes: 210
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           make bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
