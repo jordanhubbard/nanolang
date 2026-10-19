@@ -15464,3 +15464,10 @@ I retain [my native identity prerequisite evidence](evidence/native-record-ident
 - [x] I include my public record-array route in the managed-runtime matrix, and all three fresh artifact producers in affine completion metadata qualification.
 - [x] I run native process/deadline controls with my OneIR compiler corpus; all six process/trace controls pass locally in 5.327 seconds. Ruby YAML parsing validates the workflow; the default Python lacks PyYAML locally.
 - [ ] I require a fresh combined bootstrap and exact-head Linux/Darwin qualification after integration; component receipts do not replace these gates.
+
+### Field metadata coverage linkage (#976, 2026-10-18)
+
+- [x] I preserve ambient instrumentation link flags in both field-metadata native builds using shared explicit-override policy, without changing lookup allocation assertions or guest budgets.
+- [x] I qualify real coverage-instrumented runtime linkage plus flag precedence, retaining the failing Linux log and separate integrated hosted acceptance.
+
+I retain [field metadata coverage linkage evidence](evidence/field-metadata-coverage-link-20261018.md); the integrated Linux coverage rerun remains open.
