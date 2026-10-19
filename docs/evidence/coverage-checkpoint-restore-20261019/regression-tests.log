@@ -1,0 +1,18 @@
+test_actual_schema_header_rule_has_no_phantom_rebuild (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_actual_schema_header_rule_has_no_phantom_rebuild) ... ok
+test_changed_bytes_duplicate_entries_and_unlisted_paths_refuse (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_changed_bytes_duplicate_entries_and_unlisted_paths_refuse) ... ok
+test_compact_source_membership_preserves_identity_and_legacy_reading (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_compact_source_membership_preserves_identity_and_legacy_reading) ... ok
+test_directory_members_and_conflicts_refuse_before_restore (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_directory_members_and_conflicts_refuse_before_restore) ... ok
+test_existing_parent_escape_refuses_all_restore_writes (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_existing_parent_escape_refuses_all_restore_writes) ... ok
+test_full_checkpoint_requires_every_success_and_raw_equality (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_full_checkpoint_requires_every_success_and_raw_equality) ... ok
+test_incomplete_generation_and_changed_identity_refuse (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_incomplete_generation_and_changed_identity_refuse) ... ok
+test_large_evidence_manifest_fits_without_relaxing_bound (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_large_evidence_manifest_fits_without_relaxing_bound) ... ok
+test_member_beneath_archived_link_refuses (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_member_beneath_archived_link_refuses) ... ok
+test_real_archive_preserves_bytes_modes_links_and_nanosecond_times (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_real_archive_preserves_bytes_modes_links_and_nanosecond_times) ... ok
+test_source_directories_survive_fresh_checkout_and_detect_addition (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_source_directories_survive_fresh_checkout_and_detect_addition) ... ok
+test_transferred_complete_checkpoint_continues_in_both_phases (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_transferred_complete_checkpoint_continues_in_both_phases) ... ok
+test_traversal_and_escaping_links_refuse_before_write (tests.test_ci_bootstrap_checkpoint.CheckpointArchive.test_traversal_and_escaping_links_refuse_before_write) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.487s
+
+OK

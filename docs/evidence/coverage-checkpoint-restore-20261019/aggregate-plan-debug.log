@@ -1,0 +1,56 @@
+GNU Make 3.81
+Copyright (C) 2006  Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
+
+This program built for i386-apple-darwin11.3.0
+Reading makefiles...
+Updating goal targets....
+ File `bootstrap3' does not exist.
+         File `nano_virt' does not exist.
+        Must remake target `nano_virt'.
+        Successfully remade target file `nano_virt'.
+         File `nano_vm' does not exist.
+        Must remake target `nano_vm'.
+        Successfully remade target file `nano_vm'.
+         File `nanoisa_dump' does not exist.
+        Must remake target `nanoisa_dump'.
+        Successfully remade target file `nanoisa_dump'.
+         File `nvm2c' does not exist.
+           File `check-binary64-parser' does not exist.
+          Must remake target `check-binary64-parser'.
+python3 scripts/embed_binary64_parser.py --check
+          Successfully remade target file `check-binary64-parser'.
+        Must remake target `nvm2c'.
+        Successfully remade target file `nvm2c'.
+         File `nvm2c-runtime' does not exist.
+        Must remake target `nvm2c-runtime'.
+        Successfully remade target file `nvm2c-runtime'.
+       Prerequisite `src/nanoisa/.' is newer than target `.bootstrap1.built'.
+       Prerequisite `src/nanoisa/hl_owned_facts.inc' is newer than target `.bootstrap1.built'.
+      Must remake target `.bootstrap1.built'.
+rm -f .bootstrap1.built .bootstrap2.built .bootstrap3.built
+NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/Users/jkh/Src/nanolang-51-harness/obj/module_cache python3 scripts/bootstrap_nanoisa.py stage1 --timeout 1800
+touch .bootstrap1.built
+      Successfully remade target file `.bootstrap1.built'.
+     Prerequisite `.bootstrap1.built' is newer than target `.bootstrap2.built'.
+    Must remake target `.bootstrap2.built'.
+rm -f .bootstrap2.built .bootstrap3.built
+NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/Users/jkh/Src/nanolang-51-harness/obj/module_cache python3 scripts/bootstrap_nanoisa.py stage2 --timeout 1800
+touch .bootstrap2.built
+    Successfully remade target file `.bootstrap2.built'.
+   Prerequisite `.bootstrap2.built' is newer than target `.bootstrap3.built'.
+  Must remake target `.bootstrap3.built'.
+rm -f .bootstrap3.built
+NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/Users/jkh/Src/nanolang-51-harness/obj/module_cache python3 scripts/bootstrap_nanoisa.py verify --timeout 1800
+set -e; \
+	ln -sf nanoc_stage2 bin/nanoc; \
+	echo "I installed bin/nanoc from the verified Stage 2 module."; \
+	perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' bin/nanoc examples/language/nl_hello.nano -o /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//bootstrap_installed_test; \
+	perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//bootstrap_installed_test >/dev/null; \
+	perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' scripts/verify_no_nanoc_c.sh bin/nanoc bin/nanoc_c examples/language/nl_hello.nano; \
+	touch .bootstrap3.built
+  Successfully remade target file `.bootstrap3.built'.
+Must remake target `bootstrap3'.
+Successfully remade target file `bootstrap3'.

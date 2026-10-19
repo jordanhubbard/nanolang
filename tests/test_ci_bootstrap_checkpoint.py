@@ -2,6 +2,7 @@
 import io
 import json
 import os
+import subprocess
 from pathlib import Path
 import sys
 import tarfile
@@ -189,6 +190,95 @@ class CheckpointArchive(unittest.TestCase):
         self.assertEqual(checkpoint.decode_manifest(encoded), manifest)
         with self.assertRaises(ValueError):
             checkpoint.encode_manifest({**manifest, 'extra': 'x' * checkpoint.MAX_MANIFEST_BYTES})
+
+    def test_source_directories_survive_fresh_checkout_and_detect_addition(self):
+        nested = self.root / 'src' / 'nested'
+        nested.mkdir(parents=True)
+        (nested / 'input').write_text('source')
+        (self.root / 'src' / '.cache').mkdir()
+        names = checkpoint.visible_source_directories(self.root)
+        self.assertEqual(names, {'src', 'src/nested'})
+        for name in names:
+            os.utime(self.root / name, ns=(1500000000000000000, 1500000000000000000))
+        manifest = checkpoint.write_archive(self.root, sorted(names) + ['src/nested/input'],
+                                            self.metadata, self.archive)
+        fresh = self.base / 'fresh'; fresh.mkdir()
+        verified = checkpoint.read_archive(self.archive, fresh)
+        checkpoint.restore_files(self.archive, fresh, verified)
+        for name in names:
+            self.assertEqual(checkpoint.record(fresh / name), manifest['files'][name])
+        (fresh / 'product').write_text('completed')
+        os.utime(fresh / 'product', ns=(1600000000000000000, 1600000000000000000))
+        (fresh / 'Makefile').write_text('product: src/nested/.\n\t@echo REBUILD\n')
+        def plan():
+            result = subprocess.run(['make', '-n', 'product'], cwd=fresh,
+                                    capture_output=True, text=True, check=True)
+            return result.stdout
+        self.assertNotIn('REBUILD', plan())
+        (fresh / 'src/nested/new-source').write_text('added')
+        self.assertIn('REBUILD', plan())
+        os.utime(fresh / 'src/nested', ns=(1500000000000000000, 1500000000000000000))
+        self.assertNotIn('REBUILD', plan())
+        (fresh / 'src/nested/new-source').unlink()
+        self.assertIn('REBUILD', plan())
+
+    def test_directory_members_and_conflicts_refuse_before_restore(self):
+        (self.root / 'src').mkdir()
+        for kind in ('file', 'link'):
+            checkpoint.write_archive(self.root, ['src', 'tool'], self.metadata, self.archive)
+            def change(entries):
+                for member, data in entries:
+                    if member.name == 'files/src':
+                        member.type = tarfile.REGTYPE if kind == 'file' else tarfile.SYMTYPE
+                        member.linkname = 'tool' if kind == 'link' else ''
+                return entries
+            self.rewrite(change)
+            with self.subTest(kind=kind), self.assertRaises(ValueError):
+                checkpoint.read_archive(self.archive, self.root)
+        manifest = checkpoint.write_archive(self.root, ['src', 'tool'], self.metadata, self.archive)
+        (self.root / 'src').rmdir(); (self.root / 'src').write_text('sentinel')
+        (self.root / 'tool').write_text('unchanged until validation')
+        with self.assertRaises(ValueError):
+            checkpoint.restore_files(self.archive, self.root, manifest)
+        self.assertEqual((self.root / 'src').read_text(), 'sentinel')
+        self.assertEqual((self.root / 'tool').read_text(), 'unchanged until validation')
+        records = {'tool': checkpoint.record(self.root / 'tool'),
+                   'tool/child': checkpoint.record(self.root / 'tool')}
+        with self.assertRaises(ValueError): checkpoint.validate_links(records, self.root)
+        (self.root / 'src').unlink(); (self.root / 'src').symlink_to(self.base)
+        with self.assertRaises(ValueError): checkpoint.visible_source_directories(self.root)
+        with self.assertRaises(ValueError):
+            checkpoint.restore_files(self.archive, self.root, manifest)
+
+    def test_actual_schema_header_rule_has_no_phantom_rebuild(self):
+        source = (Path(__file__).resolve().parents[1] / 'Makefile.gnu').read_text()
+        start = source.index('$(SRC_DIR)/generated/compiler_schema.h: $(SCHEMA_STAMP)')
+        rule = source[start:source.index('\n\n', start)]
+        generated = self.root / 'src/generated'; generated.mkdir(parents=True)
+        header = generated / 'compiler_schema.h'
+        for name, stamp in ((header, 1500000000), (self.root / 'schema.stamp', 1500000001),
+                            (self.root / 'product', 1500000002)):
+            name.write_text('retained'); os.utime(name, (stamp, stamp))
+        makefile = 'SRC_DIR=src\nSCHEMA_STAMP=schema.stamp\n' + rule + \
+            '\nproduct: src/generated/compiler_schema.h\n\t@echo REBUILD\n'
+        (self.root / 'Makefile').write_text(makefile)
+        def plan():
+            return subprocess.run(['make', '-n', 'product'], cwd=self.root,
+                                  capture_output=True, text=True, check=True).stdout
+        self.assertNotIn('REBUILD', plan())
+        os.utime(header, (1500000003, 1500000003))
+        self.assertIn('REBUILD', plan())
+        # I exercise the existing stamp producer's side effect, not a new
+        # direct header recipe: a fresh schema regenerates a missing header.
+        header.unlink()
+        (self.root / 'schema.input').write_text('new schema')
+        os.utime(self.root / 'schema.input', (1500000004, 1500000004))
+        with (self.root / 'Makefile').open('a') as output:
+            output.write('schema.stamp: schema.input\n\t@echo generated > src/generated/compiler_schema.h\n\t@touch schema.stamp\n')
+        result = subprocess.run(['make', 'product'], cwd=self.root,
+                                capture_output=True, text=True, check=True)
+        self.assertEqual(header.read_text(), 'generated\n')
+        self.assertIn('REBUILD', result.stdout)
 
     def test_member_beneath_archived_link_refuses(self):
         records={'alias':checkpoint.record(self.root/'alias'),

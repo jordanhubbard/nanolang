@@ -1,0 +1,47 @@
+{
+  "hosted-restore.log": {
+    "sha256": "2d8dfad4647eca382d45d4ab8e836b4be71fef813756e78bb581a58fb272b650",
+    "bytes": 156984,
+    "source": "/private/tmp/nanolang-coverage-restore-118186023879.log"
+  },
+  "schema-actual-make.log": {
+    "sha256": "c2e18b3ce790375efc39037c96baebb301280179f1d0cd0128905067c052ce09",
+    "bytes": 887,
+    "source": "/private/tmp/nanolang-stamp-semantics.log"
+  },
+  "schema-dry-run.log": {
+    "sha256": "3590d8a7c77720e5134af03574f70753029779a11a8e5e069dd45ac5904b7ba4",
+    "bytes": 1442,
+    "source": "/private/tmp/nanolang-stamp-dry-run.log"
+  },
+  "aggregate-plan-before.log": {
+    "sha256": "d63c6ec04e1070dd0f2a95d7fce00e53afe097c80ce9dd944222ed4cd602af48",
+    "bytes": 76255,
+    "source": "/private/tmp/nanolang-current-bootstrap-plan-before.log"
+  },
+  "aggregate-plan-header-isolated.log": {
+    "sha256": "7354a68931e583ae4c67e3ce0e98f207e3cb25adf7edd70392521e4762edacda",
+    "bytes": 1371,
+    "source": "/private/tmp/nanolang-current-bootstrap-plan-header-isolated.log"
+  },
+  "aggregate-plan-debug.log": {
+    "sha256": "041d52e2e829619248bf4760497b6a68b45e3abc88fc53824cfc68889b072aff",
+    "bytes": 3284,
+    "source": "/private/tmp/nanolang-current-plan-debug.log"
+  },
+  "aggregate-plan-after-diagnostic-isolation.log": {
+    "sha256": "bfa954e8f7e182c37dc7bfd16c67e1e29f439da9cbd06078fb67d89216d3e603",
+    "bytes": 1447,
+    "source": "/private/tmp/nanolang-current-plan-after-directory-isolation.log"
+  },
+  "initial-tests.log": {
+    "sha256": "eb62986a211045c977c86bb1e7c0eb5504c10000e910e54cd8d257945c209cf0",
+    "bytes": 109,
+    "source": "/private/tmp/nanolang-checkpoint-directory-initial.log"
+  },
+  "regression-tests.log": {
+    "sha256": "e0c0a7fd788703cbc32032b6aa1eb4b8e6ff2d8d0ed5224d8688fcc5ec7334bc",
+    "bytes": 2435,
+    "source": "/private/tmp/nanolang-checkpoint-directory-regression.log"
+  }
+}

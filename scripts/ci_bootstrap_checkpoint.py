@@ -48,6 +48,9 @@ def safe_name(name):
 
 def record(path):
     info = path.lstat()
+    if stat.S_ISDIR(info.st_mode):
+        return dict(kind='directory', mode=stat.S_IMODE(info.st_mode),
+                    mtime_ns=info.st_mtime_ns)
     if stat.S_ISLNK(info.st_mode):
         target = os.readlink(path)
         return dict(kind='link', target=target, sha256=sha(os.fsencode(target)),
@@ -61,10 +64,10 @@ def validate_links(records, root):
     root = root.resolve()
     for name, value in records.items():
         safe_name(name)
-        require(value['kind'] in ('file', 'link'), 'known checkpoint entry kinds')
+        require(value['kind'] in ('file', 'link', 'directory'), 'known checkpoint entry kinds')
         for parent in PurePosixPath(name).parents:
-            require(str(parent) not in records or records[str(parent)]['kind'] != 'link',
-                    'no checkpoint file beneath an archived symbolic link')
+            require(str(parent) not in records or records[str(parent)]['kind'] == 'directory',
+                    'only directory members as archived parents')
         if value['kind'] == 'link':
             target = Path(value['target'])
             if not target.is_absolute():
@@ -74,6 +77,24 @@ def validate_links(records, root):
 
 
 MAX_MANIFEST_BYTES = 32 * 1024 * 1024
+
+
+def visible_source_directories(root):
+    """I retain the directory prerequisites used by bootstrap_input_tree."""
+    names = set()
+
+    def visit(path):
+        if not path.is_dir():
+            return
+        require(not path.is_symlink(), 'ordinary bootstrap source directories')
+        names.add(str(path.relative_to(root)))
+        for child in path.iterdir():
+            if not child.name.startswith('.'):
+                visit(child)
+
+    for name in ('src', 'src_nano', 'modules', 'std', 'stdlib'):
+        visit(root / name)
+    return names
 
 
 def encode_manifest(manifest):
@@ -117,7 +138,10 @@ def write_archive(root, names, metadata, destination):
         for name, value in records.items():
             member = tarfile.TarInfo('files/' + name)
             member.mode = value['mode']; member.mtime = value['mtime_ns'] / 1e9
-            if value['kind'] == 'link':
+            if value['kind'] == 'directory':
+                member.type = tarfile.DIRTYPE
+                archive.addfile(member)
+            elif value['kind'] == 'link':
                 member.type = tarfile.SYMTYPE; member.linkname = value['target']
                 archive.addfile(member)
             else:
@@ -144,7 +168,9 @@ def read_archive(path, root):
         for name, value in records.items():
             member = archive.getmember('files/' + name)
             require(member.mode == value['mode'], 'recorded file modes')
-            if value['kind'] == 'link':
+            if value['kind'] == 'directory':
+                require(member.isdir() and member.size == 0, 'recorded directory identity')
+            elif value['kind'] == 'link':
                 require(member.issym() and member.linkname == value['target'] and
                         sha(os.fsencode(member.linkname)) == value['sha256'], 'recorded link identity')
             else:
@@ -159,12 +185,20 @@ def read_archive(path, root):
 def restore_files(path, root, manifest):
     root = root.resolve()
     # I reject pre-existing escaping parent links before replacing any member.
-    for name in manifest['files']:
+    for name, value in manifest['files'].items():
         parent = (root / name).parent
         require(parent.resolve().is_relative_to(root), 'checkout-confined existing parents')
+        target = root / name
+        if value['kind'] == 'directory':
+            require(not target.is_symlink() and
+                    (not target.exists() or target.is_dir()),
+                    'ordinary existing directory destinations')
     with tarfile.open(path, 'r:gz') as archive:
         for name, value in manifest['files'].items():
             target = root / name; target.parent.mkdir(parents=True, exist_ok=True)
+            if value['kind'] == 'directory':
+                target.mkdir(exist_ok=True)
+                continue
             if target.is_symlink(): target.unlink()
             if value['kind'] == 'link':
                 if target.exists(): target.unlink()
@@ -174,6 +208,14 @@ def restore_files(path, root, manifest):
                     shutil.copyfileobj(source, output)
                 target.chmod(value['mode'])
             os.utime(target, ns=(value['mtime_ns'], value['mtime_ns']), follow_symlinks=False)
+    # Creating children changes their parents. I restore directory prerequisites
+    # only after every member has been installed, never by inventing old dates.
+    directories = ((name, value) for name, value in manifest['files'].items()
+                   if value['kind'] == 'directory')
+    for name, value in sorted(directories, key=lambda item: len(PurePosixPath(item[0]).parts), reverse=True):
+        target = root / name
+        target.chmod(value['mode'])
+        os.utime(target, ns=(value['mtime_ns'], value['mtime_ns']), follow_symlinks=False)
     require(all(record(root / name) == value for name, value in manifest['files'].items()),
             'exact restored contents, modes, links and modification times')
 
@@ -277,6 +319,7 @@ def main():
     try:
         if args.operation == 'pack':
             meta = metadata(args.phase); names = set(meta['tracked'])
+            names.update(visible_source_directories(ROOT))
             for directory in ('bin', 'obj', 'lib', 'modules'):
                 names.update(str(p.relative_to(ROOT)) for p in (ROOT / directory).rglob('*')
                              if p.is_file() or p.is_symlink())

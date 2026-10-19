@@ -872,6 +872,7 @@ jobs:
           name: verifier-corpus-coverage
           path: |
             .test_output/verifier-corpus/
+            .test_output/sanitizer-checkpoint-resume-plan.log
             obj/component-logs/
             obj/bootstrap-nanoisa/**/*.log
             obj/bootstrap-nanoisa/**/manifest.json
