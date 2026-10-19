@@ -1,7 +1,7 @@
 """I qualify retained declaration syntax, not File source execution.
 
 I require a fresh bootstrap/ABI closure supplied by the outer gate. Sanitizers
-cover the included parser fixture plus freshly compiled env/lexer/UTF8/interpreter/transpiler providers;
+cover the included parser fixture plus freshly compiled env/nominal-binding/lexer/UTF8/interpreter/transpiler providers;
 all named common/runtime providers are retained ordinary objects.
 """
 from pathlib import Path
@@ -30,13 +30,13 @@ class FileServiceParser(unittest.TestCase):
         if os.environ.get('NANO_SERVICE_PARSER_SANITIZERS','0')=='1':
             cls.flags+=['-fsanitize=address,undefined','-fno-omit-frame-pointer']
         cls.common=[Path(p).resolve() for p in shlex.split(os.environ['NANO_SERVICE_PARSER_OBJECTS'])]
-        if not cls.common or any(p.name in ('parser.o','env.o','lexer.o','utf8.o','eval.o','transpiler.o','main.o') for p in cls.common):
+        if not cls.common or any(p.name in ('parser.o','env.o','nominal_types.o','lexer.o','utf8.o','eval.o','transpiler.o','main.o') for p in cls.common):
             raise AssertionError('I require exact ordinary common/runtime objects excluding selected rebuilt TUs')
         cls.before={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in cls.common}
         (cls.work/'ordinary-providers-before.json').write_text(json.dumps(cls.before,indent=2)+'\n')
         cls.selected=[]
-        for provider in ('lexer','utf8','env','eval','transpiler'):
-            observer=['-include',str(ROOT/'tests/file_service_parser_free_hooks.h'),'-DNANO_FILE_SERVICE_PARSER_OBSERVE_FREE=1'] if provider=='env' else []
+        for provider in ('lexer','utf8','env','nominal_types','eval','transpiler'):
+            observer=['-include',str(ROOT/'tests/file_service_parser_free_hooks.h'),'-DNANO_FILE_SERVICE_PARSER_OBSERVE_FREE=1'] if provider in ('env','nominal_types') else []
             source=ROOT/'tests/file_service_parser_eval.c' if provider=='eval' else ROOT/'src'/(provider+'.c')
             obj=cls.work/(provider+'.o');cls.command(provider+'-build',[*cls.cc,*cls.flags,*observer,'-c',source,'-o',obj]);cls.selected.append(obj)
         # I build and invoke the actual installed-tool source recipe, not a copied golden renderer.
@@ -52,7 +52,7 @@ class FileServiceParser(unittest.TestCase):
             raise AssertionError('actual publisher source differs from retained complete golden')
         fresh=cls.selected+[cls.publisher]+sorted((cls.work/'publisher-obj').rglob('*.o'))
         (cls.work/'fresh-providers.json').write_text(json.dumps({str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in fresh},indent=2)+'\n')
-        (cls.work/'scope.json').write_text(json.dumps({'parser':'included and allocation-hooked','fresh_selected':['lexer','utf8','env','eval','transpiler'], 'env_observer':'actual owning-TU free only; all real frees execute; env allocations are not parser failure-prefix hooks',
+        (cls.work/'scope.json').write_text(json.dumps({'parser':'included and allocation-hooked','fresh_selected':['lexer','utf8','env','nominal_types','eval','transpiler'], 'free_observers':'actual env and nominal binder owning-TU frees only; all real frees execute; provider allocations are not parser failure-prefix hooks',
             'common_providers':'ordinary retained exact list','publisher':'fresh seven-provider actual Make closure',
             'eval_wrapper':'actual interpreter included; static cleanup unit controls separate from source program execution',
             'service_execution':False,'bootstrap':'required fresh outer prerequisite'},indent=2)+'\n')
@@ -63,7 +63,11 @@ class FileServiceParser(unittest.TestCase):
         if after!=cls.before:raise AssertionError('ordinary providers changed during parser gate')
     def test_c_ownership_and_refusal(self):
         exe=self.work/'parser-c'
-        self.command('parser-c-build',[*self.cc,*self.flags,ROOT/'tests/test_file_service_parser.c',*self.selected,*self.common,*self.links,'-o',exe])
+        # I place archives after their users for single-pass Unix linkers.
+        # I retain the full provider list and hashes; no dependency is omitted.
+        objects=[p for p in self.common if p.suffix!='.a']
+        archives=[p for p in self.common if p.suffix=='.a']
+        self.command('parser-c-build',[*self.cc,*self.flags,ROOT/'tests/test_file_service_parser.c',*self.selected,*objects,*archives,*self.links,'-o',exe])
         out,_=self.command('parser-c-run',[exe,self.binding])
         lines=out.decode().splitlines()
         self.assertEqual(lines[-1],'publisher:1:5:retained:consumers-refused')
@@ -104,7 +108,7 @@ class FileServiceParser(unittest.TestCase):
             out,err=self.command(name+'-build',args,timeout=900,extra={'NANO_SHADOW_TRACE':'1','TMPDIR':str(tmp)})
             if name=='nanoc_c':
                 data=json.loads(report.read_text());self.assertTrue(data['completed'] and data['success']);self.assertEqual(data['failures'],[]);self.assertEqual(data['test_count'],len(expected))
-                raw=re.findall(rb'^Testing ([A-Za-z_][A-Za-z_0-9]*)\.\.\. ',out+b'\n'+err,re.M)
+                raw=retained_schema.shadow_trace_names(out+b'\n'+err)
             else:raw=re.findall(rb'^I am testing shadow ([A-Za-z_][A-Za-z_0-9]*)$',err,re.M)
             normalized=[re.sub(r'^__nano_module_+[0-9]+_','',p.decode()) for p in raw]
             (self.work/(name+'-selection.json')).write_text(json.dumps({'raw':[p.decode() for p in raw],'normalized':normalized,'expected':expected},indent=2)+'\n')
@@ -139,7 +143,7 @@ class FileServiceParser(unittest.TestCase):
             output=self.work/(name+'-forbidden-output');status=self.work/(name+'-refusal.json')
             script="import subprocess,sys,json,pathlib; p=subprocess.run(sys.argv[2:],timeout=120); pathlib.Path(sys.argv[1]).write_text(json.dumps({'returncode':p.returncode})); sys.exit(0 if p.returncode>0 else 1)"
             out,err=self.command(name+'-consumer-refusal',[sys.executable,'-c',script,status,ROOT/'bin'/name,self.binding,'-o',output],timeout=140)
-            self.assertFalse(output.exists());self.assertIn(b'resolved File service',out+b'\n'+err)
+            self.assertFalse(output.exists());self.assertIn(b'I require a selected File entry in this graph.',out+b'\n'+err)
 
 def load_tests(loader,tests,pattern):
     def ids(suite):

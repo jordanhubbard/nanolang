@@ -15404,3 +15404,15 @@ My adjacent sole-use store fold passes the large carry/division cases. Its first
 My first 87-method scalar/binary64 gate exposes two more source-shape assertions requiring redundant argument/high-word temporaries, and a real U8 regression: inlining a byte literal removes the typed binding that supplies its exact tag at a call. I retain typed U8 temporaries, retain exactly-once call and high-word operation assertions without prescribing unused temporary names, and preserve the failed log. Three focused regression methods pass after these corrections. The two previously tracked computed-U8 source refusal assertions remain #1004 work; I do not report the full gate green.
 
 I retain [my local-pressure correction evidence](evidence/reconstruction-local-pressure-20261018/README.md): all 86 scoped scalar/binary64 methods pass in 412.667 seconds. I explicitly exclude only the separately tracked #1004 contextual-refusal method from this local optimization receipt; the repository gate remains complete and must pass after integration.
+
+- [x] Under #978 I correct the File parser fixture link order after Linux qualification run39195672200 failed to resolve compiler-input archive symbols. I preserve all exact providers and place static archives after consuming objects, qualify the local native ownership/refusal gate, and retain fresh hosted qualification as the separate open child below.
+
+- [x] Under #978 I include actual nominal-binder frees in parser ownership instrumentation. After link correction the native gate reported one tracked allocation; ASan proved it was already freed by `nominal_constructor_slot`, outside the env-only observer. I freshly build and observe that owning translation unit, preserve real frees and all unchanged zero-live assertions, then rerun the gate.
+
+- [x] Under #978 I count complete structured shadow-start records rather than buffered human progress lines. The corrected full parser gate passed the C ownership method but found eight missing names because JSON trace writes split `Testing ...` lines; all 978 actual structured starts and the completed success report are present. I retain exact multiset comparison and duplicate counts, test malformed/missing events, and rerun the complete producer corpus.
+
+- [x] Under #978 I update the final parser consumer-refusal assertion to the current File driver contract. The complete corrected parser build/schema/shadow corpus passed through all three producers, then the old unresolved-service diagnostic assertion failed: current C and selfhost File lowering rejects this declaration-only binding because no File entry is selected. I require that exact current refusal and no output for all four drivers; I retain the failed full-run receipt and rerun the complete gate.
+
+I retain [my complete local File parser qualification](evidence/file-parser-qualification-20261018/README.md): both complete methods pass in 1,210.354 seconds after the focused sanitized ownership gate.
+
+- [ ] Under #978 I refresh Linux and Darwin retirement qualification on the combined candidate; the local correction receipt does not close this platform obligation.

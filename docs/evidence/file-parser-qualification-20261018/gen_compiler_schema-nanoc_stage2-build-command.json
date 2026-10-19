@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+    "/Users/jkh/Src/nanolang-51-harness/scripts/gen_compiler_schema.nano",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/gen_compiler_schema-nanoc_stage2",
+    "--keep-c"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-harness",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

@@ -13,6 +13,18 @@ import unittest
 from tests import test_file_source_plan as retained_runner
 ROOT=Path(__file__).resolve().parents[1]
 
+def shadow_trace_names(output):
+    # I parse complete structured records even when buffered progress text
+    # shares their line. I retain duplicates for exact selection comparison.
+    text=output.decode('utf-8',errors='replace');decoder=json.JSONDecoder();names=[]
+    for match in re.finditer(r'\{"event":"shadow-start"',text):
+        event,_=decoder.raw_decode(text[match.start():])
+        name=event['name']
+        if not isinstance(name,str) or not re.fullmatch(r'[A-Za-z_][A-Za-z_0-9]*',name):
+            raise AssertionError('I require an exact shadow-start identifier')
+        names.append(name.encode('ascii'))
+    return names
+
 class TokenValueBytes(unittest.TestCase):
     command=classmethod(retained_runner.FileSourcePlan.command.__func__)
     @classmethod
@@ -96,7 +108,7 @@ class TokenValueBytes(unittest.TestCase):
                     report=json.loads(shadow.read_text())
                     self.assertTrue(report['completed'] and report['success'])
                     self.assertEqual(report['test_count'],len(expected));self.assertEqual(report['failures'],[])
-                    raw=re.findall(rb'^Testing ([A-Za-z_][A-Za-z_0-9]*)\.\.\. ',out+b'\n'+err,re.M)
+                    raw=shadow_trace_names(out+b'\n'+err)
                 else:raw=re.findall(rb'^I am testing shadow ([A-Za-z_][A-Za-z_0-9]*)$',err,re.M)
                 names=[re.sub(r'^__nano_module_+[0-9]+_','',p.decode('ascii')) for p in raw]
                 (self.work/(label+'-'+compiler+'-selection.json')).write_text(json.dumps({'raw':[p.decode('ascii') for p in raw],'normalized':names,'expected':expected},indent=2)+'\n')
