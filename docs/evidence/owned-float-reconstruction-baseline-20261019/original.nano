@@ -1,0 +1,10 @@
+resource struct Handle { fd: int }
+fn close(owned: Handle) -> int { let Handle { fd } = owned return fd }
+shadow close { assert (== (close Handle { fd: 7 }) 7) }
+fn main() -> int {
+    let fd: float = 2.5
+    unsafe { let Handle { fd } = Handle { fd: 42 } assert (== fd 42) }
+    assert (== fd 2.5)
+    return 0
+}
+shadow main { assert (== (main) 0) }

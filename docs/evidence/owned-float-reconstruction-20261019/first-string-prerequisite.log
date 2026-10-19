@@ -1,0 +1,145 @@
+I retain owned STRING evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-string-reconstruction-dnnww0oi
+test_assert_failure_prefix_and_no_later_print (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_assert_failure_prefix_and_no_later_print) ... FAIL
+test_canonical_roundtrip_and_stripped_advisory_metadata (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_canonical_roundtrip_and_stripped_advisory_metadata) ... FAIL
+test_defensive_string_table_and_parameter_refusals (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_defensive_string_table_and_parameter_refusals) ... ok
+test_exact_bytes_forwarding_and_positional_owners (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_exact_bytes_forwarding_and_positional_owners) ... FAIL
+test_independent_original_shadow_executable (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_independent_original_shadow_executable) ... FAIL
+test_invalid_utf8_is_target_specific (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_invalid_utf8_is_target_specific) ... FAIL
+test_literal_payload_bound_and_atomic_overlimit (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_literal_payload_bound_and_atomic_overlimit) ... FAIL
+test_name_independence_preserves_shared_literal_indexes (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_name_independence_preserves_shared_literal_indexes) ... FAIL
+test_original_verifier_rejects_wrong_print_argument_and_constant (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_original_verifier_rejects_wrong_print_argument_and_constant) ... ok
+test_unchanged_ordinary_example (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_unchanged_ordinary_example) ... FAIL
+
+======================================================================
+FAIL: test_assert_failure_prefix_and_no_later_print (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_assert_failure_prefix_and_no_later_print)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 154, in test_assert_failure_prefix_and_no_later_print
+    self.qualify(self.module(compiler, 'failure-'+str(early), source), b'' if early else b'before', True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 88, in qualify
+    self.command([ROOT/'bin/nvm2hl', '--language', language, module, '-o', output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=native_compile_timeout(default=900) if build else 180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('10', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 180, 'elapsed_seconds': 0.0017147909966297448, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_canonical_roundtrip_and_stripped_advisory_metadata (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_canonical_roundtrip_and_stripped_advisory_metadata)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 171, in test_canonical_roundtrip_and_stripped_advisory_metadata
+    self.qualify(rebuilt,b'audit.log\nresource closed\n')
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 88, in qualify
+    self.command([ROOT/'bin/nvm2hl', '--language', language, module, '-o', output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=native_compile_timeout(default=900) if build else 180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('29', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 180, 'elapsed_seconds': 0.0018117500003427267, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_exact_bytes_forwarding_and_positional_owners (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_exact_bytes_forwarding_and_positional_owners)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 133, in test_exact_bytes_forwarding_and_positional_owners
+    facts,_=self.qualify(self.module(compiler, 'forward-bytes', source), expected)
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 88, in qualify
+    self.command([ROOT/'bin/nvm2hl', '--language', language, module, '-o', output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=native_compile_timeout(default=900) if build else 180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('42', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 180, 'elapsed_seconds': 0.0023438750067725778, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_independent_original_shadow_executable (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_independent_original_shadow_executable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 125, in test_independent_original_shadow_executable
+    facts, costs = self.qualify(module, b'audit.log\nresource closed\nresource closed\naudit.log\nresource closed\n')
+                   ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 88, in qualify
+    self.command([ROOT/'bin/nvm2hl', '--language', language, module, '-o', output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=native_compile_timeout(default=900) if build else 180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('52', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 180, 'elapsed_seconds': 0.002076457953080535, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_invalid_utf8_is_target_specific (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_invalid_utf8_is_target_specific)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 235, in test_invalid_utf8_is_target_specific
+    c=module.with_suffix('.c');self.command([ROOT/'bin/nvm2hl','--language','c',module,'-o',c])
+                               ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=native_compile_timeout(default=900) if build else 180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('56', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 180, 'elapsed_seconds': 0.0020627090125344694, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_literal_payload_bound_and_atomic_overlimit (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_literal_payload_bound_and_atomic_overlimit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 223, in test_literal_payload_bound_and_atomic_overlimit
+    result=self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output],None)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=native_compile_timeout(default=900) if build else 180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('59', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 180, 'elapsed_seconds': 0.0020088329911231995, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_name_independence_preserves_shared_literal_indexes (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_name_independence_preserves_shared_literal_indexes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 193, in test_name_independence_preserves_shared_literal_indexes
+    self.qualify(rebuilt,b'main\nresource closed\n')
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 88, in qualify
+    self.command([ROOT/'bin/nvm2hl', '--language', language, module, '-o', output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=native_compile_timeout(default=900) if build else 180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('73', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 180, 'elapsed_seconds': 0.0023297499865293503, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_unchanged_ordinary_example (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_unchanged_ordinary_example)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 111, in test_unchanged_ordinary_example
+    facts, counts = self.qualify(self.module(compiler, 'ordinary'), b'audit.log\nresource closed\n')
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 88, in qualify
+    self.command([ROOT/'bin/nvm2hl', '--language', language, module, '-o', output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_string_reconstruction.py", line 37, in command
+    out, err = retained_runner.FileSourcePlan.command.__func__(type(self), name, args, timeout=native_compile_timeout(default=900) if build else 180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('86', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 180, 'elapsed_seconds': 0.0023131250054575503, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+----------------------------------------------------------------------
+Ran 10 tests in 5.665s
+
+FAILED (failures=8)

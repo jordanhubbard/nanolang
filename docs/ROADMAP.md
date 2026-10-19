@@ -16103,3 +16103,21 @@ I complete read-only validation of coverage artifact12204047789: official ZIP SH
 I integrate reviewed STRING design/baseline/component ancestry through74692f7db, preserving the independent loop and checkpoint receipts. I wire its ten methods into owned reconstruction and require current seed plus both fresh282d stages before aggregate credit. Only the C facts tool and Python reconstruction change; exact original-shadow input retains its C-hosted provenance. Full #999/platform qualification remains open.
 
 I pass all fourteen aggregate STRING/old-byte methods in79.632s through current NanoVirt and both fresh282d stages; ten providers remain unchanged after the facts-only rebuild. Exact original/regenerated output, ordinary3/5/11 and independent shadow11/5/11/3, bytes/UTF8/1MiB/refusal/transport/name controls and O0/O2 sanitized native paths pass. I retain [the aggregate receipt](evidence/owned-string-reconstruction-aggregate-20261019/README.md), distinguish C-hosted original-shadow input provenance, and leave full #999/platform gates open.
+## I prepare bounded owned FLOAT-local reconstruction (#999)
+
+I record design ownership by workspace_repairs on `design/5.1-owned-float-locals`, based on fbd503d59. I own only this roadmap entry and `NANOISA_OWNED_FLOAT_RECONSTRUCTION_DESIGN.md` now; the STRING child retains the shared facts implementation.
+
+- [x] I map the unchanged unsafe/local-shadow fixture and existing scalar binary64 transport.
+- [ ] I review the bounded design and wait for integrated STRING facts before implementation/rebase.
+- [ ] I retain original ordinary and selected-shadow baselines, then qualify exact local-only transport and both renderers.
+- [ ] I qualify bit/predicate/refusal neighbors, unchanged old profiles and exact candidate platforms; I keep consuming loop-exit composition separate.
+
+I refine the FLOAT design after review: consuming output gains no synthesized shadow; I qualify original-shadow executables separately and distinguish literal/transport bits from arithmetic NaN policy without admitting inspection-only opcodes.
+
+I retain the unchanged FLOAT baseline: three actual ordinary producers and one pinned C-hosted original-shadow driver pass verifier/VM; all four reconstruction refusals preserve output. I begin consuming-only local implementation after STRING integration6a58133c9. Regenerated ordinary and shadow executables must qualify through all three canonical producers; I claim no three fresh original-shadow drivers.
+
+I correct a reviewed draft placement defect before facts execution: raw f64_bits must be emitted inside its instruction JSON object, not into the outer code array. The first narrow compile passed but did not validate JSON; I retain that distinction.
+
+I retain the first regenerated FLOAT Nano refusal of float_from_bits. Reviewed correction keeps all bits in facts/C, emits exact finite decimal literals with unary negative zero for Nano, and atomically refuses nonfinite Nano literals. I qualify real finite extremes/subnormals through three producers; no frontend or verifier expansion.
+
+I record the separately reproduced assembler defect: an actual accepted decimal minimum-subnormal token produces correct nonzero bits with libc ERANGE, then parse_double rejects it. I admit ERANGE only for FP_SUBNORMAL; zero underflow, overflow and other errors retain refusal. Installed stages use an immutable absolute libnanoisa path and remain old-provider evidence until an explicitly qualified corrected generation.

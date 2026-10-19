@@ -16,6 +16,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#include <math.h>
 
 /* ========================================================================
  * Label Table
@@ -250,7 +251,8 @@ static bool parse_double(const char **p, double *val) {
     char *end;
     errno = 0;
     double v = strtod(*p, &end);
-    if (end == *p || errno != 0) return false;
+    if (end == *p || (errno != 0 &&
+        !(errno == ERANGE && fpclassify(v) == FP_SUBNORMAL))) return false;
     *val = v;
     *p = end;
     return true;

@@ -1,0 +1,17 @@
+# I qualify bounded consuming FLOAT locals
+
+I retain the original unsafe/local-shadow fixture without rewriting it. Three installed ordinary producers and one pinned C-hosted original-shadow driver first verify and execute; four actual facts/reconstruction refusals preserve prior output. Their provider hashes remain unchanged.
+
+I add consuming-only nonparameter FLOAT locals with NO_INDEX, exact sixteen-hex-digit PUSH_F64 facts and existing typed binary64 IR/helpers. FLOAT fields/signatures and borrowed profiles remain excluded. Ordinary and independently produced original-shadow executables are separate inputs; consuming output gains no synthesized witness.
+
+The initial scalar Nano renderer's float_from_bits call failed the original owned source profile. I retain that failure. Nano now renders finite literal payloads with exact decimal digit expansion and unary sign; C retains all bits. Nonfinite literal payloads refuse Nano atomically, while C preserves them. Dynamic infinity/NaN from admitted arithmetic passes typed predicate tests. Nonfinite literal Nano coverage remains a target limitation, not a completed broader requirement.
+
+Actual Stage1 minimum-subnormal decimal failed assembly because strtod returned the correct nonzero value with ERANGE. The separate assembler correction preserves zero-underflow/overflow refusal and raw-bit syntax. Existing installed stages retain their old absolute host-library path and remain failing evidence at that boundary. I preserve their libraries.
+
+For focused corrected qualification I rebuilt a private host provider and copied the retained282d generated Stage1/Stage2 C, replacing ONLY each exact nanoisa library literal. Replacement counts, reverse-substitution identity, original C/library/raw-module hashes and resulting native hashes are retained. Raw modules match the completed282d manifest. These are retained-stage/native-relink products with a corrected host provider, not fresh raw generations. First relocated execution lacked the normal bin/nano_vm prerequisite; after retaining that failure I provided a symlink to the unchanged pinned VM with shadow execution enabled.
+
+Six FLOAT methods pass13.756s using seed and both private stages: unchanged ordinary/independent-shadow inputs regenerated through all three, O0/O2 sanitized C, both signs of zero/minimum and maximum subnormal/minimum normal/maximum finite/adjacent-one bit controls, dynamic NaN copy/predicates, malformed/signature/field/uninitialized guards and actual nonfinite binary atomic refusal. First harness imported unrelated TestCase classes and used an invalid suffix; those failures are retained and corrected without dropping FLOAT assertions.
+
+Ten unchanged STRING methods pass67.103s. Their first isolated run lacked bin/nvm2hl; I retained that failure and installed the unchanged launcher using its normal copy recipe. Four ordinary/shadow STRING C/Nano outputs are byte-identical to the pre-FLOAT aggregate. Existing NanoISA tests pass3018/3018; the focused assembler gate passes nine values, six FLOAT refusals and two integer-overflow refusals. Clang/GCC16 strict source checks pass.
+
+The Make targets include the assembler control in test-nanoisa and FLOAT tests beside STRING in test-owned-reconstruction, with the existing all-stage selector. Exact fresh bootstrap and hosted Linux/Darwin qualification remain required after integration. Full #999 and consuming break/continue/FLOAT composition remain open.

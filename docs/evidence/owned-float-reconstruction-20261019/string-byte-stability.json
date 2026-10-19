@@ -1,0 +1,22 @@
+[
+  {
+    "module": "nano_virt.dump",
+    "language": "nano",
+    "sha256": "87c10171b099bb1dcca4ba61e44ecdaf3f1855811b406407a67ec73e0ae3f7e6"
+  },
+  {
+    "module": "nano_virt.dump",
+    "language": "c",
+    "sha256": "51fc43ea107fc75bb0a402b6795a8baac460fabbff07963362d50365eace2f34"
+  },
+  {
+    "module": "original-shadows",
+    "language": "nano",
+    "sha256": "479359e13812dc1ab4c01d8b846527617610ca392adac08fa51c2b2b131c8fdd"
+  },
+  {
+    "module": "original-shadows",
+    "language": "c",
+    "sha256": "001a7fa39e8c092596dfa48ffe16cf03253a3978e2bf252c53f7a2192ee6650c"
+  }
+]
