@@ -1,0 +1,25 @@
+test_anonymous_capture (tests.test_function_purity_metadata.FunctionPurityMetadata.test_anonymous_capture) ... ok
+test_declared_and_undeclared_purity (tests.test_function_purity_metadata.FunctionPurityMetadata.test_declared_and_undeclared_purity) ... ok
+test_generic_pure_refusal_preserves_prior_artifact (tests.test_function_purity_metadata.FunctionPurityMetadata.test_generic_pure_refusal_preserves_prior_artifact) ... ok
+test_generic_specialization (tests.test_function_purity_metadata.FunctionPurityMetadata.test_generic_specialization) ... ok
+test_imported_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_imported_declarations) ... ok
+test_imported_same_name_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_imported_same_name_declarations) ... ok
+test_nested_and_captured_functions (tests.test_function_purity_metadata.FunctionPurityMetadata.test_nested_and_captured_functions) ... ok
+test_transitive_imported_same_name_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_transitive_imported_same_name_declarations) ... ok
+test_body_budget_does_not_become_closed_empty (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_body_budget_does_not_become_closed_empty) ... ok
+test_callback_is_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_callback_is_unknown) ... ok
+test_closed_calls_io_mutation_and_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_closed_calls_io_mutation_and_unknown) ... ok
+test_module_budget_is_explicit_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_module_budget_is_explicit_unknown) ... ok
+test_checked_sites_and_advisory_transport (tests.test_match_coverage_metadata.MatchCoverageMetadata.test_checked_sites_and_advisory_transport) ... ok
+test_generic_templates_remain_unknown (tests.test_match_coverage_metadata.MatchCoverageMetadata.test_generic_templates_remain_unknown) ... ok
+test_refusal_preserves_output (tests.test_match_coverage_metadata.MatchCoverageMetadata.test_refusal_preserves_output) ... ok
+test_called_resource_routes (tests.test_function_affine_metadata.FunctionAffineMetadata.test_called_resource_routes) ... ok
+test_checked_generic_instances_stay_unknown (tests.test_function_affine_metadata.FunctionAffineMetadata.test_checked_generic_instances_stay_unknown) ... ok
+test_no_resource_pass_is_unknown (tests.test_function_affine_metadata.FunctionAffineMetadata.test_no_resource_pass_is_unknown) ... ok
+test_raw_parser_checker_and_external_reset (tests.test_function_affine_metadata.FunctionAffineMetadata.test_raw_parser_checker_and_external_reset) ... ok
+test_resource_refusals_preserve_output (tests.test_function_affine_metadata.FunctionAffineMetadata.test_resource_refusals_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 94.492s
+
+OK
