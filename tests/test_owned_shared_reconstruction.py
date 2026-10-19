@@ -129,3 +129,26 @@ shadow main { assert true }
             output=self.work/('exclusive.'+language);output.write_text('prior checked source')
             self.assertNotEqual(self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output],None).returncode,0)
             self.assertEqual(output.read_text(),'prior checked source')
+
+    def test_extra_generated_nano_helper_refuses_without_narrowing_c(self):
+        original=self.module()
+        assembly=self.command([ROOT/'bin/nanoisa','dump',original]).stdout
+        before='  PUSH_I64 12\n  STORE_LOCAL 0'
+        self.assertEqual(assembly.count(before),1)
+        assembly=assembly.replace(before,'  PUSH_I64 12\n  PUSH_I64 0\n  ADD\n  STORE_LOCAL 0')
+        source=self.work/'extra-helper.nasm';source.write_text(assembly)
+        module=source.with_suffix('.nvm')
+        self.command([ROOT/'bin/nanoisa','asm',source,'-o',module])
+        self.command([ROOT/'bin/nano_vm','--verify-only',module])
+        self.command([ROOT/'bin/nano_vm',module])
+        facts=self.facts(module)
+        c=module.with_suffix('.c');c.write_text(reconstruct_owned(facts,'c'))
+        self.native(c,0)
+        self.assertIn('const NlrOwned',c.read_text())
+        with self.assertRaisesRegex(Refusal,'two-function borrowed Nano profile'):
+            reconstruct_owned(facts,'nano')
+        output=self.work/'extra-helper.nano';output.write_text('prior checked source')
+        result=self.command([ROOT/'bin/nvm2hl','--language','nano',module,'-o',output],None)
+        self.assertNotEqual(result.returncode,0)
+        self.assertIn('two-function borrowed Nano profile',result.stderr)
+        self.assertEqual(output.read_text(),'prior checked source')
