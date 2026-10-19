@@ -1,0 +1,9 @@
+# Integrated borrowed helper local-owner qualification
+
+Integrated candidate `4bee9c151` passes all 18 helper witness/reconstruction methods in 92.550 seconds after rebuilding its facts extractor. Tests use the current seed and both freshly installed compiler stages from `3446ec677` bootstrap `run-mjg4sby8`; this reconstruction-only merge does not claim another raw generation. Only the intentionally rebuilt facts extractor differs from the previous FLOAT provider snapshot. The 14-provider snapshot was captured during the first test and is unchanged at the terminal.
+
+Actual unchanged source reconstruction uses 49 entry and 120 helper locals; generated consistency shadows use 34/120. All 19 helper assertions remain. The unchanged 128-local limit accepts the measured boundary and rejects 129 atomically. Ordinary, alternate branch/zero-trip, independent original-shadow input, generated consistency shadows, native execution and later-call assertion termination are exercised through the actual producers. Original-shadow provenance remains the retained C-hosted driver, not an invented recovery of source shadows.
+
+The component receipt retains the initial 179-local estimate and atomic refusal, the stale loop-fact proof defect and reproductions, existing-planner-only correction, four prior byte goldens and strict compiler checks. This aggregate gate changes no verifier, profile cap or original fixture. The separate single-exclusive helper-local-owner composition and exact hosted platform gates remain open under #999.
+
+Command: `NANOLANG_OWNED_RECONSTRUCTION_COMPILERS="$PWD/bin/nanoc_stage1 $PWD/bin/nanoc_stage2" NANOLANG_OWNED_HELPER_SHADOW_EMITTER=/private/tmp/owned-helper-locals-baseline-20261019/shadow_driver NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang python3 -m unittest -v tests.test_owned_helper_local_witness tests.test_owned_helper_local_reconstruction`.
