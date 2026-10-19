@@ -314,6 +314,12 @@ bool nvm_metadata_source_key(const NvmModule *mod, uint32_t key);
 bool nvm_add_function_purity(NvmModule *mod, uint32_t function, bool declared);
 int nvm_function_purity(const NvmModule *mod, uint32_t function);
 
+/* I retain a conservative frontend effect mask, never execution authority.
+ * Bits are I/O=1, read=2, write=4, unknown=8, unsafe=16, resource=32.
+ * Zero is analyzed closed-empty; -1 means absent, malformed or ambiguous. */
+bool nvm_add_function_effects(NvmModule *mod, uint32_t function, unsigned effects);
+int nvm_function_effects(const NvmModule *mod, uint32_t function);
+
 /* I borrow counted, non-NUL-terminated frontend descriptions. These strings
  * are advisory and never grant type, layout or ownership authority. */
 typedef struct {

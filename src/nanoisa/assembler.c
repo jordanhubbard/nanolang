@@ -930,6 +930,16 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return true;
         }
 
+        if (strcmp(directive, "function_effects") == 0) {
+            uint16_t effects;
+            if (!state->in_function || !parse_uint16(&p, &effects) ||
+                effects > 63 || !require_line_end(p, result))
+                return par_error(result, "I require function_effects a mask from 0 through 63 inside a function.");
+            if (!nvm_add_function_effects(state->mod, state->current_function, effects))
+                return par_error(result, "I cannot retain an ambiguous function effect summary.");
+            return true;
+        }
+
         if (strcmp(directive,"local_begin")==0 || strcmp(directive,"local_end")==0 || strcmp(directive,"upvalue_name")==0) {
             bool upvalue=strcmp(directive,"upvalue_name")==0;
             uint16_t slot;

@@ -4576,6 +4576,13 @@ static void compile_function_at(CG *cg, ASTNode *fn_node, int32_t fn_idx) {
         return;
     }
 
+    if (!nvm_add_function_effects(cg->module, (uint32_t)fn_idx,
+            typecheck_advisory_effects(cg->env, fn_node->as.function.body))) {
+        cg_error(cg, fn_node->line, "I cannot retain the function effect summary");
+        cg->env->current_module = saved_module;
+        return;
+    }
+
     cg->names_enabled = true;
     /* Reset per-function state */
     cg->code_size = 0;
