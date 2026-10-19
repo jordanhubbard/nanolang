@@ -148,21 +148,31 @@ class EightSharedReconstruction(unittest.TestCase):
         text=original_source()
         prefix,main=text.split('fn main()',1)
         main=main.replace('owner0: Counter = Counter { value: 1, active: true }','owner0: Counter = Counter { value: 1, active: false }')
+        self.assertEqual(main.count('assert (== value 1) assert active'),1)
+        main=main.replace('assert (== value 1) assert active','assert (== value 1) assert (not active)')
         text=prefix+'fn main()'+main
+        def assertion_failure(result):
+            self.assertNotEqual(result.returncode,0)
+            self.assertIn('Assertion failed',result.stderr)
+            self.assertNotIn('Sanitizer',result.stderr)
+            self.assertNotIn('runtime error:',result.stderr)
         for compiler in self.compilers:
             source=self.work/('eight-false-'+compiler.name+'.nano');source.write_text(text)
             module=source.with_suffix('.nvm');self.command([compiler,source,'--emit-nvm','-o',module])
             self.command([ROOT/'bin/nano_vm','--verify-only',module])
-            self.assertNotEqual(self.command([ROOT/'bin/nano_vm',module],None).returncode,0)
+            assertion_failure(self.command([ROOT/'bin/nano_vm',module],None))
+            control=self.module(compiler,text.replace('assert p7.active','assert true'),
+                                'eight-no-helper-assert-'+compiler.name)
+            self.command([ROOT/'bin/nano_vm',control])
             for language in ('c','nano'):
                 output=module.with_suffix('.out.'+language)
                 self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
                 if language=='nano':
                     rebuilt=output.with_suffix('.nvm');self.command([compiler,output,'--emit-nvm','-o',rebuilt])
                     self.command([ROOT/'bin/nano_vm','--verify-only',rebuilt])
-                    self.assertNotEqual(self.command([ROOT/'bin/nano_vm',rebuilt],None).returncode,0)
+                    assertion_failure(self.command([ROOT/'bin/nano_vm',rebuilt],None))
                 else:
                     for optimization in ('-O0','-O2'):
                         exe=output.with_name(output.name+optimization)
-                        self.command(['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',optimization,output,'-o',exe])
-                        self.assertNotEqual(self.command([exe],None).returncode,0)
+                        self.command(['cc','-std=c11','-DNDEBUG','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',optimization,output,'-o',exe])
+                        assertion_failure(self.command([exe],None))
