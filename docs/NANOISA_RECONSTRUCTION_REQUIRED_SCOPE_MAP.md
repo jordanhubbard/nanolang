@@ -41,3 +41,7 @@ The table records known accepted-source families and honest unknowns. It is not 
 - Exact release-candidate Linux/Darwin generation, canonical VM/C equivalence and hosted gates remain pending independently of local component tests. Optional LLVM/Wasm and deferred GPU work remain outside the5.1 required gate as explicitly demoted in the scope document.
 
 I recommend reviewing the finite family map first, then the single-shared-path/helper-diamond contract. I make no implementation or closeout claim in this design-only checkpoint.
+
+## I retain the later aggregate checkpoints
+
+The table above is my historical 9b8667ae9 inventory. Subsequent combined 282d7a9f1 qualification completes the bounded shared-control and call-pretest rows locally; the exclusive-control aggregate passes sixteen methods, and consumed-owner reassignment now passes fifteen aggregate methods through NanoVirt and both fresh stages. I retain `evidence/checked-field-write-bootstrap-20261019/`, `evidence/owned-exclusive-control-aggregate-20261019/` and `evidence/owned-reassignment-aggregate-20261019/`. This supersedes those specific implementation gaps, while keeping exact platform qualification separate. The break/continue/range part of the combined row, STRING/printing, FLOAT local control and other unresolved producer-family mappings still require their own explicit dispositions. I do not treat those remaining rows as completed by reassignment.
