@@ -1,0 +1,9 @@
+# I qualify exact three-reference reconstruction with fresh stages
+
+At integration `90a15961c` I rebuild the facts provider and pass all 28 methods in 268.282 seconds through current NanoVirt and both fresh `74a565150` compiler generations. I retain 2259 actual command receipts, 1028 artifact hashes and exact compiler/runtime/facts/source pins. Source compiler binaries remain unchanged; I perform no new bootstrap for this reconstruction-only integration.
+
+I preserve original verifier admission, exactly two functions, modes [exclusive, shared, exclusive], three distinct scalar-leaf roots and all existing budgets. Actual first-call literal snapshots supply the immutable shared BOOL assertion witness. Later false calls retain ordered runtime assertion failure; generated shadows exercise two independent copies and consume all six owners. This is consistency testing rather than proof of every helper input. Actual original VM versus reconstructed C and regenerated Nano VM/native execution supplies semantic evidence.
+
+The twelve new methods cover source roundtrips, distinct nominal layouts and wrapping endpoints, caller branches and zero/nonzero loops, false/computed/transformed witnesses, actual helper121/130 and shadow128/134 storage boundaries, malformed reference/nominal inputs and unchanged single-helper output bytes. Sixteen older shared/exclusive/extracted methods remain green. Native C executes at O0/O2 under ASan/UBSan, with NDEBUG assertion-failure controls. I attach the new module to the regular owned reconstruction target.
+
+This is fresh-stage Darwin aggregate evidence. Hosted Linux/Darwin qualification, nested projected paths, broader aliases/assertion witnesses and full #999 acceptance remain open. Component receipts preserve the earlier corrected diagnostic-string failure; this aggregate run has no failures.
