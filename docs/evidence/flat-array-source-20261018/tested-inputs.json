@@ -1,0 +1,42 @@
+{
+  "schema": "nanolang/flat-array-source-evidence@1",
+  "base": "78e3a3e704d7d9e768255028be333f595ef690d6",
+  "platform": "Darwin arm64",
+  "source_sha256": {
+    "Makefile.gnu": "11ceff6f473a128403b62e07308132829cd511e2c74ed32ed5a42ff4a05cc6cc",
+    "modules/nanoisa/module.json": "cd1ae32318dcb5006ea46aa1053480fa67eb1ef763896b02d7b26b13ce0887f7",
+    "modules/nanoisa/nanoisa.c": "8235ef470d7cd1b05187a06fff1065d1e0f355181a883e85ec7d73e6d8d89cdb",
+    "modules/nanoisa/nanoisa.h": "c1f35e049a5c874ced9f9c8fff59553f943d1ef4bae347b566d6e14b6237b9f8",
+    "modules/nanoisa/nanoisa.nano": "859200a88fd2d54f313e28a42c5b115008bb15766d13179515833ea172d93cfa",
+    "src/nanoisa/nvm2c.c": "ac0065809820195a82a83ca8712a41c4658efdefdd9e8efda26bfc8fffafc8db",
+    "src/nanovirt/codegen.c": "a198d1251c35449f6a71746b2200f26f42519e482cb1906b40a6c76273f17e98",
+    "src/nanovirt/ordinary_authority.inc": "76e144a80965192762288e0fa685a91118104dd73194c73d098947f728a08183",
+    "src_nano/compiler/nanoisa_codegen.nano": "20595dd2f141b53b9d7e6dd398f33526820bf71c0ddc35cb517f8995439c6030",
+    "tests/test_ordinary_declaration_provenance.py": "406938276a8e30110217c26a6df1dac4ab5fb76d7eb4f0264734bbd52425d4ec",
+    "tests/test_flat_array_source_publication.py": "30446d65f88da20c58013051040ae8ec1d5c6d90247933c9096096886fc77392"
+  },
+  "executables_sha256": {
+    "bin/nano_virt": "21cfe143f9118c45ca1fc6540d19e3dc1c5ab408f33932d3e346cb9ca515fcea",
+    "bin/nano_vm": "29c1382bb16d7d492ec10df5bb9a5ceae854f375a3bc93a85f935f64374ef6ce",
+    "bin/nanoisa": "715e144ee19f622808f99d0b88858a81dbb4c9e80d405ccf6ea2f126618f9234",
+    "bin/nvm2c": "3847a10dcee31f7b97f8c3f31540ca240d976226c725b52c071fccaa78548d3f",
+    "bin/nanoc_c": "ec818a47f521ba2c91fa4261333de6b6c18181022f65fd26a41335da5f75de3c",
+    "/private/tmp/nanolang-flat-array-emitter-final": "c89da735b50d05106553c5d45c8f6e89213e5cc17d8bf458ef28e6bedf30da37",
+    "/private/tmp/nanolang-flat-array-canonical-final": "3451619c1419fa4f253110c58db18ab74d45143c6e5d977a4c30f99221837e6c"
+  },
+  "raw_log_sha256": {
+    "focused-final.log": "f9a22e94115589d3bda9276d682691a6edb9a9bcdbf3a528f2298f160564fa9b",
+    "codegen.log": "c99e3a969002b9f63a049a531f4308abf22a907708debe41cc6b2a5a39ea39da",
+    "emitter-build.log": "12a6bef97f367b21a9c2b3a4869f2b746defd686c72b0841189da9a95abd92e6",
+    "canonical-build.log": "85729e8dbbd0dc78e055fbbeb3a29e07ced2b72af248c51124ce358d1490308d",
+    "initial-header-refusal.log": "7101af7384a4cb2e524ad914b2b2cb5fe26ac19cea0f784c57aacf6ba874d12f",
+    "initial-forward-refusal.log": "d6369f454b08bfd63a982280d42951d55fe585d05bf4b6186a5fccfdace92bb4",
+    "initial-status-expectation.log": "cc8c48f80b3d8d93b79254b6e5664f9e34b2aa919ef7f50033d105bc7e18b462"
+  },
+  "focused_methods": 14,
+  "focused_seconds": 9.668,
+  "codegen_checks": 90,
+  "fresh_selfhost_generations": false,
+  "linux_tested": false,
+  "source_wrapper_allocation_prefixes": false
+}

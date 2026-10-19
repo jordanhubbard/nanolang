@@ -15424,3 +15424,16 @@ I retain [the public VM allocation-prefix receipt](evidence/public-record-array-
 - [x] #1001: I preserve the precise zero-initialized native record-local sentinel during collection. Review identified statically typed locals registered before their first store; an admitted fixture calling a helper before packing the record, with the collection budget forced low, reproduced an invariant abort. I skip only a fully empty wrapper, retain malformed wrapper refusal, and require the unchanged public/lifetime corpus after correction.
 
 I retain [my native identity prerequisite evidence](evidence/native-record-identity-20261018/README.md). Public AGG_SET admission and final platform qualification remain open.
+
+### #1001 paired flat-array source publication
+
+- [x] I record a bounded paired C/selfhost contract from `78e3a3e70`, confirm actual AGG lowering, and preserve optional-publication omission for unsupported bodies and limits before changing admission.
+- [x] I publish exact flat INT/U8/FLOAT/BOOL/STRING array field bindings from retained checked declarations, retaining existing nominal/import provenance and old non-array v1 bytes. I exclude generics, nested/record arrays, resources, foreign and passive contracts.
+- [x] I qualify read-only source fixtures through both producers, selected verification, roundtrip, VM and native execution, with unsupported/large-module and forged-metadata controls. AGG_SET and fresh full bootstrap/platform qualification remain separate.
+
+- [x] Under #1001 I declare the Nanoisa module header include directory for transitive compiler-module users; the new host query import exposed a generated-code `nanoisa.h` lookup failure before source qualification.
+
+- [x] Under #1001 I stage new array-field layout bytes through encoding and the selected public proof, avoiding the legacy retained-layout decoder that refuses mixed forward record-array DAGs. The first paired forward source test exposed this pre-publication refusal; I preserve the non-array retention path.
+
+- [x] Under #1001 I retain [my bounded source publisher receipt](evidence/flat-array-source-20261018/README.md):14 focused methods and90 adjacent codegen checks pass on Darwin, including C-hosted Nano production, metadata/VM/native checks and unsupported-profile omission.
+- [ ] Under #1001 I qualify source-publication wrapper allocation-failure prefixes and fresh combined compiler generations/Linux/Darwin before claiming full required source/runtime coverage. Generic authority and source AGG_SET remain separate.

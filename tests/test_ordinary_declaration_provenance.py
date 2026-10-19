@@ -124,10 +124,10 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''', modules, fields=expected)
 
-    def test_array_schema_retains_existing_unknown_boundary(self):
-        self.check('''struct Entries { values: array<int> }
-fn main() -> int { let entries: Entries = Entries { values: [7, 11] }
- assert (== (at entries.values 1) 11) return 0 }
+    def test_nested_array_schema_retains_existing_unknown_boundary(self):
+        self.check('''struct Entries { values: array<array<int>> }
+fn main() -> int { let entries: Entries = Entries { values: [[7, 11]] }
+ assert (== (at (at entries.values 0) 1) 11) return 0 }
 shadow main { assert (== (main) 0) }
 ''')
 

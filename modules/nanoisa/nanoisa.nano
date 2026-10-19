@@ -113,3 +113,12 @@ shadow last_error {
         assert (== (delete directory) 0)
     }
 }
+
+# I query optional facts without publishing files or retaining an admission token.
+extern fn nl_nanoisa_array_publication(source: string) -> int
+pub fn array_publication(source: string) -> int {
+    unsafe { return (nl_nanoisa_array_publication source) }
+}
+shadow array_publication {
+    assert (== (array_publication "not assembly") (- 0 1))
+}

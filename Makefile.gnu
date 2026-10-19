@@ -6892,3 +6892,8 @@ test-record-array-public: test-record-array-public-build
 	RECORD_ARRAY_PUBLIC_CC="$(CC)" RECORD_ARRAY_PUBLIC_CFLAGS="$(CFLAGS)" RECORD_ARRAY_PUBLIC_OBJECTS="$(filter-out %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(filter %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)))" RECORD_ARRAY_PUBLIC_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_record_array_public
 
 test-units: test-record-array-public
+
+.PHONY: test-flat-array-source-publication
+test-flat-array-source-publication: $(BIN_DIR)/nanoc_c nano_virt nano_vm nanoisa_dump nvm2c
+	CC="$(CC)" python3 -m unittest -v tests.test_flat_array_source_publication
+test-units: test-flat-array-source-publication

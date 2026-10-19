@@ -310,6 +310,7 @@ static uint8_t ordinary_slot_tag(Type type) {
     case TYPE_INT:return TAG_INT; case TYPE_U8:return TAG_U8;
     case TYPE_FLOAT:return TAG_FLOAT; case TYPE_BOOL:return TAG_BOOL;
     case TYPE_STRING:return TAG_STRING; case TYPE_STRUCT:return TAG_STRUCT;
+    case TYPE_ARRAY:return TAG_ARRAY;
     default:return TAG_COUNT;
     }
 }
