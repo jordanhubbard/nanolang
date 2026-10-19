@@ -1,0 +1,12 @@
+{
+  "bin/nano_virt": "04269be440ea6826fe401d1f9265c2cb012709a8bbed00cf3118a26556402731",
+  "bin/nanoc_u8_context": "d7c3c1369042dfa16c8a54decdb7a96b5a43166ba2cee604f495f2302eb8977e",
+  "bin/nano_vm": "843a6bdc2d1defcb5ba8c5af424c31f4dc64a2877293bdebd7aadb2a957726b6",
+  "bin/nanoisa_hl_facts": "69b28053dbb753e96152cf7582418a6c50f2f29446fb17e5236404ab0a0396a1",
+  "bin/nvm2hl": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c",
+  "bin/nvm2c": "fcf99a346801130aebd03b68b8c238c21c586100fd4e6c4e0b487e51c74bfdf4",
+  "bin/nano_aot_runtime.o": "fd6fd0145d1de21cfeba2e8f7a0214029825becffda1ce5ff01ead2fbee046c9",
+  "scripts/nanoisa_owned_reconstruction.py": "f08e9ac444ce4d850ac1d1a84c3732699670fa6a6802a619380a2fe5f965624f",
+  "src/nanoisa/hl_owned_facts.inc": "38ddbc1d0d887110b05cb222b6e8e7ba7d502c2bfa561191cc12f9348b69d516",
+  "tests/nanoisa/fixtures/source_owned_value_graph.nano": "7a70752235ac69fb53a29dbbe32fdab1ffa188b6335680c93c45eba780d905f1"
+}

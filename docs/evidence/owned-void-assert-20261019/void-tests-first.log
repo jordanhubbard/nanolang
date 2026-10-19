@@ -1,0 +1,27 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-koqqwvuv
+.FF.
+======================================================================
+FAIL: test_crc_valid_counts_layouts_and_void_parameters_refuse_atomically (tests.test_owned_void_reconstruction.OwnedVoidReconstruction.test_crc_valid_counts_layouts_and_void_parameters_refuse_atomically)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_void_reconstruction.py", line 125, in test_crc_valid_counts_layouts_and_void_parameters_refuse_atomically
+    self.assertNotEqual(verification.returncode,0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_false_assertion_traps_before_later_division_and_cleanup (tests.test_owned_void_reconstruction.OwnedVoidReconstruction.test_false_assertion_traps_before_later_division_and_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_void_reconstruction.py", line 99, in test_false_assertion_traps_before_later_division_and_cleanup
+    self.native_failure(native,'native invariant')
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_void_reconstruction.py", line 75, in native_failure
+    self.assertIn(diagnostic,result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'native invariant' not found in ''
+
+----------------------------------------------------------------------
+Ran 4 tests in 15.761s
+
+FAILED (failures=2)

@@ -2,6 +2,8 @@
 from nanoisa_reconstruction import Analyze, Emit, Expr, Function, INT, BOOL, SIMPLE, require
 
 
+VOID = 0
+
 # I inline only nontrapping scalar pretests without duplicated/discarded operands.
 OWNED_PRETEST = {
     "NOP", "PUSH_I64", "PUSH_BOOL", "LOAD_LOCAL",
@@ -42,7 +44,9 @@ class OwnedAnalyze(Analyze):
                     'require exact scalar or nominal resource declarations')
             return owned_type(layout) if tag == 8 else tag
         self.params = [declared(t) for t in self.fn['params']]
-        self.result = declared(self.fn['result_type'])
+        self.result = VOID if self.fn['result_type'] == [VOID, 4294967295] else declared(self.fn['result_type'])
+        require(self.fn.get('result_count') == (0 if self.result == VOID else 1),
+                'require the exact owned helper result count')
         require(self.fn['result'] == self.fn['result_type'][0], 'require matching result declarations')
         require(len(self.params) <= 8 and len(self.params) <= len(self.declarations) and
                 all(declared(self.declarations[i]) == t for i, t in enumerate(self.params)),
@@ -215,16 +219,26 @@ class OwnedAnalyze(Analyze):
                 values = tuple(reversed([self.pop(stack, t) for t in reversed(params)]))
                 tag, layout = callee['result_type']
                 result_type = owned_type(layout) if tag == 8 else tag
-                target = Expr(result_type, 'temporary', pc)
-                body.append(('let', target, Expr(result_type, 'call', arg, values)))
-                stack.append(target)
+                call = Expr(result_type, 'call', arg, values)
+                if result_type == VOID:
+                    body.append(('call_void', call))
+                else:
+                    target = Expr(result_type, 'temporary', pc)
+                    body.append(('let', target, call))
+                    stack.append(target)
                 self.calls.add(arg)
+            elif op == 'ASSERT':
+                body.append(('assert', self.pop(stack, BOOL)))
             elif op == 'RET':
                 require(i == end - 1 and not self.live,
                         'require all owners consumed before terminal return')
-                result = self.pop(stack, self.result)
-                require(not stack, 'require an empty operand stack after exact return')
-                body.append(('return', result))
+                if self.result == VOID:
+                    require(not stack, 'require an empty operand stack at VOID return')
+                    body.append(('return_void',))
+                else:
+                    result = self.pop(stack, self.result)
+                    require(not stack, 'require an empty operand stack after exact return')
+                    body.append(('return', result))
                 return body, initialized, self.live, self.used, True
             else:
                 require(op in SIMPLE and op not in ('CALL', 'PUSH_U8', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG'),
@@ -261,6 +275,8 @@ class OwnedEmit(Emit):
         return 'main' if self.language == 'nano' and index == 0 else super().name(index)
 
     def type(self, tag):
+        if tag == VOID:
+            return 'void'
         if isinstance(tag, tuple) and tag[0] == 'owner':
             return f'NlrOwned{tag[1]}'
         return super().type(tag)
@@ -269,7 +285,15 @@ class OwnedEmit(Emit):
         c = self.language == 'c'
         for stmt in statements:
             kind = stmt[0]
-            if kind == 'own_parameter':
+            if kind == 'call_void':
+                self.line(self.expression(stmt[1]) + (';' if c else ''), indent)
+            elif kind == 'return_void':
+                self.line('return;' if c else 'return', indent)
+            elif kind == 'assert':
+                expression = self.expression(stmt[1])
+                self.line(f'if (!({expression})) {{ fputs("Assertion failed\\n", stderr); abort(); }}' if c else
+                          f'assert {expression}', indent)
+            elif kind == 'own_parameter':
                 _, slot, layout = stmt
                 name, typ = self.local(slot), self.type(owned_type(layout))
                 self.line(f'{typ} {name} = nlr_a{slot};' if c else
@@ -311,7 +335,7 @@ class OwnedEmit(Emit):
 
     def run(self, entry):
         c = self.language == 'c'
-        declarations = ['#include <stdint.h>\n#include <stdbool.h>'] if c else []
+        declarations = ['#include <stdint.h>\n#include <stdbool.h>\n#include <stdio.h>\n#include <stdlib.h>'] if c else []
         for i, layout in enumerate(self.layouts):
             fields = (' '.join(f'{self.type(t)} f{j};' for j, t in enumerate(layout['fields'])) if c else
                       ', '.join(f'f{j}: {self.type(t)}' for j, t in enumerate(layout['fields'])))
