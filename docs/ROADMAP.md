@@ -16148,3 +16148,30 @@ Candidate `4bee9c151` passes all 18 focused methods in 92.550s through the curre
 - [x] Under #976 I correct my packaged interpreter's explicit common-object list to include `checked_borrow_facts.o`. Hosted Linux job118149401316 and the unchanged current Darwin wrapper test reproduce undefined ledger symbols from `env.o` and `resource_flow.o`. I retain both failures, rebuild the affected seed wrapper, and require the existing packaged-interpreter tests before claiming local correction. Exact hosted qualification remains pending.
 
 I retain the [wrapper linkage receipt](evidence/wrapper-ledger-link-20261019/README.md): all12 existing packaged/publication methods pass6.403s after the one-provider correction. Exact hosted qualification remains pending.
+
+## I map single-exclusive helper-local composition (#999, 2026-10-19)
+
+I own design-only branch `design/5.1-single-exclusive-helper-local` from
+`a1cef240f`, limited to this roadmap entry and
+`NANOISA_SINGLE_EXCLUSIVE_HELPER_LOCAL_DESIGN.md`. I preserve the pending
+two-formal helper component and make no production or admission changes.
+
+- [x] I map the exact existing `former_refusal` producer fixture and required ownership/reconstruction rows.
+- [x] I record the distinct single-formal IR, lifetime and witness obligations.
+- [ ] After the current helper component integrates and a worker slot is released, I retain actual unchanged ordinary/shadow baseline dumps, verifier/VM results and reconstruction refusal.
+- [ ] I review actual descriptor use and generated cost before implementation authorization.
+
+I have not executed a baseline for this extension. Source syntax does not prove
+that destructuring emits no local observations.
+
+I retain the [single-exclusive helper baseline](evidence/single-exclusive-helper-baseline-20261019/README.md): three ordinary producers plus one independent C-hosted original-shadow input verify/VM execute at52/7locals. Facts succeeds; both reconstructions atomically refuse bounded exclusive helper control. Actual destructuring emits two descriptor1 local observations before inherited descriptor0 mutation and final local consumption. All nine selected provider/source pins remain unchanged. No admission or generated-local feasibility claim is made.
+
+I begin the reviewed single-exclusive helper-local implementation on `fix/5.1-single-exclusive-helper-local` after the retained baseline. I own the Python analyzer/emitter, optional origin-proof routing and focused tests/docs only. The distinct v2[2]/depth2/local-owner discriminator requires a straight-line assertion-free helper; caller/helper origins and work precede the existing zero-tree witness. Complete exact-int descriptor1 observations preserve inherited0. I make no facts/runtime/verifier edit and no planner change before measured need.
+
+I retain the first single-exclusive helper-local output gate: immutable origins and work288/4096 pass and C publishes, but Nano atomically refuses128 with unchanged caller209/helper29 (unfolded228/29), shadow60. The bottleneck is caller storage, not helper storage; no helper planner or generated/native run follows. I preserve every original assertion and stop for bounded existing-renderer diagnosis before routing changes.
+
+Read-only existing finite caller planning estimates209→127 without new patterns, scratch storage or assertion loss:156/156 statements and15 assertions retained, both branches/loops and projected/direct calls unchanged. I apply the reviewed new-profile Nano caller0-only route after immutable proofs; helper29 remains unplanned. Actual regenerated counts are still required.
+
+Independent review identified a profile overlap: caller own_assign could enter the older all-function planner after new caller-only planning, replan helper1 and enroll scratch storage. I explicitly refuse this unqualified composition before rendering, preserving old profiles and the new caller-only contract; a focused regression will retain this boundary.
+
+I qualify the exact single-exclusive helper-local slice with the [receipt](evidence/single-exclusive-helper-reconstruction-20261019/README.md): six scoped methods36.262s plus original-verifier/control and old-[2] golden2methods0.098s, through seed/both fresh3446 stages and O0/O2 native paths. Actual ordinary/original-shadow127/29, generated consistency shadow60/29 and128/129 boundary pass. Four old-[2,1] outputs remain byte-identical. The initial209 refusal, named-replacement test correction and reassignment-composition exclusion remain explicit. No C/provider/runtime change; full #999/platform gates remain open.

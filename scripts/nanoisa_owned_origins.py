@@ -2,7 +2,7 @@
 from nanoisa_reconstruction import Expr, require
 
 
-def prove_owner_reassignment(function, helper_locals=False):
+def prove_owner_reassignment(function, helper_locals=False, single_helper_locals=False):
     """I validate the new entry-only reassignment IR without changing it."""
     reassigned = set()
     serial = [0]
@@ -107,7 +107,8 @@ def prove_owner_reassignment(function, helper_locals=False):
                         'require complete successful owner-origin consumption')
                 terminal = True
             else:
-                require(kind in ('let', 'store', 'assert') or helper_locals and kind in ('multi_borrow_read', 'multi_borrow_write'), 'require bounded entry owner-origin operations')
+                require(kind in ('let', 'store', 'assert') or helper_locals and kind in ('multi_borrow_read', 'multi_borrow_write') or
+                        single_helper_locals and kind in ('borrow_read', 'borrow_write'), 'require bounded entry owner-origin operations')
                 def scalar(value):
                     if isinstance(value, Expr):
                         return not owned(value) and all(scalar(arg) for arg in value.args)

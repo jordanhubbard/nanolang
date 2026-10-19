@@ -1,0 +1,106 @@
+{
+  "nano_virt": {
+    "functions": [
+      ".function main 0 52 0 int 1",
+      ".function bump 1 7 0 int 1"
+    ],
+    "ownership": [
+      ".ownership \"020000000200000003030000020000003400000001000000ffffffff01000000\"",
+      ".ownership \"ffffffff01000000ffffffff04000000ffffffff080000000000000001000000\"",
+      ".ownership \"ffffffff04000000ffffffff0800000000000000080000000000000008000000\"",
+      ".ownership \"0000000008000000010000000800000001000000080000000100000008000000\"",
+      ".ownership \"0000000008000000000000000800000000000000080000000000000008000000\"",
+      ".ownership \"0000000001000000ffffffff04000000ffffffff080000000000000001000000\"",
+      ".ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff08000000\"",
+      ".ownership \"00000000080000000000000001000000ffffffff04000000ffffffff01000000\"",
+      ".ownership \"ffffffff01000000ffffffff04000000ffffffff080000000000000008000000\"",
+      ".ownership \"00000000080000000000000001000000ffffffff04000000ffffffff01000000\"",
+      ".ownership \"ffffffff04000000ffffffff0800000000000000080000000000000001000000\"",
+      ".ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff08000000\"",
+      ".ownership \"000000000800000000000000080000000000000001000000ffffffff04000000\"",
+      ".ownership \"ffffffff080000000000000001000000ffffffff04000000ffffffff07000100\"",
+      ".ownership \"01000000ffffffff080200000000000001000000ffffffff04000000ffffffff\"",
+      ".ownership \"0800000000000000080000000000000001000000ffffffff04000000ffffffff\"",
+      ".ownership \"010000000100000000000000\""
+    ],
+    "helper_tail": ".function bump 1 7 0 int 1\n  PUSH_I64 1\n  STORE_LOCAL 1\n  PUSH_BOOL 1\n  STORE_LOCAL 2\n  LOAD_LOCAL 1\n  LOAD_LOCAL 2\n  OWN_PACK 0\n  OWN_STORE_LOCAL 3\n  OWN_MOVE_LOCAL 3\n  OWN_STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 1 4\n  REF_GET 1 0\n  REGION_END\n  STORE_LOCAL 5\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 1 4\n  REF_GET 1 1\n  REGION_END\n  STORE_LOCAL 6\n  REF_GET 0 0\n  PUSH_I64 1\n  ADD\n  REF_SET 0 0\n  REF_GET 0 0\n  OWN_UNPACK_LOCAL 4\n  POP\n  POP\n  RET\n.end\n\n.parameters 1 struct\n\n"
+  },
+  "nanoc_stage1": {
+    "functions": [
+      ".function main 0 52 0 int 1",
+      ".function bump 1 7 0 int 1"
+    ],
+    "ownership": [
+      ".ownership \"020000000200000003030000020000003400000001000000ffffffff01000000\"",
+      ".ownership \"ffffffff01000000ffffffff04000000ffffffff080000000000000001000000\"",
+      ".ownership \"ffffffff04000000ffffffff0800000000000000080000000000000008000000\"",
+      ".ownership \"0000000008000000010000000800000001000000080000000100000008000000\"",
+      ".ownership \"0000000008000000000000000800000000000000080000000000000008000000\"",
+      ".ownership \"0000000001000000ffffffff04000000ffffffff080000000000000001000000\"",
+      ".ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff08000000\"",
+      ".ownership \"00000000080000000000000001000000ffffffff04000000ffffffff01000000\"",
+      ".ownership \"ffffffff01000000ffffffff04000000ffffffff080000000000000008000000\"",
+      ".ownership \"00000000080000000000000001000000ffffffff04000000ffffffff01000000\"",
+      ".ownership \"ffffffff04000000ffffffff0800000000000000080000000000000001000000\"",
+      ".ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff08000000\"",
+      ".ownership \"000000000800000000000000080000000000000001000000ffffffff04000000\"",
+      ".ownership \"ffffffff080000000000000001000000ffffffff04000000ffffffff07000100\"",
+      ".ownership \"01000000ffffffff080200000000000001000000ffffffff04000000ffffffff\"",
+      ".ownership \"0800000000000000080000000000000001000000ffffffff04000000ffffffff\"",
+      ".ownership \"010000000100000000000000\""
+    ],
+    "helper_tail": ".function bump 1 7 0 int 1\n  PUSH_I64 1\n  STORE_LOCAL 1\n  PUSH_BOOL 1\n  STORE_LOCAL 2\n  LOAD_LOCAL 1\n  LOAD_LOCAL 2\n  OWN_PACK 0\n  OWN_STORE_LOCAL 3\n  OWN_MOVE_LOCAL 3\n  OWN_STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 1 4\n  REF_GET 1 0\n  REGION_END\n  STORE_LOCAL 5\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 1 4\n  REF_GET 1 1\n  REGION_END\n  STORE_LOCAL 6\n  REF_GET 0 0\n  PUSH_I64 1\n  ADD\n  REF_SET 0 0\n  REF_GET 0 0\n  OWN_UNPACK_LOCAL 4\n  POP\n  POP\n  RET\n.end\n\n.parameters 1 struct\n\n"
+  },
+  "nanoc_stage2": {
+    "functions": [
+      ".function main 0 52 0 int 1",
+      ".function bump 1 7 0 int 1"
+    ],
+    "ownership": [
+      ".ownership \"020000000200000003030000020000003400000001000000ffffffff01000000\"",
+      ".ownership \"ffffffff01000000ffffffff04000000ffffffff080000000000000001000000\"",
+      ".ownership \"ffffffff04000000ffffffff0800000000000000080000000000000008000000\"",
+      ".ownership \"0000000008000000010000000800000001000000080000000100000008000000\"",
+      ".ownership \"0000000008000000000000000800000000000000080000000000000008000000\"",
+      ".ownership \"0000000001000000ffffffff04000000ffffffff080000000000000001000000\"",
+      ".ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff08000000\"",
+      ".ownership \"00000000080000000000000001000000ffffffff04000000ffffffff01000000\"",
+      ".ownership \"ffffffff01000000ffffffff04000000ffffffff080000000000000008000000\"",
+      ".ownership \"00000000080000000000000001000000ffffffff04000000ffffffff01000000\"",
+      ".ownership \"ffffffff04000000ffffffff0800000000000000080000000000000001000000\"",
+      ".ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff08000000\"",
+      ".ownership \"000000000800000000000000080000000000000001000000ffffffff04000000\"",
+      ".ownership \"ffffffff080000000000000001000000ffffffff04000000ffffffff07000100\"",
+      ".ownership \"01000000ffffffff080200000000000001000000ffffffff04000000ffffffff\"",
+      ".ownership \"0800000000000000080000000000000001000000ffffffff04000000ffffffff\"",
+      ".ownership \"010000000100000000000000\""
+    ],
+    "helper_tail": ".function bump 1 7 0 int 1\n  PUSH_I64 1\n  STORE_LOCAL 1\n  PUSH_BOOL 1\n  STORE_LOCAL 2\n  LOAD_LOCAL 1\n  LOAD_LOCAL 2\n  OWN_PACK 0\n  OWN_STORE_LOCAL 3\n  OWN_MOVE_LOCAL 3\n  OWN_STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 1 4\n  REF_GET 1 0\n  REGION_END\n  STORE_LOCAL 5\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 1 4\n  REF_GET 1 1\n  REGION_END\n  STORE_LOCAL 6\n  REF_GET 0 0\n  PUSH_I64 1\n  ADD\n  REF_SET 0 0\n  REF_GET 0 0\n  OWN_UNPACK_LOCAL 4\n  POP\n  POP\n  RET\n.end\n\n.parameters 1 struct\n\n"
+  },
+  "original-shadows": {
+    "functions": [
+      ".function __nanoisa_shadow_entry 0 52 0 int 1",
+      ".function bump 1 7 0 int 1"
+    ],
+    "ownership": [
+      ".ownership \"020000000200000003030000020000003400000001000000ffffffff01000000\"",
+      ".ownership \"ffffffff01000000ffffffff04000000ffffffff080000000000000001000000\"",
+      ".ownership \"ffffffff04000000ffffffff0800000000000000080000000000000008000000\"",
+      ".ownership \"0000000008000000010000000800000001000000080000000100000008000000\"",
+      ".ownership \"0000000008000000000000000800000000000000080000000000000008000000\"",
+      ".ownership \"0000000001000000ffffffff04000000ffffffff080000000000000001000000\"",
+      ".ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff08000000\"",
+      ".ownership \"00000000080000000000000001000000ffffffff04000000ffffffff01000000\"",
+      ".ownership \"ffffffff01000000ffffffff04000000ffffffff080000000000000008000000\"",
+      ".ownership \"00000000080000000000000001000000ffffffff04000000ffffffff01000000\"",
+      ".ownership \"ffffffff04000000ffffffff0800000000000000080000000000000001000000\"",
+      ".ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff08000000\"",
+      ".ownership \"000000000800000000000000080000000000000001000000ffffffff04000000\"",
+      ".ownership \"ffffffff080000000000000001000000ffffffff04000000ffffffff07000100\"",
+      ".ownership \"01000000ffffffff080200000000000001000000ffffffff04000000ffffffff\"",
+      ".ownership \"0800000000000000080000000000000001000000ffffffff04000000ffffffff\"",
+      ".ownership \"010000000100000000000000\""
+    ],
+    "helper_tail": ".function bump 1 7 0 int 1\n  PUSH_I64 1\n  STORE_LOCAL 1\n  PUSH_BOOL 1\n  STORE_LOCAL 2\n  LOAD_LOCAL 1\n  LOAD_LOCAL 2\n  OWN_PACK 0\n  OWN_STORE_LOCAL 3\n  OWN_MOVE_LOCAL 3\n  OWN_STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 1 4\n  REF_GET 1 0\n  REGION_END\n  STORE_LOCAL 5\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 1 4\n  REF_GET 1 1\n  REGION_END\n  STORE_LOCAL 6\n  REF_GET 0 0\n  PUSH_I64 1\n  ADD\n  REF_SET 0 0\n  REF_GET 0 0\n  OWN_UNPACK_LOCAL 4\n  POP\n  POP\n  RET\n.end\n\n.parameters 1 struct\n\n"
+  }
+}
