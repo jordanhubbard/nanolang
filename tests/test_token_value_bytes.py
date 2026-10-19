@@ -10,6 +10,7 @@ import sys
 import difflib
 import tempfile
 import unittest
+from tests.native_process import native_compile_timeout
 from tests import test_file_source_plan as retained_runner
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -103,7 +104,7 @@ class TokenValueBytes(unittest.TestCase):
                 args=[ROOT/'bin'/compiler,source,'-o',exe,'--keep-c']
                 (self.work/(label+'-'+compiler+'-retention.json')).write_text(json.dumps({'keep_c':True,'TMPDIR':str(temp)},indent=2)+'\n')
                 if compiler=='nanoc_c':args+=['--llm-shadow-json',shadow,'--verbose']
-                out,err=self.command(label+'-'+compiler+'-build',args,timeout=900,extra={'NANO_SHADOW_TRACE':'1','TMPDIR':str(temp)})
+                out,err=self.command(label+'-'+compiler+'-build',args,timeout=native_compile_timeout(default=900),extra={'NANO_SHADOW_TRACE':'1','TMPDIR':str(temp)})
                 if compiler=='nanoc_c':
                     report=json.loads(shadow.read_text())
                     self.assertTrue(report['completed'] and report['success'])

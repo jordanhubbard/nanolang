@@ -14,6 +14,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from tests.native_process import native_compile_timeout
 from tests import test_file_source_plan as retained_runner
 from tests import test_token_value_bytes as retained_schema
 ROOT=Path(__file__).resolve().parents[1]
@@ -105,7 +106,7 @@ class FileServiceParser(unittest.TestCase):
             exe=self.work/('parser-'+name);report=self.work/(name+'-shadows.json');tmp=self.work/(name+'-tmp');tmp.mkdir()
             args=[ROOT/'bin'/name,source,'-o',exe,'--keep-c']
             if name=='nanoc_c':args+=['--llm-shadow-json',report,'--verbose']
-            out,err=self.command(name+'-build',args,timeout=900,extra={'NANO_SHADOW_TRACE':'1','TMPDIR':str(tmp)})
+            out,err=self.command(name+'-build',args,timeout=native_compile_timeout(default=900),extra={'NANO_SHADOW_TRACE':'1','TMPDIR':str(tmp)})
             if name=='nanoc_c':
                 data=json.loads(report.read_text());self.assertTrue(data['completed'] and data['success']);self.assertEqual(data['failures'],[]);self.assertEqual(data['test_count'],len(expected))
                 raw=retained_schema.shadow_trace_names(out+b'\n'+err)

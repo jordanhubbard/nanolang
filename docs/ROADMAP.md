@@ -15560,3 +15560,14 @@ the setup. A trailing-newline bookkeeping failure in the narrow comparison is
 retained and corrected without changing surviving canonical lines. Borrowed-root
 facts remain conservative UNKNOWN in my Nano producer where C retains observations;
 I do not claim parity or close #998. Fresh combined generations/platforms remain open.
+
+### Hosted parser compiler deadline evidence (#976)
+
+- [ ] I preserve the Darwin stage1 parser-build 900-second timeout and distinguish its unknown compilation phase from a proven native-C timeout.
+- [ ] I use the existing explicit CMD_TIMEOUT compiler budget for full parser/token compiler invocations, preserving the 900-second default and every guest/shadow deadline; I retain selected deadline, elapsed time and bounded process-group diagnostics.
+- [ ] I qualify timeout cleanup/diagnostics and the full unchanged parser corpus with fresh aggregate tools, then require the exact hosted candidate to pass.
+
+My first isolated diagnostic-control invocation accidentally imported a TestCase
+class directly, so unittest also discovered the complete unrelated source-plan
+corpus without its compiler providers. I preserve that failed terminal and import
+the module instead; no production assertion is removed.

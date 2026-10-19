@@ -114,7 +114,8 @@ jobs:
 
       - name: Qualify complete File parser retirement
         if: matrix.corpus == 'retirement'
-        timeout-minutes: 40
+        # I allow the explicit compiler budgets plus retained schema/shadow controls.
+        timeout-minutes: 90
         env:
           NANO_SERVICE_PARSER_REPORT_DIR: ${{ github.workspace }}/.test_output/retirement
         run: |

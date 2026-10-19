@@ -5,10 +5,10 @@ import shlex
 import subprocess
 
 
-def native_compile_timeout():
+def native_compile_timeout(default=600):
     """I share the existing host-build budget without changing guest limits."""
     try:
-        timeout = int(os.environ.get('CMD_TIMEOUT', '600'))
+        timeout = int(os.environ.get('CMD_TIMEOUT', str(default)))
     except ValueError as error:
         raise ValueError('I require a positive integer native compilation timeout.') from error
     if timeout < 1:

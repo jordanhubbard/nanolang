@@ -15,8 +15,10 @@ class NativeProcess(unittest.TestCase):
     def test_budget_default_override_and_invalid_values(self):
         with patch.dict(os.environ, {}, clear=True):
             self.assertEqual(native_compile_timeout(), 600)
+            self.assertEqual(native_compile_timeout(default=900), 900)
         with patch.dict(os.environ, {'CMD_TIMEOUT': '1800'}):
             self.assertEqual(native_compile_timeout(), 1800)
+            self.assertEqual(native_compile_timeout(default=900), 1800)
         for value in ('', '0', '-1', '1.5', 'invalid'):
             with self.subTest(value=value), patch.dict(os.environ, {'CMD_TIMEOUT': value}):
                 with self.assertRaisesRegex(ValueError, 'positive integer'):
