@@ -1,0 +1,24 @@
+test_array_schema_retains_existing_unknown_boundary (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_array_schema_retains_existing_unknown_boundary) ... ok
+test_distinct_equal_shape_and_forward_ordinals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_distinct_equal_shape_and_forward_ordinals) ... ok
+test_imported_field_identity_preserves_distinct_same_spelling (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_imported_field_identity_preserves_distinct_same_spelling) ... ok
+test_repeated_direct_and_transitive_import_retains_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_repeated_direct_and_transitive_import_retains_authority) ... ok
+test_same_spelling_in_distinct_imports_retains_distinct_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_same_spelling_in_distinct_imports_retains_distinct_authority) ... ok
+test_body_budget_does_not_become_closed_empty (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_body_budget_does_not_become_closed_empty) ... ok
+test_callback_is_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_callback_is_unknown) ... ok
+test_closed_calls_io_mutation_and_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_closed_calls_io_mutation_and_unknown) ... ok
+test_module_budget_is_explicit_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_module_budget_is_explicit_unknown) ... ok
+test_anonymous_capture (tests.test_function_purity_metadata.FunctionPurityMetadata.test_anonymous_capture) ... ok
+test_declared_and_undeclared_purity (tests.test_function_purity_metadata.FunctionPurityMetadata.test_declared_and_undeclared_purity) ... ok
+test_generic_pure_refusal_preserves_prior_artifact (tests.test_function_purity_metadata.FunctionPurityMetadata.test_generic_pure_refusal_preserves_prior_artifact) ... ok
+test_generic_specialization (tests.test_function_purity_metadata.FunctionPurityMetadata.test_generic_specialization) ... ok
+test_imported_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_imported_declarations) ... ok
+test_imported_same_name_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_imported_same_name_declarations) ... ok
+test_nested_and_captured_functions (tests.test_function_purity_metadata.FunctionPurityMetadata.test_nested_and_captured_functions) ... ok
+test_transitive_imported_same_name_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_transitive_imported_same_name_declarations) ... ok
+test_contextual_conversion_execution_and_exact_tags (tests.test_computed_u8_context.ComputedU8Context.test_contextual_conversion_execution_and_exact_tags) ... ok
+test_literal_and_definite_wrong_type_refusals_preserve_output (tests.test_computed_u8_context.ComputedU8Context.test_literal_and_definite_wrong_type_refusals_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 18.256s
+
+OK
