@@ -16219,3 +16219,7 @@ I tighten the eight-shared later-failure test after review: final caller field e
 ### 2026-10-19: integrated eight-shared reconstruction qualification
 
 I qualify candidate `1e2951ef8` with all seven aggregate methods in 219.085 seconds through the current seed and fresh 3446 stages after a facts-only rebuild. All nine pre-run provider hashes match at terminal. The [receipt](evidence/eight-shared-aggregate-20261019/README.md) retains actual 92/103 ordinary and 98/103 consistency-shadow locals, signed arithmetic, isolated later-helper failure, exact local/proof bounds and native/VM execution. No new raw-generation claim is made; exact hosted platforms and finite remaining #999 acceptance stay open.
+
+## I map the accepted borrowed FLOAT caller-local fixture (#999, 2026-10-19)
+
+I own design/5.1-borrowed-float-local from271c88986 for contract/baseline only. I reproduce test_source_borrow_emission.py:test_float_local_in_borrowed_control_flow exactly: source_borrow_control_flow.nano replaces every `set total (+ total 2)` with `let value: float = 2.0 assert (== value 2.0) set total (+ total 2)`. I retain three original producer results plus an independent original-shadow input, exact counts/F64 operations, verifier/VM behavior and current reconstruction refusal/sentinel. No admission edit, helper FLOAT, field/signature, frontend or runtime expansion is included.
