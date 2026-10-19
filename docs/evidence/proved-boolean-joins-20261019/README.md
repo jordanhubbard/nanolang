@@ -9,3 +9,5 @@ The unchanged full emitter module translates successfully after this correction 
 After two worker recovery samples, I build the full native emitter in 16.739 seconds using the same compiler/link flags as my retained bootstrap native step, then execute its entry assertions successfully in 0.249 seconds. The hosted coverage rerun remains pending; this local ordinary-profile execution does not claim Linux coverage instrumentation. Original module/C artifacts remain at their indexed paths with hashes. This bounded fix does not complete #976 or 5.1.
 
 I also pass my serial strict gate: 222 Clang and 222 GCC 16 compilations, with zero failures.
+
+My older Linux x64 job 117966632279 (run 39224053627, source 5bb06c298) independently failed at the identical function 589 / join 213 carrier mismatch after emitter entry assertions passed. I retain the official log excerpt and full raw-log hash in hosted-linux-x64-failure.*. This confirms the existing defect on Linux; it does not replace a hosted run of my correction.

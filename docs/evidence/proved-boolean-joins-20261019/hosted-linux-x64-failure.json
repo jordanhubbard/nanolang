@@ -1,0 +1,10 @@
+{
+  "run": 39224053627,
+  "job": 117966632279,
+  "head": "5bb06c2986b826bd12e58c44ddd51804b3d5d37a",
+  "raw_local_path": "/private/tmp/nanolang-5bb-linux-test-job.raw.log",
+  "raw_sha256": "f6c7655075d2c8d2ae6b806ee0ec7e06592296be06ebe2b350c24b71235ae8fe",
+  "failure": "function 589: join at 213 has a value-kind mismatch",
+  "correction": "c6fcfd59d",
+  "status": "Old Linux run confirms the same defect; hosted rerun of correction remains pending."
+}
