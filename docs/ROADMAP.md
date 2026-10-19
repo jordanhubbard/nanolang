@@ -15680,3 +15680,7 @@ I retain the first U8 field-context qualification failure before extending the s
 I retain the first combined field-context failure in `focused.log`: new anonymous C staging locals lacked declared tag facts, causing the existing optional authority publisher to omit the previously tested U8 layout. I retain exact stored types for these new locals (TYPE_U8 only after checked conversion, otherwise the checked operand type), with unchanged validation and no layout inference from field spelling.
 
 I pass 15 focused methods in 24.379 seconds through changed C and C-hosted Nano producers, including the existing computed-U8 contexts. I retain original failures, provider hashes, source/command receipts and scope limits in [field-context evidence](evidence/u8-field-context-20261019/README.md). Strict C ordering and its constant-conversion warning under `-Werror` remain open; strict pure numeric function-result values pass O0/O2 sanitizers with unused generated runtime helpers exempted from warnings. Full fresh-stage/platform acceptance and full #1001 remain open.
+
+### Combined byte-field qualification wiring (#976/#1001)
+
+- [ ] I run the checked byte-field contexts and exact field-layout corpus through the C seed and both fresh installed stages in the compiler-contracts workflow; focused component evidence does not replace this gate.

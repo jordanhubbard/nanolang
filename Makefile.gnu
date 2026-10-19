@@ -6965,3 +6965,8 @@ test-ordinary-array-authority: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	ORDINARY_ARRAY_CC="$(CC)" ORDINARY_ARRAY_CFLAGS="$(CFLAGS)" ORDINARY_ARRAY_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" ORDINARY_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_ordinary_array_authority
 
 test-units: test-ordinary-array-authority
+
+.PHONY: test-u8-record-fields
+test-units: test-u8-record-fields
+test-u8-record-fields: bootstrap3 bin/nanoc_c nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_u8_record_fields tests.test_u8_field_context
