@@ -15601,3 +15601,10 @@ the module instead; no production assertion is removed.
 - [x] I use the existing explicit host-build budget for that full compiler product, preserving the 900-second default, guest deadlines, assertions and process-group cleanup; qualify budget selection and cleanup before aggregate product validation.
 
 - [ ] I run the actual full compiler product with pinned providers after the coordinator makes a worker slot available; my [budget receipt](evidence/one-ir-product-budget-20261019/README.md) does not claim that qualification yet.
+
+### Relocated OneIR compiler capture prerequisite (#976)
+
+- [x] I retain the actual Linux capture failure from run39205176925 job117906341352: the helper was built, but the relocated native compiler searched its temporary sibling directory because its test omitted NANO_AS_CAPTURE_HELPER. `workspace_repairs` owns this isolated harness followup on fix/5.1-one-ir-product-budget.
+- [x] I propagate the existing explicit helper path to relocated compiler calls and child suites, qualify environment propagation without mocking native success, and preserve fail-closed capture. Actual Linux product qualification remains required.
+
+- [ ] I qualify the relocated compiler capture prerequisite with the actual Linux full product; Darwin environment propagation does not prove Linux capture.
