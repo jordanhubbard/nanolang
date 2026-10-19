@@ -14,6 +14,7 @@
 #include "managed_array_shapes.h"
 #include "record_array_structure_private.h"
 #include "managed_record_shapes.h"
+#include "record_array_admission.h"
 #include "passive.h"
 #include "retained_layouts.h"
 #include "ownership_contracts.h"
@@ -895,6 +896,27 @@ static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_id
     return stack_result;
 }
 
+static NvmVerifyResult verify_record_arrays(const NvmModule *mod,uint32_t function,
+                                             uint16_t *out_depth,const uint16_t *declared) {
+    NvmRecordArrayExecutionPlan *plan=NULL;
+    NvmArrayEligibilityResult prepared=nvm_record_array_admit(mod,&plan);
+    if(prepared.status!=NVM_ARRAY_ELIGIBLE)return fail("I refuse record-array admission: %s",prepared.message);
+    NvmRecordArrayExecutionCounts counts;NvmVerifyResult result=ok_result();uint16_t depth=0;
+    if(!nvm_record_array_execution_counts(plan,&counts) ||
+       (function!=UINT32_MAX && function>=counts.functions))result=fail("I require an existing record-array function.");
+    else for(uint32_t f=0;f<counts.functions;f++) {
+        NvmRecordArrayExecutionFunction info;
+        if(!nvm_record_array_execution_function(plan,f,&info)) {result=fail("I require complete record-array function facts.");break;}
+        if(declared && declared[f] && declared[f]<info.maximum_stack) {
+            result=fail("function %u declares max_stack %u but reaches %u",f,declared[f],info.maximum_stack);break;
+        }
+        if(f==function)depth=info.maximum_stack;
+    }
+    nvm_record_array_execution_free(plan);
+    if(result.ok && out_depth)*out_depth=depth;
+    return result;
+}
+
 static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_idx,
                                            const NvmModule *const *linked_modules,
                                            uint32_t linked_count,
@@ -909,6 +931,13 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
         if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
         return verify_mixed_samples(mod,fn_idx,out_max_stack);
     }
+    if(nvm_record_array_candidate(mod)) {
+        if(linked_count)return fail("I refuse linked record-array execution contracts.");
+        return verify_record_arrays(mod,fn_idx,out_max_stack,NULL);
+    }
+    for(uint32_t i=0;i<linked_count;i++)
+        if(!linked_modules || nvm_record_array_candidate(linked_modules[i]))
+            return fail("I refuse record-array candidates in linked function verification.");
     bool owned_admitted=false;
     NvmVerifyResult structure = verify_structure(mod, false, &owned_admitted);
     if (!structure.ok) return structure;
@@ -1150,6 +1179,7 @@ NvmVerifyResult nvm_verify_declared_max_stacks(const NvmModule *mod,
     if (!selected) return ok_result();
     if (nvm_service_execution_pending(mod))
         return fail("I refuse service contracts before mixed execution selection");
+    if(nvm_record_array_candidate(mod))return verify_record_arrays(mod,UINT32_MAX,NULL,declared_depths);
     if (nvm_owned_array_route(mod) != NVM_OWNER_ARRAY_NOT_SELECTED ||
         nvm_mixed_samples_candidate(mod)) {
         /* I keep each private profile's existing complete admission path. */
@@ -1172,6 +1202,7 @@ NvmVerifyResult nvm_verify(const NvmModule *mod) {
         return fail("I refuse service contracts before mixed execution selection");
     if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return verify_owned_arrays(mod,0,NULL);
     if(nvm_mixed_samples_candidate(mod))return verify_mixed_samples(mod,0,NULL);
+    if(nvm_record_array_candidate(mod))return verify_record_arrays(mod,UINT32_MAX,NULL,NULL);
     return verify_functions_with_structure(mod, NULL, 0, NULL);
 }
 
@@ -1196,6 +1227,12 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
     if(nvm_mixed_samples_candidate(mod)) {
         if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
         return verify_mixed_samples(mod,0,NULL);
+    }
+    for(uint32_t i=0;i<linked_count;i++)if(nvm_record_array_candidate(linked_modules[i]))
+        return fail("I refuse a record-array module in a linked graph.");
+    if(nvm_record_array_candidate(mod)) {
+        if(linked_count)return fail("I refuse linked record-array execution contracts.");
+        return verify_record_arrays(mod,UINT32_MAX,NULL,NULL);
     }
     if (linked_count) {
         for(uint32_t i=0;i<linked_count;i++)if(nvm_mixed_samples_candidate(linked_modules[i]))
@@ -1245,6 +1282,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
     if (!verified.ok || profile == NVM_PROFILE_GENERAL) return verified;
     if(nvm_owned_array_route(m)!=NVM_OWNER_ARRAY_NOT_SELECTED)return fail("I keep owner ARRAY candidates outside closed backend profiles");
     if(nvm_mixed_samples_candidate(m))return fail("I keep mixed ownership outside closed backend profiles");
+    if(nvm_record_array_candidate(m))return fail("I keep record-array authority outside unqualified backend profiles.");
     const bool portable_bytes = profile == NVM_PROFILE_PORTABLE_FILE_READ;
     const bool portable_read = profile == NVM_PROFILE_PORTABLE_READ_TEXT || portable_bytes;
     if(portable_read) {

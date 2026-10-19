@@ -36,6 +36,8 @@
 #include "service_codec_internal.h"
 #include "mixed_samples_internal.h"
 #include "owned_array_admission.h"
+#include "record_array_admission.h"
+#include "ownership_layouts_private.h"
 
 /* Nominal service transport preserves exact declaration bytes without admission.
  * Mixed and owner ARRAY transport require their full checked profiles; other paths
@@ -69,6 +71,21 @@ static NvmV2Result conversion_ownership(const NvmModule *module,bool *needs,uint
         nvm_owned_array_plan_free(plan);
         if(checked_depths)memcpy(checked_depths,depths,sizeof depths);
         *needs=true;return NVM_V2_OK;
+    }
+    if(nvm_record_array_candidate(module) && !nvm_mixed_samples_candidate(module)) {
+        NvmRecordArrayExecutionPlan *plan=NULL;
+        NvmArrayEligibilityResult admission=nvm_record_array_admit(module,&plan);
+        if(admission.status!=NVM_ARRAY_ELIGIBLE)
+            return admission.status==NVM_ARRAY_MEMORY?NVM_V2_ERR_TRUNCATED:NVM_V2_ERR_INDEX_RANGE;
+        if(checked_depths)for(uint32_t f=0;f<module->function_count;f++) {
+            NvmRecordArrayExecutionFunction info;
+            if(!nvm_record_array_execution_function(plan,f,&info)) {
+                nvm_record_array_execution_free(plan);return NVM_V2_ERR_INDEX_RANGE;
+            }
+            checked_depths[f]=info.maximum_stack;
+        }
+        nvm_record_array_execution_free(plan);
+        *needs=false;return NVM_V2_OK;
     }
     if(!nvm_mixed_samples_candidate(module))return nvm_ownership_contracts_validate(module,needs);
     NvmMixedSamplesPlan *plan=NULL;
@@ -118,11 +135,11 @@ NvmV2Result nvm_private_from_module(const NvmModule *mod, NvmV2Module *out,const
     out->service_data = mod->service_data;
     out->service_size = mod->service_size;
     if (!nvm_metadata_valid(mod) || !nvm_callback_contracts_valid(mod) || !nvm_passive_valid(mod) ||
-        !nvm_retained_layouts_valid(mod)) return NVM_V2_ERR_INDEX_RANGE;
+        (!nvm_record_array_candidate(mod) && !nvm_retained_layouts_valid(mod))) return NVM_V2_ERR_INDEX_RANGE;
     bool needs_ownership = false;
     bool owner_array=nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED;
-    bool checked_profile=owner_array || nvm_mixed_samples_candidate(mod);
-    uint16_t checked_depths[8]={0};NvmOwnerSignature owner_signatures[8]={0};
+    bool checked_profile=owner_array || nvm_mixed_samples_candidate(mod) || nvm_record_array_candidate(mod);
+    uint16_t checked_depths[NVM_RECORD_ARRAY_ADMISSION_FUNCTIONS]={0};NvmOwnerSignature owner_signatures[8]={0};
     NvmV2Result ownership = conversion_ownership(mod, &needs_ownership, checked_profile?checked_depths:NULL,owner_array?owner_signatures:NULL,codec);
     if (ownership != NVM_V2_OK) return ownership;
     out->ownership_data = mod->ownership_data;
@@ -341,8 +358,9 @@ NvmV2Result nvm_private_from_module(const NvmModule *mod, NvmV2Module *out,const
      * because v1 has none to give; a v2-native producer emits real ones. */
     uint32_t n_lay = mod->struct_count + mod->enum_count + mod->union_count;
     if (mod->layout_size) {
-        NvmV2Result retained = nvm_v2_layouts_decode(mod->layout_data,
-                                                    mod->layout_size, &out->layouts);
+        NvmV2Result retained = nvm_record_array_candidate(mod) ?
+            nvm_ownership_layouts_private_decode(mod->layout_data,mod->layout_size,&out->layouts) :
+            nvm_v2_layouts_decode(mod->layout_data,mod->layout_size,&out->layouts);
         if (retained != NVM_V2_OK) { nvm_v2_module_free(out); return retained; }
         out->extra_features |= NVM_V2_FEATURE_RETAINED_LAYOUTS;
     } else if (n_lay) {
@@ -520,6 +538,10 @@ NvmV2Result nvm_private_to_module(const NvmV2Module *m, NvmModule **out,const Nv
         }
     }
 
+    if (m->layouts.count && !m->layouts.items) {
+        nvm_module_free(mod);
+        return NVM_V2_ERR_INDEX_RANGE;
+    }
     for (uint32_t i = 0; i < m->layouts.count; i++) {
         switch (m->layouts.items[i].kind) {
         case NVM_V2_LAYOUT_STRUCT: mod->struct_count++; break;
@@ -531,7 +553,27 @@ NvmV2Result nvm_private_to_module(const NvmV2Module *m, NvmModule **out,const Nv
 
     if ((m->extra_features & NVM_V2_FEATURE_RETAINED_LAYOUTS) ||
         nvm_layouts_have_facts(&m->layouts)) {
-        NvmV2Result retained = nvm_retain_layouts(mod, &m->layouts);
+        /* I stage exact layout bytes before the final complete admission.
+         * The ordinary shared decoder intentionally has a narrower grammar. */
+        size_t bytes=4;
+        for(uint32_t i=0;i<m->layouts.count;i++) {
+            const NvmV2Layout *layout=&m->layouts.items[i];
+            size_t row=8+(size_t)layout->field_count*12;
+            if((layout->field_count && !layout->fields) || row>UINT32_MAX-bytes) {
+                nvm_module_free(mod);return NVM_V2_ERR_INDEX_RANGE;
+            }
+            bytes+=row;
+        }
+        uint8_t *encoded=malloc(bytes);
+        if(!encoded){nvm_module_free(mod);return NVM_V2_ERR_TRUNCATED;}
+        NvmV2Result retained=nvm_v2_layouts_encode(&m->layouts,encoded,bytes);
+        NvmModule staged=*mod;staged.layout_data=encoded;staged.layout_size=(uint32_t)bytes;
+        staged.ownership_data=(uint8_t *)m->ownership_data;staged.ownership_size=m->ownership_size;
+        staged.service_data=(uint8_t *)m->service_data;staged.service_size=m->service_size;
+        if(retained==NVM_V2_OK && nvm_record_array_candidate(&staged)) {
+            mod->layout_data=encoded;mod->layout_size=(uint32_t)bytes;encoded=NULL;
+        } else if(retained==NVM_V2_OK)retained=nvm_retain_layouts(mod,&m->layouts);
+        free(encoded);
         if (retained != NVM_V2_OK) { nvm_module_free(mod); return retained; }
     }
 
@@ -571,10 +613,11 @@ NvmV2Result nvm_private_to_module(const NvmV2Module *m, NvmModule **out,const Nv
     }
     bool needs_ownership = false;
     bool owner_array=nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED;
-    uint16_t owner_depths[8]={0};
-    NvmV2Result ownership = conversion_ownership(mod, &needs_ownership,owner_array?owner_depths:NULL,NULL,codec);
+    bool record_array=nvm_record_array_candidate(mod) && !nvm_mixed_samples_candidate(mod);
+    uint16_t owner_depths[NVM_RECORD_ARRAY_ADMISSION_FUNCTIONS]={0};
+    NvmV2Result ownership = conversion_ownership(mod, &needs_ownership,(owner_array || record_array)?owner_depths:NULL,NULL,codec);
     if (ownership != NVM_V2_OK) { nvm_module_free(mod); return ownership; }
-    if(owner_array)for(uint32_t f=0;f<mod->function_count;f++) {
+    if(owner_array || record_array)for(uint32_t f=0;f<mod->function_count;f++) {
         uint16_t declared=m->functions.items[f].max_stack;
         if(declared && declared<owner_depths[f]){nvm_module_free(mod);return NVM_V2_ERR_INDEX_RANGE;}
     }

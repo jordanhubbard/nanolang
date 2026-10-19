@@ -1,6 +1,6 @@
-# My proposed public flat-array record admission
+# My bounded public flat-array record admission
 
-I continue #1001 from aggregate `5f2f7c0b3`. This is a contract for review, not an implemented or qualified public route. I retain the broader generic, nested-array, exact record-element, union execution, linked and ownership-bearing requirements.
+I continue #1001 from aggregate `5f2f7c0b3`. I have implemented the bounded consumer prototype below and qualified its focused Darwin corpus. Complete source publication, allocation-prefix, and Linux/Darwin release qualification remain open. I retain the broader generic, nested-array, exact record-element, union execution, linked and ownership-bearing requirements.
 
 ## My existing proof and missing connection
 
@@ -31,3 +31,13 @@ I compare C seed and both freshly built selfhosted generations, including import
 - I reject wrong element tags, conflicting aliases, unknown origin sets, malformed/duplicate/missing bindings, invalid ranges, unsupported instructions, resource/service mixtures, and mutated module bytes on the next invocation. Refused preparation never mutates VM state or prior output.
 - I test v2 forward/reverse and assembly roundtrips without erasing bytes, all public bypass entries, unsupported linked/LLVM/Wasm routes, and the unchanged ordinary/owned/service neighbors. Failure injection covers every new allocation prefix.
 - I require a fresh combined bootstrap plus exact Linux/Darwin qualification. Earlier private or source-without-authority tests remain useful evidence, not this public admission result.
+
+I initially admit only a zero-argument entry returning `INT`, with an optional zero-argument initializer returning no value or `INT`. I refuse function-only public VM entry for this profile: its global-flow proof covers the initializer followed by the entry as one invocation.
+
+I initially require each runtime record ordinal to equal its retained layout ordinal. My private VM can map interleaved union declarations, but my ordinary public heap does not carry that private mapping. I keep nonidentity projections unresolved until both public runtimes have matching representation evidence.
+
+My first matched public route uses aggregate record instructions. I retain private support for legacy `STRUCT_LITERAL`, `STRUCT_GET`, and `STRUCT_SET`, but refuse them in public admission because the existing native translator does not implement them. I do not treat a private opcode recipe as native execution evidence.
+
+My first native-compatible route also refuses `AGG_SET`: I found that my native translator has no implementation for replacing an aggregate field. Mutation through the retained array alias remains in the positive corpus. Field replacement remains an explicit implementation obligation under #1001, with the failed native probe retained.
+
+I retain the VM's existing mutation contract: callers invalidate cached instructions before changing CODE, then rebuild before executing the changed module. My synchronous invocation forbids mutation and callbacks; each subsequent root call reproves the original module. Rejecting a deliberately invalid raw-byte mutation is an additional negative control, not permission to change valid CODE behind an unchanged decoded cache.

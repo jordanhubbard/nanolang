@@ -6882,3 +6882,13 @@ test-function-effects-metadata: nano_virt nanoisa_dump nano_vm nvm2c
 test-units: test-computed-u8-context
 test-computed-u8-context: bootstrap nano_virt nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_computed_u8_context
+
+.PHONY: test-record-array-public-build
+test-record-array-public-build: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nvm2c-runtime
+	$(CC) $(CFLAGS) -Isrc -Isrc/nanoisa tests/nanoisa/test_record_array_public.c tests/nanoisa/record_array_alloc.c $(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)) $(LDFLAGS) -o $(BIN_DIR)/test_record_array_public
+
+.PHONY: test-record-array-public
+test-record-array-public: test-record-array-public-build
+	RECORD_ARRAY_PUBLIC_CC="$(CC)" RECORD_ARRAY_PUBLIC_CFLAGS="$(CFLAGS)" RECORD_ARRAY_PUBLIC_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_PUBLIC_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_record_array_public
+
+test-units: test-record-array-public

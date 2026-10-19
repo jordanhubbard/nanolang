@@ -1,3 +1,4 @@
+#include "../nanoisa/record_array_admission.h"
 #include "vm_ffi_private.h"
 #include "../nanoisa/service_bindings_module.h"
 #include "../nanoisa/service_classification_private.h"
@@ -215,6 +216,12 @@ static bool vm_module_ownership_required(const NvmModule *module, bool *required
     if (!module || !required || nvm_service_pending_classified(module,facts)) return false;
     if(nvm_owned_array_route_classified(module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED){*required=true;return true;}
     if(nvm_mixed_samples_candidate_classified(module,facts)){*required=true;return true;}
+    if(nvm_record_array_candidate(module)) {
+        NvmRecordArrayExecutionPlan *plan=NULL;
+        NvmArrayEligibilityResult result=nvm_record_array_admit(module,&plan);
+        nvm_record_array_execution_free(plan);
+        return result.status==NVM_ARRAY_ELIGIBLE;
+    }
     if (!module->ownership_data && !module->ownership_size) return true;
     bool needs=false;
     if (nvm_ownership_contracts_validate(module,&needs)!=NVM_V2_OK) return false;
@@ -238,6 +245,13 @@ static bool vm_module_ownership_supported(const NvmModule *module, bool standalo
         NvmMixedShapeResult result=nvm_mixed_samples_admit(module,&plan);
         nvm_mixed_samples_plan_free(plan);
         return result.status==NVM_MIXED_SHAPE_PROVED;
+    }
+    if(nvm_record_array_candidate(module)) {
+        if(!standalone)return false;
+        NvmRecordArrayExecutionPlan *plan=NULL;
+        NvmArrayEligibilityResult result=nvm_record_array_admit(module,&plan);
+        nvm_record_array_execution_free(plan);
+        return result.status==NVM_ARRAY_ELIGIBLE;
     }
     bool required=false;
     return vm_module_ownership_required(module,&required,facts) &&
@@ -275,7 +289,8 @@ static bool vm_ownership_supported(const VmState *vm) {
  * The admitted standalone module is immutable while that invocation executes. */
 typedef struct {
     const NvmModule *module;
-    bool mixed, owner_arrays;
+    bool mixed, owner_arrays, ordinary_arrays;
+    uint32_t ordinary_root;
     uint32_t global_count;
     const NvmModule *global_module;
     VmResult refusal;
@@ -440,7 +455,7 @@ fail:nvm_owned_array_plan_free(plan);return false;
 }
 
 static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
-    proof->module=NULL;proof->mixed=false;proof->owner_arrays=false;proof->global_count=0;proof->global_module=NULL;proof->refusal=VM_OK;proof->reason=NULL;
+    proof->module=NULL;proof->mixed=false;proof->owner_arrays=false;proof->ordinary_arrays=false;proof->global_count=0;proof->global_module=NULL;proof->refusal=VM_OK;proof->reason=NULL;
     if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED)return vm_owner_array_invocation_prepare(vm,proof);
     if(vm && nvm_mixed_samples_candidate(vm->module))return vm_mixed_invocation_prepare(vm,proof,false);
     bool required=false;
@@ -1586,7 +1601,14 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
         if (!admitted && !vm_ownership_supported_scoped(vm,facts))
             return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     }
-    const bool owned_execution = admitted || required;
+    if(admitted && proof->ordinary_arrays) {
+        if(!vm->frame_count || vm->frame_count>VM_MAX_FRAMES ||
+           vm->frames[0].fn_idx!=proof->ordinary_root)
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require the admitted record-array root activation.");
+        for(uint32_t i=0;i<vm->frame_count;i++)if(vm->frames[i].module!=proof->module)
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require standalone record-array frames.");
+    }
+    const bool owned_execution = (admitted && !proof->ordinary_arrays) || required;
     const bool mixed_execution = admitted && (proof->mixed || proof->owner_arrays);
     if (owned_execution) {
         if (!vm->frame_count || vm->frame_count>VM_MAX_FRAMES ||
@@ -4802,7 +4824,7 @@ vm_dispatch_done: ;
 #endif
 
 VmTrap vm_core_execute(VmState *vm) {
-    if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
+    if(vm && (nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED || nvm_record_array_candidate(vm->module))) {
         VmTrap refused={.type=TRAP_ERROR};
         refused.data.error.code=vm_error(vm,VM_ERR_TYPE_ERROR,
             "I require a synchronous owner ARRAY root invocation before execution.");
@@ -5138,6 +5160,9 @@ static void vm_owned_globals_clear(VmState *vm) {
 
 static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue *args,
                                          uint16_t arg_count, VmOwnedInvocationProof *proof) {
+    if(nvm_record_array_candidate(vm->module) &&
+       (!vm_owned_proof_matches(vm,proof) || !proof->ordinary_arrays || fn_idx!=proof->ordinary_root))
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a complete record-array root invocation.");
     if ((nvm_uses_owned_transfers(vm->module) || nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED || nvm_mixed_samples_candidate(vm->module)) && fn_idx!=0)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse host entry into a borrowed helper");
     if (!vm_owned_proof_matches(vm,proof) && !vm_ownership_admit(vm,proof))
@@ -5153,7 +5178,7 @@ static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue 
         vm_owned_globals_clear(vm);proof->global_module=vm->module;
     }
     uint32_t base = vm->stack_size, frames = vm->frame_count;
-    bool owned = nvm_uses_owned_transfers(vm->module) || proof->mixed || proof->owner_arrays || proof->global_count;
+    bool owned = nvm_uses_owned_transfers(vm->module) || proof->mixed || proof->owner_arrays || proof->ordinary_arrays || proof->global_count;
     uint32_t floor = vm->activation_floor;
     vm->activation_floor = vm->frame_count;
     VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void(),proof);
@@ -5229,6 +5254,8 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
     const NvmModule *target;
     uint32_t function_index;
     if (!vm) return VM_ERR_UNDEFINED_FUNCTION;
+    if(nvm_record_array_candidate(vm->module))
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a complete record-array root invocation.");
     VmOwnedInvocationProof proof={0};
     if (!vm_ownership_admit(vm,&proof))
         return vm_error(vm,proof.refusal?proof.refusal:VM_ERR_TYPE_ERROR,"%s",
@@ -5239,6 +5266,8 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a callable in my standalone reference activation");
     if (!vm_callable_target(vm, callable, &target, &function_index))
         return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "I need a callable with a live module identity.");
+    if(nvm_record_array_candidate(target))
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse record-array callable entry.");
     if (proof.global_count) {
         if (callable.tag!=TAG_FUNCTION || target!=vm->root_module || function_index)
             return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a direct root typed-global callable");
@@ -5318,6 +5347,8 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
 VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
                    uint16_t arg_count, NanoValue *out_result) {
     if (!vm || !vm->module) return VM_ERR_UNDEFINED_FUNCTION;
+    if(nvm_record_array_candidate(vm->module))
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a complete record-array root invocation.");
     if ((nvm_uses_owned_transfers(vm->module) || nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED || nvm_mixed_samples_candidate(vm->module)) && fn_idx!=0)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse invocation entry into a borrowed helper");
     VmOwnedInvocationProof proof={0};
@@ -5409,7 +5440,37 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
     return result;
 }
 
+static VmResult vm_execute_record_arrays(VmState *vm) {
+    if(!vm || !vm->module || vm->module!=vm->root_module || vm->stack_size ||
+       vm->frame_count || vm->activation_floor || vm->references.active ||
+       vm->linked_module_count || vm->callbacks || vm->opcode_trace || !vm_owned_constants_ready(vm))
+        return VM_ERR_TYPE_ERROR;
+    NvmRecordArrayExecutionPlan *plan=NULL;
+    NvmArrayEligibilityResult admission=nvm_record_array_admit(vm->module,&plan);
+    if(admission.status!=NVM_ARRAY_ELIGIBLE)
+        return vm_error(vm,admission.status==NVM_ARRAY_MEMORY?VM_ERR_MEMORY:VM_ERR_TYPE_ERROR,"%s",admission.message);
+    NvmRecordArrayExecutionCounts counts;
+    bool complete=nvm_record_array_execution_counts(plan,&counts);
+    nvm_record_array_execution_free(plan);
+    if(!complete)return VM_ERR_TYPE_ERROR;
+    VmOwnedInvocationProof proof={0};proof.module=vm->module;proof.ordinary_arrays=true;
+    VmResult result=VM_OK;
+    if(counts.initializer!=UINT32_MAX) {
+        proof.ordinary_root=counts.initializer;
+        result=vm_call_function_scoped(vm,counts.initializer,NULL,0,&proof);
+        /* The initializer's scalar return is not the program result. */
+        while(vm->stack_size)vm_release(&vm->heap,stack_pop(vm));
+    }
+    if(result==VM_OK) {
+        proof.ordinary_root=counts.entry;
+        result=vm_call_function_scoped(vm,counts.entry,NULL,0,&proof);
+    }
+    if(result!=VM_OK)while(vm->stack_size)vm_release(&vm->heap,stack_pop(vm));
+    return result;
+}
+
 VmResult vm_execute(VmState *vm) {
+    if(vm && nvm_record_array_candidate(vm->module))return vm_execute_record_arrays(vm);
     if (!(vm->module->header.flags & NVM_FLAG_HAS_MAIN)) {
         return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "No entry point defined");
     }
