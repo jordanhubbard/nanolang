@@ -9,7 +9,7 @@ for i in selected:keep.update(range(max(0,i-4),min(len(lines),i+5)))
 (root/'failure-excerpt.log').write_text('\n'.join(lines[i] for i in sorted(keep))+'\n')
 def yaml(s):
  return json.loads(subprocess.check_output(['ruby','-rjson','-ryaml','-e','puts JSON.generate(YAML.load(STDIN.read))'],input=s,text=True))
-workflow=Path('.github/workflows/ci.yml');new=yaml(workflow.read_text());old=yaml(subprocess.check_output(['git','show','HEAD:.github/workflows/ci.yml'],text=True));changes={}
+workflow=Path('.github/workflows/ci.yml');new=yaml(workflow.read_text());old=yaml(subprocess.check_output(['git','show','9600ecf66215754428a31adb45dae31c5f909eac:.github/workflows/ci.yml'],text=True));changes={}
 for name in ['sanitizers-stage1','sanitizers']:
  a=old['jobs'][name];b=new['jobs'][name]
  assert b['env']['BOOTSTRAP_NANOISA_TIMEOUT']=='10800'
