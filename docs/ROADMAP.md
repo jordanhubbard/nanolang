@@ -15500,3 +15500,11 @@ I retain [my source-publication allocation receipt](evidence/flat-array-publicat
 - [x] Under #1001 I qualify already-implemented concrete generic function specializations against exact ordinary declaration/runtime ordinals: distinct equal-shaped records, forward references, imported source owners, repeated-variable nominal refusal and flat-array record arguments/results. I inspect complete metadata and keep callable/union/resource/nested-array generic paths separate; I do not invent generic struct syntax or derive authority from advisory specialization strings.
 
 I retain [my concrete generic authority receipt](evidence/concrete-generic-authority-20261018/README.md). The flat-array selected-flow proof still omits authority for TAIL_CALL; I preserve that explicit boundary and keep full #1001 and fresh generation/platform gates open.
+
+### Local resource reconstruction (#999, 2026-10-18)
+
+- [x] I establish actual consuming-destructure syntax and numeric nominal layout mapping, retaining my [bounded contract](NANOISA_OWNED_LOCAL_RECONSTRUCTION.md) before implementation.
+- [x] I extract verified resource/layout/local facts and reconstruct ordered construction/move/unpack through one owned region tree into structured C and Nano; unsupported paths refuse atomically.
+- [x] I qualify actual C-hosted source producers, paired executions, authority/nominal refusals and existing scalar neighbors. Full generic/borrow/call/control reconstruction and fresh-stage/platform qualification remain open.
+
+I retain [local resource reconstruction evidence](evidence/owned-local-reconstruction-20261018/README.md), including actual retained Stage1/Stage2 producer checks. This bounded slice does not close #999 or full ownership reconstruction.
