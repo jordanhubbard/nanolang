@@ -15653,3 +15653,8 @@ I do not broaden global inference support in this correction.
 
 - [x] I retain the successful 17-step combined bootstrap at `7c7f3f5af` in [my checkpoint receipt](evidence/combined-bootstrap-7c7f3-20261019/README.md).
 - [ ] I qualify the integrated nested-array, global-context, borrowed-root and FLOAT corrections with a new raw bootstrap and exact platform gates; I wire nested proof/runtime targets into the compiler contracts workflow.
+
+### Bounded nested STRING authority proposal (#1001)
+
+- [ ] I review [my exact nested STRING contract](NANOISA_NESTED_STRING_ARRAY_AUTHORITY.md), distinct normalized leaf obligation and optional charged field bitmap before admission edits. `workspace_repairs` owns isolated fix/5.1-nested-string-authority from4cfad3737.
+- [ ] I qualify exact descriptor/all-writes proof, copied/public VM and transport, string-table/owner lifetime, canonical native GC and failure paths before paired source publication. Existing flat/INT behavior and full aggregate qualification remain separate.
