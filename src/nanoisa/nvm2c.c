@@ -1116,11 +1116,22 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                 if (plan && plan->tags[i]) {
                     uint16_t tags = plan->tags[i] | stack[i].scalar_tags;
                     if (!optional_scalar_tags(tags) && !boxed_carrier_tags(tags)) {
-                        nvm2c_fail(b, "I require proved finite payload provenance at a boxed join (function %u, target %zu, slot %d)", idx, target, i);
-                        return 0;
+                        if (!facts->final && optional_scalar_tags(plan->tags[i]) &&
+                            (tags & NVM2C_SCALAR_UNKNOWN) &&
+                            optional_scalar_tags(tags & ~NVM2C_SCALAR_UNKNOWN)) {
+                            /* Discovery can widen a carried parameter after an
+                             * earlier optional-scalar plan. Recompute from the
+                             * current carrier; unknown is never finite proof. */
+                            plan->tags[i] = 0;
+                            facts->changed = 1;
+                        } else {
+                            nvm2c_fail(b, "I require proved finite payload provenance at a boxed join (function %u, target %zu, slot %d)", idx, target, i);
+                            return 0;
+                        }
+                    } else {
+                        join->slots[i].kind = NVM2C_VK_VALUE;
+                        join->slots[i].scalar_tags = tags;
                     }
-                    join->slots[i].kind = NVM2C_VK_VALUE;
-                    join->slots[i].scalar_tags = tags;
                 }
                 if (!b->track_shapes) continue;
                 uint8_t kind = join->slots[i].kind;
@@ -1168,8 +1179,15 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         }
         int scalar_join = optional_scalar_tags(tags) || boxed_carrier_tags(tags);
         if (plan && plan->tags[i] && !scalar_join) {
-            nvm2c_fail(b, "I require proved finite payload provenance at a boxed join (function %u, target %zu, slot %d)", idx, target, i);
-            return 0;
+            if (!facts->final && optional_scalar_tags(plan->tags[i]) &&
+                (tags & NVM2C_SCALAR_UNKNOWN) &&
+                optional_scalar_tags(tags & ~NVM2C_SCALAR_UNKNOWN)) {
+                plan->tags[i] = 0;
+                facts->changed = 1;
+            } else {
+                nvm2c_fail(b, "I require proved finite payload provenance at a boxed join (function %u, target %zu, slot %d)", idx, target, i);
+                return 0;
+            }
         }
         if (scalar_join) {
             if (!plan) {
@@ -2431,8 +2449,19 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
             if (arr.kind == NVM2C_VK_VALUE) {
-                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
-                stk[sp - 1].array_payload_kind = arr.array_payload_kind;
+                if (val.kind == NVM2C_VK_REC) {
+                    /* I constrain the array payload, not its tagged carrier.
+                     * Alias writes retain the existing record conversion proof. */
+                    NvmShapeId payload = checked_array_payload(b, &arr);
+                    if (!shape_type(b, payload, NVM_SHAPE_ARRAY) ||
+                        (b->track_shapes && !nvm_shape_array_write(&b->shapes, payload, val.shape)) ||
+                        !shape_equal(b, shape_variable(b, b->shape_current), arr.shape)) return 0;
+                    arr.origin = -1;
+                    if (!sim_push_slot(b, idx, stk, &sp, arr)) return 0;
+                } else {
+                    if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+                    stk[sp - 1].array_payload_kind = arr.array_payload_kind;
+                }
                 break;
             }
             if (arr.kind == NVM2C_VK_NARR) {
@@ -2624,7 +2653,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             /* Record writes already carry a checked, directed array-write
              * constraint. Equating them here would constrain an unresolved
              * getter's return fields to a caller's exact constructor storage. */
-            if (!shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
+            if (!shape_equal(b, stk[sp - 1].shape, arr.shape) ||
+                !shape_equal(b, shape_variable(b, b->shape_current), stk[sp - 1].shape)) return 0;
             break;
         }
         case OP_AGG_PACK: {
@@ -3339,6 +3369,30 @@ static int stack_push_rarr(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
     st->kinds[st->sp] = NVM2C_VK_RARR;
     st->sp++;
     return a;
+}
+
+/* I unbox only the exact record-array payload proved for this write. */
+static int stack_checked_record_array(Nvm2cBuf *b, Nvm2cStack *st,
+                                      NvmShapeId carrier, int value) {
+    NvmShapeId payload = nvm_shape_kind(&b->shapes, carrier) == NVM_SHAPE_OPTIONAL
+        ? nvm_shape_lookup(&b->shapes, carrier, 0) : carrier;
+    if (resolved_shape_kind(b, payload) != NVM2C_VK_RARR) {
+        nvm2c_fail(b, "I require an exact record-array payload at a tagged record write");
+        return -1;
+    }
+    nvm2c_printf(b, "    if (v[%d].kind != 7 || v[%d].integer != %u || !v[%d].text) NVM2C_ABORT();\n",
+                value, value, NVM2C_VK_RARR, value);
+    char expression[80];
+    snprintf(expression, sizeof expression, "(nrarr_t)v[%d].text", value);
+    int array = stack_push_rarr(b, st, expression);
+    if (array < 0) return -1;
+    --st->sp; /* I return a temporary, without adding a bytecode operand. */
+    NvmShapeId element = nvm_shape_lookup(&b->shapes, payload, 0);
+    for (size_t f = 0; f < b->record_width; ++f)
+        st->rarr_k[array][f] = resolved_shape_kind(b,
+            nvm_shape_lookup(&b->shapes, element, (uint32_t)f));
+    if (!shape_ok(b)) return -1;
+    return array;
 }
 
 static int stack_push_map(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
@@ -5427,6 +5481,14 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int ix = stack_pop_expect(b, &st, NVM2C_VK_INT, "ARR_SET index");
             int arr = stack_pop_kind(b, &st, &ak);
             if (b->failed) goto done;
+            int boxed_record_array = ak == NVM2C_VK_VALUE && vk == NVM2C_VK_REC;
+            if (boxed_record_array) {
+                arr = stack_checked_record_array(b, &st, b->shape_outputs[idx][start], arr);
+                if (arr < 0) goto done;
+                ak = NVM2C_VK_RARR;
+                boxed_record_array = nvm_shape_kind(&b->shapes,
+                    b->shape_outputs[idx][start]) == NVM_SHAPE_OPTIONAL;
+            }
             if (ak == NVM2C_VK_U8ARR || ak == NVM2C_VK_NARR) {
                 char boxed[96];
                 scalar_value_expression(b, boxed, sizeof boxed, vk, val);
@@ -5482,8 +5544,14 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                              arr, ix, ak == NVM2C_VK_BARR ? "bool" : "int", val);
             else nvm2c_printf(b, "    %s[%d]->data[t[%d]] = %s[%d];\n", array, arr, ix, value, val);
             /* The result is the same handle, not a copy: aliases see the write. */
-            st.slots[st.sp] = arr;
-            st.kinds[st.sp++] = ak;
+            if (boxed_record_array) {
+                char expr[80];
+                snprintf(expr, sizeof expr, "(nmap_value){7, %u, (char *)ra[%d]}", ak, arr);
+                stack_push_value(b, &st, expr);
+            } else {
+                st.slots[st.sp] = arr;
+                st.kinds[st.sp++] = ak;
+            }
             break;
         }
         case OP_ARR_PUSH: {
@@ -5492,6 +5560,14 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int val = stack_pop_kind(b, &st, &vk);
             int arr = stack_pop_kind(b, &st, &ak);
             if (b->failed) goto done;
+            int boxed_record_array = ak == NVM2C_VK_VALUE && vk == NVM2C_VK_REC;
+            if (boxed_record_array) {
+                arr = stack_checked_record_array(b, &st, b->shape_outputs[idx][start], arr);
+                if (arr < 0) goto done;
+                ak = NVM2C_VK_RARR;
+                boxed_record_array = nvm_shape_kind(&b->shapes,
+                    b->shape_outputs[idx][start]) == NVM_SHAPE_OPTIONAL;
+            }
             if (ak == NVM2C_VK_U8ARR || ak == NVM2C_VK_NARR) {
                 char boxed[96];
                 scalar_value_expression(b, boxed, sizeof boxed, vk, val);
@@ -5540,6 +5616,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 snprintf(expr, sizeof expr, "nrarr_push(ra[%d], r[%d])", arr, val);
                 int a = stack_push_rarr(b, &st, expr);
                 if (a >= 0) memcpy(st.rarr_k[a], st.rec_k[val], b->record_width);
+                if (a >= 0 && boxed_record_array) {
+                    --st.sp;
+                    snprintf(expr, sizeof expr, "(nmap_value){7, %u, (char *)ra[%d]}", NVM2C_VK_RARR, a);
+                    stack_push_value(b, &st, expr);
+                }
             } else {
                 nvm2c_fail(b, "function %u: ARR_PUSH type mismatch", idx);
                 goto done;

@@ -11,6 +11,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class PublicGlobalDeclarations(unittest.TestCase):
     def test_parser_visibility_survives_storage_and_type_backfill(self):
+        self.run_fixture('public_global_parser.nano')
+
+    def test_tagged_record_array_replacement_preserves_aliases(self):
+        self.run_fixture('tagged_record_array_update.nano')
+
+    def run_fixture(self, fixture):
         with tempfile.TemporaryDirectory(prefix='nano-public-global-parser-') as directory:
             work = Path(directory)
             module, source, binary = (work / name for name in ('parser.nvm', 'parser.c', 'parser'))
@@ -18,7 +24,7 @@ class PublicGlobalDeclarations(unittest.TestCase):
                    'NANO_SHADOW_TIMEOUT_SECONDS': '60'}
             cc = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc')))
             commands = [
-                [ROOT / 'bin/nano_virt', ROOT / 'tests/fixtures/public_global_parser.nano', '--emit-nvm', '-o', module],
+                [ROOT / 'bin/nano_virt', ROOT / 'tests/fixtures' / fixture, '--emit-nvm', '-o', module],
                 [ROOT / 'bin/nano_vm', '--verify-only', module],
                 [ROOT / 'bin/nano_vm', module],
                 [ROOT / 'bin/nvm2c', module, '-o', source],
