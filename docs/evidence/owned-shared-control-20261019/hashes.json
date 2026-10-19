@@ -1,0 +1,57 @@
+[
+  {
+    "path": "bin/nano_virt",
+    "bytes": 12415016,
+    "sha256": "04269be440ea6826fe401d1f9265c2cb012709a8bbed00cf3118a26556402731"
+  },
+  {
+    "path": "bin/nanoc_u8_context",
+    "bytes": 15199056,
+    "sha256": "d7c3c1369042dfa16c8a54decdb7a96b5a43166ba2cee604f495f2302eb8977e"
+  },
+  {
+    "path": "bin/nano_vm",
+    "bytes": 22132056,
+    "sha256": "843a6bdc2d1defcb5ba8c5af424c31f4dc64a2877293bdebd7aadb2a957726b6"
+  },
+  {
+    "path": "bin/nanoisa",
+    "bytes": 1092536,
+    "sha256": "66c5e8e6305adfd51ad1c9c2382cb397ae12d2eb1b368166cada603f42a1a27a"
+  },
+  {
+    "path": "bin/nvm2c",
+    "bytes": 1513864,
+    "sha256": "fcf99a346801130aebd03b68b8c238c21c586100fd4e6c4e0b487e51c74bfdf4"
+  },
+  {
+    "path": "bin/nvm2hl",
+    "bytes": 2324,
+    "sha256": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c"
+  },
+  {
+    "path": "bin/nanoisa_hl_facts",
+    "bytes": 3800624,
+    "sha256": "9c743a3b14a5a05338135900050850e207717ea2e25fb0be05d00f2c297510e8"
+  },
+  {
+    "path": "bin/nano_aot_runtime.o",
+    "bytes": 8437624,
+    "sha256": "fd6fd0145d1de21cfeba2e8f7a0214029825becffda1ce5ff01ead2fbee046c9"
+  },
+  {
+    "path": "scripts/nanoisa_owned_reconstruction.py",
+    "bytes": 68074,
+    "sha256": "1aa12d15ae11606c81e8942b1e5068e329b784d4e81372cd49f9de9c581a5ee0"
+  },
+  {
+    "path": "src/nanoisa/hl_owned_facts.inc",
+    "bytes": 9345,
+    "sha256": "25b8830f531bcb14b174a4f5dbe31ed13a97a15c795dd7805e4bd4ffcfa186e9"
+  },
+  {
+    "path": "tests/test_owned_shared_control_reconstruction.py",
+    "bytes": 13803,
+    "sha256": "6659f233cba68e80ea7bb9483ffaa8aec810125d2e7f9621b03c8e3f9f7538ae"
+  }
+]

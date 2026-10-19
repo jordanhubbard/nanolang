@@ -79,15 +79,17 @@ class OwnedAnalyze(Analyze):
             require(all('field_types' in layout for layout in self.layouts),
                     'require complete exact path layout descriptors')
             require(self.borrowed and len(module['functions']) == 2 and
-                    module['functions'][1].get('param_modes') in ([2, 2, 1], [1, 1]),
+                    module['functions'][1].get('param_modes') in ([2, 2, 1], [1, 1], [1]),
                     'require the exact nested-path helper profile')
         if self.borrowed:
             require(max(self.depths) <= (3 if self.paths else 2), 'retain nested borrowed modules at depth three' if self.paths else 'retain borrowed modules at depth two')
             require(len(module['functions']) == 2 and
                     module['functions'][0].get('param_modes', []) == [] and
-                    module['functions'][1].get('param_modes') in (([2, 2, 1], [1, 1]) if self.paths else ([1], [2], [2, 1, 2])),
+                    module['functions'][1].get('param_modes') in (([2, 2, 1], [1, 1], [1]) if self.paths else ([1], [2], [2, 1, 2])),
                     'require the separate entry-to-borrowed-helper profile')
         self.shared_paths = self.paths and module['functions'][1].get('param_modes') == [1, 1]
+        self.single_shared_path = self.paths and module['functions'][1].get('param_modes') == [1]
+        self.shared_root = None
         self.multi = self.borrowed and len(module['functions'][1].get('param_modes', [])) > 1
         self.exclusive = self.borrowed and 2 in module['functions'][1].get('param_modes', [])
         self.helper = self.borrowed and index == 1
@@ -112,7 +114,8 @@ class OwnedAnalyze(Analyze):
         self.code = self.fn['code']
         if self.helper:
             require(self.result in (INT, BOOL) and
-                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) | ({'SUB', 'ASSERT'} if self.multi else set()) | ({'ADD', 'MUL'} if self.shared_paths else set()) for ins in self.code),
+                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) | ({'SUB', 'ASSERT'} if self.multi else set()) | ({'ADD', 'MUL'} if self.shared_paths else set()) | ({'JMP', 'JMP_TRUE', 'JMP_FALSE'} if self.single_shared_path else set()) for ins in self.code),
+                    'require total scalar shared-helper diamonds' if self.single_shared_path else
                     'require a straight-line scalar borrowed helper')
         require(0 < len(self.code) <= 4096, 'require bounded function instructions')
         self.path_table = {}
@@ -144,6 +147,10 @@ class OwnedAnalyze(Analyze):
                     require(ins['op'] == 'JMP' and target not in self.backedges,
                             'require one unconditional backedge per owned loop header')
                     self.backedges[target] = n
+        if self.helper and self.single_shared_path:
+            require(not self.backedges and self.code[-1]['op'] == 'RET' and
+                    sum(ins['op'] == 'RET' for ins in self.code) == 1,
+                    'require forward total shared-helper diamonds with one final return')
 
     def owner_local(self, slot):
         require(slot in self.live, 'require a live exact local owner')
@@ -171,9 +178,11 @@ class OwnedAnalyze(Analyze):
 
     def observation(self, i, end, stack, body, allow_call=True):
         length = self.reference_region_length(i)
-        if length in (5, 6):
+        if length in (5, 6) or (self.single_shared_path and i + 2 < len(self.code) and
+                                  self.code[i + 2]['op'] == 'CALL_REF'):
             count = length - 3
             require(allow_call and self.index == 0 and i + length - 1 < end,
+                    'require a complete single-shared-path caller region' if self.single_shared_path else
                     'require a complete two-reference caller region' if self.shared_paths else 'require a complete three-reference caller region')
             require(len(self.code[i + 1]['args']) == (3 if self.paths else 2), 'require an exact first reference operand pair')
             base = self.code[i + 1]['args'][0]
@@ -181,6 +190,7 @@ class OwnedAnalyze(Analyze):
             borrows = self.code[i + 1:i + 1 + count]
             call, finish = self.code[i + 1 + count:i + length]
             require(call['args'] == [1, base] and finish['op'] == 'REGION_END' and not finish['args'] and not self.code[i]['args'],
+                    'require exact single-shared-path call and region end' if self.single_shared_path else
                     'require exact two-reference call and region end' if self.shared_paths else 'require exact three-reference call and region end')
             slots, places = [], []
             for parameter, borrow in enumerate(borrows):
@@ -199,6 +209,11 @@ class OwnedAnalyze(Analyze):
                 slots.append(slot)
             if self.paths:
                 require(len(set(slots)) == 1, 'require one live nested root')
+                if self.single_shared_path:
+                    root = (slots[0], self.owner_local(slots[0]))
+                    require(self.shared_root is None or self.shared_root == root,
+                            'require one exact root slot and layout for shared path calls')
+                    self.shared_root = root
                 require(self.shared_paths or all(left[:min(len(left), len(right))] != right[:min(len(left), len(right))]
                             for n, left in enumerate(places) for right in places[n + 1:]),
                         'require pairwise disjoint nested projections')
@@ -464,6 +479,8 @@ class OwnedAnalyze(Analyze):
         body, _, _, _, returns = self.region(0, len(self.code), set(range(len(self.params))),
                                              self.live, self.used)
         require(returns, 'require every owned function path to return')
+        if self.single_shared_path and self.index == 0:
+            require(self.shared_root is not None, 'require an actual single-shared-path caller region')
         require(len(self.seen) == len(self.code), 'require complete owned instruction coverage')
         return Function(self.fn['name'], self.params, self.result, self.types, self.fn['names'], parameters + body)
 
@@ -476,15 +493,19 @@ class OwnedEmit(Emit):
                              for fn in functions for t in fn.params)
         modes = [t[2] if isinstance(t, tuple) and t[0] == 'borrow' else 0 for t in functions[1].params] if len(functions) == 2 else []
         self.shared_paths = modes == [1, 1]
-        self.paths = modes in ([2, 2, 1], [1, 1])
+        self.single_shared_path = modes == [1] and any(
+            stmt[0] == 'path_borrow_call' for stmt in self.walk_statements(functions[0].body))
+        self.paths = modes in ([2, 2, 1], [1, 1]) or self.single_shared_path
         self.multi = modes in ([2, 1, 2], [2, 2, 1], [1, 1])
-        self.witness = self.path_witness(functions, layouts) if self.paths else self.multi_witness(functions) if self.multi else None
+        self.witness = (self.total_shared_tree(functions, layouts) if self.single_shared_path else
+                        self.path_witness(functions, layouts) if self.paths else
+                        self.multi_witness(functions) if self.multi else None)
         if self.paths and language == 'nano':
             from copy import deepcopy
             self.functions = deepcopy(functions)
             for function in self.functions:
                 function.body = self.fold_adjacent_assertions(function.body)
-        self.inline_add = (self.exclusive or self.shared_paths) and language == 'nano'
+        self.inline_add = (self.exclusive or self.shared_paths or self.single_shared_path) and language == 'nano'
         self.inline_mul = self.shared_paths and language == 'nano'
         self.inline_sub = self.multi and language == 'nano'
         if self.inline_add:
@@ -506,6 +527,46 @@ class OwnedEmit(Emit):
         self.fields = [[owned_type(child) if tag == 8 else tag
                         for tag, child in layout.get('field_types', [[t, 4294967295] for t in layout['fields']])]
                        for layout in layouts]
+
+    @staticmethod
+    def walk_statements(body):
+        for stmt in body:
+            yield stmt
+            if stmt[0] == 'if':
+                yield from OwnedEmit.walk_statements(stmt[2])
+                yield from OwnedEmit.walk_statements(stmt[3])
+            elif stmt[0] == 'while':
+                yield from OwnedEmit.walk_statements(stmt[2])
+            elif stmt[0] == 'while_observe':
+                yield from OwnedEmit.walk_statements(stmt[2])
+                yield from OwnedEmit.walk_statements(stmt[3])
+
+    @staticmethod
+    def total_shared_tree(functions, layouts):
+        # I synthesize only a consistency fixture for the separately total helper.
+        def total(node):
+            if isinstance(node, Expr):
+                return (node.tag in (INT, BOOL) and node.kind in
+                        ('constant', 'local', 'temporary', 'binary', 'not', 'bool_int', 'unsigned_compare') and
+                        (node.kind != 'binary' or node.value in ('==', '!=', '<', '<=', '>', '>=', 'and', 'or')) and
+                        all(total(child) for child in node.args))
+            if isinstance(node, (list, tuple)):
+                return all(total(child) for child in node)
+            return True
+        require(all(stmt[0] in ('let', 'store', 'borrow_read', 'if', 'return')
+                    for stmt in OwnedEmit.walk_statements(functions[1].body)) and total(functions[1].body),
+                'require a total observation-only helper for the synthesized tree fixture')
+        statements = list(OwnedEmit.walk_statements(functions[0].body))
+        calls = [stmt for stmt in statements if stmt[0] == 'path_borrow_call']
+        require(calls and all(stmt[2] == calls[0][2] and len(stmt[3]) == 1 for stmt in calls),
+                'require one shared root and exact single path calls')
+        roots = [stmt[2] for stmt in statements if stmt[0] == 'own_store' and stmt[1] == calls[0][2]]
+        require(len(roots) == 1, 'require one exact shared root declaration')
+        def zero_tree(layout):
+            return (layout, tuple(zero_tree(child) if tag == 8 else
+                    Expr(tag, 'constant', 0 if tag == INT else False)
+                    for tag, child in layouts[layout]['field_types']))
+        return zero_tree(roots[0]), calls[0][3], ()
 
     @staticmethod
     def fold_adjacent_assertions(body):
@@ -697,6 +758,10 @@ class OwnedEmit(Emit):
             results.append(result)
             fields = []
             consume(root, tree, fields)
+            if self.single_shared_path:
+                for field in fields:
+                    value = Expr(field.tag, 'constant', 0 if field.tag == INT else False)
+                    body.append(('assert', Expr(BOOL, 'binary', '==', (field, value))))
             captures.append(fields)
         body.append(('assert', Expr(BOOL, 'binary', '==', tuple(results))))
         for left, right in zip(*captures):
@@ -856,7 +921,7 @@ class OwnedEmit(Emit):
 
     def statements(self, statements, indent=1):
         c = self.language == 'c'
-        if c and self.shared_paths and statements is self.function.body and indent == 1:
+        if c and (self.shared_paths or self.single_shared_path) and statements is self.function.body and indent == 1:
             for parameter in range(len(self.function.params)):
                 self.line(f'(void)nlr_a{parameter};', indent)
         for stmt in statements:

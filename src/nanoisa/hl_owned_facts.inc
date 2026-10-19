@@ -38,7 +38,7 @@ static int owned_facts(const NvmModule *m) {
     }
     bool borrowed=!nvm_affine_value_call_graph(m);
     bool paths=m->ownership_data[0]==NVM_OWNERSHIP_PATH_VERSION;
-    if(paths && (!borrowed || m->function_count!=2 || (m->functions[1].arity!=2 && m->functions[1].arity!=3)))goto done;
+    if(paths && (!borrowed || m->function_count!=2 || (m->functions[1].arity!=1 && m->functions[1].arity!=2 && m->functions[1].arity!=3)))goto done;
     if(borrowed && (m->function_count!=2 || (m->functions[1].arity!=1 && m->functions[1].arity!=3 && !(paths && m->functions[1].arity==2))))goto done;
     if(borrowed)for(uint32_t i=0;i<layouts.count;i++)if(depths[i]>(paths?3:2))goto done;
     if(paths)printf("{\"profile\":\"owned-local-v1\",\"entry\":0,\"ownership_version\":2,\"layouts\":[");
@@ -78,7 +78,7 @@ static int owned_facts(const NvmModule *m) {
             count=fn->arity;
             for(uint16_t p=0;p<count;p++) {
                 if(!nvm_affine_parameter_at(state,p,&parameters[p],&modes[p]) ||
-                   (count==1 ? (modes[p]!=NVM_REFERENCE_SHARED && modes[p]!=NVM_REFERENCE_EXCLUSIVE) :
+                   (count==1 ? (modes[p]!=NVM_REFERENCE_SHARED && (paths || modes[p]!=NVM_REFERENCE_EXCLUSIVE)) :
                     modes[p]!=((paths && count==2) || p==(paths?2:1)?NVM_REFERENCE_SHARED:NVM_REFERENCE_EXCLUSIVE)))goto done;
                 if(parameters[p].tag!=TAG_STRUCT || parameters[p].layout>=layouts.count)goto done;
                 const NvmV2Layout *leaf=&layouts.items[parameters[p].layout];

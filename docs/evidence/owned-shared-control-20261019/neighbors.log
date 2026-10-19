@@ -1,0 +1,30 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-atblmdax
+test_single_shared_call_pretest_stays_separate (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_single_shared_call_pretest_stays_separate) ... ok
+test_old_two_shared_path_outputs_remain_byte_identical (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_old_two_shared_path_outputs_remain_byte_identical) ... FAIL
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-g1i3pv9b
+test_shared_output_is_byte_identical (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_shared_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-4ajo3dde
+test_single_exclusive_output_is_byte_identical (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_single_exclusive_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-ff2lllft
+test_v2_exclusive_outputs_remain_byte_identical (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_v2_exclusive_outputs_remain_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-wn_xzwz4
+test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_wlkf8bg
+test_actual_path_call_pretest_preserves_false_path_mutation (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_actual_path_call_pretest_preserves_false_path_mutation) ... ok
+
+======================================================================
+FAIL: test_old_two_shared_path_outputs_remain_byte_identical (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_old_two_shared_path_outputs_remain_byte_identical)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_shared_control_reconstruction.py", line 189, in test_old_two_shared_path_outputs_remain_byte_identical
+    self.assertEqual(hashlib.sha256(reconstruct_owned(facts,language).encode()).hexdigest(),expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '55f0f8c1c533a35f5e5decb03b7edae17d29a16437a6ebdfb15fd6dd6135f78d' != 'f6998675f0f91f610f0442e30c4192a51344c1a7dd1a70656daf5749730ef7f7'
+- 55f0f8c1c533a35f5e5decb03b7edae17d29a16437a6ebdfb15fd6dd6135f78d
++ f6998675f0f91f610f0442e30c4192a51344c1a7dd1a70656daf5749730ef7f7
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 29.234s
+
+FAILED (failures=1)

@@ -1,0 +1,197 @@
+[
+  {
+    "path": "src/nanoisa/hl_facts_main.c",
+    "bytes": 5163,
+    "sha256": "ff3284b474f9aab87826ebe351d659ece1c58af1da71b48ceb311ebbd7f702af"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/file_flow.o",
+    "bytes": 849056,
+    "sha256": "72eb471017846ff473e1d4c04c16501719d72aecb922a221ea7a58e01bb645ee"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/service_file_nominal.o",
+    "bytes": 38752,
+    "sha256": "a47aebd8d0741b3eb5f88f0cb2e0ef5a1d022121a43eeb092bf17ed012427b7b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/service_file_nominal_plan.o",
+    "bytes": 61240,
+    "sha256": "a49ab05eccf3277fc00b0a9e4f74a6a6f1a52e9a4b7229725b620b8396403b6e"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/service_bindings.o",
+    "bytes": 21800,
+    "sha256": "2e9962ce82fffbf03938631cf59522de9d48cd28b87a3e2cddf737466590bb09"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/service_bindings_module.o",
+    "bytes": 84264,
+    "sha256": "af02fda830b743c751404c6cce93a1fc6734fea9458875f38ae84249ef0e593c"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/mixed_float_proof.o",
+    "bytes": 207976,
+    "sha256": "467aac3cbce3ad9df60af7c88b60fe6823f1249f228398ae8da187dc1e99141c"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/managed_array_shapes.o",
+    "bytes": 567056,
+    "sha256": "902da8a853850dd086f5cf17dd56fd6cade168dfcaba0de388efcea853fd6200"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/local_bindings.o",
+    "bytes": 43424,
+    "sha256": "4d3808de28957779ade42fc4d29064a8acfbb6660c94826434e8cdd0d13039af"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/affine_bytecode.o",
+    "bytes": 365992,
+    "sha256": "623bc260f179bf20aff61f17f98896b6e28779c1c98a2293c819ebb88ea3af00"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/affine_state.o",
+    "bytes": 688992,
+    "sha256": "ffa586d2a3535d43ce03eda39a44e626604b96eec653d1c2882cb2987763b717"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/ownership_contracts.o",
+    "bytes": 198864,
+    "sha256": "f01a5a25f604479c30504e4c72d7fc5f1418a6c110ff691e101e78a6d52d3cb2"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/retained_layouts.o",
+    "bytes": 421672,
+    "sha256": "c2a4c8ab8f3e6d2920db7dd8c20e741141cc83c698c1d3f0aedd05fcdb445eec"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/reference_places.o",
+    "bytes": 24568,
+    "sha256": "ce40bc1f086af315ec76db657a7d9f139f7ccf3040912b5ca46a7ef3d6e1694b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/passive.o",
+    "bytes": 98752,
+    "sha256": "54244c2cbaceb327d71936d4dc43a08457ca6777cb05d2b426364e99a18815f6"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/isa.o",
+    "bytes": 136000,
+    "sha256": "f96b151bda1353411ef8523c83d3ff8963cb98c6520a9614543a4dda7b9ac011"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/verifier_types.o",
+    "bytes": 49032,
+    "sha256": "5087826975440145cec0311c9a0e348610de88a9151e0e3df5ef33555952b9b9"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm_format.o",
+    "bytes": 272656,
+    "sha256": "4a48eee2ae55462543945dc45b1643db564b83f6092ecfcc5b1fccc149a4a688"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm_format_v2.o",
+    "bytes": 57216,
+    "sha256": "72d18b43f65a300667da2e8cd408de4c9de295acd2a92d0675a5e596a9f12fa5"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm_v2_cursor.o",
+    "bytes": 19040,
+    "sha256": "b3d19ce7927fb96fb264923ad2b00c2cf34bedd46f5ce46ce167d9b67d0557a3"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm_v2_constants.o",
+    "bytes": 17944,
+    "sha256": "0b57fb0c6a00d09ec64143f98669a0be2715621401892db9e562b13f99e78e85"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm_v2_signatures.o",
+    "bytes": 22024,
+    "sha256": "da6672939e1d4d98702c4f59f0c23462d002f92e201fa375a88d44f00cd4fed5"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm_v2_layouts.o",
+    "bytes": 41968,
+    "sha256": "723edd574c470a75756ddf260d78b937dd724d07193feab22f3ef982a64ac73b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm_v2_functions.o",
+    "bytes": 32240,
+    "sha256": "2d83cc77beceff38482c4fc29a9d505b80ce8c4c87139278f8e923a531425d1f"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm_v2_imports.o",
+    "bytes": 70832,
+    "sha256": "0f622b5f4bbf80735fe008043b18d20187c09b2dc8dd52177d92f1241fa7938c"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm_v2_module.o",
+    "bytes": 68192,
+    "sha256": "0524c3e8a11949be89b0cb57af16d92c9a8c8dc9b1887fa273d83c01ca5139b6"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm_v2_convert.o",
+    "bytes": 118536,
+    "sha256": "eb94933533cd56e771261a018c00acc7d5edf0eb0de0d7939b579940655ec9f4"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/assembler.o",
+    "bytes": 298448,
+    "sha256": "b5d2a5c3e1c2a21bcd88def7dcb3852295d6eda83bfd6406eb32b81b86c40bbf"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/disassembler.o",
+    "bytes": 79864,
+    "sha256": "4caec65e45cc142e5c9af3245ba3747f7ef880b94236709414a5fe9244d04b33"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/verifier.o",
+    "bytes": 378840,
+    "sha256": "8b92717230a5d435aad4a578df72c3f43006f99733816e2e362d2e8680e92e93"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm2c.o",
+    "bytes": 1979688,
+    "sha256": "a90aeae0f2f48a08d517d104f1a9e8db764e24a3433bfaf57378df1d48e8a9d1"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm2c_shape.o",
+    "bytes": 128008,
+    "sha256": "6f7a3085e6f3e884e26f8fb157eda04b8981548ce11c813bca1c307a9b9b0ca3"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nvm2c_callables.o",
+    "bytes": 167720,
+    "sha256": "c99c3b8425eff45394ff9adb15cd918048733a07a842016df2cf09e99ef025fa"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/frontend.o",
+    "bytes": 65760,
+    "sha256": "dbceb456290fcc7a45a5eb5b768e9cf7ec8412900188d7c3997095fc195f04a0"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanoisa/nanoisa_facade.o",
+    "bytes": 95432,
+    "sha256": "8c98eb12a1af84708b2493c8bebcc36f3a789deaa601e4d7c24b3eacfdfffaa9"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanovm/vm_decode.o",
+    "bytes": 38096,
+    "sha256": "168c8a66e285a8f81c43da27ee6ed0a22fb526eb7faa4e1e203f3911f974dbfb"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/nanovm/vm_dispatch.o",
+    "bytes": 45056,
+    "sha256": "0efab442a39ed80c69a0e810a328bd0cc6c770062f39c97816abd2828f120712"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/lib/libnano_compiler_inputs.a",
+    "bytes": 2041448,
+    "sha256": "adfa2e703e2bcf2f135497994cb4b5f9dce1d18bc438e77a7b13835fe9edaba1"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-homebrew/utf8.o",
+    "bytes": 20712,
+    "sha256": "2eabcf0860c5d6eabd60e37f79bbd7dee0effb279892ab21afe02791bc6a6444"
+  }
+]
