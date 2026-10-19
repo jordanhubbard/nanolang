@@ -280,13 +280,21 @@ class OwnedAnalyze(Analyze):
                 condition_stack, condition_statements = [], []
                 materialized = any(self.code[n]['op'] == 'REGION_BEGIN' or
                                    self.code[n]['op'] in OWNED_WRAPPING_PRETEST for n in range(i, branch))
-                n = i
+                n, pretest_calls = i, 0
                 while n < branch:
                     condition_instruction = self.code[n]
                     if materialized and condition_instruction['op'] == 'REGION_BEGIN':
                         self.touch(n)
-                        self.observation(n, branch, condition_stack, condition_statements, allow_call=False)
-                        n += 4
+                        length = self.reference_region_length(n)
+                        is_call = any(ins['op'] == 'CALL_REF' for ins in self.code[n:n + length])
+                        if is_call:
+                            require(self.index == 0 and self.paths and not self.shared_paths and
+                                    length == 6 and self.module['functions'][1]['param_modes'] == [2, 2, 1] and
+                                    pretest_calls == 0,
+                                    'require one exact three-path reference call per owned pretest')
+                            pretest_calls += 1
+                        self.observation(n, branch, condition_stack, condition_statements, allow_call=is_call)
+                        n += length
                         continue
                     require(condition_instruction['op'] in OWNED_PRETEST | OWNED_WRAPPING_PRETEST,
                             'require a nontrapping pure scalar owned pretest')

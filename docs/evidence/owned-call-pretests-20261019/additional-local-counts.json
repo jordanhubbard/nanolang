@@ -1,0 +1,227 @@
+{
+  "final-compositions.log": [
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-os2xvloy/call-pretest-cap-nanoc_u8_context.nvm",
+      "locals": [
+        [
+          "owned_0",
+          38
+        ],
+        [
+          "owned_1",
+          3
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-os2xvloy/diagnostic-call-pretest-cap-nanoc_u8_context.nvm",
+      "locals": [
+        [
+          "main",
+          "130"
+        ],
+        [
+          "nlr_f1_owned_1",
+          "31"
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-os2xvloy/call-pretest-return0-nano_virt.nvm",
+      "locals": [
+        [
+          "owned_0",
+          45
+        ],
+        [
+          "owned_1",
+          3
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-os2xvloy/call-pretest-cap-nano_virt.nvm",
+      "locals": [
+        [
+          "owned_0",
+          38
+        ],
+        [
+          "owned_1",
+          3
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-os2xvloy/diagnostic-call-pretest-cap-nano_virt.nvm",
+      "locals": [
+        [
+          "main",
+          "130"
+        ],
+        [
+          "nlr_f1_owned_1",
+          "31"
+        ]
+      ]
+    }
+  ],
+  "return-corrected.log": [
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv/call-pretest-return-small2-nanoc_u8_context.nvm",
+      "locals": [
+        [
+          "owned_0",
+          36
+        ],
+        [
+          "owned_1",
+          3
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv/call-pretest-return-small2-nanoc_u8_context.nano_virt.nvm",
+      "locals": [
+        [
+          "owned_0",
+          120
+        ],
+        [
+          "owned_1",
+          29
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv/call-pretest-return-small2-nanoc_u8_context.nanoc_u8_context.nvm",
+      "locals": [
+        [
+          "owned_0",
+          120
+        ],
+        [
+          "owned_1",
+          29
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv/call-pretest-return-small0-nano_virt.nano_virt.nvm",
+      "locals": [
+        [
+          "owned_0",
+          120
+        ],
+        [
+          "owned_1",
+          29
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv/call-pretest-return-small0-nano_virt.nanoc_u8_context.nvm",
+      "locals": [
+        [
+          "owned_0",
+          120
+        ],
+        [
+          "owned_1",
+          29
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv/call-pretest-return-small0-nanoc_u8_context.nvm",
+      "locals": [
+        [
+          "owned_0",
+          36
+        ],
+        [
+          "owned_1",
+          3
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv/call-pretest-return-small0-nanoc_u8_context.nano_virt.nvm",
+      "locals": [
+        [
+          "owned_0",
+          120
+        ],
+        [
+          "owned_1",
+          29
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv/call-pretest-return-small0-nanoc_u8_context.nanoc_u8_context.nvm",
+      "locals": [
+        [
+          "owned_0",
+          120
+        ],
+        [
+          "owned_1",
+          29
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv/call-pretest-return-small2-nano_virt.nvm",
+      "locals": [
+        [
+          "owned_0",
+          36
+        ],
+        [
+          "owned_1",
+          3
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv/call-pretest-return-small2-nano_virt.nano_virt.nvm",
+      "locals": [
+        [
+          "owned_0",
+          120
+        ],
+        [
+          "owned_1",
+          29
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv/call-pretest-return-small0-nano_virt.nvm",
+      "locals": [
+        [
+          "owned_0",
+          36
+        ],
+        [
+          "owned_1",
+          3
+        ]
+      ]
+    },
+    {
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv/call-pretest-return-small2-nano_virt.nanoc_u8_context.nvm",
+      "locals": [
+        [
+          "owned_0",
+          120
+        ],
+        [
+          "owned_1",
+          29
+        ]
+      ]
+    }
+  ]
+}

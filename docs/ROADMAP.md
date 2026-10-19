@@ -15813,3 +15813,11 @@ I rebuild my aggregate facts extractor and pass all 23 local/call/branch/loop/VO
 My first expanded guard harness failed to compile because it assumed an unavailable generated cleanup function. I retain that terminal and use the three actual generated cleanup functions; the product translator and its assertions are unchanged by this harness correction.
 
 I pass the same full emitter module through corrected translation in 15.907 seconds, 14 scalar/optional-record methods in 66.053 seconds, and expanded three-producer forward/reverse boolean join and actual NDEBUG tag-guard controls in 50.461 seconds. I retain [my reviewed correction and failure receipts](evidence/proved-boolean-joins-20261019/README.md). Full native emitter publication and hosted coverage remain pending while worker pressure holds heavy jobs.
+
+### Exact reference-call loop pretests (#999, 2026-10-19)
+
+- [x] I own `fix/5.1-owned-call-pretests` from c76c77b72 for the original-admitted nested-path call pretest that currently refuses reconstruction. I record [my contract](NANOISA_OWNED_CALL_PRETESTS.md), preserve one exact modes[2,2,1] region per pretest, final-false mutation and once-only evaluation, retain original verifier/witness/budgets, then qualify source-derived VM/native/C/Nano and refusal controls before publication. Broader graphs/profiles and full9538/10409 remain open.
+
+I retain the first call-pretest return-composition boundary: original45/3 locals, generated155/31, ordinary Nano refuses the unchanged128 cap (`owned-call-pretests-20261019/final-compositions.log`). The unchanged false-once anchor already passes at128/31; a separately named smaller tree qualifies the same return/zero-body semantics, without weakening the original fixture or raising limits.
+
+I qualify all seven new call-pretest methods plus the updated original anchor, and all21 old path/observation/loop neighbors pass174.118s. Actual ordinary generated locals are128/31 for the unchanged anchor and120/29 for the smaller return tree; the separate130/31 diagnostic remains ordinary atomic refusal. I retain [my exact component receipt](evidence/owned-call-pretests-20261019/README.md), original155 estimator refusal and source/provider hashes. Fresh aggregate qualification and full #999 remain open.
