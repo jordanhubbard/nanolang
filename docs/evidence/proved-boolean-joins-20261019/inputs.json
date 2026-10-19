@@ -103,5 +103,30 @@
     "path": "/private/tmp/nanolang-emitter-join-20261019/driver.nasm",
     "sha256": "2e98f527bb9380744b5294dd423e8b086e0fb7a8fcda40db18df898eefe99417",
     "bytes": 1636833
+  },
+  {
+    "path": "/private/tmp/nanolang-emitter-join-20261019/native-build.log",
+    "sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3",
+    "bytes": 49
+  },
+  {
+    "path": "/private/tmp/nanolang-emitter-join-20261019/native-build-status.json",
+    "sha256": "88e8c2eb198e5a76ef4b068738d6dd55332620807a0dfb1ed66afa1fed42984b",
+    "bytes": 454
+  },
+  {
+    "path": "/private/tmp/nanolang-emitter-join-20261019/native-execute.log",
+    "sha256": "541addd4c74b881f03ea0b4fe7a4f88430eb8e1457c9c16b8eadb733f99bdedd",
+    "bytes": 46
+  },
+  {
+    "path": "/private/tmp/nanolang-emitter-join-20261019/native-execute-status.json",
+    "sha256": "bc47a6d826d11603725dfc926640b134107cb91fd03cf15e236cee25f02800a9",
+    "bytes": 174
+  },
+  {
+    "path": "/private/tmp/nanolang-emitter-join-20261019/native-emitter",
+    "sha256": "2610453e4ac0fec2ca86b4f37dfb6d3420d17b9e75a2c16acde4c2f610502171",
+    "bytes": 13959328
   }
 ]

@@ -15781,3 +15781,7 @@ I rebuild my aggregate facts extractor and pass all 23 local/call/branch/loop/VO
 My first expanded guard harness failed to compile because it assumed an unavailable generated cleanup function. I retain that terminal and use the three actual generated cleanup functions; the product translator and its assertions are unchanged by this harness correction.
 
 I pass the same full emitter module through corrected translation in 15.907 seconds, 14 scalar/optional-record methods in 66.053 seconds, and expanded three-producer forward/reverse boolean join and actual NDEBUG tag-guard controls in 50.461 seconds. I retain [my reviewed correction and failure receipts](evidence/proved-boolean-joins-20261019/README.md). Full native emitter publication and hosted coverage remain pending while worker pressure holds heavy jobs.
+
+After worker recovery I compile the full corrected emitter product in 16.739 seconds and execute its entry assertions in 0.249 seconds. I retain exact native flags, provider hashes and terminals with the boolean-join receipt. Hosted coverage still needs its own qualification.
+
+My final local boolean-join strict gate passes all 444 Clang/GCC compilations with zero failures. Hosted CI for `c6fcfd59d` is queued; I retain that distinction.
