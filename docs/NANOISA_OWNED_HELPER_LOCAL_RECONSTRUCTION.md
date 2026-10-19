@@ -75,6 +75,59 @@ facts; runtime assertions remain at every original position on every invocation.
 A later call with source.value different from4 must still fail, even after a
 valid selected witness. I do not invent zero owners: source.value==4 rejects them.
 
+### My proposed finite proof representation
+
+I propose a flat immutable token table, not recursively expanded expressions.
+Each scalar fact is unknown, an exact typed INT/BOOL literal, or a typed token
+identifier. Tokens identify a checked scalar definition/snapshot by function,
+activation namespace, instruction position and lexical loop context. Copying a
+snapshot copies its token; it does not re-read mutable storage. A scalar store
+updates only that local's current fact. Source names never identify facts.
+A recomputed arithmetic result gets a fresh opaque token, even when its source
+spelling repeats. I do not equate arithmetic expressions or evaluate arbitrary
+helper instructions; the existing exact rank proof remains separate authority.
+
+Owner field facts are keyed by activation namespace, actual owner local slot,
+immutable generation/origin token and exact nominal field position. Pack captures
+operand facts in original evaluation order. Move transfers the same generation;
+unpack transfers exact child generations and captured scalar facts. A new pack
+in a consumed slot creates a new generation. A view resolves the current exact
+owner generation; inherited borrowed roots use a separate caller namespace.
+Shared literal witness facts attach only to the selected actual caller origins.
+Exclusive writes invalidate affected field facts before any later observation.
+I never infer equality from the same slot reused across generations.
+
+I prove equality only between exact literals of the same type or identical
+non-unknown typed tokens. A comparison result may become a BOOL literal from
+those rules; NOT may invert a proved BOOL literal. Other Boolean outcomes stay
+unknown and cannot justify a generated passing assertion. Snapshot creation,
+owner capture and consumption retain the original instruction order. I reject
+unproved assertions without dropping their runtime checks from emitted output.
+
+At a branch join I intersect identical facts from continuing predecessors,
+including exact owner origins; no union, guessed equality or name matching is
+allowed. A loop entry carries only established invariant facts. The body proof
+uses a fresh symbolic iteration namespace: an item field captured from index
+and the unchanged current index share a token only within that iteration.
+Increment changes the current index fact. Body snapshots and body-local owner
+generations expire at the backedge; they cannot establish cross-iteration facts.
+Only unchanged invariant facts survive exit, intersected with the zero-trip
+entry state. The rank/work checker proves iteration bounds separately, without
+unrolling the witness proof or treating termination as assertion validity.
+
+I propose explicit reconstruction-proof caps: at most4096 allocated token
+records,4096 simultaneously retained fact bindings across all saved branch and
+loop states,65536 charged traversal/copy/merge operations, and nesting depth32.
+These are new conservative witness-analysis limits, not VM limits. Every
+instruction or IR statement visit, operand/field inspection, binding copied,
+branch-merge comparison and token creation consumes one charged operation;
+revisits and saved-state copies are charged again. I check before allocating or
+inserting, and refuse atomically on exhaustion. Flat token comparison is constant
+size; owner traversal follows the already validated depth/layout bounds and
+charges each field. No recursive symbolic expression or implicit uncharged
+state cloning is permitted. These proposed caps and their implementation
+interface still require review and boundary controls before admission.
+
 Current `multi_witness` only proves direct shared-BOOL assertions and straight
 line scalar operations. I do not broaden that rule by merely accepting [2,1].
 The new generated shadow must own and consume its two actual snapshot fixtures;
