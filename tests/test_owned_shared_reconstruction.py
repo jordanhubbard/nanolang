@@ -122,14 +122,6 @@ shadow main { assert true }
             elif name=='mismatch-ref':call['args'][1]=1
             else:next(i for i in code if i['op']=='REGION_END')['op']='NOP'
             with self.subTest(name=name),self.assertRaises(Refusal):reconstruct_owned(facts,'c')
-        module=self.work/'exclusive.nvm'
-        self.command([self.compilers[0],ROOT/'tests/nanoisa/fixtures/source_borrow_exclusive.nano','--emit-nvm','-o',module])
-        self.command([ROOT/'bin/nano_vm','--verify-only',module])
-        for language in ('c','nano'):
-            output=self.work/('exclusive.'+language);output.write_text('prior checked source')
-            self.assertNotEqual(self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output],None).returncode,0)
-            self.assertEqual(output.read_text(),'prior checked source')
-
     def test_extra_generated_nano_helper_refuses_without_narrowing_c(self):
         original=self.module()
         assembly=self.command([ROOT/'bin/nanoisa','dump',original]).stdout

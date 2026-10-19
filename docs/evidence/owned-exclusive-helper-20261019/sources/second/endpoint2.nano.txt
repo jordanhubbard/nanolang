@@ -1,0 +1,19 @@
+resource struct Counter { value: int, active: bool }
+fn update(view: &mut Counter) -> int {
+ set view.value (+ view.value (- -9223372036854775807 1))
+ set view.active (not view.active)
+ return view.value
+}
+shadow update { let mut owner: Counter = Counter { value: (- -9223372036854775807 1), active: false }
+ assert (== (update &mut owner) 0)
+ let Counter { value, active } = owner assert (== value 0) assert active }
+fn main() -> int {
+ let mut owner: Counter = Counter { value: (- -9223372036854775807 1), active: false }
+ assert (== (update &mut owner) 0)
+ assert owner.active
+ assert (== (update &mut owner) (- -9223372036854775807 1))
+ let Counter { value, active } = owner
+ assert (== value (- -9223372036854775807 1)) assert (not active)
+ return 0
+}
+shadow main { assert true }

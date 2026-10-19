@@ -1,0 +1,7 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-j76jqw0u
+test_generated_local_boundary_is_checked_before_publication (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_generated_local_boundary_is_checked_before_publication) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 14.957s
+
+OK

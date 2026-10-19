@@ -1,0 +1,118 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-i2emyrot
+test_defensive_profile_refusals (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_defensive_profile_refusals) ... ok
+test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) ... 
+  test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) (case=0, compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt') ... FAIL
+  test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) (case=0, compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context') ... FAIL
+  test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) (case=1, compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt') ... FAIL
+  test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) (case=1, compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context') ... FAIL
+  test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) (case=2, compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt') ... FAIL
+  test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) (case=2, compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context') ... FAIL
+test_existing_exclusive_fixture (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_existing_exclusive_fixture) ... ok
+test_generated_consistency_shadow_execution (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_generated_consistency_shadow_execution) ... ok
+
+======================================================================
+FAIL: test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) (case=0, compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 78, in test_endpoints_and_sequential_mutation
+    self.qualify(self.module(compiler,text,'endpoint'+str(case)))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 30, in qualify
+    self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require the existing two-function borrowed Nano profile
+I did not publish reconstructed source
+
+
+======================================================================
+FAIL: test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) (case=0, compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 78, in test_endpoints_and_sequential_mutation
+    self.qualify(self.module(compiler,text,'endpoint'+str(case)))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 30, in qualify
+    self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require the existing two-function borrowed Nano profile
+I did not publish reconstructed source
+
+
+======================================================================
+FAIL: test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) (case=1, compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 78, in test_endpoints_and_sequential_mutation
+    self.qualify(self.module(compiler,text,'endpoint'+str(case)))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 30, in qualify
+    self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require the existing two-function borrowed Nano profile
+I did not publish reconstructed source
+
+
+======================================================================
+FAIL: test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) (case=1, compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 78, in test_endpoints_and_sequential_mutation
+    self.qualify(self.module(compiler,text,'endpoint'+str(case)))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 30, in qualify
+    self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require the existing two-function borrowed Nano profile
+I did not publish reconstructed source
+
+
+======================================================================
+FAIL: test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) (case=2, compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 78, in test_endpoints_and_sequential_mutation
+    self.qualify(self.module(compiler,text,'endpoint'+str(case)))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 30, in qualify
+    self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require a straight-line scalar borrowed helper
+I did not publish reconstructed source
+
+
+======================================================================
+FAIL: test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) (case=2, compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 78, in test_endpoints_and_sequential_mutation
+    self.qualify(self.module(compiler,text,'endpoint'+str(case)))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 30, in qualify
+    self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require a straight-line scalar borrowed helper
+I did not publish reconstructed source
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 20.582s
+
+FAILED (failures=6)

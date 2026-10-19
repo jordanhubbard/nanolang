@@ -73,7 +73,7 @@ static int owned_facts(const NvmModule *m) {
 
         if(!nvm_get_string(m,fn->name_idx) || !strcmp(nvm_get_string(m,fn->name_idx),"__init__") ||
            !(helper ? (count=1, nvm_affine_parameter_at(state,0,&parameters[0],&mode) &&
-                       mode==NVM_REFERENCE_SHARED) :
+                       (mode==NVM_REFERENCE_SHARED || mode==NVM_REFERENCE_EXCLUSIVE)) :
                        nvm_affine_value_parameters(state,parameters,NVM_AFFINE_MAX_PARAMETERS,&count)) || count!=fn->arity ||
            !nvm_affine_value_result(state,&result,&fields) ||
            fn->result_count!=(result.tag==TAG_VOID?0:1) ||

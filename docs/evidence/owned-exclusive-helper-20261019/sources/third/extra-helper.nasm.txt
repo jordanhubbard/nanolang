@@ -1,0 +1,92 @@
+.string "Counter"
+.string "value"
+.string "active"
+.string "Other"
+.string "main"
+.string "read"
+.string "nano.local.v1"
+.string "\x00\x00\x00\x00\x02\x00\x00\x00\x1f\x00\x00\x00~\x00\x00\x00owner"
+.string "\x00\x00\x00\x00\x04\x00\x00\x00M\x00\x00\x00~\x00\x00\x00value"
+.string "\x00\x00\x00\x00\x05\x00\x00\x00\\\x00\x00\x00~\x00\x00\x00active"
+.string "\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00view"
+.string "nano.affine.v1"
+.string "\x00\x00\x00\x00\x01\x00\x00\x00"
+.string "\x01\x00\x00\x00\x01\x00\x00\x00"
+.string "nano.affine-use.v1"
+.string "\x00\x00\x00\x00\x0e\x00\x00\x00\x14\x00\x00\x00\x01\x01\x00\x00\\\x00\x00\x00\x05\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_shared.nanoowner"
+.string "\x00\x00\x00\x00\x0f\x00\x00\x00\"\x00\x00\x00\x02\x01\x00\x00\\\x00\x00\x00\x05\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_shared.nanoowner"
+.string "\x01\x00\x00\x00\x03\x00\x00\x00)\x00\x00\x00\x01\x01\x00\x00\\\x00\x00\x00\x04\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_shared.nanoview"
+
+.metadata 6 7
+.metadata 6 8
+.metadata 6 9
+.metadata 6 10
+.metadata 11 12
+.metadata 11 13
+.metadata 14 15
+.metadata 14 16
+.metadata 14 17
+
+.types 2 0 0
+
+.layouts "02000000000002000000000001000000ffffffff0100000004000000ffffffff"
+.layouts "02000000000002000300000001000000ffffffff0100000004000000ffffffff"
+.layouts "02000000"
+
+.ownership "010000000200000003030000020000000600000001000000ffffffff01000000"
+.ownership "ffffffff04000000ffffffff0800000000000000080000000000000001000000"
+.ownership "ffffffff04000000ffffffff0100010001000000ffffffff0801000000000000"
+
+.entry 0
+
+.function main 0 6 0 int 1
+  PUSH_I64 12
+  PUSH_I64 0
+  ADD
+  STORE_LOCAL 0
+  PUSH_BOOL 0
+  STORE_LOCAL 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  OWN_PACK 0
+  OWN_STORE_LOCAL 2
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 2
+  CALL_REF 1 0
+  REGION_END
+  PUSH_I64 12
+  EQ
+  ASSERT
+  OWN_MOVE_LOCAL 2
+  OWN_STORE_LOCAL 3
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 3
+  REF_GET 0 0
+  REGION_END
+  STORE_LOCAL 4
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 3
+  REF_GET 0 1
+  REGION_END
+  STORE_LOCAL 5
+  LOAD_LOCAL 4
+  PUSH_I64 12
+  EQ
+  ASSERT
+  LOAD_LOCAL 5
+  NOT
+  ASSERT
+  PUSH_I64 0
+  OWN_UNPACK_LOCAL 3
+  POP
+  POP
+  RET
+.end
+
+.function read 1 1 0 int 1
+  REF_GET 0 0
+  RET
+.end
+
+.parameters 1 struct
+
