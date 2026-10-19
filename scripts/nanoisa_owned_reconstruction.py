@@ -40,15 +40,14 @@ class OwnedAnalyze(Analyze):
                     len(fields) == len(layout['fields']) and
                     all(pair[0] == tag for pair, tag in zip(fields, layout['fields'])),
                     'require complete exact resource field descriptors')
-            parent = fields[0][0] == 8
             for tag, child in fields:
-                if parent:
-                    require(tag == 8 and 0 <= child < i and
+                if tag == 8:
+                    require(0 <= child < i and
                             all(t in (INT, BOOL) for t in self.fields[child]),
                             'require prior scalar-leaf children at depth two')
                 else:
                     require(tag in (INT, BOOL) and child == 4294967295,
-                            'require exact scalar leaves without mixed child fields')
+                            'require exact scalar fields without child layout identities')
             self.fields.append([owned_type(child) if tag == 8 else tag for tag, child in fields])
         self.declarations = self.fn['local_types']
         require(len(self.declarations) == self.fn['locals'] <= 128,
@@ -266,6 +265,8 @@ class OwnedAnalyze(Analyze):
                     require(borrow['args'][0] == read['args'][0] and
                             0 <= field < len(self.fields[layout]),
                             'require a field within the exact owner layout')
+                    require(all(t in (INT, BOOL) for t in self.fields[layout]),
+                            'require a scalar-leaf owner for ephemeral field observation')
                     require(self.fields[layout][field] in (INT, BOOL), 'require a scalar shared field')
                     target = Expr(self.fields[layout][field], 'temporary', read['pc'])
                     body.append(('own_read', target, slot, field))

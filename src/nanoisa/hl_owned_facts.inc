@@ -25,11 +25,10 @@ static int owned_facts(const NvmModule *m) {
         if(nvm_ownership_layout_authority(m,i,&authority)!=NVM_V2_OK ||
            authority!=NVM_LAYOUT_AUTHORITY_RESOURCE || l->kind!=NVM_V2_LAYOUT_STRUCT ||
            !l->field_count || l->field_count>16)goto done;
-        bool parent=l->fields[0].type_tag==TAG_STRUCT;
         for(uint16_t f=0;f<l->field_count;f++) {
             uint8_t tag=l->fields[f].type_tag;uint32_t child=l->fields[f].nested_idx;
-            if(parent) {
-                if(tag!=TAG_STRUCT || child>=i)goto done;
+            if(tag==TAG_STRUCT) {
+                if(child>=i)goto done;
                 const NvmV2Layout *leaf=&layouts.items[child];
                 for(uint16_t j=0;j<leaf->field_count;j++)
                     if((leaf->fields[j].type_tag!=TAG_INT && leaf->fields[j].type_tag!=TAG_BOOL) ||
