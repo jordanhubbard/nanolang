@@ -15754,3 +15754,8 @@ I pass the corrected mutation matrix through changed C and freshly C-hosted Nano
 - [ ] I repair the demonstrated root cause without weakening shape checks and qualify the original component under the affected coverage profile.
 
 I stopped my newly launched reproduction on local worker overload (load122.38 with unrelated concurrent test fanout), preserving its partial log. That interrupted attempt is not compiler-failure evidence. Full parser qualification keeps its existing deadline; no unrelated jobs were stopped.
+### Pure-pretest resource reconstruction (#999, 2026-10-19)
+
+- [ ] I own `fix/5.1-owned-pretest-loops` from reviewed `b6ee168d7`. I implement the approved [bounded contract](NANOISA_OWNED_PRETEST_LOOPS.md): pure scalar pretests, exact carried owners, zero-iteration entry initialization, body-local fresh lifetimes and terminal-path isolation. Actual borrowed-field conditions remain refused. I preserve original verifier authority and complete borrow-region coverage; full #999 remains open.
+
+- [x] I qualify the reviewed pure-pretest ownership-loop slice with 15 focused loop/local/call methods (74.180 seconds), six actual source families through both retained producers, cross-producer Nano roundtrips and O0/O2 sanitized native execution. The original verifier also admits my producer-derived inverted-pretest and return-only/unreachable-backedge controls; both retain behavior through C/Nano roundtrips. Four branch neighbor methods pass under this implementation. I retain explicit borrowed-field/arithmetic pretest refusals, state/CRC-valid edge negatives, all commands and failed harness attempts in [my receipt](evidence/owned-pretest-loops-20261019/README.md). Fresh aggregate qualification and full #999 remain open.

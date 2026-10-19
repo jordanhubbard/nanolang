@@ -1,0 +1,4 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I cannot verify ownership: loop changes ownership of an outer resource: owner (/private/tmp/nanolang-owned-loop-map-20261019/consume-entry.nano:2:9)
+  [E0036] I cannot verify ownership: resource remains live at scope exit: owner (/private/tmp/nanolang-owned-loop-map-20261019/consume-entry.nano:2:9)
