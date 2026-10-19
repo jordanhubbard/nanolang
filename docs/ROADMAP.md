@@ -15964,3 +15964,12 @@ fixture remains whole-module byte-identical to the previous C provider.
 I preserve first build/comparator failures and exact final source/tool pins.
 Fresh aggregate raw generations and exact Linux/Darwin gates remain open;
 C-hosted qualification does not satisfy those gates or close full #998.
+
+### Checked exclusive field-write contract ownership (#998)
+
+I record `workspace_repairs` contract-only ownership from `d67295b3d` in
+[NANOISA_CHECKED_FIELD_WRITE_FACTS.md](NANOISA_CHECKED_FIELD_WRITE_FACTS.md).
+Existing accepted exclusive assignments compute checked destination projections
+that current read/call records do not preserve. This completes the same row10407
+affine field-access obligation, without new CFG certificates or executable scope.
+I require interface review before production edits and keep all builds held.
