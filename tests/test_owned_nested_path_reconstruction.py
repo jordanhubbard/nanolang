@@ -152,19 +152,19 @@ class OwnedNestedPathReconstruction(unittest.TestCase):
             self.assertEqual(len(loops),2)
             self.assertTrue(all(sum(s[0]=='path_read' for s in stmt[2])==1 for stmt in loops))
 
-    def test_actual_path_call_pretest_refuses_atomically(self):
+    def test_actual_path_call_pretest_preserves_false_path_mutation(self):
         text=(ROOT/'tests/nanoisa/fixtures/source_borrow_nested.nano').read_text()
         head,main=text.split('fn main()',1)
         call='(change &mut root.branch.right &mut root.branch.left &root.other)'
         main=main.replace(' assert (== '+call+' 20)', ' while (== '+call+' 0) { assert false }')
         for compiler in self.compilers:
             module=self.module(compiler,head+'fn main()'+main,'path-call-pretest')
-            for language in ('c','nano'):
-                output=module.with_suffix('.'+language);output.write_text('prior checked source')
-                result=self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output],None)
-                self.assertNotEqual(result.returncode,0)
-                self.assertIn('complete three-reference caller region',result.stderr)
-                self.assertEqual(output.read_text(),'prior checked source')
+            native=module.with_suffix('.original.c')
+            self.command([ROOT/'bin/nvm2c',module,'-o',native]);self.native(native,0)
+            facts=self.qualify(module)
+            loops=[stmt for stmt in OwnedAnalyze(facts,0).run().body if stmt[0]=='while_observe']
+            self.assertEqual(len(loops),1)
+            self.assertEqual(sum(stmt[0]=='path_borrow_call' for stmt in loops[0][2]),1)
 
     def test_projected_calls_in_both_caller_branch_arms(self):
         text=(ROOT/'tests/nanoisa/fixtures/source_borrow_nested.nano').read_text()

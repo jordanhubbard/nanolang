@@ -1,0 +1,25 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-os2xvloy
+test_output_local_limit_is_measured_and_atomic (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_output_local_limit_is_measured_and_atomic) ... ok
+test_return_body_and_zero_body_keep_complete_owner_consumption (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_return_body_and_zero_body_keep_complete_owner_consumption) ... FAIL
+
+======================================================================
+FAIL: test_return_body_and_zero_body_keep_complete_owner_consumption (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_return_body_and_zero_body_keep_complete_owner_consumption)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_call_pretest_reconstruction.py", line 194, in test_return_body_and_zero_body_keep_complete_owner_consumption
+    self.qualify(module)
+    ~~~~~~~~~~~~^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_nested_path_reconstruction.py", line 83, in qualify
+    self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I limit generated exclusive Nano functions to 128 local slots
+I did not publish reconstructed source
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.347s
+
+FAILED (failures=1)

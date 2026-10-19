@@ -1,0 +1,7 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5ttcfcwv
+test_return_body_and_zero_body_keep_complete_owner_consumption (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_return_body_and_zero_body_keep_complete_owner_consumption) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 21.703s
+
+OK
