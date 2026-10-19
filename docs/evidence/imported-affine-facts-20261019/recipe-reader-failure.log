@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-imported-affine-build.py", line 5, in <module>
+    argv=shlex.split(next(line for line in lines if line.startswith('cc ') and ' -o /private/tmp/nanolang-imported-affine-bin/nano_virt ' in line))
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/shlex.py", line 312, in split
+    return list(lex)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/shlex.py", line 299, in __next__
+    token = self.get_token()
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/shlex.py", line 107, in get_token
+    raw = self.read_token()
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/shlex.py", line 208, in read_token
+    raise ValueError("No escaped character")
+ValueError: No escaped character

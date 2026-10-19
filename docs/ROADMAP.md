@@ -15801,3 +15801,15 @@ My final local boolean-join strict gate passes all 444 Clang/GCC compilations wi
 - [ ] I qualify the canonical callsite, imported globals, selected shadows, unchanged affine facts and exact aggregate generations/platforms before closing #998.
 
 I pass my C-hosted compiler build and 33 focused methods across the retained metadata and prerequisite-corrected purity runs. I preserve initial fixture and missing-runtime-object failures in [my checked-global receipt](evidence/checked-global-effects-20261019/README.md). My new compiler record shapes still require fresh raw Stage 1/Stage 2 and exact hosted qualification; #998 remains open.
+
+### Imported and branch-local affine fact qualification (#998)
+
+- [x] I record [my bounded qualification contract](NANOISA_IMPORTED_AFFINE_FACTS.md) before tests. `workspace_repairs` owns `test/5.1-imported-affine-facts` from `74a565150`; blocked primitive files remain untouched.
+- [x] I draft exact source-owner/site expectations for independently imported same-spelled resources, both import orders and branch-local identifiers; I preserve coordinate provenance and existing advisory-only semantics.
+- [x] I qualify actual producers, VM/native/transport, ownership refusal and prior-output preservation after the aggregate build slot is released. I retain any demonstrated omission before proposing production changes; full #998 remains open.
+
+- [x] I retain and repair the demonstrated C borrowed-profile canonical transport collision: two reachable imported `take` bodies retain the same function-table name, and dump/reassembly refuses `Duplicate function symbol: take` in both import orders. Fresh Nano Stage 1/2 pass the same imported tests; all three producers pass branch-local/refusal tests. I require a reviewed naming/transport contract before production changes; this is distinct from missing affine facts.
+
+- [x] I correct my initial naming patch's synthetic-shadow NULL-source diagnostic-line dereference, demonstrated by three C positive-fixture SIGSEGV failures at address 4. I preserve the crash terminal, use a zero diagnostic line for the synthetic source, and explicitly exercise successful/failing resource shadows before crediting the repair.
+
+I retain [six green three-producer methods, exact input/output hashes, unchanged noncollision bytes and colliding index/metadata comparison](evidence/imported-affine-facts-20261019/README.md). My production correction reuses the existing wire-name helper with the synthetic-source diagnostic guard; #998 and exact hosted qualification remain open.

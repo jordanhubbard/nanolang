@@ -1922,7 +1922,7 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
         if(borrow_function_index(b,shadow_name)>=0)borrow_error(b,NULL,"an available synthetic entry name");
         for(unsigned i=0;i<b->function_count && !cg->had_error;i++) {
             ASTNode *source=b->functions[i];const char *name=i || !shadows?source->as.function.name:shadow_name;
-            NvmFunctionEntry f={0};f.name_idx=nvm_add_string(cg->module,name,(uint32_t)strlen(name));
+            NvmFunctionEntry f={0};f.name_idx=imported_wire_name(cg,name,source?source->line:0);
             if(f.name_idx==UINT32_MAX){borrow_error(b,NULL,"available function-name storage");break;}
             f.arity=i?(uint16_t)source->as.function.param_count:0;
             f.result_tag=i?borrow_result_tag(b,source):TAG_INT;f.result_count=f.result_tag!=TAG_VOID;
