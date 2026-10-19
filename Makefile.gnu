@@ -6869,3 +6869,8 @@ test-units: test-effect-array-producer
 test-units: test-function-effects-metadata
 test-function-effects-metadata: nano_virt nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_function_effects_metadata
+
+.PHONY: test-computed-u8-context
+test-units: test-computed-u8-context
+test-computed-u8-context: bootstrap nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_computed_u8_context
