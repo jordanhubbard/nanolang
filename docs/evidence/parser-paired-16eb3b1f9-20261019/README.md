@@ -1,0 +1,5 @@
+# I retain my fresh paired parser qualification
+
+I pass `CMD_TIMEOUT=1800 make test-file-service-parser` using the unchanged compiler providers from my `16eb3b1f9` raw bootstrap. Both methods pass in 1597.282 seconds. The C-native parser fixture builds in 76.995 seconds; fresh installed Stage 1 and Stage 2 fixtures build in 686.608 and 793.471 seconds and execute successfully. My checked schema generator, token helpers, parser selections, zero/named-discard cases and malformed/unknown/omitted-payload consumer refusals remain asserted across all three producers.
+
+I retain exact command budgets, provider hashes, statuses and outputs. Ordinary providers remain unchanged after this suite. Text display trailing whitespace is normalized; my input index preserves both original and retained hashes. The gate ran through unrelated host CPU pressure without increasing its deadlines. This Darwin qualification does not replace hosted Linux, final candidate sanitizer or remaining release acceptance.
