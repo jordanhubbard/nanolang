@@ -55,4 +55,3 @@ Options:
 
 This compiler is 100% written in NanoLang!
 Pipeline: Lex → Parse → Typecheck → NanoISA → optional native translation
-

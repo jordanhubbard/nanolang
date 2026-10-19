@@ -35,4 +35,3 @@
   STORE_GLOBAL 0
   RET
 .end
-

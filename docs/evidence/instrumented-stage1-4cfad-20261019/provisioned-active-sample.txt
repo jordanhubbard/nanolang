@@ -106,4 +106,3 @@ Sort by top of stack, same collapsed (when >= 5):
         __asan_memcpy  (in libclang_rt.asan_osx_dynamic.dylib)        11
         dispatch_module_for  (in nano_vm)        5
         nvm_service_bindings_present  (in nano_vm)        5
-

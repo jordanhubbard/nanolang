@@ -3,5 +3,10 @@
     "original_path": "/private/tmp/nanolang-instrumented-diagnostic-20261019/nanolang-asan-profile-build.log",
     "original_sha256": "2318e8ecc31731f103f5cad187c316a60b4c754d44af1f4191bf8a85af4bd320",
     "retained_sha256": "47859d3cc463dbe8f1a8a2e04032c22b7548e8c436861c550f97224fd00b955f"
+  },
+  "provisioned-active-sample.txt": {
+    "original_path": "/private/tmp/nanolang-instrumented-diagnostic-20261019/provisioned-active-sample.txt",
+    "original_sha256": "65e839d2c3a2a952abf80522883f6ace8c5d6020f0cc2f26092dc87bd6ddac26",
+    "retained_sha256": "429ec4afc7378b9a988a0541ddcbc58c93c9a0b4af9f245d73b667ea67215c8c"
   }
 }

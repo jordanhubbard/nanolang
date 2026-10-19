@@ -3,5 +3,20 @@
     "original_path": "/private/tmp/nanolang-combined-bootstrap-16eb3b1f9-20261019/outer-build.log",
     "original_sha256": "84b4616fa8410c3c9e443922fac4543ab9424b4cc86f1efa129f84beb66814d5",
     "retained_sha256": "edc439c764847dd413043a7bf7fd4543a678add63d5b41851cdfa7fd2cf8aef2"
+  },
+  "00-seed.log": {
+    "original_path": "/private/tmp/nanolang-combined-bootstrap-16eb3b1f9-20261019/00-seed.log",
+    "original_sha256": "157cff3df5f322c01709fd10b3aee60763cc7a05f919049a8601d07f7fffa05b",
+    "retained_sha256": "d813f5700214d0159f8f729a9a62e0b1b5c43679ed813537c0fdbb574fa72cf6"
+  },
+  "02-stage1.log": {
+    "original_path": "/private/tmp/nanolang-combined-bootstrap-16eb3b1f9-20261019/02-stage1.log",
+    "original_sha256": "ce144579304edba81ee52e6e0b4e00c4e75370e65a530184c5e332019bdafd47",
+    "retained_sha256": "26ad0e413567540c547eccaacf11460fb2ad42a1a1701fbf825655418bb5c922"
+  },
+  "08-stage2.log": {
+    "original_path": "/private/tmp/nanolang-combined-bootstrap-16eb3b1f9-20261019/08-stage2.log",
+    "original_sha256": "17fdaff11aa7c721d03c2da07ca8c3a24feb34c495f02129a1c15fbcc900e8fa",
+    "retained_sha256": "5bea88ffb09fb329e51a95be269099b52dfaeecd4fea02495633ed982c2101ad"
   }
 }
