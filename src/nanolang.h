@@ -376,6 +376,7 @@ struct ASTNode {
             bool is_anonymous; /* I instantiate this declaration at its expression. */
             bool is_pub;     /* Visibility: public (pub) vs private */
             bool is_gpu;     /* @gpu annotation: emit as PTX kernel */
+            unsigned char checked_affine; /* 0 unknown, 1 resource checker completed. */
             bool is_pure;    /* pure fn: no mutation, no I/O, only pure callees */
             char **effect_names;  /* Algebraic effects this fn may perform: ["IO", "Err"] */
             int   effect_count;

@@ -3112,6 +3112,9 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         set nb_current_function i
         set functions (+ functions (nb_function parser source (and shadows (== i 0)) first_shadow (> i 0)))
         set ownership (+ ownership (nb_function_contract (> i 0)))
+        let mut affine: int = function.checked_affine
+        if (and shadows (== i 0)) { set affine 0 }
+        set parameters (+ parameters (+ ".affine_completion " (+ (int_to_string i) (+ " " (+ (int_to_string affine) "\n")))))
         if (> i 0) {
             set parameters (+ parameters (+ ".parameters " (int_to_string i)))
             let mut j: int = 0

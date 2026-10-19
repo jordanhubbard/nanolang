@@ -320,6 +320,12 @@ int nvm_function_purity(const NvmModule *mod, uint32_t function);
 bool nvm_add_function_effects(NvmModule *mod, uint32_t function, unsigned effects);
 int nvm_function_effects(const NvmModule *mod, uint32_t function);
 
+/* I retain resource-checker completion only: 0 UNKNOWN, 1 COMPLETED.
+ * This is not per-use/path ownership or runtime authority. -1 is absent,
+ * malformed or ambiguous. Rewriters must remap function indices. */
+bool nvm_add_function_affine(NvmModule *mod, uint32_t function, unsigned affine);
+int nvm_function_affine(const NvmModule *mod, uint32_t function);
+
 /* I retain checker coverage at one lowered source match, never authority.
  * Coverage: 0 unknown, 1 total integer, 2 total union. Coordinates: 1 original
  * source, 2 flattened producer input. Missing/malformed/duplicate is unknown.

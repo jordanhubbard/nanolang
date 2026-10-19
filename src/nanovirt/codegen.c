@@ -3632,6 +3632,11 @@ static void compile_nested_function_body(CG *cg, ASTNode *node, bool source_bind
         cg_error(cg, node->line, "I cannot retain the nested function purity declaration");
         return;
     }
+    if (!nvm_add_function_affine(cg->module, (uint32_t)fn_idx,
+            cg->generic_active ? 0 : node->as.function.checked_affine)) {
+        cg_error(cg, node->line, "I cannot retain the affine checker completion");
+        return;
+    }
     NestedFnState *st = malloc(sizeof(NestedFnState));
     if (!st) {
         cg_error(cg, node->line, "out of memory compiling nested function '%s'", name);
@@ -4580,6 +4585,13 @@ static void compile_function_at(CG *cg, ASTNode *fn_node, int32_t fn_idx) {
     }
     if (!nvm_add_function_purity(cg->module, (uint32_t)fn_idx, fn_node->as.function.is_pure)) {
         cg_error(cg, fn_node->line, "I cannot retain the function purity declaration");
+        cg->env->current_module = saved_module;
+        return;
+    }
+
+    if (!nvm_add_function_affine(cg->module, (uint32_t)fn_idx,
+            cg->generic_active ? 0 : fn_node->as.function.checked_affine)) {
+        cg_error(cg, fn_node->line, "I cannot retain the affine checker completion");
         cg->env->current_module = saved_module;
         return;
     }

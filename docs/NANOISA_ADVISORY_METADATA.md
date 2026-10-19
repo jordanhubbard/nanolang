@@ -183,3 +183,36 @@ I do not feed these facts into verifier, runtime, ownership, or optimization
 admission. Stripping, forging, or duplicating them cannot make an invalid
 program valid. My checked affine-use requirement and broader frontend-fact
 requirement remain open under #998.
+
+## My retained affine checker completion
+
+I retain `nano.affine.v1` as eight bytes: a little-endian `u32` function
+index, a one-byte completion state, and three zero reserved bytes. State 0
+is UNKNOWN; state 1 means my existing resource-flow traversal and exit checks
+completed without new diagnostics for that exact source function. It does
+not describe individual moves, borrows, branch joins, or lifetime paths, and
+it is not runtime ownership authority. My full per-use/path obligation in
+#998 remains open.
+
+I initialize parsed functions to UNKNOWN and reset the retained result on a
+new check. An absent resource declaration skips this checker and stays
+UNKNOWN, as do external declarations without bodies. My C checker additionally
+requires a clean incoming error flag; my Nano checker records its own
+function-local diagnostic delta. Neither fact certifies whole-program
+validity, and failed overall checking still prevents artifact publication.
+Generic specializations and synthesized shadow functions do not inherit a
+shared source body's completion. Raw unchecked emitters retain UNKNOWN.
+
+I publish the retained result in ordinary functions, nested functions, and my
+actual resource producer. For the resource route I append advisory records
+after executable literals and lexical-name storage, preserving those earlier
+string indices. My assembler accepts `.function_affine 0|1` inside a function
+or `.affine_completion <existing-function-index> 0|1` outside functions.
+Both use the same checked codec and reject duplicate records.
+
+My lookup returns -1 for absent, malformed, duplicate, or unknown-version
+facts. Reserved bytes, lengths, state values and function indices are checked
+before interpretation. Unknown versions remain transportable and opaque.
+Consumers must remap function indices when rewriting a module. Stripping,
+forging or duplicating these advisory records cannot change verification,
+execution, ownership admission or generated native code.

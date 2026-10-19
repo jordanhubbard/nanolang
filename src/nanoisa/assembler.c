@@ -957,6 +957,26 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return true;
         }
 
+        if (strcmp(directive, "affine_completion") == 0) {
+            uint32_t function;
+            uint16_t affine;
+            if (state->in_function || !parse_uint32(&p, &function) ||
+                !parse_uint16(&p, &affine) || affine > 1 || !require_line_end(p, result) ||
+                !nvm_add_function_affine(state->mod, function, affine))
+                return par_error(result, "I require an unambiguous affine completion for an existing function outside its body.");
+            return true;
+        }
+
+        if (strcmp(directive, "function_affine") == 0) {
+            uint16_t affine;
+            if (!state->in_function || !parse_uint16(&p, &affine) ||
+                affine > 1 || !require_line_end(p, result))
+                return par_error(result, "I require function_affine 0 or 1 inside a function.");
+            if (!nvm_add_function_affine(state->mod, state->current_function, affine))
+                return par_error(result, "I cannot retain an ambiguous function affine completion fact.");
+            return true;
+        }
+
         if (strcmp(directive,"local_begin")==0 || strcmp(directive,"local_end")==0 || strcmp(directive,"upvalue_name")==0) {
             bool upvalue=strcmp(directive,"upvalue_name")==0;
             uint16_t slot;

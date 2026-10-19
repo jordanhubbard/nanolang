@@ -1754,7 +1754,8 @@ shadow resource_check_global {
     assert (== (Diagnostics.diag_list_count accepted) 0)
 }
 
-fn resource_check_function(parser: Parser, func: ASTFunction, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+fn resource_check_function(parser: Parser, func: ASTFunction, diags: List<CompilerDiagnostic>, file_name: string) -> int {
+    let before: int = (Diagnostics.diag_list_count diags)
     let mut any_resource: bool = false
     let mut i: int = 0
     while (< i (parser_get_struct_def_count parser)) {
@@ -1762,7 +1763,7 @@ fn resource_check_function(parser: Parser, func: ASTFunction, diags: List<Compil
         if def.is_resource { set any_resource true }
         set i (+ i 1)
     }
-    if (not any_resource) { return }
+    if (not any_resource) { return 0 }
     (resource_check_annotation parser func.return_type diags file_name func.line func.column)
     let mut states: array<ResourceState> = []
     set i 0
@@ -1772,16 +1773,18 @@ fn resource_check_function(parser: Parser, func: ASTFunction, diags: List<Compil
         set states (array_push states ResourceState { role: 0, held_places: [], name: param.name, type_name: (resource_type_identity parser param.var_type param.line), moved: false, line: param.line, column: param.column })
         set i (+ i 1)
     }
-    if (< func.body 0) { return }
+    if (< func.body 0) { return 0 }
     let flow: ResourceFlow = (resource_flow_node parser func.body ParseNodeType.PNODE_BLOCK states false [] diags file_name (resource_type_identity parser func.return_type func.line) "")
     if flow.next { (resource_resolve_exit parser flow.states 0 diags file_name) }
+    if (== before (Diagnostics.diag_list_count diags)) { return 1 }
+    return 0
 }
 
 shadow resource_check_function {
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let tokens: List<LexerToken> = (tokenize_string "resource struct File { fd: int } fn leak(file: File) -> int { return file.fd }" "test.nano" diags)
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "test.nano")
-    (resource_check_function parser (parser_get_function parser 0) diags "test.nano")
+    assert (== (resource_check_function parser (parser_get_function parser 0) diags "test.nano") 0)
     assert (> (Diagnostics.diag_list_count diags) 0)
 }
 
@@ -6598,7 +6601,7 @@ fn check_lambda_creation(parser: Parser, identifier: ASTIdentifier, symbols: arr
         }
     }
     let valid: bool = (check_function parser func lexical diags file_name)
-    (resource_check_function parser func diags file_name)
+    (parser_set_function_affine parser index (resource_check_function parser func diags file_name))
     if (and (not valid) (== before (list_CompilerDiagnostic_length diags))) {
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I cannot check this anonymous body in its lexical scope." (Diagnostics.diag_location file_name func.line func.column)))
     }
@@ -7481,7 +7484,7 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
         # I check anonymous bodies at their creation expression with lexical bindings.
         if (== func.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
         let valid: bool = (check_function parser func symbols env.diagnostics file_name)
-        (resource_check_function parser func env.diagnostics file_name)
+        (parser_set_function_affine parser i (resource_check_function parser func env.diagnostics file_name))
         if (and func.is_pure (>= func.body 0)) {
             if (!= (purity_summary parser i symbols) 0) {
                 (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E002" "I cannot prove a closed empty effect summary for this pure fn" (Diagnostics.diag_location file_name func.line func.column)))
@@ -7519,7 +7522,7 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
                 (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0003" "I require a non-extern shadow target" (Diagnostics.diag_location file_name sh.line sh.column)))
                 set error_count (+ error_count 1)
             } else {
-                let synthetic: ASTFunction = ASTFunction { node_type: ParseNodeType.PNODE_FUNCTION, line: sh.line, column: sh.column, name: (+ "shadow " sh.target_name), param_start: 0, param_count: 0, return_type: "void", body: sh.body, is_pure: false, self_name: "" }
+                let synthetic: ASTFunction = ASTFunction { node_type: ParseNodeType.PNODE_FUNCTION, line: sh.line, column: sh.column, name: (+ "shadow " sh.target_name), param_start: 0, param_count: 0, return_type: "void", body: sh.body, is_pure: false, self_name: "", checked_affine: 0 }
                 if (not (check_function parser synthetic symbols env.diagnostics file_name)) { set error_count (+ error_count 1) }
             }
         }

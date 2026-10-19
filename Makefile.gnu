@@ -6887,3 +6887,8 @@ test-computed-u8-context: bootstrap nano_virt nanoisa_dump nano_vm nvm2c
 test-units: test-match-coverage-metadata
 test-match-coverage-metadata: nano_virt nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_match_coverage_metadata
+
+.PHONY: test-function-affine-metadata
+test-units: test-function-affine-metadata
+test-function-affine-metadata: $(COMPILER_C) nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_function_affine_metadata

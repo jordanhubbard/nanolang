@@ -1956,6 +1956,12 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
                 if(b->effect_count)borrow_effect_contracts(b);
             }
         }
+        for(unsigned i=0;i<b->function_count && !cg->had_error;i++) {
+            ASTNode *source=b->functions[i];
+            if(!nvm_add_function_affine(cg->module,i,
+                source && !(shadows && !i) ? source->as.function.checked_affine : 0))
+                borrow_error(b,NULL,"available affine completion storage");
+        }
         if(!cg->had_error) {
             cg->module->ownership_data=b->contracts;b->contracts=NULL;cg->module->ownership_size=(uint32_t)b->contract_size;
             cg->module->header.flags|=NVM_FLAG_HAS_MAIN;cg->module->header.entry_point=0;
