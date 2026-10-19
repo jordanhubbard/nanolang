@@ -1,0 +1,19 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-33bdojvg
+test_shared_output_is_byte_identical (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_shared_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-ta4wlmes
+test_single_exclusive_output_is_byte_identical (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_single_exclusive_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-lgmisr9e
+test_v2_exclusive_outputs_remain_byte_identical (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_v2_exclusive_outputs_remain_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-4n638ohs
+test_old_two_shared_path_outputs_remain_byte_identical (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_old_two_shared_path_outputs_remain_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-0noqje22
+test_unchanged_anchors_and_generated_shadow_measurement (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_unchanged_anchors_and_generated_shadow_measurement) ... I measure exclusive control {"fixture": "source_borrow_control_flow.nano", "provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "original": [23, 3], "generated": [128, 21], "shadow": 60, "proof": {"work": 1076, "loops": [{"form": "rank", "slot": 2, "initial": 0, "bound": 2, "iterations": 2, "work": 1062}], "add_work": 256, "limit": 4096}}
+I measure exclusive control {"fixture": "source_borrow_control_flow.nano", "provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "original": [23, 3], "generated": [128, 21], "shadow": 60, "proof": {"work": 1076, "loops": [{"form": "rank", "slot": 2, "initial": 0, "bound": 2, "iterations": 2, "work": 1062}], "add_work": 256, "limit": 4096}}
+I measure exclusive control {"fixture": "source_borrow_returns.nano", "provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "original": [25, 3], "generated": [120, 12], "shadow": 20, "proof": {"work": 37, "loops": [], "add_work": 256, "limit": 4096}}
+I measure exclusive control {"fixture": "source_borrow_returns.nano", "provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "original": [25, 3], "generated": [120, 12], "shadow": 20, "proof": {"work": 37, "loops": [], "add_work": 256, "limit": 4096}}
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 27.914s
+
+OK

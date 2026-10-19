@@ -1,0 +1,20 @@
+test_constructor_plan_requires_exact_single_def_use_and_retained_rhs (tests.test_owned_reassignment_reconstruction.OwnerRenderingProof.test_constructor_plan_requires_exact_single_def_use_and_retained_rhs) ... ok
+test_origin_branch_replacement_and_same_layout_swap_refuse (tests.test_owned_reassignment_reconstruction.OwnerRenderingProof.test_origin_branch_replacement_and_same_layout_swap_refuse) ... ok
+test_origin_declared_slot_does_not_resurrect_consumed_operand (tests.test_owned_reassignment_reconstruction.OwnerRenderingProof.test_origin_declared_slot_does_not_resurrect_consumed_operand) ... ok
+test_origin_restoration_is_immutable_and_generation_exact (tests.test_owned_reassignment_reconstruction.OwnerRenderingProof.test_origin_restoration_is_immutable_and_generation_exact) ... ok
+test_plan_retains_nonadjacent_multiple_use_and_same_slot_transfers (tests.test_owned_reassignment_reconstruction.OwnerRenderingProof.test_plan_retains_nonadjacent_multiple_use_and_same_slot_transfers) ... ok
+test_pruned_source_omits_only_unused_scalar_copies (tests.test_owned_reassignment_reconstruction.OwnerRenderingProof.test_pruned_source_omits_only_unused_scalar_copies) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-q5d7mtbx
+test_same_value_fresh_loop_owner_is_conservatively_refused (tests.test_owned_reassignment_reconstruction.OwnedReassignmentReconstruction.test_same_value_fresh_loop_owner_is_conservatively_refused) ... ok
+test_output_128_and_129_boundaries_use_actual_counts (tests.test_owned_reassignment_reconstruction.OwnedReassignmentReconstruction.test_output_128_and_129_boundaries_use_actual_counts) ... I retain reassignment boundary {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "ordinary": true, "actual": [128, 9]}
+I retain reassignment boundary {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "ordinary": true, "actual": [128, 9]}
+I retain reassignment boundary {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "ordinary": false, "actual": [129, 9]}
+I retain reassignment boundary {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "ordinary": false, "actual": [129, 9]}
+ok
+test_original_verifier_and_defensive_mixed_transport_refusals (tests.test_owned_reassignment_reconstruction.OwnedReassignmentReconstruction.test_original_verifier_and_defensive_mixed_transport_refusals) ... ok
+test_scratch_add_wraps_endpoints_and_retains_distinct_results (tests.test_owned_reassignment_reconstruction.OwnedReassignmentReconstruction.test_scratch_add_wraps_endpoints_and_retains_distinct_results) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 23.187s
+
+OK
