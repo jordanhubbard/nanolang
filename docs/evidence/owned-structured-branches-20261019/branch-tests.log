@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 12, in <module>
+    from tests.native_process import native_link_flags, run_captured
+ModuleNotFoundError: No module named 'tests'

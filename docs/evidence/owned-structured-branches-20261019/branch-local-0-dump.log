@@ -1,0 +1,160 @@
+.string "Box"
+.string "value"
+.string "flag"
+.string "main"
+.string "pick"
+.string "nano.local.v1"
+.string "\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xe2\x00\x00\x00owner"
+.string "\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\xe2\x00\x00\x00yes"
+.string "\x01\x00\x00\x00\x03\x00\x00\x00\x15\x00\x00\x00\xe2\x00\x00\x00value"
+.string "\x01\x00\x00\x00\x04\x00\x00\x00$\x00\x00\x00\xe2\x00\x00\x00flag"
+.string "\x01\x00\x00\x00\x05\x00\x00\x000\x00\x00\x00\xe2\x00\x00\x00out"
+.string "\x01\x00\x00\x00\x08\x00\x00\x00R\x00\x00\x00\x81\x00\x00\x00fresh"
+.string "\x01\x00\x00\x00\n\x00\x00\x00g\x00\x00\x00\x81\x00\x00\x00value"
+.string "\x01\x00\x00\x00\x0b\x00\x00\x00v\x00\x00\x00\x81\x00\x00\x00flag"
+.string "\x01\x00\x00\x00\x0e\x00\x00\x00\xa0\x00\x00\x00\xd9\x00\x00\x00fresh"
+.string "\x01\x00\x00\x00\x10\x00\x00\x00\xb5\x00\x00\x00\xd9\x00\x00\x00value"
+.string "\x01\x00\x00\x00\x11\x00\x00\x00\xc4\x00\x00\x00\xd9\x00\x00\x00flag"
+.string "nano.affine.v1"
+.string "\x00\x00\x00\x00\x01\x00\x00\x00"
+.string "\x01\x00\x00\x00\x01\x00\x00\x00"
+.string "nano.affine-use.v1"
+.string "\x01\x00\x00\x00\x02\x00\x00\x008\x00\x00\x00\x02\x01\x00\x00?\x00\x00\x00\x05\x00\x00\x00/private/tmp/nanolang-owned-branches-20261019/branch-local.nanoowner"
+.string "\x01\x00\x00\x00\x02\x00\x00\x00\x95\x00\x00\x00\x02\x01\x00\x00?\x00\x00\x00\x05\x00\x00\x00/private/tmp/nanolang-owned-branches-20261019/branch-local.nanofresh"
+.string "\x01\x00\x00\x00\x02\x00\x00\x00\xed\x00\x00\x00\x02\x01\x00\x00?\x00\x00\x00\x05\x00\x00\x00/private/tmp/nanolang-owned-branches-20261019/branch-local.nanofresh"
+
+.metadata 5 6
+.metadata 5 7
+.metadata 5 8
+.metadata 5 9
+.metadata 5 10
+.metadata 5 11
+.metadata 5 12
+.metadata 5 13
+.metadata 5 14
+.metadata 5 15
+.metadata 5 16
+.metadata 17 18
+.metadata 17 19
+.metadata 20 21
+.metadata 20 22
+.metadata 20 23
+
+.types 1 0 0
+
+.layouts "01000000000002000000000001000000ffffffff0100000004000000ffffffff"
+.layouts "02000000"
+
+.ownership "010000000100000003000000020000000400000001000000ffffffff01000000"
+.ownership "ffffffff04000000ffffffff01000000ffffffff04000000ffffffff12000200"
+.ownership "01000000ffffffff080000000000000004000000ffffffff0800000000000000"
+.ownership "01000000ffffffff04000000ffffffff01000000ffffffff01000000ffffffff"
+.ownership "04000000ffffffff0800000000000000080000000000000001000000ffffffff"
+.ownership "04000000ffffffff01000000ffffffff04000000ffffffff0800000000000000"
+.ownership "080000000000000001000000ffffffff04000000ffffffff"
+
+.entry 0
+
+.function main 0 4 0 int 1
+  PUSH_I64 7
+  STORE_LOCAL 0
+  PUSH_BOOL 1
+  STORE_LOCAL 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  OWN_PACK 0
+  PUSH_BOOL 1
+  CALL 1
+  PUSH_I64 7
+  STORE_LOCAL 2
+  PUSH_BOOL 0
+  STORE_LOCAL 3
+  LOAD_LOCAL 2
+  LOAD_LOCAL 3
+  OWN_PACK 0
+  PUSH_BOOL 0
+  CALL 1
+  ADD
+  RET
+.end
+
+.function pick 2 18 0 int 1
+  OWN_MOVE_LOCAL 0
+  OWN_STORE_LOCAL 2
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 2 2
+  REF_GET 2 0
+  REGION_END
+  STORE_LOCAL 3
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 2 2
+  REF_GET 2 1
+  REGION_END
+  STORE_LOCAL 4
+  PUSH_I64 0
+  STORE_LOCAL 5
+  LOAD_LOCAL 1
+  JMP_FALSE L0
+  LOAD_LOCAL 3
+  STORE_LOCAL 6
+  LOAD_LOCAL 4
+  STORE_LOCAL 7
+  LOAD_LOCAL 6
+  LOAD_LOCAL 7
+  OWN_PACK 0
+  OWN_STORE_LOCAL 8
+  OWN_MOVE_LOCAL 8
+  OWN_STORE_LOCAL 9
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 2 9
+  REF_GET 2 0
+  REGION_END
+  STORE_LOCAL 10
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 2 9
+  REF_GET 2 1
+  REGION_END
+  STORE_LOCAL 11
+  LOAD_LOCAL 10
+  STORE_LOCAL 5
+  OWN_UNPACK_LOCAL 9
+  POP
+  POP
+  JMP L1
+L0:
+  LOAD_LOCAL 3
+  STORE_LOCAL 12
+  LOAD_LOCAL 4
+  STORE_LOCAL 13
+  LOAD_LOCAL 12
+  LOAD_LOCAL 13
+  OWN_PACK 0
+  OWN_STORE_LOCAL 14
+  OWN_MOVE_LOCAL 14
+  OWN_STORE_LOCAL 15
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 2 15
+  REF_GET 2 0
+  REGION_END
+  STORE_LOCAL 16
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 2 15
+  REF_GET 2 1
+  REGION_END
+  STORE_LOCAL 17
+  LOAD_LOCAL 16
+  PUSH_I64 1
+  ADD
+  STORE_LOCAL 5
+  OWN_UNPACK_LOCAL 15
+  POP
+  POP
+L1:
+  LOAD_LOCAL 5
+  OWN_UNPACK_LOCAL 2
+  POP
+  POP
+  RET
+.end
+
+.parameters 1 struct bool

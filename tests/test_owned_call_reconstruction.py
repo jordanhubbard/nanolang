@@ -108,9 +108,24 @@ class OwnedCallReconstruction(unittest.TestCase):
                     with self.subTest(op=op, language=language), self.assertRaises(Refusal):
                         reconstruct_owned(altered, language)
 
-    def test_valid_helper_control_and_generated_function_budget_refuse_atomically(self):
+    def test_terminal_helper_branch_preserves_call_graph(self):
+        with tempfile.TemporaryDirectory(prefix='owned-call-branch-') as tmp:
+            work = Path(tmp)
+            source = SOURCE.replace('return owner', 'if true { return owner } else { return owner }')
+            module = self.source_module(work, source=source)
+            self.command([ROOT/'bin/nano_vm', module], expected=74)
+            for language in ('c', 'nano'):
+                output = work/('rebuilt.'+language)
+                self.command([ROOT/'bin/nvm2hl', '--language', language, module, '-o', output])
+                if language == 'c':
+                    self.native(output, work/'native')
+                else:
+                    rebuilt = work/'rebuilt.nvm'
+                    self.command([ROOT/'bin/nano_virt', output, '--emit-nvm', '-o', rebuilt])
+                    self.command([ROOT/'bin/nano_vm', rebuilt], expected=74)
+
+    def test_generated_function_budget_refuses_atomically(self):
         cases = {
-            'helper-control': SOURCE.replace('return owner', 'if true { return owner } else { return owner }'),
             'nano-function-budget': SOURCE.replace('fn main()',
                 'fn extra(owner: Left) -> Left { return (forward owner) }\n'
                 'shadow extra { assert (== (consume (extra (make 1 true)) 0) 1) }\nfn main()').replace(
@@ -121,7 +136,7 @@ class OwnedCallReconstruction(unittest.TestCase):
                 work = Path(tmp)
                 module = self.source_module(work, source=source)
                 self.command([ROOT/'bin/nano_vm', module], expected=74)
-                for language in (('c', 'nano') if name == 'helper-control' else ('nano',)):
+                for language in ('nano',):
                     output = work/('previous.'+language)
                     output.write_text('previous checked output')
                     result = run_captured([ROOT/'bin/nvm2hl', '--language', language, module, '-o', output],
@@ -129,8 +144,7 @@ class OwnedCallReconstruction(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
                     self.assertEqual(output.read_text(), 'previous checked output')
                     self.assertIn('I did not publish', result.stderr)
-                    self.assertIn('unsupported resource-route instruction' if name == 'helper-control' else
-                                  'reserve one of eight producer functions', result.stderr)
+                    self.assertIn('reserve one of eight producer functions', result.stderr)
 
     def test_corrupt_call_transfers_refuse_atomically(self):
         with tempfile.TemporaryDirectory(prefix='owned-call-refusal-') as tmp:

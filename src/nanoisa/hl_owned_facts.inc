@@ -87,7 +87,8 @@ static int owned_facts(const NvmModule *m) {
             }
             if(i){putchar(',');}printf("{\"pc\":%u,\"op\":\"%s\",\"arg\":%" PRId64 ",\"args\":[",di->byte_offset,isa_get_info(in->opcode)->name,args[0]);
             for(uint8_t a=0;a<in->operand_count && a<4;a++){if(a)putchar(',');printf("%" PRId64,args[a]);}
-            printf("]}");
+            printf("],\"target\":%u}", di->resolved_target==UINT32_MAX ? UINT32_MAX :
+                di->resolved_target-fn->code_offset);
         }
         printf("]}");
         vm_decoded_function_free(&code);nvm_affine_state_free(state);state=NULL;

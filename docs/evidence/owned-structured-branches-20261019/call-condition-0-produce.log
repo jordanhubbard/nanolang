@@ -1,0 +1,3 @@
+Warning at line 2, column 27: Unused variable 'value'
+Warning at line 4, column 53: Unused variable 'flag'
+Warning at line 4, column 99: Unused variable 'flag'

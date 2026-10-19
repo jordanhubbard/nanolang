@@ -1,0 +1,214 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-kqkz9cku
+EEEEEEEEEEEEEEEE..
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='terminal', producer='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='terminal', producer='bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='diamond', producer='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='diamond', producer='bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='keep-live', producer='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='keep-live', producer='bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='branch-local', producer='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='branch-local', producer='bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='early-return', producer='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='early-return', producer='bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='owner-terminal', producer='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='owner-terminal', producer='bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='field-condition', producer='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='field-condition', producer='bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='call-condition', producer='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) (case='call-condition', producer='bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 69, in test_actual_producers_and_both_structured_outputs
+    if language=='c':self.native(output,expected)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_branch_reconstruction.py", line 50, in native
+    binary=source.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+----------------------------------------------------------------------
+Ran 3 tests in 6.694s
+
+FAILED (errors=16)

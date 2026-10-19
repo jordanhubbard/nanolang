@@ -1,0 +1,27 @@
+# I retain bounded structured ownership branches
+
+I extend only the existing owned-local-v1 reconstruction route under #999. My current verifier must admit the original executable module before facts extraction. Affine analysis remains an additional consistency gate; advisory metadata grants no authority. I retain the current closed module, exact mode-zero scalar/resource signatures, acyclic direct calls, resource INT/BOOL layouts and numeric nominal identities, and all existing budgets: eight functions, 4096 total instructions, 128 locals, eight parameters, sixteen layouts and sixteen fields. Generated Nano still reserves its existing function budget for shadows.
+
+## My actual source evidence
+
+I retain eight source probes through the existing C producer and changed-source C-hosted Nano producer, labeled by their hashes rather than as fresh aggregate stages. Both producers accept, verify and execute terminal consuming branches (result15), a consuming forward diamond (15), a live owner preserved through a scalar diamond (17), consumed branch-local owners (15), early return (15), terminal owned results (14), borrowed-field conditions (15), and consuming-call conditions (15). Source, dumps, commands and outcomes are in `evidence/owned-structured-branches-20261019/`.
+
+The actual terminal if/else and early-return forms have the same shape: a forward JMP_FALSE, a returning fallthrough arm, then the remaining continuation. The actual nonterminal if/else has a forward JMP_FALSE and a final JMP in its fallthrough arm to the common continuation. Both producers use distinct local slots for branch-local owners. I additionally qualify a nested four-path source fixture (34).
+
+## My approved region contract
+
+I expose resolved byte-offset branch targets from the existing decoded facts, exactly as the scalar facts route does. I accept only exact instruction boundaries within the current function, forward JMP_FALSE/JMP_TRUE, and an optional forward JMP ending the first arm of a non-crossing diamond. A plain unstructured jump, backedge, jump into an ephemeral borrow sequence, crossing region or uncovered instruction refuses. I impose the existing scalar region depth bound of32 and retain full disjoint instruction coverage.
+
+I analyze each region with an explicit state: definitely initialized scalar slots, live owners keyed by slot with exact nominal layout, and used owner destinations. Both arms start from independent copies of the identical entry state. A branch consumes one exact BOOL condition and leaves an empty operand stack. Calls/reads/computed conditions retain their existing once-only temporary materialization. Every fallthrough region ends with an empty operand stack; a terminal region has exactly its declared result before RET and no remaining local owner.
+
+At a two-way continuation I require exact agreement of live-owner maps. Every surviving owner must have been live in the branch entry state at the same slot and nominal identity: no owner declared inside either arm can become a joined owner, even if both arms choose the same slot/layout. Scalar initialization is the intersection of the continuing paths. Used owner destinations are conservatively unioned, preserving the existing no-reassignment rule. A returning path contributes no owner or scalar state to the continuation, but its instructions and transfers are still checked and retained. If both paths return, the enclosing region must have no discarded continuation.
+
+I keep source owner declarations in their arm's lexical scope. Branches use the same existing `if` region node consumed recursively by both C and Nano emitters; ordered owner statements are never folded, duplicated or hoisted. I retain the existing scalar suffix isolation while evaluating instructions between branch boundaries. A staged owner on the operand stack at a branch remains refused. All refusals preserve prior output files.
+
+## My acceptance plan
+
+I will reconstruct actual terminal/early-return, consuming-diamond, keep-live, branch-local and owned-return fixtures from both producers into C and Nano. Both runtime arms must execute. Conditions will include exact borrowed-field reads and consuming direct helper results to exercise once-only behavior. Nested structured regions remain bounded and must satisfy the same state rules recursively. I compare original VM execution with O0/O2 sanitized reconstructed C and reconstructed Nano VM/nvm2c outputs, checking exact nominal layouts and transfer/result signatures.
+
+I retain and test refusal of one-path owner loss, duplicated consumption, mismatched nominal owners, branch-local owner escape, staged operand owners, partial scalar initialization, backedges, crossing/non-boundary targets, branches into borrow sequences, unsupported reference escape, malformed/missing authority, depth/function/instruction limits and unreachable/uncovered bytes. I use CRC-valid mutations of real producer modules to exercise original admission and atomic publication; direct analyzer-state tests supplement but never replace actual source gates. Existing straight-line/call suites remain required, with the former supported terminal-helper branch refusal updated only after its new positive route is qualified.
+
+Loops, general owner phi, owner reassignment, borrow escape, union/nested/array resources and broader #999 remain open. The integration owner approved this bounded contract before implementation. Fresh current-stage qualification belongs to the aggregate gate; my retained producers do not establish it.
