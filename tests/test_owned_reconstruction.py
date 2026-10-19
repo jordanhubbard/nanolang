@@ -159,7 +159,7 @@ class OwnedReconstruction(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='nano-owned-outside-') as tmp:
             work = Path(tmp)
             text = SOURCE.replace('set counter (+ counter 17)',
-                                  'while (< counter 18) { set counter (+ counter 17) }')
+                                  'while (< counter (+ 17 1)) { set counter (+ counter 17) }')
             source, module = work/'loop.nano', work/'loop.nvm'
             source.write_text(text)
             self.command([ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', module])
@@ -171,7 +171,7 @@ class OwnedReconstruction(unittest.TestCase):
                                       module, '-o', output], cwd=ROOT, timeout=30, text=True)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertEqual(output.read_text(), 'previous checked output')
-                self.assertIn('forward branches', result.stderr)
+                self.assertIn('pure scalar owned pretest', result.stderr)
 
     def test_corrupt_ownership_and_regions_preserve_prior_output(self):
         with tempfile.TemporaryDirectory(prefix='nano-owned-refuse-') as tmp:

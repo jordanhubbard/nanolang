@@ -1,0 +1,22 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_croluee
+....I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-4ydcz8tc
+..F
+======================================================================
+FAIL: test_loop_state_refusals_from_actual_facts (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_loop_state_refusals_from_actual_facts)
+----------------------------------------------------------------------
+nanoisa_reconstruction.Refusal: I require a populated scalar operand stack
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_loop_reconstruction.py", line 77, in test_loop_state_refusals_from_actual_facts
+    code=facts['functions'][1]['code']
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_loop_reconstruction.py", line 71, in refusal
+    module=self.module('preserve');facts=self.facts(module);raw=module.read_bytes()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "carried owner identities" does not match "I require a populated scalar operand stack"
+
+----------------------------------------------------------------------
+Ran 7 tests in 118.094s
+
+FAILED (failures=1)
