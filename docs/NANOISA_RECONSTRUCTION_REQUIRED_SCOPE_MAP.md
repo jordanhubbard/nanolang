@@ -58,3 +58,9 @@ claim STRING resource fields or mutable STRING locals/results. The
 records fourteen passing methods through seed and both installed stages. FLOAT
 locals and independently owned locals inside borrowed helpers remain separate
 required composition work; exact platform gates and full #999 stay open.
+
+## Later FLOAT and helper-local composition qualification
+
+The exact FLOAT local/unsafe anchor now passes fresh3446 bootstrap plus16 FLOAT/STRING aggregate methods; see `evidence/owned-float-reconstruction-aggregate-20261019/`. Finite literal transport and arithmetic remain distinct from intentionally refused nonfinite owned Nano literal output. The two-formal helper-local component passes18 aggregate methods, and the single-exclusive former-refusal composition integrates at765a698d4 with seven aggregate methods39.911s, actual127/29 and consistency-shadow60/29. See `evidence/owned-helper-local-reconstruction-20261019/` and `evidence/single-exclusive-helper-reconstruction-20261019/`. These supersede those specific historical gaps without closing full #999 or platform qualification.
+
+The existing accepted Empty{} source is a concrete next finite baseline: current facts/analyzer require nonempty layouts. Temporary arguments, transitive wrappers and nested results still need exact unchanged qualification mapping; ordinary wrapper spelling is not a missing authority claim because current producers retain transitive resource authority03. Eight borrowed formals, repeated reference-call pretests, consuming FLOAT loop exits and explicit target refusals remain separate scope/disposition boundaries; I do not silently promote every unsupported profile into a new implementation requirement.

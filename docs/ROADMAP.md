@@ -16183,3 +16183,17 @@ Candidate `765a698d4` passes all7 focused methods in39.911s through the current 
 ### 2026-10-19: existing owned wrapper reconciliation
 
 I qualify the unchanged temporary-owned-argument, transitive-wrapper and nested-owner-result fixtures without implementation changes: current seed originals verify/execute; reconstructed C passes O0/O2 sanitizers and regenerated Nano verifies/executes through seed and both3446 stages, with exact output bytes (39commands). [Receipt](evidence/owned-wrapper-reconciliation-20261019/README.md). These exact anchors are not demonstrated implementation gaps; original inputs remain seed-only and hosted/full scope remain open.
+
+## I map empty resource reconstruction (#999, 2026-10-19)
+
+I own design/baseline-only `design/5.1-empty-owned-reconstruction` from765a698d4, limited to the exact unchanged empty-resource producer fixture, design/evidence and appended historical scope reconciliation. I preserve nominal identity, once-only creation/consumption and all existing bounds; no production or admission change is authorized before actual baseline review.
+
+- [x] I map the existing accepted Empty{} fixture and current nonempty-layout guards.
+- [ ] I retain three ordinary and independently selected original-shadow verifier/VM/refusal baselines.
+- [ ] I review zero-field lifecycle/identity and actual format/runtime obligations before implementation.
+
+I retain the [empty-resource baseline](evidence/empty-owned-baseline-20261019/README.md): all three ordinary producers verify/VM execute main2/close3, independent C-hosted original shadow entry1/close3/main2; exact Empty layout1 has zero-field pack/move/unpack without POPs. All four facts/reconstruction refusals preserve outputs. Ten selected inputs remain unchanged. No production admission or regenerated representation claim is made.
+
+I implement the reviewed consuming-only empty-resource representation on `fix/5.1-empty-owned-reconstruction`: facts records empty layouts but refuses borrowed modules before output; analyzer agrees. C uses a private unsigned-char storage member initialized0 and explicit void-use at empty consumption, never a source field or scalar operand. Nano keeps exact empty resource declaration/construction/destructuring and nominal layout identity. No borrowed-empty admission or runtime/verifier changes.
+
+I qualify consuming empty resources with the [receipt](evidence/empty-owned-reconstruction-20261019/README.md): six scoped methods25.380s plus nested-child/consuming-result and old-byte golden two methods10.276s, actual three-producer originals/regeneration, independent original shadow and strict ISO C O0/O2 sanitizers. Eight no-empty outputs and ten provider pins remain unchanged. I retain the test-only filename failure and initial representation refusal; borrowed-empty support remains refused. Required target wiring includes the seven-method corpus; aggregate/platform qualification remains open.

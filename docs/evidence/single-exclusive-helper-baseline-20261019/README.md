@@ -21,7 +21,7 @@ must remain valid across both regions and final local consumption.
 `module-summary.json` retains exact function headers/helper instructions;
 ordinary and original-shadow dumps, facts, every command/status/stdout/stderr,
 source and bounded runner are retained. `pins-before.json` and `pins-after.json`
-match for all nine selected source/tool/driver files. The original-shadow driver
+match for all ten selected source/tool/driver files. The original-shadow driver
 is C-hosted retained code, not three newly compiled shadow producers. Raw
 modules remain in `/private/tmp/single-exclusive-helper-baseline-20261019`.
 The worker had221GiB free disk,66% free memory and43% CPU idle before this
