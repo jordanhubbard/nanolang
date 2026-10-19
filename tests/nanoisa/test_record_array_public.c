@@ -46,6 +46,19 @@ static void public_basic(Input *c,uint8_t tag,bool interleaved) {
     arg16(c,OP_LOAD_LOCAL,1);arg16(c,OP_AGG_GET,0);scalar(c,tag);op(c,OP_ARR_PUSH);op(c,OP_POP);
     arg16(c,OP_LOAD_LOCAL,0);op(c,OP_ARR_LEN);integer(c,2);op(c,OP_EQ);op(c,OP_ASSERT);
     finish(c);
+    /* I cross a native collection boundary while the record local is still
+     * zero-initialized, with the array operand retained on the caller stack. */
+    size_t at=0;
+    while(at<c->n) {
+        DecodedInstruction ins;uint32_t width=isa_decode(c->code+at,(uint32_t)(c->n-at),&ins);
+        CHECK(width);if(ins.opcode==OP_AGG_PACK)break;at+=width;
+    }
+    CHECK(at<c->n);memmove(c->code+at+5,c->code+at,c->n-at);c->n+=5;
+    c->code[at]=OP_CALL;size_t operand=at+1;b32(c->code,&operand,1);
+    c->fn[0].code_length=(uint32_t)c->n;c->m.function_count=2;
+    c->fn[1].name_idx=2;c->fn[1].code_offset=(uint32_t)c->n;
+    c->fn[1].result_tag=TAG_VOID;op(c,OP_RET);c->fn[1].code_length=1;
+    authority(c);
 }
 static void aggregate(Input *c, uint32_t ordinal) {
     op(c,OP_AGG_PACK);b8(c->code,&c->n,AGG_RECORD);b32(c->code,&c->n,ordinal);
@@ -125,6 +138,26 @@ static void exercise_flow(uint8_t tag,const char *directory) {
         CHECK(vm.global_count==1 && vm.globals[0].tag==TAG_ARRAY);
         vm_destroy(&vm);CHECK(vm.heap.stats.num_objects==0);
     }
+}
+
+static void uninitialized_branch(const char *directory) {
+    Input c;init(&c,TAG_INT,false);
+    array(&c,TAG_INT);integer(&c,7);op(&c,OP_ARR_PUSH);arg16(&c,OP_STORE_LOCAL,0);
+    op(&c,OP_PUSH_BOOL);b8(c.code,&c.n,0);size_t branch=c.n;arg32(&c,OP_JMP_FALSE,0);
+    arg16(&c,OP_LOAD_LOCAL,0);aggregate(&c,0);arg16(&c,OP_STORE_LOCAL,1);
+    size_t operand=branch+1;b32(c.code,&operand,(uint32_t)(c.n-branch));
+    arg32(&c,OP_CALL,1);arg16(&c,OP_LOAD_LOCAL,0);op(&c,OP_ARR_LEN);
+    integer(&c,1);op(&c,OP_EQ);op(&c,OP_ASSERT);finish(&c);
+    c.m.function_count=2;c.fn[1].name_idx=2;c.fn[1].code_offset=(uint32_t)c.n;
+    c.fn[1].result_tag=TAG_VOID;op(&c,OP_RET);c.fn[1].code_length=1;authority(&c);
+    CHECK(nvm_verify(&c.m).ok);execute(&c.m);
+    char error[256];char *source=nvm2c_emit(&c.m,error,sizeof error);
+    if(!source)fprintf(stderr,"I failed branch-uninitialized translation: %s\n",error);
+    CHECK(source);char path[1024];snprintf(path,sizeof path,"%s/branch-uninitialized.c",directory);
+    FILE *file=fopen(path,"w");CHECK(file);
+    CHECK(fputs("#define main fixture_main\n",file)>=0);CHECK(fputs(source,file)>=0);
+    CHECK(fputs("\n#undef main\nint main(void) { nmap_collection_budget=1; int result=(int)nl_main(); nmap_collect(); if(nrec_owned_head || narr_owners || nagg_live_bytes) abort(); return result; }\n",file)>=0);
+    CHECK(!fclose(file));free(source);
 }
 
 #ifdef RA_PUBLIC_ALLOCATIONS
@@ -221,11 +254,11 @@ int main(int argc,char **argv) {
         c.code[comparison]=OP_EQ;
         /* I honor the supported CODE mutation boundary before re-admission. */
         VmState rebuilt;vm_init(&rebuilt,&c.m);vm_invalidate_module(&rebuilt,&c.m);
-        CHECK(c.code[c.n-10]==OP_PUSH_I64 && c.code[c.n-1]==OP_RET);
-        c.code[c.n-9]=17;
+        CHECK(c.code[c.fn[0].code_length-10]==OP_PUSH_I64 && c.code[c.fn[0].code_length-1]==OP_RET);
+        c.code[c.fn[0].code_length-9]=17;
         CHECK(vm_rebuild_module(&rebuilt,&c.m));CHECK(vm_execute(&rebuilt)==VM_OK);
         CHECK(rebuilt.stack_size==1 && rebuilt.stack[0].tag==TAG_INT && rebuilt.stack[0].as.i64==17);
-        vm_destroy(&rebuilt);CHECK(rebuilt.heap.stats.num_objects==0);c.code[c.n-9]=0;
+        vm_destroy(&rebuilt);CHECK(rebuilt.heap.stats.num_objects==0);c.code[c.fn[0].code_length-9]=0;
         /* I reclassify changed original bytes; a prior plan is not cached trust. */
         VmState existing;vm_init(&existing,&c.m);
         CHECK(existing.decoded_module_valid);
@@ -241,5 +274,6 @@ int main(int argc,char **argv) {
         basic(&c,tag,false);CHECK(!nvm_verify(&c.m).ok);
     }
     for(uint8_t tag=TAG_INT;tag<=TAG_STRING;tag++)exercise_flow(tag,argv[1]);
+    uninitialized_branch(argv[1]);
     printf("PASS %u public record-array checks\n",checks);return 0;
 }

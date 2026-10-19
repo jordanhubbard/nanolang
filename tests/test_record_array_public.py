@@ -68,6 +68,7 @@ class RecordArrayPublic(unittest.TestCase):
         self.assertIn(b'public record-array checks', receipt.stdout)
         sources = sorted([*artifacts.glob('array-*.c'), *artifacts.glob('flow-*.c')])
         self.assertEqual(len(sources), 10)
+        sources.append(artifacts/'branch-uninitialized.c')
         cc = shlex.split(os.environ.get('RECORD_ARRAY_PUBLIC_CC', 'cc'))
         for source in sources:
             for optimization in ('-O0', '-O2'):
@@ -79,6 +80,23 @@ class RecordArrayPublic(unittest.TestCase):
                     *shlex.split(os.environ.get('RECORD_ARRAY_PUBLIC_LDFLAGS', '')),
                     '-o', str(executable)], build=True)
                 run(name + '-execute', [str(executable)])
+
+        identity_source=artifacts/'canonical-identity.c'
+        identity_source.write_text('#include <stdlib.h>\n#include <setjmp.h>\n'
+            'static int fail_record_allocation, fault_armed; static jmp_buf record_fault;\n'
+            'static void *record_calloc(size_t n,size_t z) { if(fail_record_allocation) return NULL; return calloc(n,z); }\n'
+            '_Noreturn static void record_abort(void) { if(!fault_armed) exit(97); longjmp(record_fault,1); }\n'
+            '#define calloc record_calloc\n#define abort record_abort\n#define main fixture_main\n'+
+            (artifacts/'array-1.c').read_text()+ '\n'+
+            (ROOT/'tests/native_record_identity_probe.c').read_text())
+        for optimization in ('-O0','-O2'):
+            name='canonical-identity'+optimization[1:];executable=artifacts/name
+            run(name+'-build',[*cc,'-std=c11',optimization,'-Wall','-Wextra','-Werror',
+                '-fsanitize=address,undefined','-fno-sanitize-recover=all',str(identity_source),
+                str(ROOT/'bin/nano_aot_runtime.o'),'-lm',
+                *shlex.split(os.environ.get('RECORD_ARRAY_PUBLIC_LDFLAGS','')),
+                '-o',str(executable)],build=True)
+            run(name+'-execute',[str(executable)])
 
 
 if __name__ == '__main__':

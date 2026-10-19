@@ -15418,3 +15418,9 @@ I retain [my local-pressure correction evidence](evidence/reconstruction-local-p
 - [x] #1001: I qualify allocation-failure prefixes through actual public VM root execution, rebuilding the existing proof/VM/heap providers with counted allocator hooks. I inject only after successful VM setup, require drained activation state and zero tracked ownership after destruction, restore allocation and rerun the same module, and keep allocations before injection and uninstrumented common providers explicitly outside the failure-prefix receipt.
 
 I retain [the public VM allocation-prefix receipt](evidence/public-record-array-allocations-20261018/README.md): all 472 execution allocation positions, transient/persistent, across five flat tags pass with recovery and no tracked owners. Setup, transport/native allocation prefixes and final platform gates remain separate.
+
+- [x] #1001: I implement the reviewed canonical native record representation only for already-admitted public flat-array modules. I retain AGG_SET refusal, give each constructor a traced canonical owner, preserve identity across wrappers/snapshots and mark it before children; then qualify existing public execution plus explicit snapshot identity and collection controls before extending mutation.
+
+- [x] #1001: I preserve the precise zero-initialized native record-local sentinel during collection. Review identified statically typed locals registered before their first store; an admitted fixture calling a helper before packing the record, with the collection budget forced low, reproduced an invariant abort. I skip only a fully empty wrapper, retain malformed wrapper refusal, and require the unchanged public/lifetime corpus after correction.
+
+I retain [my native identity prerequisite evidence](evidence/native-record-identity-20261018/README.md). Public AGG_SET admission and final platform qualification remain open.

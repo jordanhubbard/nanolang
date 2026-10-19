@@ -228,6 +228,7 @@ typedef struct {
     int has_record_array_getter;
     int has_owned_strings;
     int has_owned_aggregates;
+    bool canonical_records;
     size_t global_count;
     size_t local_width;
     uint8_t *array_results;
@@ -5506,6 +5507,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             {
                 int r = st.next_rec++;
+                if (b->canonical_records)
+                    nvm2c_printf(b, "    r[%d] = nrec_create(%u, %u, %u);\n", r,
+                        (unsigned)count, (unsigned)kind, (unsigned)ins.operands[2].u16);
                 nvm2c_printf(b, "    r[%d].n = %u;\n", r, (unsigned)count);
                 nvm2c_printf(b, "    r[%d].kind = %u; r[%d].tag = %u;\n",
                              r, (unsigned)kind, r, (unsigned)ins.operands[2].u16);
@@ -7457,6 +7461,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     memset(&b, 0, sizeof b);
     b.err = err;
     b.err_len = err_len;
+    b.canonical_records = record_arrays;
+    if (record_arrays) b.has_maps = 1;
     b.record_width = 1;
     b.local_width = 1;
     /* I share cleanup-preserving unwinding between HALT and lexical effects. */
@@ -8263,11 +8269,17 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         emit_typed_artifact_adapters(&b, mod);
         nvm2c_puts(&b, "typedef struct nrarr_s nrarr_s;\ntypedef nrarr_s *nrarr_t;\n");
         nvm2c_puts(&b, "typedef struct nrec_s nrec_t;\n");
+        if (b.canonical_records) {
+            nvm2c_printf(&b, "#define NREC_CANONICAL 1\n#define NREC_WIDTH %zu\n", b.record_width);
+            nvm2c_puts(&b,
+                "struct nrec_s { int64_t *f; const char **s; narr_t *a; nsarr_t *sa; nrarr_t *ra; const nrec_t **rec; uint8_t *k, *vk; nmap_t *m; uint16_t n, tag; uint8_t kind; uint32_t callable_target; const nrec_t *identity; };\n");
+        } else {
         nvm2c_printf(&b,
             "struct nrec_s { int64_t f[%zu]; const char *s[%zu]; narr_t a[%zu]; nsarr_t sa[%zu]; nrarr_t ra[%zu]; const nrec_t *rec[%zu]; uint8_t k[%zu], vk[%zu]; uint16_t n, tag; uint8_t kind; uint32_t callable_target;",
             b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width);
         if (b.has_maps) nvm2c_printf(&b, " nmap_t m[%zu];", b.record_width);
         nvm2c_puts(&b, " };\n");
+        }
         if (module_has_opcode(mod, OP_ARR_SET)) nvm2c_puts(&b,
             "static inline int nrec_field_storage_matches(const nrec_t *a, const nrec_t *b, size_t field) {\n"
             "    unsigned ak = a->k[field], bk = b->k[field];\n"
@@ -8278,7 +8290,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "           (at != 5 || (a->s[field] && b->s[field]));\n}\n");
         nvm2c_puts(&b,
             "struct nrarr_s { nrec_t *data; size_t len; struct nrarr_owner *owner; };\n\n");
-        if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP) || module_has_opcode(mod, OP_ARR_GET))) nvm2c_puts(&b,
+        if (b.canonical_records) nvm2c_puts(&b,
+#include "nvm2c_record_identity.inc"
+        );
+        else if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP) || module_has_opcode(mod, OP_ARR_GET))) nvm2c_puts(&b,
             "typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;\n"
             "static nrec_owned *nrec_owned_head;\n"
             "static inline const nrec_t *nrec_snapshot(nrec_t value) {\n"
