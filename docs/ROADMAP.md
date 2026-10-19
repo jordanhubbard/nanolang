@@ -15787,3 +15787,5 @@ I pass the same full emitter module through corrected translation in 15.907 seco
 After worker recovery I compile the full corrected emitter product in 16.739 seconds and execute its entry assertions in 0.249 seconds. I retain exact native flags, provider hashes and terminals with the boolean-join receipt. Hosted coverage still needs its own qualification.
 
 My final local boolean-join strict gate passes all 444 Clang/GCC compilations with zero failures. Hosted CI for `c6fcfd59d` is queued; I retain that distinction.
+
+- [x] I qualify integrated shared-helper reconstruction through my installed C seed and both current NanoISA generations: all 27 local/call/branch/loop/VOID/shared methods pass in 240.140 seconds, with exact unchanged providers and GCC 16 strict facts syntax retained in `docs/evidence/owned-shared-aggregate-20261019/` (#999; full scope and hosted qualification remain open).
