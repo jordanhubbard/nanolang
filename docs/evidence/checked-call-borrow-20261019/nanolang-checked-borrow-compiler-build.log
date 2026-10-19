@@ -1,0 +1,9 @@
+Warning at line 9, column 1: Unused variable 'parser'
+Error at line 1618, column 37: I cannot call private function 'borrow_fact_capture' from module 'checked_borrow_facts'.
+Hint: Call an exported function, or declare this function pub in its owning module.
+Warning at line 6500, column 9: Unused variable 'checked_body'
+Error at line 7617, column 46: I cannot call private function 'borrow_fact_context_new' from module 'checked_borrow_facts'.
+Hint: Call an exported function, or declare this function pub in its owning module.
+Error: Type checking failed for module '/Users/jkh/Src/nanolang-51-checked-effects/src_nano/typecheck.nano'
+Error at line 19, column 1: Failed to load module '/Users/jkh/Src/nanolang-51-checked-effects/src_nano/typecheck.nano'
+Module loading failed

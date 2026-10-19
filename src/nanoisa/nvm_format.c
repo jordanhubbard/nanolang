@@ -482,6 +482,8 @@ bool nvm_add_affine_use(NvmModule *mod, uint32_t function, uint32_t line,
     return value != UINT32_MAX && nvm_add_metadata(mod, key, value);
 }
 
+#include "borrow_place_facts.inc"
+
 static const char generic_key[] = "nano.generic.v1";
 
 static bool generic_metadata_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {

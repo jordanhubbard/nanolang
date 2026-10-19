@@ -30,6 +30,37 @@ class NativeTestCompilerSelection(unittest.TestCase):
             self.assertEqual(native_test_compiler(), 'cc')
 
 
+def without_borrow_places(text, expected):
+    """I validate the new independent facts before the old affine comparison."""
+    lines = text.splitlines()
+    string_lines = [i for i, line in enumerate(lines) if line.startswith('.string ')]
+    strings = [ast.literal_eval(lines[i][8:]).encode('latin1') for i in string_lines]
+    entries = [line for line in lines if line.startswith('.metadata ')]
+    uses = [line for line in entries if strings[int(line.split()[1])] == b'nano.borrow-place.v1']
+    if not expected:
+        assert not uses, 'I require raw borrow facts to remain absent'
+    if not uses:
+        return text
+    functions = [line.split()[1] for line in lines if line.startswith('.function ')]
+    owned, sites = set(), set()
+    for entry in uses:
+        key, value_index = map(int, entry.split()[1:])
+        owned.update((key, value_index))
+        value = strings[value_index]
+        assert len(value) >= 40
+        fn, cl, cc, al, ac, ordinal, mode, coordinates, reserved, np, nr, nj = struct.unpack('<6IBBH3I', value[:40])
+        assert fn < len(functions) and cl and cc and al and ac
+        assert mode in (1, 2) and coordinates in (1, 2) and not reserved
+        assert np and nr and len(value) == 40 + np + nr + nj and b'\0' not in value[40:]
+        for part in (value[40:40+np], value[40+np:40+np+nr], value[40+np+nr:]):
+            part.decode('utf-8')
+        site = (fn, cl, cc, al, ac, ordinal, coordinates, value[40:40+np])
+        assert site not in sites
+        sites.add(site)
+    return remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions,
+                                    (b'nano.local.v1', b'nano.affine.v1', b'nano.affine-use.v1'))
+
+
 def without_affine_uses(text, expected):
     """I remove only unshared trailing use facts in my numeric v1 fixtures."""
     lines = text.splitlines()
@@ -56,6 +87,12 @@ def without_affine_uses(text, expected):
         site = (fn, row, column, coordinates, value[24:24 + path_size])
         assert site not in sites
         sites.add(site)
+    return remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions,
+                                    (b'nano.local.v1', b'nano.affine.v1'))
+
+
+def remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions, allowed_keys):
+    """I remove only a proved-exclusive numeric-fixture pool suffix."""
     first = min(owned)
     assert owned == set(range(first, len(strings))), 'I require an exclusively advisory trailing pool suffix'
     assert not any(name.encode() in [strings[i] for i in owned] for name in functions)
@@ -64,7 +101,7 @@ def without_affine_uses(text, expected):
             continue
         key, value = map(int, entry.split()[1:])
         assert key < first and value < first, 'I preserve shared metadata references'
-        assert strings[key] in (b'nano.local.v1', b'nano.affine.v1'), 'I refuse unfamiliar metadata reference schemas'
+        assert strings[key] in allowed_keys, 'I refuse unfamiliar metadata reference schemas'
     allowed = {'.string', '.metadata', '.types', '.layouts', '.ownership', '.entry', '.function', '.parameters', '.end'}
     assert all(line.split()[0] in allowed for line in lines if line.startswith('.'))
     assert not any('PUSH_STR' in line or 'CALL_EXTERN' in line for line in lines)
@@ -130,13 +167,33 @@ class AffineComparisonIsolation(unittest.TestCase):
         with self.assertRaises(AssertionError):
             affine_comparison(checked, 0)
 
+    def test_borrow_suffix_preserves_code_authority_and_references(self):
+        checked = self.fixture(1)
+        payload = struct.pack('<6IBBH3I', 0, 2, 3, 2, 8, 0, 1, 1, 0, 1, 5, 0) + b'aowner'
+        suffix = '.string "nano.borrow-place.v1"\n.string "' + ''.join('\\x%02x' % b for b in payload) + '"\n.metadata 7 8'
+        enriched = checked + '\n' + suffix
+        self.assertEqual(affine_comparison(enriched, 1), affine_comparison(checked, 1))
+        for old, new in [('PUSH_I64 7', 'PUSH_I64 8'), ('.ownership "01000000"', '.ownership "0100000001000000"')]:
+            self.assertNotEqual(affine_comparison(enriched.replace(old, new), 1), affine_comparison(checked, 1))
+        old = struct.pack('<IBBHI', 1, 0, 0, 1, 0).hex()
+        new = struct.pack('<IBBHI', 1, 0, 0, 1, 8).hex()
+        variants = [enriched+'\n.metadata 7 8', enriched+'\n.metadata 3 8',
+                    enriched+'\n.string "unrelated"', enriched+'\n.module_ref "module"',
+                    enriched.replace('PUSH_I64 7', 'PUSH_STR 8'), enriched.replace(old, new),
+                    enriched.replace('main 0', 'nano.borrow-place.v1 0')]
+        for value in variants:
+            with self.subTest(value=value), self.assertRaises(AssertionError):
+                affine_comparison(value, 1)
+        with self.assertRaises(AssertionError):
+            affine_comparison(enriched, 0)
+
 
 def affine_comparison(text, expected):
     """I normalize advisory facts only; borrowed Nano roots may remain UNKNOWN.
 
     I compare executable/authority structure, not equal per-use fact coverage.
     """
-    lines = without_affine_uses(text, expected).splitlines()
+    lines = without_affine_uses(without_borrow_places(text, expected), expected).splitlines()
     string_lines = [i for i, line in enumerate(lines) if line.startswith('.string ')]
     strings = [ast.literal_eval(lines[i][8:]).encode('latin1') for i in string_lines]
     entries = [line for line in lines if line.startswith('.metadata ')]

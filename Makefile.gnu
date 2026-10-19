@@ -219,7 +219,7 @@ EXAMPLES_EFFECTIVE_BIN_SUFFIX = $(if $(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_BIN_SUFFI
 
 # Source files
 COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c $(SRC_DIR)/bcp47.c $(SRC_DIR)/locale.c $(SRC_DIR)/utf8.c $(SRC_DIR)/diag_id.c $(SRC_DIR)/catalog.c
-COMMON_SOURCES += $(SRC_DIR)/resource_flow.c $(SRC_DIR)/nominal_types.c $(SRC_DIR)/service_namespace.c $(SRC_DIR)/service_bodies.c $(SRC_DIR)/service_ownership.c
+COMMON_SOURCES += $(SRC_DIR)/checked_borrow_facts.c $(SRC_DIR)/resource_flow.c $(SRC_DIR)/nominal_types.c $(SRC_DIR)/service_namespace.c $(SRC_DIR)/service_bodies.c $(SRC_DIR)/service_ownership.c
 COMPILER_INPUT_OBJECTS = $(OBJ_DIR)/nanoisa/websocket_flow.o $(OBJ_DIR)/nanoisa/websocket_codec.o $(OBJ_DIR)/nanoisa/service_websocket_nominal.o $(OBJ_DIR)/nanoisa/service_websocket_nominal_plan.o $(OBJ_DIR)/nsi_websocket_binding.o $(OBJ_DIR)/nsi_websocket_plan.o $(OBJ_DIR)/nanoisa/service_multi_nominal.o $(OBJ_DIR)/nanoisa/service_multi_nominal_plan.o $(OBJ_DIR)/nanoisa/service_socket_nominal.o $(OBJ_DIR)/nanoisa/service_socket_nominal_plan.o $(OBJ_DIR)/nsi_socket_binding.o $(OBJ_DIR)/nsi_socket_plan.o $(OBJ_DIR)/nanoisa/file_source_snapshot.o $(OBJ_DIR)/nanoisa/file_source_plan.o $(OBJ_DIR)/nanoisa/file_source_catalog.o $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi.o $(OBJ_DIR)/nsi_file_plan.o
 COMPILER_INPUT_ARCHIVE = lib/libnano_compiler_inputs.a
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES)) $(COMPILER_INPUT_ARCHIVE)
@@ -1506,7 +1506,7 @@ test-units: test-resource-classification
 
 .PHONY: test-resource-flow-allocations
 test-resource-flow-allocations: | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_resource_flow_allocations tests/test_resource_flow_allocations.c
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_resource_flow_allocations tests/test_resource_flow_allocations.c $(SRC_DIR)/checked_borrow_facts.c
 	@$(OBJ_DIR)/test_resource_flow_allocations
 
 test-units: test-resource-flow-allocations
@@ -6980,3 +6980,23 @@ test-units: test-record-array-nested-string
 test-nested-array-mutation-context: bootstrap3 nano_virt nano_vm nvm2c bin/nano_aot_runtime.o
 	python3 -m unittest -v tests.test_nested_array_mutation_context
 test-units: test-nested-array-mutation-context
+
+.PHONY: test-checked-borrow-ledger
+test-checked-borrow-ledger: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_checked_borrow_ledger tests/test_checked_borrow_ledger.c
+	@$(OBJ_DIR)/test_checked_borrow_ledger
+
+test-units test-quick: test-checked-borrow-ledger
+
+.PHONY: test-checked-borrow-environment
+test-checked-borrow-environment: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -DCHECKED_BORROW_ENV_LINK -o $(OBJ_DIR)/test_checked_borrow_environment tests/test_checked_borrow_ledger.c $(filter-out $(OBJ_DIR)/checked_borrow_facts.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_checked_borrow_environment
+
+test-units: test-checked-borrow-environment
+
+.PHONY: test-checked-borrow-metadata
+test-checked-borrow-metadata: bootstrap3 nano_virt nano_vm nanoisa nvm2c nanoisa_emit
+	python3 -m unittest -v tests.test_checked_borrow_metadata tests.test_source_borrow_emission.AffineComparisonIsolation
+
+test-units: test-checked-borrow-metadata

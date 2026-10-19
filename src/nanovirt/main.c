@@ -13,6 +13,8 @@
  */
 
 #include "nanolang.h"
+#include "checked_borrow_facts.h"
+#include "nanovirt/checked_borrow_codegen.h"
 #include "service_driver.h"
 #include "module_builder.h"
 #include "nanovirt/codegen.h"
@@ -177,6 +179,11 @@ int main(int argc, char **argv) {
     /* Environment + Module Resolution */
     clear_module_cache();
     Environment *env = create_environment();
+    if(!env || !checked_borrow_begin(env)) {
+        if(env)free_environment(env);
+        free_ast(program);free_tokens(tokens,token_count);free(source);
+        fprintf(stderr,"I cannot allocate checked source capture\n");return 1;
+    }
 
     ModuleList *modules = create_module_list();
     if (!process_imports_for_service(program, env, modules, input)) {
@@ -225,6 +232,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    checked_borrow_finish_capture(env);
     FfiBinding *bindings = calloc(modules->count ? (size_t)modules->count : 1, sizeof(*bindings));
     if (!bindings || !build_ffi_modules(modules, bindings) ||
         !check_shadows(program, env, modules, input, bindings, test_imports)) {
@@ -238,8 +246,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    /* Codegen */
-    CodegenResult cg = codegen_compile(program, env, modules, input);
+    /* I publish no facts before semantic and runtime shadows complete. */
+    CodegenResult cg={0};
+    if(checked_borrow_seal(env))cg=codegen_compile_checked(program,env,modules,input);
+    else snprintf(cg.error_msg,sizeof cg.error_msg,"I cannot seal checked source capture");
+    checked_borrow_end(env);
     if (cg.ok && !bind_ffi_imports(cg.module, modules, bindings, input, env)) {
         fprintf(stderr, "I could not bind production foreign imports\n");
         nvm_module_free(cg.module);

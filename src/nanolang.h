@@ -927,6 +927,7 @@ typedef struct {
     int service_import_depth;
     size_t service_snapshot_indices[16];
     bool service_snapshot_bound[16];
+    struct CheckedBorrowLedger *checked_borrow_facts; /* Owned only during checked emission. */
 } Environment;
 
 /* Function declarations */

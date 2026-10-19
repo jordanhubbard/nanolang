@@ -1,3 +1,4 @@
+import "src_nano/compiler/checked_borrow_facts.nano"
 from "src_nano/compiler/resource_effects.nano" import resource_effects_escape, resource_handler_loop_escape
 from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
 import "src_nano/compiler/generic_types.nano"
@@ -1129,13 +1130,17 @@ shadow resource_check_annotation {
 }
 
 fn resource_flow_block(parser: Parser, statements: List<ASTStmtRef>, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string, return_type: string, expected_type: string, fact_owner: array<int>, fact_epoch: int) -> ResourceFlow {
+    return (resource_flow_block_context parser statements states move loop_entry diags file_name return_type expected_type fact_owner fact_epoch [])
+}
+
+fn resource_flow_block_context(parser: Parser, statements: List<ASTStmtRef>, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string, return_type: string, expected_type: string, fact_owner: array<int>, fact_epoch: int, borrow_context: array<BorrowFactContext>) -> ResourceFlow {
     let first: int = (array_length states)
     let mut flow: ResourceFlow = ResourceFlow { states: (resource_copy states first), next: true }
     let mut i: int = 0
     while (and flow.next (< i (list_ASTStmtRef_length statements))) {
         let stmt: ASTStmtRef = (list_ASTStmtRef_get statements i)
         let final_value: bool = (and move (== i (- (list_ASTStmtRef_length statements) 1)))
-        set flow (resource_flow_value parser stmt.node_id stmt.node_type (cond (final_value expected_type) (else "")) flow.states final_value loop_entry diags file_name return_type fact_owner fact_epoch)
+        set flow (resource_flow_value_context parser stmt.node_id stmt.node_type (cond (final_value expected_type) (else "")) flow.states final_value loop_entry diags file_name return_type fact_owner fact_epoch borrow_context)
         set i (+ i 1)
     }
     if flow.next { (resource_resolve_exit parser flow.states first diags file_name) }
@@ -1273,14 +1278,18 @@ shadow resource_parameter_type {
 # I pass an already checked declared context to union constructor payloads.
 # Other expression forms keep their existing ownership traversal.
 fn resource_flow_value(parser: Parser, node_id: int, node_type: int, expected: string, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string, return_type: string, fact_owner: array<int>, fact_epoch: int) -> ResourceFlow {
+    return (resource_flow_value_context parser node_id node_type expected states move loop_entry diags file_name return_type fact_owner fact_epoch [])
+}
+
+fn resource_flow_value_context(parser: Parser, node_id: int, node_type: int, expected: string, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string, return_type: string, fact_owner: array<int>, fact_epoch: int, borrow_context: array<BorrowFactContext>) -> ResourceFlow {
     let index: int = (resource_owned_union_index parser expected)
     if (or (< index 0) (not (or (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) (== node_type ParseNodeType.PNODE_STRUCT_LITERAL)))) {
-        return (resource_flow_node parser node_id node_type states move loop_entry diags file_name return_type expected fact_owner fact_epoch)
+        return (resource_flow_node_context parser node_id node_type states move loop_entry diags file_name return_type expected fact_owner fact_epoch borrow_context)
     }
     let identity: string = (resource_type_identity parser expected 0)
     let actual: string = (resource_value_type parser node_id node_type states)
     if (!= (base_type_name actual) (base_type_name identity)) {
-        return (resource_flow_node parser node_id node_type states move loop_entry diags file_name return_type expected fact_owner fact_epoch)
+        return (resource_flow_node_context parser node_id node_type states move loop_entry diags file_name return_type expected fact_owner fact_epoch borrow_context)
     }
     let definition: ASTUnion = (parser_get_union parser index)
     let mut names: array<string> = []
@@ -1298,7 +1307,7 @@ fn resource_flow_value(parser: Parser, node_id: int, node_type: int, expected: s
         set names literal.field_names set ids literal.field_value_ids set types literal.field_value_types
         let prefix: string = (+ definition.name ".")
         if (not (tc_str_starts_with literal.struct_name prefix)) {
-            return (resource_flow_node parser node_id node_type states move loop_entry diags file_name return_type expected fact_owner fact_epoch)
+            return (resource_flow_node_context parser node_id node_type states move loop_entry diags file_name return_type expected fact_owner fact_epoch borrow_context)
         }
         set selected (str_substring literal.struct_name (str_length prefix) (- (str_length literal.struct_name) (str_length prefix)))
         set line literal.line set column literal.column
@@ -1320,7 +1329,7 @@ fn resource_flow_value(parser: Parser, node_id: int, node_type: int, expected: s
                     }
                     set slot (+ slot 1)
                 }
-                set flow (resource_flow_value parser (at ids field) (at types field) (resource_type_identity parser context definition.line) flow.states true loop_entry diags file_name return_type fact_owner fact_epoch)
+                set flow (resource_flow_value_context parser (at ids field) (at types field) (resource_type_identity parser context definition.line) flow.states true loop_entry diags file_name return_type fact_owner fact_epoch borrow_context)
                 set flow (resource_stage_value parser flow (at ids field) (at types field) (resource_type_identity parser context definition.line) line column)
                 set field (+ field 1)
             }
@@ -1332,7 +1341,7 @@ fn resource_flow_value(parser: Parser, node_id: int, node_type: int, expected: s
         set offset (+ offset count)
         set variant (+ variant 1)
     }
-    return (resource_flow_node parser node_id node_type states move loop_entry diags file_name return_type expected fact_owner fact_epoch)
+    return (resource_flow_node_context parser node_id node_type states move loop_entry diags file_name return_type expected fact_owner fact_epoch borrow_context)
 }
 shadow resource_flow_value {
     let parser: Parser = (resource_test_parser "union Box<T> { Some { value: T }, None {} } fn read() -> int { let value: Box<int> = Box.Some { value: 7 } return 0 }")
@@ -1344,6 +1353,10 @@ shadow resource_flow_value {
 }
 
 fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string, return_type: string, expected_type: string, fact_owner: array<int>, fact_epoch: int) -> ResourceFlow {
+    return (resource_flow_node_context parser node_id node_type states move loop_entry diags file_name return_type expected_type fact_owner fact_epoch [])
+}
+
+fn resource_flow_node_context(parser: Parser, node_id: int, node_type: int, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string, return_type: string, expected_type: string, fact_owner: array<int>, fact_epoch: int, borrow_context: array<BorrowFactContext>) -> ResourceFlow {
     let mut flow: ResourceFlow = ResourceFlow { states: states, next: true }
     if (or (== node_type ParseNodeType.PNODE_BREAK) (== node_type ParseNodeType.PNODE_CONTINUE)) {
         (resource_loop_edge parser states loop_entry diags file_name)
@@ -1382,11 +1395,11 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
     }
     if (== node_type ParseNodeType.PNODE_BLOCK) {
         let block: ASTBlock = (parser_get_block parser node_id)
-        return (resource_flow_block parser block.statements states move loop_entry diags file_name return_type expected_type fact_owner fact_epoch)
+        return (resource_flow_block_context parser block.statements states move loop_entry diags file_name return_type expected_type fact_owner fact_epoch borrow_context)
     }
     if (== node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
         let block: ASTUnsafeBlock = (parser_get_unsafe_block parser node_id)
-        return (resource_flow_block parser block.statements states move loop_entry diags file_name return_type expected_type fact_owner fact_epoch)
+        return (resource_flow_block_context parser block.statements states move loop_entry diags file_name return_type expected_type fact_owner fact_epoch borrow_context)
     }
     if (== node_type ParseNodeType.PNODE_LET) {
         let binding: ASTLet = (parser_get_let parser node_id)
@@ -1394,7 +1407,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         if (or binding.is_destructure (or (== nominal "") (== nominal "unknown"))) { set nominal (resource_value_type parser binding.value binding.value_type states) }
         (resource_check_annotation parser nominal diags file_name binding.line binding.column)
         if (not binding.is_destructure_projection) {
-            set flow (resource_flow_value parser binding.value binding.value_type (resource_type_identity parser nominal binding.line) states true loop_entry diags file_name return_type fact_owner fact_epoch)
+            set flow (resource_flow_value_context parser binding.value binding.value_type (resource_type_identity parser nominal binding.line) states true loop_entry diags file_name return_type fact_owner fact_epoch borrow_context)
         }
         if flow.next {
             let updated: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
@@ -1412,7 +1425,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                 set allowed (and (str_starts_with owner.type_name "&mut ") (and (not owner.moved) (not (resource_place_conflict owner.held_places (+ "." assignment.field_name) true))))
             }
             if (not allowed) { (resource_flow_error diags file_name assignment.line assignment.column "I require an available exclusive borrow for field mutation") }
-            return (resource_flow_node parser assignment.value assignment.value_type states true loop_entry diags file_name return_type "" fact_owner fact_epoch)
+            return (resource_flow_node_context parser assignment.value assignment.value_type states true loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
         }
         if (>= index 0) {
             let state: ResourceState = (at states index)
@@ -1427,22 +1440,22 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         }
         let mut context: string = ""
         if (>= index 0) { let destination: ResourceState = (at states index) set context destination.type_name }
-        set flow (resource_flow_value parser assignment.value assignment.value_type context states true loop_entry diags file_name return_type fact_owner fact_epoch)
+        set flow (resource_flow_value_context parser assignment.value assignment.value_type context states true loop_entry diags file_name return_type fact_owner fact_epoch borrow_context)
         if (and flow.next (>= index 0)) { return ResourceFlow { states: (resource_replace flow.states index false), next: true } }
         return flow
     }
     if (== node_type ParseNodeType.PNODE_RETURN) {
         let ret: ASTReturn = (parser_get_return parser node_id)
-        set flow (resource_flow_value parser ret.value ret.value_type return_type states true loop_entry diags file_name return_type fact_owner fact_epoch)
+        set flow (resource_flow_value_context parser ret.value ret.value_type return_type states true loop_entry diags file_name return_type fact_owner fact_epoch borrow_context)
         if flow.next { (resource_resolve_exit parser flow.states 0 diags file_name) }
         return ResourceFlow { states: flow.states, next: false }
     }
     if (== node_type ParseNodeType.PNODE_IF) {
         let branch: ASTIf = (parser_get_if parser node_id)
-        set flow (resource_flow_node parser branch.condition branch.condition_type states false loop_entry diags file_name return_type "" fact_owner fact_epoch)
+        set flow (resource_flow_node_context parser branch.condition branch.condition_type states false loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
         if (not flow.next) { return flow }
-        let left: ResourceFlow = (resource_flow_value parser branch.then_body ParseNodeType.PNODE_BLOCK expected_type (resource_copy flow.states (array_length flow.states)) move loop_entry diags file_name return_type fact_owner fact_epoch)
-        let right: ResourceFlow = (resource_flow_value parser branch.else_body ParseNodeType.PNODE_BLOCK expected_type (resource_copy flow.states (array_length flow.states)) move loop_entry diags file_name return_type fact_owner fact_epoch)
+        let left: ResourceFlow = (resource_flow_value_context parser branch.then_body ParseNodeType.PNODE_BLOCK expected_type (resource_copy flow.states (array_length flow.states)) move loop_entry diags file_name return_type fact_owner fact_epoch borrow_context)
+        let right: ResourceFlow = (resource_flow_value_context parser branch.else_body ParseNodeType.PNODE_BLOCK expected_type (resource_copy flow.states (array_length flow.states)) move loop_entry diags file_name return_type fact_owner fact_epoch borrow_context)
         return (resource_join parser left right diags file_name)
     }
     if (== node_type ParseNodeType.PNODE_MATCH) {
@@ -1453,7 +1466,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         if (and owned (not supported)) {
             (resource_flow_error diags file_name matched.line matched.column "I require an exhaustive unguarded owned match with supported concrete payloads")
         }
-        set flow (resource_flow_node parser matched.scrutinee matched.scrutinee_type states (and owned supported) loop_entry diags file_name return_type "" fact_owner fact_epoch)
+        set flow (resource_flow_node_context parser matched.scrutinee matched.scrutinee_type states (and owned supported) loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
         if (not flow.next) { return flow }
         let first: int = (array_length flow.states)
         let mut joined: ResourceFlow = ResourceFlow { states: flow.states, next: false }
@@ -1480,11 +1493,11 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             }
             let guard_id: int = (at matched.arm_guard_ids arm)
             if (>= guard_id 0) {
-                let guarded: ResourceFlow = (resource_flow_node parser guard_id (at matched.arm_guard_types arm) (resource_copy arm_states (array_length arm_states)) false loop_entry diags file_name return_type "" fact_owner fact_epoch)
+                let guarded: ResourceFlow = (resource_flow_node_context parser guard_id (at matched.arm_guard_types arm) (resource_copy arm_states (array_length arm_states)) false loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
                 (resource_guard_preserves parser arm_states guarded matched.line matched.column diags file_name)
                 set arm_states guarded.states
             }
-            let branch: ResourceFlow = (resource_flow_value parser (at matched.arm_body_ids arm) (at matched.arm_body_types arm) expected_type arm_states move loop_entry diags file_name return_type fact_owner fact_epoch)
+            let branch: ResourceFlow = (resource_flow_value_context parser (at matched.arm_body_ids arm) (at matched.arm_body_types arm) expected_type arm_states move loop_entry diags file_name return_type fact_owner fact_epoch borrow_context)
             if branch.next { (resource_resolve_exit parser branch.states first diags file_name) }
             let outer: ResourceFlow = ResourceFlow { states: (resource_copy branch.states first), next: branch.next }
             set joined (resource_join parser joined outer diags file_name)
@@ -1505,12 +1518,12 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             set body loop.body set condition loop.iterable set condition_type loop.iterable_type set variable loop.var_name
         }
         let entry: array<ResourceState> = (resource_copy states (array_length states))
-        set flow (resource_flow_node parser condition condition_type states false entry diags file_name return_type "" fact_owner fact_epoch)
+        set flow (resource_flow_node_context parser condition condition_type states false entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
         if (not flow.next) { return flow }
         (resource_loop_edge parser flow.states entry diags file_name)
         let mut body_states: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
         if (!= variable "") { set body_states (array_push body_states ResourceState { role: 0, held_places: [], name: variable, type_name: "int", moved: false, line: 0, column: 0 }) }
-        set flow (resource_flow_node parser body ParseNodeType.PNODE_BLOCK body_states false entry diags file_name return_type "" fact_owner fact_epoch)
+        set flow (resource_flow_node_context parser body ParseNodeType.PNODE_BLOCK body_states false entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
         if flow.next { (resource_loop_edge parser flow.states entry diags file_name) }
         return ResourceFlow { states: entry, next: true }
     }
@@ -1541,7 +1554,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             }
             return flow
         }
-        return (resource_flow_node parser field.object field.object_type states false loop_entry diags file_name return_type "" fact_owner fact_epoch)
+        return (resource_flow_node_context parser field.object field.object_type states false loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
     }
     if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
         let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
@@ -1550,7 +1563,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         while (and flow.next (< i call.arg_count)) {
             let arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
             let context: string = (resource_parameter_type parser call.function_name call.line i states)
-            set flow (resource_flow_value parser arg.node_id arg.node_type context flow.states true loop_entry diags file_name return_type fact_owner fact_epoch)
+            set flow (resource_flow_value_context parser arg.node_id arg.node_type context flow.states true loop_entry diags file_name return_type fact_owner fact_epoch borrow_context)
             set flow (resource_stage_value parser flow arg.node_id arg.node_type context call.line call.column)
             set i (+ i 1)
         }
@@ -1572,7 +1585,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             let callee: ASTIdentifier = (parser_get_identifier parser call.function)
             set direct (< (resource_find states callee.name) 0)
         }
-        if (not direct) { set flow (resource_flow_node parser call.function call.function_type states false loop_entry diags file_name return_type "" fact_owner fact_epoch) }
+        if (not direct) { set flow (resource_flow_node_context parser call.function call.function_type states false loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context) }
         let hold_entry: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
         let first_staged: int = (array_length flow.states)
         let mut i: int = 0
@@ -1593,7 +1606,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                         let path: string = (resource_place_path parser place.node_id place.node_type)
                         let index: int = (resource_find flow.states root)
                         if (and (>= index 0) (str_starts_with context "&")) {
-                            set flow (resource_flow_node parser place.node_id place.node_type flow.states false loop_entry diags file_name return_type "" fact_owner fact_epoch)
+                            set flow (resource_flow_node_context parser place.node_id place.node_type flow.states false loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
                             let state: ResourceState = (at flow.states index)
                             if (and (== address.borrow_mode 2) (and (str_starts_with state.type_name "&") (not (str_starts_with state.type_name "&mut ")))) {
                                 (resource_flow_error diags file_name address.line address.column "I cannot upgrade a shared borrow to an exclusive borrow")
@@ -1601,6 +1614,9 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                                 (resource_flow_error diags file_name address.line address.column "I cannot overlap an exclusive borrow")
                             } else {
                                 set flow ResourceFlow { states: (resource_place_hold flow.states index path (== address.borrow_mode 2)), next: flow.next }
+                                if (not (Diagnostics.diag_list_has_errors diags)) {
+                                    (borrow_fact_capture parser borrow_context fact_owner fact_epoch node_id arg.node_id i root path)
+                                }
                             } }
                             set borrowed true
                         }
@@ -1608,7 +1624,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                 }
             }
             if (not borrowed) {
-                set flow (resource_flow_value parser arg.node_id arg.node_type context flow.states true loop_entry diags file_name return_type fact_owner fact_epoch)
+                set flow (resource_flow_value_context parser arg.node_id arg.node_type context flow.states true loop_entry diags file_name return_type fact_owner fact_epoch borrow_context)
                 set flow (resource_stage_value parser flow arg.node_id arg.node_type context call.line call.column)
             }
             set i (+ i 1)
@@ -1623,19 +1639,19 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
     }
     if (== node_type ParseNodeType.PNODE_BINARY_OP) {
         let op: ASTBinaryOp = (parser_get_binary_op parser node_id)
-        set flow (resource_flow_node parser op.left op.left_type states false loop_entry diags file_name return_type "" fact_owner fact_epoch)
+        set flow (resource_flow_node_context parser op.left op.left_type states false loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
         if (not flow.next) { return flow }
-        let right: ResourceFlow = (resource_flow_node parser op.right op.right_type (resource_copy flow.states (array_length flow.states)) false loop_entry diags file_name return_type "" fact_owner fact_epoch)
+        let right: ResourceFlow = (resource_flow_node_context parser op.right op.right_type (resource_copy flow.states (array_length flow.states)) false loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
         if (or (== op.op LexerTokenType.TOKEN_AND) (== op.op LexerTokenType.TOKEN_OR)) { return (resource_join parser flow right diags file_name) }
         return right
     }
     if (== node_type ParseNodeType.PNODE_ASSERT) {
         let assertion: ASTAssert = (parser_get_assert parser node_id)
-        return (resource_flow_node parser assertion.condition assertion.condition_type states false loop_entry diags file_name return_type "" fact_owner fact_epoch)
+        return (resource_flow_node_context parser assertion.condition assertion.condition_type states false loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
     }
     if (== node_type ParseNodeType.PNODE_PRINT) {
         let printed: ASTPrint = (list_ASTPrint_get parser.prints node_id)
-        return (resource_flow_node parser printed.value printed.value_type states false loop_entry diags file_name return_type "" fact_owner fact_epoch)
+        return (resource_flow_node_context parser printed.value printed.value_type states false loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
     }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
         let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
@@ -1648,7 +1664,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             if (and (not supported) (resource_generic_contains parser field_type literal.line 0)) {
                 (resource_flow_error diags file_name literal.line literal.column "resource union payloads need ownership lowering")
             }
-            set flow (resource_flow_node parser (at literal.field_value_ids field) (at literal.field_value_types field) flow.states true loop_entry diags file_name return_type "" fact_owner fact_epoch)
+            set flow (resource_flow_node_context parser (at literal.field_value_ids field) (at literal.field_value_types field) flow.states true loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
             set flow (resource_stage_value parser flow (at literal.field_value_ids field) (at literal.field_value_types field) field_type literal.line literal.column)
             set field (+ field 1)
         }
@@ -1667,7 +1683,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             if (and union_literal (and (not supported) (resource_generic_contains parser field_type literal.line 0))) {
                 (resource_flow_error diags file_name literal.line literal.column "resource union payloads need ownership lowering")
             }
-            set flow (resource_flow_node parser (at literal.field_value_ids i) (at literal.field_value_types i) flow.states true loop_entry diags file_name return_type "" fact_owner fact_epoch)
+            set flow (resource_flow_node_context parser (at literal.field_value_ids i) (at literal.field_value_types i) flow.states true loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
             set flow (resource_stage_value parser flow (at literal.field_value_ids i) (at literal.field_value_types i) field_type literal.line literal.column)
             set i (+ i 1)
         }
@@ -1680,7 +1696,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         while (and flow.next (< i literal_array.element_count)) {
             let element: ASTStmtRef = (parser_get_array_element parser (+ literal_array.element_start i))
             if (resource_type_is_declared parser (resource_value_type parser element.node_id element.node_type flow.states)) { (resource_flow_error diags file_name literal_array.line literal_array.column "resource-bearing collections are not supported") }
-            set flow (resource_flow_node parser element.node_id element.node_type flow.states true loop_entry diags file_name return_type "" fact_owner fact_epoch)
+            set flow (resource_flow_node_context parser element.node_id element.node_type flow.states true loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
             set i (+ i 1)
         }
         return flow
@@ -1716,12 +1732,12 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                     (resource_flow_error diags file_name node.line node.column "I cannot transfer loop control across a handler boundary")
                 }
                 let result_type: string = (resource_type_identity parser (at declaration.return_types operation) declaration.line)
-                let checked: ResourceFlow = (resource_flow_value parser id kind result_type bindings true [] diags file_name return_type [] 0)
+                let checked: ResourceFlow = (resource_flow_value_context parser id kind result_type bindings true [] diags file_name return_type [] 0 borrow_context)
                 if checked.next { (resource_resolve_exit parser checked.states first diags file_name) }
             }
             set arm (+ arm 1)
         }
-        return (resource_flow_value parser node.body_id node.body_type expected_type states move loop_entry diags file_name return_type fact_owner fact_epoch)
+        return (resource_flow_value_context parser node.body_id node.body_type expected_type states move loop_entry diags file_name return_type fact_owner fact_epoch borrow_context)
     }
     if (== node_type ParseNodeType.PNODE_EFFECT_OP) {
         let node: ASTEffectPerform = (at parser.performs node_id)
@@ -1740,7 +1756,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             if (< arg (at declaration.parameter_counts operation)) {
                 set context (resource_type_identity parser (at declaration.parameter_types (+ (at declaration.parameter_starts operation) arg)) declaration.line)
             }
-            set flow (resource_flow_value parser id kind context flow.states true loop_entry diags file_name return_type fact_owner fact_epoch)
+            set flow (resource_flow_value_context parser id kind context flow.states true loop_entry diags file_name return_type fact_owner fact_epoch borrow_context)
             set flow (resource_stage_value parser flow id kind context node.line node.column)
             set arg (+ arg 1)
         }
@@ -1799,6 +1815,10 @@ shadow resource_check_global {
 }
 
 fn resource_check_function(parser: Parser, func: ASTFunction, diags: List<CompilerDiagnostic>, file_name: string) -> int {
+    return (resource_check_function_context parser func diags file_name [])
+}
+
+fn resource_check_function_context(parser: Parser, func: ASTFunction, diags: List<CompilerDiagnostic>, file_name: string, borrow_context: array<BorrowFactContext>) -> int {
     # I invalidate every retained use before any checker skip or diagnostic.
     let fact_owner: array<int> = func.affine_owner
     let mut fact_epoch: int = 0
@@ -1831,7 +1851,7 @@ fn resource_check_function(parser: Parser, func: ASTFunction, diags: List<Compil
         set i (+ i 1)
     }
     if (< func.body 0) { return 0 }
-    let flow: ResourceFlow = (resource_flow_node parser func.body ParseNodeType.PNODE_BLOCK states false [] diags file_name (resource_type_identity parser func.return_type func.line) "" fact_owner fact_epoch)
+    let flow: ResourceFlow = (resource_flow_node_context parser func.body ParseNodeType.PNODE_BLOCK states false [] diags file_name (resource_type_identity parser func.return_type func.line) "" fact_owner fact_epoch borrow_context)
     if flow.next { (resource_resolve_exit parser flow.states 0 diags file_name) }
     if (== before (Diagnostics.diag_list_count diags)) { return 1 }
     return 0
@@ -7517,12 +7537,13 @@ struct CheckedAdvisoryOutput {
     phase: TypecheckPhaseOutput,
     masks: array<int>,
     functions: array<ASTFunction>,
-    epochs: array<int>
+    epochs: array<int>,
+    borrow_context: array<BorrowFactContext>
 }
 fn checked_advisory_empty(phase: TypecheckPhaseOutput) -> CheckedAdvisoryOutput {
-    return CheckedAdvisoryOutput { phase: phase, masks: [], functions: [], epochs: [] }
+    return CheckedAdvisoryOutput { phase: phase, masks: [], functions: [], epochs: [], borrow_context: [] }
 }
-fn checked_advisory_success(parser: Parser, phase: TypecheckPhaseOutput, globals: array<Symbol>) -> CheckedAdvisoryOutput {
+fn checked_advisory_success(parser: Parser, phase: TypecheckPhaseOutput, globals: array<Symbol>, borrow_context: array<BorrowFactContext>) -> CheckedAdvisoryOutput {
     # I reject oversized modules before allocating or scanning per-function facts.
     if (or (or (> parser.functions_count 256) (> (array_length globals) 256))
         (or (> parser.lets_count 4096) (> (parser_get_match_count parser) 4096))) {
@@ -7559,7 +7580,7 @@ fn checked_advisory_success(parser: Parser, phase: TypecheckPhaseOutput, globals
         set epochs (array_push epochs epoch)
         set i (+ i 1)
     }
-    return CheckedAdvisoryOutput { phase: phase, masks: masks, functions: functions, epochs: epochs }
+    return CheckedAdvisoryOutput { phase: phase, masks: masks, functions: functions, epochs: epochs, borrow_context: borrow_context }
 }
 
 pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_symbols: array<Symbol>, first_shadow: int) -> TypecheckPhaseOutput {
@@ -7592,6 +7613,8 @@ shadow typecheck_for_immediate_emission {
 }
 
 fn typecheck_advisory_core(parser: Parser, file_name: string, initial_symbols: array<Symbol>, first_shadow: int, collect_advisory: bool) -> CheckedAdvisoryOutput {
+    let mut borrow_context: array<BorrowFactContext> = []
+    if collect_advisory { set borrow_context (borrow_fact_context_new) }
     let env: TypeEnvironment = (env_new)
     (tc_effect_declarations parser env.diagnostics file_name)
     if (not (tc_validate_layouts parser env.diagnostics file_name)) {
@@ -7714,7 +7737,7 @@ fn typecheck_advisory_core(parser: Parser, file_name: string, initial_symbols: a
         # I check anonymous bodies at their creation expression with lexical bindings.
         if (== func.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
         let valid: bool = (check_function parser func symbols env.diagnostics file_name)
-        (parser_set_function_affine parser i (resource_check_function parser func env.diagnostics file_name))
+        (parser_set_function_affine parser i (resource_check_function_context parser func env.diagnostics file_name borrow_context))
         if (and func.is_pure (>= func.body 0)) {
             if (!= (purity_summary parser i symbols) 0) {
                 (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E002" "I cannot prove a closed empty effect summary for this pure fn" (Diagnostics.diag_location file_name func.line func.column)))
@@ -7770,7 +7793,7 @@ fn typecheck_advisory_core(parser: Parser, file_name: string, initial_symbols: a
     if (> diagnostic_errors error_count) { set error_count diagnostic_errors }
     let had_error: bool = (or (> error_count 0) (Diagnostics.diag_list_has_errors env.diagnostics))
     let phase: TypecheckPhaseOutput = (typecheck_output env.diagnostics error_count had_error)
-    if (and collect_advisory (not had_error)) { return (checked_advisory_success parser phase symbols) }
+    if (and collect_advisory (not had_error)) { return (checked_advisory_success parser phase symbols borrow_context) }
     return (checked_advisory_empty phase)
 }
 
@@ -8080,4 +8103,29 @@ shadow tc_effect_handle {
     assert (not (typecheck_phase good "effect.nano").had_error)
     let bad: Parser = (resource_test_parser "effect Ask{ask:int->int} fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{true}}}")
     assert (typecheck_phase bad "effect.nano").had_error
+}
+
+shadow resource_flow_block_context {
+    let parser: Parser = (resource_test_parser "resource struct R{value:int} fn read(v:&R)->int{return v.value} fn main()->int{let owner:R=R{value:1} if true {assert (== (read &owner) 1)} let R{value}=owner return 0}")
+    let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission parser "ownership.nano" 0)
+    assert (not checked.phase.had_error)
+    assert (== (array_length (at checked.borrow_context 0).events) 1)
+}
+shadow resource_flow_value_context {
+    let parser: Parser = (resource_test_parser "resource struct R{value:int} fn read(v:&R)->int{return v.value} fn main()->int{let owner:R=R{value:1} let answer:int=(read &owner) let R{value}=owner return (- answer value)}")
+    let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission parser "ownership.nano" 0)
+    assert (not checked.phase.had_error)
+    assert (== (array_length (at checked.borrow_context 0).events) 1)
+}
+shadow resource_flow_node_context {
+    let parser: Parser = (resource_test_parser "resource struct R{value:int} fn read(v:&R)->int{return v.value} fn main()->int{let owner:R=R{value:1} assert (== (read &owner) 1) let R{value}=owner return 0}")
+    let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission parser "ownership.nano" 0)
+    assert (not checked.phase.had_error)
+    assert (== (array_length (at checked.borrow_context 0).events) 1)
+}
+shadow resource_check_function_context {
+    let parser: Parser = (resource_test_parser "resource struct R{value:int} fn read(v:&R)->int{return v.value} fn main()->int{let owner:R=R{value:1} assert (== (read &owner) 1) return 0}")
+    let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission parser "ownership.nano" 0)
+    assert checked.phase.had_error
+    assert (== (array_length checked.borrow_context) 0)
 }

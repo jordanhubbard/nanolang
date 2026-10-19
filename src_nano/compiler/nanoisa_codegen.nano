@@ -1,10 +1,11 @@
+from "src_nano/compiler/checked_borrow_facts.nano" import borrow_fact_lookup
 from "src_nano/typecheck.nano" import frontend_advisory_effects, typecheck_for_immediate_emission
 from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
 import "src_nano/compiler/generic_types.nano"
 from "src_nano/compiler/function_signature.nano" import function_type_parts
 from "src_nano/compiler/owner_selection.nano" import nanoisa_selected_ownership
 from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
-from "src_nano/compiler/nanoisa_borrows.nano" import nanoisa_has_borrows, nanoisa_borrow_emit, nanoisa_borrow_error
+from "src_nano/compiler/nanoisa_borrows.nano" import nanoisa_has_borrows, nanoisa_borrow_emit, nanoisa_borrow_lower, nanoisa_borrow_error
 from "src_nano/compiler/passive_graph.nano" import passive_order, passive_reads
 from "src_nano/compiler/passive_purity.nano" import par_closed_call
 from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
@@ -7909,6 +7910,51 @@ struct NanoisaCheckedText {
     lowering_stage: int
 }
 
+fn nisa_checked_borrow_context(context: array<CheckedAdvisoryOutput>) -> array<BorrowFactContext> {
+    if (== (array_length context) 0) { return [] }
+    let checked: CheckedAdvisoryOutput = (at context 0)
+    if checked.phase.had_error { return [] }
+    return checked.borrow_context
+}
+# I accept no caller-supplied facts: my only caller owns the synchronous checker result.
+fn nisa_checked_borrow_lower(parser: Parser, shadows: bool, first_shadow: int, checked: array<CheckedAdvisoryOutput>) -> string {
+    let context: array<BorrowFactContext> = (nisa_checked_borrow_context checked)
+    let lowered: NanoisaBorrowLowering = (nanoisa_borrow_lower parser shadows first_shadow (> (array_length context) 0))
+    if (or (== lowered.text "") (== (array_length context) 0)) { return lowered.text }
+    if (> (array_length lowered.sites) 4096) { return lowered.text }
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i (array_length lowered.sites)) {
+        let site: NanoisaBorrowSite = (at lowered.sites i)
+        if (or (< site.source 0) (>= site.source (parser_get_function_count parser))) { return lowered.text }
+        if (or (< site.emitted 0) (>= site.emitted (array_length lowered.sources))) { return lowered.text }
+        if (or (!= (at lowered.sources site.emitted) site.source) (and shadows (== site.emitted 0))) { return lowered.text }
+        let function: ASTFunction = (parser_get_function parser site.source)
+        let mut generic: bool = false
+        let mut parameter: int = 0
+        while (< parameter function.param_count) {
+            if (generic_type_contains_variable parser (parser_get_let parser (+ function.param_start parameter)).var_type) { set generic true }
+            set parameter (+ parameter 1)
+        }
+        let mut index: int = -1
+        if (not generic) { set index (borrow_fact_lookup parser context function site.call site.argument site.ordinal) }
+        if (>= index 0) {
+            let event: BorrowFactEvent = (at (at context 0).events index)
+            let mut row: string = (+ ".borrow_place " (int_to_string site.emitted))
+            set row (+ row (+ " " (int_to_string event.call_line)))
+            set row (+ row (+ " " (int_to_string event.call_column)))
+            set row (+ row (+ " " (int_to_string event.argument_line)))
+            set row (+ row (+ " " (int_to_string event.argument_column)))
+            set row (+ row (+ " " (int_to_string event.ordinal)))
+            set row (+ row (+ " " (int_to_string event.mode)))
+            set row (+ row (+ " 2 \"" (+ (nisa_escape_string event.source_path) "\" \"")))
+            set row (+ row (+ (nisa_escape_string event.root) "\" \""))
+            set out (+ out (+ row (+ (nisa_escape_string event.projection) "\"\n")))
+        }
+        set i (+ i 1)
+    }
+    return (+ lowered.text out)
+}
 fn nisa_immediate_effect(parser: Parser, function: ASTFunction, index: int, context: array<CheckedAdvisoryOutput>) -> int {
     if (not nisa_ok) { return 8 }
     if (== (array_length context) 0) { return (frontend_advisory_effects parser function) }
@@ -8058,7 +8104,7 @@ fn nisa_emit_shadows_context(parser: Parser, first_shadow: int, bound: bool, con
     let mut selected_owned: bool = (nanoisa_has_borrows parser)
     if selected_owned { if (== (nanoisa_selected_ownership parser true first_shadow) 1) { set selected_owned false } }
     if selected_owned {
-        let emitted: string = (nanoisa_borrow_emit parser true first_shadow)
+        let emitted: string = (nisa_checked_borrow_lower parser true first_shadow context)
         if (== emitted "") { return (nisa_fail (nanoisa_borrow_error)) }
         return emitted
     }
@@ -8157,7 +8203,7 @@ fn nisa_emit_module_context(parser: Parser, program: bool, bound: bool, context:
     let mut selected_owned: bool = (nanoisa_has_borrows parser)
     if program { if selected_owned { if (== (nanoisa_selected_ownership parser false 0) 1) { set selected_owned false } } }
     if selected_owned {
-        let emitted: string = (nanoisa_borrow_emit parser false 0)
+        let emitted: string = (nisa_checked_borrow_lower parser false 0 context)
         if (== emitted "") { return (nisa_fail (nanoisa_borrow_error)) }
         return emitted
     }
@@ -8495,4 +8541,16 @@ shadow nisa_effect_handle {
     assert (str_contains text "EFFECT_RESUME")
     assert (str_contains text "\"value\"")
     assert (== (nisa_reset) 0)
+}
+
+shadow nisa_checked_borrow_context { assert (== (array_length (nisa_checked_borrow_context [])) 0) }
+shadow nisa_checked_borrow_lower {
+    let source: string = "resource struct R{value:int} fn read(view:&R)->int{return view.value} fn main()->int{let owner:R=R{value:1} assert (== (read &owner) 1) let R{value}=owner return 0} shadow main{assert true}"
+    let tokens: List<LexerToken> = (tokenize_string source "checked-borrow.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "checked-borrow.nano")
+    (mb_reset [])
+    let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission parser "checked-borrow.nano" 0)
+    assert (not checked.phase.had_error)
+    assert (str_contains (nisa_checked_borrow_lower parser false 0 [checked]) ".borrow_place")
+    assert (not (str_contains (nisa_checked_borrow_lower parser false 0 []) ".borrow_place"))
 }

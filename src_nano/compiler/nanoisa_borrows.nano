@@ -11,6 +11,16 @@ from "src_nano/compiler/module_bindings.nano" import mb_active, mb_lookup, mb_ow
 let mut nb_effect_keys: array<int> = []
 let mut nb_effect_owners: array<int> = []
 let mut nb_effect_operations: array<int> = []
+# I return lowering coordinates only; these do not assert checker provenance.
+struct NanoisaBorrowSite { source: int, emitted: int, call: int, argument: int, ordinal: int }
+struct NanoisaBorrowLowering { text: string, sites: array<NanoisaBorrowSite>, sources: array<int> }
+let mut nb_borrow_descriptors: array<NanoisaBorrowSite> = []
+let mut nb_borrow_staging: bool = false
+let mut nb_borrow_overflow: bool = false
+let mut nb_borrow_stage_total: int = 0
+let mut nb_borrow_calls: array<int> = []
+let mut nb_borrow_arguments: array<int> = []
+let mut nb_borrow_ordinals: array<int> = []
 let mut nb_error: string = ""
 let mut nb_code: string = ""
 let mut nb_names: array<string> = []
@@ -317,6 +327,7 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
     return index
 }
 fn nb_reset_locals() -> int {
+    set nb_borrow_calls [] set nb_borrow_arguments [] set nb_borrow_ordinals []
     set nb_affine_function -1 set nb_affine_enabled false set nb_affine_ids []
     set nb_control_depth 0 set nb_handler_depth 0 set nb_loop_handler_depth 0
     set nb_transferred false set nb_loop_first -1 set nb_loop_index -1 set nb_loop_top "" set nb_loop_done ""
@@ -1588,6 +1599,28 @@ shadow nb_affine_records {
     assert (== (nb_affine_records (nb_fixture) 0 0 true) "")
 }
 
+fn nb_borrow_stage(call: int, argument: int, ordinal: int) -> void {
+    if (or (not nb_borrow_staging) nb_borrow_overflow) { return }
+    if (>= nb_borrow_stage_total 4096) {
+        set nb_borrow_overflow true
+        set nb_borrow_calls [] set nb_borrow_arguments [] set nb_borrow_ordinals []
+        return
+    }
+    set nb_borrow_stage_total (+ nb_borrow_stage_total 1)
+    set nb_borrow_calls (array_push nb_borrow_calls call)
+    set nb_borrow_arguments (array_push nb_borrow_arguments argument)
+    set nb_borrow_ordinals (array_push nb_borrow_ordinals ordinal)
+}
+fn nb_borrow_sites(source: int, emitted: int, synthetic: bool) -> void {
+    if (or synthetic (or (not nb_borrow_staging) nb_borrow_overflow)) { return }
+    let mut i: int = 0
+    while (< i (array_length nb_borrow_calls)) {
+        set nb_borrow_descriptors (array_push nb_borrow_descriptors NanoisaBorrowSite {
+            source: source, emitted: emitted, call: (at nb_borrow_calls i),
+            argument: (at nb_borrow_arguments i), ordinal: (at nb_borrow_ordinals i) })
+        set i (+ i 1)
+    }
+}
 fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     let _: int = (nb_affine_use parser id kind)
     if (!= nb_error "") { return 0 }
@@ -1866,6 +1899,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
             }
             set caller_places (array_push caller_places origin)
             set caller_modes (array_push caller_modes mode)
+            (nb_borrow_stage id arg.node_id argument_index)
             let _: int = (nb_reference parser origin argument_index mode)
             set argument_index (+ argument_index 1)
         }
@@ -2959,6 +2993,20 @@ pub fn nanoisa_has_borrows(parser: Parser) -> bool {
     return false
 }
 pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> string {
+    return (nanoisa_borrow_lower parser shadows first_shadow false).text
+}
+pub fn nanoisa_borrow_lower(parser: Parser, shadows: bool, first_shadow: int, collect_sites: bool) -> NanoisaBorrowLowering {
+    set nb_borrow_staging collect_sites set nb_borrow_overflow false set nb_borrow_stage_total 0
+    set nb_borrow_descriptors []
+    let result: string = (nanoisa_borrow_emit_impl parser shadows first_shadow)
+    let mut sites: array<NanoisaBorrowSite> = nb_borrow_descriptors
+    let mut sources: array<int> = nb_functions
+    if (or nb_borrow_overflow (== result "")) { set sites [] set sources [] }
+    set nb_borrow_staging false set nb_borrow_descriptors []
+    set nb_borrow_calls [] set nb_borrow_arguments [] set nb_borrow_ordinals []
+    return NanoisaBorrowLowering { text: result, sites: sites, sources: sources }
+}
+fn nanoisa_borrow_emit_impl(parser: Parser, shadows: bool, first_shadow: int) -> string {
     if (> parser.services_count 0) { let _: int = (nb_fail "resolved File service declarations") return "" }
     set nb_effect_keys [] set nb_effect_owners [] set nb_effect_operations []
     set nb_error "" set nb_next_label 0 set nb_strings [] set nb_helper -1 set nb_arity 0 set nb_consuming false set nb_paths [] set nb_depths []
@@ -3170,6 +3218,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         set functions (+ functions (nb_function parser source (and shadows (== i 0)) first_shadow (> i 0)))
         set ownership (+ ownership (nb_function_contract (> i 0)))
         set affine_uses (+ affine_uses (nb_affine_records parser source i (and shadows (== i 0))))
+        (nb_borrow_sites source i (and shadows (== i 0)))
         let mut affine: int = function.checked_affine
         if (and shadows (== i 0)) { set affine 0 }
         set parameters (+ parameters (+ ".affine_completion " (+ (int_to_string i) (+ " " (+ (int_to_string affine) "\n")))))
@@ -3858,4 +3907,38 @@ shadow nb_effect_handle {
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "handle.nano")
     let text: string = (nanoisa_borrow_emit parser false 0)
     assert (== nb_error "") assert (str_contains text "HANDLER_PUSH") assert (str_contains text "EFFECT_RESUME")
+}
+
+shadow nb_borrow_stage {
+    set nb_borrow_staging false set nb_borrow_overflow false set nb_borrow_stage_total 0
+    set nb_borrow_calls [] set nb_borrow_arguments [] set nb_borrow_ordinals []
+    (nb_borrow_stage 1 2 0)
+    assert (== (array_length nb_borrow_calls) 0)
+    set nb_borrow_staging true set nb_borrow_stage_total 4095
+    (nb_borrow_stage 1 2 0)
+    assert (== (array_length nb_borrow_calls) 1)
+    (nb_borrow_stage 3 4 1)
+    assert nb_borrow_overflow
+    assert (== (array_length nb_borrow_calls) 0)
+    set nb_borrow_staging false set nb_borrow_overflow false set nb_borrow_stage_total 0
+}
+shadow nb_borrow_sites {
+    let lowered: NanoisaBorrowLowering = (nanoisa_borrow_lower (nb_fixture) false 0 true)
+    assert (> (array_length lowered.sites) 0)
+    let site: NanoisaBorrowSite = (at lowered.sites 0)
+    assert (== (at lowered.sources site.emitted) site.source)
+    assert (not (str_contains lowered.text ".borrow_place"))
+}
+shadow nanoisa_borrow_lower {
+    let parser: Parser = (nb_fixture)
+    let raw: NanoisaBorrowLowering = (nanoisa_borrow_lower parser false 0 false)
+    assert (!= raw.text "")
+    assert (== (array_length raw.sites) 0)
+    let bad: NanoisaBorrowLowering = (nanoisa_borrow_lower parser true (- 0 1) true)
+    assert (== bad.text "") assert (== (array_length bad.sites) 0)
+    let recovered: NanoisaBorrowLowering = (nanoisa_borrow_lower parser false 0 true)
+    assert (!= recovered.text "") assert (> (array_length recovered.sites) 0)
+}
+shadow nanoisa_borrow_emit_impl {
+    assert (!= (nanoisa_borrow_lower (nb_fixture) false 0 false).text "")
 }

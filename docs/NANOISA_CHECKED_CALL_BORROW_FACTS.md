@@ -367,3 +367,33 @@ emission context carries it to borrowed lowering. Public/raw wrappers supply
 absence and keep prior facts unchanged. Capture limits disable/clear only this
 context; allocation failure creates a diagnostic and yields no assembly. This
 record-shape addition requires fresh raw stages after local paired qualification.
+
+### My module-boundary correction
+
+My first compiler build rejects cross-module calls to private helper functions.
+I do not fix that by exporting an emitter accepting caller-supplied checked
+context. My borrowed lowerer instead exports `nanoisa_borrow_lower(parser,
+shadows, first_shadow, collect_sites)`, returning assembly and untrusted source
+site descriptors with the actual unchanged emitted-to-source function map.
+Each descriptor contains source/emitted function indices, enclosing/address call
+indices and argument ordinal. The lowerer never sees a checked context. My raw
+wrapper disables collection. I bound staging to 4096 sites per invocation;
+overflow clears all optional descriptors, while normal lowering continues.
+Failure returns no usable descriptors or assembly. Synthetic shadow entries do
+not receive descriptors.
+
+Only my private checked codegen bridge consumes this result and the context
+from its own successful synchronous checker invocation. I validate emitted
+function range and exact source mapping, exclude generic/synthetic sites, then
+revalidate owner, completed epoch and actual call/argument identity before
+appending the new trailing advisory records. No public entrypoint accepts both
+caller text and trusted summaries. This preserves existing owned/general
+lowering selection without introducing another checker invocation.
+
+My C ledger additionally snapshots the callee expression identity and bounded
+callee spelling; these copied bytes count toward its 1 MiB cumulative capture
+budget. Lookup uses a separate bounded per-query comparison, never clears
+sealed storage, and never allocates a replacement projection. The Nano lookup
+also compares the retained projection against existing field bytes without
+concatenating compilation-lifetime strings. These per-query bounds do not claim
+a cumulative bound on all downstream assembly text allocation.

@@ -21,6 +21,8 @@
 #include "nanoisa/nvm_format.h"
 #include "nanovm/vm.h"
 #include "generated/compiler_schema.h"
+#include "checked_borrow_facts.h"
+#include "checked_borrow_codegen.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -4785,7 +4787,7 @@ static void register_imported_struct(Environment *env, ASTNode *item) {
 
 static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env,
                                               ModuleList *modules, const char *input_file,
-                                              bool shadows, bool include_imports) {
+                                              bool shadows, bool include_imports, bool checked_borrows) {
     CodegenResult result = {0};
     if (ast_has_service_declaration(program)) {
         snprintf(result.error_msg, sizeof(result.error_msg), "I have not resolved File service declarations for this consumer.");
@@ -4803,7 +4805,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         Function *function = &env->functions[i];
         StructDef *returned = function->return_type == TYPE_STRUCT && function->return_struct_type_name
             ? env_get_struct(env, function->return_struct_type_name) : NULL;
-        if(returned && is_resource_type(env,function->return_struct_type_name))return codegen_borrow_compile(program,env,modules,shadows);
+        if(returned && is_resource_type(env,function->return_struct_type_name))return codegen_borrow_compile(program,env,modules,shadows,checked_borrows);
         for (int p = 0; p < function->param_count; ++p) {
             if (!function->params) continue;
             Parameter *parameter = &function->params[p];
@@ -4811,12 +4813,12 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 ? env_get_struct(env, parameter->struct_type_name) : NULL;
             if (parameter->type == TYPE_BORROW_SHARED || parameter->type == TYPE_BORROW_MUT ||
                 (record && is_resource_type(env,parameter->struct_type_name))) {
-                return codegen_borrow_compile(program, env, modules, shadows);
+                return codegen_borrow_compile(program, env, modules, shadows, checked_borrows);
             }
         }
     }
 
-    if(borrow_source_uses_owner(program,env))return codegen_borrow_compile(program,env,modules,shadows);
+    if(borrow_source_uses_owner(program,env))return codegen_borrow_compile(program,env,modules,shadows,checked_borrows);
 
     CgLocalName *local_names=NULL;
     CgAuthoritySlot *authority_slots=NULL;
@@ -5609,7 +5611,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
 
 CodegenResult codegen_compile(ASTNode *program, Environment *env,
                               ModuleList *modules, const char *input_file) {
-    return codegen_compile_internal(program, env, modules, input_file, false, false);
+    return codegen_compile_internal(program, env, modules, input_file, false, false, false);
 }
 
 CodegenResult codegen_compile_shadows(ASTNode *program, Environment *env,
@@ -5620,5 +5622,15 @@ CodegenResult codegen_compile_shadows(ASTNode *program, Environment *env,
 CodegenResult codegen_compile_shadow_scope(ASTNode *program, Environment *env,
                                           ModuleList *modules, const char *input_file,
                                           bool include_imports) {
-    return codegen_compile_internal(program, env, modules, input_file, true, include_imports);
+    return codegen_compile_internal(program, env, modules, input_file, true, include_imports, false);
+}
+
+CodegenResult codegen_compile_checked(ASTNode *program, Environment *env,
+                                      ModuleList *modules, const char *input_file) {
+    if(!checked_borrow_is_sealed(env)) {
+        CodegenResult out={0};
+        snprintf(out.error_msg,sizeof out.error_msg,"I require a sealed checked source invocation");
+        return out;
+    }
+    return codegen_compile_internal(program,env,modules,input_file,false,false,true);
 }
