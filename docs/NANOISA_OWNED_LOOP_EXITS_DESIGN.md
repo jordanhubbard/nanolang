@@ -58,3 +58,11 @@ The first implementation gate must regenerate both unchanged anchors and selecte
 ## I require acceptance evidence
 
 I require original VM/native versus reconstructed C and regenerated Nano VM/native, using strict O0/O2 ASan/UBSan, both unchanged anchors and their complete assertions. Independent generated shadows must own and consume their exact scalar-leaf resources and terminate within the proved helper work bound; they are consistency checks, not original-shadow recovery or path coverage. Targeted actual source variants must cover zero/final-false effects, continue and break before/after calls, branch-local owner cleanup, nested innermost targeting, rank updates on each continuing arm, differing terminal updates and once-only ordered range bounds. I retain original-verifier corruption separately from defensive facts refusals, plus atomic prior-output preservation,128/129 limits and all old-profile byte goldens. Fresh aggregate/platform qualification and full #999 remain separate.
+
+## I record implementation review
+
+The parent review approves isolated initial implementation of this exact profile and reuse of the existing finite renderer/private ADD bank only after immutable edge/origin proof. Incoming dominating declarations remain available; consumed ephemeral body declarations are legal and do not escape their lexical bodies. Break/continue are covered leaves and no pattern crosses them. No new rendering form or cap change is authorized. Both unchanged anchors and shadows must pass the first actual local-count gate; a128 failure returns for review.
+
+## I retain the component result
+
+My [reviewed component receipt](evidence/owned-loop-exits-20261019/README.md) records unchanged ordinary exits60/13 and range108/14, selected shadows20/13 and20/14, plus128 acceptance and129 atomic refusal. Fifteen final methods are qualified through the eleven-method terminal, two added pure controls and two routing controls; four prior byte goldens remain exact. I retain the failed168 cap-fixture estimate and draft DIV helper-set typo. All new-profile helpers receive the work proof even when their own CFG is flat. No additional rendering form, source simplification, cap change or frontend build was needed. Fresh aggregate/platform and broader required scope remain separate.
