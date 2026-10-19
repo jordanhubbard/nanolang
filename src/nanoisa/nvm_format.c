@@ -418,6 +418,70 @@ bool nvm_add_match_coverage(NvmModule *mod, uint32_t function, uint32_t line,
     return value != UINT32_MAX && nvm_add_metadata(mod, key, value);
 }
 
+static const char affine_use_key[] = "nano.affine-use.v1";
+
+static bool affine_use_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {
+    return mod->string_lengths[entry->key_idx] == sizeof affine_use_key - 1 &&
+        !memcmp(mod->strings[entry->key_idx], affine_use_key, sizeof affine_use_key - 1);
+}
+static bool affine_use_record(const NvmModule *mod, const NvmMetadataEntry *entry,
+                              NvmAffineUse *out) {
+    uint32_t size = mod->string_lengths[entry->value_idx];
+    if (size < 24) return false;
+    const uint8_t *p = (const uint8_t *)mod->strings[entry->value_idx];
+    uint32_t path = le_read_u32(p + 16), binding = le_read_u32(p + 20);
+    if (path > size - 24 || !binding || binding != size - 24 - path) return false;
+    NvmAffineUse value = {le_read_u32(p), le_read_u32(p + 4), le_read_u32(p + 8),
+        p[12], p[13], (const char *)p + 24, (const char *)p + 24 + path, path, binding};
+    if (value.function >= mod->function_count || !value.line || !value.column ||
+        value.state > 2 || value.coordinates < 1 || value.coordinates > 2 || p[14] || p[15] ||
+        memchr(value.source_path, 0, path) || memchr(value.binding, 0, binding)) return false;
+    *out = value;
+    return true;
+}
+static bool same_affine_use(const NvmAffineUse *a, const NvmAffineUse *b) {
+    return a->function == b->function && a->line == b->line && a->column == b->column &&
+        a->coordinates == b->coordinates && a->source_path_length == b->source_path_length &&
+        !memcmp(a->source_path, b->source_path, a->source_path_length);
+}
+bool nvm_affine_use_at(const NvmModule *mod, uint32_t index, NvmAffineUse *out) {
+    if (!out || !nvm_metadata_valid(mod) || index >= mod->metadata_count) return false;
+    NvmAffineUse selected;
+    if (!affine_use_entry(mod, &mod->metadata[index]) ||
+        !affine_use_record(mod, &mod->metadata[index], &selected)) return false;
+    for (uint32_t i = 0; i < mod->metadata_count; i++) {
+        if (i == index || !affine_use_entry(mod, &mod->metadata[i])) continue;
+        NvmAffineUse other;
+        if (!affine_use_record(mod, &mod->metadata[i], &other) || same_affine_use(&selected, &other)) return false;
+    }
+    *out = selected;
+    return true;
+}
+bool nvm_add_affine_use(NvmModule *mod, uint32_t function, uint32_t line,
+    uint32_t column, unsigned state, unsigned coordinates, const char *path, const char *binding) {
+    if (!nvm_metadata_valid(mod) || function >= mod->function_count || !line || !column ||
+        state > 2 || coordinates < 1 || coordinates > 2 || !path || !binding || !*binding) return false;
+    size_t np = strlen(path), nb = strlen(binding);
+    if (np > UINT32_MAX - 24 || nb > UINT32_MAX - 24 - np) return false;
+    NvmAffineUse selected = {function, line, column, state, coordinates, path, binding, (uint32_t)np, (uint32_t)nb};
+    for (uint32_t i = 0; i < mod->metadata_count; i++) {
+        if (!affine_use_entry(mod, &mod->metadata[i])) continue;
+        NvmAffineUse other;
+        if (!affine_use_record(mod, &mod->metadata[i], &other) || same_affine_use(&selected, &other)) return false;
+    }
+    uint32_t size = 24 + (uint32_t)np + (uint32_t)nb;
+    uint8_t *data = calloc(1, size);
+    if (!data) return false;
+    le_write_u32(data, function); le_write_u32(data + 4, line); le_write_u32(data + 8, column);
+    data[12] = state; data[13] = coordinates;
+    le_write_u32(data + 16, (uint32_t)np); le_write_u32(data + 20, (uint32_t)nb);
+    memcpy(data + 24, path, np); memcpy(data + 24 + np, binding, nb);
+    uint32_t key = nvm_add_string(mod, affine_use_key, sizeof affine_use_key - 1);
+    uint32_t value = key == UINT32_MAX ? UINT32_MAX : nvm_add_string(mod, (const char *)data, size);
+    free(data);
+    return value != UINT32_MAX && nvm_add_metadata(mod, key, value);
+}
+
 static const char generic_key[] = "nano.generic.v1";
 
 static bool generic_metadata_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {

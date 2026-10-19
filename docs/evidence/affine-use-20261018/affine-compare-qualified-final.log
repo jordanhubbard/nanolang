@@ -1,0 +1,4 @@
+PASS source_borrow_shared three producers; exact non-advisory canonical comparison; VM + ASan/UBSan native
+PASS source_borrow_exclusive three producers; exact non-advisory canonical comparison; VM + ASan/UBSan native
+PASS source_borrow_order three producers; exact non-advisory canonical comparison; VM + ASan/UBSan native
+PASS source_borrow_bool three producers; exact non-advisory canonical comparison; VM + ASan/UBSan native

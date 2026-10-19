@@ -6912,3 +6912,8 @@ test-units: test-record-array-public
 test-native-process:
 	python3 -m unittest -v tests.test_native_process
 test-one-ir-compiler test-units: test-native-process
+
+.PHONY: test-affine-use-metadata
+test-affine-use-metadata: $(COMPILER_C) nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_affine_use_metadata
+test-units: test-affine-use-metadata

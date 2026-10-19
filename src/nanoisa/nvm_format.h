@@ -340,6 +340,20 @@ bool nvm_add_match_coverage(NvmModule *mod, uint32_t function, uint32_t line,
     uint32_t column, unsigned coverage, unsigned coordinates, const char *source_path);
 bool nvm_match_coverage_at(const NvmModule *mod, uint32_t metadata_index, NvmMatchCoverage *out);
 
+/* I retain a checked source identifier use, never executable ownership.
+ * State: 0 UNKNOWN, 1 OBSERVE, 2 CONSUME; coordinates: 1 original, 2 flattened.
+ * I borrow counted path/binding text; binding spelling is not site identity.
+ * Missing, malformed or duplicate facts leave output unchanged (UNKNOWN). */
+typedef struct {
+    uint32_t function, line, column;
+    unsigned state, coordinates;
+    const char *source_path, *binding;
+    uint32_t source_path_length, binding_length;
+} NvmAffineUse;
+bool nvm_add_affine_use(NvmModule *, uint32_t function, uint32_t line,
+    uint32_t column, unsigned state, unsigned coordinates, const char *path, const char *binding);
+bool nvm_affine_use_at(const NvmModule *, uint32_t metadata_index, NvmAffineUse *out);
+
 /* I borrow counted, non-NUL-terminated frontend descriptions. These strings
  * are advisory and never grant type, layout or ownership authority. */
 typedef struct {

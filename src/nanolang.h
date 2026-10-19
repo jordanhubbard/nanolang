@@ -12,6 +12,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <assert.h>
 
@@ -275,6 +276,9 @@ struct ASTNode {
     /* I borrow the hoisted anonymous declaration at its lexical expression.
      * The program owns that declaration; this link does not own or free it. */
     ASTNode *lambda_definition;
+    ASTNode *affine_use_owner; /* Borrowed exact checked source function. */
+    uint64_t affine_use_epoch;
+    unsigned char checked_affine_use; /* 0 unknown, 1 observe, 2 consume. */
     char *contextual_func_name; /* Owned native specialization selected for this function value. */
     union {
         long long number;
@@ -377,6 +381,8 @@ struct ASTNode {
             bool is_pub;     /* Visibility: public (pub) vs private */
             bool is_gpu;     /* @gpu annotation: emit as PTX kernel */
             unsigned char checked_affine; /* 0 unknown, 1 resource checker completed. */
+            uint64_t affine_check_epoch;
+            uint64_t affine_completed_epoch;
             bool is_pure;    /* pure fn: no mutation, no I/O, only pure callees */
             char **effect_names;  /* Algebraic effects this fn may perform: ["IO", "Err"] */
             int   effect_count;

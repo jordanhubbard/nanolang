@@ -154,6 +154,70 @@ static void test_match_coverage(void) {
     }
 }
 
+static void test_affine_use(void) {
+    NvmAffineUse view = {.line = 123};
+    CHECK(!nvm_affine_use_at(NULL, 0, &view) && view.line == 123);
+    NvmModule *m = ordinary();
+    CHECK(!nvm_add_affine_use(m, 0, 1, 1, 1, 1, "", ""));
+    CHECK(!nvm_add_affine_use(m, 1, 1, 1, 1, 1, "", "x"));
+    CHECK(!nvm_add_affine_use(m, 0, 0, 1, 1, 1, "", "x"));
+    CHECK(!nvm_add_affine_use(m, 0, 1, 1, 3, 1, "", "x"));
+    CHECK(!nvm_add_affine_use(m, 0, 1, 1, 1, 0, "", "x"));
+    CHECK(nvm_add_affine_use(m, 0, 3, 7, 1, 1, "a.nano", "owner"));
+    CHECK(nvm_affine_use_at(m, 0, &view));
+    CHECK(view.function == 0 && view.line == 3 && view.column == 7 && view.state == 1);
+    CHECK(view.coordinates == 1 && view.source_path_length == 6 && !memcmp(view.source_path, "a.nano", 6));
+    CHECK(view.binding_length == 5 && !memcmp(view.binding, "owner", 5));
+    /* I never use binding spelling as site identity. */
+    CHECK(!nvm_add_affine_use(m, 0, 3, 7, 2, 1, "a.nano", "different"));
+    CHECK(nvm_add_affine_use(m, 0, 3, 7, 2, 2, "a.nano", "owner"));
+    CHECK(nvm_add_affine_use(m, 0, 3, 8, 0, 1, "", "x"));
+    CHECK(nvm_affine_use_at(m, 1, &view) && view.state == 2);
+    CHECK(nvm_affine_use_at(m, 2, &view) && view.state == 0);
+    NvmModule *b = copy(m); compare_wire(m, b);
+    char *text = disasm_module_styled(b, DISASM_STYLE_CANONICAL); CHECK(text);
+    AsmResult r; NvmModule *c = asm_assemble(text, &r); CHECK(c); compare_wire(b, c);
+    free(text); nvm_module_free(b); nvm_module_free(c);
+    char error[256]; char *native = nvm2c_emit(m, error, sizeof error); CHECK(native);
+    uint32_t value = m->metadata[0].value_idx;
+    char *data = m->strings[value];
+    const unsigned offsets[] = {0, 4, 8, 12, 13, 14, 15, 16, 20, 24, 30};
+    for (unsigned i = 0; i < sizeof offsets / sizeof *offsets; ++i) {
+        unsigned offset = offsets[i]; char old = data[offset];
+        data[offset] = (offset == 4 || offset == 8 || offset == 13 || offset >= 24) ? 0 : 127;
+        view.line = 123;
+        CHECK(!nvm_affine_use_at(m, 0, &view) && view.line == 123);
+        /* I fail closed on another malformed entry, without execution authority. */
+        CHECK(!nvm_affine_use_at(m, 1, &view) && view.line == 123);
+        CHECK(nvm_verify(m).ok);
+        char *again = nvm2c_emit(m, error, sizeof error); CHECK(again && !strcmp(native, again)); free(again);
+        data[offset] = old;
+    }
+    free(native);
+    uint32_t original_size = m->string_lengths[value];
+    m->string_lengths[value] = 23;
+    CHECK(!nvm_affine_use_at(m, 0, &view));
+    m->string_lengths[value] = original_size;
+    /* I forge a duplicate with a different spelling, bypassing the safe writer. */
+    char duplicate[64]; CHECK(original_size < sizeof duplicate);
+    memcpy(duplicate, data, original_size); memcpy(duplicate + 30, "other", 5);
+    uint32_t other = nvm_add_string(m, duplicate, original_size);
+    CHECK(nvm_add_metadata(m, m->metadata[0].key_idx, other));
+    view.line = 123;
+    CHECK(!nvm_affine_use_at(m, 0, &view) && view.line == 123);
+    CHECK(nvm_verify(m).ok); nvm_module_free(m);
+    const char *prefix = ".function main 0 0 0 int 1\nPUSH_I64 42\nRET\n.end\n.entry main\n";
+    char source[1024];
+    snprintf(source, sizeof source, "%s.affine_use 0 3 7 2 2 \"a.nano\" \"owner\"\n", prefix);
+    m = asm_assemble(source, &r); CHECK(m && nvm_affine_use_at(m, 0, &view) && view.state == 2); nvm_module_free(m);
+    const char *bad[] = {"0 0 1 1 1 \"a\" \"x\"", "0 1 1 3 1 \"a\" \"x\"", "0 1 1 1 3 \"a\" \"x\"", "0 1 1 1 1 \"a\" \"\"", "0 1 1 1 1 \"a\" \"x\" extra", "0 1 1 1 1 \"a\\0b\" \"x\"", "0 1 1 1 1 \"a\" \"x\\0y\"", "1 1 1 1 1 \"a\" \"x\""};
+    for (unsigned i = 0; i < sizeof bad / sizeof *bad; ++i) {
+        snprintf(source, sizeof source, "%s.affine_use %s\n", prefix, bad[i]);
+        CHECK(!asm_assemble(source, &r));
+    }
+    CHECK(!asm_assemble(".function main 0 0 0 int 1\n.affine_use 0 1 1 1 1 \"a\" \"x\"\nPUSH_I64 42\nRET\n.end\n", &r));
+}
+
 static void test_effects(void) {
     CHECK(nvm_function_effects(NULL, 0) == -1);
     CHECK(!nvm_add_function_effects(NULL, 0, 63));
@@ -346,7 +410,7 @@ int main(int argc, char **argv) {
     test_purity();
     test_effects();
     test_affine();
-    test_match_coverage();
+    test_match_coverage(); test_affine_use();
     test_generic_bindings();
     NvmModule *m = ordinary();
     uint32_t legacy_size; uint8_t *legacy = nvm_serialize(m, &legacy_size);

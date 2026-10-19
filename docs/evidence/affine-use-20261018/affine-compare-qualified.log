@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "<stdin>", line 17, in <module>
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/case.py", line 925, in assertEqual
+    assertion_func(first, second, msg=msg)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/case.py", line 1291, in assertMultiLineEqual
+    self.fail(self._formatMessage(msg, standardMsg))
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/case.py", line 750, in fail
+    raise self.failureException(msg)
+AssertionError: '.str[1813 chars] 0 int 1\n  REF_GET 0 0\n  RET\n.end\n\n.parameters 1 struct' != '.str[1813 chars] 0 int 1\n  REF_GET 0 0\n  RET\n.end\n\n.parameters 1 struct\n'
+Diff is 1888 characters long. Set self.maxDiff to None to see it.

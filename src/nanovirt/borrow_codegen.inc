@@ -35,6 +35,11 @@ typedef struct {
     ASTNode *current_source;
     ASTNode **programs;
     unsigned program_count;
+    ModuleList *source_modules;
+    const char *root_file;
+    bool affine_synthetic;
+    struct BorrowAffineUse { ASTNode *node; uint32_t function; const char *path; } *affine_uses;
+    size_t affine_use_count, affine_use_capacity;
     ASTNode *current_program;
     ASTNode *records[MAX_STRUCT_DEFS], *helper, *functions[8];
     BorrowUnion unions[256];
@@ -71,6 +76,34 @@ typedef struct {
 
 static void borrow_error(BorrowCG *b, ASTNode *n, const char *message) {
     cg_error(b->cg,n?n->line:0,"I require %s in my source borrow profile",message);
+}
+/* I retain only exact identifier nodes encountered while lowering a checked body.
+ * Advisory strings are appended after executable constants, preserving code indexes. */
+static void borrow_affine_use(BorrowCG *b, ASTNode *node) {
+    ASTNode *owner=b->current_source;
+    if(!node || node->type!=AST_IDENTIFIER || !owner || owner->type!=AST_FUNCTION ||
+       b->affine_synthetic || b->cg->had_error || b->cg->generic_active ||
+       cg_generic_declaration(b->cg,owner) || !owner->as.function.checked_affine ||
+       !owner->as.function.affine_check_epoch ||
+       owner->as.function.affine_check_epoch==UINT64_MAX ||
+       owner->as.function.affine_completed_epoch!=owner->as.function.affine_check_epoch ||
+       node->affine_use_owner!=owner || node->affine_use_epoch!=owner->as.function.affine_check_epoch ||
+       node->checked_affine_use<1 || node->checked_affine_use>2)return;
+    for(size_t i=0;i<b->affine_use_count;i++)
+        if(b->affine_uses[i].node==node && b->affine_uses[i].function==b->current_function)return;
+    const char *path=b->root_file?b->root_file:"";
+    for(unsigned i=0;i+1<b->program_count;i++)
+        if(b->programs[i]==b->current_program && b->source_modules)path=b->source_modules->module_paths[i];
+    if(b->affine_use_count==b->affine_use_capacity) {
+        size_t capacity=b->affine_use_capacity?b->affine_use_capacity*2:32;
+        if(capacity<b->affine_use_capacity || capacity>SIZE_MAX/sizeof(*b->affine_uses)) {
+            borrow_error(b,node,"bounded affine source fact storage");return;
+        }
+        void *next=realloc(b->affine_uses,capacity*sizeof(*b->affine_uses));
+        if(!next){borrow_error(b,node,"available affine source fact storage");return;}
+        b->affine_uses=next;b->affine_use_capacity=capacity;
+    }
+    b->affine_uses[b->affine_use_count++]=(struct BorrowAffineUse){node,b->current_function,path};
 }
 static uint8_t borrow_tag(Type type) {
     return type==TYPE_INT?TAG_INT:type==TYPE_BOOL?TAG_BOOL:TAG_VOID;
@@ -318,6 +351,7 @@ static int borrow_layout_field(BorrowCG *b,unsigned layout,const char *name,ASTN
 }
 typedef struct { int root;unsigned layout,length;uint16_t fields[32]; } BorrowPlace;
 static bool borrow_place(BorrowCG *b,ASTNode *n,BorrowPlace *place) {
+    borrow_affine_use(b,n);
     if(!n || b->cg->had_error)return false;
     if(n->type==AST_IDENTIFIER) {
         int local=borrow_local(b,n->as.identifier);
@@ -601,6 +635,7 @@ static int borrow_ordinary_receiver(BorrowCG *b,ASTNode *n) {
     return -1;
 }
 static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
+    borrow_affine_use(b,n);
     CG *cg=b->cg;if(cg->had_error || !n)return TAG_VOID;
     if(n->type==AST_HANDLE_EXPR || n->type==AST_EFFECT_HANDLER || n->type==AST_EFFECT_OP)return borrow_effect_expr(b,n);
     ASTNode normalized;char owner[4096];
@@ -830,6 +865,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         }
         for(int i=0;i<n->as.call.arg_count && !cg->had_error;i++) {
             Parameter *p=&function->as.function.params[i];ASTNode *argument=n->as.call.args[i];
+            borrow_affine_use(b,argument);
             int union_instance=borrow_named_union_instance(b,p->type_info,p->struct_type_name);
             if(union_instance>=0) {
                 if(borrow_union_expr(b,argument,union_instance)!=TAG_UNION)return TAG_VOID;
@@ -906,6 +942,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
     borrow_error(b,n,"straight-line scalar expressions and one borrowed helper");return TAG_VOID;
 }
 static bool borrow_owner(BorrowCG *b,ASTNode *value,unsigned layout) {
+    borrow_affine_use(b,value);
     if(layout>=b->record_count || b->ordinary[layout]) {borrow_error(b,value,"a resource layout for owner transfer");return false;}
     CG *cg=b->cg;
     if(!value || cg->had_error)return false;
@@ -1463,7 +1500,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
 static void borrow_function(BorrowCG *b,ASTNode *function,bool shadows,unsigned index) {
     CG *cg=b->cg;b->count=0;b->control_depth=0;b->handler_depth=0;b->returned=false;b->transferred=false;b->loop=NULL;b->helper_body=index!=0;
     b->current_program=borrow_defining_program(b,function);
-    b->current_function=index;b->current_source=function;if(b->value_graph)b->helper=function;
+    b->current_function=index;b->current_source=function;b->affine_synthetic=shadows;if(b->value_graph)b->helper=function;
     b->result=index?borrow_result_tag(b,function):TAG_INT;
     b->result_layout=b->result==TAG_STRUCT?(uint32_t)borrow_record(b,function->as.function.return_struct_type_name):
         b->result==TAG_UNION?(uint32_t)borrow_named_union_instance(b,function->as.function.return_type_info,function->as.function.return_struct_type_name):
@@ -1714,7 +1751,7 @@ static bool borrow_source_uses_owner(ASTNode *n,Environment *env) {
 static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,ModuleList *modules,bool shadows) {
     CodegenResult out={0};CG *cg=calloc(1,sizeof(*cg));BorrowCG *b=calloc(1,sizeof(*b));
     if(!cg || !b){free(cg);free(b);snprintf(out.error_msg,sizeof(out.error_msg),"I cannot allocate my source borrow compiler");return out;}
-    b->cg=cg;b->env=env;cg->env=env;cg->module=nvm_module_new();cg->code=malloc(CODE_INITIAL);cg->code_cap=CODE_INITIAL;
+    b->cg=cg;b->env=env;b->source_modules=modules;b->root_file=env_current_file(env);cg->env=env;cg->module=nvm_module_new();cg->code=malloc(CODE_INITIAL);cg->code_cap=CODE_INITIAL;
     ASTNode *entry=NULL,*declared[8];unsigned declared_count=0;bool has_borrow=false;
     if(!cg->module || !cg->code)borrow_error(b,NULL,"available module storage");
     unsigned module_count=modules && modules->count>0?(unsigned)modules->count:0;
@@ -1962,6 +1999,13 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
                 source && !(shadows && !i) ? source->as.function.checked_affine : 0))
                 borrow_error(b,NULL,"available affine completion storage");
         }
+        for(size_t i=0;i<b->affine_use_count && !cg->had_error;i++) {
+            struct BorrowAffineUse *fact=&b->affine_uses[i];
+            ASTNode *node=fact->node;
+            if(!nvm_add_affine_use(cg->module,fact->function,(uint32_t)node->line,
+                (uint32_t)node->column,node->checked_affine_use,1,fact->path,node->as.identifier))
+                borrow_error(b,node,"unambiguous affine source fact storage");
+        }
         if(!cg->had_error) {
             cg->module->ownership_data=b->contracts;b->contracts=NULL;cg->module->ownership_size=(uint32_t)b->contract_size;
             cg->module->header.flags|=NVM_FLAG_HAS_MAIN;cg->module->header.entry_point=0;
@@ -1990,5 +2034,5 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
     out.ok=!cg->had_error;out.error_line=cg->error_line;snprintf(out.error_msg,sizeof(out.error_msg),"%s",cg->error_msg);
     if(out.ok)out.module=cg->module;else if(cg->module)nvm_module_free(cg->module);
     nvm_v2_layouts_free(&layouts);for(unsigned i=0;i<b->union_count;i++){free(b->unions[i].name);free_payload_type_info(b->unions[i].arguments);}
-    free(b->contracts);free(b->programs);free(cg->code);free(cg);free(b);return out;
+    free(b->affine_uses);free(b->contracts);free(b->programs);free(cg->code);free(cg);free(b);return out;
 }
