@@ -1,0 +1,82 @@
+[
+  {
+    "fixture": "source_borrow_loop_exits.nano",
+    "producer": "nano_virt",
+    "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-loop-exits-baseline-pjbbmh2y/source_borrow_loop_exits-nano_virt.nvm",
+    "module_sha256": "f40f31b3ebd974447544cf884b5f9db184b41608a25309793eb66d3e34e6f741",
+    "locals": [
+      14,
+      2
+    ],
+    "refusals": {
+      "c": {
+        "returncode": 1,
+        "stderr": "I require one unconditional backedge per owned loop header\nI did not publish reconstructed source\n"
+      },
+      "nano": {
+        "returncode": 1,
+        "stderr": "I require one unconditional backedge per owned loop header\nI did not publish reconstructed source\n"
+      }
+    }
+  },
+  {
+    "fixture": "source_borrow_loop_exits.nano",
+    "producer": "nanoc_u8_context",
+    "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-loop-exits-baseline-pjbbmh2y/source_borrow_loop_exits-nanoc_u8_context.nvm",
+    "module_sha256": "e72597a7c19bfefb2634df2332fec19c330048b926854b7f34ba3ddd64580421",
+    "locals": [
+      14,
+      2
+    ],
+    "refusals": {
+      "c": {
+        "returncode": 1,
+        "stderr": "I require one unconditional backedge per owned loop header\nI did not publish reconstructed source\n"
+      },
+      "nano": {
+        "returncode": 1,
+        "stderr": "I require one unconditional backedge per owned loop header\nI did not publish reconstructed source\n"
+      }
+    }
+  },
+  {
+    "fixture": "source_borrow_range_for.nano",
+    "producer": "nano_virt",
+    "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-loop-exits-baseline-pjbbmh2y/source_borrow_range_for-nano_virt.nvm",
+    "module_sha256": "acbee527a951da1a29237594d12fc5c2f3794fe72531d64c989b2012d045c906",
+    "locals": [
+      31,
+      3
+    ],
+    "refusals": {
+      "c": {
+        "returncode": 1,
+        "stderr": "I require one unconditional backedge per owned loop header\nI did not publish reconstructed source\n"
+      },
+      "nano": {
+        "returncode": 1,
+        "stderr": "I require one unconditional backedge per owned loop header\nI did not publish reconstructed source\n"
+      }
+    }
+  },
+  {
+    "fixture": "source_borrow_range_for.nano",
+    "producer": "nanoc_u8_context",
+    "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-loop-exits-baseline-pjbbmh2y/source_borrow_range_for-nanoc_u8_context.nvm",
+    "module_sha256": "0164859bea2dc271fa591b7ca77c00a3070a976c3e2c4ad7d46679224ad2905d",
+    "locals": [
+      31,
+      3
+    ],
+    "refusals": {
+      "c": {
+        "returncode": 1,
+        "stderr": "I require one unconditional backedge per owned loop header\nI did not publish reconstructed source\n"
+      },
+      "nano": {
+        "returncode": 1,
+        "stderr": "I require one unconditional backedge per owned loop header\nI did not publish reconstructed source\n"
+      }
+    }
+  }
+]
