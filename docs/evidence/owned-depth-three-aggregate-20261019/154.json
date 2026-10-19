@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/composed-nano_virt.nano_virt.nvm"
+  ],
+  "returncode": 31,
+  "stdout": "",
+  "stderr": ""
+}

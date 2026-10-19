@@ -15849,3 +15849,7 @@ I retain [six green three-producer methods, exact input/output hashes, unchanged
 - [x] I qualify integrated exclusive resource helpers at `b3e29ee4d`: all 15 exclusive/shared methods pass in 115.974 seconds through NanoVirt and fresh `74a565150` stages; I retain `docs/evidence/owned-exclusive-aggregate-20261019/` and wire the suite into my regular target. Full #999 and hosted gates remain open.
 
 - [x] I qualify extracted scalar-leaf borrowed helpers at `f495e98f1`: all 12 extracted/nested/flat-boundary/shared-output methods pass in 107.020 seconds through current NanoVirt and fresh `74a565150` stages; receipt `docs/evidence/owned-extracted-aggregate-20261019/`. Full #999 and hosted gates remain open.
+
+### 2026-10-19: I qualify the integrated depth-three consuming slice
+
+I rebuild the facts provider at `f129a7986` and pass all four depth-three methods through NanoVirt and both fresh `74a565150` stages in 25.021 seconds. I retain exact providers and command evidence in `docs/evidence/owned-depth-three-aggregate-20261019/`. I wire this suite into owned reconstruction qualification, preserve the separate borrowed depth-two limit and leave full #999/release gates open.
