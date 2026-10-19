@@ -15508,3 +15508,9 @@ I retain [my concrete generic authority receipt](evidence/concrete-generic-autho
 - [x] I qualify actual C-hosted source producers, paired executions, authority/nominal refusals and existing scalar neighbors. Full generic/borrow/call/control reconstruction and fresh-stage/platform qualification remain open.
 
 I retain [local resource reconstruction evidence](evidence/owned-local-reconstruction-20261018/README.md), including actual retained Stage1/Stage2 producer checks. This bounded slice does not close #999 or full ownership reconstruction.
+
+### Combined publisher and owned reconstruction qualification
+
+- [x] I integrate bounded source-array publication, actual allocation-failure repairs, concrete generic authority controls and local owned reconstruction, preserving every component acceptance boundary.
+- [x] I wire both fresh installed stages into source publication, imported/generic authority and owned reconstruction in hosted qualification.
+- [ ] I require another fresh combined bootstrap and exact Linux/Darwin results before treating these integrated sources as qualified.

@@ -165,10 +165,14 @@ jobs:
         timeout-minutes: 120
         run: |
           set -o pipefail
+          NANO_FLAT_ARRAY_COMPILERS="$PWD/bin/nano_virt,$PWD/bin/nanoc_stage1,$PWD/bin/nanoc_stage2" \
+          NANO_FLAT_ARRAY_BOUND_COMPILERS="$PWD/bin/nano_virt,$PWD/bin/nanoc_stage1,$PWD/bin/nanoc_stage2" \
+          NANO_ORDINARY_COMPILERS="nano_virt,nanoc_stage1,nanoc_stage2" \
           make -f Makefile.gnu CC="${CC:-cc}" test-one-ir-compiler \
             test-native-nested-arrays test-native-array-identity \
             test-native-generic-record-fields test-native-nominal-order \
             test-imported-ordinary-authority test-computed-u8-context test-record-array-public \
+            test-flat-array-source-publication test-publication-allocation \
             2>&1 | tee .test_output/retirement/compiler-managed.log
 
       - name: Qualify advisory metadata and paired source effects
@@ -197,7 +201,8 @@ jobs:
               make -f Makefile.gnu CC="${CC:-cc}" test-selfhost-product-derivation \
               2>&1 | tee ".test_output/retirement/product-stage${stage}.log"
           done
-          make -f Makefile.gnu CC="${CC:-cc}" test-scalar-reconstruction \
+          NANOLANG_OWNED_RECONSTRUCTION_COMPILERS="$PWD/bin/nanoc_stage1 $PWD/bin/nanoc_stage2" \
+          make -f Makefile.gnu CC="${CC:-cc}" test-owned-reconstruction test-scalar-reconstruction \
             test-reconstruction-binary64-facts test-reconstruction-f64-transport \
             test-reconstruction-f64-negation test-reconstruction-f64-comparisons \
             test-reconstruction-f64-arithmetic \

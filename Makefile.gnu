@@ -6922,3 +6922,8 @@ test-publication-allocation: nano_virt nanoisa_dump
 	PUBLICATION_CC='$(CC)' PUBLICATION_CFLAGS='$(CFLAGS)' PUBLICATION_LDFLAGS='$(LDFLAGS)' PUBLICATION_OBJECTS='$(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a' python3 -m unittest -v tests.test_native_process tests.test_publication_allocation
 
 test-units: test-publication-allocation
+
+.PHONY: test-owned-reconstruction
+test-owned-reconstruction: nvm2hl nano_virt nano_vm nvm2c
+	python3 -m unittest -v tests.test_owned_reconstruction
+test-units: test-owned-reconstruction
