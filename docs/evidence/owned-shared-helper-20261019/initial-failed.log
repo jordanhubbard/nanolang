@@ -1,0 +1,75 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia
+test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) ... 
+  test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) (case='original', compiler='/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_virt') ... FAIL
+  test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) (case='original', compiler='/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoc_u8_context') ... FAIL
+  test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) (case='bool', compiler='/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_virt') ... FAIL
+  test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) (case='bool', compiler='/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoc_u8_context') ... FAIL
+test_exact_shared_profile_refusals (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_exact_shared_profile_refusals) ... ok
+test_original_verifier_rejects_malformed_references_atomically (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_original_verifier_rejects_malformed_references_atomically) ... ok
+
+======================================================================
+FAIL: test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) (case='original', compiler='/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-shared-helper/tests/test_owned_shared_reconstruction.py", line 61, in test_actual_source_and_structured_roundtrips
+    self.command([producer,output,'--emit-nvm','-o',rebuilt])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-shared-helper/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 31, column 5: Unused variable 'nlr_t120_0'
+Warning at line 32, column 5: Unused variable 'nlr_t120_1'
+Warning: Function 'nlr_f1_owned_1' is missing a shadow test
+I could not compile shadows at line 0: I require I require explicit owned entry execution and a non-escaping scalar helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) (case='original', compiler='/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-shared-helper/tests/test_owned_shared_reconstruction.py", line 61, in test_actual_source_and_structured_roundtrips
+    self.command([producer,output,'--emit-nvm','-o',rebuilt])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-shared-helper/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 31, column 5: Unused variable 'nlr_t120_0'
+Warning at line 32, column 5: Unused variable 'nlr_t120_1'
+Warning: Function 'nlr_f1_owned_1' is missing a shadow test
+I could not compile shadows at line 0: I require I require explicit owned entry execution and a non-escaping scalar helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) (case='bool', compiler='/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-shared-helper/tests/test_owned_shared_reconstruction.py", line 48, in test_actual_source_and_structured_roundtrips
+    module=self.module(case,compiler);facts=self.facts(module)
+  File "/Users/jkh/Src/nanolang-owned-shared-helper/tests/test_owned_shared_reconstruction.py", line 41, in module
+    self.command([compiler,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-shared-helper/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 14: I require straight-line scalar expressions and one borrowed helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) (case='bool', compiler='/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-shared-helper/tests/test_owned_shared_reconstruction.py", line 48, in test_actual_source_and_structured_roundtrips
+    module=self.module(case,compiler);facts=self.facts(module)
+  File "/Users/jkh/Src/nanolang-owned-shared-helper/tests/test_owned_shared_reconstruction.py", line 41, in module
+    self.command([compiler,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-shared-helper/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower the selected shadows: I require the declared direct borrowed helper arity in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.431s
+
+FAILED (failures=4)
