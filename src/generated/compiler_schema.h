@@ -390,6 +390,9 @@ typedef struct nl_ASTIdentifier {
     int line;
     int column;
     const char * name;
+    DynArray * affine_owner;
+    int affine_epoch;
+    int checked_affine_use;
 } nl_ASTIdentifier;
 typedef nl_ASTIdentifier ASTIdentifier;
 #endif
@@ -611,6 +614,8 @@ typedef struct nl_ASTFunction {
     bool is_pure;
     const char * self_name;
     int checked_affine;
+    DynArray * affine_owner;
+    int affine_completed_epoch;
 } nl_ASTFunction;
 typedef nl_ASTFunction ASTFunction;
 #endif

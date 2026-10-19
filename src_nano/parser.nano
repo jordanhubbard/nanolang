@@ -1557,8 +1557,7 @@ fn parser_store_identifier(p: Parser, name: string, line: int, column: int) -> P
         node_type: ParseNodeType.PNODE_IDENTIFIER,
         line: line,
         column: column,
-        name: name
-    }
+        name: name, affine_owner: [], affine_epoch: 0, checked_affine_use: 0 }
     let node_id: int = p.identifiers_count
     (list_ASTIdentifier_push p.identifiers node)
     
@@ -6432,7 +6431,7 @@ fn parse_named_function(p: Parser) -> Parser {
         node_type: ParseNodeType.PNODE_LAMBDA, line: function.line, column: function.column,
         name: name, param_start: function.param_start, param_count: function.param_count,
         return_type: function.return_type, body: function.body, is_pure: function.is_pure,
-        self_name: function.name, checked_affine: 0 }))
+        self_name: function.name, checked_affine: 0, affine_owner: [0], affine_completed_epoch: 0 }))
     let value: Parser = (parser_store_identifier parsed name function.line function.column)
     return (parser_store_let value function.name "" value.last_expr_node_id value.last_expr_node_type false function.line function.column)
 }
@@ -6550,7 +6549,7 @@ fn parser_mark_lambda(p: Parser) -> Parser {
     (list_ASTFunction_set p.functions index (ASTFunction {
         node_type: ParseNodeType.PNODE_LAMBDA, line: func.line, column: func.column,
         name: func.name, param_start: func.param_start, param_count: func.param_count,
-        return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name, checked_affine: func.checked_affine }))
+        return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name, checked_affine: func.checked_affine, affine_owner: [0], affine_completed_epoch: 0 }))
     return p
 }
 shadow parser_mark_lambda {
@@ -6584,7 +6583,7 @@ shadow parser_lambda_function {
     (list_ASTFunction_set parser.functions 0 (ASTFunction {
         node_type: func.node_type, line: func.line, column: func.column,
         name: "__nano_module_0_renamed", param_start: func.param_start, param_count: func.param_count,
-        return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name, checked_affine: func.checked_affine }))
+        return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name, checked_affine: func.checked_affine, affine_owner: [0], affine_completed_epoch: 0 }))
     assert (== (parser_lambda_function parser (parser_get_identifier parser 1)) 0)
 }
 
@@ -6596,7 +6595,7 @@ fn parser_mark_pure(p: Parser) -> Parser {
     (list_ASTFunction_set p.functions index (ASTFunction {
         node_type: func.node_type, line: func.line, column: func.column,
         name: func.name, param_start: func.param_start, param_count: func.param_count,
-        return_type: func.return_type, body: func.body, is_pure: true, self_name: func.self_name, checked_affine: func.checked_affine }))
+        return_type: func.return_type, body: func.body, is_pure: true, self_name: func.self_name, checked_affine: func.checked_affine, affine_owner: [0], affine_completed_epoch: 0 }))
     return p
 }
 shadow parser_mark_pure {
@@ -6615,7 +6614,7 @@ pub fn parser_set_function_affine(p: Parser, index: int, checked: int) -> void {
         node_type: func.node_type, line: func.line, column: func.column,
         name: func.name, param_start: func.param_start, param_count: func.param_count,
         return_type: func.return_type, body: func.body, is_pure: func.is_pure,
-        self_name: func.self_name, checked_affine: checked }))
+        self_name: func.self_name, checked_affine: checked, affine_owner: func.affine_owner, affine_completed_epoch: (cond ((and (== checked 1) (== (array_length func.affine_owner) 1)) (at func.affine_owner 0)) (else 0)) }))
 }
 shadow parser_set_function_affine {
     let p: Parser = (parser_store_function (parser_new (list_LexerToken_new) 0 "affine.nano") "value" 0 0 "int" -1 1 1)
@@ -6637,7 +6636,7 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         param_count: param_count,
         return_type: return_type,
         body: body_id,
-        is_pure: false, self_name: "", checked_affine: 0 }
+        is_pure: false, self_name: "", checked_affine: 0, affine_owner: [0], affine_completed_epoch: 0 }
     let node_id: int = p.functions_count
     (list_ASTFunction_push p.functions node)
     
@@ -8963,8 +8962,7 @@ fn create_identifier_node(name: string, line: int, column: int) -> ASTIdentifier
         node_type: ParseNodeType.PNODE_IDENTIFIER,
         line: line,
         column: column,
-        name: name
-    }
+        name: name, affine_owner: [], affine_epoch: 0, checked_affine_use: 0 }
 }
 
 shadow create_identifier_node {
@@ -9057,6 +9055,65 @@ shadow parser_set_let_var_type {
 }
 
 /* Get number of identifiers */
+# I retain a checked source-use owner without treating spelling as identity.
+pub fn parser_set_identifier_affine(p: Parser, index: int, owner: array<int>, epoch: int, state: int) -> void {
+    let node: ASTIdentifier = (parser_get_identifier p index)
+    (list_ASTIdentifier_set p.identifiers index (ASTIdentifier {
+        node_type: node.node_type, line: node.line, column: node.column, name: node.name,
+        affine_owner: owner, affine_epoch: epoch, checked_affine_use: state }))
+}
+# I observe exact token aliasing without depending on array equality semantics.
+# These fixed-size primitive accesses cannot allocate, call user code or reenter.
+pub fn parser_affine_owner_same(left: array<int>, right: array<int>) -> bool {
+    if (or (!= (array_length left) 1) (!= (array_length right) 1)) { return false }
+    let saved: int = (at left 0)
+    if (or (<= saved 0) (<= (at right 0) 0)) { return false }
+    (array_set left 0 -2)
+    let same: bool = (== (at right 0) -2)
+    (array_set left 0 saved)
+    return same
+}
+shadow parser_affine_owner_same {
+    let one: array<int> = [1]
+    let alias: array<int> = one
+    let other: array<int> = [1]
+    assert (parser_affine_owner_same one alias)
+    assert (not (parser_affine_owner_same one other))
+    assert (== (at one 0) 1)
+    assert (== (at other 0) 1)
+    assert (not (parser_affine_owner_same [] one))
+    assert (not (parser_affine_owner_same [-1] one))
+    assert (not (parser_affine_owner_same one []))
+    assert (not (parser_affine_owner_same one [-1]))
+    assert (== (at one 0) 1)
+}
+
+pub fn parser_identifier_affine_use(p: Parser, index: int, function: ASTFunction) -> int {
+    if (or (!= function.checked_affine 1) (!= (array_length function.affine_owner) 1)) { return 0 }
+    let epoch: int = (at function.affine_owner 0)
+    if (or (<= epoch 0) (!= function.affine_completed_epoch epoch)) { return 0 }
+    let node: ASTIdentifier = (parser_get_identifier p index)
+    if (or (not (parser_affine_owner_same node.affine_owner function.affine_owner)) (!= node.affine_epoch epoch)) { return 0 }
+    if (or (< node.checked_affine_use 1) (> node.checked_affine_use 2)) { return 0 }
+    return node.checked_affine_use
+}
+shadow parser_identifier_affine_use { assert true }
+
+shadow parser_set_identifier_affine {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { return value }" "use.nano" (Diagnostics.diag_list_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "use.nano")
+    assert (> (parser_get_identifier_count p) 0)
+    let owner: array<int> = [1]
+    (parser_set_identifier_affine p 0 owner 1 2)
+    let node: ASTIdentifier = (parser_get_identifier p 0)
+    assert (parser_affine_owner_same node.affine_owner owner)
+    assert (not (parser_affine_owner_same node.affine_owner [1]))
+    assert (== node.affine_epoch 1)
+    assert (== node.checked_affine_use 2)
+    (parser_set_identifier_affine p 0 [] 0 0)
+    assert (== (parser_get_identifier p 0).checked_affine_use 0)
+}
+
 pub fn parser_get_identifier_count(p: Parser) -> int {
     return (list_ASTIdentifier_length p.identifiers)
 }

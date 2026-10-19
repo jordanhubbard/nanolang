@@ -6937,3 +6937,8 @@ test-record-array-tail: test-record-array-tail-build
 	RECORD_ARRAY_TAIL_CC="$(CC)" RECORD_ARRAY_TAIL_CFLAGS="$(CFLAGS)" RECORD_ARRAY_TAIL_OBJECTS="$(filter-out %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(filter %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)))" RECORD_ARRAY_TAIL_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_record_array_tail
 
 test-units: test-record-array-tail
+
+.PHONY: test-affine-use-metadata
+test-affine-use-metadata: $(COMPILER_C) nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_affine_use_metadata
+test-units: test-affine-use-metadata

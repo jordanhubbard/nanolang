@@ -342,6 +342,18 @@
         [
           "name",
           "string"
+        ],
+        [
+          "affine_owner",
+          "array<int>"
+        ],
+        [
+          "affine_epoch",
+          "int"
+        ],
+        [
+          "checked_affine_use",
+          "int"
         ]
       ],
       "emit_c": true
@@ -873,6 +885,14 @@
         ],
         [
           "checked_affine",
+          "int"
+        ],
+        [
+          "affine_owner",
+          "array<int>"
+        ],
+        [
+          "affine_completed_epoch",
           "int"
         ]
       ],

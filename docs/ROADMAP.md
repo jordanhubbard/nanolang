@@ -15528,3 +15528,35 @@ My fresh all-stage publisher qualification exposed a harness prerequisite: confi
 - [x] I repair and qualify the distinct public tail path: its scoped handler needs staged retain headroom before mutation, and root-tail assertion resumption must track the actual invocation-local replacement identity while preserving original host-entry authorization.
 
 I retain [my direct-tail receipt](evidence/record-array-tail-20261018/README.md), including the reproduced public root-resume defect, scoped repair and independent public/private lifetime evidence.
+
+### Checked affine identifier-use facts (#998)
+
+- [ ] I review and implement [retained checked identifier-use facts](NANOISA_AFFINE_USE_FACTS.md) through both real resource and ordinary producer routes, retaining UNKNOWN for unsupported identities and exact checker-node provenance before advisory publication.
+- [ ] I qualify paired consume/observe, refusal, canonical transport and advisory independence controls, then fresh combined generations/platforms; function completion alone does not satisfy this child.
+
+My first affine-use seed build rejected an incorrectly placed checker instrumentation block in the type-query helper. I retain the failed log and move it to the actual ownership traversal before continuing qualification.
+
+My first actual checker fixture correctly rejects my use of the reserved `use` keyword as a local/parameter name. I retain that parser failure and use an ordinary identifier before re-running the unchanged owner/epoch assertions.
+
+I retain the initial per-use fixture failures: generated-constructor editing also touched two getter return bodies, which I restored; the new setter shadow then passed a zero token count and indexed an empty parser. I correct the fixture to pass the actual token count and assert its parsed identifier exists before testing retained facts.
+
+My corrected actual shadow exposed a provenance-design error: seed-evaluator arrays compare contents, while the initial VM/native probe compared handles. I retain that failure and replace language equality with a bounded, nonallocating token alias probe that restores its reserved transient marker before return; I do not change language equality semantics.
+
+The first actual source-use test found a lowering route I had not recorded: direct resource arguments emit OWN_MOVE_LOCAL without calling the general owner expression lowerer. I add the same exact-node retention hook to that existing argument path in both producers, preserving operand evaluation and executable lowering.
+
+- [x] I qualify the first seed observe/consume sites, duplicate source spellings across functions, exact codec transport and advisory strip/forge independence. My actual parser/checker fixture verifies stale copies, independent equal-epoch Parser graphs and permanent epoch overflow refusal.
+- [ ] I require the changed Nano-written producer, raw/checked executable equality, final source/codec regressions and fresh aggregate/platform stages before claiming this bounded per-use slice qualified.
+
+My first paired producer run found the analogous Nano checker field-path fast path: it proves a root observation without visiting the identifier visitor. I retain that failure, store the accepted root observation after the existing path checks, and keep partial moves/conflicts rejected. I append all per-use directives after all completion/parameter directives to preserve the executable and preexisting metadata string indexes.
+
+The changed Nano-written compiler rejected my raw-emitter rebuild because the new parser shadow called an unqualified diagnostics helper. I use the existing explicit Diagnostics module qualifier and retain the failure; this is a fixture namespace correction, not relaxed name resolution.
+
+I retain [my bounded per-use evidence](evidence/affine-use-20261018/README.md):
+three paired source methods, 20 neighboring metadata methods, 92 codegen cases,
+1,105 codec checks/56 allocation boundaries, 444 strict compiles, 33 schema
+checks and four raw/checked canonical fixtures pass. The raw-emitter retry first
+lacked its declared AOT runtime object; provisioning that existing target fixes
+the setup. A trailing-newline bookkeeping failure in the narrow comparison is
+retained and corrected without changing surviving canonical lines. Borrowed-root
+facts remain conservative UNKNOWN in my Nano producer where C retains observations;
+I do not claim parity or close #998. Fresh combined generations/platforms remain open.

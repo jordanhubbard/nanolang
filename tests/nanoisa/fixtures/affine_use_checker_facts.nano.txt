@@ -1,0 +1,75 @@
+import "src_nano/compiler/lexer.nano"
+import "src_nano/parser.nano"
+import "src_nano/compiler/nanoisa_codegen.nano"
+import "src_nano/typecheck.nano"
+
+fn main() -> int {
+    let source: string = "resource struct R { value:int } fn take(x:R)->int{let R{value}=x return value} fn main()->int{assert (== (take R{value:7}) 7) return 0}"
+    let tokens: List<LexerToken> = (tokenize_string source "affine.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "affine.nano")
+    assert (not (parser_has_error parser))
+    assert (== (parser_get_function parser 0).checked_affine 0)
+    assert (== (parser_get_function parser 1).checked_affine 0)
+    let raw: string = (nanoisa_emit_parser_nasm parser)
+    assert (str_contains raw ".affine_completion 0 0")
+    assert (str_contains raw ".affine_completion 1 0")
+    assert (not (str_contains raw ".affine_use "))
+    assert (not (typecheck_phase parser "affine.nano").had_error)
+    assert (== (parser_get_function parser 0).checked_affine 1)
+    assert (== (parser_get_function parser 1).checked_affine 1)
+    let completed: ASTFunction = (parser_get_function parser 0)
+    assert (> completed.affine_completed_epoch 0)
+    let mut seen: int = 0
+    let mut slot: int = 0
+    while (< slot (parser_get_identifier_count parser)) {
+        let fact: int = (parser_identifier_affine_use parser slot completed)
+        if (> fact 0) { set seen (+ seen 1) assert (== fact 2) }
+        set slot (+ slot 1)
+    }
+    assert (> seen 0)
+    assert (not (typecheck_phase parser "affine.nano").had_error)
+    assert (!= completed.affine_completed_epoch (at completed.affine_owner 0))
+    set slot 0
+    while (< slot (parser_get_identifier_count parser)) {
+        assert (== (parser_identifier_affine_use parser slot completed) 0)
+        set slot (+ slot 1)
+    }
+    let checked: string = (nanoisa_emit_parser_nasm parser)
+    assert (str_contains checked ".affine_completion 0 1")
+    assert (str_contains checked ".affine_completion 1 1")
+    assert (str_contains checked ".affine_use ")
+    # Equal epoch values in independent source graphs never share provenance.
+    let other: Parser = (parse_program tokens (list_LexerToken_length tokens) "affine.nano")
+    assert (not (typecheck_phase other "affine.nano").had_error)
+    assert (not (typecheck_phase other "affine.nano").had_error)
+    let other_function: ASTFunction = (parser_get_function other 0)
+    assert (== other_function.affine_completed_epoch (parser_get_function parser 0).affine_completed_epoch)
+    set slot 0
+    while (< slot (parser_get_identifier_count parser)) {
+        assert (== (parser_identifier_affine_use parser slot other_function) 0)
+        set slot (+ slot 1)
+    }
+    # A disabled epoch cannot wrap around to validate an old snapshot.
+    let active: ASTFunction = (parser_get_function parser 0)
+    (array_set active.affine_owner 0 2147483646)
+    assert (not (typecheck_phase parser "affine.nano").had_error)
+    assert (== (at active.affine_owner 0) -1)
+    assert (not (typecheck_phase parser "affine.nano").had_error)
+    assert (== (at active.affine_owner 0) -1)
+    set slot 0
+    while (< slot (parser_get_identifier_count parser)) {
+        assert (== (parser_identifier_affine_use parser slot (parser_get_function parser 0)) 0)
+        set slot (+ slot 1)
+    }
+    let external_tokens: List<LexerToken> = (tokenize_string "resource struct R {value:int} extern fn outside()->int fn main()->int{return 0}" "external.nano" (list_CompilerDiagnostic_new))
+    let external: Parser = (parse_program external_tokens (list_LexerToken_length external_tokens) "external.nano")
+    (parser_set_function_affine external 0 1)
+    assert (not (typecheck_phase external "external.nano").had_error)
+    assert (== (parser_get_function external 0).checked_affine 0)
+    assert (== (parser_get_function external 1).checked_affine 1)
+    let generic: string = (nanoisa_emit_nasm "fn id(x:T)->T{return x} fn main()->int{assert (id true) return (id 0)}")
+    assert (str_contains generic ".function_affine 0")
+    assert (not (str_contains generic ".function_affine 1"))
+    return 0
+}
+shadow main { assert (== (main) 0) }

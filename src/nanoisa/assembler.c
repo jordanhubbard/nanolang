@@ -971,6 +971,23 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return true;
         }
 
+        if (strcmp(directive, "affine_use") == 0) {
+            uint32_t function, line, column, use, coordinates;
+            if (state->in_function || !parse_uint32(&p, &function) || !parse_uint32(&p, &line) ||
+                !parse_uint32(&p, &column) || !parse_uint32(&p, &use) || !parse_uint32(&p, &coordinates))
+                return par_error(result, "I require an indexed affine source use outside a function body.");
+            size_t capacity = strlen(p) + 1;
+            char *path = malloc(capacity), *binding = malloc(capacity);
+            uint32_t path_length = 0, binding_length = 0;
+            bool valid = path && binding && parse_quoted_string(&p, path, capacity, &path_length) &&
+                strlen(path) == path_length && parse_quoted_string(&p, binding, capacity, &binding_length) &&
+                strlen(binding) == binding_length && require_line_end(p, result) &&
+                nvm_add_affine_use(state->mod, function, line, column, use, coordinates, path, binding);
+            free(path); free(binding);
+            if (!valid) return par_error(result, "I require an unambiguous affine use with quoted source path and binding.");
+            return true;
+        }
+
         if (strcmp(directive, "affine_completion") == 0) {
             uint32_t function;
             uint16_t affine;

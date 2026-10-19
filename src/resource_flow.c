@@ -31,6 +31,7 @@ typedef struct OwnLoop {
 
 typedef struct {
     Environment *env;
+    ASTNode *fact_owner;
     OwnBinding *bindings;
     size_t count, capacity;
     size_t exit_first;
@@ -523,6 +524,7 @@ static void own_nested_function(OwnFlow *flow, ASTNode *function) {
     if (!function || function->type != AST_FUNCTION || function->as.function.is_extern) return;
     OwnFlow nested;
     if (!own_clone(&nested, flow, function)) return;
+    nested.fact_owner = NULL;
     nested.exit_first = nested.count;
     nested.loop = NULL;
     nested.pending_values = 0;
@@ -546,6 +548,10 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
     bool resource = own_value_resource(flow, node, nominal, own_expr_info(flow, node));
     switch (node->type) {
         case AST_IDENTIFIER: {
+            node->checked_affine_use = 0;
+            node->affine_use_owner = NULL;
+            node->affine_use_epoch = 0;
+            bool clean_use = !*flow->error;
             OwnBinding *binding = own_find(flow, node->as.identifier);
             Function *function = binding ? NULL : env_get_function(flow->env, node->as.identifier);
             if (function) {
@@ -570,6 +576,11 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
                 else if (move && (binding->borrowed || binding->holds))
                     own_error(flow, node, "I cannot consume or escape a borrowed owner", binding->name);
                 else if (move) binding->moved = true;
+                if (clean_use && !*flow->error && flow->fact_owner) {
+                    node->checked_affine_use = move ? 2 : 1;
+                    node->affine_use_owner = flow->fact_owner;
+                    node->affine_use_epoch = flow->fact_owner->as.function.affine_check_epoch;
+                }
             }
             return OWN_NEXT;
         }
@@ -577,6 +588,12 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             char *path = NULL;
             ASTNode *root = own_place(node, &path);
             OwnBinding *binding = root ? own_find(flow, root->as.identifier) : NULL;
+            bool clean_use = !*flow->error;
+            if (root) {
+                root->checked_affine_use = 0;
+                root->affine_use_owner = NULL;
+                root->affine_use_epoch = 0;
+            }
             unsigned result = OWN_NEXT;
             if (binding && binding->resource) {
                 if ((size_t)(binding - flow->bindings) < flow->exit_first || flow->restricted)
@@ -587,6 +604,11 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             } else result = own_node(flow, node->as.field_access.object, false);
             free(path);
             if (move && resource) own_error(flow, node, "I cannot partially move a resource field", node->as.field_access.field_name);
+            if (root && binding && binding->resource && clean_use && !*flow->error && flow->fact_owner) {
+                root->checked_affine_use = 1;
+                root->affine_use_owner = flow->fact_owner;
+                root->affine_use_epoch = flow->fact_owner->as.function.affine_check_epoch;
+            }
             return result;
         }
         case AST_LET: {
@@ -985,11 +1007,16 @@ void check_global_ownership(Environment *env, ASTNode *global, bool *has_error) 
 void check_function_ownership(Environment *env, ASTNode *function, bool *has_error) {
     if (!function || function->type != AST_FUNCTION) return;
     function->as.function.checked_affine = 0;
+    function->as.function.affine_completed_epoch = 0;
+    uint64_t epoch = function->as.function.affine_check_epoch;
+    epoch = epoch >= UINT64_MAX - 1 ? UINT64_MAX : epoch + 1;
+    function->as.function.affine_check_epoch = epoch;
     bool started_clean = !*has_error;
     bool any_resource = false;
     for (int i = 0; i < env->struct_count; ++i) any_resource |= env->structs[i].is_resource;
     if (!any_resource) return;
-    OwnFlow flow = {.env = env, .error = has_error};
+    OwnFlow flow = {.env = env, .error = has_error,
+                    .fact_owner = epoch == UINT64_MAX ? NULL : function};
     own_check_callback(&flow, function, function->as.function.return_fn_sig);
     own_metadata(&flow, function, function->as.function.return_type,
                  function->as.function.return_struct_type_name, function->as.function.return_type_info);
@@ -1004,5 +1031,8 @@ void check_function_ownership(Environment *env, ASTNode *function, bool *has_err
     unsigned result = own_node(&flow, function->as.function.body, false);
     if (result & OWN_NEXT) own_leaks(&flow, 0, function);
     free(flow.bindings);
-    if (started_clean && !*has_error) function->as.function.checked_affine = 1;
+    if (started_clean && !*has_error) {
+        function->as.function.checked_affine = 1;
+        if (epoch != UINT64_MAX) function->as.function.affine_completed_epoch = epoch;
+    }
 }

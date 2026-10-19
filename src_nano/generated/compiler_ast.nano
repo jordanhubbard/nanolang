@@ -49,7 +49,10 @@ extern struct ASTIdentifier {
     node_type: int,
     line: int,
     column: int,
-    name: string
+    name: string,
+    affine_owner: array<int>,
+    affine_epoch: int,
+    checked_affine_use: int
 }
 
 extern struct ASTBinaryOp {
@@ -206,7 +209,9 @@ extern struct ASTFunction {
     body: int,
     is_pure: bool,
     self_name: string,
-    checked_affine: int
+    checked_affine: int,
+    affine_owner: array<int>,
+    affine_completed_epoch: int
 }
 
 extern struct ASTShadow {

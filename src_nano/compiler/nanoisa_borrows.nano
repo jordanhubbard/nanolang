@@ -1,6 +1,7 @@
 # I lower one closed, verified source-reference profile.
 from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
 import "src_nano/parser.nano"
+from "src_nano/compiler/generic_types.nano" import generic_type_contains_variable
 import "src_nano/compiler/module_introspection.nano"
 from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
 from "src_nano/compiler/lexer.nano" import tokenize_string
@@ -36,6 +37,9 @@ let mut nb_expression_layout: int = 4294967295
 let mut nb_expression_identity: string = ""
 let mut nb_any_transfer: bool = false
 let mut nb_current_function: int = 0
+let mut nb_affine_function: int = -1
+let mut nb_affine_enabled: bool = false
+let mut nb_affine_ids: array<int> = []
 let mut nb_edges: array<bool> = []
 let mut nb_paths: array<string> = []
 let mut nb_depths: array<int> = []
@@ -313,6 +317,7 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
     return index
 }
 fn nb_reset_locals() -> int {
+    set nb_affine_function -1 set nb_affine_enabled false set nb_affine_ids []
     set nb_control_depth 0 set nb_handler_depth 0 set nb_loop_handler_depth 0
     set nb_transferred false set nb_loop_first -1 set nb_loop_index -1 set nb_loop_top "" set nb_loop_done ""
     set nb_loop_live [] set nb_loop_pending [] set nb_loop_breaks 0
@@ -389,6 +394,7 @@ fn nb_layout_field(parser: Parser, layout: int, name: string) -> int {
 }
 shadow nb_layout_field { set nb_error "" assert (== (nb_layout_field (nb_fixture) 0 "value") 0) }
 fn nb_place(parser: Parser, id: int, kind: int) -> NBPlace {
+    let _: int = (nb_affine_use parser id kind)
     if (== kind ParseNodeType.PNODE_IDENTIFIER) {
         let local: int = (nb_local (parser_get_identifier parser id).name)
         if (< local 0) { return (nb_invalid_place "a live resource place") }
@@ -1468,6 +1474,7 @@ fn nb_value_call(parser: Parser, name: string, arg_start: int, arg_count: int) -
     while (and (== nb_error "") (< i arg_count)) {
         let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
         let argument: ASTStmtRef = (parser_get_call_arg parser (+ arg_start i))
+        let _: int = (nb_affine_use parser argument.node_id argument.node_type)
         let layout: int = (nb_record parser parameter.var_type)
         let union_layout: int = (nb_union_instance parser parameter.var_type)
         if (>= union_layout 0) {
@@ -1536,7 +1543,53 @@ shadow nb_ordinary_receiver {
     let _: int = (nb_reset_locals)
 }
 
+# I retain exact checked identifier nodes only while lowering their source body.
+fn nb_affine_use(parser: Parser, id: int, kind: int) -> int {
+    if (or (not nb_affine_enabled) (!= kind ParseNodeType.PNODE_IDENTIFIER)) { return 0 }
+    if (or (< nb_affine_function 0) (>= nb_affine_function (parser_get_function_count parser))) { return 0 }
+    let function: ASTFunction = (parser_get_function parser nb_affine_function)
+    let mut parameter: int = 0
+    while (< parameter function.param_count) {
+        if (generic_type_contains_variable parser (parser_get_let parser (+ function.param_start parameter)).var_type) { return 0 }
+        set parameter (+ parameter 1)
+    }
+    if (== (parser_identifier_affine_use parser id function) 0) { return 0 }
+    let mut i: int = 0
+    while (< i (array_length nb_affine_ids)) {
+        if (== (at nb_affine_ids i) id) { return 0 }
+        set i (+ i 1)
+    }
+    set nb_affine_ids (array_push nb_affine_ids id)
+    return 0
+}
+shadow nb_affine_use {
+    let _: int = (nb_reset_locals)
+    assert (== (nb_affine_use (nb_fixture) 0 ParseNodeType.PNODE_NUMBER) 0)
+    assert (== (array_length nb_affine_ids) 0)
+}
+fn nb_affine_records(parser: Parser, source: int, emitted: int, synthetic: bool) -> string {
+    if synthetic { return "" }
+    let function: ASTFunction = (parser_get_function parser source)
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i (array_length nb_affine_ids)) {
+        let id: int = (at nb_affine_ids i)
+        let state: int = (parser_identifier_affine_use parser id function)
+        if (> state 0) {
+            let node: ASTIdentifier = (parser_get_identifier parser id)
+            set out (+ out (+ ".affine_use " (+ (int_to_string emitted) (+ " " (+ (int_to_string node.line) (+ " " (+ (int_to_string node.column) (+ " " (+ (int_to_string state) (+ " 2 \"" (+ (nb_escape_string parser.file_name) (+ "\" \"" (+ (nb_escape_string node.name) "\"\n")))))))))))))
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+shadow nb_affine_records {
+    let _: int = (nb_reset_locals)
+    assert (== (nb_affine_records (nb_fixture) 0 0 true) "")
+}
+
 fn nb_expr(parser: Parser, id: int, kind: int) -> int {
+    let _: int = (nb_affine_use parser id kind)
     if (!= nb_error "") { return 0 }
     if (== kind ParseNodeType.PNODE_EFFECT_OP) { return (nb_effect_perform parser (at parser.performs id)) }
     if (== kind ParseNodeType.PNODE_HANDLE_EXPR) { return (nb_effect_handle parser (at parser.handlers id)) }
@@ -1822,6 +1875,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     return (nb_fail "straight-line scalar expressions and one borrowed helper")
 }
 fn nb_owner(parser: Parser, id: int, kind: int, layout: int) -> int {
+    let _: int = (nb_affine_use parser id kind)
     if (!= nb_error "") { return 0 }
     if (nb_ordinary_layout layout) { return (nb_fail "a resource layout for owner transfer") }
     if (== kind ParseNodeType.PNODE_MATCH) {
@@ -2316,6 +2370,7 @@ shadow nb_body_statements {
 }
 fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, helper: bool) -> string {
     let _: int = (nb_reset_locals)
+    set nb_affine_function index set nb_affine_enabled (not shadows)
     set nb_in_helper helper
     let function: ASTFunction = (parser_get_function parser index)
     set nb_result (nb_result_tag parser function.return_type)
@@ -2386,6 +2441,7 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
     if (== nb_result 10) { set tag_name "union" }
     let mut result_count: string = "1"
     if (== nb_result 0) { set tag_name "void" set result_count "0" }
+    set nb_affine_enabled false
     return (+ ".function " (+ name (+ " " (+ (int_to_string arity) (+ " " (+ (int_to_string (array_length nb_names)) (+ " 0 " (+ tag_name (+ " " (+ result_count (+ "\n" (+ nb_code ".end\n"))))))))))))
 }
 fn nb_function_contract(helper: bool) -> string {
@@ -3104,6 +3160,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     while (< i (array_length nb_functions)) { let _: int = (nb_string (parser_get_function parser (at nb_functions i)).name) set i (+ i 1) }
     let mut functions: string = ""
     let mut parameters: string = ""
+    let mut affine_uses: string = ""
     set i 0
     while (and (== nb_error "") (< i (array_length nb_functions))) {
         let mut source: int = (at nb_functions i)
@@ -3112,6 +3169,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         set nb_current_function i
         set functions (+ functions (nb_function parser source (and shadows (== i 0)) first_shadow (> i 0)))
         set ownership (+ ownership (nb_function_contract (> i 0)))
+        set affine_uses (+ affine_uses (nb_affine_records parser source i (and shadows (== i 0))))
         let mut affine: int = function.checked_affine
         if (and shadows (== i 0)) { set affine 0 }
         set parameters (+ parameters (+ ".affine_completion " (+ (int_to_string i) (+ " " (+ (int_to_string affine) "\n")))))
@@ -3189,7 +3247,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     }
     set prelude (+ prelude (+ ".layouts \"" (+ layouts "\"\n")))
     set prelude (+ prelude (+ ".ownership \"" (+ ownership "\"\n")))
-    return (+ prelude (+ functions parameters))
+    return (+ prelude (+ functions (+ parameters affine_uses)))
 }
 fn nb_fixture() -> Parser {
     let source: string = (+ "resource struct R { value: int, yes: bool } f" (+ "n read(view: &R) -> int { return view.value } shadow read { let owner: R = R { yes: true, value: 7 } assert (== (read &owner) 7) let R { value, yes } = owner assert yes } f" "n main() -> int { let owner: R = R { value: 9, yes: false } assert (== (read &owner) 9) let R { value, yes } = owner return 0 } shadow main { assert true }"))
