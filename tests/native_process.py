@@ -1,6 +1,7 @@
 """I budget native builds explicitly and reap failed process groups."""
 import os
 import signal
+import shlex
 import subprocess
 
 
@@ -13,6 +14,11 @@ def native_compile_timeout():
     if timeout < 1:
         raise ValueError('I require a positive integer native compilation timeout.')
     return timeout
+
+
+def native_link_flags():
+    """I inherit build instrumentation unless my caller explicitly overrides it."""
+    return shlex.split(os.environ.get('NANO_LDFLAGS', os.environ.get('LDFLAGS', '')))
 
 
 def run_captured(args, *, timeout, build=False, **kwargs):

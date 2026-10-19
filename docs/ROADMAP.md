@@ -15470,3 +15470,10 @@ I retain [my native identity prerequisite evidence](evidence/native-record-ident
 Under #1001 my first mutation qualification exposed classifier-only shape lookup used during emission and a boxed global-array constructor representation gap. I retain those failures and qualify exact payload extraction before publishing canonical fields. The expanded allocation-prefix batch then exceeded the existing 120-second command bound; I split every unchanged tag/fixture prefix corpus into separately bounded invocations rather than dropping failure positions.
 
 I retain [my bounded field replacement evidence](evidence/public-record-field-mutation-20261018/README.md): the complete public gate passes in 216.359 seconds, including 23,170 injected VM execution allocation prefixes and 64 native executions. I preserve the two test-wrapper failures and their corrections; fresh combined and hosted qualification remain open.
+
+### Field metadata coverage linkage (#976, 2026-10-18)
+
+- [x] I preserve ambient instrumentation link flags in both field-metadata native builds using shared explicit-override policy, without changing lookup allocation assertions or guest budgets.
+- [x] I qualify real coverage-instrumented runtime linkage plus flag precedence, retaining the failing Linux log and separate integrated hosted acceptance.
+
+I retain [field metadata coverage linkage evidence](evidence/field-metadata-coverage-link-20261018.md); the integrated Linux coverage rerun remains open.

@@ -8,7 +8,7 @@ import time
 import unittest
 from unittest.mock import patch
 
-from tests.native_process import native_compile_timeout, run_captured
+from tests.native_process import native_compile_timeout, native_link_flags, run_captured
 
 
 class NativeProcess(unittest.TestCase):
@@ -21,6 +21,16 @@ class NativeProcess(unittest.TestCase):
             with self.subTest(value=value), patch.dict(os.environ, {'CMD_TIMEOUT': value}):
                 with self.assertRaisesRegex(ValueError, 'positive integer'):
                     native_compile_timeout()
+
+    def test_link_flags_inherit_and_preserve_explicit_empty_override(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(native_link_flags(), [])
+            os.environ['LDFLAGS'] = '--coverage -L"/path with spaces"'
+            self.assertEqual(native_link_flags(), ['--coverage', '-L/path with spaces'])
+            os.environ['NANO_LDFLAGS'] = '-fsanitize=address'
+            self.assertEqual(native_link_flags(), ['-fsanitize=address'])
+            os.environ['NANO_LDFLAGS'] = ''
+            self.assertEqual(native_link_flags(), [])
 
     def test_build_budget_is_explicit_and_guest_deadline_stays_short(self):
         command = [sys.executable, '-c', 'import time; time.sleep(.15); print("done")']

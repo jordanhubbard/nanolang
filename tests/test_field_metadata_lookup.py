@@ -6,6 +6,8 @@ import subprocess
 import tempfile
 import unittest
 
+from tests.native_process import native_link_flags, run_captured
+
 ROOT = Path(__file__).resolve().parents[1]
 DRIVER = r'''from "src_nano/typecheck.nano" import FieldMetadata, NSType, TypeKind, lookup_field_type
 fn main() -> int {
@@ -30,9 +32,8 @@ shadow main { assert (== (lookup_field_type [] "Missing" "field").kind TypeKind.
 
 
 class FieldMetadataLookup(unittest.TestCase):
-    def run_checked(self, args, **kwargs):
-        result = subprocess.run(list(map(str, args)), cwd=ROOT, capture_output=True,
-                                text=True, timeout=180, **kwargs)
+    def run_checked(self, args, *, build=False, **kwargs):
+        result = run_captured(args, cwd=ROOT, text=True, timeout=180, build=build, **kwargs)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
@@ -69,14 +70,16 @@ int main(int argc, char **argv) {
             self.assertTrue(cc)
             self.run_checked([cc, "-std=c11", "-O0", "-Wall", "-Wextra", "-Werror",
                               "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
-                              native_c, ROOT / "bin/nano_aot_runtime.o", "-lm", "-o", binary])
+                              native_c, ROOT / "bin/nano_aot_runtime.o", "-lm", "-o", binary,
+                              *native_link_flags()], build=True)
             result = self.run_checked([binary], env={**os.environ})
             self.assertIn("lookup_maps=0", result.stderr)
             # I prove that excluding initialization does not hide a guest allocation.
             native_c.write_text(generated.replace(reset, reset + "    (void)nmap_owned_new(1);\n"))
             self.run_checked([cc, "-std=c11", "-O0", "-Wall", "-Wextra", "-Werror",
                               "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
-                              native_c, ROOT / "bin/nano_aot_runtime.o", "-lm", "-o", binary])
+                              native_c, ROOT / "bin/nano_aot_runtime.o", "-lm", "-o", binary,
+                              *native_link_flags()], build=True)
             rejected = subprocess.run([binary], cwd=ROOT, capture_output=True, text=True,
                                       timeout=180, env={**os.environ})
             self.assertEqual(rejected.returncode, 1, rejected.stdout + rejected.stderr)
