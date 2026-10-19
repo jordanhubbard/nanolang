@@ -5,7 +5,7 @@
 static int owned_facts(const NvmModule *m) {
     NvmV2Layouts layouts={0};NvmAffineState *state=NULL;
     VmDecodedFunction code={0};char error[VM_DECODE_ERROR_SIZE];
-    bool ok=false;uint32_t total=0;
+    bool ok=false;uint32_t total=0;uint8_t depths[16]={0};
     if(m->ownership_size<4 || !m->ownership_data ||
        m->ownership_data[0]!=NVM_OWNERSHIP_VERSION || m->ownership_data[1] ||
        m->ownership_data[2] || m->ownership_data[3] || !m->function_count || m->function_count>NVM_OWNED_MAX_FUNCTIONS || m->header.entry_point!=0 || m->import_count ||
@@ -25,19 +25,20 @@ static int owned_facts(const NvmModule *m) {
         if(nvm_ownership_layout_authority(m,i,&authority)!=NVM_V2_OK ||
            authority!=NVM_LAYOUT_AUTHORITY_RESOURCE || l->kind!=NVM_V2_LAYOUT_STRUCT ||
            !l->field_count || l->field_count>16)goto done;
+        depths[i]=1;
         for(uint16_t f=0;f<l->field_count;f++) {
             uint8_t tag=l->fields[f].type_tag;uint32_t child=l->fields[f].nested_idx;
             if(tag==TAG_STRUCT) {
                 if(child>=i)goto done;
-                const NvmV2Layout *leaf=&layouts.items[child];
-                for(uint16_t j=0;j<leaf->field_count;j++)
-                    if((leaf->fields[j].type_tag!=TAG_INT && leaf->fields[j].type_tag!=TAG_BOOL) ||
-                       leaf->fields[j].nested_idx!=NVM_V2_NO_INDEX)goto done;
+                uint8_t depth=(uint8_t)(depths[child]+1);
+                if(depth>3)goto done;
+                if(depth>depths[i])depths[i]=depth;
             } else if((tag!=TAG_INT && tag!=TAG_BOOL) || child!=NVM_V2_NO_INDEX)goto done;
         }
     }
     bool borrowed=!nvm_affine_value_call_graph(m);
     if(borrowed && (m->function_count!=2 || m->functions[1].arity!=1))goto done;
+    if(borrowed)for(uint32_t i=0;i<layouts.count;i++)if(depths[i]>2)goto done;
     printf("{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[");
     for(uint32_t i=0;i<layouts.count;i++) {
         if(i){putchar(',');}printf("{\"identity\":%u,\"resource\":true,\"fields\":[",i);

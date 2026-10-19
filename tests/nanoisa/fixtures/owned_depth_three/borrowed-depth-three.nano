@@ -1,0 +1,16 @@
+resource struct Leaf { value: int }
+resource struct Box { leaf: Leaf }
+resource struct Outer { box: Box }
+fn read(view: &Leaf) -> int { return view.value }
+shadow read { let leaf: Leaf = Leaf { value: 7 } assert (== (read &leaf) 7) let Leaf { value } = leaf assert (== value 7) }
+fn main() -> int {
+ let leaf: Leaf = Leaf { value: 7 }
+ let box: Box = Box { leaf: leaf }
+ let outer: Outer = Outer { box: box }
+ let Outer { box } = outer
+ let Box { leaf } = box
+ assert (== (read &leaf) 7)
+ let Leaf { value } = leaf
+ return value
+}
+shadow main { assert true }
