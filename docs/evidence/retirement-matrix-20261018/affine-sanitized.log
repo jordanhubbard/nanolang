@@ -1,0 +1,30 @@
+test_foreign_record_collision_is_rejected (tests.test_affine_module_identity.AffineModuleIdentity.test_foreign_record_collision_is_rejected) ... ok
+test_generic_annotation_metadata (tests.test_affine_module_identity.AffineModuleIdentity.test_generic_annotation_metadata) ... ok
+test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) ... ok
+test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) ... ok
+test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) ... ok
+test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) ... ok
+test_resource_use_after_move (tests.test_affine_module_identity.AffineModuleIdentity.test_resource_use_after_move) ... ok
+test_same_module_duplicate_is_rejected (tests.test_affine_module_identity.AffineModuleIdentity.test_same_module_duplicate_is_rejected) ... ok
+test_unresolved_resource (tests.test_affine_module_identity.AffineModuleIdentity.test_unresolved_resource) ... ok
+test_array_of_generic_resources_is_rejected (tests.test_affine_generic_identity.GenericAffineIdentity.test_array_of_generic_resources_is_rejected) ... ok
+test_array_payload_copy_and_match (tests.test_affine_generic_identity.GenericAffineIdentity.test_array_payload_copy_and_match) ... ok
+test_concrete_same_named_resource_still_rejected (tests.test_affine_generic_identity.GenericAffineIdentity.test_concrete_same_named_resource_still_rejected) ... ok
+test_formal_shadows_resource_record (tests.test_affine_generic_identity.GenericAffineIdentity.test_formal_shadows_resource_record) ... ok
+test_formal_survives_module_record_binding (tests.test_affine_generic_identity.GenericAffineIdentity.test_formal_survives_module_record_binding) ... ok
+test_inline_resource_payload_match_stays_rejected (tests.test_affine_generic_identity.GenericAffineIdentity.test_inline_resource_payload_match_stays_rejected) ... ok
+test_integer_payload_copy_and_match (tests.test_affine_generic_identity.GenericAffineIdentity.test_integer_payload_copy_and_match) ... ok
+test_module_concrete_resource_still_rejected (tests.test_affine_generic_identity.GenericAffineIdentity.test_module_concrete_resource_still_rejected) ... ok
+test_nested_record_resource_parameter_requires_lowering (tests.test_affine_generic_identity.GenericAffineIdentity.test_nested_record_resource_parameter_requires_lowering) ... ok
+test_ordinary_match_closes_outer_owner_in_each_arm (tests.test_affine_generic_identity.GenericAffineIdentity.test_ordinary_match_closes_outer_owner_in_each_arm) ... ok
+test_ordinary_match_rejects_disagreeing_join (tests.test_affine_generic_identity.GenericAffineIdentity.test_ordinary_match_rejects_disagreeing_join) ... ok
+test_ordinary_match_rejects_unresolved_return_arm (tests.test_affine_generic_identity.GenericAffineIdentity.test_ordinary_match_rejects_unresolved_return_arm) ... ok
+test_resource_parameter_requires_lowering (tests.test_affine_generic_identity.GenericAffineIdentity.test_resource_parameter_requires_lowering) ... ok
+test_second_payload_parameter (tests.test_affine_generic_identity.GenericAffineIdentity.test_second_payload_parameter) ... ok
+test_second_resource_parameter_requires_lowering (tests.test_affine_generic_identity.GenericAffineIdentity.test_second_resource_parameter_requires_lowering) ... ok
+test_string_payload_copy_and_match (tests.test_affine_generic_identity.GenericAffineIdentity.test_string_payload_copy_and_match) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 36.593s
+
+OK
