@@ -15379,3 +15379,5 @@ I retain [my checked mixed-service flow evidence](evidence/mixed-service-flow-20
 - [x] I retain the first imported-field fixture failure: its expected string tag and C-seed declaration order were wrong. I use the retained layout contract (string tag 5) and both checked producers' dependency-first declaration order, then repeat exact ordinal and VM/native checks without changing producer behavior.
 
 I retain [my focused imported-authority evidence](evidence/imported-ordinary-authority-20261018/README.md): both C and C-seed-hosted canonical Nano producers pass five VM/native methods, and 90 codegen checks pass. Fresh selfhosted generations and Linux remain required; I keep #1001 open.
+
+- [ ] Under #976/#998/#1001 I qualify the integrated advisory-effect and imported ordinary-authority producers through fresh Stage1/Stage2 in the complete Linux/Darwin matrix. I include the existing binary64 reconstruction corpus alongside the scalar corpus and preserve its exact IEEE/tag controls.
