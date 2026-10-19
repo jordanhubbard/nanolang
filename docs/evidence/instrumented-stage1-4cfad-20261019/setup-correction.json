@@ -1,0 +1,14 @@
+{
+  "source": "4cfad3737",
+  "original_sparse_checkout_omitted": [
+    "tests",
+    "examples"
+  ],
+  "required_shadow_fixtures": [
+    "tests/test_modules/metadata_probe.nano",
+    "examples/language/nl_hello.nano"
+  ],
+  "correction": "git sparse-checkout add tests examples",
+  "retry": "/private/tmp/nanolang-asan-provisioned-run.py",
+  "status": "provisioned retry passed in 2036.234 seconds; independent module verification passed; first individual failed shadow was not dynamically isolated"
+}

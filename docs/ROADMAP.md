@@ -15736,3 +15736,12 @@ I retain the first focused seed terminal (13.170s): four nonbyte storage cases a
 The corrected seed matrix passes five storage cases, ordered mutation and wrong-type prior-output checks. My additional declared-name probe attempts to redefine `array_set`, but that existing name remains builtin/void in this route and the program is refused. I retain this terminal and constrain the shadowing regression to the already-supported declared `array_push` boundary; I do not claim new setter-name shadowing support.
 
 I pass the corrected mutation matrix through changed C and freshly C-hosted Nano producers: four methods in 11.762s, all five primitive nested leaves, empty/nonempty mutation, once-only order, declared array_push identity and unchanged-output refusals. Two existing C-native/VM neighbors pass in 2.532s; strict 444 compiles and relink pass. I retain [the component receipt and original failures](evidence/nested-array-mutation-context-20261019/README.md). Fresh installed generations and platform qualification remain open.
+
+### I retain my combined mutation and instrumented-generation checkpoint (2026-10-19)
+
+- [x] I pass all 17 bootstrap steps at `16eb3b1f9`, with identical raw stages, native smoke checks and installed operation without the C seed. I retain `docs/evidence/combined-bootstrap-16eb3b1f9-20261019/`.
+- [x] I pass all 27 fresh-stage array-field mutation/publication methods, including my original empty replacement regression.
+- [x] I pass selected-provider sanitized parser ownership/refusal with 104 transient and 104 persistent allocation positions and recovery; paired parser generation remains a separate gate.
+- [x] I complete pinned `4cfad3737` Darwin O3 ASan/UBSan Stage 1 generation in 2036.234 seconds after provisioning omitted tracked fixture directories. I retain both terminals and exact limits under `docs/evidence/instrumented-stage1-4cfad-20261019/`; I do not claim hosted Linux or final-candidate sanitizer completion.
+- [x] I reproduce conservative missing global-effect context under #998 with actual seed/fresh Stage 1 providers and retain `docs/evidence/effects-global-context-map-20261019/`.
+- [ ] I complete final paired parser/platform/product gates and the remaining #976/#998/#999/#1001 scope before release.

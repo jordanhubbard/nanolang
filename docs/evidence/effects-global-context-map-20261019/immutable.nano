@@ -1,0 +1,4 @@
+let answer:int=7
+fn read()->int{return answer}
+shadow read {assert (== (read) 7)}
+fn main()->int{return (- (read) 7)}

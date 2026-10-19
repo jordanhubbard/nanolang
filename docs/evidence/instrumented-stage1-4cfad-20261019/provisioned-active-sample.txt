@@ -1,0 +1,109 @@
+Call graph:
+    83 Thread_22198482   DispatchQueue_1: com.apple.main-thread  (serial)
+      83 start  (in dyld) + 6688  [0x19093be80]
+        83 main  (in nano_vm) + 8096  [0x100fc2120]  main.c:574
+          83 run_standalone  (in nano_vm) + 1996  [0x100fc5250]  main.c:308
+            83 vm_execute  (in nano_vm) + 2256  [0x1004c37a0]  vm.c:5597
+              83 vm_call_function_scoped  (in nano_vm) + 2260  [0x1004b75f0]  vm.c:5286
+                81 vm_call_function_impl  (in nano_vm) + 4540  [0x1004c0c8c]  vm.c:5122
+                + 13 vm_core_execute_scoped  (in nano_vm) + 9812  [0x100486ed0]  vm.c:1989
+                + ! 10 __asan_memcpy  (in libclang_rt.asan_osx_dynamic.dylib) + 708,160,...  [0x103606c54,0x103606a30,...]
+                + ! 3 __asan_memcpy  (in libclang_rt.asan_osx_dynamic.dylib) + 252  [0x103606a8c]
+                + !   2 _platform_memmove  (in libsystem_platform.dylib) + 36,204  [0x190d1bd84,0x190d1be2c]
+                + !   1 DYLD-STUB$$memcpy  (in libclang_rt.asan_osx_dynamic.dylib) + 12  [0x10365cd70]
+                + 5 vm_core_execute_scoped  (in nano_vm) + 9452,17200,...  [0x100486d68,0x100488bac,...]  vm.c:0
+                + 5 vm_core_execute_scoped  (in nano_vm) + 920  [0x100484c14]  vm.c:1663
+                + ! 5 vm_invocation_service_classify  (in nano_vm) + 684  [0x1004c4b58]  vm.c:367
+                + !   5 nvm_service_bindings_present  (in nano_vm) + 308,336,...  [0x1006146fc,0x100614718,...]  service_bindings_module.c:13
+                + 4 vm_core_execute_scoped  (in nano_vm) + 9280  [0x100486cbc]  vm.c:1962
+                + ! 2 dispatch_module_for  (in nano_vm) + 52,68  [0x10047c1b8,0x10047c1c8]  vm.c:830
+                + ! 2 dispatch_module_for  (in nano_vm) + 680  [0x10047c42c]  vm.c:831
+                + 3 vm_core_execute_scoped  (in nano_vm) + 9596,9572  [0x100486df8,0x100486de0]  vm.c:1971
+                + 3 vm_core_execute_scoped  (in nano_vm) + 49392  [0x10049096c]  vm.c:3720
+                + ! 2 vm_string_concat  (in nano_vm) + 408  [0x100461308]  heap.c:416
+                + ! : 2 wrap_free  (in libclang_rt.asan_osx_dynamic.dylib) + 224  [0x1036093cc]
+                + ! :   1 __asan::Allocator::QuarantineChunk(__asan::AsanChunk*, void*, __sanitizer::BufferedStackTrace*)  (in libclang_rt.asan_osx_dynamic.dylib) + 84  [0x1035cf2e0]
+                + ! :   | 1 __sanitizer::StackDepotBase<__sanitizer::StackDepotNode, 1, 20>::Put(__sanitizer::StackTrace, bool*)  (in libclang_rt.asan_osx_dynamic.dylib) + 160  [0x103634cdc]
+                + ! :   1 __sanitizer::Quarantine<__asan::QuarantineCallback, __asan::AsanChunk>::Put(__sanitizer::QuarantineCache<__asan::QuarantineCallback>*, __asan::QuarantineCallback, __asan::AsanChunk*, unsigned long)  (in libclang_rt.asan_osx_dynamic.dylib) + 184  [0x1035cf4b4]
+                + ! :     1 __sanitizer::Quarantine<__asan::QuarantineCallback, __asan::AsanChunk>::Recycle(unsigned long, __asan::QuarantineCallback)  (in libclang_rt.asan_osx_dynamic.dylib) + 476  [0x1035cd33c]
+                + ! :       1 __sanitizer::Quarantine<__asan::QuarantineCallback, __asan::AsanChunk>::DoRecycle(__sanitizer::QuarantineCache<__asan::QuarantineCallback>*, __asan::QuarantineCallback)  (in libclang_rt.asan_osx_dynamic.dylib) + 280  [0x1035cd650]
+                + ! :         1 __asan::QuarantineCallback::Recycle(__asan::AsanChunk*) const  (in libclang_rt.asan_osx_dynamic.dylib) + 344  [0x1035cd818]
+                + ! :           1 __asan::GetCurrentThreadStats()  (in libclang_rt.asan_osx_dynamic.dylib) + 16  [0x103615048]
+                + ! :             1 __asan::GetCurrentThread()  (in libclang_rt.asan_osx_dynamic.dylib) + 16  [0x103615e94]
+                + ! 1 vm_string_concat  (in nano_vm) + 396  [0x1004612fc]  heap.c:415
+                + !   1 vm_string_new  (in nano_vm) + 348  [0x10045edfc]  heap.c:380
+                + !     1 wrap_malloc  (in libclang_rt.asan_osx_dynamic.dylib) + 208  [0x1036092cc]
+                + !       1 __sanitizer::BufferedStackTrace::UnwindImpl(unsigned long, unsigned long, void*, bool, unsigned int)  (in libclang_rt.asan_osx_dynamic.dylib) + 148  [0x103659034]
+                + !         1 __sanitizer::BufferedStackTrace::UnwindFast(unsigned long, unsigned long, unsigned long, unsigned long, unsigned int)  (in libclang_rt.asan_osx_dynamic.dylib) + 236  [0x103635d14]
+                + 2 isa_get_info  (in nano_vm) + 624  [0x10078daa0]  isa.c:74
+                + 2 vm_core_execute_scoped  (in nano_vm) + 23416  [0x10048a3f4]  vm.c:0
+                + ! 1 stack_push  (in nano_vm) + 44  [0x1004c8e60]  vm.c:1149
+                + ! 1 stack_push  (in nano_vm) + 288  [0x1004c8f54]  vm.c:1152
+                + 2 vm_core_execute_scoped  (in nano_vm) + 55324  [0x100492098]  vm.c:0
+                + ! 1 vm_gc_note_suspect  (in nano_vm) + 76  [0x10046d618]  heap_cycles.c:121
+                + ! 1 vm_gc_note_suspect  (in nano_vm) + 172  [0x10046d678]  heap_cycles.c:122
+                + 2 vm_core_execute_scoped  (in nano_vm) + 8944,9020  [0x100486b6c,0x100486bb8]  vm.c:1950
+                + 2 vm_core_execute_scoped  (in nano_vm) + 9316  [0x100486ce0]  vm.c:1964
+                + 2 vm_core_execute_scoped  (in nano_vm) + 9344,9364  [0x100486cfc,0x100486d10]  vm.c:1965
+                + 2 vm_core_execute_scoped  (in nano_vm) + 12908  [0x100487ae8]  vm.c:1974
+                + ! 2 vm_dispatch_advance  (in nano_vm) + 44  [0x100922734]  vm_dispatch.c:255
+                + !   2 vm_dispatch_current  (in nano_vm) + 72,180  [0x100922320,0x10092238c]  vm_dispatch.c:248
+                + 2 vm_core_execute_scoped  (in nano_vm) + 9984  [0x100486f7c]  vm.c:1992
+                + 2 vm_core_execute_scoped  (in nano_vm) + 16868,17000  [0x100488a60,0x100488ae4]  vm.c:2005
+                + 2 vm_core_execute_scoped  (in nano_vm) + 17172  [0x100488b90]  vm.c:2042
+                + 2 vm_core_execute_scoped  (in nano_vm) + 23724  [0x10048a528]  vm.c:2441
+                + ! 2 stack_pop  (in nano_vm) + 140,200  [0x1004b455c,0x1004b4598]  vm.c:1181
+                + 1 __asan_memcpy  (in libclang_rt.asan_osx_dynamic.dylib) + 264  [0x103606a98]
+                + 1 dispatch_module_for  (in nano_vm) + 2328  [0x10047ca9c]  vm.c:841
+                + 1 vm_core_execute_scoped  (in nano_vm) + 33280  [0x10048ca7c]  vm.c:0
+                + ! 1 vm_retain  (in nano_vm) + 60  [0x10045aad8]  heap.c:0
+                + 1 vm_core_execute_scoped  (in nano_vm) + 63776  [0x10049419c]  vm.c:0
+                + ! 1 vm_release  (in nano_vm) + 16  [0x10045abdc]  heap.c:214
+                + 1 vm_core_execute_scoped  (in nano_vm) + 67508  [0x100495030]  vm.c:0
+                + ! 1 vm_gc_note_suspect  (in nano_vm) + 72  [0x10046d614]  heap_cycles.c:121
+                + 1 vm_core_execute_scoped  (in nano_vm) + 173328  [0x1004aed8c]  vm.c:1687
+                + ! 1 vm_ownership_supported_scoped  (in nano_vm) + 812  [0x1004c7b58]  vm.c:272
+                + !   1 vm_module_ownership_supported  (in nano_vm) + 432  [0x1004cc238]  vm.c:242
+                + !     1 nvm_mixed_samples_candidate_classified  (in nano_vm) + 84  [0x100828620]  mixed_samples_prepare.inc:153
+                + 1 vm_core_execute_scoped  (in nano_vm) + 5328  [0x100485d4c]  vm.c:1738
+                + ! 1 __asan_memset  (in libclang_rt.asan_osx_dynamic.dylib) + 52  [0x103606e0c]
+                + 1 vm_core_execute_scoped  (in nano_vm) + 9188  [0x100486c60]  vm.c:1960
+                + 1 vm_core_execute_scoped  (in nano_vm) + 9444  [0x100486d60]  vm.c:1970
+                + 1 vm_core_execute_scoped  (in nano_vm) + 9704  [0x100486e64]  vm.c:1976
+                + ! 1 vm_dispatch_seek  (in nano_vm) + 116  [0x1009221f8]  vm_dispatch.c:242
+                + 1 vm_core_execute_scoped  (in nano_vm) + 9784  [0x100486eb4]  vm.c:1979
+                + 1 vm_core_execute_scoped  (in nano_vm) + 9896  [0x100486f24]  vm.c:1991
+                + 1 vm_core_execute_scoped  (in nano_vm) + 15732  [0x1004885f0]  vm.c:1995
+                + 1 vm_core_execute_scoped  (in nano_vm) + 16788  [0x100488a10]  vm.c:2002
+                + ! 1 isa_get_info  (in nano_vm) + 584  [0x10078da78]  isa.c:70
+                + 1 vm_core_execute_scoped  (in nano_vm) + 16788  [0x100488a10]  vm.c:2002
+                + 1 vm_core_execute_scoped  (in nano_vm) + 17196  [0x100488ba8]  vm.c:2042
+                + ! 1 stack_reserve  (in nano_vm) + 80  [0x1004bf6a8]  vm.c:1136
+                + 1 vm_core_execute_scoped  (in nano_vm) + 22692  [0x10048a120]  vm.c:2108
+                + 1 vm_core_execute_scoped  (in nano_vm) + 25004  [0x10048aa28]  vm.c:2425
+                + ! 1 effect_local_index  (in nano_vm) + 812  [0x1004c8d80]  vm.c:1198
+                + 1 vm_core_execute_scoped  (in nano_vm) + 25176  [0x10048aad4]  vm.c:2429
+                + 1 vm_core_execute_scoped  (in nano_vm) + 77944  [0x1004978f4]  vm.c:3177
+                + 1 vm_core_execute_scoped  (in nano_vm) + 133168  [0x1004a50ac]  vm.c:3186
+                + 1 vm_core_execute_scoped  (in nano_vm) + 13968  [0x100487f0c]  vm.c:3544
+                + 1 vm_core_execute_scoped  (in nano_vm) + 14072  [0x100487f74]  vm.c:3546
+                + ! 1 vm_release  (in nano_vm) + 116  [0x10045ac40]  heap.c:221
+                + 1 vm_core_execute_scoped  (in nano_vm) + 14400  [0x1004880bc]  vm.c:3555
+                + 1 vm_core_execute_scoped  (in nano_vm) + 40144  [0x10048e54c]  vm.c:4112
+                + ! 1 vm_array_get  (in nano_vm) + 244  [0x100466ae4]  heap.c:671
+                + 1 vm_gc_note_suspect  (in nano_vm) + 292  [0x10046d6f0]  heap_cycles.c:144
+                1 vm_call_function_impl  (in nano_vm) + 4748  [0x1004c0d5c]  vm.c:0
+                + 1 vm_release  (in nano_vm) + 248  [0x10045acc4]  heap.c:225
+                1 vm_call_function_impl  (in nano_vm) + 4704  [0x1004c0d30]  vm.c:5139
+                  1 wrap_fputs  (in libclang_rt.asan_osx_dynamic.dylib) + 152  [0x1035e3ce8]
+                    1 fputs  (in libsystem_c.dylib) + 256  [0x190bc626c]
+                      1 __sfvwrite  (in libsystem_c.dylib) + 0  [0x190b9dce8]
+
+Total number in stack (recursive counted multiple, when >=5):
+
+Sort by top of stack, same collapsed (when >= 5):
+        vm_core_execute_scoped  (in nano_vm)        32
+        __asan_memcpy  (in libclang_rt.asan_osx_dynamic.dylib)        11
+        dispatch_module_for  (in nano_vm)        5
+        nvm_service_bindings_present  (in nano_vm)        5
+
