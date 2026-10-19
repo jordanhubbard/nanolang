@@ -320,6 +320,20 @@ int nvm_function_purity(const NvmModule *mod, uint32_t function);
 bool nvm_add_function_effects(NvmModule *mod, uint32_t function, unsigned effects);
 int nvm_function_effects(const NvmModule *mod, uint32_t function);
 
+/* I retain checker coverage at one lowered source match, never authority.
+ * Coverage: 0 unknown, 1 total integer, 2 total union. Coordinates: 1 original
+ * source, 2 flattened producer input. Missing/malformed/duplicate is unknown.
+ * I borrow the counted path; lookup leaves output unchanged on failure. */
+typedef struct {
+    uint32_t function, line, column;
+    unsigned coverage, coordinates;
+    const char *source_path;
+    uint32_t source_path_length;
+} NvmMatchCoverage;
+bool nvm_add_match_coverage(NvmModule *mod, uint32_t function, uint32_t line,
+    uint32_t column, unsigned coverage, unsigned coordinates, const char *source_path);
+bool nvm_match_coverage_at(const NvmModule *mod, uint32_t metadata_index, NvmMatchCoverage *out);
+
 /* I borrow counted, non-NUL-terminated frontend descriptions. These strings
  * are advisory and never grant type, layout or ownership authority. */
 typedef struct {

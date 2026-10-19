@@ -736,6 +736,7 @@ typedef struct nl_ASTMatch {
     int node_type;
     int line;
     int column;
+    int checked_coverage;
     int scrutinee;
     int scrutinee_type;
     DynArray * arm_variants;

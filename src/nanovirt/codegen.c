@@ -3345,6 +3345,14 @@ static void compile_expr(CG *cg, ASTNode *node) {
     }
 
     case AST_MATCH: {
+        const char *match_source = env_current_file(cg->env);
+        if (!nvm_add_match_coverage(cg->module, cg->current_fn_idx,
+                (uint32_t)node->line, (uint32_t)node->column,
+                cg->generic_active ? 0 : node->as.match_expr.checked_coverage,
+                1, match_source ? match_source : "")) {
+            cg_error(cg, node->line, "I cannot retain the match coverage fact");
+            break;
+        }
         /* Compile: match expr { Variant(binding) => body, ... } */
         compile_expr(cg, node->as.match_expr.expr);
 

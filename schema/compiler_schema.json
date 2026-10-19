@@ -1178,6 +1178,10 @@
           "int"
         ],
         [
+          "checked_coverage",
+          "int"
+        ],
+        [
           "scrutinee",
           "int"
         ],

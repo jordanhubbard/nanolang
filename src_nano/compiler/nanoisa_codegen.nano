@@ -2108,7 +2108,17 @@ fn nisa_emit_match_cases(parser: Parser, node_id: int, result_type: string) -> s
     if (not nisa_ok) { return "" }
     let node: ASTMatch = (parser_get_match parser node_id)
     let actual: string = (nisa_expr_type parser node.scrutinee node.scrutinee_type)
-    let mut out: string = (nisa_emit_expr parser node.scrutinee node.scrutinee_type)
+    let mut source_path: string = (mb_source (mb_owner node.line))
+    if (== source_path "") { set source_path parser.file_name }
+    let mut coverage: int = node.checked_coverage
+    # I do not reuse a template fact as a per-instantiation checker result.
+    if (>= nisa_generic_active 0) { set coverage 0 }
+    # My positions name the flattened parser input, not the original imported line.
+    let mut out: string = (+ ".match_coverage " (+ (int_to_string node.line) " "))
+    set out (+ out (+ (int_to_string node.column) " "))
+    set out (+ out (+ (int_to_string coverage) " 2 \""))
+    set out (+ out (+ (nisa_escape_string source_path) "\"\n"))
+    set out (+ out (nisa_emit_expr parser node.scrutinee node.scrutinee_type))
     let end: string = (nisa_fresh)
     let mut i: int = 0
     while (< i node.arm_count) {
@@ -2197,6 +2207,7 @@ shadow nisa_emit_match_cases {
     let text: string = (nisa_emit_match_cases parser 0 "int")
     assert nisa_ok
     assert (str_contains text "PUSH_I64 7")
+    assert (str_contains text " 0 2 \"unchecked.nano\"\n")
     assert (str_contains text "PUSH_BOOL 0\n  ASSERT\n  HALT")
     assert (== (nisa_reset) 0)
     let named_tokens: List<LexerToken> = (tokenize_string "union Box {Some {value:int}} fn main()->int{return match Box.Some {value:7} {Some(item)=>item.value}}" "named.nano" (diag_list_new))
