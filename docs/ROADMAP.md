@@ -16111,3 +16111,5 @@ I record design ownership by workspace_repairs on `design/5.1-owned-float-locals
 - [ ] I review the bounded design and wait for integrated STRING facts before implementation/rebase.
 - [ ] I retain original ordinary and selected-shadow baselines, then qualify exact local-only transport and both renderers.
 - [ ] I qualify bit/predicate/refusal neighbors, unchanged old profiles and exact candidate platforms; I keep consuming loop-exit composition separate.
+
+I refine the FLOAT design after review: consuming output gains no synthesized shadow; I qualify original-shadow executables separately and distinguish literal/transport bits from arithmetic NaN policy without admitting inspection-only opcodes.
