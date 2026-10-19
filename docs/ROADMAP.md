@@ -15606,3 +15606,10 @@ the module instead; no production assertion is removed.
 - [x] Under #1001 I make source-publication query qualification explicitly build its real shared query provider: the native module probe can link statically and cannot establish an incidental `.build/current` ctypes library. I preserve the missing-library evidence and retain real host-interface checks.
 
 I retain [my bounded nested-array receipt](evidence/nested-int-array-authority-20261019/README.md). Fresh raw generations and exact Linux/Darwin aggregate acceptance remain open.
+
+### Full compiler product build budget (#982)
+
+- [x] I preserve the hosted Darwin managed-suite failure at the native compiler's full-source self-rebuild (fixed 900 seconds despite CMD_TIMEOUT=1800). `workspace_repairs` owns isolated `fix/5.1-one-ir-product-budget`, only the OneIrCompiler build call and retained evidence.
+- [x] I use the existing explicit host-build budget for that full compiler product, preserving the 900-second default, guest deadlines, assertions and process-group cleanup; qualify budget selection and cleanup before aggregate product validation.
+
+- [ ] I run the actual full compiler product with pinned providers after the coordinator makes a worker slot available; my [budget receipt](evidence/one-ir-product-budget-20261019/README.md) does not claim that qualification yet.

@@ -8,7 +8,7 @@ import sys
 import tempfile
 import unittest
 
-from tests.native_process import run_captured
+from tests.native_process import native_compile_timeout, run_captured
 
 ROOT = Path(__file__).resolve().parents[1]
 HOST_RUNTIME = [ROOT / "bin/nano_aot_runtime.o", "-lm",
@@ -338,9 +338,11 @@ static inline void tracked_free(void *p) {
                              timeout=180, extra_env={"NANOLANG_SELFHOST_COMPILER": str(compiler)})
             # I require the native compiler to parse and lower its full source,
             # including recursive record calls that a hello product cannot cover.
+            # I use the explicit build budget here, retaining my default and
+            # keeping ordinary guest execution deadlines independent.
             rebuilt = work / "rebuilt-compiler.nvm"
             self.run_checked([compiler, ROOT / "src_nano/nanoc_v06.nano", "--emit-nvm",
-                              "-o", rebuilt], timeout=900)
+                              "-o", rebuilt], timeout=native_compile_timeout(default=900))
             self.run_checked([ROOT / "bin/nano_vm", "--verify-only", rebuilt])
             hello = work / "hello"
             self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano", "-o", hello])
