@@ -362,6 +362,16 @@ typedef struct {
     uint32_t source_path_length, root_length, projection_length;
 } NvmBorrowPlace;
 bool nvm_add_borrow_place(NvmModule *, const NvmBorrowPlace *);
+
+typedef struct {
+    uint32_t function, line, column;
+    unsigned category, coordinates;
+    const char *source_path, *root, *projection;
+    uint32_t source_path_length, root_length, projection_length;
+} NvmFieldRead;
+bool nvm_add_field_read(NvmModule *, const NvmFieldRead *);
+bool nvm_field_read_at(const NvmModule *, uint32_t metadata_index, NvmFieldRead *);
+
 /* I leave output unchanged on absent, malformed or duplicate site records. */
 bool nvm_borrow_place_at(const NvmModule *, uint32_t metadata_index, NvmBorrowPlace *);
 

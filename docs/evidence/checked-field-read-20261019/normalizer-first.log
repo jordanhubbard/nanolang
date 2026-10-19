@@ -1,0 +1,82 @@
+test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) ... 
+  test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) (fixture='source_borrow_shared.nano') ... FAIL
+  test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) (fixture='source_borrow_exclusive.nano') ... FAIL
+  test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) (fixture='source_borrow_order.nano') ... FAIL
+  test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) (fixture='source_borrow_bool.nano') ... FAIL
+
+======================================================================
+FAIL: test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) (fixture='source_borrow_shared.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 143, in test_four_raw_checked_contract_neighbors
+    self.assertEqual(affine_comparison(actual,0),affine_comparison(expected,1))
+                                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_source_borrow_emission.py", line 196, in affine_comparison
+    lines = without_affine_uses(without_borrow_places(text, expected), expected).splitlines()
+                                ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_source_borrow_emission.py", line 60, in without_borrow_places
+    return remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions,
+                                    (b'nano.local.v1', b'nano.affine.v1', b'nano.affine-use.v1'))
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_source_borrow_emission.py", line 97, in remove_trailing_advisory
+    assert owned == set(range(first, len(strings))), 'I require an exclusively advisory trailing pool suffix'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I require an exclusively advisory trailing pool suffix
+
+======================================================================
+FAIL: test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) (fixture='source_borrow_exclusive.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 143, in test_four_raw_checked_contract_neighbors
+    self.assertEqual(affine_comparison(actual,0),affine_comparison(expected,1))
+                                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_source_borrow_emission.py", line 196, in affine_comparison
+    lines = without_affine_uses(without_borrow_places(text, expected), expected).splitlines()
+                                ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_source_borrow_emission.py", line 60, in without_borrow_places
+    return remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions,
+                                    (b'nano.local.v1', b'nano.affine.v1', b'nano.affine-use.v1'))
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_source_borrow_emission.py", line 97, in remove_trailing_advisory
+    assert owned == set(range(first, len(strings))), 'I require an exclusively advisory trailing pool suffix'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I require an exclusively advisory trailing pool suffix
+
+======================================================================
+FAIL: test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) (fixture='source_borrow_order.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 143, in test_four_raw_checked_contract_neighbors
+    self.assertEqual(affine_comparison(actual,0),affine_comparison(expected,1))
+                                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_source_borrow_emission.py", line 196, in affine_comparison
+    lines = without_affine_uses(without_borrow_places(text, expected), expected).splitlines()
+                                ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_source_borrow_emission.py", line 60, in without_borrow_places
+    return remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions,
+                                    (b'nano.local.v1', b'nano.affine.v1', b'nano.affine-use.v1'))
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_source_borrow_emission.py", line 97, in remove_trailing_advisory
+    assert owned == set(range(first, len(strings))), 'I require an exclusively advisory trailing pool suffix'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I require an exclusively advisory trailing pool suffix
+
+======================================================================
+FAIL: test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) (fixture='source_borrow_bool.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 143, in test_four_raw_checked_contract_neighbors
+    self.assertEqual(affine_comparison(actual,0),affine_comparison(expected,1))
+                                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_source_borrow_emission.py", line 196, in affine_comparison
+    lines = without_affine_uses(without_borrow_places(text, expected), expected).splitlines()
+                                ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_source_borrow_emission.py", line 60, in without_borrow_places
+    return remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions,
+                                    (b'nano.local.v1', b'nano.affine.v1', b'nano.affine-use.v1'))
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_source_borrow_emission.py", line 97, in remove_trailing_advisory
+    assert owned == set(range(first, len(strings))), 'I require an exclusively advisory trailing pool suffix'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I require an exclusively advisory trailing pool suffix
+
+----------------------------------------------------------------------
+Ran 1 test in 0.251s
+
+FAILED (failures=4)

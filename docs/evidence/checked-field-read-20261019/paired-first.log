@@ -1,0 +1,12 @@
+test_checked_field_reads_keep_projection_and_root_category (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_checked_field_reads_keep_projection_and_root_category) ... ok
+test_original_raw_emitters_keep_executable_bytes (unittest.loader._FailedTest.test_original_raw_emitters_keep_executable_bytes) ... ERROR
+
+======================================================================
+ERROR: test_original_raw_emitters_keep_executable_bytes (unittest.loader._FailedTest.test_original_raw_emitters_keep_executable_bytes)
+----------------------------------------------------------------------
+AttributeError: type object 'CheckedBorrowMetadata' has no attribute 'test_original_raw_emitters_keep_executable_bytes'
+
+----------------------------------------------------------------------
+Ran 2 tests in 4.363s
+
+FAILED (errors=1)

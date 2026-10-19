@@ -15955,10 +15955,34 @@ I reproduced the coverage packaging failure after all seventeen bootstrap steps 
 - [x] I record contract-only ownership by `workspace_repairs` on
   `design/5.1-checked-field-read-facts` from `c56b6ef67`. My previous call-borrow
   component has passed fresh aggregate bootstrap and metadata qualification.
-- [ ] I review the existing accepted field-read event and exact emission mapping
+- [x] I review the existing accepted field-read event and exact emission mapping
   in [my bounded design](NANOISA_CHECKED_FIELD_READ_FACTS.md) before changing any
   schema, producer or test. This is the existing row10407 affine projection
   obligation; I do not invent branch certificates or extend executable profiles.
 - [ ] After explicit interface review, I qualify any approved retention through
   both producers, transport, failure/lifetime controls and fresh platform gates.
 
+### Checked field-read implementation ownership (#998)
+
+I begin the reviewed bounded implementation on `fix/5.1-checked-field-read-facts`.
+I own ledger capture, exact resource-read emission, independent codec and focused
+qualification. I derive root category from the checked binding type, retain only
+actual outer reads, and share total budgets across read/call vectors. No build
+runs until the coordinated slot is available; fresh raw/platform gates remain.
+
+My first field-read C-hosted build stopped at the new capture shadow's incorrect
+exact-one parsed-field assumption: the fixture also contains destructuring
+projections. I retain the failure and assert that recapturing the exact event
+preserves the initial count, which is the actual duplicate-retention contract.
+This corrects only a new storage shadow, not checker/emitter admission.
+
+### Checked field-read final local qualification (#998)
+
+I retain [my final receipt](evidence/checked-field-read-20261019/README.md):
+11 paired source/comparator methods pass in 85.644s, final standalone raw neighbors
+pass in 3.511s, 1377 codec checks and 14 strict GCC/Clang provider checks pass.
+Actual ledger allocation denial/recovery and Environment teardown pass. A no-read
+fixture remains whole-module byte-identical to the previous C provider.
+I preserve first build/comparator failures and exact final source/tool pins.
+Fresh aggregate raw generations and exact Linux/Darwin gates remain open;
+C-hosted qualification does not satisfy those gates or close full #998.

@@ -163,3 +163,15 @@ resource emitter descriptors/private bridge, focused tests, contract and receipt
 The coordinator owns aggregate workflow wiring and bootstrap. This design grants
 no production-edit or build authorization by itself; blocked primitive files
 remain untouched.
+
+## Reviewed implementation checkpoint
+
+I now implement the approved interfaces on `fix/5.1-checked-field-read-facts`.
+C physically clears both event vectors on optional capture overflow. Nano disables
+both lookups through shared state while retaining already bounded invocation
+storage; I do not claim physical per-event reclamation there. Both emitters stage
+all descriptors before serializing either family, and a shared staging overflow
+omits both. My initial C ledger, 1377 codec checks, 14 strict GCC/Clang checks and
+three-fixture C source method pass. My final paired local qualification now passes;
+I retain [the final receipt](evidence/checked-field-read-20261019/README.md).
+Fresh aggregate raw generations and exact platform gates remain pending.

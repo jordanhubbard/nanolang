@@ -40,6 +40,8 @@ typedef struct {
     bool affine_synthetic, checked_borrows;
     struct BorrowPlaceUse { const CheckedBorrowEvent *event; uint32_t function; } *borrow_places;
     size_t borrow_place_count, borrow_place_capacity;
+    struct FieldReadUse { const CheckedFieldReadEvent *event; uint32_t function; } *field_reads;
+    size_t field_read_count, field_read_capacity;
     struct BorrowAffineUse { ASTNode *node; uint32_t function; const char *path; } *affine_uses;
     size_t affine_use_count, affine_use_capacity;
     ASTNode *current_program;
@@ -114,16 +116,40 @@ static void borrow_checked_place(BorrowCG *b, ASTNode *call, ASTNode *argument, 
     if(!event)return;
     for(size_t i=0;i<b->borrow_place_count;i++)
         if(b->borrow_places[i].event==event && b->borrow_places[i].function==b->current_function)return;
+    if(b->borrow_place_count+b->field_read_count>=4096) {
+        b->checked_borrows=false;b->borrow_place_count=b->field_read_count=0;return;
+    }
     if(b->borrow_place_count==b->borrow_place_capacity) {
         size_t capacity=b->borrow_place_capacity?b->borrow_place_capacity*2:16;
         if(capacity>4096 || capacity>SIZE_MAX/sizeof(*b->borrow_places)) {
-            b->checked_borrows=false;b->borrow_place_count=0;return;
+            b->checked_borrows=false;b->borrow_place_count=b->field_read_count=0;return;
         }
         void *next=realloc(b->borrow_places,capacity*sizeof(*b->borrow_places));
         if(!next){borrow_error(b,argument,"available checked borrow emission");return;}
         b->borrow_places=next;b->borrow_place_capacity=capacity;
     }
     b->borrow_places[b->borrow_place_count++]=(struct BorrowPlaceUse){event,b->current_function};
+}
+static void borrow_checked_read(BorrowCG *b,ASTNode *field) {
+    if(!b->checked_borrows || b->affine_synthetic || b->cg->had_error || b->cg->generic_active ||
+       !b->current_source || cg_generic_declaration(b->cg,b->current_source))return;
+    const CheckedFieldReadEvent *event=checked_field_read_lookup(b->env,b->current_source,field);
+    if(!event)return;
+    for(size_t i=0;i<b->field_read_count;i++)
+        if(b->field_reads[i].event==event && b->field_reads[i].function==b->current_function)return;
+    if(b->borrow_place_count+b->field_read_count>=4096) {
+        b->checked_borrows=false;b->borrow_place_count=b->field_read_count=0;return;
+    }
+    if(b->field_read_count==b->field_read_capacity) {
+        size_t capacity=b->field_read_capacity?b->field_read_capacity*2:16;
+        if(capacity>4096 || capacity>SIZE_MAX/sizeof(*b->field_reads)) {
+            b->checked_borrows=false;b->borrow_place_count=b->field_read_count=0;return;
+        }
+        void *next=realloc(b->field_reads,capacity*sizeof(*b->field_reads));
+        if(!next){borrow_error(b,field,"available checked field-read emission");return;}
+        b->field_reads=next;b->field_read_capacity=capacity;
+    }
+    b->field_reads[b->field_read_count++]=(struct FieldReadUse){event,b->current_function};
 }
 static uint8_t borrow_tag(Type type) {
     return type==TYPE_INT?TAG_INT:type==TYPE_BOOL?TAG_BOOL:TAG_VOID;
@@ -750,10 +776,10 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
             }
             emit_op(cg,OP_LOAD_LOCAL,place.root);
             for(unsigned i=0;i<place.length;i++)emit_op(cg,OP_AGG_GET,place.fields[i]);
-            emit_op(cg,OP_AGG_GET,field);return tag;
+            emit_op(cg,OP_AGG_GET,field);borrow_checked_read(b,n);return tag;
         }
         if(tag==TAG_STRING && b->value_graph && !place.length && !b->modes[place.root]) {
-            emit_op(cg,OP_LOAD_LOCAL,place.root);emit_op(cg,OP_AGG_GET,field);return TAG_STRING;
+            emit_op(cg,OP_LOAD_LOCAL,place.root);emit_op(cg,OP_AGG_GET,field);borrow_checked_read(b,n);return TAG_STRING;
         }
         if(!tag || !borrow_leaf(b,place.layout)){borrow_error(b,n,"a scalar field of a leaf resource record");return TAG_VOID;}
         /* I keep temporary local observations after inherited helper formals. */
@@ -762,6 +788,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         if(!b->modes[place.root]) { emit_op(cg,OP_REGION_BEGIN);borrow_reference(b,&place,reference,1); }
         emit_op(cg,OP_REF_GET,reference,field);
         if(!b->modes[place.root])emit_op(cg,OP_REGION_END);
+        borrow_checked_read(b,n);
         return tag;
     }
     if(n->type==AST_PREFIX_OP) {
@@ -2035,6 +2062,14 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
                 (uint32_t)strlen(e->source_path),(uint32_t)strlen(e->root),(uint32_t)strlen(e->projection)};
             if(!nvm_add_borrow_place(cg->module,&fact))borrow_error(b,NULL,"unambiguous checked borrow facts");
         }
+        for(size_t i=0;i<b->field_read_count && !cg->had_error;i++) {
+            const CheckedFieldReadEvent *e=b->field_reads[i].event;
+            if(checked_field_read_lookup(b->env,e->function,e->field)!=e)continue;
+            NvmFieldRead fact={b->field_reads[i].function,e->line,e->column,e->category,1,
+                e->source_path,e->root,e->projection,(uint32_t)strlen(e->source_path),
+                (uint32_t)strlen(e->root),(uint32_t)strlen(e->projection)};
+            if(!nvm_add_field_read(cg->module,&fact))borrow_error(b,NULL,"unambiguous checked field-read facts");
+        }
         if(!cg->had_error) {
             cg->module->ownership_data=b->contracts;b->contracts=NULL;cg->module->ownership_size=(uint32_t)b->contract_size;
             cg->module->header.flags|=NVM_FLAG_HAS_MAIN;cg->module->header.entry_point=0;
@@ -2063,5 +2098,5 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
     out.ok=!cg->had_error;out.error_line=cg->error_line;snprintf(out.error_msg,sizeof(out.error_msg),"%s",cg->error_msg);
     if(out.ok)out.module=cg->module;else if(cg->module)nvm_module_free(cg->module);
     nvm_v2_layouts_free(&layouts);for(unsigned i=0;i<b->union_count;i++){free(b->unions[i].name);free_payload_type_info(b->unions[i].arguments);}
-    free(b->borrow_places);free(b->affine_uses);free(b->contracts);free(b->programs);free(cg->code);free(cg);free(b);return out;
+    free(b->field_reads);free(b->borrow_places);free(b->affine_uses);free(b->contracts);free(b->programs);free(cg->code);free(cg);free(b);return out;
 }

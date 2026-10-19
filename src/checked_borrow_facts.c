@@ -9,15 +9,20 @@
 #define BORROW_PATH_LIMIT 4096u
 
 typedef struct { CheckedBorrowEvent event; char *bytes; } OwnedBorrowEvent;
+typedef struct { CheckedFieldReadEvent event; char *bytes; } OwnedFieldRead;
 struct CheckedBorrowLedger {
     Environment *owner;
     OwnedBorrowEvent *events;
     size_t count, capacity, total_events, total_bytes, work;
+    OwnedFieldRead *reads;
+    size_t read_count, read_capacity;
     bool capturing, sealed, disabled, failed;
 };
 static void clear_events(CheckedBorrowLedger *s) {
     for(size_t i=0;i<s->count;i++) free(s->events[i].bytes);
     free(s->events);s->events=NULL;s->count=s->capacity=0;
+    for(size_t i=0;i<s->read_count;i++)free(s->reads[i].bytes);
+    free(s->reads);s->reads=NULL;s->read_count=s->read_capacity=0;
 }
 static void disable(CheckedBorrowLedger *s) {
     clear_events(s);s->disabled=true;
@@ -78,6 +83,11 @@ void checked_borrow_function_begin(Environment *env,ASTNode *function) {
     for(size_t i=0;i<s->count;) {
         if(!charge(s,1))return;
         if(s->events[i].event.function==function){free(s->events[i].bytes);s->events[i]=s->events[--s->count];}
+        else i++;
+    }
+    for(size_t i=0;i<s->read_count;) {
+        if(!charge(s,1))return;
+        if(s->reads[i].event.function==function){free(s->reads[i].bytes);s->reads[i]=s->reads[--s->read_count];}
         else i++;
     }
 }
@@ -196,6 +206,78 @@ const CheckedBorrowEvent *checked_borrow_lookup(const Environment *env,const AST
            e->call_line==(uint32_t)call->line && e->call_column==(uint32_t)call->column &&
            e->argument_line==(uint32_t)argument->line && e->argument_column==(uint32_t)argument->column &&
            same_place(e->place,e))return e;
+    }
+    return NULL;
+}
+
+/* I retain only a real checked outer field read, never its path syntax visits. */
+bool checked_field_read_capture(Environment *env,ASTNode *function,ASTNode *field,
+    ASTNode *root_node,unsigned category,const char *root,const char *projection) {
+    CheckedBorrowLedger *s=env?env->checked_borrow_facts:NULL;
+    if(!s || !s->capturing || s->disabled)return true;
+    if(s->failed)return false;
+    if(!function || function->type!=AST_FUNCTION || !field || field->type!=AST_FIELD_ACCESS ||
+       !root_node || root_node->type!=AST_IDENTIFIER || category<1 || category>3 ||
+       field->line<=0 || field->column<=0 || !function->as.function.affine_check_epoch ||
+       function->as.function.affine_check_epoch==UINT64_MAX)return true;
+    if(!charge(s,1))return true;
+    CheckedFieldReadEvent event={.function=function,.field=field,.root_node=root_node,
+        .epoch=function->as.function.affine_check_epoch,.line=(uint32_t)field->line,
+        .column=(uint32_t)field->column,.category=category};
+    const ASTNode *node=field;
+    while(node && node->type==AST_FIELD_ACCESS) {
+        if(!charge(s,1))return true;
+        if(event.depth==32){disable(s);return true;}
+        event.nodes[event.depth++]=node;node=node->as.field_access.object;
+    }
+    if(node!=root_node)return true;
+    const char *path=env->current_file;size_t np,nr,nj;
+    if(!length(s,path,&np) || !length(s,root,&nr) || !length(s,projection,&nj))return true;
+    if(!charge(s,np+nr+nj))return true;
+    if(!np || !nr || !nj || projection[0]!='.' || !utf8(path,np) ||
+       !utf8(root,nr) || !utf8(projection,nj))return true;
+    if(nr>BORROW_PATH_LIMIT || nj>BORROW_PATH_LIMIT-nr ||
+       np>BORROW_BYTE_LIMIT-s->total_bytes || nr>BORROW_BYTE_LIMIT-s->total_bytes-np ||
+       nj>BORROW_BYTE_LIMIT-s->total_bytes-np-nr || s->total_events==BORROW_EVENT_LIMIT){disable(s);return true;}
+    size_t size=np+nr+nj+3;
+    if(size>BORROW_BYTE_LIMIT-s->total_bytes){disable(s);return true;}
+    for(size_t i=0;i<s->read_count;i++) {
+        if(!charge(s,1))return true;
+        if(s->reads[i].event.function==function && s->reads[i].event.field==field)return true;
+    }
+    if(s->read_count==s->read_capacity) {
+        size_t cap=s->read_capacity?s->read_capacity*2:16;
+        if(cap>BORROW_EVENT_LIMIT)cap=BORROW_EVENT_LIMIT;
+        if(cap>SIZE_MAX/sizeof(*s->reads)){s->failed=true;return false;}
+        void *next=realloc(s->reads,cap*sizeof(*s->reads));
+        if(!next){s->failed=true;return false;}s->reads=next;s->read_capacity=cap;
+    }
+    char *bytes=malloc(size);
+    if(!bytes){s->failed=true;return false;}
+    memcpy(bytes,path,np+1);memcpy(bytes+np+1,root,nr+1);memcpy(bytes+np+nr+2,projection,nj+1);
+    event.source_path=bytes;event.root=bytes+np+1;event.projection=bytes+np+nr+2;
+    s->reads[s->read_count++]=(OwnedFieldRead){event,bytes};
+    s->total_events++;s->total_bytes+=size;return true;
+}
+const CheckedFieldReadEvent *checked_field_read_lookup(const Environment *env,
+    const ASTNode *function,const ASTNode *field) {
+    const CheckedBorrowLedger *s=env?env->checked_borrow_facts:NULL;
+    if(!s || s->owner!=env || !s->sealed || s->capturing || s->disabled || s->failed ||
+       !function || function->type!=AST_FUNCTION || !function->as.function.checked_affine ||
+       !function->as.function.affine_check_epoch || function->as.function.affine_check_epoch==UINT64_MAX ||
+       function->as.function.affine_completed_epoch!=function->as.function.affine_check_epoch ||
+       !field || field->type!=AST_FIELD_ACCESS)return NULL;
+    for(size_t i=0;i<s->read_count;i++) {
+        const CheckedFieldReadEvent *e=&s->reads[i].event;
+        if(e->function!=function || e->field!=field || e->epoch!=function->as.function.affine_check_epoch ||
+           e->line!=(uint32_t)field->line || e->column!=(uint32_t)field->column)continue;
+        const ASTNode *node=field;unsigned depth=0;
+        while(node && node->type==AST_FIELD_ACCESS && depth<e->depth && node==e->nodes[depth]) {
+            depth++;node=node->as.field_access.object;
+        }
+        if(depth!=e->depth || node!=e->root_node)continue;
+        CheckedBorrowEvent place={.root=e->root,.projection=e->projection};
+        if(same_place(field,&place))return e;
     }
     return NULL;
 }
