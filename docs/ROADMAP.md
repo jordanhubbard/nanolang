@@ -15829,3 +15829,9 @@ I pass my C-hosted compiler build and 33 focused methods across the retained met
 - [x] I correct my initial naming patch's synthetic-shadow NULL-source diagnostic-line dereference, demonstrated by three C positive-fixture SIGSEGV failures at address 4. I preserve the crash terminal, use a zero diagnostic line for the synthetic source, and explicitly exercise successful/failing resource shadows before crediting the repair.
 
 I retain [six green three-producer methods, exact input/output hashes, unchanged noncollision bytes and colliding index/metadata comparison](evidence/imported-affine-facts-20261019/README.md). My production correction reuses the existing wire-name helper with the synthetic-source diagnostic guard; #998 and exact hosted qualification remain open.
+
+### Checked call-borrow place facts contract (#998)
+
+- [x] I record [my contract-only call-borrow event map](NANOISA_CHECKED_CALL_BORROW_FACTS.md) on `design/5.1-call-borrow-facts` from `8161bfc1f`. `workspace_repairs` owns this review; no schema, production or blocked primitive edits occur at this checkpoint.
+- [ ] I resolve owned snapshot lifetime, exact call-site/function identity, clone/reset/free behavior and the Nano generated-list ABI before implementing an independent advisory fact.
+- [ ] I preserve existing checked shared/exclusive call-place events through paired producers and transport, with raw/generic/stale UNKNOWN, refusal and allocation/lifetime controls; I require fresh generations/platform qualification and do not add branch-summary certificates.
