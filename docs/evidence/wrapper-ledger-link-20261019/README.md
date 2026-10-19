@@ -7,3 +7,5 @@ I add the existing `checked_borrow_facts.o` provider to the explicit packaged-in
 I rebuild with `make -f Makefile.gnu -j1 CC=/opt/homebrew/opt/llvm/bin/clang nano_virt`, then run `python3 -m unittest -v tests.test_wrapper_packaged_interpreter tests.test_wrapper_publication`: all 12 methods pass in 6.403s. They include actual packaged execution, killed/failed compilation, overlapping publication and prior-output preservation. Independent read-only review finds no further missing provider in these lists.
 
 I retain the failing local terminal, hosted excerpt, corrected build/test terminals and exact provider hashes. This is local Darwin correction evidence; the exact hosted Linux/platform rerun remains pending under #976.
+
+The older Linux ARM job118149401378 subsequently reports the same missing three ledger symbols and packaged-interpreter failure. I retain its terminal excerpt separately. This corroborates the dependency defect on both hosted architectures; it does not establish that the corrected candidate has passed either hosted job.
