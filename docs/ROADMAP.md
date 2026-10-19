@@ -15791,3 +15791,5 @@ After worker recovery I compile the full corrected emitter product in 16.739 sec
 My final local boolean-join strict gate passes all 444 Clang/GCC compilations with zero failures. Hosted CI for `c6fcfd59d` is queued; I retain that distinction.
 
 - [x] I qualify integrated shared-helper reconstruction through my installed C seed and both current NanoISA generations: all 27 local/call/branch/loop/VOID/shared methods pass in 240.140 seconds, with exact unchanged providers and GCC 16 strict facts syntax retained in `docs/evidence/owned-shared-aggregate-20261019/` (#999; full scope and hosted qualification remain open).
+
+- [x] I qualify integrated depth-two nested resource reconstruction through NanoVirt and both installed stages: eight nested/shared methods pass in 44.787 seconds, with unchanged compiler/runtime hashes retained in `docs/evidence/owned-nested-aggregate-20261019/`; the component also passes all 31 ownership methods (#999; full scope and hosted qualification remain open).
