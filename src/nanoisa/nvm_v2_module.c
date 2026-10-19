@@ -17,6 +17,8 @@
 #include <string.h>
 #include "nvm_v2_sections.h"
 #include "retained_layouts.h"
+#include "record_array_admission.h"
+#include "ownership_layouts_private.h"
 #include "service_bindings_module.h"
 #include "service_codec_internal.h"
 #include "isa.h"
@@ -349,6 +351,19 @@ NvmV2Result nvm_private_deserialize(const uint8_t *data, size_t size,
      * out, so re-serializing this module produces the same header. */
     out->extra_features = h.feature_bits;
 
+    /* I select only a structural decoder here, never an execution grant.
+     * Final reverse conversion proves every candidate before publication. */
+    NvmModule candidate={0};
+    for(uint32_t i=0;i<h.section_count;i++) {
+        NvmV2SectionEntry e;r=nvm_v2_read_section(data,size,&h,i,&e);
+        if(r!=NVM_V2_OK)goto fail;
+        if(e.size>UINT32_MAX)continue; /* The narrow candidate cannot own this section. */
+        if(e.type==NVM_V2_SECTION_LAYOUTS){candidate.layout_data=(uint8_t *)(data+e.offset);candidate.layout_size=(uint32_t)e.size;}
+        if(e.type==NVM_V2_SECTION_OWNERSHIP){candidate.ownership_data=(uint8_t *)(data+e.offset);candidate.ownership_size=(uint32_t)e.size;}
+        if(e.type==NVM_V2_SECTION_SERVICE_BINDINGS){candidate.service_data=(uint8_t *)(data+e.offset);candidate.service_size=(uint32_t)e.size;}
+    }
+    bool record_arrays=nvm_record_array_candidate(&candidate);
+
     for (uint32_t i = 0; i < h.section_count; i++) {
         NvmV2SectionEntry e;
         r = nvm_v2_read_section(data, size, &h, i, &e);
@@ -360,7 +375,7 @@ NvmV2Result nvm_private_deserialize(const uint8_t *data, size_t size,
         case NVM_V2_SECTION_METADATA:   r = nvm_v2_metadata_decode(p, z, &out->metadata); break;
         case NVM_V2_SECTION_CONSTANTS:  r = nvm_v2_constants_decode(p, z, &out->constants); break;
         case NVM_V2_SECTION_SIGNATURES: r = nvm_v2_signatures_decode(p, z, &out->signatures); break;
-        case NVM_V2_SECTION_LAYOUTS:    r = nvm_v2_layouts_decode(p, z, &out->layouts); break;
+        case NVM_V2_SECTION_LAYOUTS:    r = record_arrays ? nvm_ownership_layouts_private_decode(p,z,&out->layouts) : nvm_v2_layouts_decode(p,z,&out->layouts); break;
         case NVM_V2_SECTION_FUNCTIONS:  r = nvm_v2_functions_decode(p, z, &out->functions); break;
         case NVM_V2_SECTION_CODE:       out->code = z ? p : NULL; out->code_size = e.size; break;
         case NVM_V2_SECTION_GLOBALS:    r = nvm_v2_globals_decode(p, z, &out->globals); break;

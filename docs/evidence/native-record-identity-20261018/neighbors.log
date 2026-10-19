@@ -1,0 +1,302 @@
+test_borrowed_storage_growth_preserves_stack_owner (tests.test_native_record_growth.NativeRecordGrowth.test_borrowed_storage_growth_preserves_stack_owner) ... ok
+test_growth_failure_preserves_existing_storage (tests.test_native_record_growth.NativeRecordGrowth.test_growth_failure_preserves_existing_storage) ... ok
+test_growth_preserves_owned_strings_through_collection (tests.test_native_record_growth.NativeRecordGrowth.test_growth_preserves_owned_strings_through_collection) ... ok
+test_growth_retains_handle_alias_and_values (tests.test_native_record_growth.NativeRecordGrowth.test_growth_retains_handle_alias_and_values) ... ok
+test_mixed_arrays_preserve_growth_aliases_tags_and_roots (tests.test_native_closure_arrays.NativeClosureArrays.test_mixed_arrays_preserve_growth_aliases_tags_and_roots) ... ok
+test_source_closures_through_returned_function_arrays (tests.test_native_closure_arrays.NativeClosureArrays.test_source_closures_through_returned_function_arrays) ... ok
+test_unreachable_closure_array_cycles_are_collected (tests.test_native_closure_arrays.NativeClosureArrays.test_unreachable_closure_array_cycles_are_collected) ... ok
+test_alias_retention_overwrite_and_collection (tests.test_native_record_globals.NativeRecordGlobals.test_alias_retention_overwrite_and_collection) ... ok
+test_invalid_boxed_record_argument_traps (tests.test_native_record_globals.NativeRecordGlobals.test_invalid_boxed_record_argument_traps) ... ok
+test_record_arguments_from_direct_global_and_tail_calls (tests.test_native_record_globals.NativeRecordGlobals.test_record_arguments_from_direct_global_and_tail_calls) ... ok
+test_scalar_overwrite_refuses_record_projection (tests.test_native_record_globals.NativeRecordGlobals.test_scalar_overwrite_refuses_record_projection) ... ok
+test_callable_global (tests.test_native_global_types.NativeGlobalTypes.test_callable_global) ... ERROR
+test_enum_global (tests.test_native_global_types.NativeGlobalTypes.test_enum_global) ... ERROR
+test_generic_record_initializer (tests.test_native_global_types.NativeGlobalTypes.test_generic_record_initializer) ... ERROR
+test_incompatible_globals_preserve_output (tests.test_native_global_types.NativeGlobalTypes.test_incompatible_globals_preserve_output) ... 
+  test_incompatible_globals_preserve_output (tests.test_native_global_types.NativeGlobalTypes.test_incompatible_globals_preserve_output) (declaration='enum First {One} enum Second {One} let value:First=Second.One') ... ERROR
+  test_incompatible_globals_preserve_output (tests.test_native_global_types.NativeGlobalTypes.test_incompatible_globals_preserve_output) (declaration='fn identity(value:T)->T{return value} shadow identity {assert (== (identity 1) 1)} let callback:fn(int)->bool=identity') ... ERROR
+test_record_global_and_mutation (tests.test_native_global_types.NativeGlobalTypes.test_record_global_and_mutation) ... ERROR
+test_record_receiver_shadows_import_alias (tests.test_native_global_types.NativeGlobalTypes.test_record_receiver_shadows_import_alias) ... ERROR
+test_tuple_global (tests.test_native_global_types.NativeGlobalTypes.test_tuple_global) ... ERROR
+test_bad_receiver_and_value_tags (tests.test_native_map_globals.NativeMapGlobals.test_bad_receiver_and_value_tags) ... ok
+test_distinct_maps_keep_identity_and_vm_ordering (tests.test_native_map_globals.NativeMapGlobals.test_distinct_maps_keep_identity_and_vm_ordering) ... ok
+test_global_local_record_and_operand_roots_survive_collection (tests.test_native_map_globals.NativeMapGlobals.test_global_local_record_and_operand_roots_survive_collection) ... ok
+test_initializer_alias_call_return_and_reassignment (tests.test_native_map_globals.NativeMapGlobals.test_initializer_alias_call_return_and_reassignment) ... ok
+test_mixed_direct_and_tagged_callers (tests.test_native_map_globals.NativeMapGlobals.test_mixed_direct_and_tagged_callers) ... ok
+test_dynamic_or_conflicting_record_array_globals_are_refused (tests.test_native_record_array_globals.NativeRecordArrayGlobals.test_dynamic_or_conflicting_record_array_globals_are_refused) ... ok
+test_empty_alias_nested_fields_overwrite_and_collection_match_vm (tests.test_native_record_array_globals.NativeRecordArrayGlobals.test_empty_alias_nested_fields_overwrite_and_collection_match_vm) ... ok
+test_array_map_and_projected_keys_preserve_aliases (tests.test_native_map_key_storage.NativeMapKeyStorage.test_array_map_and_projected_keys_preserve_aliases) ... ok
+test_branch_and_call_keys (tests.test_native_map_key_storage.NativeMapKeyStorage.test_branch_and_call_keys) ... ok
+test_known_nonstring_keys_preserve_previous_output (tests.test_native_map_key_storage.NativeMapKeyStorage.test_known_nonstring_keys_preserve_previous_output) ... ok
+
+======================================================================
+ERROR: test_callable_global (tests.test_native_global_types.NativeGlobalTypes.test_callable_global)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 54, in test_callable_global
+            self.execute('''fn identity(value:T)->T {return value}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow identity {assert (== (identity 1) 1)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let callback:fn(int)->int=identity
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int {assert (== (callback 7) 7) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 18, in execute
+    result = subprocess.run(list(map(str, command)), cwd=ROOT,
+                            capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-array-admission/bin/nanoc_c'
+
+======================================================================
+ERROR: test_enum_global (tests.test_native_global_types.NativeGlobalTypes.test_enum_global)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 60, in test_enum_global
+            self.execute('''enum Color {Red, Blue}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let color:Color=Color.Blue
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int {assert (== color Color.Blue) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 18, in execute
+    result = subprocess.run(list(map(str, command)), cwd=ROOT,
+                            capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-array-admission/bin/nanoc_c'
+
+======================================================================
+ERROR: test_generic_record_initializer (tests.test_native_global_types.NativeGlobalTypes.test_generic_record_initializer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 43, in test_generic_record_initializer
+            self.execute('''struct Box {value:int}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn identity(value:T)->T {return value}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow identity {assert (== (identity 1) 1)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let global:Box=(identity Box {value:7})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int {assert (== global.value 7) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 18, in execute
+    result = subprocess.run(list(map(str, command)), cwd=ROOT,
+                            capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-array-admission/bin/nanoc_c'
+
+======================================================================
+ERROR: test_incompatible_globals_preserve_output (tests.test_native_global_types.NativeGlobalTypes.test_incompatible_globals_preserve_output) (declaration='enum First {One} enum Second {One} let value:First=Second.One')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 75, in test_incompatible_globals_preserve_output
+    result = subprocess.run(list(map(str, [COMPILER, source, '-o', binary])),
+                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-array-admission/bin/nanoc_c'
+
+======================================================================
+ERROR: test_incompatible_globals_preserve_output (tests.test_native_global_types.NativeGlobalTypes.test_incompatible_globals_preserve_output) (declaration='fn identity(value:T)->T{return value} shadow identity {assert (== (identity 1) 1)} let callback:fn(int)->bool=identity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 75, in test_incompatible_globals_preserve_output
+    result = subprocess.run(list(map(str, [COMPILER, source, '-o', binary])),
+                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-array-admission/bin/nanoc_c'
+
+======================================================================
+ERROR: test_record_global_and_mutation (tests.test_native_global_types.NativeGlobalTypes.test_record_global_and_mutation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 37, in test_record_global_and_mutation
+            self.execute('''struct Box {value:int}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let mut global:Box=Box {value:7}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int {assert (== global.value 7) set global Box {value:9}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== global.value 9) set global Box {value:7} return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 18, in execute
+    result = subprocess.run(list(map(str, command)), cwd=ROOT,
+                            capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-array-admission/bin/nanoc_c'
+
+======================================================================
+ERROR: test_record_receiver_shadows_import_alias (tests.test_native_global_types.NativeGlobalTypes.test_record_receiver_shadows_import_alias)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 26, in test_record_receiver_shadows_import_alias
+    self.execute(f'module "{module}" as items\n' +
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'struct Packet { answer: int, label: string }\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        'assert (== items.answer 7) assert (== items.label "local") } '
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'assert (== items.answer 99) return 0 }\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 18, in execute
+    result = subprocess.run(list(map(str, command)), cwd=ROOT,
+                            capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-array-admission/bin/nanoc_c'
+
+======================================================================
+ERROR: test_tuple_global (tests.test_native_global_types.NativeGlobalTypes.test_tuple_global)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 50, in test_tuple_global
+            self.execute('''let pair:(int,bool)=(7,true)
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int {assert (== pair.0 7) assert pair.1 return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/test_native_global_types.py", line 18, in execute
+    result = subprocess.run(list(map(str, command)), cwd=ROOT,
+                            capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-array-admission/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-array-admission/bin/nanoc_c'
+
+----------------------------------------------------------------------
+Ran 28 tests in 12.817s
+
+FAILED (errors=8)

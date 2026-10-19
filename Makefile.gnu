@@ -6897,3 +6897,13 @@ test-units test-file-service-parser: test-shadow-trace-names
 test-units: test-function-affine-metadata
 test-function-affine-metadata: $(COMPILER_C) nano_virt nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_function_affine_metadata
+
+.PHONY: test-record-array-public-build
+test-record-array-public-build: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nvm2c-runtime
+	$(CC) $(CFLAGS) -Isrc -Isrc/nanoisa tests/nanoisa/test_record_array_public.c tests/nanoisa/record_array_alloc.c $(filter-out %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(filter %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(LDFLAGS) -o $(BIN_DIR)/test_record_array_public
+
+.PHONY: test-record-array-public
+test-record-array-public: test-record-array-public-build
+	RECORD_ARRAY_PUBLIC_CC="$(CC)" RECORD_ARRAY_PUBLIC_CFLAGS="$(CFLAGS)" RECORD_ARRAY_PUBLIC_OBJECTS="$(filter-out %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(filter %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)))" RECORD_ARRAY_PUBLIC_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_record_array_public
+
+test-units: test-record-array-public

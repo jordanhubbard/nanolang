@@ -944,6 +944,7 @@ NvmArrayEligibilityResult nvm_select_managed_heap(const NvmModule *m,int mutable
 }
 
 #include "managed_record_array_execution.inc"
+#include "record_array_admission.inc"
 
 NvmArrayEligibilityResult nvm_select_portable_read_heap(const NvmModule *m,NvmManagedHeapPlan **out) {
     NvmArrayEligibilityResult result={.status=NVM_ARRAY_INVALID};
