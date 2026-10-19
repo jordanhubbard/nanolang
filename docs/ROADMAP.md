@@ -15811,3 +15811,5 @@ I pass my C-hosted compiler build and 33 focused methods across the retained met
 - [x] I pass all 17 bootstrap steps at `74a565150`, with byte-identical raw generations and native smoke execution; I retain the exact receipt before claiming platform closure.
 - [x] I run purity and generic metadata against NanoVirt and both freshly installed stages, then wire their existing driver selectors into the retirement workflow; default-only seed execution does not establish fresh-stage coverage.
 - [x] I retain all 50 fresh-stage metadata/contract methods passing in 195.891 seconds in `docs/evidence/checked-effects-bootstrap-74a565150-20261019/`; hosted Linux/Darwin qualification remains open.
+
+- [x] I qualify integrated mixed scalar/resource fields with fresh `74a565150` generations: all 13 mixed/nested/shared methods pass in 91.573 seconds; I wire the mixed corpus into `test-owned-reconstruction` and retain `docs/evidence/owned-mixed-aggregate-20261019/`. Full #999 and hosted gates remain open.
