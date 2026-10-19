@@ -1,5 +1,5 @@
 I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-rl80wtfh
-test_empty_replacement_and_append_retain_storage (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_empty_replacement_and_append_retain_storage) ... 
+test_empty_replacement_and_append_retain_storage (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_empty_replacement_and_append_retain_storage) ...
   test_empty_replacement_and_append_retain_storage (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_empty_replacement_and_append_retain_storage) (case='storage-u8', compiler='/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt') ... FAIL
 test_receiver_index_and_value_execute_once_in_order (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_receiver_index_and_value_execute_once_in_order) ... ok
 test_wrong_literal_and_nonliteral_storage_preserve_output (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_wrong_literal_and_nonliteral_storage_preserve_output) ... FAIL
