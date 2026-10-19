@@ -55,6 +55,21 @@ no embedded NUL. Advisory names do not become executable literals. Modules outsi
 this slice serialize exactly as before. This is a proposed private facts interface,
 not a wire-schema edit or implementation in this design commit.
 
+I propose an explicit reconstruction-only literal payload cap of1MiB total unique
+referenced bytes, not a new runtime or language limit. Unique referenced indexes
+cannot exceed the existing4096-instruction module bound (nor the actual verified
+constant count). Repeated PUSH_STR uses reuse one table entry, not another byte
+copy; equal bytes at distinct original indexes retain distinct identities. Before hex encoding, I sum lengths with checked size arithmetic and refuse
+if any addition exceeds the cap; encoded payload is exactly twice that sum and
+at most2MiB, plus bounded per-entry index/length JSON overhead. Empty literals
+consume a table slot but zero payload bytes. Python independently checks the same
+entry count, byte sum and exact hex length before decoding, and rejects duplicate
+indexes even when bytes match. No count/length/byte truncation is allowed. The parent approves this
+new conservative output-profile refusal, with exact boundary/over-limit atomic
+refusal and malformed length/count/duplicate controls;
+it does not claim an existing1MiB module limit. Original uint32 lengths come from
+the verified module accessor, never a narrowed host strlen result.
+
 ## My IR and lifetime boundary
 
 I add immutable string-literal and string-parameter expressions, and explicit
