@@ -1,0 +1,9 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-wgwnaueg
+test_original_anchor_and_selected_shadow_local_measurement (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_original_anchor_and_selected_shadow_local_measurement) ... I measure nested-path storage {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "original_locals": [37, 3], "estimated_locals": [140, 31], "estimated_shadow_locals": 108}
+I measure nested-path storage {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "original_locals": [37, 3], "estimated_locals": [140, 31], "estimated_shadow_locals": 108}
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.371s
+
+OK
