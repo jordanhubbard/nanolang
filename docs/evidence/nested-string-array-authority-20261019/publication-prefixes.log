@@ -1,0 +1,43 @@
+test_budget_default_override_and_invalid_values (tests.test_native_process.NativeProcess.test_budget_default_override_and_invalid_values) ... ok
+test_build_budget_is_explicit_and_guest_deadline_stays_short (tests.test_native_process.NativeProcess.test_build_budget_is_explicit_and_guest_deadline_stays_short) ... ok
+test_link_flags_inherit_and_preserve_explicit_empty_override (tests.test_native_process.NativeProcess.test_link_flags_inherit_and_preserve_explicit_empty_override) ... ok
+test_timeout_kills_descendant_and_reaps_driver (tests.test_native_process.NativeProcess.test_timeout_kills_descendant_and_reaps_driver) ... ok
+test_actual_publisher_and_query_prefixes (tests.test_publication_allocation.PublicationAllocation.test_actual_publisher_and_query_prefixes) ... I retain publication allocation evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-gkup1ewl
+publisher allocation positions: 264
+I qualified publisher: 264 transient/persistent positions
+query allocation positions: 259
+I qualified query: 259 transient/persistent positions
+ok
+test_nested_publisher_and_query_prefixes (tests.test_publication_allocation.PublicationAllocation.test_nested_publisher_and_query_prefixes) ... I retain publication allocation evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-7nonmsbx
+publisher allocation positions: 268
+I qualified publisher: 268 transient/persistent positions
+query allocation positions: 268
+I qualified query: 268 transient/persistent positions
+ok
+test_nested_string_publisher_and_query_prefixes (tests.test_publication_allocation.PublicationAllocation.test_nested_string_publisher_and_query_prefixes) ... I retain publication allocation evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-the2ba7h
+publisher allocation positions: 280
+I qualified publisher: 280 transient/persistent positions
+query allocation positions: 282
+I qualified query: 282 transient/persistent positions
+ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 125.749s
+
+OK
+python3 scripts/embed_binary64_parser.py --check
+python3 -m unittest -v tests.test_ordinary_declaration_provenance
+test_concrete_generic_equal_shapes_keep_forward_ordinals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_concrete_generic_equal_shapes_keep_forward_ordinals) ... ok
+test_distinct_equal_shape_and_forward_ordinals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_distinct_equal_shape_and_forward_ordinals) ... ok
+test_generic_repeated_variable_refuses_distinct_import_owners (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_generic_repeated_variable_refuses_distinct_import_owners) ... ok
+test_generic_repeated_variable_refuses_equal_shape_distinct_nominals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_generic_repeated_variable_refuses_equal_shape_distinct_nominals) ... ok
+test_imported_field_identity_preserves_distinct_same_spelling (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_imported_field_identity_preserves_distinct_same_spelling) ... ok
+test_imported_generic_instances_preserve_source_owners (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_imported_generic_instances_preserve_source_owners) ... ok
+test_nested_array_schema_retains_existing_unknown_boundary (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_nested_array_schema_retains_existing_unknown_boundary) ... ok
+test_repeated_direct_and_transitive_import_retains_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_repeated_direct_and_transitive_import_retains_authority) ... ok
+test_same_spelling_in_distinct_imports_retains_distinct_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_same_spelling_in_distinct_imports_retains_distinct_authority) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 4.484s
+
+OK

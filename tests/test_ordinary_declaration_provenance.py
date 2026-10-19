@@ -138,9 +138,9 @@ shadow main { assert (== (main) 0) }
 ''', modules, fields=expected)
 
     def test_nested_array_schema_retains_existing_unknown_boundary(self):
-        self.check('''struct Entries { values: array<array<string>> }
-fn main() -> int { let entries: Entries = Entries { values: [["first", "second"]] }
- assert (== (at (at entries.values 0) 1) "second") return 0 }
+        self.check('''struct Entries { values: array<array<bool>> }
+fn main() -> int { let entries: Entries = Entries { values: [[false, true]] }
+ assert (at (at entries.values 0) 1) return 0 }
 shadow main { assert (== (main) 0) }
 ''')
 

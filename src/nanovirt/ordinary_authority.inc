@@ -82,7 +82,7 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
     if(!data || !items){free(data);free(items);cg_error(cg,0,"I cannot allocate ordinary declaration facts");return;}
     NvmV2Layouts layouts={items,count};
     bool supported=true;
-    uint32_t arrays=0;uint8_t elements[7]={0};
+    uint32_t arrays=0;uint8_t elements[8]={0};
     for(unsigned i=0;i<count && supported;i++) {
         ASTNode *node=records[i];int fields=node->as.struct_def.field_count;
         if(fields<0 || fields>UINT16_MAX){supported=false;break;}
@@ -101,9 +101,10 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
                    (node->as.struct_def.field_element_types && node->as.struct_def.field_element_types[j]!=element->base_type)) {supported=false;break;}
                 if(elem==TAG_ARRAY) {
                     TypeInfo *inner=element->element_type;
-                    if(!inner || inner->base_type!=TYPE_INT || inner->element_type || inner->type_param_count ||
+                    if(!inner || (inner->base_type!=TYPE_INT && inner->base_type!=TYPE_STRING) || inner->element_type || inner->type_param_count ||
                        inner->service_declaration || inner->generic_name){supported=false;break;}
-                    elements[TAG_INT-1]=1;
+                    elements[ordinary_slot_tag(inner->base_type)-1]=1;
+                    if(inner->base_type==TYPE_STRING)elem=8; /* normalized nested STRING */
                 } else if(elem<TAG_INT || elem>TAG_STRING || element->element_type){supported=false;break;}
                 elements[elem-1]=1;arrays++;
             }
@@ -142,8 +143,8 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
         }
     }
     if(supported && arrays) {
-        uint32_t types=0,index[7]={0};
-        for(unsigned i=0;i<7;i++)if(elements[i])index[i]=types++;
+        uint32_t types=0,index[8]={0};
+        for(unsigned i=0;i<8;i++)if(elements[i])index[i]=types++;
         size_t extra=28u+(size_t)types*8u+(size_t)arrays*12u;
         if(extra>UINT32_MAX-size){supported=false;}
         else {
@@ -156,14 +157,15 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
                 ordinary_word(data+at,2,2);ordinary_word(data+at+2,1,2);
                 ordinary_word(data+at+4,(uint32_t)(8u+types*8u+arrays*12u),4);at+=8;
                 ordinary_word(data+at,types,4);at+=4;
-                for(unsigned i=0;i<7;i++)if(elements[i]) {
-                    data[at]=(uint8_t)(i+1);
-                    ordinary_word(data+at+4,i+1==TAG_ARRAY?index[TAG_INT-1]:NVM_V2_NO_INDEX,4);at+=8;
+                for(unsigned i=0;i<8;i++)if(elements[i]) {
+                    data[at]=(uint8_t)(i==7?TAG_ARRAY:i+1);
+                    ordinary_word(data+at+4,i==7?index[TAG_STRING-1]:i+1==TAG_ARRAY?index[TAG_INT-1]:NVM_V2_NO_INDEX,4);at+=8;
                 }
                 ordinary_word(data+at,arrays,4);at+=4;
                 for(unsigned i=0;i<count;i++)for(unsigned j=0;j<items[i].field_count;j++)
                     if(items[i].fields[j].type_tag==TAG_ARRAY) {
                         uint8_t elem=ordinary_slot_tag(records[i]->as.struct_def.field_type_info[j]->element_type->base_type);
+                        if(elem==TAG_ARRAY && records[i]->as.struct_def.field_type_info[j]->element_type->element_type->base_type==TYPE_STRING)elem=8;
                         ordinary_word(data+at,i,4);ordinary_word(data+at+4,j,2);
                         ordinary_word(data+at+8,index[elem-1],4);at+=12;
                     }

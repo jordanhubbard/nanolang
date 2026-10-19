@@ -99,24 +99,25 @@ static void nested_authority(Input *c) {
     c->m.ownership_size=(uint32_t)c->o;
 }
 static void nested_origins(void) {
+    for(unsigned leaf=TAG_INT;leaf<=TAG_STRING;leaf+=TAG_STRING-TAG_INT)
     for(unsigned variant=0;variant<5;variant++) {
-        Input c;init(&c,TAG_INT,false);
+        Input c;init(&c,(uint8_t)leaf,false);
         array(&c,TAG_ARRAY);arg16(&c,OP_STORE_LOCAL,0);
-        array(&c,variant==2?TAG_STRING:TAG_INT);arg16(&c,OP_STORE_LOCAL,1);
+        array(&c,variant==2?(leaf==TAG_INT?TAG_STRING:TAG_INT):(uint8_t)leaf);arg16(&c,OP_STORE_LOCAL,1);
         arg16(&c,OP_LOAD_LOCAL,0);record(&c,0);op(&c,OP_POP);
         if(variant) {
             arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_LOAD_LOCAL,1);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
             if(variant>=3) {
                 arg16(&c,OP_LOAD_LOCAL,0);op(&c,OP_ARR_POP);op(&c,OP_POP);
-                arg16(&c,OP_LOAD_LOCAL,1);scalar(&c,variant==4?TAG_U8:TAG_INT);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+                arg16(&c,OP_LOAD_LOCAL,1);scalar(&c,variant==4?TAG_U8:(uint8_t)leaf);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
             }
         }
-        finish(&c);nested_authority(&c);
+        finish(&c);nested_authority(&c);c.ownership[c.o-36]=(uint8_t)leaf;
         if(variant==2 || variant==4)query(&c,NVM_ARRAY_UNRESOLVED);
         else {
             NvmRecordArrayOrigins *p=query(&c,NVM_ARRAY_ELIGIBLE);uint16_t requirement;
-            CHECK(nvm_record_array_required_elements(p,0,&requirement)&&requirement==NVM_RECORD_ARRAY_OF_INT);
-            if(variant)CHECK(nvm_record_array_required_elements(p,1,&requirement)&&requirement==MASK(TAG_INT));
+            CHECK(nvm_record_array_required_elements(p,0,&requirement)&&requirement==(leaf==TAG_INT?NVM_RECORD_ARRAY_OF_INT:NVM_RECORD_ARRAY_OF_STRING));
+            if(variant)CHECK(nvm_record_array_required_elements(p,1,&requirement)&&requirement==MASK(leaf));
             nvm_record_array_origins_free(p);
         }
     }

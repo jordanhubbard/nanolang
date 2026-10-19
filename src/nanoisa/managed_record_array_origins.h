@@ -15,9 +15,11 @@ bool nvm_record_array_origins_counts(const NvmRecordArrayOrigins *,NvmRecordArra
 bool nvm_record_array_origin(const NvmRecordArrayOrigins *,uint32_t,NvmRecordHeapOrigin *);
 bool nvm_record_array_field_value(const NvmRecordArrayOrigins *,uint32_t,NvmRecordValueOrigins *);
 /* Zero means unconstrained by a record field; otherwise one exact leaf tag
- * bit or this normalized depth-two INT obligation. ARRAY here is not a
- * wildcard: original referent rows remain available through declaration APIs. */
+ * bit or one normalized depth-two INT/STRING obligation. These named bits
+ * are not wildcard ARRAY or TAG_STRUCT facts: original referent rows remain
+ * available through declaration APIs. */
 #define NVM_RECORD_ARRAY_OF_INT ((uint16_t)(1u << TAG_ARRAY))
+#define NVM_RECORD_ARRAY_OF_STRING ((uint16_t)(1u << 8))
 bool nvm_record_array_required_elements(const NvmRecordArrayOrigins *,uint32_t,uint16_t *);
 bool nvm_record_array_declaration_counts(const NvmRecordArrayOrigins *,NvmDeclarationCounts *);
 bool nvm_record_array_declaration_layout(const NvmRecordArrayOrigins *,uint32_t,NvmDeclarationLayout *);

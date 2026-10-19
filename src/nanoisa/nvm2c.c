@@ -2489,8 +2489,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     }
                 }
             }
-            if (b->canonical_records && arr.kind == NVM2C_VK_UNK && val.kind == NVM2C_VK_ARR) {
-                /* A closed nested INT proof permits this array-valued write,
+            if (b->canonical_records && arr.kind == NVM2C_VK_UNK &&
+                (val.kind == NVM2C_VK_ARR || val.kind == NVM2C_VK_SARR)) {
+                /* A closed nested INT/STRING proof permits this array-valued write,
                  * but a forward callee may not yet have a result carrier.
                  * Preserve unknown storage until facts converge; never seed
                  * an integer-array carrier from the child's carrier. */

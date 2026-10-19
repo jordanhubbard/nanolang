@@ -15656,5 +15656,14 @@ I do not broaden global inference support in this correction.
 
 ### Bounded nested STRING authority proposal (#1001)
 
-- [ ] I review [my exact nested STRING contract](NANOISA_NESTED_STRING_ARRAY_AUTHORITY.md), distinct normalized leaf obligation and optional charged field bitmap before admission edits. `workspace_repairs` owns isolated fix/5.1-nested-string-authority from4cfad3737.
-- [ ] I qualify exact descriptor/all-writes proof, copied/public VM and transport, string-table/owner lifetime, canonical native GC and failure paths before paired source publication. Existing flat/INT behavior and full aggregate qualification remain separate.
+- [x] I review [my exact nested STRING contract](NANOISA_NESTED_STRING_ARRAY_AUTHORITY.md), distinct normalized leaf obligation and optional charged field bitmap before admission edits. `workspace_repairs` owns isolated fix/5.1-nested-string-authority from4cfad3737.
+- [x] I qualify exact descriptor/all-writes proof, copied/public VM and transport, string-table/owner lifetime, canonical native GC and failure paths before paired source publication. Existing flat/INT behavior and full aggregate qualification remain separate.
+
+- [x] Under nested STRING #1001 I repair the reproduced canonical native forward-result write gap: the previous deferred receiver rule recognizes INT-array children only, so a proved STRING-array child prematurely selects scalar storage. Retain the failed consumer log and require native CALL/TAIL coverage.
+
+- [x] Under nested STRING #1001 I reproduce and repair public interned-result saturation: vm_string_new guards UINT32_MAX only in the private build, so a public concat can wrap an existing pooled result owner. Preserve the failure, refuse via the existing NULL/MEMORY contract, and qualify direct public/private concat plus valid retry without claiming every unrelated retain path.
+
+- [x] I qualify paired nested STRING source publishers and imported provenance, including exact wire bytes and wrapper allocation failures; I retain [my bounded component receipt](evidence/nested-string-array-authority-20261019/README.md).
+- [ ] I integrate the nested STRING component through fresh raw-generation and platform gates. Full #1001 remains open.
+
+- [ ] I retain the separate contextual empty replacement boundary observed by the STRING source fixture: `(array_set box.rows 0 [])` is refused by the Nano checker and fails a C shadow after refill, while an explicitly typed `array<string>` empty value passes. I do not silently widen the checker or equate this with retained-authority completion.

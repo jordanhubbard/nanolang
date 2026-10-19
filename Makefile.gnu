@@ -6965,3 +6965,9 @@ test-ordinary-array-authority: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	ORDINARY_ARRAY_CC="$(CC)" ORDINARY_ARRAY_CFLAGS="$(CFLAGS)" ORDINARY_ARRAY_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" ORDINARY_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_ordinary_array_authority
 
 test-units: test-ordinary-array-authority
+
+.PHONY: test-record-array-nested-string
+test-record-array-nested-string: test-record-array-tail-build
+	RECORD_ARRAY_NESTED_CC="$(CC)" RECORD_ARRAY_NESTED_CFLAGS="$(CFLAGS)" RECORD_ARRAY_NESTED_OBJECTS="$(filter-out %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(filter %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)))" RECORD_ARRAY_NESTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_record_array_nested_string
+
+test-units: test-record-array-nested-string

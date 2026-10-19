@@ -87,16 +87,38 @@ class FlatArraySourcePublication(unittest.TestCase):
                     size=struct.unpack_from('<I',facts,at)[0];at+=4
                     self.assertEqual(len(facts)-at,size)
                     types=struct.unpack_from('<I',facts,at)[0];at+=4
-                    rows=[]
+                    rows=[];wire_rows=[]
                     for _ in range(types):
                         tag,ref=struct.unpack_from('<B3xI',facts,at);at+=8
-                        self.assertEqual(ref,0 if tag==7 else 0xffffffff);rows.append(tag)
+                        wire_rows.append((tag,ref))
+                        if tag==7:
+                            self.assertLess(ref,len(rows))
+                            self.assertIn(rows[ref],(1,5))
+                            rows.append(7 if rows[ref]==1 else 8)
+                        else:
+                            self.assertEqual(ref,0xffffffff);rows.append(tag)
+                    required=set(elements)
+                    if 7 in required: required.add(1)
+                    if 8 in required: required.add(5)
+                    ordered=sorted(required)
+                    expected_rows=[(7,ordered.index(1)) if element==7 else
+                                   (7,ordered.index(5)) if element==8 else
+                                   (element,0xffffffff) for element in ordered]
+                    self.assertEqual(wire_rows,expected_rows)
                     bindings=struct.unpack_from('<I',facts,at)[0];at+=4
                     actual=[]
                     for field in range(bindings):
                         layout,ordinal,reserved,element=struct.unpack_from('<IHHI',facts,at);at+=12
                         self.assertEqual((layout,ordinal,reserved),(array_layout,field,0));actual.append(rows[element])
                     self.assertEqual(actual,elements);self.assertEqual(at,len(facts))
+                    # I retain exact old flat/INT wire bytes, including reserved
+                    # padding, while STRING adds its separate referent row.
+                    expected_wire=struct.pack('<I',len(expected_rows))
+                    expected_wire+=b''.join(struct.pack('<B3xI',tag,ref) for tag,ref in expected_rows)
+                    expected_wire+=struct.pack('<I',len(elements))
+                    expected_wire+=b''.join(struct.pack('<IHHI',array_layout,field,0,ordered.index(element))
+                                            for field,element in enumerate(elements))
+                    self.assertEqual(facts[-len(expected_wire):],expected_wire)
                     library_path=self.query_library
                     library=ctypes.CDLL(str(library_path));query=library.nl_nanoisa_array_publication
                     query.argtypes=[ctypes.c_char_p];query.restype=ctypes.c_int64
@@ -216,6 +238,44 @@ fn main()->int {
 shadow main { assert (== (main) 0) }
 ''',[7,7])
 
+    def test_nested_string_alias_refill_and_mixed_leaves(self):
+        self.exercise('''struct Box { rows:array<array<string>>, numbers:array<array<int>> }
+fn identity(value:T)->T { return value }
+shadow identity { assert (== (identity 7) 7) }
+fn main()->int {
+ let child:array<string> =["before"]
+ let box:Box=(identity Box {rows:[child,child],numbers:[[7]]})
+ (array_set child 0 (+ "af" "ter"))
+ assert (== (at (at box.rows 1) 0) "after")
+ let empty:array<string> = []
+ (array_set box.rows 0 empty)
+ let filled:array<string> =(array_push (at box.rows 0) "refilled")
+ assert (== (at filled 0) "refilled")
+ assert (== (at (at box.rows 1) 0) "after")
+ assert (== (at (at box.numbers 0) 0) 7) return 0 }
+shadow main { assert (== (main) 0) }
+''',[8,7])
+
+    def test_nested_string_forward_record_dag(self):
+        self.exercise('''struct Root { child:Box }
+struct Box { rows:array<array<string>> }
+fn main()->int { let root:Root=Root {child:Box {rows:[["kept"]]}}
+ assert (== (at (at root.child.rows 0) 0) "kept") return 0 }
+shadow main { assert (== (main) 0) }
+''',[8],layout_count=2,array_layout=1)
+
+    def test_nested_string_bound_import(self):
+        previous=self.compilers
+        self.compilers=os.environ.get('NANO_FLAT_ARRAY_BOUND_COMPILERS',str(ROOT/'bin/nano_virt')).split(',')
+        try:
+            self.exercise('''module "types.nano" as types
+fn main()->int { let box:types.Box=types.Box {rows:[["kept"]]}
+ assert (== (at (at box.rows 0) 0) "kept") return 0 }
+shadow main { assert (== (main) 0) }
+''',[8],modules={'types.nano':'pub struct Box {rows:array<array<string>>}\n'})
+        finally:
+            self.compilers=previous
+
     def test_nested_forward_record_dag(self):
         self.exercise('''struct Root { child: Box }
 struct Box { values: array<array<int>> }
@@ -237,7 +297,7 @@ shadow main { assert (== (main) 0) }
             self.compilers=previous
 
     def test_unsupported_nested_descriptors_stay_optional(self):
-        for declared,value in [('array<array<string>>','[["seven"]]'),
+        for declared,value in [('array<array<bool>>','[[true]]'),
                                ('array<array<array<int>>>','[[[7]]]')]:
             with self.subTest(declared=declared):
                 self.exercise('struct Box { values:'+declared+' }\nfn main()->int { let box:Box=Box { values:'+value+' } return 0 }\nshadow main { assert true }\n',None,run=False)
