@@ -1,0 +1,2177 @@
+I retain descriptive-plan artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-source-plan-tmctm8q_
+test_c_ownership_allocation_and_exact_budget (tests.test_file_source_plan.FileSourcePlan.test_c_ownership_allocation_and_exact_budget) ... ok
+test_paired_full_modules_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_full_modules_and_selected_shadows) ... FAIL
+test_paired_mixed_catalogs_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_mixed_catalogs_and_selected_shadows) ... FAIL
+test_paired_websocket_catalog_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_websocket_catalog_and_selected_shadows) ... FAIL
+I retain FLOAT evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-_nfvfzq_
+test_dynamic_nan_copy_and_typed_predicates (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_dynamic_nan_copy_and_typed_predicates) ... ERROR
+test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers) ... FAIL
+test_nonfinite_and_malformed_literal_target_boundaries (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_nonfinite_and_malformed_literal_target_boundaries) ... ok
+test_unchanged_ordinary_and_independent_original_shadow (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_unchanged_ordinary_and_independent_original_shadow) ... ERROR
+test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) ... 
+  test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) (compiler='nanoc_c') ... ERROR
+  test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) (compiler='nanoc_stage1') ... ERROR
+  test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) (compiler='nanoc_stage2') ... ERROR
+  test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) (compiler='nano_virt') ... ERROR
+test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) ... 
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_c', filename='tests/test_resource_tracking.nano') ... ERROR
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage1', filename='tests/test_resource_tracking.nano') ... ERROR
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage2', filename='tests/test_resource_tracking.nano') ... ERROR
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nano_virt', filename='tests/test_resource_tracking.nano') ... ERROR
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_c', filename='tests/test_affine_integration.nano') ... ERROR
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage1', filename='tests/test_affine_integration.nano') ... ERROR
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage2', filename='tests/test_affine_integration.nano') ... ERROR
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nano_virt', filename='tests/test_affine_integration.nano') ... ERROR
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_c', filename='examples/language/nl_affine_resource_demo.nano') ... ERROR
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage1', filename='examples/language/nl_affine_resource_demo.nano') ... ERROR
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage2', filename='examples/language/nl_affine_resource_demo.nano') ... ERROR
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nano_virt', filename='examples/language/nl_affine_resource_demo.nano') ... ERROR
+test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) ... 
+  test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) (compiler='nanoc_c') ... ERROR
+  test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) (compiler='nanoc_stage1') ... ERROR
+  test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) (compiler='nanoc_stage2') ... ERROR
+  test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) (compiler='nano_virt') ... ERROR
+test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) ... 
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_c', pattern='Handle {}') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage1', pattern='Handle {}') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage2', pattern='Handle {}') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nano_virt', pattern='Handle {}') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_c', pattern='Handle { fd, fd }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage1', pattern='Handle { fd, fd }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage2', pattern='Handle { fd, fd }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nano_virt', pattern='Handle { fd, fd }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_c', pattern='Handle { missing }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage1', pattern='Handle { missing }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage2', pattern='Handle { missing }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nano_virt', pattern='Handle { missing }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_c', pattern='Handle { .. }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage1', pattern='Handle { .. }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage2', pattern='Handle { .. }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nano_virt', pattern='Handle { .. }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_c', pattern='Other { fd }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage1', pattern='Other { fd }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage2', pattern='Other { fd }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nano_virt', pattern='Other { fd }') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_c') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage1') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage2') ... ERROR
+  test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nano_virt') ... ERROR
+test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) ... 
+  test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) (compiler='nanoc_c') ... ERROR
+  test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) (compiler='nanoc_stage1') ... ERROR
+  test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) (compiler='nanoc_stage2') ... ERROR
+  test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) (compiler='nano_virt') ... ERROR
+test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) ... 
+  test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) (compiler='nanoc_c') ... ERROR
+  test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) (compiler='nanoc_stage1') ... ERROR
+  test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) (compiler='nanoc_stage2') ... ERROR
+  test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) (compiler='nano_virt') ... ERROR
+test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) ... 
+  test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) (compiler='nanoc_c') ... ERROR
+  test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) (compiler='nanoc_stage1') ... ERROR
+  test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) (compiler='nanoc_stage2') ... ERROR
+  test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) (compiler='nano_virt') ... ERROR
+test_partial_move_is_not_destruction (tests.test_owned_record_patterns.OwnedRecordPatterns.test_partial_move_is_not_destruction) ... 
+  test_partial_move_is_not_destruction (tests.test_owned_record_patterns.OwnedRecordPatterns.test_partial_move_is_not_destruction) (compiler='nanoc_c') ... ERROR
+  test_partial_move_is_not_destruction (tests.test_owned_record_patterns.OwnedRecordPatterns.test_partial_move_is_not_destruction) (compiler='nanoc_stage1') ... ERROR
+  test_partial_move_is_not_destruction (tests.test_owned_record_patterns.OwnedRecordPatterns.test_partial_move_is_not_destruction) (compiler='nanoc_stage2') ... ERROR
+  test_partial_move_is_not_destruction (tests.test_owned_record_patterns.OwnedRecordPatterns.test_partial_move_is_not_destruction) (compiler='nano_virt') ... ERROR
+test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) ... 
+  test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) (compiler='nanoc_c') ... ERROR
+  test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) (compiler='nanoc_stage1') ... ERROR
+  test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) (compiler='nanoc_stage2') ... ERROR
+  test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) (compiler='nano_virt') ... ERROR
+test_source_unavailable_after_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_source_unavailable_after_pattern) ... 
+  test_source_unavailable_after_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_source_unavailable_after_pattern) (compiler='nanoc_c') ... ERROR
+  test_source_unavailable_after_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_source_unavailable_after_pattern) (compiler='nanoc_stage1') ... ERROR
+  test_source_unavailable_after_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_source_unavailable_after_pattern) (compiler='nanoc_stage2') ... ERROR
+  test_source_unavailable_after_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_source_unavailable_after_pattern) (compiler='nano_virt') ... ERROR
+test_transferred_field_must_be_resolved (tests.test_owned_record_patterns.OwnedRecordPatterns.test_transferred_field_must_be_resolved) ... 
+  test_transferred_field_must_be_resolved (tests.test_owned_record_patterns.OwnedRecordPatterns.test_transferred_field_must_be_resolved) (compiler='nanoc_c') ... ERROR
+  test_transferred_field_must_be_resolved (tests.test_owned_record_patterns.OwnedRecordPatterns.test_transferred_field_must_be_resolved) (compiler='nanoc_stage1') ... ERROR
+  test_transferred_field_must_be_resolved (tests.test_owned_record_patterns.OwnedRecordPatterns.test_transferred_field_must_be_resolved) (compiler='nanoc_stage2') ... ERROR
+  test_transferred_field_must_be_resolved (tests.test_owned_record_patterns.OwnedRecordPatterns.test_transferred_field_must_be_resolved) (compiler='nano_virt') ... ERROR
+test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) ... 
+  test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) (compiler='nanoc_c') ... ERROR
+  test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) (compiler='nanoc_stage1') ... ERROR
+  test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) (compiler='nanoc_stage2') ... ERROR
+  test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) (compiler='nano_virt') ... ERROR
+
+======================================================================
+ERROR: test_dynamic_nan_copy_and_typed_predicates (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_dynamic_nan_copy_and_typed_predicates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 146, in test_dynamic_nan_copy_and_typed_predicates
+    for compiler in self.compilers:self.qualify(self.module(text,compiler))
+                                   ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 74, in qualify
+    native = output.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_unchanged_ordinary_and_independent_original_shadow (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_unchanged_ordinary_and_independent_original_shadow)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 82, in test_unchanged_ordinary_and_independent_original_shadow
+    for compiler in self.compilers:self.qualify(self.module(self.source(), compiler))
+                                   ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 74, in qualify
+    native = output.with_suffix(opt+'.exe')
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0.exe'
+
+======================================================================
+ERROR: test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_c', filename='tests/test_resource_tracking.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage1', filename='tests/test_resource_tracking.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage2', filename='tests/test_resource_tracking.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nano_virt', filename='tests/test_resource_tracking.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_c', filename='tests/test_affine_integration.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage1', filename='tests/test_affine_integration.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage2', filename='tests/test_affine_integration.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nano_virt', filename='tests/test_affine_integration.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_c', filename='examples/language/nl_affine_resource_demo.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage1', filename='examples/language/nl_affine_resource_demo.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage2', filename='examples/language/nl_affine_resource_demo.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nano_virt', filename='examples/language/nl_affine_resource_demo.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_c', pattern='Handle {}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage1', pattern='Handle {}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage2', pattern='Handle {}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nano_virt', pattern='Handle {}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_c', pattern='Handle { fd, fd }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage1', pattern='Handle { fd, fd }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage2', pattern='Handle { fd, fd }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nano_virt', pattern='Handle { fd, fd }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_c', pattern='Handle { missing }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage1', pattern='Handle { missing }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage2', pattern='Handle { missing }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nano_virt', pattern='Handle { missing }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_c', pattern='Handle { .. }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage1', pattern='Handle { .. }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage2', pattern='Handle { .. }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nano_virt', pattern='Handle { .. }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_c', pattern='Other { fd }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage1', pattern='Other { fd }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage2', pattern='Other { fd }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nano_virt', pattern='Other { fd }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_partial_move_is_not_destruction (tests.test_owned_record_patterns.OwnedRecordPatterns.test_partial_move_is_not_destruction) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_partial_move_is_not_destruction (tests.test_owned_record_patterns.OwnedRecordPatterns.test_partial_move_is_not_destruction) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_partial_move_is_not_destruction (tests.test_owned_record_patterns.OwnedRecordPatterns.test_partial_move_is_not_destruction) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_partial_move_is_not_destruction (tests.test_owned_record_patterns.OwnedRecordPatterns.test_partial_move_is_not_destruction) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_source_unavailable_after_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_source_unavailable_after_pattern) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_source_unavailable_after_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_source_unavailable_after_pattern) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_source_unavailable_after_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_source_unavailable_after_pattern) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_source_unavailable_after_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_source_unavailable_after_pattern) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_transferred_field_must_be_resolved (tests.test_owned_record_patterns.OwnedRecordPatterns.test_transferred_field_must_be_resolved) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_transferred_field_must_be_resolved (tests.test_owned_record_patterns.OwnedRecordPatterns.test_transferred_field_must_be_resolved) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_transferred_field_must_be_resolved (tests.test_owned_record_patterns.OwnedRecordPatterns.test_transferred_field_must_be_resolved) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_transferred_field_must_be_resolved (tests.test_owned_record_patterns.OwnedRecordPatterns.test_transferred_field_must_be_resolved) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+ERROR: test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_c'
+
+======================================================================
+ERROR: test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_record_patterns.py", line 25, in check_case
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt'
+
+======================================================================
+FAIL: test_paired_full_modules_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_full_modules_and_selected_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 140, in test_paired_full_modules_and_selected_shadows
+    self.paired(corpus(), False)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 172, in paired
+    build_out,trace=self.command(compiler+'-build',args,timeout=900,
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         extra={'NANO_SHADOW_TRACE':'1', 'NANO_SHADOW_TIMEOUT_SECONDS':'30'})
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('nanoc_c-build', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 900, 'elapsed_seconds': 0.0023509159800596535, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_paired_mixed_catalogs_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_mixed_catalogs_and_selected_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 143, in test_paired_mixed_catalogs_and_selected_shadows
+    self.paired(service_corpus(), True)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 172, in paired
+    build_out,trace=self.command(compiler+'-build',args,timeout=900,
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         extra={'NANO_SHADOW_TRACE':'1', 'NANO_SHADOW_TIMEOUT_SECONDS':'30'})
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('nanoc_c-build', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 900, 'elapsed_seconds': 0.0019905000226572156, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_paired_websocket_catalog_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_websocket_catalog_and_selected_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 146, in test_paired_websocket_catalog_and_selected_shadows
+    self.paired(websocket_corpus(), True)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 172, in paired
+    build_out,trace=self.command(compiler+'-build',args,timeout=900,
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         extra={'NANO_SHADOW_TRACE':'1', 'NANO_SHADOW_TIMEOUT_SECONDS':'30'})
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('nanoc_c-build', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 900, 'elapsed_seconds': 0.0028178750071674585, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_finite_literal_bits_across_actual_producers (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_finite_literal_bits_across_actual_producers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 36, in command
+    out, err = FileSourcePlan.command.__func__(type(self), name, args, timeout=180)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('command-46', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.0432221670052968, 'pid': 19917, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'I could not verify the shadow module: Expected f64 operand\n', b'')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 103, in test_finite_literal_bits_across_actual_producers
+    module = self.module(source,compiler)
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 58, in module
+    self.command([compiler or self.compilers[0], source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_float_reconstruction.py", line 40, in command
+    self.assertNotEqual(expected, 0, status)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.0432221670052968, 'pid': 19917, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}
+
+----------------------------------------------------------------------
+Ran 20 tests in 4.719s
+
+FAILED (failures=4, errors=78)

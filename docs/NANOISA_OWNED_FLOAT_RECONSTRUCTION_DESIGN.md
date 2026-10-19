@@ -32,3 +32,7 @@ Initial scope is the unchanged straight-line unsafe fixture. I then qualify copi
 - I qualify both current seed and fresh stages plus exact Linux/Darwin candidate gates separately. No design or scalar-only success substitutes for owned qualification.
 
 I retain `NANOISA_OWNED_FLOAT_LOCALS_UNSAFE.md` as producer/runtime evidence: it records completed bounded local qualification and explicitly excludes fields/signatures. This proposal concerns reconstruction, not new executable source admission.
+
+## I retain the first output failure and target distinction
+
+The unchanged baseline reaches valid FLOAT facts and both renderers, but its first regenerated Nano compile refuses `float_from_bits` in the owned source profile. I retain that terminal; I do not expand the frontend/verifier. Facts and C output preserve all64 literal bits. Consuming Nano output accepts finite literal payloads only, expands the shortest roundtrip decimal by string digits/exponent without arithmetic or Decimal-context rounding, and applies existing FLOAT unary negation for negative values including negative zero. I verify regenerated PUSH_F64/negation bits through all three ordinary producers. Nonfinite literal payloads atomically refuse Nano output; I never synthesize arithmetic to imitate those payloads. Dynamic infinity/NaN from separately admitted arithmetic retains the existing runtime policy. Broader nonfinite literal Nano coverage remains open and needs an accepted-source scope disposition.

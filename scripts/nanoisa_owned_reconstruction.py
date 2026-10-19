@@ -1,5 +1,5 @@
 """I retain ordered local resource transfers in one bounded owned region tree."""
-from nanoisa_reconstruction import Analyze, Emit, Expr, Function, INT, BOOL, SIMPLE, require
+from nanoisa_reconstruction import Analyze, Emit, Expr, Function, INT, BOOL, FLOAT, SIMPLE, require
 
 
 from nanoisa_owned_strings import STRING, literal_facts, nano_literal, literals_in
@@ -63,7 +63,11 @@ class OwnedAnalyze(Analyze):
         self.declarations = self.fn['local_types']
         require(len(self.declarations) == self.fn['locals'] <= 128,
                 'require complete local declarations')
-        self.types = {i: t for i, (t, _) in enumerate(self.declarations) if t in (INT, BOOL)}
+        self.scalar_tags = (INT, BOOL) if self.borrowed else (INT, BOOL, FLOAT)
+        self.types = {i: t for i, (t, _) in enumerate(self.declarations) if t in self.scalar_tags}
+        require(all(tag != FLOAT or not self.borrowed and i >= len(self.fn['params']) and layout == 4294967295
+                    for i, (tag, layout) in enumerate(self.declarations)),
+                'require FLOAT only in exact nonparameter consuming local slots')
 
         def declared(pair, parameter=False):
             tag, layout = pair
@@ -512,16 +516,17 @@ class OwnedAnalyze(Analyze):
                     body.append(('return', result))
                 return body, initialized, self.live, self.used, True
             else:
-                require(op in SIMPLE and op not in ('CALL', 'PUSH_U8', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG'),
+                require(op in SIMPLE and op not in ('CALL', 'PUSH_U8', 'F64_FROM_BITS', 'F64_TO_BITS') and
+                        (not self.borrowed or op not in ('PUSH_F64', 'F64_NEG')),
                         'refuse unsupported resource-route instruction ' + op)
                 # I isolate the suffix above the last staged owner before scalar evaluation.
                 split = max((n + 1 for n, value in enumerate(stack)
-                             if value.tag not in (INT, BOOL)), default=0)
+                             if value.tag not in self.scalar_tags), default=0)
                 prefix, scalar = stack[:split], stack[split:]
                 if op in ('LOAD_LOCAL', 'STORE_LOCAL'):
                     require(arg in self.types, 'require a declared scalar local')
                 self.simple(i, scalar, initialized, body)
-                require(all(value.tag in (INT, BOOL) for value in scalar),
+                require(all(value.tag in self.scalar_tags for value in scalar),
                         'require exact scalar resource-route values')
                 stack = prefix + scalar
             i += 1
@@ -597,16 +602,17 @@ class OwnedAnalyze(Analyze):
         elif op == 'ASSERT':
             body.append(('assert', self.pop(stack, BOOL)))
         else:
-            require(op in SIMPLE and op not in ('CALL', 'PUSH_U8', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG'),
+            require(op in SIMPLE and op not in ('CALL', 'PUSH_U8', 'F64_FROM_BITS', 'F64_TO_BITS') and
+                        (not self.borrowed or op not in ('PUSH_F64', 'F64_NEG')),
                     'refuse unsupported resource-route instruction ' + op)
             # I isolate the suffix above the last staged owner before scalar evaluation.
             split = max((n + 1 for n, value in enumerate(stack)
-                         if value.tag not in (INT, BOOL)), default=0)
+                         if value.tag not in self.scalar_tags), default=0)
             prefix, scalar = stack[:split], stack[split:]
             if op in ('LOAD_LOCAL', 'STORE_LOCAL'):
                 require(arg in self.types, 'require a declared scalar local')
             self.simple(i, scalar, initialized, body)
-            require(all(value.tag in (INT, BOOL) for value in scalar),
+            require(all(value.tag in self.scalar_tags for value in scalar),
                     'require exact scalar resource-route values')
             stack[:] = prefix + scalar
         return i + 1
@@ -1077,6 +1083,22 @@ class OwnedEmit(Emit):
         return 'main' if self.language == 'nano' and index == 0 else super().name(index)
 
     def expression(self, expr):
+        if expr.kind == 'float_bits' and self.language == 'nano':
+            import struct
+            bits = expr.value
+            require((bits >> 52) & 0x7ff != 0x7ff,
+                    'require finite literal payloads in owned Nano output')
+            magnitude = struct.unpack('>d', struct.pack('>Q', bits & ((1 << 63) - 1)))[0]
+            text = repr(magnitude)
+            if 'e' in text:
+                mantissa, exponent = text.split('e')
+                whole, _, fraction = mantissa.partition('.')
+                digits = whole + fraction
+                point = len(whole) + int(exponent)
+                text = ('0.' + '0' * (-point) + digits if point <= 0 else
+                        digits + '0' * (point - len(digits)) + '.0' if point >= len(digits) else
+                        digits[:point] + '.' + digits[point:])
+            return '(- ' + text + ')' if bits >> 63 else text
         if expr.kind == 'string_parameter':
             return f'nlr_a{expr.value}'
         if expr.kind == 'string_literal':

@@ -73,6 +73,7 @@ static int owned_facts(const NvmModule *m) {
             if(!(helper && i<fn->arity ? nvm_affine_parameter_at(state,i,&t,&mode) : nvm_affine_local_type(state,i,&t)) ||
                (t.tag!=TAG_INT && t.tag!=TAG_BOOL &&
                 !(!borrowed && i<fn->arity && t.tag==TAG_STRING && t.layout==NVM_V2_NO_INDEX) &&
+                !(!borrowed && i>=fn->arity && t.tag==TAG_FLOAT && t.layout==NVM_V2_NO_INDEX) &&
                 !(t.tag==TAG_STRUCT && t.layout<layouts.count && nvm_affine_type_is_owned(state,t))))goto done;
         }
 
@@ -145,6 +146,12 @@ static int owned_facts(const NvmModule *m) {
             for(uint8_t a=0;a<in->operand_count && a<4;a++){if(a)putchar(',');printf("%" PRId64,args[a]);}
             printf("],\"target\":%u", di->resolved_target==UINT32_MAX ? UINT32_MAX :
                 di->resolved_target-fn->code_offset);
+            if(in->operand_count && in->operand_types[0]==OPERAND_F64) {
+                uint64_t bits;
+                _Static_assert(sizeof(bits)==sizeof(in->operands[0].f64), "I require binary64 operand storage.");
+                memcpy(&bits,&in->operands[0].f64,sizeof(bits));
+                printf(",\"f64_bits\":\"%016" PRIx64 "\"",bits);
+            }
             if(in->opcode==OP_BORROW_PATH_SHARED || in->opcode==OP_BORROW_PATH_EXCLUSIVE) {
                 uint16_t path[NVM_OWNERSHIP_MAX_PATH_DEPTH],length=0;
                 if(!paths || nvm_ownership_path(m,in->operands[2].u32,path,NVM_OWNERSHIP_MAX_PATH_DEPTH,&length)!=NVM_V2_OK ||

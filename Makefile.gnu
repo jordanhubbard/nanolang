@@ -526,6 +526,18 @@ test-nanoisa: schema-check $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@./tests/nanoisa/test_nanoisa
 	@rm -f tests/nanoisa/test_nanoisa
 
+.PHONY: test-assembler-subnormal test-owned-float-reconstruction
+test-assembler-subnormal: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $(OBJ_DIR)/test_assembler_subnormal tests/nanoisa/test_assembler_subnormal.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	$(OBJ_DIR)/test_assembler_subnormal
+
+test-nanoisa: test-assembler-subnormal
+
+test-owned-float-reconstruction: nvm2hl nano_virt nano_vm nanoisa_dump nvm2c
+	python3 -m unittest -v tests.test_owned_float_reconstruction
+
+test-units: test-owned-float-reconstruction
+
 .PHONY: test-nvm2c
 .PHONY: test-verifier-cleanup
 test-verifier-cleanup: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
@@ -6929,7 +6941,7 @@ test-units: test-publication-allocation
 
 .PHONY: test-owned-reconstruction
 test-owned-reconstruction: nvm2hl nano_virt nano_vm nvm2c
-	python3 -m unittest -v tests.test_owned_reconstruction tests.test_owned_call_reconstruction tests.test_owned_branch_reconstruction tests.test_owned_loop_reconstruction tests.test_owned_void_reconstruction tests.test_owned_shared_reconstruction tests.test_owned_nested_reconstruction tests.test_owned_mixed_reconstruction tests.test_owned_observation_reconstruction tests.test_owned_wrapping_reconstruction tests.test_owned_exclusive_reconstruction tests.test_owned_extracted_reconstruction tests.test_owned_depth_three_reconstruction tests.test_owned_multi_reference_reconstruction tests.test_owned_nested_path_reconstruction tests.test_owned_shared_path_reconstruction tests.test_owned_call_pretest_reconstruction tests.test_owned_shared_control_reconstruction tests.test_owned_exclusive_control_reconstruction tests.test_owned_reassignment_reconstruction tests.test_owned_loop_exit_reconstruction tests.test_owned_string_reconstruction
+	python3 -m unittest -v tests.test_owned_reconstruction tests.test_owned_call_reconstruction tests.test_owned_branch_reconstruction tests.test_owned_loop_reconstruction tests.test_owned_void_reconstruction tests.test_owned_shared_reconstruction tests.test_owned_nested_reconstruction tests.test_owned_mixed_reconstruction tests.test_owned_observation_reconstruction tests.test_owned_wrapping_reconstruction tests.test_owned_exclusive_reconstruction tests.test_owned_extracted_reconstruction tests.test_owned_depth_three_reconstruction tests.test_owned_multi_reference_reconstruction tests.test_owned_nested_path_reconstruction tests.test_owned_shared_path_reconstruction tests.test_owned_call_pretest_reconstruction tests.test_owned_shared_control_reconstruction tests.test_owned_exclusive_control_reconstruction tests.test_owned_reassignment_reconstruction tests.test_owned_loop_exit_reconstruction tests.test_owned_string_reconstruction tests.test_owned_float_reconstruction
 test-units: test-owned-reconstruction
 
 .PHONY: test-record-array-tail-build
