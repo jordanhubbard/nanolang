@@ -598,6 +598,8 @@ static int64_t nlr_f64_to_bits(double value) {
             needed.discard('add')
         if getattr(self, 'inline_sub', False):
             needed.discard('sub')
+        if getattr(self, 'inline_mul', False):
+            needed.discard('mul')
         if 'bool_int' in needed:
             needed.remove('bool_int')
             if self.language != 'c':

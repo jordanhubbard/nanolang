@@ -1,0 +1,36 @@
+resource struct Leaf { value: int, enabled: bool }
+resource struct Pair { left: Leaf, right: Leaf }
+resource struct Tree { branch: Pair }
+fn read(first: &Leaf, second: &Leaf) -> int { assert second.enabled let low: int = (+ -9223372036854775807 -1) return (* low -1) }
+shadow read {
+ let one: Leaf = Leaf { value: 2, enabled: true }
+ let two: Leaf = Leaf { value: 7, enabled: true }
+ let pair: Pair = Pair { right: two, left: one }
+ let root: Tree = Tree { branch: pair }
+ assert (== (read &root.branch.left &root.branch.left) (+ -9223372036854775807 -1))
+ assert (== (read &root.branch.left &root.branch.right) (+ -9223372036854775807 -1))
+ assert (== (read &root.branch.right &root.branch.left) (+ -9223372036854775807 -1))
+ let Tree { branch } = root
+ let Pair { left, right } = branch
+ let Leaf { value, enabled } = left
+ assert (== value 2) assert enabled
+ let Leaf { value, enabled } = right
+ assert (== value 7) assert enabled
+}
+fn main() -> int {
+ let one: Leaf = Leaf { value: 2, enabled: true }
+ let two: Leaf = Leaf { value: 7, enabled: true }
+ let pair: Pair = Pair { right: two, left: one }
+ let root: Tree = Tree { branch: pair }
+ assert (== (read &root.branch.left &root.branch.left) (+ -9223372036854775807 -1))
+ assert (== (read &root.branch.left &root.branch.right) (+ -9223372036854775807 -1))
+ assert (== (read &root.branch.right &root.branch.left) (+ -9223372036854775807 -1))
+ let Tree { branch } = root
+ let Pair { left, right } = branch
+ let Leaf { value, enabled } = left
+ assert (== value 2) assert enabled
+ let Leaf { value, enabled } = right
+ assert (== value 7) assert enabled
+ return 0
+}
+shadow main { assert true }

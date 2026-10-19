@@ -1,0 +1,35 @@
+resource struct Leaf { value: int, enabled: bool }
+resource struct Other { value: int, enabled: bool, stamp: int }
+resource struct Pair { left: Leaf, right: Other }
+resource struct Tree { branch: Pair }
+fn read(first: &Leaf, second: &Other) -> int { assert second.enabled return (+ (* first.value 10) second.value) }
+shadow read {
+ let one: Leaf = Leaf { value: 2, enabled: true }
+ let two: Other = Other { value: 7, enabled: true, stamp: 41 }
+ let pair: Pair = Pair { right: two, left: one }
+ let root: Tree = Tree { branch: pair }
+ assert (== (read &root.branch.left &root.branch.right) 27)
+ let Tree { branch } = root
+ let Pair { left, right } = branch
+ let Leaf { value, enabled } = left
+ assert (== value 2) assert enabled
+ let Other { value, enabled, stamp } = right
+ assert (== stamp 41)
+ assert (== value 7) assert enabled
+}
+fn main() -> int {
+ let one: Leaf = Leaf { value: 2, enabled: true }
+ let two: Other = Other { value: 7, enabled: true, stamp: 41 }
+ let pair: Pair = Pair { right: two, left: one }
+ let root: Tree = Tree { branch: pair }
+ assert (== (read &root.branch.left &root.branch.right) 27)
+ let Tree { branch } = root
+ let Pair { left, right } = branch
+ let Leaf { value, enabled } = left
+ assert (== value 2) assert enabled
+ let Other { value, enabled, stamp } = right
+ assert (== stamp 41)
+ assert (== value 7) assert enabled
+ return 0
+}
+shadow main { assert true }

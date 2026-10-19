@@ -1,0 +1,24 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-8h0m2_1k
+test_actual_path_call_pretest_refuses_atomically (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_actual_path_call_pretest_refuses_atomically) ... ok
+test_adjacent_assertion_folding_is_narrow_and_cloned (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_adjacent_assertion_folding_is_narrow_and_cloned) ... ok
+test_defensive_path_identity_overlap_and_scope_refusals (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_defensive_path_identity_overlap_and_scope_refusals) ... ok
+test_false_first_tree_witness_refuses_both_outputs (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_false_first_tree_witness_refuses_both_outputs) ... ok
+test_full_tree_shadow_near_boundary_is_measured (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_full_tree_shadow_near_boundary_is_measured) ... ok
+test_later_false_projected_shared_flag_keeps_runtime_assertion (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_later_false_projected_shared_flag_keeps_runtime_assertion) ... ok
+test_original_anchor_and_selected_shadow_local_measurement (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_original_anchor_and_selected_shadow_local_measurement) ... I measure nested-path storage {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "original_locals": [37, 3], "estimated_locals": [127, 31], "estimated_shadow_locals": 108}
+I measure nested-path storage {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "original_locals": [37, 3], "estimated_locals": [127, 31], "estimated_shadow_locals": 108}
+ok
+test_original_verifier_rejects_path_operand_corruption (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_original_verifier_rejects_path_operand_corruption) ... ok
+test_projected_calls_in_both_caller_branch_arms (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_projected_calls_in_both_caller_branch_arms) ... ok
+test_selected_full_tree_shadows_native (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_selected_full_tree_shadows_native) ... ok
+test_shared_path_pretests_retain_zero_and_final_false_reads (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_shared_path_pretests_retain_zero_and_final_false_reads) ... ok
+test_unchanged_anchor_native_and_paired_roundtrips (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_unchanged_anchor_native_and_paired_roundtrips) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-qm_lt6k5
+test_original_anchor_generated_loop_and_exact_storage (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_original_anchor_generated_loop_and_exact_storage) ... I measure shared-path storage {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "original_locals": [25, 2], "estimated_locals": [83, 39], "estimated_shadow_locals": 74}
+I measure shared-path storage {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "original_locals": [25, 2], "estimated_locals": [83, 39], "estimated_shadow_locals": 74}
+ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 66.296s
+
+OK

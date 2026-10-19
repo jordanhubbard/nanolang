@@ -1,0 +1,57 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-sz84f0dr
+test_defensive_modes_paths_fields_and_inline_placement (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_defensive_modes_paths_fields_and_inline_placement) ... ok
+test_distinct_nominal_endpoints_and_unequal_leaf_fields (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_distinct_nominal_endpoints_and_unequal_leaf_fields) ... ok
+test_either_shared_parameter_supplies_assertion_provenance (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_either_shared_parameter_supplies_assertion_provenance) ... ok
+test_false_first_and_later_shared_assertions (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_false_first_and_later_shared_assertions) ... ok
+test_generated_whole_tree_shadow_native (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_generated_whole_tree_shadow_native) ... ok
+test_original_anchor_generated_loop_and_exact_storage (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_original_anchor_generated_loop_and_exact_storage) ... I measure shared-path storage {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "original_locals": [25, 2], "estimated_locals": [83, 39], "estimated_shadow_locals": 74}
+I measure shared-path storage {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "original_locals": [25, 2], "estimated_locals": [83, 39], "estimated_shadow_locals": 74}
+ok
+test_original_verifier_rejects_reference_corruption (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_original_verifier_rejects_reference_corruption) ... ok
+test_repeated_mul_generated_local_boundary (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_repeated_mul_generated_local_boundary) ... FAIL
+test_total_mul_endpoints_preserve_original_results (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_total_mul_endpoints_preserve_original_results) ... FAIL
+test_unchanged_alias_and_swapped_paths_native_roundtrips (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_unchanged_alias_and_swapped_paths_native_roundtrips) ... ok
+test_v2_exclusive_outputs_remain_byte_identical (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_v2_exclusive_outputs_remain_byte_identical) ... ok
+
+======================================================================
+FAIL: test_repeated_mul_generated_local_boundary (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_repeated_mul_generated_local_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_shared_path_reconstruction.py", line 129, in test_repeated_mul_generated_local_boundary
+    self.assertEqual(costs[1],11+29*count)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 127
+
+======================================================================
+FAIL: test_total_mul_endpoints_preserve_original_results (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_total_mul_endpoints_preserve_original_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_shared_path_reconstruction.py", line 95, in test_total_mul_endpoints_preserve_original_results
+    self.qualify(self.module(compiler,text,name))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_shared_path_reconstruction.py", line 34, in qualify
+    return path_support.OwnedNestedPathReconstruction.qualify(self,module)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_nested_path_reconstruction.py", line 84, in qualify
+    if language=='c':self.native(output,0)
+                     ~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 51, in native
+    self.command([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC','cc')),'-std=c11',opt,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        source,ROOT/'bin/nano_aot_runtime.o','-lm',*native_link_flags(),'-o',binary],build=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-sz84f0dr/min-negative-one-nano_virt.c:147:42: error: unused parameter 'nlr_a0' [-Werror,-Wunused-parameter]
+  147 | int64_t nlr_f1_owned_1(const NlrOwned0 * nlr_a0, const NlrOwned0 * nlr_a1) {
+      |                                          ^
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 11 tests in 56.010s
+
+FAILED (failures=2)
