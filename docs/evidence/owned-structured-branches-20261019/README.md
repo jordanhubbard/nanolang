@@ -35,3 +35,7 @@ I do not claim loops, general owner phi, borrow escape, broader resource layouts
 All 14 focused tests pass in 132.501 seconds. The two final supplemental staged-owner/crossing controls were added during that run and pass in the separately executed `join-state-final.log`; the remaining tests were unchanged. `branch-command-receipt.json` retains all 520 commands from the final nine-fixture branch run, including outcomes/stdout/stderr; `branch-artifact-hashes.json` pins its generated source and modules. `join-state-command-receipt.json` retains the final supplementary run. Independent production review found no remaining blocker after the region-end variable collision was corrected before qualification.
 
 I remove only extra trailing blank lines from tracked dump logs for repository whitespace checks; raw probe outputs remain in `/private/tmp/nanolang-owned-branches-20261019`.
+
+## I qualify fresh integrated generations
+
+After integration at ac9843515 I rebuild nvm2hl and pass all 14 owned local/call/branch methods in 104.147 seconds with `NANOLANG_OWNED_RECONSTRUCTION_COMPILERS` selecting the fresh 5bb06c298 Stage1 and Stage2 native products (the tests also exercise NanoVirt). I retain aggregate-fresh-generations.log and aggregate-providers.json. This does not close broader owned loops or full #999, and it is Darwin evidence rather than final platform qualification.
