@@ -47,3 +47,14 @@ I recommend reviewing the finite family map first, then the single-shared-path/h
 The table above is my historical 9b8667ae9 inventory. Subsequent combined 282d7a9f1 qualification completes the bounded shared-control and call-pretest rows locally; the exclusive-control aggregate passes sixteen methods, and consumed-owner reassignment now passes fifteen aggregate methods through NanoVirt and both fresh stages. I retain `evidence/checked-field-write-bootstrap-20261019/`, `evidence/owned-exclusive-control-aggregate-20261019/` and `evidence/owned-reassignment-aggregate-20261019/`. This supersedes those specific implementation gaps, while keeping exact platform qualification separate. The break/continue/range part of the combined row, STRING/printing, FLOAT local control and other unresolved producer-family mappings still require their own explicit dispositions. I do not treat those remaining rows as completed by reassignment.
 
 The later structured loop-exit aggregate now passes nineteen methods through NanoVirt and both fresh282d stages, including the unchanged break/continue/range anchors and old byte controls. I retain `evidence/owned-loop-exits-aggregate-20261019/`. This completes that bounded part of the historical combined row locally; exact platform qualification remains separate. I clarify the next unchanged string-print demo has an INT resource field: its concrete missing reconstruction path is STRING parameter/literal forwarding and PRINT/PRINTLN alongside owner/VOID calls, not evidence that this demo requires STRING resource fields. FLOAT-local and helper-owned composition rows remain independently open.
+
+## Later STRING forwarding/output qualification
+
+The bounded immutable STRING parameter/literal and PRINT/PRINTLN slice now
+qualifies the unchanged nl_affine_resource_demo ordinary and independent
+original-shadow executables. The resource retains its INT field; this does not
+claim STRING resource fields or mutable STRING locals/results. The
+[aggregate receipt](evidence/owned-string-reconstruction-aggregate-20261019/README.md)
+records fourteen passing methods through seed and both installed stages. FLOAT
+locals and independently owned locals inside borrowed helpers remain separate
+required composition work; exact platform gates and full #999 stay open.
