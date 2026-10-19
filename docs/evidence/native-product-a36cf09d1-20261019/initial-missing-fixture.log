@@ -1,0 +1,56 @@
+test_compiler_bytecode_to_native_to_program (tests.test_one_ir_compiler.OneIrCompiler.test_compiler_bytecode_to_native_to_program) ... FAIL
+
+======================================================================
+FAIL: test_compiler_bytecode_to_native_to_program (tests.test_one_ir_compiler.OneIrCompiler.test_compiler_bytecode_to_native_to_program)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-oneir-a36cf09d1/tests/test_one_ir_compiler.py", line 359, in test_compiler_bytecode_to_native_to_program
+    self.run_checked([sys.executable, "-m", "unittest", "tests.test_selfhost_captures",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "tests.test_native_mutable_record_arrays", "tests.test_genenv_scope"],
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     timeout=180, extra_env={**helper_env, "NANOLANG_SELFHOST_COMPILER": str(compiler)})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-oneir-a36cf09d1/tests/test_one_ir_compiler.py", line 144, in run_checked
+    self.assertEqual(result.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"I failed {args[0]}\n" + (result.stdout + result.stderr).decode(errors="replace")[-6000:])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I failed /Users/jkh/.local/bin/python3
+......FF.....
+======================================================================
+FAIL: test_unchanged_returned_closure_chain (tests.test_selfhost_captures.SelfhostCaptures.test_unchanged_returned_closure_chain) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-oneir-a36cf09d1/tests/test_selfhost_captures.py", line 26, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-oneir-a36cf09d1/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : error: cannot read '/private/tmp/nanolang-oneir-a36cf09d1/docs/evidence/captured-closure-baseline-20261008/capture.nano'
+
+
+======================================================================
+FAIL: test_unchanged_returned_closure_chain (tests.test_selfhost_captures.SelfhostCaptures.test_unchanged_returned_closure_chain) (producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-oneir-a36cf09d1/tests/test_selfhost_captures.py", line 26, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-oneir-a36cf09d1/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Input file not found: /private/tmp/nanolang-oneir-a36cf09d1/docs/evidence/captured-closure-baseline-20261008/capture.nano
+
+
+----------------------------------------------------------------------
+Ran 12 tests in 17.469s
+
+FAILED (failures=2)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 103.836s
+
+FAILED (failures=1)

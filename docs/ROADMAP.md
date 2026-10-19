@@ -15713,3 +15713,5 @@ I pass the complete scoped lifetime sequence with a fresh consistent Homebrew Cl
 ### Combined nested STRING and dispatch checkpoint (#976/#1001)
 
 - [ ] I wire the nested STRING consumer into exact compiler-contracts qualification and run a fresh combined raw bootstrap after byte-field, nested STRING and measured dispatch integration. I retain the older full native self-rebuild and sanitizer diagnostic as separately pinned runs.
+
+I pass all17 combined bootstrap steps at5bb06c298; raw Stage1/Stage2 SHA256182fc72f24eb304f543f0208d8c2208dcc51453dfd72cac7d34fe7c2541a4a08 matches, and the native compiler works with its C seed removed. I then pass32 three-producer byte-field/nested-array source methods in68.040s. I retain [exact bootstrap and source evidence](evidence/combined-bootstrap-5bb06c298-20261019/README.md). Separately I pass the pinned a36cf09d1 native full compiler self-rebuild in1052.879s, retaining its missing-fixture first terminal and [provider-pinned success](evidence/native-product-a36cf09d1-20261019/README.md). These results do not close the sanitizer/Linux/platform or broader release requirements.
