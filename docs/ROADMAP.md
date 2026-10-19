@@ -15464,3 +15464,9 @@ I retain [my native identity prerequisite evidence](evidence/native-record-ident
 - [x] I include my public record-array route in the managed-runtime matrix, and all three fresh artifact producers in affine completion metadata qualification.
 - [x] I run native process/deadline controls with my OneIR compiler corpus; all six process/trace controls pass locally in 5.327 seconds. Ruby YAML parsing validates the workflow; the default Python lacks PyYAML locally.
 - [ ] I require a fresh combined bootstrap and exact-head Linux/Darwin qualification after integration; component receipts do not replace these gates.
+
+- [x] #1001: I lower bounded ordinary AGG_SET only after canonical identity qualification. I constrain the receiver and replacement to the proved field shape, evaluate both operands once, mutate canonical vectors and return the same identity. I require public VM/native local/global/call aliases, retained old GET values, nested replacement, failure prefixes and actual collection before removing the existing public refusal. Broader source publication and generic layouts remain separate.
+
+Under #1001 my first mutation qualification exposed classifier-only shape lookup used during emission and a boxed global-array constructor representation gap. I retain those failures and qualify exact payload extraction before publishing canonical fields. The expanded allocation-prefix batch then exceeded the existing 120-second command bound; I split every unchanged tag/fixture prefix corpus into separately bounded invocations rather than dropping failure positions.
+
+I retain [my bounded field replacement evidence](evidence/public-record-field-mutation-20261018/README.md): the complete public gate passes in 216.359 seconds, including 23,170 injected VM execution allocation prefixes and 64 native executions. I preserve the two test-wrapper failures and their corrections; fresh combined and hosted qualification remain open.

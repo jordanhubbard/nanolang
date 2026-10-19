@@ -140,6 +140,115 @@ static void exercise_flow(uint8_t tag,const char *directory) {
     }
 }
 
+static void sized_array(Input *c,uint8_t tag,unsigned length) {
+    array(c,tag);
+    for(unsigned i=0;i<length;i++){scalar(c,tag);op(c,OP_ARR_PUSH);}
+}
+static void length_is(Input *c,unsigned expected) {
+    op(c,OP_ARR_LEN);integer(c,expected);op(c,OP_EQ);op(c,OP_ASSERT);
+}
+static void global_nested_length(Input *c,unsigned expected) {
+    arg32(c,OP_LOAD_GLOBAL,1);arg16(c,OP_AGG_GET,0);arg16(c,OP_AGG_GET,0);length_is(c,expected);
+}
+static void local_inner_length(Input *c,unsigned slot,unsigned expected) {
+    arg16(c,OP_LOAD_LOCAL,(uint16_t)slot);arg16(c,OP_AGG_GET,0);length_is(c,expected);
+}
+static void public_mutation(Input *c,uint8_t tag,unsigned fail_at) {
+    init(c,tag,false);c->fn[0].local_count=4;
+    /* I keep the old inner identity and its old GET array after replacements. */
+    arg32(c,OP_LOAD_GLOBAL,1);arg16(c,OP_AGG_GET,0);arg16(c,OP_STORE_LOCAL,0);
+    arg16(c,OP_LOAD_LOCAL,0);arg16(c,OP_AGG_GET,0);arg16(c,OP_STORE_LOCAL,1);
+    /* I also construct a record directly from the boxed global ARRAY. */
+    arg32(c,OP_LOAD_GLOBAL,0);aggregate(c,1);arg16(c,OP_STORE_LOCAL,3);
+    /* The ARRAY replacement arrives through global boxed storage. */
+    arg16(c,OP_LOAD_LOCAL,0);arg32(c,OP_LOAD_GLOBAL,0);arg32(c,OP_CALL,1);op(c,OP_POP);
+    local_inner_length(c,0,2);global_nested_length(c,2);
+    arg16(c,OP_LOAD_LOCAL,1);length_is(c,1);
+    if(fail_at==1)fail_assertion(c);
+    arg16(c,OP_LOAD_LOCAL,1);scalar(c,tag);op(c,OP_ARR_PUSH);op(c,OP_POP);
+    arg32(c,OP_LOAD_GLOBAL,0);scalar(c,tag);op(c,OP_ARR_PUSH);op(c,OP_POP);
+    arg16(c,OP_LOAD_LOCAL,1);length_is(c,2);global_nested_length(c,3);
+    /* I replace the outer record field through a global receiver while
+     * retaining both the previous inner record and the new inner alias. */
+    arg32(c,OP_LOAD_GLOBAL,1);sized_array(c,tag,4);aggregate(c,1);
+    op(c,OP_DUP);arg16(c,OP_STORE_LOCAL,2);arg16(c,OP_AGG_SET,0);op(c,OP_POP);
+    global_nested_length(c,4);local_inner_length(c,0,3);
+    if(fail_at==2)fail_assertion(c);
+    arg16(c,OP_LOAD_LOCAL,0);sized_array(c,tag,5);arg32(c,OP_CALL,1);op(c,OP_POP);
+    local_inner_length(c,0,5);global_nested_length(c,4);
+    arg16(c,OP_LOAD_LOCAL,2);sized_array(c,tag,6);arg16(c,OP_AGG_SET,0);op(c,OP_POP);
+    global_nested_length(c,6);local_inner_length(c,0,5);
+    arg16(c,OP_LOAD_LOCAL,0);arg32(c,OP_LOAD_GLOBAL,0);arg16(c,OP_AGG_SET,0);op(c,OP_POP);
+    local_inner_length(c,0,3);global_nested_length(c,6);
+    arg16(c,OP_LOAD_LOCAL,3);sized_array(c,tag,7);arg16(c,OP_AGG_SET,0);op(c,OP_POP);
+    local_inner_length(c,3,7);arg32(c,OP_LOAD_GLOBAL,0);length_is(c,3);
+    arg16(c,OP_LOAD_LOCAL,1);length_is(c,2);
+    if(fail_at==3)fail_assertion(c);
+    finish(c);c->m.function_count=3;
+    c->fn[1].name_idx=2;c->fn[1].code_offset=(uint32_t)c->n;
+    c->fn[1].local_count=c->fn[1].arity=2;c->fn[1].result_count=1;c->fn[1].result_tag=TAG_STRUCT;
+    c->params[0]=TAG_STRUCT;c->params[1]=TAG_ARRAY;c->param_rows[1]=c->params;c->m.function_param_types=c->param_rows;
+    arg16(c,OP_LOAD_LOCAL,0);arg16(c,OP_LOAD_LOCAL,1);arg16(c,OP_AGG_SET,0);op(c,OP_RET);
+    c->fn[1].code_length=(uint32_t)c->n-c->fn[1].code_offset;
+    c->fn[2].name_idx=3;c->fn[2].code_offset=(uint32_t)c->n;
+    c->fn[2].result_count=1;c->fn[2].result_tag=TAG_INT;
+    sized_array(c,tag,2);arg32(c,OP_STORE_GLOBAL,0);
+    sized_array(c,tag,1);aggregate(c,1);aggregate(c,0);arg32(c,OP_STORE_GLOBAL,1);
+    integer(c,0);op(c,OP_RET);c->fn[2].code_length=(uint32_t)c->n-c->fn[2].code_offset;
+    authority(c);
+    /* I retain exact inner-record identities at the direct helper boundary. */
+    size_t helper=16+12+8*c->fn[0].local_count;
+    size_t at=helper+8;b32(c->ownership,&at,1);
+    at=helper+16;b32(c->ownership,&at,1);
+    c->layouts[12]=TAG_STRUCT;at=16;b32(c->layouts,&at,1);
+    at=c->o-44;b32(c->ownership,&at,28);
+    at=c->o-28;b32(c->ownership,&at,1);
+    memmove(c->ownership+c->o-24,c->ownership+c->o-12,12);
+    c->o-=12;c->m.ownership_size=(uint32_t)c->o;
+}
+static void exercise_mutation(uint8_t tag,const char *directory) {
+    Input c;public_mutation(&c,tag,0);
+    NvmVerifyResult valid=nvm_verify(&c.m);
+    if(!valid.ok)fprintf(stderr,"I failed mutation verification: %s\n",valid.error_msg);
+    CHECK(valid.ok);execute(&c.m);assembly_roundtrip(&c.m);
+    NvmV2Module wire;CHECK(nvm_v2_from_nvm_module(&c.m,&wire)==NVM_V2_OK);
+    size_t size=0;CHECK(nvm_v2_module_serialize(&wire,NULL,0,&size)==NVM_V2_OK);
+    uint8_t *bytes=malloc(size);CHECK(bytes);
+    CHECK(nvm_v2_module_serialize(&wire,bytes,size,NULL)==NVM_V2_OK);
+    NvmV2Module decoded;CHECK(nvm_v2_module_deserialize(bytes,size,&decoded)==NVM_V2_OK);
+    NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);
+    execute(copy);nvm_module_free(copy);nvm_v2_module_free(&decoded);nvm_v2_module_free(&wire);free(bytes);
+    char error[256];char *source=nvm2c_emit(&c.m,error,sizeof error);
+    if(!source)fprintf(stderr,"I failed mutation native translation: %s\n",error);
+    CHECK(source);char path[1024];snprintf(path,sizeof path,"%s/mutation-%u.c",directory,tag);
+    FILE *file=fopen(path,"w");CHECK(file);
+    CHECK(fputs("#define main fixture_main\n",file)>=0);CHECK(fputs(source,file)>=0);
+    const char *array_owners=tag==TAG_STRING ? "nsarr_owners" : "narr_owners";
+    CHECK(fprintf(file,"\n#undef main\nint main(void) { nmap_collection_budget=1; (void)nl___init__(); int result=(int)nl_main(); nmap_collect(); if(!nrec_owned_head || !%s) abort(); memset(nglobal,0,sizeof nglobal); nmap_collect(); if(nrec_owned_head || %s || nagg_live_bytes) abort(); return result; }\n",array_owners,array_owners)>=0);
+    CHECK(!fclose(file));free(source);
+    for(unsigned prefix=1;prefix<=3;prefix++) {
+        public_mutation(&c,tag,prefix);CHECK(nvm_verify(&c.m).ok);
+        VmState vm;vm_init(&vm,&c.m);CHECK(vm_execute(&vm)==VM_ERR_ASSERT_FAILED);
+        CHECK(vm.stack_size==0 && vm.frame_count==0 && vm.global_count==2);
+        vm_destroy(&vm);CHECK(vm.heap.stats.num_objects==0);
+        source=nvm2c_emit(&c.m,error,sizeof error);
+        if(!source)fprintf(stderr,"I failed mutation prefix translation: %s\n",error);
+        CHECK(source);snprintf(path,sizeof path,"%s/failure-mutation-%u-%u.c",directory,tag,prefix);
+        file=fopen(path,"w");CHECK(file);CHECK(fputs(source,file)>=0);CHECK(!fclose(file));free(source);
+    }
+    /* I reject an out-of-bounds field before any public execution begins. */
+    public_mutation(&c,tag,0);size_t pc=0;
+    while(pc<c.fn[0].code_length) {
+        DecodedInstruction instruction;uint32_t width=isa_decode(c.code+pc,(uint32_t)(c.n-pc),&instruction);
+        CHECK(width);if(instruction.opcode==OP_AGG_SET)break;pc+=width;
+    }
+    CHECK(pc<c.fn[0].code_length);CHECK(c.code[pc+1]==0 && c.code[pc+2]==0);
+    c.code[pc+1]=1;CHECK(!nvm_verify(&c.m).ok);CHECK(!nvm2c_emit(&c.m,error,sizeof error));
+    VmState refused;vm_init(&refused,&c.m);CHECK(vm_execute(&refused)!=VM_OK);
+    CHECK(refused.stack_size==0 && refused.frame_count==0 && refused.global_count==0);
+    vm_destroy(&refused);CHECK(refused.heap.stats.num_objects==0);
+}
+
 static void uninitialized_branch(const char *directory) {
     Input c;init(&c,TAG_INT,false);
     array(&c,TAG_INT);integer(&c,7);op(&c,OP_ARR_PUSH);arg16(&c,OP_STORE_LOCAL,0);
@@ -161,8 +270,9 @@ static void uninitialized_branch(const char *directory) {
 }
 
 #ifdef RA_PUBLIC_ALLOCATIONS
-static void public_allocation_prefixes(uint8_t tag) {
-    Input c;public_flow(&c,tag,0);
+static void public_allocation_prefixes(uint8_t tag,bool mutation) {
+    Input c;
+    if(mutation)public_mutation(&c,tag,0);else public_flow(&c,tag,0);
     CHECK(ra_live==0 && ra_bytes==0);
     VmState vm;vm_init(&vm,&c.m);
     ra_calls=0;CHECK(vm_execute(&vm)==VM_OK);size_t total=ra_calls;
@@ -191,16 +301,23 @@ static void public_allocation_prefixes(uint8_t tag) {
             CHECK(ra_live==0 && ra_bytes==0);
         }
     }
-    printf("I checked %zu transient and persistent public allocation prefixes for tag %u.\n",total,tag);
+    printf("I checked %zu transient and persistent public %sallocation prefixes for tag %u.\n",total,mutation ? "mutation " : "",tag);
 }
 #endif
 
 int main(int argc,char **argv) {
+#ifdef RA_PUBLIC_ALLOCATIONS
+    CHECK(argc==4);
+    CHECK(!strcmp(argv[2],"flow") || !strcmp(argv[2],"mutation"));
+    CHECK(argv[3][0]>='1' && argv[3][0]<='5' && argv[3][1]=='\0');
+    uint8_t selected_tag=(uint8_t)(argv[3][0]-'0');
+    CHECK(selected_tag>=TAG_INT && selected_tag<=TAG_STRING);
+    public_allocation_prefixes(selected_tag,!strcmp(argv[2],"mutation"));
+    printf("PASS %u public record-array allocation checks\n",checks);
+    return 0;
+#endif
     CHECK(argc==2);
     for(uint8_t tag=TAG_INT;tag<=TAG_STRING;tag++) {
-#ifdef RA_PUBLIC_ALLOCATIONS
-        public_allocation_prefixes(tag);
-#endif
         Input c;public_basic(&c,tag,false);
         NvmRecordArrayExecutionPlan *plan=NULL;
         NvmArrayEligibilityResult admission=nvm_record_array_admit(&c.m,&plan);
@@ -271,9 +388,11 @@ int main(int argc,char **argv) {
         CHECK(!nvm_verify(&c.m).ok);CHECK(!nvm2c_emit(&c.m,error,sizeof error));
         VmState refused;vm_init(&refused,&c.m);CHECK(vm_execute(&refused)!=VM_OK);vm_destroy(&refused);
         public_basic(&c,tag,true);CHECK(!nvm_verify(&c.m).ok);
+        /* I still refuse the separate legacy STRUCT_LITERAL opcode. */
         basic(&c,tag,false);CHECK(!nvm_verify(&c.m).ok);
     }
     for(uint8_t tag=TAG_INT;tag<=TAG_STRING;tag++)exercise_flow(tag,argv[1]);
+    for(uint8_t tag=TAG_INT;tag<=TAG_STRING;tag++)exercise_mutation(tag,argv[1]);
     uninitialized_branch(argv[1]);
     printf("PASS %u public record-array checks\n",checks);return 0;
 }

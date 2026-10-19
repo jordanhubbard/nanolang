@@ -1,7 +1,9 @@
 """I exercise shared array-field authority through actual public consumers."""
 import os
+import re
 from pathlib import Path
 import shlex
+import signal
 import subprocess
 import tempfile
 import unittest
@@ -14,12 +16,12 @@ class RecordArrayPublic(unittest.TestCase):
     def test_public_vm_bridge_and_sanitized_native(self):
         artifacts = Path(tempfile.mkdtemp(prefix='nano-record-array-public-'))
         print(f'I retain public-route evidence at {artifacts}', flush=True)
-        def run(name, command, build=False):
+        def run(name, command, build=False, expected=0):
             result = subprocess.run(command, cwd=ROOT, capture_output=True,
                                     timeout=int(os.environ.get('CMD_TIMEOUT', '1800')) if build else 120)
             (artifacts / (name + '.stdout')).write_bytes(result.stdout)
             (artifacts / (name + '.stderr')).write_bytes(result.stderr)
-            self.assertEqual(result.returncode, 0, result.stdout.decode(errors='replace') + result.stderr.decode(errors='replace'))
+            self.assertEqual(result.returncode, expected, result.stdout.decode(errors='replace') + result.stderr.decode(errors='replace'))
             return result
         # I instrument the actual public VM and proof/transport providers,
         # keeping the ordinary ABI (no private-runtime compile definition).
@@ -62,13 +64,24 @@ class RecordArrayPublic(unittest.TestCase):
             *observed, *observed_common,
             *shlex.split(os.environ.get('RECORD_ARRAY_PUBLIC_LDFLAGS', '-lm')),
             '-o', str(observed_exe)], build=True)
-        observed_output = run('public-allocation-prefixes', [str(observed_exe), str(artifacts)])
-        self.assertEqual(observed_output.stdout.count(b'transient and persistent public allocation prefixes'), 5)
+        observed_stdout=b''
+        for fixture in ('flow','mutation'):
+            for tag in range(1,6):
+                observed=run(f'public-allocation-{fixture}-{tag}',
+                    [str(observed_exe),str(artifacts),fixture,str(tag)])
+                observed_stdout+=observed.stdout
+        (artifacts/'public-allocation-prefixes.stdout').write_bytes(observed_stdout)
+        self.assertEqual(observed_stdout.count(b'transient and persistent public allocation prefixes'),5)
+        self.assertEqual(observed_stdout.count(b'transient and persistent public mutation allocation prefixes'),5)
         receipt = run('public-api', [str(ROOT / 'bin/test_record_array_public'), str(artifacts)])
         self.assertIn(b'public record-array checks', receipt.stdout)
-        sources = sorted([*artifacts.glob('array-*.c'), *artifacts.glob('flow-*.c')])
-        self.assertEqual(len(sources), 10)
+        sources = sorted([*artifacts.glob('array-*.c'), *artifacts.glob('flow-*.c'),
+                          *artifacts.glob('mutation-*.c')])
+        self.assertEqual(len(sources), 15)
         sources.append(artifacts/'branch-uninitialized.c')
+        failures=sorted(artifacts.glob('failure-mutation-*.c'))
+        self.assertEqual(len(failures),15)
+        sources.extend(failures)
         cc = shlex.split(os.environ.get('RECORD_ARRAY_PUBLIC_CC', 'cc'))
         for source in sources:
             for optimization in ('-O0', '-O2'):
@@ -79,7 +92,16 @@ class RecordArrayPublic(unittest.TestCase):
                     str(ROOT / 'bin/nano_aot_runtime.o'), '-lm',
                     *shlex.split(os.environ.get('RECORD_ARRAY_PUBLIC_LDFLAGS', '')),
                     '-o', str(executable)], build=True)
-                run(name + '-execute', [str(executable)])
+                failed=source in failures
+                result=run(name + '-execute', [str(executable)], expected=-signal.SIGABRT if failed else 0)
+                if failed:
+                    generated=source.read_text()
+                    assertions=list(re.finditer(r't\[(\d+)\] = 0LL;\n\s*if \(!t\[\1\]\) NVM2C_ABORT\(\);',generated))
+                    self.assertEqual(len(assertions),1)
+                    line=generated.count('\n',0,assertions[0].end())+1
+                    self.assertIn(f'I stopped at a native invariant in nl_main at generated C line {line}.\n'.encode(),result.stderr)
+                    self.assertNotIn(b'ERROR: AddressSanitizer',result.stderr)
+                    self.assertNotIn(b'runtime error:',result.stderr)
 
         identity_source=artifacts/'canonical-identity.c'
         identity_source.write_text('#include <stdlib.h>\n#include <setjmp.h>\n'

@@ -1,0 +1,9 @@
+{
+  "base": "78e3a3e70",
+  "sha256": {
+    "src/nanoisa/nvm2c.c": "f29e54b5254692719143dd55a01935a5dc86b9ccd767fab835c0b27868384b68",
+    "src/nanoisa/record_array_admission.inc": "ff1e4656ab8936722b09b93cdde9c37d6cc44a01de030f2b21550c0c50670169",
+    "tests/nanoisa/test_record_array_public.c": "ae6a2cb879830d377a735e5b242c23f1e770d7531446fc90af9685af141623f0",
+    "tests/test_record_array_public.py": "4c7a8efe405b3789e37a3d5608a63a234ab219060baf2a1bbea28f4a5abf7279"
+  }
+}
