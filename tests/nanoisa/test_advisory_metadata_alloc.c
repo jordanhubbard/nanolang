@@ -67,6 +67,29 @@ int main(void) {
         if(succeeded)break;
     }
     assert(succeeded);
+    for (unsigned prior = 0; prior < 2; ++prior) {
+        succeeded = false;
+        for (unsigned attempt = 1; attempt < 128; ++attempt) {
+            m = nvm_module_new(); assert(m);
+            NvmFunctionEntry function = {0}; assert(nvm_add_function(m, &function) == 0);
+            if (prior) assert(nvm_add_match_coverage(m, 0, 1, 1, 0, 1, "before.nano"));
+            calls = 0; fail_at = attempt;
+            bool added = nvm_add_match_coverage(m, 0, 2, 3, 2, 1, "after.nano");
+            fail_at = 0; ++checks;
+            assert(nvm_metadata_valid(m));
+            NvmMatchCoverage view;
+            if (prior) assert(nvm_match_coverage_at(m, 0, &view) && view.coverage == 0);
+            if (added) succeeded = true;
+            else {
+                assert(m->metadata_count == prior);
+                assert(nvm_add_match_coverage(m, 0, 2, 3, 2, 1, "after.nano"));
+            }
+            assert(nvm_match_coverage_at(m, prior, &view) && view.coverage == 2);
+            nvm_module_free(m);
+            if (succeeded) break;
+        }
+        assert(succeeded);
+    }
     for(unsigned prior=0;prior<2;prior++) {
         succeeded=false;
         for(unsigned attempt=1;attempt<128;attempt++) {

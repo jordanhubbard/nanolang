@@ -930,6 +930,23 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return true;
         }
 
+        if (strcmp(directive, "match_coverage") == 0) {
+            uint32_t line, column, coverage, coordinates;
+            if (!state->in_function || !parse_uint32(&p, &line) || !parse_uint32(&p, &column) ||
+                !parse_uint32(&p, &coverage) || !parse_uint32(&p, &coordinates))
+                return par_error(result, "I require match line, column, coverage and coordinate provenance inside a function.");
+            size_t capacity = strlen(p) + 1;
+            char *path = malloc(capacity);
+            uint32_t length = 0;
+            bool valid = path && parse_quoted_string(&p, path, capacity, &length) &&
+                strlen(path) == length && require_line_end(p, result) &&
+                nvm_add_match_coverage(state->mod, state->current_function, line, column,
+                                      coverage, coordinates, path);
+            free(path);
+            if (!valid) return par_error(result, "I require an unambiguous match coverage record with a quoted source path.");
+            return true;
+        }
+
         if (strcmp(directive, "function_effects") == 0) {
             uint16_t effects;
             if (!state->in_function || !parse_uint16(&p, &effects) ||

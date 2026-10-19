@@ -1365,6 +1365,31 @@ static void test_enum_variant(void) {
     fprintf(stderr, " ok\n");
 }
 
+static void test_match_coverage_checker_retention(void) {
+    int count = 0;
+    Token *tokens = tokenize("fn main()->int { return match 1 { _ => 42 } }", &count);
+    ASSERT(tokens, "I tokenize my unchecked match fixture");
+    ASTNode *program = parse_program(tokens, count);
+    ASSERT(program, "I parse my unchecked match fixture");
+    ASTNode *matched = program->as.program.items[0]->as.function.body->as.block.statements[0]->as.return_stmt.value;
+    ASSERT(matched->type == AST_MATCH && matched->as.match_expr.checked_coverage == 0,
+           "I initialize raw parsed coverage to UNKNOWN");
+    Environment *env = create_environment();
+    CodegenResult generated = codegen_compile(program, env, NULL, "unchecked.nano");
+    ASSERT(generated.ok, generated.error_msg);
+    unsigned sites = 0;
+    for (uint32_t i = 0; i < generated.module->metadata_count; ++i) {
+        NvmMatchCoverage fact;
+        if (!nvm_match_coverage_at(generated.module, i, &fact)) continue;
+        ASSERT(fact.coverage == 1, "I retain the real expression check invoked by return lowering");
+        ++sites;
+    }
+    ASSERT(sites == 1 && matched->as.match_expr.checked_coverage == 1, "I retain the checked match site");
+    nvm_module_free(generated.module);
+    free_ast(program); free_environment(env); free_tokens(tokens, count);
+    TEST_PASS();
+}
+
 static void test_union_construct_match(void) {
     fprintf(stderr, "  test_union_construct_match...");
     TestResult tr = compile_and_run(
@@ -2232,6 +2257,7 @@ int main(void) {
     test_enum_variant();
 
     fprintf(stderr, "\nComplex Types - Unions/Match:\n");
+    test_match_coverage_checker_retention();
     test_union_construct_match();
     test_union_match_err_path();
 

@@ -296,6 +296,7 @@ extern struct ASTMatch {
     node_type: int,
     line: int,
     column: int,
+    checked_coverage: int,
     scrutinee: int,
     scrutinee_type: int,
     arm_variants: array<string>,

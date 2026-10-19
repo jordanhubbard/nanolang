@@ -296,6 +296,75 @@ bool nvm_add_function_effects(NvmModule *mod, uint32_t function, unsigned effect
     return data != UINT32_MAX && nvm_add_metadata(mod, key, data);
 }
 
+static const char match_key[] = "nano.match.v1";
+
+static bool match_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {
+    return mod->string_lengths[entry->key_idx] == sizeof match_key - 1 &&
+        memcmp(mod->strings[entry->key_idx], match_key, sizeof match_key - 1) == 0;
+}
+
+static bool match_record(const NvmModule *mod, const NvmMetadataEntry *entry,
+                         NvmMatchCoverage *out) {
+    uint32_t size = mod->string_lengths[entry->value_idx];
+    if (size < 20) return false;
+    const uint8_t *p = (const uint8_t *)mod->strings[entry->value_idx];
+    NvmMatchCoverage value = {le_read_u32(p), le_read_u32(p + 4), le_read_u32(p + 8),
+        p[12], p[13], (const char *)p + 20, le_read_u32(p + 16)};
+    if (value.function >= mod->function_count || !value.line || !value.column ||
+        value.coverage > 2 || value.coordinates < 1 || value.coordinates > 2 ||
+        p[14] || p[15] || value.source_path_length != size - 20 ||
+        memchr(value.source_path, 0, value.source_path_length)) return false;
+    *out = value;
+    return true;
+}
+
+static bool same_match(const NvmMatchCoverage *a, const NvmMatchCoverage *b) {
+    return a->function == b->function && a->line == b->line &&
+        a->column == b->column && a->coordinates == b->coordinates &&
+        a->source_path_length == b->source_path_length &&
+        !memcmp(a->source_path, b->source_path, a->source_path_length);
+}
+
+bool nvm_match_coverage_at(const NvmModule *mod, uint32_t index, NvmMatchCoverage *out) {
+    if (!out || !nvm_metadata_valid(mod) || index >= mod->metadata_count) return false;
+    NvmMatchCoverage selected;
+    if (!match_entry(mod, &mod->metadata[index]) ||
+        !match_record(mod, &mod->metadata[index], &selected)) return false;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        if (i == index || !match_entry(mod, &mod->metadata[i])) continue;
+        NvmMatchCoverage other;
+        if (!match_record(mod, &mod->metadata[i], &other) || same_match(&selected, &other)) return false;
+    }
+    *out = selected;
+    return true;
+}
+
+bool nvm_add_match_coverage(NvmModule *mod, uint32_t function, uint32_t line,
+    uint32_t column, unsigned coverage, unsigned coordinates, const char *source_path) {
+    if (!nvm_metadata_valid(mod) || function >= mod->function_count || !line || !column ||
+        coverage > 2 || coordinates < 1 || coordinates > 2 || !source_path) return false;
+    size_t length = strlen(source_path);
+    if (length > UINT32_MAX - 20) return false;
+    NvmMatchCoverage selected = {function, line, column, coverage, coordinates,
+        source_path, (uint32_t)length};
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        if (!match_entry(mod, &mod->metadata[i])) continue;
+        NvmMatchCoverage other;
+        if (!match_record(mod, &mod->metadata[i], &other)) return false;
+        if (same_match(&selected, &other)) return false;
+    }
+    uint8_t *data = calloc(1, 20 + length);
+    if (!data) return false;
+    le_write_u32(data, function); le_write_u32(data + 4, line); le_write_u32(data + 8, column);
+    data[12] = coverage; data[13] = coordinates;
+    le_write_u32(data + 16, (uint32_t)length);
+    memcpy(data + 20, source_path, length);
+    uint32_t key = nvm_add_string(mod, match_key, sizeof match_key - 1);
+    uint32_t value = key == UINT32_MAX ? UINT32_MAX : nvm_add_string(mod, (const char *)data, 20 + (uint32_t)length);
+    free(data);
+    return value != UINT32_MAX && nvm_add_metadata(mod, key, value);
+}
+
 static const char generic_key[] = "nano.generic.v1";
 
 static bool generic_metadata_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {

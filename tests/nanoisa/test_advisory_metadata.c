@@ -98,6 +98,62 @@ static void test_purity(void) {
         m = asm_assemble(invalid[i], &result); CHECK(!m);
     }
 }
+static void test_match_coverage(void) {
+    NvmMatchCoverage view = {.line = 123};
+    CHECK(!nvm_match_coverage_at(NULL, 0, &view) && view.line == 123);
+    CHECK(!nvm_add_match_coverage(NULL, 0, 1, 1, 1, 1, "a.nano"));
+    NvmModule *m = ordinary();
+    CHECK(!nvm_add_match_coverage(m, 0, 0, 1, 1, 1, "a.nano"));
+    CHECK(!nvm_add_match_coverage(m, 0, 1, 1, 3, 1, "a.nano"));
+    CHECK(!nvm_add_match_coverage(m, 0, 1, 1, 1, 0, "a.nano"));
+    CHECK(nvm_add_match_coverage(m, 0, 3, 7, 1, 1, "a.nano"));
+    CHECK(nvm_match_coverage_at(m, 0, &view));
+    CHECK(view.function == 0 && view.line == 3 && view.column == 7 && view.coverage == 1);
+    CHECK(view.coordinates == 1 && view.source_path_length == 6 && !memcmp(view.source_path, "a.nano", 6));
+    CHECK(!nvm_add_match_coverage(m, 0, 3, 7, 0, 1, "a.nano"));
+    CHECK(nvm_add_match_coverage(m, 0, 3, 8, 0, 1, "a.nano"));
+    CHECK(nvm_add_match_coverage(m, 0, 40, 7, 2, 2, ""));
+    CHECK(nvm_match_coverage_at(m, 1, &view) && view.coverage == 0);
+    CHECK(nvm_match_coverage_at(m, 2, &view) && view.coverage == 2);
+    NvmModule *b = copy(m); compare_wire(m, b);
+    char *text = disasm_module_styled(b, DISASM_STYLE_CANONICAL); CHECK(text);
+    AsmResult r; NvmModule *c = asm_assemble(text, &r); CHECK(c); compare_wire(b, c);
+    free(text); nvm_module_free(b); nvm_module_free(c);
+    CHECK(nvm_verify(m).ok);
+    uint32_t value = m->metadata[0].value_idx;
+    char *data = m->strings[value];
+    const unsigned offsets[] = {0, 4, 8, 12, 13, 14, 15, 16, 20};
+    for (unsigned i = 0; i < sizeof offsets / sizeof *offsets; ++i) {
+        unsigned offset = offsets[i]; char old = data[offset];
+        data[offset] = (offset == 4 || offset == 8 || offset == 13 || offset == 20) ? 0 : 127;
+        view.line = 123;
+        CHECK(!nvm_match_coverage_at(m, 0, &view) && view.line == 123);
+        CHECK(nvm_verify(m).ok); /* I do not make advisory validity execution authority. */
+        data[offset] = old;
+    }
+    uint32_t key = m->metadata[0].key_idx;
+    char *key_text = m->strings[key];
+    key_text[m->string_lengths[key]-1] = '2';
+    CHECK(!nvm_match_coverage_at(m, 0, &view));
+    CHECK(nvm_verify(m).ok);
+    key_text[m->string_lengths[key]-1] = '1';
+    uint32_t original_size = m->string_lengths[value];
+    m->string_lengths[value] = 19;
+    CHECK(!nvm_match_coverage_at(m, 0, &view));
+    m->string_lengths[value] = original_size;
+    CHECK(nvm_add_metadata(m, m->metadata[0].key_idx, value));
+    CHECK(!nvm_match_coverage_at(m, 0, &view));
+    nvm_module_free(m);
+    m = asm_assemble(".function main 0 0 0 int 1\n.match_coverage 3 7 2 2 \"a.nano\"\nPUSH_I64 42\nRET\n.end\n.entry main\n", &r);
+    CHECK(m && nvm_match_coverage_at(m, 0, &view) && view.coverage == 2);
+    nvm_module_free(m);
+    const char *bad[] = {"0 1 1 1 \"a\"", "1 1 3 1 \"a\"", "1 1 1 3 \"a\"", "1 1 1 1 \"a\" extra", "1 1 1 1 \"a\\0b\""};
+    for (unsigned i = 0; i < sizeof bad / sizeof *bad; ++i) {
+        char source[512]; snprintf(source, sizeof source, ".function main 0 0 0 int 1\n.match_coverage %s\nPUSH_I64 42\nRET\n.end\n", bad[i]);
+        m = asm_assemble(source, &r); CHECK(!m);
+    }
+}
+
 static void test_effects(void) {
     CHECK(nvm_function_effects(NULL, 0) == -1);
     CHECK(!nvm_add_function_effects(NULL, 0, 63));
@@ -231,6 +287,7 @@ static void test_generic_bindings(void) {
 int main(int argc, char **argv) {
     test_purity();
     test_effects();
+    test_match_coverage();
     test_generic_bindings();
     NvmModule *m = ordinary();
     uint32_t legacy_size; uint8_t *legacy = nvm_serialize(m, &legacy_size);

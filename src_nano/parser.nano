@@ -7244,6 +7244,7 @@ fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_var
         node_type: ParseNodeType.PNODE_MATCH,
         line: line,
         column: column,
+        checked_coverage: 0,
         scrutinee: scrutinee_id,
         scrutinee_type: scrutinee_type,
         arm_variants: arm_variants,
@@ -9454,6 +9455,31 @@ shadow parser_store_import {
     assert (== imp.module_name "fs")
 }
 
+# I retain coverage separately from the parsed scrutinee domain.
+pub fn parser_set_match_coverage(p: Parser, node_id: int, coverage: int) -> void {
+    let node: ASTMatch = (parser_get_match p node_id)
+    (list_ASTMatch_set p.matches node_id (ASTMatch {
+        node_type: node.node_type, line: node.line, column: node.column,
+        checked_coverage: coverage, scrutinee: node.scrutinee, scrutinee_type: node.scrutinee_type,
+        arm_variants: node.arm_variants, arm_bindings: node.arm_bindings,
+        arm_body_ids: node.arm_body_ids, arm_body_types: node.arm_body_types,
+        arm_guard_ids: node.arm_guard_ids, arm_guard_types: node.arm_guard_types,
+        arm_count: node.arm_count
+    }))
+}
+shadow parser_set_match_coverage {
+    let p: Parser = (parser_init_ast_lists)
+    let p2: Parser = (parser_store_match p 9 ParseNodeType.PNODE_IDENTIFIER [] [] [] [] [] [] 0 3 4)
+    (parser_set_match_coverage p2 0 1)
+    let covered: ASTMatch = (parser_get_match p2 0)
+    assert (== covered.checked_coverage 1)
+    assert (== covered.scrutinee 9)
+    assert (== covered.line 3)
+    (parser_set_match_coverage p2 0 0)
+    let reset: ASTMatch = (parser_get_match p2 0)
+    assert (== reset.checked_coverage 0)
+}
+
 shadow parser_store_match {
     let p: Parser = (parser_init_ast_lists)
     let variants: array<string> = []
@@ -9463,6 +9489,7 @@ shadow parser_store_match {
     let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types [] [] 0 1 1)
     let m: ASTMatch = (parser_get_match p2 0)
     assert (== m.arm_count 0)
+    assert (== m.checked_coverage 0)
 }
 
 shadow parser_store_opaque_type {

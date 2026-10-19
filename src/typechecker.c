@@ -1689,6 +1689,7 @@ static bool match_pattern_names_variant(const char *pattern, const char *variant
 static void check_match_totality(ASTNode *matched, Environment *env,
                                  const char *union_base_name,
                                  MatchDomain domain) {
+    matched->as.match_expr.checked_coverage = 0;
     bool has_unconditional_wildcard = false;
     int unconditional_wildcard = -1;
     for (int i = 0; i < matched->as.match_expr.arm_count; ++i) {
@@ -1726,10 +1727,14 @@ static void check_match_totality(ASTNode *matched, Environment *env,
             );
             if (active_statement_checker) active_statement_checker->has_error = true;
         }
+        if (has_unconditional_wildcard) matched->as.match_expr.checked_coverage = 1;
         return;
     }
 
-    if (has_unconditional_wildcard) return;
+    if (has_unconditional_wildcard) {
+        matched->as.match_expr.checked_coverage = 2;
+        return;
+    }
 
     UnionDef *union_def = union_base_name ? env_get_union(env, union_base_name) : NULL;
     if (!union_def) {
@@ -1798,6 +1803,7 @@ static void check_match_totality(ASTNode *matched, Environment *env,
         );
         if (active_statement_checker) active_statement_checker->has_error = true;
     }
+    if (!missing_count) matched->as.match_expr.checked_coverage = 2;
 }
 
 /* I borrow declared signatures; the parser/environment owns their storage. */
@@ -4890,6 +4896,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return expr->as.match_expr.result_type;
             expr->as.match_expr.checked_scrutinee_type = TYPE_UNKNOWN;
             expr->as.match_expr.scrutinee_type_checked = false;
+            expr->as.match_expr.checked_coverage = 0;
             /* Check the expression being matched */
             Type match_type = check_expression(expr->as.match_expr.expr, env);
             bool has_int_patterns_expr;
@@ -6435,6 +6442,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             */
             stmt->as.match_expr.checked_scrutinee_type = TYPE_UNKNOWN;
             stmt->as.match_expr.scrutinee_type_checked = false;
+            stmt->as.match_expr.checked_coverage = 0;
             Type match_type = check_expression(stmt->as.match_expr.expr, tc->env);
             bool has_int_patterns_stmt;
             bool has_variant_patterns_stmt;

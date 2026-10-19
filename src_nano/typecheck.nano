@@ -4582,7 +4582,8 @@ shadow check_union_construct {
  * Returns: NSType of the match arms (must all match)
  */
 # I check patterns against the actual domain, preserving conditional arm order.
-fn check_match_coverage(parser: Parser, matched: ASTMatch, actual: NSType, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+fn check_match_coverage(parser: Parser, matched: ASTMatch, actual: NSType, diags: List<CompilerDiagnostic>, file_name: string) -> int {
+    let before: int = (Diagnostics.diag_list_count diags)
     let is_int: bool = (== actual.kind TypeKind.TYPE_INT)
     let mut variants: array<string> = []
     let mut field_counts: array<int> = []
@@ -4639,22 +4640,27 @@ fn check_match_coverage(parser: Parser, matched: ASTMatch, actual: NSType, diags
     if (not total) {
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E035" "I require unconditional coverage of every match value" (Diagnostics.diag_location file_name matched.line matched.column)))
     }
+    if (or (not total) (!= before (Diagnostics.diag_list_count diags))) { return 0 }
+    if is_int { return 1 }
+    return 2
 }
+
 shadow check_match_coverage {
     let parser: Parser = (resource_test_parser "fn f() -> int { return match 1 { 1 if false => 2 _ if true => 3 } } fn g() -> int { return match 1 { 1 if true => 2 } } fn h() -> int { return match 1 { _ => 2 1 => 3 } }")
     let valid: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
-    (check_match_coverage parser (parser_get_match parser 0) (type_int) valid "coverage.nano")
+    assert (== (check_match_coverage parser (parser_get_match parser 0) (type_int) valid "coverage.nano") 1)
     assert (== (Diagnostics.diag_list_count valid) 0)
     let missing: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
-    (check_match_coverage parser (parser_get_match parser 1) (type_int) missing "coverage.nano")
+    assert (== (check_match_coverage parser (parser_get_match parser 1) (type_int) missing "coverage.nano") 0)
     assert (== (Diagnostics.diag_list_count missing) 1)
     let dead: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
-    (check_match_coverage parser (parser_get_match parser 2) (type_int) dead "coverage.nano")
+    assert (== (check_match_coverage parser (parser_get_match parser 2) (type_int) dead "coverage.nano") 0)
     assert (== (Diagnostics.diag_list_count dead) 1)
 }
 
 fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let m: ASTMatch = (parser_get_match parser node_id)
+    (parser_set_match_coverage parser node_id 0)
     
     /* Check scrutinee (expression being matched) */
     let scrutinee_type: NSType = (check_expr_node parser m.scrutinee m.scrutinee_type symbols diags file_name)
@@ -4664,7 +4670,7 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
         (Diagnostics.diag_list_add diags diag)
         return (type_unknown_named "match_error")
     }
-    (check_match_coverage parser m scrutinee_type diags file_name)
+    (parser_set_match_coverage parser node_id (check_match_coverage parser m scrutinee_type diags file_name))
 
     if (<= m.arm_count 0) {
         return (type_unknown_named "empty_match")
@@ -4742,6 +4748,8 @@ shadow check_match_expr {
     let actual: NSType = (check_match_expr parser 0 [] good "match.nano")
     assert (== actual.kind TypeKind.TYPE_INT)
     assert (== (Diagnostics.diag_list_count good) 0)
+    let checked: ASTMatch = (parser_get_match parser 0)
+    assert (== checked.checked_coverage 1)
     let bad: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let rejected: NSType = (check_match_expr parser 1 [] bad "match.nano")
     assert (== (Diagnostics.diag_list_count bad) 1)
@@ -4752,6 +4760,8 @@ shadow check_match_expr {
     assert (== result.kind TypeKind.TYPE_INT)
     assert (== (Diagnostics.diag_list_count clean) 0)
     assert (== (array_length symbols) 1)
+    let covered: ASTMatch = (parser_get_match named 0)
+    assert (== covered.checked_coverage 2)
 }
 
 fn check_variant_field_type(parser: Parser, variant_label: string, field_name: string, concrete: string) -> NSType {

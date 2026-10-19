@@ -144,3 +144,42 @@ forging them must not change accepted execution or generated native code.
 round trips, VM/native execution, and those negative controls. Set
 `NANOLANG_EFFECTS_COMPILERS` to colon-separated fresh producer paths to exercise
 both the C seed and self-hosted stages.
+
+## My checked match-site coverage
+
+I retain `nano.match.v1` only as an advisory checker result. My payload is
+little-endian: function index u32, line u32, column u32, coverage u8,
+coordinate provenance u8, two zero reserved bytes, source-path byte count
+u32, then the counted source-path bytes without a terminator or string-pool
+reference. A rewriter must remap function indices or discard these records.
+
+Coverage 0 is UNKNOWN, 1 is checked total integer coverage, and 2 is checked
+total named-union coverage. I initialize the parsed field to UNKNOWN and
+retain success only from my existing coverage checker. My known scrutinee
+domain is not a coverage proof. Unchecked case lowering retains UNKNOWN even when its
+separate defensive coverage/backstop checks succeed. My C return lowering may
+invoke the real expression checker before emitting a match, and I retain that
+checked result. Active generic instantiations remain UNKNOWN: I do not reuse a
+shared template fact as a demonstrated per-instance check. I do not serialize a
+claim that every function, arm body, guard type, or resource path is valid.
+
+Coordinate provenance 1 means original C-frontend source coordinates.
+Provenance 2 means positions in my self-hosted flattened parser input; the
+path identifies the owning source when available, but the line is **not** an
+original imported-file line. Empty paths explicitly mean unknown source.
+Lines and columns are positive. Missing records are UNKNOWN, never evidence
+that a function has no matches. Other producer families and unretained
+specializations may omit facts. I make no collection-completeness claim.
+
+I emit `.match_coverage line column coverage coordinates "source-path"` at
+actual match lowering. The assembler stores the corresponding ordinary
+metadata entry; canonical assembly transports the bytes through `.metadata`.
+I reject duplicate site identities when adding records. Lookup rejects any
+malformed known-version record and duplicate identity (function, path,
+coordinates, line, column), leaving its output unchanged. Unknown versions
+remain uninterpreted ordinary metadata.
+
+I do not feed these facts into verifier, runtime, ownership, or optimization
+admission. Stripping, forging, or duplicating them cannot make an invalid
+program valid. My checked affine-use requirement and broader frontend-fact
+requirement remain open under #998.

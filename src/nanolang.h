@@ -469,6 +469,7 @@ struct ASTNode {
             char *union_type_name;  /* Filled during typechecking */
             Type checked_scrutinee_type; /* Exact int/union domain accepted by typechecking. */
             bool scrutinee_type_checked;
+            unsigned char checked_coverage; /* 0 unknown, 1 total int, 2 total union. */
             Type result_type;       /* Checked arm value, independent of function return */
             bool result_type_checked;
         } match_expr;
