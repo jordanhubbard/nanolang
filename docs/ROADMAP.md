@@ -15921,3 +15921,5 @@ pass through the C-hosted builds. I preserve the existing imported-helper Nano
 refusal and do not broaden the executable profile. Fresh raw generations and
 exact platform qualification remain open under #998; I hand this bounded component
 to the aggregate coordinator rather than claiming the full issue complete.
+
+- I integrate checked call-borrow facts as `9efc6efe3`, preserving both ROADMAP sides during the append conflict. I wire ledger, actual Environment and paired metadata gates into compiler-contract qualification. Fresh raw generations at the new checked result/event record shapes are the next required gate; component C-hosted success is not that proof.

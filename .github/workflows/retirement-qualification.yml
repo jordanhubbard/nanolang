@@ -184,6 +184,7 @@ jobs:
           NANOLANG_EFFECT_CFLAGS: '-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer'
         run: |
           set -o pipefail
+          NANOLANG_BORROW_FACT_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
           NANOLANG_AFFINE_USE_NATIVE_COMPILER="$PWD/bin/nanoc_stage2" \
           NANOLANG_AFFINE_USE_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
           NANOLANG_AFFINE_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
@@ -194,6 +195,7 @@ jobs:
           make -f Makefile.gnu CC="${CC:-cc}" test-local-binding-producers \
             test-effect-binding-metadata test-function-purity-metadata test-function-effects-metadata test-match-coverage-metadata test-function-affine-metadata test-affine-use-metadata \
             test-generic-binding-metadata test-owned-effect-c-source test-selfhost-effects \
+            test-checked-borrow-ledger test-checked-borrow-environment test-checked-borrow-metadata \
             2>&1 | tee .test_output/retirement/metadata-effects.log
 
       - name: Qualify module-derived compiler products and reconstruction
