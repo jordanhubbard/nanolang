@@ -16031,3 +16031,5 @@ GCC/Clang checks, 24 reached write-allocation prefixes and actual Environment
 cleanup. No-write modules remain byte-identical. I retain the actual original
 normalizer refusal, reviewed correction and source/product pins. Fresh aggregate
 raw generations and exact Linux/Darwin qualification remain open under #998.
+
+- I integrate the qualified reference-call pretests, shared conditional helper and exclusive field-write components together, preserving both append-only roadmap histories. I wire both reconstruction suites into the regular target and require a fresh combined raw bootstrap, fixed-point check, three-producer metadata neighbors and reconstruction qualification before crediting aggregate success. Exact Linux/Darwin and full required-scope gates remain open.
