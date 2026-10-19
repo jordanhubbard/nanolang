@@ -15428,3 +15428,10 @@ I retain my first affine fixture failure: I combined an arbitrary external decla
 My corrected affine fixture passes its shadows, then exposes undeclared C names for lexer/parser helpers reached only through transitive imports. I import the helper-owning modules explicitly in the fixture, preserving all assertions and retaining the failed terminal. This does not claim a transitive native import implementation repair.
 
 I retain [my bounded affine completion evidence](evidence/affine-checker-completion-20261018.md): checked/raw resource producers, codec/allocation controls, five source methods, 15 metadata neighbors and strict local compiles pass. Fresh generations/platforms and full per-use/path facts remain open under #998.
+
+### Native compiler qualification budgets (#976, 2026-10-18)
+
+- [x] I separate explicit host C compilation budgets in my OneIR and capture-scope harnesses from unchanged guest deadlines, retaining process-group termination and reaping.
+- [x] I exercise positive/invalid budgets, unchanged guest deadlines and real descendant cleanup, then qualify my actual sanitized capture fixture; I retain hosted timeout evidence and require refreshed Linux CI separately.
+
+I retain the focused receipts in [native compile budget evidence](evidence/native-compile-budget-20261018.md). Refreshed integrated Linux/Darwin hosted qualification remains open under #976.

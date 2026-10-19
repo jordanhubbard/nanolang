@@ -3,11 +3,12 @@ import os
 import re
 from pathlib import Path
 import shutil
-import signal
 import subprocess
 import sys
 import tempfile
 import unittest
+
+from tests.native_process import run_captured
 
 ROOT = Path(__file__).resolve().parents[1]
 HOST_RUNTIME = [ROOT / "bin/nano_aot_runtime.o", "-lm",
@@ -67,7 +68,7 @@ class OneIrCompiler(unittest.TestCase):
                 self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                 self.run_checked([ROOT / "bin/nano_vm", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                 self.run_checked([binary])
 
     def test_incoming_main_record_shapes_execute(self):
@@ -108,27 +109,19 @@ class OneIrCompiler(unittest.TestCase):
                 assembly.write_text(assembly_text)
                 self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                 self.run_checked([binary])
 
-    def run_checked(self, args, timeout=180, extra_env=None):
+    def run_checked(self, args, timeout=180, extra_env=None, *, build=False):
         env = dict(os.environ, NANO_MODULE_PATH=str(ROOT / "modules"))
         env.update(extra_env or {})
-        process = subprocess.Popen([str(arg) for arg in args], cwd=ROOT, env=env,
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   start_new_session=True)
         try:
-            stdout, stderr = process.communicate(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            try:
-                os.killpg(process.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-            process.communicate(timeout=10)
-            self.fail(f"I exceeded {timeout}s running {args[0]}")
-        self.assertEqual(process.returncode, 0,
-                         f"I failed {args[0]}\n" + (stdout + stderr).decode(errors="replace")[-6000:])
-        return stdout
+            result = run_captured(args, cwd=ROOT, env=env, timeout=timeout, build=build)
+        except subprocess.TimeoutExpired as error:
+            self.fail(f"I exceeded {error.timeout}s running {args[0]}")
+        self.assertEqual(result.returncode, 0,
+                         f"I failed {args[0]}\n" + (result.stdout + result.stderr).decode(errors="replace")[-6000:])
+        return result.stdout
 
     def test_global_discovery_rebuilds_optional_boolean_join_facts(self):
         cc = shutil.which("cc")
@@ -152,7 +145,7 @@ class OneIrCompiler(unittest.TestCase):
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                 self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
                                   "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
-                                  source, "-o", binary])
+                                  source, "-o", binary], build=True)
                 self.run_checked([binary])
 
     def test_recursive_array_results_wait_for_tagged_element_storage(self):
@@ -189,7 +182,7 @@ class OneIrCompiler(unittest.TestCase):
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                 self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
                                   "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
-                                  source, "-o", binary])
+                                  source, "-o", binary], build=True)
                 self.run_checked([binary])
 
     def test_declared_empty_array_returns_reach_native(self):
@@ -214,7 +207,7 @@ class OneIrCompiler(unittest.TestCase):
                 )
                 self.run_checked([ROOT / "bin/nano_virt", source, "--emit-nvm", "-o", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", native_c])
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary], build=True)
                 self.run_checked([binary])
 
     def test_returned_native_values_release_owned_allocations(self):
@@ -298,7 +291,7 @@ static inline void tracked_free(void *p) {
                                   "return result; }\n")
                 self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-g",
                                   "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
-                                  "-fno-omit-frame-pointer", source, "-o", binary])
+                                  "-fno-omit-frame-pointer", source, "-o", binary], build=True)
                 result = subprocess.run([binary], env=environment, capture_output=True, timeout=30)
                 self.assertEqual(result.returncode, 0, (result.stdout + result.stderr).decode(errors="replace"))
 
@@ -322,7 +315,7 @@ static inline void tracked_free(void *p) {
                 # Both backends must accept both the canonical and legacy name.
                 self.run_checked([ROOT / "bin/nano_vm", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                 self.run_checked([binary])
 
     def test_compiler_bytecode_to_native_to_program(self):
@@ -337,7 +330,7 @@ static inline void tracked_free(void *p) {
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
             self.assert_no_vm_wrapper(source.read_text())
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
-                              source, "-o", compiler, *HOST_RUNTIME], timeout=240)
+                              source, "-o", compiler, *HOST_RUNTIME], build=True)
             help_output = self.run_checked([compiler, "--help"], timeout=10)
             self.assertIn(b"Compiler", help_output)
             self.run_checked([sys.executable, "-m", "unittest", "tests.test_selfhost_captures",
@@ -363,7 +356,7 @@ static inline void tracked_free(void *p) {
                              b"Hello from NanoLang!\n")
             self.run_checked([ROOT / "bin/nvm2c", hello_module, "-o", hello_c])
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
-                              hello_c, "-o", hello_aot])
+                              hello_c, "-o", hello_aot], build=True)
             self.assertEqual(self.run_checked([hello_aot], timeout=10), b"Hello from NanoLang!\n")
 
     def test_selfhost_emitted_compiler_to_native_nanoisa_product(self):
@@ -385,7 +378,7 @@ static inline void tracked_free(void *p) {
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
             self.assert_no_vm_wrapper(source.read_text())
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
-                              source, "-o", compiler, *HOST_RUNTIME], timeout=240)
+                              source, "-o", compiler, *HOST_RUNTIME], build=True)
             self.assertIn(b"Compiler", self.run_checked([compiler, "--help"], timeout=10))
             self.run_checked([sys.executable, "-m", "unittest", "tests.test_selfhost_captures",
                               "tests.test_native_mutable_record_arrays", "tests.test_genenv_scope"],
@@ -399,7 +392,7 @@ static inline void tracked_free(void *p) {
                              b"Hello from NanoLang!\n")
             self.run_checked([ROOT / "bin/nvm2c", hello_module, "-o", hello_c])
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
-                              hello_c, "-o", hello_native])
+                              hello_c, "-o", hello_native], build=True)
             self.assertEqual(self.run_checked([hello_native], timeout=10),
                              b"Hello from NanoLang!\n")
 
@@ -519,7 +512,7 @@ fn main() -> int {
             self.assertEqual(self.run_checked([ROOT / "bin/nano_vm", module, "--", work]), b"facade-ok\n")
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", native_c])
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", native_c,
-                              "-o", binary, *HOST_RUNTIME])
+                              "-o", binary, *HOST_RUNTIME], build=True)
             self.assertEqual(self.run_checked([binary, work]), b"facade-ok\n")
 
     def test_real_std_artifact_uses_host_runtime(self):
@@ -533,7 +526,7 @@ fn main() -> int {
             library = work / ("std.dylib" if sys.platform == "darwin" else "std.so")
             shared_flags = ["-dynamiclib", "-undefined", "dynamic_lookup"] if sys.platform == "darwin" else ["-shared"]
             self.run_checked([cc, "-std=c11", "-fPIC", *shared_flags,
-                              ROOT / "modules/std/fs.c", ROOT / "modules/std/process.c", "-o", library])
+                              ROOT / "modules/std/fs.c", ROOT / "modules/std/process.c", "-o", library], build=True)
             assembly, module, source = (work / name for name in ("input.nasm", "input.nvm", "input.c"))
             assembly.write_text(
                 f'.import "{library}" "path_canonical" string string\n'
@@ -548,7 +541,7 @@ fn main() -> int {
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
             missing = work / "missing-runtime"
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source,
-                              "-o", missing, *(["-ldl"] if sys.platform.startswith("linux") else [])])
+                              "-o", missing, *(["-ldl"] if sys.platform.startswith("linux") else [])], build=True)
             failed = subprocess.run([missing], capture_output=True, timeout=10)
             self.assertLess(failed.returncode, 0, "I require the foreign artifact's host ABI")
             generated = source.read_text().replace("int main(", "int generated_main(")
@@ -559,7 +552,7 @@ fn main() -> int {
                               'gc_shutdown(); return 0; }\n')
             binary = work / "with-runtime"
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-I", ROOT / "src",
-                              source, *HOST_RUNTIME, "-o", binary])
+                              source, *HOST_RUNTIME, "-o", binary], build=True)
             self.run_checked([binary])
 
     def test_projected_optional_arguments(self):
@@ -603,7 +596,7 @@ fn main() -> int {
                         else:
                             self.run_checked([ROOT / "bin/nano_vm", module])
                             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                             self.run_checked([binary])
 
     def test_record_local_storage_joins(self):
@@ -642,7 +635,7 @@ fn main() -> int {
                         else:
                             self.run_checked([ROOT / "bin/nano_vm", module])
                             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                             self.run_checked([binary])
 
     def test_branch_record_fields_survive_later_assignments(self):
@@ -669,7 +662,7 @@ fn main() -> int {
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     self.run_checked([ROOT / "bin/nano_vm", module])
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     self.run_checked([binary])
 
     def test_projected_record_arguments(self):
@@ -701,7 +694,7 @@ fn main() -> int {
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     self.run_checked([ROOT / "bin/nano_vm", module])
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     self.run_checked([binary])
 
                     # A missing value still carries its map's exact payload
@@ -738,14 +731,14 @@ fn main() -> int {
                     }[tag]
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     source.write_text(generated + f"\nint main(void) {{ nrec_t r; nl_pack(&r, {argument}); return !(r.n == 1 && {check}); }}\n")
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     self.run_checked([binary])
                     untyped = text.split(".parameters", 1)[0]
                     assembly.write_text(untyped)
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                     self.assertNotIn("nl_pack", source.read_text())
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     self.run_checked([binary])
                     # A required unresolved layout still fails; omission only
                     # applies when no VM execution root reaches the function.
@@ -771,7 +764,7 @@ fn main() -> int {
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     self.run_checked([ROOT / "bin/nano_vm", module])
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     self.run_checked([binary])
 
     def test_nominal_constructor_scalar_evidence(self):
@@ -803,7 +796,7 @@ fn main() -> int {
                         if case != "alias_conflict":
                             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                             self.assertNotIn("nl_copy", source.read_text())
-                            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                             self.run_checked([binary])
                             assembly.write_text(text.replace(".entry main", ".entry copy"))
                             self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
@@ -815,7 +808,7 @@ fn main() -> int {
                     check = "r.k[0] == 9 && r.f[0] == 1" if case == "bool" else 'r.k[0] == 1 && strcmp(r.s[0], "hello") == 0' if case == "string" else "r.k[0] == 0 && r.f[0] == 42"
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     source.write_text(generated + f"\nint main(void) {{ nrec_t seed, r; nl_seed(&seed); nl_copy(&r, &seed); return !(r.n == 1 && {check}); }}\n")
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     self.run_checked([binary])
 
     def test_projected_array_length_uses_runtime_storage_tag(self):
@@ -847,7 +840,7 @@ fn main() -> int {
                         operation = "nvalue_array_get((nmap_value){7, 6, (char *)&a}, 0)" if case == "record_get" else "nvalue_array_set((nmap_value){7, 6, (char *)&a}, 0, (nmap_value){1, 0, NULL})"
                         body = setup + f"if (nl_length(&r) != {initial}) return 1; (void){operation}; return 0;"
                     source.write_text(source.read_text().replace("int main(", "int generated_main(") + f"\nint main(void) {{ {body} }}\n")
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     if case in ("bad_tag", "bad_width", "null", "record_get", "record_set"):
                         result = subprocess.run([binary], capture_output=True, timeout=10)
                         self.assertLess(result.returncode, 0, "I trap an invalid projected array")
@@ -890,7 +883,7 @@ fn main() -> int {
                         setup += "inner.n = 0;"
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     source.write_text(generated + f"\nint main(void) {{ {setup} return !({check}); }}\n")
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     if case in ("int", "bool", "string"):
                         self.run_checked([binary])
                     else:
@@ -919,7 +912,7 @@ fn main() -> int {
                         setup = 'nrec_t r = {.n = 1}; r.k[0] = 1; r.s[0] = "bad";'
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     source.write_text(generated + f"\nint main(void) {{ {setup} return nl_negative(&r) != {expected}; }}\n")
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     if case == "wrong_tag":
                         result = subprocess.run([binary], capture_output=True, timeout=10)
                         self.assertLess(result.returncode, 0, "I trap a non-integer typed projection")
@@ -953,7 +946,7 @@ fn main() -> int {
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     source.write_text(generated + f'\nint main(int argc, char **argv) {{ (void)argv; nrec_t r = {{.n = 1}}; r.k[0] = argc > 1 ? 0 : 1; r.s[0] = "hello"; return !({check}); }}\n')
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     self.run_checked([binary])
                     rejected = subprocess.run([binary, "bad-tag"], capture_output=True, timeout=10)
                     self.assertLess(rejected.returncode, 0, "I trap a non-string field before its consumer")
@@ -987,7 +980,7 @@ fn main() -> int {
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     wrong_storage = 3 if tag in ("bool", "string") else 10 if tag == "int" else 5
                     source.write_text(generated + f'\nint main(int argc, char **argv) {{ nrec_t r = {{.n = 1}}; {setup} if (argc > 1) {{ if (argv[1][0] == \'t\') r.k[0] = 0; else if (argv[1][0] == \'s\') r.k[0] = {wrong_storage}; else a.len = 0; }} return !({check}); }}\n')
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     self.run_checked([binary])
                     for invalid in ("tag", "storage", "bounds"):
                         result = subprocess.run([binary, invalid], capture_output=True, timeout=10)
@@ -1023,7 +1016,7 @@ fn main() -> int {
                         body += f"if (nl_length(value) != 2 || !nl_forward(value)) return 1; a.len = 1; return nl_length(value) != 1 || value.integer != {storage_kind};"
                         generated = source.read_text().replace("int main(", "int generated_main(")
                         source.write_text(generated + f"\nint main(int argc, char **argv) {{ {body} }}\n")
-                        self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                        self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                         self.run_checked([binary])
                         for invalid in ("tag", "null", "storage"):
                             rejected = subprocess.run([binary, invalid], capture_output=True, timeout=10)
@@ -1060,7 +1053,7 @@ int main(int argc, char **argv) {
     return nl_probe(&record) != (which == 0 || which == 3);
 }
 ''')
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     for which in range(7):
                         self.run_checked([binary, str(which)])
                     for which in range(7, 12):
@@ -1085,7 +1078,7 @@ int main(int argc, char **argv) {
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                 self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
                                   "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
-                                  source, "-o", binary])
+                                  source, "-o", binary], build=True)
                 self.run_checked([binary])
 
     def test_record_temporaries_have_scoped_heap_storage(self):
@@ -1137,7 +1130,7 @@ int main(int argc, char **argv) {
         if (result.n != 75 || result.f[0] != 24 || live) return 1;
     }
 ''' + ('if (peak != 2) return 2;\n' if mode == "self_tail" else 'if (peak < 26) return 2;\n') + 'return 0;\n}\n')
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary], build=True)
                 result = subprocess.run([binary], capture_output=True, timeout=30, preexec_fn=bounded_stack)
                 self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
                 failed = subprocess.run([binary, "fail"], capture_output=True, timeout=10)
@@ -1197,7 +1190,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 ''')
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary], build=True)
             self.run_checked([binary])
             for mode in range(1, 13):
                 failed = subprocess.run([binary, str(mode)], capture_output=True, timeout=10)
@@ -1253,7 +1246,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 ''')
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary], build=True)
             self.run_checked([binary])
             for mode in range(1, 11):
                 failed = subprocess.run([binary, str(mode)], capture_output=True, timeout=10)
@@ -1311,7 +1304,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 ''')
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary], build=True)
             self.run_checked([binary])
             for mode in range(1, 7):
                 failed = subprocess.run([binary, str(mode)], capture_output=True, timeout=10)
@@ -1330,7 +1323,7 @@ int main(int argc, char **argv) {
                 self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                 self.run_checked([ROOT / "bin/nano_vm", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                 self.run_checked([binary])
 
     def test_nested_optional_returns_reach_native(self):
@@ -1353,7 +1346,7 @@ int main(int argc, char **argv) {
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     self.run_checked([ROOT / "bin/nano_vm", module])
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary], build=True)
                     self.run_checked([binary])
 
 
