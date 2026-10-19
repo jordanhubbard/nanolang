@@ -135,7 +135,7 @@ shadow main { assert (== (main) 6) }
                 self.assertNotIn('checksum',result.stderr.lower())
                 self.assertEqual(output.read_text(),'prior checked source')
 
-    def test_verified_deeper_and_borrowed_layouts_refuse_atomically(self):
+    def test_verified_deeper_layouts_refuse_atomically(self):
         sources={
             'deep':'''resource struct Leaf { value: int }
 resource struct Mid { leaf: Leaf }
@@ -151,20 +151,7 @@ fn main() -> int {
 }
 shadow main { assert true }
 ''',
-            'borrowed':'''resource struct Leaf { value: int }
-resource struct Box { leaf: Leaf }
-fn read(view: &Leaf) -> int { return view.value }
-shadow read { let leaf: Leaf = Leaf { value: 7 } assert (== (read &leaf) 7) let Leaf { value } = leaf assert (== value 7) }
-fn main() -> int {
- let leaf: Leaf = Leaf { value: 7 }
- let box: Box = Box { leaf: leaf }
- let Box { leaf } = box
- assert (== (read &leaf) 7)
- let Leaf { value } = leaf
- return value
-}
-shadow main { assert true }
-'''}
+        }
         for case,text in sources.items():
             for compiler in self.compilers:
                 with self.subTest(case=case,producer=str(compiler)):

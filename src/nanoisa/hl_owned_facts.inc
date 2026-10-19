@@ -5,7 +5,7 @@
 static int owned_facts(const NvmModule *m) {
     NvmV2Layouts layouts={0};NvmAffineState *state=NULL;
     VmDecodedFunction code={0};char error[VM_DECODE_ERROR_SIZE];
-    bool ok=false,nested=false;uint32_t total=0;
+    bool ok=false;uint32_t total=0;
     if(m->ownership_size<4 || !m->ownership_data ||
        m->ownership_data[0]!=NVM_OWNERSHIP_VERSION || m->ownership_data[1] ||
        m->ownership_data[2] || m->ownership_data[3] || !m->function_count || m->function_count>NVM_OWNED_MAX_FUNCTIONS || m->header.entry_point!=0 || m->import_count ||
@@ -33,12 +33,11 @@ static int owned_facts(const NvmModule *m) {
                 for(uint16_t j=0;j<leaf->field_count;j++)
                     if((leaf->fields[j].type_tag!=TAG_INT && leaf->fields[j].type_tag!=TAG_BOOL) ||
                        leaf->fields[j].nested_idx!=NVM_V2_NO_INDEX)goto done;
-                nested=true;
             } else if((tag!=TAG_INT && tag!=TAG_BOOL) || child!=NVM_V2_NO_INDEX)goto done;
         }
     }
     bool borrowed=!nvm_affine_value_call_graph(m);
-    if(borrowed && (nested || m->function_count!=2 || m->functions[1].arity!=1))goto done;
+    if(borrowed && (m->function_count!=2 || m->functions[1].arity!=1))goto done;
     printf("{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[");
     for(uint32_t i=0;i<layouts.count;i++) {
         if(i){putchar(',');}printf("{\"identity\":%u,\"resource\":true,\"fields\":[",i);
@@ -80,6 +79,13 @@ static int owned_facts(const NvmModule *m) {
            (result.tag!=TAG_VOID && result.tag!=TAG_INT && result.tag!=TAG_BOOL &&
             !(result.tag==TAG_STRUCT && result.layout<layouts.count && nvm_affine_type_is_owned(state,result))))goto done;
         if(helper && (result.tag!=TAG_INT && result.tag!=TAG_BOOL))goto done;
+        if(helper) {
+            if(parameters[0].tag!=TAG_STRUCT || parameters[0].layout>=layouts.count)goto done;
+            const NvmV2Layout *leaf=&layouts.items[parameters[0].layout];
+            for(uint16_t field=0;field<leaf->field_count;field++)
+                if((leaf->fields[field].type_tag!=TAG_INT && leaf->fields[field].type_tag!=TAG_BOOL) ||
+                   leaf->fields[field].nested_idx!=NVM_V2_NO_INDEX)goto done;
+        }
         for(uint16_t p=0;p<count;p++)
             if(parameters[p].tag!=TAG_INT && parameters[p].tag!=TAG_BOOL &&
                !(parameters[p].tag==TAG_STRUCT && parameters[p].layout<layouts.count && nvm_affine_type_is_owned(state,parameters[p])))goto done;

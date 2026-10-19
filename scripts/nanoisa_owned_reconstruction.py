@@ -70,8 +70,6 @@ class OwnedAnalyze(Analyze):
                 'require exact value or borrowed parameter modes')
         self.borrowed = any(any(f.get('param_modes', [])) for f in module['functions'])
         if self.borrowed:
-            require(all(all(t in (INT, BOOL) for t in fields) for fields in self.fields),
-                    'retain scalar-only layouts in the borrowed helper profile')
             require(len(module['functions']) == 2 and
                     module['functions'][0].get('param_modes', []) == [] and
                     module['functions'][1].get('param_modes') in ([1], [2]),
@@ -81,6 +79,8 @@ class OwnedAnalyze(Analyze):
         if self.helper:
             require(len(self.params) == 1 and isinstance(self.params[0], tuple),
                     'require one exact borrowed resource parameter')
+            require(all(t in (INT, BOOL) for t in self.fields[self.params[0][1]]),
+                    'require an exact scalar-leaf borrowed helper parameter')
             self.params[0] = ('borrow', self.params[0][1], self.modes[0])
         self.result = VOID if self.fn['result_type'] == [VOID, 4294967295] else declared(self.fn['result_type'])
         require(self.fn.get('result_count') == (0 if self.result == VOID else 1),
@@ -397,7 +397,9 @@ class OwnedEmit(Emit):
                 elif kind == 'own_pack':
                     total += 1 + len(stmt[3])
                 elif kind == 'own_unpack':
-                    total += 1 + 2 * len(stmt[3])
+                    # Child-bearing patterns stage every field before named projections.
+                    staged = any(isinstance(target.tag, tuple) for target in stmt[3])
+                    total += 1 + (3 if staged else 2) * len(stmt[3])
                 elif kind == 'if':
                     total += statements_cost(stmt[2]) + statements_cost(stmt[3])
                 elif kind == 'while':
