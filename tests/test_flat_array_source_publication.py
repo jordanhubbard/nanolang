@@ -214,7 +214,7 @@ fn main() -> int {
 }
 shadow main { assert (== (main) 0) }
 ''',[1])
-    def test_generic_tail_calls_omit_unproved_array_profile(self):
+    def test_generic_direct_tail_calls_publish_proved_array_profile(self):
         self.exercise('''struct Box { values: array<int> }
 fn identity(value: T) -> T { let copy: T = value return copy }
 shadow identity { assert (== (identity 7) 7) }
@@ -225,6 +225,24 @@ fn main() -> int {
  let box: Box = (forward Box { values: values })
  let copy: Box = (identity box)
  assert (== (at copy.values 1) 11)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''',[1],expected_opcode='TAIL_CALL')
+
+    def test_recursive_tail_calls_keep_optional_array_authority_absent(self):
+        self.exercise('''struct Box { values: array<int> }
+fn repeat(value: Box, remaining: int) -> Box {
+ if (<= remaining 0) { return value }
+ return (repeat value (- remaining 1))
+}
+shadow repeat {
+ let box: Box = (repeat Box { values: [7] } 2)
+ assert (== (at box.values 0) 7)
+}
+fn main() -> int {
+ let box: Box = (repeat Box { values: [7, 11] } 3)
+ assert (== (at box.values 1) 11)
  return 0
 }
 shadow main { assert (== (main) 0) }

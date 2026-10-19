@@ -183,6 +183,7 @@ static int rae_recipe(uint8_t op,NvmRecordArrayExecutionInstruction *r) {
     case OP_POP: case OP_ASSERT:r->recipe=NVM_RA_ROOT_DROP;break;
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE:r->recipe=NVM_RA_ROOT_BRANCH;break;
     case OP_CALL:r->recipe=NVM_RA_ROOT_CALL;r->obligations|=NVM_RA_STAGE_OPERANDS;break;
+    case OP_TAIL_CALL:r->recipe=NVM_RA_ROOT_TAIL;r->obligations|=NVM_RA_STAGE_OPERANDS|NVM_RA_RETAIN_BEFORE_RELEASE;break;
     case OP_RET:r->recipe=NVM_RA_ROOT_RETURN;r->obligations|=NVM_RA_STAGE_OPERANDS;break;
     case OP_STRUCT_NEW: case OP_STRUCT_LITERAL: case OP_AGG_PACK:
         r->recipe=NVM_RA_ROOT_CONSTRUCT;
@@ -250,10 +251,10 @@ static int rae_instructions(NvmRecordArrayExecutionPlan *p) {
             int pops=info->pop_count,pushes=info->push_count;
             if(in.opcode==OP_ARR_LITERAL || in.opcode==OP_STRUCT_LITERAL){pops=in.operands[1].u16;pushes=1;}
             if(in.opcode==OP_AGG_PACK){pops=in.operands[3].u16;pushes=1;}
-            if(in.opcode==OP_CALL) {
+            if(in.opcode==OP_CALL || in.opcode==OP_TAIL_CALL) {
                 r->callee=in.operands[0].u32;
                 if(r->callee>=m->function_count){free(boundaries);return 0;}
-                pops=m->functions[r->callee].arity;pushes=m->functions[r->callee].result_count;
+                pops=m->functions[r->callee].arity;pushes=in.opcode==OP_TAIL_CALL?0:m->functions[r->callee].result_count;
             }
             if(in.opcode==OP_RET){pops=f->result_count;pushes=0;}
             if(pops<0 || pushes<0 || pops>256 || pushes>256){free(boundaries);return 0;}
@@ -263,7 +264,7 @@ static int rae_instructions(NvmRecordArrayExecutionPlan *p) {
                 if(target<0 || (uint64_t)target>f->code_length){free(boundaries);return 0;}
                 r->successors[r->successor_count++]=(uint32_t)target;
             }
-            if(in.opcode!=OP_JMP && in.opcode!=OP_RET)r->successors[r->successor_count++]=pc+size;
+            if(in.opcode!=OP_JMP && in.opcode!=OP_RET && in.opcode!=OP_TAIL_CALL)r->successors[r->successor_count++]=pc+size;
             if(in.opcode==OP_LOAD_GLOBAL || in.opcode==OP_STORE_GLOBAL) {
                 uint32_t count=in.operands[0].u32+1;
                 if(count>256){free(boundaries);return 0;}

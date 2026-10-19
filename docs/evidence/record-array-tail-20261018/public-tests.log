@@ -1,0 +1,7 @@
+test_public_tail_consumers (tests.test_record_array_tail.RecordArrayTail.test_public_tail_consumers) ... I retain tail qualification at <RETAINED_TEMP>/nano-record-array-tail-7f7nrdx0
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 23.460s
+
+OK

@@ -1,0 +1,20 @@
+{
+  "public-checks.log": {
+    "sha256_raw": "607a769395b13fdcd31fee43e895c152d52f2d56d194ffe18df6ce4ab85723cb"
+  },
+  "allocation-prefixes.log": {
+    "sha256_raw": "79d0c2710ac8de929d9c208ad00bbd1a605bfe7c61aa2bf0dd894628aeb9662f"
+  },
+  "source-tests.log": {
+    "sha256_raw": "db66899c90558969c6d020b77caf1475e6346e78ec10017ec4b0a6a0ad811c36"
+  },
+  "public-tests.log": {
+    "sha256_raw": "a3530639c5cc24fa685561fe897d0bed063bf3e1d7072b38415ff1d96aa44f01"
+  },
+  "plan-vm-tests.log": {
+    "sha256_raw": "7c1705c0b0b957e1fa10dbdcc63825d8a46ff6ad223044acd391292fb60ae226"
+  },
+  "root-resume-reproducer.log": {
+    "sha256_raw": "642bb1ce6e2503f8c6bbdecedc68ddf4e101242a429bdf8c3edd97baf32888f2"
+  }
+}

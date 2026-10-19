@@ -1,0 +1,2 @@
+I checked 95 typed tail proof allocation positions in both failure modes.
+I checked 481 tail allocation positions in transient and persistent modes with independent recovery.

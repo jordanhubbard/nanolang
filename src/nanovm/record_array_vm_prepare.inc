@@ -177,6 +177,7 @@ static int vm_ra_recipe(uint8_t op,NvmRecordArrayExecutionInstruction *r) {
     case OP_POP: case OP_ASSERT:r->recipe=NVM_RA_ROOT_DROP;break;
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE:r->recipe=NVM_RA_ROOT_BRANCH;break;
     case OP_CALL:r->recipe=NVM_RA_ROOT_CALL;r->obligations|=NVM_RA_STAGE_OPERANDS;break;
+    case OP_TAIL_CALL:r->recipe=NVM_RA_ROOT_TAIL;r->obligations|=NVM_RA_STAGE_OPERANDS|NVM_RA_RETAIN_BEFORE_RELEASE;break;
     case OP_RET:r->recipe=NVM_RA_ROOT_RETURN;r->obligations|=NVM_RA_STAGE_OPERANDS;break;
     case OP_STRUCT_NEW: case OP_STRUCT_LITERAL: case OP_AGG_PACK:
         r->recipe=NVM_RA_ROOT_CONSTRUCT;
@@ -241,7 +242,7 @@ static bool vm_ra_coverage(VmRecordArrayPrivate *p) {
         if(active!=nvm_record_array_opcode_supported((uint8_t)op))return false;
         supported+=active;
     }
-    if(supported!=93)return false;
+    if(supported!=94)return false;
     uint32_t total=0;
     for(uint32_t fi=0;fi<p->counts.functions;fi++) {
         const NvmRecordArrayExecutionFunction *fn=&p->functions[fi];
@@ -284,10 +285,10 @@ static bool vm_ra_coverage(VmRecordArrayPrivate *p) {
             switch(fact->opcode) {
             case OP_ARR_LITERAL:case OP_STRUCT_LITERAL:pops=in->instruction.operands[1].u16;pushes=1;break;
             case OP_AGG_PACK:pops=in->instruction.operands[3].u16;pushes=1;break;
-            case OP_CALL:
+            case OP_CALL: case OP_TAIL_CALL:
                 callee=in->instruction.operands[0].u32;
                 if(callee>=p->counts.functions)return false;
-                pops=m->functions[callee].arity;pushes=m->functions[callee].result_count;resolved=callee;break;
+                pops=m->functions[callee].arity;pushes=fact->opcode==OP_TAIL_CALL?0:m->functions[callee].result_count;resolved=callee;break;
             case OP_RET:pops=fn->signature.result_count;pushes=0;break;
             case OP_JMP:case OP_JMP_TRUE:case OP_JMP_FALSE: {
                 int64_t dest=(int64_t)fact->pc+in->instruction.operands[0].i32;
@@ -299,7 +300,7 @@ static bool vm_ra_coverage(VmRecordArrayPrivate *p) {
             }
             default:break;
             }
-            if(fact->opcode!=OP_JMP && fact->opcode!=OP_RET)successors[edges++]=fact->next_pc;
+            if(fact->opcode!=OP_JMP && fact->opcode!=OP_RET && fact->opcode!=OP_TAIL_CALL)successors[edges++]=fact->next_pc;
             if(pops<0 || pushes<0 || fact->pops!=pops || fact->pushes!=pushes || fact->callee!=callee ||
                fact->successor_count!=edges || in->resolved_target!=resolved || row->call_target!=callee ||
                row->branch_target!=branch || row->branch_target_offset!=target)return false;
@@ -628,6 +629,35 @@ static VmResult vm_ra_preflight(VmRecordArrayPrivate *p,const VmDispatchInstruct
         if(store) {
             if(!vm_ra_field_accepts(p,receiver.as.sval->def_idx,field,stack_peek(vm,0)))return VM_ERR_TYPE_ERROR;
         } else retained=receiver.as.sval->fields[field];
+        break;
+    }
+    case OP_TAIL_CALL: {
+        if(fact->callee>=p->counts.functions)return VM_ERR_UNDEFINED_FUNCTION;
+        const NvmRecordArrayExecutionFunction *target=&p->functions[fact->callee];
+        const NvmFunctionEntry *callee=&target->signature;
+        if(operands!=callee->arity || callee->result_count!=fn->signature.result_count ||
+           callee->result_tag!=fn->signature.result_tag)return VM_ERR_TYPE_ERROR;
+        uint32_t available=vm->stack_capacity-frame->stack_base;
+        if(callee->local_count>available || target->maximum_stack>available-callee->local_count)
+            return VM_ERR_STACK_OVERFLOW;
+        for(uint16_t i=0;i<callee->arity;i++) {
+            NanoValue value=stack_peek(vm,callee->arity-1-i);
+            if(vm->module->function_param_types && vm->module->function_param_types[fact->callee]) {
+                uint8_t tag=vm->module->function_param_types[fact->callee][i];
+                if(tag!=TAG_VOID && value.tag!=tag)return VM_ERR_TYPE_ERROR;
+            }
+            /* The real handler retains all staged arguments before releasing
+             * the old frame. Count repeated owners together, before mutation. */
+            if(val_is_heap_obj(value)) {
+                uint32_t copies=0;
+                for(uint16_t j=0;j<callee->arity;j++) {
+                    NanoValue other=stack_peek(vm,j);
+                    if(val_is_heap_obj(other) && other.as.obj==value.as.obj)copies++;
+                }
+                if(!value.as.obj || ((VmHeapHeader *)value.as.obj)->ref_count>UINT32_MAX-copies)
+                    return VM_ERR_MEMORY;
+            }
+        }
         break;
     }
     case OP_CALL: {

@@ -1,6 +1,6 @@
-# My proposed ordinary record-array tail transfer
+# My bounded ordinary record-array tail transfer
 
-I record a proposal, not implemented admission. I inspected aggregate `28e50b802` and the paired publisher checkpoint `556a24907`. My concrete source gap is a generic forwarder that emits TAIL_CALL: ordinary CALL/RET with the same record identities publishes verified v3 authority, while the terminal call remains outside the selected public array profile.
+I implement the reviewed bounded contract from `562fb5ebb` on the combined `67159d826` base. My concrete source gap was a generic forwarder that emitted TAIL_CALL: the same record identities already published verified v3 authority through ordinary CALL/RET. My [focused receipt](evidence/record-array-tail-20261018/README.md) now qualifies this acyclic tail slice; fresh compiler generations and exact Linux/Darwin release gates remain open.
 
 ## Boundary
 
@@ -18,13 +18,15 @@ I add an explicit copied tail execution recipe with callee, argument pops, zero 
 
 ## VM and native execution
 
+My public route uses the ordinary scoped handler, while the independent private test route uses its copied recipe preflight. Both check cumulative staging headroom. My public supervisor retains immutable requested-root authorization and separately borrows an active-root identity on its synchronous call stack. Only a committed frame-zero tail replacement updates that identity; every supervisor exit restores the borrowed pointer. This permits assertion resumption after entry/initializer tail chains without authorizing arbitrary host entry into helpers.
+
 My ordinary VM already retains a staged argument vector before dropping the old frame's locals/operands, then replaces that frame. I qualify that real handler through the public profile. Its preflight must check the replacement frame's local/maximum-stack capacity at the existing stack base, not require an additional frame. I check exact operand depth, declared argument/result tags and copied callee identity before any mutation.
 
-I account for cumulative retain headroom when several arguments alias the same heap owner; checking each against UINT32_MAX independently is insufficient. The greater-than-16-argument path must exercise its real temporary allocation and failure cleanup. A failure must leave roots available to the existing unwind path and preserve the first error and prior published result. Initializer results below the entry stack base remain rooted. Module, return continuation and activation-floor identity remain unchanged by replacement.
+I account for cumulative retain headroom when several arguments alias the same heap owner; checking each against UINT32_MAX independently is insufficient. The greater-than-16-argument path must exercise its real temporary allocation and failure cleanup. A failure must leave roots available to the existing unwind path and preserve the first error and prior published result. My private runner preserves initializer results below the entry stack base; my public supervisor keeps its existing scalar-initializer drain before entry. Module, return continuation and activation-floor identity remain unchanged by replacement.
 
-My native lowerer already has a direct tail-call path and a separate self-restart path. This first proposal uses the direct acyclic path only. I must qualify canonical record return identity, staged arguments and caller/callee roots through forced collection; unadmitted legacy native execution does not prove those selected canonical-owner paths. I do not alter the public ordinary representation or add a recursive trampoline in this slice.
+My native lowerer already has a direct tail-call path and a separate self-restart path. This first slice uses the direct acyclic path only. I must qualify canonical record return identity, staged arguments and caller/callee roots through forced collection; unadmitted legacy native execution does not prove those selected canonical-owner paths. I do not alter the public ordinary representation or add a recursive trampoline in this slice.
 
-## Acceptance before admission
+## Qualification contract
 
 I require actual public verifier, NanoVM, v2 transport, disassembly/reassembly and ASan/UBSan native execution for:
 
