@@ -86,6 +86,16 @@ class OwnedAnalyze(Analyze):
         version = module.get('ownership_version', 1)
         require(version in (1, 2), 'require retained ownership version one or two')
         self.paths = version == 2
+        self.eight_shared = (version == 1 and self.borrowed and len(module['functions']) == 2 and
+                             module['functions'][1].get('param_modes') == [1] * 8)
+        if self.eight_shared:
+            require(all(type(mode) is int for fn in module['functions'] for mode in fn.get('param_modes', [])) and
+                    all(type(value) is int for fn in module['functions'] for pair in fn['params'] + fn['local_types']
+                        for value in pair) and
+                    all(type(value) is int for fn in module['functions']
+                        for value in [fn['result'], fn['result_count'], *fn['result_type']]) and
+                    all(type(layout['identity']) is int and all(type(tag) is int for tag in layout['fields'])
+                        for layout in self.layouts), 'require exact integer eight-shared type identities')
         if self.paths:
             require(all('field_types' in layout for layout in self.layouts),
                     'require complete exact path layout descriptors')
@@ -96,7 +106,7 @@ class OwnedAnalyze(Analyze):
             require(max(self.depths) <= (3 if self.paths else 2), 'retain nested borrowed modules at depth three' if self.paths else 'retain borrowed modules at depth two')
             require(len(module['functions']) == 2 and
                     module['functions'][0].get('param_modes', []) == [] and
-                    module['functions'][1].get('param_modes') in (([2, 2, 1], [1, 1], [1], [2], [2, 1]) if self.paths else ([1], [2], [2, 1, 2])),
+                    module['functions'][1].get('param_modes') in (([2, 2, 1], [1, 1], [1], [2], [2, 1]) if self.paths else ([1], [2], [2, 1, 2], [1] * 8)),
                     'require the separate entry-to-borrowed-helper profile')
         self.helper_owners = self.paths and module['functions'][1].get('param_modes') == [2, 1]
         self.helper_local_single = (self.paths and module['functions'][1].get('param_modes') == [2] and
@@ -141,7 +151,7 @@ class OwnedAnalyze(Analyze):
         self.seen = set()
         self.calls = set()
         self.code = self.fn['code']
-        if self.helper_owners or self.helper_local_single:
+        if self.helper_owners or self.helper_local_single or self.eight_shared:
             require(all(type(ins.get('arg')) is int and isinstance(ins.get('args'), list) and
                         all(type(value) is int for value in ins['args']) and
                         ins['arg'] == (ins['args'][0] if ins['args'] else 0) for ins in self.code),
@@ -154,7 +164,7 @@ class OwnedAnalyze(Analyze):
                     'require a straight-line assertion-free single-exclusive local-owner helper')
         if self.helper:
             require(self.result in (INT, BOOL) and
-                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) | ({'SUB', 'ASSERT'} if self.multi else set()) | ({'ADD', 'MUL'} if self.shared_paths else set()) | ({'JMP', 'JMP_TRUE', 'JMP_FALSE'} if self.single_shared_path or self.exclusive_control or self.helper_owners else set()) | ({'OWN_PACK', 'OWN_STORE_LOCAL', 'OWN_MOVE_LOCAL', 'OWN_UNPACK_LOCAL', 'POP', 'REGION_BEGIN', 'REGION_END', 'BORROW_LOCAL_SHARED', 'BORROW_PATH_SHARED'} if self.helper_owners or self.helper_local_single else set()) for ins in self.code),
+                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) | ({'SUB', 'ASSERT'} if self.multi else set()) | ({'ADD', 'MUL'} if self.shared_paths or self.eight_shared else set()) | ({'JMP', 'JMP_TRUE', 'JMP_FALSE'} if self.single_shared_path or self.exclusive_control or self.helper_owners else set()) | ({'OWN_PACK', 'OWN_STORE_LOCAL', 'OWN_MOVE_LOCAL', 'OWN_UNPACK_LOCAL', 'POP', 'REGION_BEGIN', 'REGION_END', 'BORROW_LOCAL_SHARED', 'BORROW_PATH_SHARED'} if self.helper_owners or self.helper_local_single else set()) for ins in self.code),
                     'require bounded exclusive helper control' if self.exclusive_control else
                     'require total scalar shared-helper diamonds' if self.single_shared_path else
                     'require a straight-line scalar borrowed helper')
@@ -198,6 +208,8 @@ class OwnedAnalyze(Analyze):
         return self.live[slot]
 
     def reference_region_length(self, i):
+        if self.eight_shared and i + 9 < len(self.code) and self.code[i + 9]['op'] == 'CALL_REF':
+            return 11
         if (self.shared_paths or self.helper_owners) and i + 3 < len(self.code) and self.code[i + 3]['op'] == 'CALL_REF':
             return 5
         if self.multi and i + 4 < len(self.code) and self.code[i + 4]['op'] == 'CALL_REF':
@@ -228,7 +240,7 @@ class OwnedAnalyze(Analyze):
                     'require complete local observation after inherited helper descriptors')
         single_path_call = self.single_shared_path or (self.single_exclusive_path and
                            i + 1 < len(self.code) and self.code[i + 1]['op'] == 'BORROW_PATH_EXCLUSIVE')
-        if length in (5, 6) or (single_path_call and i + 2 < len(self.code) and
+        if length in (5, 6) or self.eight_shared and length == 11 or (single_path_call and i + 2 < len(self.code) and
                                   self.code[i + 2]['op'] == 'CALL_REF'):
             count = length - 3
             require(allow_call and self.index == 0 and i + length - 1 < end,
@@ -271,7 +283,7 @@ class OwnedAnalyze(Analyze):
                             for n, left in enumerate(places) for right in places[n + 1:]),
                         'require pairwise disjoint nested projections')
             else:
-                require(len(set(slots)) == count, 'require distinct exact borrowed roots' if self.helper_owners else 'require three distinct borrowed roots')
+                require(self.eight_shared or len(set(slots)) == count, 'require distinct exact borrowed roots' if self.helper_owners else 'require three distinct borrowed roots')
             for offset in range(1, length):
                 self.touch(i + offset)
             target = Expr(self.module['functions'][1]['result'], 'temporary', call['pc'])
@@ -664,6 +676,7 @@ class OwnedEmit(Emit):
         self.exclusive = any(isinstance(t, tuple) and t[0] == 'borrow' and len(t) == 3 and t[2] == 2
                              for fn in functions for t in fn.params)
         modes = [t[2] if isinstance(t, tuple) and t[0] == 'borrow' else 0 for t in functions[1].params] if len(functions) == 2 else []
+        self.eight_shared = modes == [1] * 8
         self.helper_owners = modes == [2, 1] and all(getattr(fn, 'helper_owners', False) for fn in functions)
         self.helper_local_single = modes == [2] and all(getattr(fn, 'helper_local_single', False) for fn in functions)
         if self.helper_local_single:
@@ -701,7 +714,8 @@ class OwnedEmit(Emit):
                 self.control_proof = prove_exclusive_helper_control(functions[1], helper_locals=self.helper_local_single)
         self.paths = modes in ([2, 2, 1], [1, 1]) or self.single_shared_path or self.single_exclusive_path
         self.multi = modes in ([2, 1, 2], [2, 2, 1], [1, 1], [2, 1])
-        self.witness = (self.helper_owner_witness(functions) if self.helper_owners else
+        self.witness = (self.eight_shared_witness(functions, layouts) if self.eight_shared else
+                        self.helper_owner_witness(functions) if self.helper_owners else
                         self.exclusive_control_tree(functions, layouts) if self.exclusive_control else
                         self.total_shared_tree(functions, layouts) if self.single_shared_path else
                         self.path_witness(functions, layouts) if self.paths else
@@ -714,8 +728,8 @@ class OwnedEmit(Emit):
                     function.body = self.fold_adjacent_assertions(function.body)
                 if self.exclusive_control:
                     function.body = self.fold_add_snapshots(function.body)
-        self.inline_add = (self.exclusive or self.shared_paths or self.single_shared_path) and language == 'nano'
-        self.inline_mul = self.shared_paths and language == 'nano'
+        self.inline_add = (self.exclusive or self.shared_paths or self.single_shared_path or self.eight_shared) and language == 'nano'
+        self.inline_mul = (self.shared_paths or self.eight_shared) and language == 'nano'
         self.inline_sub = (self.multi and not self.helper_owners or self.loop_exits) and language == 'nano'
         self.inline_div = self.loop_exits and language == 'nano'
         if self.inline_add:
@@ -739,6 +753,16 @@ class OwnedEmit(Emit):
                        for layout in layouts]
         self.reassignment_plans = []
         self.scratch_functions = set()
+        self.scratch_sub_functions = set()
+        self.eight_shared_plan = None
+        if self.eight_shared and language == 'nano':
+            from copy import deepcopy
+            from nanoisa_owned_rendering import plan_reassignment_nano
+            caller, self.eight_shared_plan = plan_reassignment_nano(self.functions[0])
+            helper = deepcopy(self.functions[1])
+            self.functions = [caller, helper]
+            self.scratch_functions.add(id(helper))
+            self.scratch_sub_functions.add(id(helper))
         self.helper_owner_plan = None
         if self.helper_owners and language == 'nano':
             # I prove the original IR above, then reuse only the existing finite
@@ -762,6 +786,31 @@ class OwnedEmit(Emit):
                        for stmt in self.walk_statements(lowered.body)):
                     self.scratch_functions.add(id(lowered))
             self.functions = planned
+
+    def eight_shared_witness(self, functions, layouts):
+        from nanoisa_owned_eight_shared import prove_eight_shared
+        witness, self.eight_shared_proof = prove_eight_shared(functions, layouts)
+        return witness
+
+    def eight_shared_shadow(self):
+        require(2 + 4 * len(self.witness) + 4 * sum(map(len, self.witness)) <= 128,
+                'limit generated eight-shared shadow to 128 local slots')
+        body = f'\nshadow {self.name(1)} {{\n'
+        for suffix in ('first', 'second'):
+            for parameter, vector in enumerate(self.witness):
+                layout = self.functions[1].params[parameter][1]
+                fields = ', '.join(f'f{i}: {self.expression(value)}' for i, value in enumerate(vector))
+                body += f'    let owner_{suffix}_{parameter}: NlrOwned{layout} = NlrOwned{layout} {{ {fields} }}\n'
+            arguments = ' '.join(f'&owner_{suffix}_{p}' for p in range(8))
+            body += f'    let result_{suffix}: int = ({self.name(1)} {arguments})\n'
+            for parameter, vector in enumerate(self.witness):
+                layout = self.functions[1].params[parameter][1]
+                fields = ', '.join(f'f{i}' for i in range(len(vector)))
+                body += f'    let NlrOwned{layout} {{ {fields} }} = owner_{suffix}_{parameter}\n'
+                for i, value in enumerate(vector):
+                    body += f'    assert (== f{i} {self.expression(value)})\n'
+        body += '    assert (== result_first result_second)\n'
+        return body + '}\n'
 
     def helper_owner_witness(self, functions):
         from nanoisa_owned_helper_locals import prove_helper_owners
@@ -1101,7 +1150,9 @@ class OwnedEmit(Emit):
                         total += 4
                         continue
                     if self.inline_mul and value.kind == 'arithmetic' and value.value == 'mul':
-                        total += 27
+                        add_cost = 1 if id(function) in self.scratch_functions else 7
+                        sub_cost = 1 if id(function) in self.scratch_sub_functions else 7
+                        total += 6 + 2 * add_cost + sub_cost
                         continue
                     total += (1 if id(function) in self.scratch_functions and value.kind == 'arithmetic' and value.value == 'add' else
                               7 if value.kind == 'arithmetic' and value.value in ({'add', 'sub'} if self.inline_sub else {'add'}) else 1)
@@ -1242,6 +1293,8 @@ class OwnedEmit(Emit):
         self.line('}', indent)
 
     def inline_sub_statement(self, target, value, indent):
+        if id(getattr(self, 'function', None)) in self.scratch_sub_functions:
+            return self.scratch_sub_statement(target, value, indent)
         name = self.expression(target)
         a, b = name + '_a', name + '_b'
         low, high, boundary = name + '_low', name + '_high', name + '_boundary'
@@ -1265,6 +1318,30 @@ class OwnedEmit(Emit):
         self.line(f'if (< {a} {boundary}) {{ set {name} {formula(positive)} }} else {{ set {name} (- {a} {b}) }}', indent + 1)
         self.line(f'}} else {{ if (< {b} 0) {{', indent)
         self.line(f'let {boundary}: int = (+ {high} {b})', indent + 1)
+        self.line(f'if (> {a} {boundary}) {{ set {name} {formula(negative)} }} else {{ set {name} (- {a} {b}) }}', indent + 1)
+        self.line(f'}} else {{ set {name} (- {a} {b}) }} }}', indent)
+
+    def scratch_sub_statement(self, target, value, indent):
+        name = self.expression(target)
+        a, b, low, high, boundary = (f'nlr_rs_{part}' for part in ('a', 'b', 'low', 'high', 'boundary'))
+        self.line(f'set {a} {self.expression(value.args[0])}', indent)
+        self.line(f'set {b} {self.expression(value.args[1])}', indent)
+        self.line(f'let mut {name}: int = 0', indent)
+        from nanoisa_reconstruction import NANO_INTEGER_HELPERS
+        helper = NANO_INTEGER_HELPERS['sub']
+        positive = 'return (+ high (+ (- a boundary) 1))'
+        negative = 'return (+ low (- a (+ boundary 1)))'
+        require(positive in helper and negative in helper and 'return (- a b)' in helper,
+                'require unchanged shared-bank guarded SUB formulas')
+        def formula(text):
+            import re
+            names = {'a': a, 'b': b, 'low': low, 'high': high, 'boundary': boundary}
+            return re.sub(r'\b(a|b|low|high|boundary)\b', lambda m: names[m[0]], text[7:])
+        self.line(f'if (> {b} 0) {{', indent)
+        self.line(f'set {boundary} (+ {low} {b})', indent + 1)
+        self.line(f'if (< {a} {boundary}) {{ set {name} {formula(positive)} }} else {{ set {name} (- {a} {b}) }}', indent + 1)
+        self.line(f'}} else {{ if (< {b} 0) {{', indent)
+        self.line(f'set {boundary} (+ {high} {b})', indent + 1)
         self.line(f'if (> {a} {boundary}) {{ set {name} {formula(negative)} }} else {{ set {name} (- {a} {b}) }}', indent + 1)
         self.line(f'}} else {{ set {name} (- {a} {b}) }} }}', indent)
 
@@ -1362,7 +1439,7 @@ class OwnedEmit(Emit):
                 if kind == 'multi_borrow_read':
                     value = f'nlr_a{stmt[2]}->f{stmt[3]}' if c else f'nlr_a{stmt[2]}.f{stmt[3]}'
                 else:
-                    arguments = [('' if c else ('mut ' if parameter != 1 else '')) + self.local(slot) for parameter, slot in enumerate(stmt[2])]
+                    arguments = [('' if c else ('mut ' if not self.eight_shared and parameter != 1 else '')) + self.local(slot) for parameter, slot in enumerate(stmt[2])]
                     value = f'{self.name(1)}(' + ', '.join('&' + arg for arg in arguments) + ')' if c else f'({self.name(1)} ' + ' '.join('&' + arg for arg in arguments) + ')'
                 self.line(f'{self.type(target.tag)} {self.expression(target)} = {value};' if c else
                           f'let {self.expression(target)}: {self.type(target.tag)} = {value}', indent)
@@ -1538,6 +1615,8 @@ class OwnedEmit(Emit):
             names = ', '.join(f'f{i}' for i in range(len(fields)))
             if self.paths or self.exclusive_control:
                 body += self.path_shadow()
+            elif self.eight_shared:
+                body += self.eight_shared_shadow()
             elif self.multi:
                 body += self.multi_shadow()
             elif self.exclusive:

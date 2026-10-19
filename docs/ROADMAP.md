@@ -16201,3 +16201,17 @@ I qualify consuming empty resources with the [receipt](evidence/empty-owned-reco
 ### 2026-10-19: integrated empty owned-resource qualification
 
 Candidate `37b4ba14e` passes all7 empty-resource methods in47.014s through the current seed and fresh3446 stages after only a facts rebuild. All9 before/after provider hashes match. [Receipt](evidence/empty-owned-aggregate-20261019/README.md) retains exact zero-field identities, operand-prefix and consuming nested/result paths, ISO C/native execution and borrowed-profile refusal. Exact hosted/full scope remain open under #999.
+
+## I map eight shared formals (#999, 2026-10-19)
+
+I own contract/baseline-only design/5.1-eight-shared-reconstruction from37b4ba14e. I retain unchanged source_borrow_eight.nano, three ordinary producers and the independently selected original-shadow input before any admission change. Eight shared Counter formals, weighted ADD/MUL, the p7.active assertion, distinct then aliased calls and once-only owner consumption remain intact. Existing three-mode witness/mutable rendering cannot be reused as eight-shared proof. Actual function/local counts, finite rendering and128 feasibility remain unproved until baseline/review; no source/schema/runtime edits.
+
+I begin the reviewed exact v1 eight-shared implementation after the accepted48/9 original baseline. I own the facts discriminator, Python analyzer/private typed origin-witness proof and mode-driven renderer. I preserve all old mixed/exclusive routes, allow repeated roots only for all-shared calls, require exact BOOL/signed64 literal types and complete final consumption, and retain the existing128 gate. No planner/scratch expansion precedes first measured refusal.
+
+The first eight-shared facts/analyzer gate passed, but the new proof correctly stopped before rendering on unhandled caller own_read operations. Actual destructuring produces16 nonconsuming field observations before final consumption. I retain the failure and add exact live nominal/field/tag observation handling without consuming origins or widening the read-only helper profile; regenerated local cost remains unmeasured.
+
+I retain the [first eight-shared rendering refusal](evidence/eight-shared-first-rendering-20261019/README.md): source proofs437/439 traversal visits pass and C publishes; Nano atomically refuses entry180/helper284, shadow estimate130. Existing read-only planner analysis reduces caller92 but helper stays284 (existing scratch247), so I enable no planner/scratch path. All source assertions remain. Shadow immediate literal-field comparison is only a proposed98-slot representation; exact target feasibility remains open.
+
+I qualify the exact eight-shared slice with the [receipt](evidence/eight-shared-reconstruction-20261019/README.md): actual ordinary92/103 and generated-shadow98/103, all seven methods green across retained separate terminals, signed boundary/native parity, exact128/129 and4096/4097 controls, twelve old-output byte matches and ten unchanged pins. I preserve initial proof/rendering refusals and test-fixture corrections. Helper-only same-bank SUB and caller-only existing planning do not change old profiles; full aggregate/platform qualification remains open.
+
+I tighten the eight-shared later-failure test after review: final caller field expectation now matches false, helper-assertion-removal causality control succeeds, exact assertion diagnostics exclude sanitizer failures, and reconstructed C uses-DNDEBUG. The focused all-three-producer method passes6.081s; no production change.

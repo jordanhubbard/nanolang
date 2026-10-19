@@ -1,0 +1,60 @@
+resource struct Counter { value: int, active: bool }
+fn weighted(p0: &Counter, p1: &Counter, p2: &Counter, p3: &Counter, p4: &Counter, p5: &Counter, p6: &Counter, p7: &Counter) -> int { let total: int = (+ (+ (+ (+ (+ (+ (+ (* p0.value 1) (* p1.value 2)) (* p2.value 3)) (* p3.value 4)) (* p4.value 5)) (* p5.value 6)) (* p6.value 7)) (* p7.value 8)) assert p7.active return total }
+shadow weighted {
+ let owner0: Counter = Counter { value: 1, active: true }
+ let owner1: Counter = Counter { value: 2, active: true }
+ let owner2: Counter = Counter { value: 3, active: true }
+ let owner3: Counter = Counter { value: 4, active: true }
+ let owner4: Counter = Counter { value: 5, active: true }
+ let owner5: Counter = Counter { value: 6, active: true }
+ let owner6: Counter = Counter { value: 7, active: true }
+ let owner7: Counter = Counter { value: 8, active: true }
+ assert (== (weighted &owner0 &owner1 &owner2 &owner3 &owner4 &owner5 &owner6 &owner7) 204)
+ assert (== (weighted &owner0 &owner0 &owner0 &owner0 &owner0 &owner0 &owner0 &owner0) 36)
+ let Counter { value, active } = owner0
+ assert (== value 1) assert active
+ let Counter { value, active } = owner1
+ assert (== value 2) assert active
+ let Counter { value, active } = owner2
+ assert (== value 3) assert active
+ let Counter { value, active } = owner3
+ assert (== value 4) assert active
+ let Counter { value, active } = owner4
+ assert (== value 5) assert active
+ let Counter { value, active } = owner5
+ assert (== value 6) assert active
+ let Counter { value, active } = owner6
+ assert (== value 7) assert active
+ let Counter { value, active } = owner7
+ assert (== value 8) assert active
+}
+fn main() -> int {
+ let owner0: Counter = Counter { value: 1, active: true }
+ let owner1: Counter = Counter { value: 2, active: true }
+ let owner2: Counter = Counter { value: 3, active: true }
+ let owner3: Counter = Counter { value: 4, active: true }
+ let owner4: Counter = Counter { value: 5, active: true }
+ let owner5: Counter = Counter { value: 6, active: true }
+ let owner6: Counter = Counter { value: 7, active: true }
+ let owner7: Counter = Counter { value: 8, active: true }
+ assert (== (weighted &owner0 &owner1 &owner2 &owner3 &owner4 &owner5 &owner6 &owner7) 204)
+ assert (== (weighted &owner0 &owner0 &owner0 &owner0 &owner0 &owner0 &owner0 &owner0) 36)
+ let Counter { value, active } = owner0
+ assert (== value 1) assert active
+ let Counter { value, active } = owner1
+ assert (== value 2) assert active
+ let Counter { value, active } = owner2
+ assert (== value 3) assert active
+ let Counter { value, active } = owner3
+ assert (== value 4) assert active
+ let Counter { value, active } = owner4
+ assert (== value 5) assert active
+ let Counter { value, active } = owner5
+ assert (== value 6) assert active
+ let Counter { value, active } = owner6
+ assert (== value 7) assert active
+ let Counter { value, active } = owner7
+ assert (== value 8) assert active
+ return 0
+}
+shadow main { assert true }

@@ -1,0 +1,50 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_ydfjt9f
+test_actual_128_129_publication (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_actual_128_129_publication) ... ok
+test_immutable_proof_and_exact_rendering (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_immutable_proof_and_exact_rendering) ... ok
+test_later_false_helper_assertion_stays_runtime_failure (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_later_false_helper_assertion_stays_runtime_failure) ... FAIL
+test_original_and_generated_shadow (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_original_and_generated_shadow) ... ok
+test_signed_multiplication_endpoints (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_signed_multiplication_endpoints) ... ERROR
+test_typed_identity_and_first_snapshot_refusals (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_typed_identity_and_first_snapshot_refusals) ... ok
+test_unchanged_all_producers_and_native (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_unchanged_all_producers_and_native) ... ok
+
+======================================================================
+ERROR: test_signed_multiplication_endpoints (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_signed_multiplication_endpoints)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_eight_shared_reconstruction.py", line 92, in test_signed_multiplication_endpoints
+    self.qualify(self.module(compiler,endpoint_source(values,weights),'eight-endpoint-'+str(index)))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_nested_path_reconstruction.py", line 79, in qualify
+    emitter=OwnedEmit(functions,'nano',facts['layouts'])
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 717, in __init__
+    self.witness = (self.eight_shared_witness(functions, layouts) if self.eight_shared else
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 792, in eight_shared_witness
+    witness, self.eight_shared_proof = prove_eight_shared(functions, layouts)
+                                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_eight_shared.py", line 109, in prove_eight_shared
+    require(value is not None and type(tag) is int and value.tag == tag,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            'require actual typed literal first-call snapshots')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_reconstruction.py", line 12, in require
+    raise Refusal('I ' + message)
+nanoisa_reconstruction.Refusal: I require actual typed literal first-call snapshots
+
+======================================================================
+FAIL: test_later_false_helper_assertion_stays_runtime_failure (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_later_false_helper_assertion_stays_runtime_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_eight_shared_reconstruction.py", line 141, in test_later_false_helper_assertion_stays_runtime_failure
+    module=source.with_suffix('.nvm');self.command([compiler,source,'--emit-nvm','-o',module])
+                                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 0: I require I require explicit owned entry execution and a non-escaping scalar helper in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 130.449s
+
+FAILED (failures=1, errors=1)

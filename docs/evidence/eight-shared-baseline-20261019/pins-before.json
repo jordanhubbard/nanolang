@@ -1,0 +1,42 @@
+{
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": {
+    "resolved": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+    "sha256": "18a870082df7f6f1522b3706e82a794db4b1c12410fc1a415303b3b51898a2cc"
+  },
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": {
+    "resolved": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+    "sha256": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94"
+  },
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": {
+    "resolved": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+    "sha256": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917"
+  },
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": {
+    "resolved": "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+    "sha256": "420014efed1644e6ce93661d661d828b1981861012654e64deec93596b66ef9b"
+  },
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": {
+    "resolved": "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+    "sha256": "2387eaacf67eec87c7f049addf7e88c75add5764e9b11b3600477da40d7222b6"
+  },
+  "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl": {
+    "resolved": "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+    "sha256": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c"
+  },
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts": {
+    "resolved": "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts",
+    "sha256": "8d9dcaec0d9b4e6ec31534d3958b6d084a37f07f04ad3e80521d629725bf76eb"
+  },
+  "/private/tmp/owned-string-baseline-20261019/shadow_driver": {
+    "resolved": "/private/tmp/owned-string-baseline-20261019/shadow_driver",
+    "sha256": "c23774c828833a8213e51c7cf16185d55902fe1706f383e6b4084570b15db571"
+  },
+  "/Users/jkh/Src/nanolang-51-harness/scripts/nanoisa_owned_reconstruction.py": {
+    "resolved": "/Users/jkh/Src/nanolang-51-harness/scripts/nanoisa_owned_reconstruction.py",
+    "sha256": "029c5658f12db76fab3673f82cebb8bb81cb83ddf729da6e47ff7bc0556d161a"
+  },
+  "/private/tmp/eight-shared-baseline-20261019/original.nano": {
+    "resolved": "/private/tmp/eight-shared-baseline-20261019/original.nano",
+    "sha256": "61a28c619a82e72635c32033d29d9059687f782e0355c4d4f788fd04fa7309f1"
+  }
+}

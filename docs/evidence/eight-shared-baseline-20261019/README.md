@@ -1,0 +1,7 @@
+# I retain the eight-shared original baseline
+
+I use the unchanged tests/nanoisa/fixtures/source_borrow_eight.nano from aggregate37b4ba14e. Actual seed and both retained fresh3446 stages produce ordinary main/weighted with48/9locals; the separately selected original-shadow executable from the pinned C-hosted driver has shadowentry/weighted48/9locals. All four have exactly two functions, one Counter{INT,BOOL} resource and eight shared helper formals. Every original verifies and executes with status0/empty stdout.
+
+All four current facts queries and C/Nano reconstruction attempts refuse. The latter preserve preexisting sentinel output. No generated source, local feasibility or implementation coverage is claimed. All ten selected provider/source hashes remain unchanged, including newly rebuilt aggregate facts. Commands, complete dumps, errors and process-cleanup statuses are retained; runtime binaries remain under /private/tmp/eight-shared-baseline-20261019.
+
+Existing producer test_multiple_parameters_preserve_callers_and_metadata already requires exact positional metadata and ordinary/shadow parity. This baseline specifically measures original accepted modules before a proposed reconstruction extension. The eight-shared source performs a distinct-owner call expecting204 and an eight-times-same-owner call expecting36, then consumes each of the eight owners once and checks unchanged INT/BOOL fields. No source assertion was removed.

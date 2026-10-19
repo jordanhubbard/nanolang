@@ -1,0 +1,14 @@
+[
+  {
+    "compiler": "/opt/homebrew/bin/gcc-16",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "compiler": "/opt/homebrew/opt/llvm/bin/clang",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]
