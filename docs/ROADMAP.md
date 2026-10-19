@@ -15477,3 +15477,11 @@ I retain [my bounded field replacement evidence](evidence/public-record-field-mu
 - [x] I qualify real coverage-instrumented runtime linkage plus flag precedence, retaining the failing Linux log and separate integrated hosted acceptance.
 
 I retain [field metadata coverage linkage evidence](evidence/field-metadata-coverage-link-20261018.md); the integrated Linux coverage rerun remains open.
+
+### Local resource reconstruction (#999, 2026-10-18)
+
+- [x] I establish actual consuming-destructure syntax and numeric nominal layout mapping, retaining my [bounded contract](NANOISA_OWNED_LOCAL_RECONSTRUCTION.md) before implementation.
+- [x] I extract verified resource/layout/local facts and reconstruct ordered construction/move/unpack through one owned region tree into structured C and Nano; unsupported paths refuse atomically.
+- [x] I qualify actual C-hosted source producers, paired executions, authority/nominal refusals and existing scalar neighbors. Full generic/borrow/call/control reconstruction and fresh-stage/platform qualification remain open.
+
+I retain [local resource reconstruction evidence](evidence/owned-local-reconstruction-20261018/README.md), including actual retained Stage1/Stage2 producer checks. This bounded slice does not close #999 or full ownership reconstruction.
