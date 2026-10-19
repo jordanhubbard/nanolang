@@ -1,0 +1,20 @@
+{
+  "base": "1e13109d19f9a6436173b341198edbc69109be73",
+  "design": "97fbde3a4",
+  "baseline": "198970161",
+  "target": "tests.test_owned_string_reconstruction.OwnedStringReconstruction",
+  "methods": 10,
+  "corrected_class_methods": 9,
+  "corrected_class_seconds": 54.982,
+  "followup_name_and_old_goldens_methods": 5,
+  "followup_seconds": 7.191,
+  "final_defensive_seconds": 0.238,
+  "command_count": 797,
+  "artifact_count": 3590,
+  "environment": {
+    "NANOLANG_OWNED_RECONSTRUCTION_COMPILERS": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+    "NANOLANG_OWNED_STRING_SHADOW_EMITTER": "/private/tmp/owned-string-baseline-20261019/shadow_driver",
+    "NANO_NATIVE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang"
+  },
+  "representative_source_count": 24
+}
