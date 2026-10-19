@@ -1,0 +1,14 @@
+test_actual_checker_epoch_and_raw_boundary (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_checker_epoch_and_raw_boundary) ... ok
+test_actual_observe_consume_and_advisory_independence (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_observe_consume_and_advisory_independence) ... ok
+test_borrowed_resource_misuse_preserves_output (tests.test_affine_use_metadata.AffineUseMetadata.test_borrowed_resource_misuse_preserves_output) ... ok
+test_borrowed_resource_roots_observe_without_consuming (tests.test_affine_use_metadata.AffineUseMetadata.test_borrowed_resource_roots_observe_without_consuming) ... ok
+test_branch_local_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_branch_local_checked_sites) ... ok
+test_imported_and_branch_move_refusals (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_and_branch_move_refusals) ... ok
+test_imported_same_spelled_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_same_spelled_checked_sites) ... ok
+test_invalid_resource_uses_preserve_output (tests.test_affine_use_metadata.AffineUseMetadata.test_invalid_resource_uses_preserve_output) ... ok
+test_resource_synthetic_shadow_entry (tests.test_affine_use_metadata.AffineUseMetadata.test_resource_synthetic_shadow_entry) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 78.873s
+
+OK
