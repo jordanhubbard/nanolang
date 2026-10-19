@@ -15653,3 +15653,5 @@ I do not broaden global inference support in this correction.
 
 - [x] I retain the successful 17-step combined bootstrap at `7c7f3f5af` in [my checkpoint receipt](evidence/combined-bootstrap-7c7f3-20261019/README.md).
 - [ ] I qualify the integrated nested-array, global-context, borrowed-root and FLOAT corrections with a new raw bootstrap and exact platform gates; I wire nested proof/runtime targets into the compiler contracts workflow.
+
+- [x] I pass the exact `4cfad3737` 17-step bootstrap and 53-method fresh three-producer source matrix, retaining [my combined receipt](evidence/combined-bootstrap-4cfad-20261019/README.md). Linux/Darwin hosted gates and the instrumented bootstrap performance blocker remain open.
