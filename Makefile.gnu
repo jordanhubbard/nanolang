@@ -6907,3 +6907,8 @@ test-record-array-public: test-record-array-public-build
 	RECORD_ARRAY_PUBLIC_CC="$(CC)" RECORD_ARRAY_PUBLIC_CFLAGS="$(CFLAGS)" RECORD_ARRAY_PUBLIC_OBJECTS="$(filter-out %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(filter %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)))" RECORD_ARRAY_PUBLIC_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_record_array_public
 
 test-units: test-record-array-public
+
+.PHONY: test-native-process
+test-native-process:
+	python3 -m unittest -v tests.test_native_process
+test-one-ir-compiler test-units: test-native-process

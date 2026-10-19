@@ -168,7 +168,7 @@ jobs:
           make -f Makefile.gnu CC="${CC:-cc}" test-one-ir-compiler \
             test-native-nested-arrays test-native-array-identity \
             test-native-generic-record-fields test-native-nominal-order \
-            test-imported-ordinary-authority test-computed-u8-context \
+            test-imported-ordinary-authority test-computed-u8-context test-record-array-public \
             2>&1 | tee .test_output/retirement/compiler-managed.log
 
       - name: Qualify advisory metadata and paired source effects
@@ -179,10 +179,11 @@ jobs:
           NANOLANG_EFFECT_CFLAGS: '-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer'
         run: |
           set -o pipefail
+          NANOLANG_AFFINE_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
           NANOLANG_MATCH_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
           NANOLANG_EFFECTS_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
           make -f Makefile.gnu CC="${CC:-cc}" test-local-binding-producers \
-            test-effect-binding-metadata test-function-purity-metadata test-function-effects-metadata test-match-coverage-metadata \
+            test-effect-binding-metadata test-function-purity-metadata test-function-effects-metadata test-match-coverage-metadata test-function-affine-metadata \
             test-generic-binding-metadata test-owned-effect-c-source test-selfhost-effects \
             2>&1 | tee .test_output/retirement/metadata-effects.log
 

@@ -15458,3 +15458,9 @@ I retain [the public VM allocation-prefix receipt](evidence/public-record-array-
 - [x] #1001: I preserve the precise zero-initialized native record-local sentinel during collection. Review identified statically typed locals registered before their first store; an admitted fixture calling a helper before packing the record, with the collection budget forced low, reproduced an invariant abort. I skip only a fully empty wrapper, retain malformed wrapper refusal, and require the unchanged public/lifetime corpus after correction.
 
 I retain [my native identity prerequisite evidence](evidence/native-record-identity-20261018/README.md). Public AGG_SET admission and final platform qualification remain open.
+
+### 2026-10-18 — Combined hosted qualification wiring
+
+- [x] I include my public record-array route in the managed-runtime matrix, and all three fresh artifact producers in affine completion metadata qualification.
+- [x] I run native process/deadline controls with my OneIR compiler corpus; all six process/trace controls pass locally in 5.327 seconds. Ruby YAML parsing validates the workflow; the default Python lacks PyYAML locally.
+- [ ] I require a fresh combined bootstrap and exact-head Linux/Darwin qualification after integration; component receipts do not replace these gates.
