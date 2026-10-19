@@ -15594,3 +15594,10 @@ My first isolated diagnostic-control invocation accidentally imported a TestCase
 class directly, so unittest also discovered the complete unrelated source-plan
 corpus without its compiler providers. I preserve that failed terminal and import
 the module instead; no production assertion is removed.
+
+### Full compiler product build budget (#982)
+
+- [x] I preserve the hosted Darwin managed-suite failure at the native compiler's full-source self-rebuild (fixed 900 seconds despite CMD_TIMEOUT=1800). `workspace_repairs` owns isolated `fix/5.1-one-ir-product-budget`, only the OneIrCompiler build call and retained evidence.
+- [x] I use the existing explicit host-build budget for that full compiler product, preserving the 900-second default, guest deadlines, assertions and process-group cleanup; qualify budget selection and cleanup before aggregate product validation.
+
+- [ ] I run the actual full compiler product with pinned providers after the coordinator makes a worker slot available; my [budget receipt](evidence/one-ir-product-budget-20261019/README.md) does not claim that qualification yet.
