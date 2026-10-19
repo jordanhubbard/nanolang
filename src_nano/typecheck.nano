@@ -5928,7 +5928,7 @@ shadow owned_pattern_complete {
     assert (owned_pattern_complete generic (parser_get_let generic 1))
 }
 
-fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
+fn check_let_statement_named(parser: Parser, let_node: ASTLet, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string, binding_name: string) -> array<Symbol> {
     if (and let_node.is_destructure (not (owned_pattern_complete parser let_node))) {
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0036" "I require every record or selected variant field exactly once in an owned pattern." (Diagnostics.diag_location file_name let_node.line let_node.column)))
         return symbols
@@ -5940,7 +5940,7 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
             return symbols
         }
         # Preserve the concrete union arguments on the hidden payload alias.
-        return (env_add_symbol symbols (symbol_new let_node.name selected let_node.is_mut false 0 (empty_param_types) (type_void)))
+        return (env_add_symbol symbols (symbol_new binding_name selected let_node.is_mut false 0 (empty_param_types) (type_void)))
     }
     # Allow variable redefinition (shadowing) to match C reference compiler behavior.
     # Shadow tests commonly reuse names (e.g., `let result` across multiple asserts).
@@ -5952,7 +5952,7 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
             let inferred_str: string = (cond ((and (== inferred.kind TypeKind.TYPE_UNION) (!= inferred.element_type_name "")) inferred.element_type_name) (else (type_to_string inferred)))
             /* Backfill the type into the AST so the transpiler can use it */
             (parser_set_let_var_type parser node_id inferred_str)
-            let sym: Symbol = (symbol_new let_node.name inferred let_node.is_mut false 0 (empty_param_types) (type_void))
+            let sym: Symbol = (symbol_new binding_name inferred let_node.is_mut false 0 (empty_param_types) (type_void))
             return (env_add_symbol symbols sym)
         } else {
             let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "type-inferred let requires an initializer" (Diagnostics.diag_location file_name let_node.line let_node.column))
@@ -6029,8 +6029,25 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
         (print "")
     }
 
-    let sym: Symbol = (symbol_new let_node.name declared_type let_node.is_mut false 0 (empty_param_types) (type_void))
+    let sym: Symbol = (symbol_new binding_name declared_type let_node.is_mut false 0 (empty_param_types) (type_void))
     return (env_add_symbol symbols sym)
+}
+
+
+fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
+    return (check_let_statement_named parser let_node node_id symbols diags file_name let_node.name)
+}
+
+shadow check_let_statement_named {
+    let parser: Parser = (resource_test_parser "let answer: int = 41 fn main()->int{return 0}")
+    let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let symbols: array<Symbol> = []
+    let checked: array<Symbol> = (check_let_statement_named parser (parser_get_let parser 0) 0 symbols diagnostics "global.nano" "module_answer")
+    assert (== (list_CompilerDiagnostic_length diagnostics) 0)
+    assert (< (env_lookup checked "answer") 0)
+    assert (>= (env_lookup checked "module_answer") 0)
+    assert (< (env_lookup symbols "answer") 0)
+    assert (== (parser_get_let parser 0).name "answer")
 }
 
 shadow check_let_statement {
@@ -7501,7 +7518,10 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
     set gli 0
     while (< gli global_let_count) {
         if (not (at local_lets gli)) {
-            (check_let_statement parser (parser_get_let parser gli) gli symbols env.diagnostics file_name)
+            # Initializer validation appends to the shared symbol array. I use
+            # the declaration's bound identity, never its module-local spelling.
+            let declaration: ASTLet = (parser_get_let parser gli)
+            set symbols (check_let_statement_named parser declaration gli symbols env.diagnostics file_name (mb_lookup (mb_owner declaration.line) declaration.name))
         }
         set gli (+ gli 1)
     }

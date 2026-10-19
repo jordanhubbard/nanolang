@@ -1,0 +1,30 @@
+[
+  {
+    "path": "src_nano/typecheck.nano",
+    "sha256": "9118c371cd0ebbb478a9deb2a0238eae359a75010e3d3cd622a0906926363d82"
+  },
+  {
+    "path": "tests/test_imported_globals.py",
+    "sha256": "a5029abae4ba9778cdbb761f654a530c549eca8beb7361c40e85f711b867320b"
+  },
+  {
+    "path": "/private/tmp/nanoc-imported-context",
+    "sha256": "ab00cb4d8238234da896cbbe8fab4d37f3171210a5d7b2c120f07ec30798ee2c"
+  },
+  {
+    "path": "bin/nano_virt",
+    "sha256": "c0f2d31facb0bb3a557b2429755324458c6562bc0215e726fbf9e17a3aa7753e"
+  },
+  {
+    "path": "bin/nano_vm",
+    "sha256": "46b15689db633431d4dd3823d5224dce0d581edcd95b67d803d9ca699c6bf6a6"
+  },
+  {
+    "path": "bin/nvm2c",
+    "sha256": "624791e41ee204886c2472983c0637c0f9d2c529aa80dc4c3eb9ae08a7d101d5"
+  },
+  {
+    "path": "bin/nano_aot_runtime.o",
+    "sha256": "d48980563f3c31ce8eb4b0b1a3309a7dbc17749fd9a42f445bca4c42ff487863"
+  }
+]
