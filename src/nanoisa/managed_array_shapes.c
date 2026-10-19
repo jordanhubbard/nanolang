@@ -125,8 +125,51 @@ static int global_invalidates(Analysis *a,Function *f,Value *state,uint32_t slot
 }
 /* I preflight all global indices before allocating a function state. The
  * retained structural decoder remains owned until its ordinary transfer below. */
+/* I add no graph allocation to modules without tails. A tail edge is
+ * admitted only outside cycles of the complete direct CALL/TAIL_CALL graph;
+ * unrelated preexisting CALL recursion remains unchanged. */
+static int tail_prepare(Analysis *a) {
+    if(!a->structure)return 1;
+    uint32_t count=a->module->function_count;
+    uint64_t (*reach)[4]=analysis_alloc(a,count,sizeof *reach);
+    if(!reach)return stop(a,NVM_ARRAY_MEMORY,0,0,"I could not allocate my tail call graph.");
+    int ok=0;
+    for(uint32_t fi=0;fi<count;fi++) {
+        const VmDecodedFunction *f=&a->structure->decoded[fi];
+        for(uint32_t i=0;i<f->instruction_count;i++) {
+            if(!analysis_work(a,1))goto done;
+            const DecodedInstruction *in=&f->instructions[i].instruction;
+            if(in->opcode!=OP_CALL && in->opcode!=OP_TAIL_CALL)continue;
+            uint32_t target=in->operands[0].u32;
+            if(target>=count){stop(a,NVM_ARRAY_INVALID,fi,0,"I require a closed direct tail graph.");goto done;}
+            reach[fi][target/64]|=UINT64_C(1)<<(target%64);
+        }
+    }
+    for(uint32_t via=0;via<count;via++)for(uint32_t from=0;from<count;from++) {
+        if(!analysis_work(a,5))goto done;
+        if(reach[from][via/64]&(UINT64_C(1)<<(via%64)))
+            for(unsigned word=0;word<4;word++)reach[from][word]|=reach[via][word];
+    }
+    for(uint32_t fi=0;fi<count;fi++) {
+        const VmDecodedFunction *f=&a->structure->decoded[fi];
+        for(uint32_t i=0;i<f->instruction_count;i++) {
+            if(!analysis_work(a,1))goto done;
+            const DecodedInstruction *in=&f->instructions[i].instruction;
+            if(in->opcode!=OP_TAIL_CALL)continue;
+            uint32_t target=in->operands[0].u32;
+            if(target==fi || (reach[target][fi/64]&(UINT64_C(1)<<(fi%64)))) {
+                stop(a,NVM_ARRAY_UNRESOLVED,fi,f->instructions[i].byte_offset,
+                     "I require an acyclic direct tail edge.");goto done;
+            }
+        }
+    }
+    ok=1;
+done:
+    free(reach);return ok;
+}
 static int global_prepare(Analysis *a) {
     if(!a->structure)return 1;
+    int tails=0;
     if(!analysis_work(a,sizeof *a->global_flow))return 0;
     a->global_flow=analysis_alloc(a,1,sizeof *a->global_flow);
     if(!a->global_flow)return stop(a,NVM_ARRAY_MEMORY,0,0,"I could not allocate private global flow.");
@@ -135,6 +178,7 @@ static int global_prepare(Analysis *a) {
         for(uint32_t i=0;i<f->instruction_count;i++) {
             if(!analysis_work(a,2))return 0;
             const DecodedInstruction *in=&f->instructions[i].instruction;
+            tails|=in->opcode==OP_TAIL_CALL;
             if(in->opcode!=OP_LOAD_GLOBAL && in->opcode!=OP_STORE_GLOBAL)continue;
             uint32_t slot=in->operands[0].u32;
             if(slot>=SLOTS)return stop(a,NVM_ARRAY_LIMIT,fi,f->instructions[i].byte_offset,"I reached my global flow slot bound.");
@@ -142,6 +186,7 @@ static int global_prepare(Analysis *a) {
             if(in->opcode==OP_STORE_GLOBAL)a->global_flow->writes[fi][slot/64]|=UINT64_C(1)<<(slot%64);
         }
     }
+    if(tails && !tail_prepare(a))return 0;
     uint64_t cells=(uint64_t)a->global_count*a->module->function_count;
     if(cells>CELLS-a->state_cells)return stop(a,NVM_ARRAY_LIMIT,0,0,"I reached my global exit cell bound.");
     a->state_cells+=cells;
@@ -161,7 +206,7 @@ static int global_prepare(Analysis *a) {
             for(uint32_t i=0;i<f->instruction_count;i++) {
                 if(!analysis_work(a,1))return 0;
                 const DecodedInstruction *in=&f->instructions[i].instruction;
-                if(in->opcode!=OP_CALL)continue;
+                if(in->opcode!=OP_CALL && in->opcode!=OP_TAIL_CALL)continue;
                 uint32_t target=in->operands[0].u32;
                 if(target>=a->module->function_count)return stop(a,NVM_ARRAY_INVALID,fi,0,"I require a closed global-flow call.");
                 if(!analysis_work(a,4))return 0;
@@ -273,7 +318,7 @@ static int supported(uint8_t op) {
     }
 }
 bool nvm_record_array_opcode_supported(uint8_t op) {
-    return op!=OP_ENUM_VAL && (supported(op) || record_operation(op));
+    return op!=OP_ENUM_VAL && (supported(op) || record_operation(op) || op==OP_TAIL_CALL);
 }
 #include "record_array_origins.inc"
 static int packed(uint8_t t) { return t==TAG_INT || t==TAG_U8 || t==TAG_FLOAT || t==TAG_BOOL; }
@@ -529,7 +574,7 @@ static int walk(Analysis *a,uint32_t fi) {
         int pops=info->pop_count,pushes=info->push_count;
         if(op==OP_ARR_LITERAL || op==OP_STRUCT_LITERAL){pops=in->operands[1].u16;pushes=1;}
         if(op==OP_AGG_PACK){pops=in->operands[3].u16;pushes=1;}
-        if(op==OP_CALL){pops=a->module->functions[in->operands[0].u32].arity;pushes=a->module->functions[in->operands[0].u32].result_count;}
+        if(op==OP_CALL || op==OP_TAIL_CALL){pops=a->module->functions[in->operands[0].u32].arity;pushes=a->module->functions[in->operands[0].u32].result_count;}
         if(op==OP_CALL_EXTERN && a->portable_reads){pops=1;pushes=1;}
         if(op==OP_RET) {
             if(a->structure && depth!=entry->result_count)
@@ -537,6 +582,10 @@ static int walk(Analysis *a,uint32_t fi) {
             if(entry->result_count)a->changed|=merge(&f->result,stack[depth-1]);
             if(!global_return(a,fi,state))return 0;
             continue;
+        }
+        if(op==OP_TAIL_CALL) {
+            if(depth!=pops)return stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I require exactly the direct tail arguments.");
+            pushes=0;
         }
         if(pops<0 || pushes<0 || depth<pops || depth-pops+pushes>f->stack)
             return stop(a,NVM_ARRAY_INVALID,fi,d->byte_offset,"I require a verified bounded instruction stack effect.");
@@ -600,7 +649,7 @@ static int walk(Analysis *a,uint32_t fi) {
             result=read_record(a,stack[base],in->operands[0].u16);break;
         case OP_STRUCT_SET: case OP_AGG_SET:
             write_record(a,stack[base],in->operands[0].u16,stack[depth-1]);result=stack[base];break;
-        case OP_CALL: {
+        case OP_CALL: case OP_TAIL_CALL: {
             uint32_t callee=in->operands[0].u32;
             if(!seed(a,callee,stack+base,a->global_flow?global_values(f,state):NULL))return 0;
             if(a->global_flow) {
@@ -612,7 +661,13 @@ static int walk(Analysis *a,uint32_t fi) {
                     global_values(f,state)[slot]=global_plain(a->global_flow->exits[(size_t)callee*a->global_count+slot]);
                 }
             }
-            result=a->functions[callee].result;break;
+            result=a->functions[callee].result;
+            if(op==OP_TAIL_CALL) {
+                if(entry->result_count)a->changed|=merge(&f->result,result);
+                if(!global_return(a,fi,state))return 0;
+                goto next_instruction;
+            }
+            break;
         }
         default:break;
         }
@@ -637,6 +692,7 @@ static int walk(Analysis *a,uint32_t fi) {
             if(op==OP_JMP)continue;
         }
         if(!join(a,fi,index+1,state,depth))return 0;
+    next_instruction:;
     }
     return 1;
 }
@@ -655,7 +711,7 @@ static int final_check(Analysis *a) {
             if(!analysis_work(a,512))return 0;
             if(!f->seen[pc])continue;
             VmDecodedInstruction *d=&f->decoded.instructions[pc];uint8_t op=d->instruction.opcode;
-            if(a->structure && op==OP_CALL) {
+            if(a->structure && (op==OP_CALL || op==OP_TAIL_CALL)) {
                 uint32_t target=d->instruction.operands[0].u32;
                 const NvmFunctionEntry *callee=&a->module->functions[target];
                 Value *stack=f->states+(size_t)pc*f->stride+f->locals;
@@ -767,7 +823,7 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
             DecodedInstruction in={0};uint32_t width=isa_decode(m->code+e->code_offset+pc,e->code_length-pc,&in);
             if(!width){stop(a,NVM_ARRAY_INVALID,fi,pc,"I require decodable instructions.");goto done;}
             if(++instructions>INSTRUCTIONS){stop(a,NVM_ARRAY_LIMIT,fi,pc,"I reached my decoded instruction limit.");goto done;}
-            if(!supported(in.opcode) && !(a->records && record_operation(in.opcode)) && !(portable_reads && in.opcode==OP_CALL_EXTERN)){stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I have no proved transfer for this instruction.");goto done;}
+            if(!supported(in.opcode) && !(a->structure && in.opcode==OP_TAIL_CALL) && !(a->records && record_operation(in.opcode)) && !(portable_reads && in.opcode==OP_CALL_EXTERN)){stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I have no proved transfer for this instruction.");goto done;}
             if(in.opcode==OP_LOAD_GLOBAL || in.opcode==OP_STORE_GLOBAL) {
                 uint32_t global=in.operands[0].u32;
                 if(global>=SLOTS){stop(a,NVM_ARRAY_LIMIT,fi,pc,"I reached my array analysis global limit.");goto done;}

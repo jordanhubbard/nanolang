@@ -1,0 +1,2 @@
+I failed tail VM: I require the admitted record-array root activation.
+I failed line 73: status==VM_OK && vm.frame_count==0

@@ -69,7 +69,7 @@ class RecordArrayVm(unittest.TestCase):
             output = self.command(mode + '-run', [str(exe)])
             self.assertIn(b'private mixed VM checks; no public or generated consumer admission', output)
             if observed:
-                self.assertIn(b'I retired all 93 recipes and checked all 256 opcode decisions', output)
+                self.assertIn(b'I retired all 94 recipes and checked all 256 opcode decisions', output)
                 self.assertIn(b'allocation positions in both modes with independent recovery', output)
             print(output.decode(errors='replace').strip(), flush=True)
 

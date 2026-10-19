@@ -6927,3 +6927,13 @@ test-units: test-publication-allocation
 test-owned-reconstruction: nvm2hl nano_virt nano_vm nvm2c
 	python3 -m unittest -v tests.test_owned_reconstruction
 test-units: test-owned-reconstruction
+
+.PHONY: test-record-array-tail-build
+test-record-array-tail-build: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nvm2c-runtime
+	$(CC) $(CFLAGS) -Isrc -Isrc/nanoisa tests/nanoisa/test_record_array_tail.c tests/nanoisa/record_array_alloc.c $(filter-out %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(filter %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(LDFLAGS) -o $(BIN_DIR)/test_record_array_tail
+
+.PHONY: test-record-array-tail
+test-record-array-tail: test-record-array-tail-build
+	RECORD_ARRAY_TAIL_CC="$(CC)" RECORD_ARRAY_TAIL_CFLAGS="$(CFLAGS)" RECORD_ARRAY_TAIL_OBJECTS="$(filter-out %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(filter %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)))" RECORD_ARRAY_TAIL_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_record_array_tail
+
+test-units: test-record-array-tail

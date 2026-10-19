@@ -15516,3 +15516,15 @@ I retain [local resource reconstruction evidence](evidence/owned-local-reconstru
 - [ ] I require another fresh combined bootstrap and exact Linux/Darwin results before treating these integrated sources as qualified.
 
 My fresh all-stage publisher qualification exposed a harness prerequisite: configured artifact producers avoid the default native emitter build, so its incidental Nanoisa shared-library generation was absent. I explicitly build and execute a real host-query provider probe before the source corpus; I retain the original missing-library failures and leave all query/publication assertions intact.
+- [x] Under #1001 I review [my direct record-array tail-transfer proposal](NANOISA_RECORD_ARRAY_TAIL_CALLS.md) before implementation: bounded non-cyclic tail edges, complete result/global/origin transfer, explicit recipe/VM preflight, native roots, transport and failure qualification. Existing CALL-only recursion remains unchanged; recursive tail admission is separate.
+
+### Bounded direct record-array tail implementation (#1001)
+
+- [x] I review my direct-tail contract before editing admission and retain isolated ownership in `fix/5.1-record-array-tail`.
+- [x] I implement charged acyclic tail-edge proof, terminal result/global transfer, explicit copied recipes and independent VM validation with cumulative staged-owner headroom.
+- [x] I qualify actual public VM, canonical assembly, v2 transport, forced-GC native execution, failure prefixes, copied recipe controls and rejected cycles/invalid signatures.
+- [x] I qualify paired source publication and keep recursive tails, unsupported array profiles, full #1001 and exact fresh-generation/platform acceptance open.
+
+- [x] I repair and qualify the distinct public tail path: its scoped handler needs staged retain headroom before mutation, and root-tail assertion resumption must track the actual invocation-local replacement identity while preserving original host-entry authorization.
+
+I retain [my direct-tail receipt](evidence/record-array-tail-20261018/README.md), including the reproduced public root-resume defect, scoped repair and independent public/private lifetime evidence.

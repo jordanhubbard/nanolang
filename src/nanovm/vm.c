@@ -291,6 +291,7 @@ typedef struct {
     const NvmModule *module;
     bool mixed, owner_arrays, ordinary_arrays;
     uint32_t ordinary_root;
+    uint32_t *ordinary_active_root; /* Borrowed only during the synchronous root call. */
     uint32_t global_count;
     const NvmModule *global_module;
     VmResult refusal;
@@ -455,7 +456,7 @@ fail:nvm_owned_array_plan_free(plan);return false;
 }
 
 static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
-    proof->module=NULL;proof->mixed=false;proof->owner_arrays=false;proof->ordinary_arrays=false;proof->global_count=0;proof->global_module=NULL;proof->refusal=VM_OK;proof->reason=NULL;
+    proof->module=NULL;proof->mixed=false;proof->owner_arrays=false;proof->ordinary_arrays=false;proof->ordinary_active_root=NULL;proof->global_count=0;proof->global_module=NULL;proof->refusal=VM_OK;proof->reason=NULL;
     if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED)return vm_owner_array_invocation_prepare(vm,proof);
     if(vm && nvm_mixed_samples_candidate(vm->module))return vm_mixed_invocation_prepare(vm,proof,false);
     bool required=false;
@@ -1504,6 +1505,29 @@ static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...)
  * external operation (I/O, FFI, halt) or completes / errors.
  * ======================================================================== */
 
+/* I reserve every staged argument retain before dropping any frame root.
+ * Duplicate heap arguments consume cumulative headroom, not one retain each
+ * against the same unchanged counter. This helper never mutates an owner. */
+static VmResult vm_tail_arguments_preflight(VmState *vm,const NvmFunctionEntry *callee,uint32_t target) {
+    if(!stack_has_operands(vm,callee->arity))return VM_ERR_STACK_UNDERFLOW;
+    for(uint16_t i=0;i<callee->arity;i++) {
+        NanoValue value=stack_peek(vm,callee->arity-1-i);
+        if(vm->module->function_param_types && vm->module->function_param_types[target]) {
+            uint8_t tag=vm->module->function_param_types[target][i];
+            if(tag!=TAG_VOID && value.tag!=tag)return VM_ERR_TYPE_ERROR;
+        }
+        if(val_is_heap_obj(value)) {
+            if(!value.as.obj)return VM_ERR_TYPE_ERROR;
+            uint32_t copies=0;
+            for(uint16_t j=0;j<callee->arity;j++) {
+                NanoValue other=stack_peek(vm,j);
+                if(val_is_heap_obj(other) && other.as.obj==value.as.obj)copies++;
+            }
+            if(((VmHeapHeader *)value.as.obj)->ref_count>UINT32_MAX-copies)return VM_ERR_MEMORY;
+        }
+    }
+    return VM_OK;
+}
 /* I check the actual next retain before the unchanged shared handler commits
  * it. A fused field load retains the field, not its containing shell. */
 static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
@@ -1603,7 +1627,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
     }
     if(admitted && proof->ordinary_arrays) {
         if(!vm->frame_count || vm->frame_count>VM_MAX_FRAMES ||
-           vm->frames[0].fn_idx!=proof->ordinary_root)
+           !proof->ordinary_active_root || vm->frames[0].fn_idx!=*proof->ordinary_active_root)
             return trap_error(vm,VM_ERR_TYPE_ERROR,"I require the admitted record-array root activation.");
         for(uint32_t i=0;i<vm->frame_count;i++)if(vm->frames[i].module!=proof->module)
             return trap_error(vm,VM_ERR_TYPE_ERROR,"I require standalone record-array frames.");
@@ -3126,6 +3150,13 @@ dynamic_div:
                                   "Tail-call function %u needs %u arguments",
                                   callee_idx, callee->arity);
 
+            if(admitted && proof->ordinary_arrays) {
+                if(frame->stack_base>vm->stack_size || frame->local_count>vm->stack_size-frame->stack_base ||
+                   vm->stack_size-frame->stack_base-frame->local_count!=callee->arity)
+                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I require exactly the admitted tail arguments.");
+                VmResult checked=vm_tail_arguments_preflight(vm,callee,callee_idx);
+                if(checked!=VM_OK)return trap_error(vm,checked,"I could not stage every admitted tail argument.");
+            }
             VmResult reserved = stack_reserve_frame(vm, frame->stack_base, callee);
             if (reserved != VM_OK)
                 return trap_error(vm, reserved, "I could not reserve the tail-call frame.");
@@ -3159,6 +3190,8 @@ dynamic_div:
                 frame->owned_callable = val_void();
             }
             frame->fn_idx = callee_idx;
+            if(admitted && proof->ordinary_arrays && vm->frame_count==1)
+                *proof->ordinary_active_root=callee_idx;
             frame->instruction_ip = callee->code_offset;
             frame->local_count = callee->local_count;
             frame->current_line = 0;
@@ -5181,7 +5214,10 @@ static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue 
     bool owned = nvm_uses_owned_transfers(vm->module) || proof->mixed || proof->owner_arrays || proof->ordinary_arrays || proof->global_count;
     uint32_t floor = vm->activation_floor;
     vm->activation_floor = vm->frame_count;
+    uint32_t active_root=fn_idx;uint32_t *previous_root=proof->ordinary_active_root;
+    if(proof->ordinary_arrays)proof->ordinary_active_root=&active_root;
     VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void(),proof);
+    proof->ordinary_active_root=previous_root;
     vm->activation_floor = floor;
     if (result!=VM_OK) {
         vm_clear_reference_activations(vm);
