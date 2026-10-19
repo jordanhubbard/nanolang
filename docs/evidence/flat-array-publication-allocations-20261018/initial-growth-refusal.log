@@ -1,0 +1,2 @@
+src/nanoisa/assembler.c:130:27: runtime error: applying non-zero offset 4090 to null pointer
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior src/nanoisa/assembler.c:130:27 

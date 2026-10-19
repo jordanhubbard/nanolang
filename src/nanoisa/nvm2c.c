@@ -468,6 +468,7 @@ static const Nvm2cHost artifact_adapters[] = {
     {"nl_nanoisa_load_pretty", "nhost_snapshot", 1, TAG_STRING, TAG_STRING},
     {"nl_nanoisa_last_error", "nhost_snapshot", 0, TAG_VOID, TAG_STRING},
     {"nl_nanoisa_assemble_save", "nhost_artifact", 2, TAG_STRING, TAG_INT},
+    {"nl_nanoisa_array_publication", "nhost_artifact", 1, TAG_STRING, TAG_INT},
     {"nl_nanoisa_assemble_text_save", "nhost_artifact", 2, TAG_STRING, TAG_INT},
     {"fs_walkdir", "nhost_walk", 1, TAG_STRING, TAG_ARRAY},
     {"nl_fs_list_files", "nhost_walk", 2, TAG_STRING, TAG_ARRAY},

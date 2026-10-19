@@ -44,6 +44,8 @@ char *nanoisa_pretty_print(const NvmModule *mod);
 const char *nl_nanoisa_load_print(const char *path);
 const char *nl_nanoisa_load_pretty(const char *path);
 int64_t nl_nanoisa_assemble_save(const char *nasm_path, const char *nvm_path);
+/* 1 eligible, 0 unsupported/limit, -1 malformed/allocation/internal failure. */
+int64_t nl_nanoisa_array_publication(const char *source);
 /* I atomically replace output after in-memory assembly, verification and v2 serialization. */
 int64_t nl_nanoisa_assemble_text_save(const char *source, const char *path);
 const char *nl_nanoisa_last_error(void);

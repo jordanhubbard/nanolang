@@ -28,6 +28,7 @@ import "src_nano/compiler/lexer.nano"
 import "src_nano/compiler/module_bindings.nano"
 import "src_nano/compiler/module_introspection.nano"
 module "modules/compiler_support/compiler_support.nano" as CompilerSupport
+module "modules/nanoisa/nanoisa.nano" as OrdinaryProof
 from "src_nano/compiler/diagnostics.nano" import diag_list_new
 
 # I specialize checked generic calls without modifying shared parser nodes.
@@ -282,6 +283,7 @@ let mut nisa_lambda_frames: array<int> = []
 let mut nisa_lambda_text: string = ""
 
 # I retain optional declaration authority independently from instruction flow.
+let mut nisa_ordinary_array_slots: bool = false
 let mut nisa_ordinary_ok: bool = true
 let mut nisa_ordinary_functions: string = ""
 let mut nisa_ordinary_count: int = 0
@@ -305,7 +307,21 @@ shadow nisa_ordinary_hex {
     assert (== (nisa_ordinary_hex 258 2) "0201")
     assert (== (nisa_ordinary_hex 4294967295 4) "ffffffff")
 }
+fn nisa_ordinary_element(t: string) -> int {
+    if (== t "array<int>") { return 1 }
+    if (== t "array<u8>") { return 2 }
+    if (== t "array<float>") { return 3 }
+    if (== t "array<bool>") { return 4 }
+    if (== t "array<string>") { return 5 }
+    return -1
+}
+shadow nisa_ordinary_element {
+    assert (== (nisa_ordinary_element "array<int>") 1)
+    assert (== (nisa_ordinary_element "array<array<int>>") -1)
+    assert (== (nisa_ordinary_element "array<Record>") -1)
+}
 fn nisa_ordinary_tag(parser: Parser, t: string) -> int {
+    if (> (nisa_ordinary_element t) 0) { return 7 }
     if (== t "void") { return 0 }
     if (== t "int") { return 1 }
     if (== t "u8") { return 2 }
@@ -322,10 +338,11 @@ fn nisa_ordinary_tag(parser: Parser, t: string) -> int {
 shadow nisa_ordinary_tag {
     let p: Parser = (parse_program (tokenize_string "" "ordinary.nano" (diag_list_new)) 0 "ordinary.nano")
     assert (== (nisa_ordinary_tag p "string") 5)
-    assert (== (nisa_ordinary_tag p "array<int>") -1)
+    assert (== (nisa_ordinary_tag p "array<int>") 7)
 }
 fn nisa_ordinary_contract(parser: Parser, result_type: string, parameters: int, types: array<string>) -> string {
     let result: int = (nisa_ordinary_tag parser result_type)
+    if (== result 7) { set nisa_ordinary_array_slots true }
     let locals: int = (array_length types)
     if (or (< result 0) (or (> locals 65535) (> parameters locals))) { set nisa_ordinary_ok false return "" }
     let mut out: string = (+ (nisa_ordinary_hex locals 2) (nisa_ordinary_hex parameters 2))
@@ -333,6 +350,7 @@ fn nisa_ordinary_contract(parser: Parser, result_type: string, parameters: int, 
     let mut i: int = 0
     while (< i locals) {
         let tag: int = (nisa_ordinary_tag parser (at types i))
+        if (== tag 7) { set nisa_ordinary_array_slots true }
         if (<= tag 0) { set nisa_ordinary_ok false return "" }
         set out (+ out (+ (nisa_ordinary_hex tag 1) "000000ffffffff"))
         set i (+ i 1)
@@ -342,10 +360,12 @@ fn nisa_ordinary_contract(parser: Parser, result_type: string, parameters: int, 
 shadow nisa_ordinary_contract {
     let p: Parser = (parse_program (tokenize_string "" "ordinary.nano" (diag_list_new)) 0 "ordinary.nano")
     set nisa_ordinary_ok true
+    set nisa_ordinary_array_slots false
     assert (== (nisa_ordinary_contract p "int" 1 ["string"]) "0100010001000000ffffffff05000000ffffffff")
     assert (== (nisa_ordinary_contract p "int" 0 [""]) "")
     assert (not nisa_ordinary_ok)
     set nisa_ordinary_ok true
+    set nisa_ordinary_array_slots false
 }
 fn nisa_ordinary_record_index(parser: Parser, name: string) -> int {
     let mut found: int = -1
@@ -490,6 +510,8 @@ fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {
     if (> parser.imports_count 0) { if (or (not bound) (not (nisa_bound_ordinary_declarations parser))) { return "" } }
     if (or (not nisa_ordinary_ok) (or (<= count 0) (or (> count 128) (or (> (parser_get_enum_count parser) 0) (> (parser_get_union_count parser) 0))))) { return "" }
     if (not (nisa_ordinary_graph parser)) { return "" }
+    let mut element_indices: array<int> = [-1, -1, -1, -1, -1]
+    let mut array_fields: int = 0
     let mut layouts: string = (nisa_ordinary_hex count 4)
     let mut flags: string = ""
     let mut i: int = 0
@@ -502,6 +524,12 @@ fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {
             let t: string = (at record.field_types field)
             let tag: int = (nisa_ordinary_tag parser t)
             if (<= tag 0) { return "" }
+            if (== tag 7) {
+                let element: int = (nisa_ordinary_element t)
+                if (< element 1) { return "" }
+                (array_set element_indices (- element 1) 0)
+                set array_fields (+ array_fields 1)
+            }
             let mut nested: int = 4294967295
             if (== tag 8) {
                 set nested (nisa_ordinary_record_index parser t)
@@ -516,9 +544,68 @@ fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {
     while (!= (% (str_length flags) 8) 0) { set flags (+ flags "00") }
     let mut functions: int = nisa_ordinary_count
     if (!= nisa_ordinary_init "") { set functions (+ functions 1) }
-    let ownership: string = (+ "01000000" (+ (nisa_ordinary_hex count 4) (+ flags (+ (nisa_ordinary_hex functions 4) (+ nisa_ordinary_functions nisa_ordinary_init)))))
+    let mut version: string = "01000000"
+    let mut suffix: string = ""
+    if (> array_fields 0) {
+        let mut type_count: int = 0
+        let mut types: string = ""
+        set i 0
+        while (< i 5) {
+            if (>= (at element_indices i) 0) {
+                (array_set element_indices i type_count)
+                set type_count (+ type_count 1)
+                set types (+ types (+ (nisa_ordinary_hex (+ i 1) 1) "000000ffffffff"))
+            }
+            set i (+ i 1)
+        }
+        let mut bindings: string = ""
+        set i 0
+        while (< i count) {
+            let record: ASTStruct = (parser_get_struct_def parser i)
+            let mut field: int = 0
+            while (< field record.field_count) {
+                let element: int = (nisa_ordinary_element (at record.field_types field))
+                if (> element 0) {
+                    set bindings (+ bindings (+ (nisa_ordinary_hex i 4) (+ (nisa_ordinary_hex field 2) (+ "0000" (nisa_ordinary_hex (at element_indices (- element 1)) 4)))))
+                }
+                set field (+ field 1)
+            }
+            set i (+ i 1)
+        }
+        let payload: string = (+ (nisa_ordinary_hex type_count 4) (+ types (+ (nisa_ordinary_hex array_fields 4) bindings)))
+        set version "03000000"
+        set suffix (+ "04000000000000000100000002000100" (+ (nisa_ordinary_hex (/ (str_length payload) 2) 4) payload))
+    } else {
+        if nisa_ordinary_array_slots { return "" }
+    }
+    let ownership: string = (+ version (+ (nisa_ordinary_hex count 4) (+ flags (+ (nisa_ordinary_hex functions 4) (+ nisa_ordinary_functions (+ nisa_ordinary_init suffix))))))
     return (+ (nisa_metadata_chunks "layouts" layouts) (+ (nisa_metadata_chunks "ownership" ownership) nisa_ordinary_parameters))
 }
+# I query each complete program/shadow candidate independently before publication.
+fn nisa_finish_ordinary(parser: Parser, bound: bool, body: string) -> string {
+    let facts: string = (nisa_ordinary_publication parser bound)
+    let base: string = (+ body (nisa_callable_publication))
+    if (not (str_contains facts ".ownership \"03000000")) { return (+ body (+ facts (nisa_callable_publication))) }
+    let candidate: string = (+ body (+ facts (nisa_callable_publication)))
+    let status: int = (OrdinaryProof.array_publication candidate)
+    if (== status 1) { return candidate }
+    if (== status 0) { return base }
+    set nisa_ok false
+    set nisa_err "I cannot validate staged flat-array source publication"
+    return ""
+}
+shadow nisa_finish_ordinary {
+    let p: Parser = (parse_program (tokenize_string "" "empty.nano" (diag_list_new)) 0 "empty.nano")
+    let _: int = (nisa_reset)
+    assert (== (nisa_finish_ordinary p false "body") "body")
+    let tokens: List<LexerToken> = (tokenize_string "struct Box { values: array<int> }" "array.nano" (diag_list_new))
+    let array_parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "array.nano")
+    assert (== (nisa_finish_ordinary array_parser false "not assembly") "")
+    assert (not nisa_ok)
+    let _: int = (nisa_reset)
+    assert (== (nisa_finish_ordinary p false "body") "body")
+}
+
 shadow nisa_ordinary_publication {
     let p: Parser = (parse_program (tokenize_string "" "ordinary.nano" (diag_list_new)) 0 "ordinary.nano")
     assert (== (nisa_ordinary_publication p false) "")
@@ -553,6 +640,7 @@ fn nisa_reset() -> int {
     set nisa_lambda_text ""
     set nisa_has_callables false
     set nisa_ordinary_ok true
+    set nisa_ordinary_array_slots false
     set nisa_ordinary_functions ""
     set nisa_ordinary_count 0
     set nisa_ordinary_init ""
@@ -3290,6 +3378,7 @@ fn nisa_artifact_arity(name: string) -> int {
     if (> (array_length json) 0) { return (- (array_length json) 1) }
     if (or (== name "nl_fs_list_files") (or (== name "nl_fs_list_files_ci") (== name "nl_fs_join_path"))) { return 2 }
     if (or (== name "nl_fs_list_dirs") (or (== name "nl_fs_parent_dir") (or (== name "nl_fs_is_directory") (or (== name "nl_fs_file_exists") (== name "nl_fs_file_size"))))) { return 1 }
+    if (== name "nl_nanoisa_array_publication") { return 1 }
     if (== name "nl_nanoisa_assemble_save") { return 2 }
     if (or (== name "nl_nanoisa_assemble_text_save") (or (== name "file_append") (or (== name "file_copy") (== name "dir_copy")))) { return 2 }
     if (== name "nl_nanoisa_last_error") { return 0 }
@@ -3311,6 +3400,7 @@ shadow nisa_artifact_arity {
     assert (== (nisa_artifact_arity "nl_fs_file_exists") 1)
     assert (== (nisa_artifact_arity "nl_fs_file_size") 1)
     assert (== (nisa_artifact_arity "nl_fs_join_path") 2)
+    assert (== (nisa_artifact_arity "nl_nanoisa_array_publication") 1)
     assert (== (nisa_artifact_arity "nl_nanoisa_assemble_save") 2)
     assert (== (nisa_artifact_arity "nl_nanoisa_load_print") 1)
     assert (== (nisa_artifact_arity "nl_nanoisa_load_pretty") 1)
@@ -3333,6 +3423,7 @@ fn nisa_artifact_result(name: string) -> string {
     if (> (array_length json) 0) { return (at json 0) }
     if (or (== name "nl_fs_list_files") (or (== name "nl_fs_list_files_ci") (== name "nl_fs_list_dirs"))) { return "array<string>" }
     if (or (== name "nl_fs_is_directory") (or (== name "nl_fs_file_exists") (== name "nl_fs_file_size"))) { return "int" }
+    if (== name "nl_nanoisa_array_publication") { return "int" }
     if (== name "nl_nanoisa_assemble_save") { return "int" }
     if (== name "fs_walkdir") { return "array<string>" }
     if (or (== name "nl_nanoisa_assemble_text_save") (or (== name "file_append") (or (== name "fs_mkdir_p") (or (== name "file_copy") (== name "dir_copy"))))) { return "int" }
@@ -3348,6 +3439,7 @@ shadow nisa_artifact_result {
     assert (== (nisa_artifact_result "nl_fs_file_exists") "int")
     assert (== (nisa_artifact_result "nl_fs_file_size") "int")
     assert (== (nisa_artifact_result "nl_fs_join_path") "string")
+    assert (== (nisa_artifact_result "nl_nanoisa_array_publication") "int")
     assert (== (nisa_artifact_result "nl_nanoisa_assemble_save") "int")
     assert (== (nisa_artifact_result "nl_nanoisa_load_print") "string")
     assert (== (nisa_artifact_result "nl_nanoisa_load_pretty") "string")
@@ -7815,7 +7907,7 @@ fn nisa_emit_shadows_nasm(parser: Parser, first_shadow: int, bound: bool) -> str
     set prelude (+ prelude (+ "\n.entry " (int_to_string entry_index)))
     set prelude (+ prelude (+ "\n\n" nisa_import_text))
     set prelude (+ prelude (nisa_str_prelude))
-    return (+ prelude (+ out (+ (nisa_ordinary_publication parser bound) (nisa_callable_publication))))
+    return (nisa_finish_ordinary parser bound (+ prelude out))
 }
 shadow nanoisa_emit_shadows_nasm {
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
@@ -7917,7 +8009,7 @@ fn nisa_emit_module_nasm(parser: Parser, program: bool, bound: bool) -> string {
                 } else {
                     (print "")
                 }
-                return (+ prelude (+ out (+ (nisa_ordinary_publication parser bound) (nisa_callable_publication))))
+                return (nisa_finish_ordinary parser bound (+ prelude out))
             }
         }
     }

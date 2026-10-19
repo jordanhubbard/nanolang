@@ -91,6 +91,7 @@ typedef struct {
     uint8_t *fn_code;
     uint32_t fn_code_size;
     uint32_t fn_code_capacity;
+    bool fn_memory_failed;
 
     /* Structured producer markers resolve to the ordinary passive payload. */
     bool passive_structured, par_active, par_node_active;
@@ -123,9 +124,22 @@ static void asm_state_cleanup(AsmState *state) {
 }
 
 static void fn_emit(AsmState *state, const uint8_t *data, uint32_t size) {
-    while (state->fn_code_size + size > state->fn_code_capacity) {
-        state->fn_code_capacity *= 2;
-        state->fn_code = realloc(state->fn_code, state->fn_code_capacity);
+    if (state->fn_memory_failed) return;
+    if (size > UINT32_MAX - state->fn_code_size) {
+        state->fn_memory_failed = true;
+        return;
+    }
+    uint32_t required = state->fn_code_size + size;
+    if (required > state->fn_code_capacity) {
+        uint32_t capacity = state->fn_code_capacity;
+        while (capacity < required) {
+            if (capacity > UINT32_MAX / 2) { capacity = required; break; }
+            capacity *= 2;
+        }
+        uint8_t *grown = realloc(state->fn_code, capacity);
+        if (!grown) { state->fn_memory_failed = true; return; }
+        state->fn_code = grown;
+        state->fn_code_capacity = capacity;
     }
     memcpy(state->fn_code + state->fn_code_size, data, size);
     state->fn_code_size += size;
@@ -1663,7 +1677,14 @@ static NvmModule *asm_assemble_impl(const char *source, AsmResult *result,
             line_buf[--len] = '\0';
         }
 
-        if (!process_line(&state, line_buf, result)) {
+        bool line_ok = process_line(&state, line_buf, result);
+        if (state.fn_memory_failed) {
+            result->error = ASM_ERR_MEMORY;
+            snprintf(result->message, sizeof(result->message),
+                     "I cannot grow my function code buffer.");
+            line_ok = false;
+        }
+        if (!line_ok) {
             result->line = state.line;
             free(line_buf);
             nvm_module_free(state.mod);

@@ -1,0 +1,132 @@
+I retain producer build evidence at <temporary-path>
+test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) ... 
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='bin/nano_virt', element='int') ... FAIL
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='<temporary-path>', element='int') ... FAIL
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='bin/nano_virt', element='u8') ... FAIL
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='<temporary-path>', element='u8') ... FAIL
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='bin/nano_virt', element='float') ... FAIL
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='<temporary-path>', element='float') ... FAIL
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='bin/nano_virt', element='bool') ... FAIL
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='<temporary-path>', element='bool') ... FAIL
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='bin/nano_virt', element='string') ... FAIL
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='<temporary-path>', element='string') ... FAIL
+test_foreign_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_foreign_module_omits_optional_envelope) ... ok
+test_large_closed_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_large_closed_module_omits_optional_envelope) ... ok
+test_nested_arrays_remain_unpublished (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_arrays_remain_unpublished) ... ok
+test_query_status_and_host_interfaces (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_query_status_and_host_interfaces) ... ok
+test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) ... 
+  test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) (compiler='bin/nano_virt') ... FAIL
+  test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) (compiler='<temporary-path>') ... FAIL
+
+======================================================================
+FAIL: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='bin/nano_virt', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 92, in exercise
+    self.assertEqual(query(bad.read_bytes()),-1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != -1
+
+======================================================================
+FAIL: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='<temporary-path>', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 92, in exercise
+    self.assertEqual(query(bad.read_bytes()),-1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != -1
+
+======================================================================
+FAIL: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='bin/nano_virt', element='u8')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 92, in exercise
+    self.assertEqual(query(bad.read_bytes()),-1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != -1
+
+======================================================================
+FAIL: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='<temporary-path>', element='u8')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 92, in exercise
+    self.assertEqual(query(bad.read_bytes()),-1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != -1
+
+======================================================================
+FAIL: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='bin/nano_virt', element='float')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 92, in exercise
+    self.assertEqual(query(bad.read_bytes()),-1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != -1
+
+======================================================================
+FAIL: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='<temporary-path>', element='float')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 92, in exercise
+    self.assertEqual(query(bad.read_bytes()),-1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != -1
+
+======================================================================
+FAIL: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='bin/nano_virt', element='bool')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 92, in exercise
+    self.assertEqual(query(bad.read_bytes()),-1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != -1
+
+======================================================================
+FAIL: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='<temporary-path>', element='bool')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 92, in exercise
+    self.assertEqual(query(bad.read_bytes()),-1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != -1
+
+======================================================================
+FAIL: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='bin/nano_virt', element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 92, in exercise
+    self.assertEqual(query(bad.read_bytes()),-1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != -1
+
+======================================================================
+FAIL: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='<temporary-path>', element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 92, in exercise
+    self.assertEqual(query(bad.read_bytes()),-1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != -1
+
+======================================================================
+FAIL: test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) (compiler='bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 92, in exercise
+    self.assertEqual(query(bad.read_bytes()),-1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != -1
+
+======================================================================
+FAIL: test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) (compiler='<temporary-path>')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<checkout>/tests/test_flat_array_source_publication.py", line 92, in exercise
+    self.assertEqual(query(bad.read_bytes()),-1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != -1
+
+----------------------------------------------------------------------
+Ran 6 tests in 3.401s
+
+FAILED (failures=12)

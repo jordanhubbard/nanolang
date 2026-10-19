@@ -15477,3 +15477,26 @@ I retain [my bounded field replacement evidence](evidence/public-record-field-mu
 - [x] I qualify real coverage-instrumented runtime linkage plus flag precedence, retaining the failing Linux log and separate integrated hosted acceptance.
 
 I retain [field metadata coverage linkage evidence](evidence/field-metadata-coverage-link-20261018.md); the integrated Linux coverage rerun remains open.
+### #1001 paired flat-array source publication
+
+- [x] I record a bounded paired C/selfhost contract from `78e3a3e70`, confirm actual AGG lowering, and preserve optional-publication omission for unsupported bodies and limits before changing admission.
+- [x] I publish exact flat INT/U8/FLOAT/BOOL/STRING array field bindings from retained checked declarations, retaining existing nominal/import provenance and old non-array v1 bytes. I exclude unresolved generic field annotations, nested/record arrays, resources, foreign and passive contracts; concrete generic-function authority requires separate qualification.
+- [x] I qualify read-only source fixtures through both producers, selected verification, roundtrip, VM and native execution, with unsupported/large-module and forged-metadata controls. AGG_SET and fresh full bootstrap/platform qualification remain separate.
+
+- [x] Under #1001 I declare the Nanoisa module header include directory for transitive compiler-module users; the new host query import exposed a generated-code `nanoisa.h` lookup failure before source qualification.
+
+- [x] Under #1001 I stage new array-field layout bytes through encoding and the selected public proof, avoiding the legacy retained-layout decoder that refuses mixed forward record-array DAGs. The first paired forward source test exposed this pre-publication refusal; I preserve the non-array retention path.
+
+- [x] Under #1001 I retain [my bounded source publisher receipt](evidence/flat-array-source-20261018/README.md):14 focused methods and90 adjacent codegen checks pass on Darwin, including C-hosted Nano production, metadata/VM/native checks and unsupported-profile omission.
+- [ ] Under #1001 I qualify source-publication wrapper allocation-failure prefixes and fresh combined compiler generations/Linux/Darwin before claiming full required source/runtime coverage. Generic authority and source AGG_SET remain separate.
+
+- [x] Under #1001 I qualify the actual source publisher and host-query allocation boundaries with transient/persistent prefixes, counted cross-provider cleanup, independent recovery and preserved CLI output. I instrument only selected providers in test builds; I keep parser/frontend and full bootstrap qualification separate.
+- [x] Under #1001 I preserve the assembler function buffer and propagate a memory error when its growth allocation fails. My valid large-function host-query probe reproduced undefined behavior from an unchecked `realloc`; I require the injected growth failure to return a hard error with cleanup and independent recovery.
+
+I retain [my source-publication allocation receipt](evidence/flat-array-publication-allocations-20261018/README.md): 1,022 prefix cases, explicit growth/query/atomic-save controls and 3,018 adjacent Nanoisa checks pass. Fresh combined compiler generations and platform gates remain open.
+
+- [x] Under #1001 I reuse the aggregate native-process runner for publication qualification, preserving bounded teardown on timeout/interruption and its real descendant-cleanup controls rather than maintaining a weaker duplicate.
+
+- [x] Under #1001 I qualify already-implemented concrete generic function specializations against exact ordinary declaration/runtime ordinals: distinct equal-shaped records, forward references, imported source owners, repeated-variable nominal refusal and flat-array record arguments/results. I inspect complete metadata and keep callable/union/resource/nested-array generic paths separate; I do not invent generic struct syntax or derive authority from advisory specialization strings.
+
+I retain [my concrete generic authority receipt](evidence/concrete-generic-authority-20261018/README.md). The flat-array selected-flow proof still omits authority for TAIL_CALL; I preserve that explicit boundary and keep full #1001 and fresh generation/platform gates open.
