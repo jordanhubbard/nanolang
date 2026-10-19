@@ -40,7 +40,11 @@ Original `nvm_verify` admission remains mandatory before facts extraction.
 Complete layouts, signatures, call graph and existing counts remain checked.
 In the existing consuming value graph only, I allow exact STRING/NO_INDEX
 mode-zero parameters and their corresponding initialized parameter-local slots.
-Other STRING locals, STRING results and resource fields still refuse. Borrowed
+Other STRING locals, STRING results and resource fields still refuse. STRING
+parameters use a separate immutable parameter-expression map, not Function.locals
+(the ordinary emitter initializes that map as named mutable locals). Every
+STORE_LOCAL targeting STRING, including its parameter slot, refuses so direct
+parameter-leaf reuse cannot reorder mutable reads. Borrowed
 profiles do not inherit any string or print admission. I preserve exact positional
 INT/BOOL/owner/STRING arguments and nominal identities.
 
