@@ -6912,6 +6912,11 @@ test-units: test-record-array-public
 test-native-process:
 	python3 -m unittest -v tests.test_native_process
 test-one-ir-compiler test-units: test-native-process
+# I expose the real host query to ctypes without assuming compiler imports
+# generate a dynamic module cache (native products may link it statically).
+$(BIN_DIR)/libnanoisa_query.so: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -fPIC $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -o $@ $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
 .PHONY: test-flat-array-source-publication
 test-flat-array-source-publication: $(BIN_DIR)/nanoc_c nano_virt nano_vm nanoisa_dump nvm2c
 	CC="$(CC)" python3 -m unittest -v tests.test_flat_array_source_publication
@@ -6937,3 +6942,15 @@ test-record-array-tail: test-record-array-tail-build
 	RECORD_ARRAY_TAIL_CC="$(CC)" RECORD_ARRAY_TAIL_CFLAGS="$(CFLAGS)" RECORD_ARRAY_TAIL_OBJECTS="$(filter-out %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(filter %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)))" RECORD_ARRAY_TAIL_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_record_array_tail
 
 test-units: test-record-array-tail
+
+.PHONY: test-record-array-nested
+test-record-array-nested: test-record-array-tail-build
+	RECORD_ARRAY_NESTED_CC="$(CC)" RECORD_ARRAY_NESTED_CFLAGS="$(CFLAGS)" RECORD_ARRAY_NESTED_OBJECTS="$(filter-out %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(filter %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)))" RECORD_ARRAY_NESTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_record_array_nested
+
+test-units: test-record-array-nested
+
+.PHONY: test-ordinary-array-authority
+test-ordinary-array-authority: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	ORDINARY_ARRAY_CC="$(CC)" ORDINARY_ARRAY_CFLAGS="$(CFLAGS)" ORDINARY_ARRAY_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" ORDINARY_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_ordinary_array_authority
+
+test-units: test-ordinary-array-authority

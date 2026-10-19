@@ -1,9 +1,9 @@
 # My bounded nested integer-array field authority
 
-I propose one additional required source-authority slice under #1001, based on
+I implement one bounded required source-authority slice under #1001, based on
 `0f9ca2300`. My isolated owner is `workspace_repairs` on
-`fix/5.1-nested-array-authority`. This document is a review checkpoint, not an
-implementation or qualification claim.
+`fix/5.1-nested-array-authority`. This contract was reviewed before admission changes. My focused local receipt
+records implementation coverage separately from outstanding aggregate qualification.
 
 ## Exact boundary
 
@@ -14,7 +14,7 @@ I do not extend arbitrary nested depth, nested strings, record-element arrays,
 resources, foreign calls, callable fields, recursive nominal declarations or
 cyclic tail edges here. I preserve old non-array and flat-array behavior.
 
-My v3 ARRAY_FIELDS grammar already expresses the proposed binding: the field
+My v3 ARRAY_FIELDS grammar expresses the retained binding: the field
 binds an ARRAY type row whose referent is an INT row with NO_INDEX. I preserve
 that wire representation, original runtime layout ordinals, and exact checked
 source-owner provenance. I do not infer element authority from a bare ARRAY tag
@@ -44,7 +44,7 @@ origin; their exact declared ARRAY tag and all-writes closure must still prove
 that every possible later child is an INT array.
 
 I keep the current graph transfer for calls/results/globals, field mutation,
-array read/write/pop/remove/slice and terminal tail transfer. I inspect both
+array read/write/pop/slice and terminal tail transfer. I inspect both
 `children` and `all_writes`: forgetting a removed child must not erase an alias
 write obligation. I evaluate these constraints after convergence, charging
 bounded scans to the selected profile's existing work/storage budget. I do not
@@ -102,7 +102,7 @@ products. I preserve the existing representation and explicit cycle policy.
 
 My positives include empty/nonempty outer and inner arrays, duplicate shared
 inner arrays, mutation through original and field aliases, field replacement
-while old aliases survive, pop/remove/slice, returned values, globals, ordinary
+while old aliases survive, pop/slice, returned values, globals, ordinary
 calls and already-admitted acyclic tails. My controls include wrong inner leaf,
 conflicting alias writes after binding, deeper nesting, forged/missing type
 rows, cycles, unproved contents, out-of-range behavior and existing unsupported
@@ -114,3 +114,7 @@ alias mutation rather than merely successful process exit.
 This slice does not close all #1001 criteria. I retain the separately required
 composite/recursive authority rows and distinguish missing implementation from
 fresh-generation/platform qualification.
+
+My first public consumer run confirmed ARR_REMOVE is outside the existing
+selected profile, including flat arrays. I preserve it as an explicit refusal
+control; this slice does not add that opcode or substitute unproved semantics.

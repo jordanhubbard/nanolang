@@ -44,7 +44,7 @@ static int ra_prepare_records(Analysis *a) {
     }
     if(p->record_count!=a->module->struct_count)
         return stop(a,NVM_ARRAY_INVALID,0,0,"I require the original nominal record count.");
-    a->field_elements=analysis_alloc(a,fields?fields:1,1);
+    a->field_elements=analysis_alloc(a,fields?fields:1,sizeof *a->field_elements);
     if(!a->field_elements)return stop(a,NVM_ARRAY_MEMORY,0,0,"I could not copy field element constraints.");
     if(!analysis_work(a,(uint64_t)counts.bindings*4u+fields))return 0;
     for(uint32_t i=0;i<counts.bindings;i++) {
@@ -53,10 +53,16 @@ static int ra_prepare_records(Analysis *a) {
            !nvm_ownership_declarations_type(a->structure->declarations,binding.element_type,&element) ||
            binding.layout>=p->layouts.count || binding.field>=p->layouts.items[binding.layout].field_count)
             return stop(a,NVM_ARRAY_INVALID,0,0,"I require exact copied array bindings.");
-        if(element.referent!=NVM_V2_NO_INDEX || !(element.tag==TAG_INT || element.tag==TAG_U8 ||
+        if(element.tag==TAG_ARRAY) {
+            NvmOrdinaryArrayType child;
+            if(!nvm_ownership_declarations_type(a->structure->declarations,element.referent,&child) ||
+               child.tag!=TAG_INT || child.referent!=NVM_V2_NO_INDEX)
+                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact nested INT element authority.");
+            a->nested_arrays=true;
+        } else if(element.referent!=NVM_V2_NO_INDEX || !(element.tag==TAG_INT || element.tag==TAG_U8 ||
              element.tag==TAG_FLOAT || element.tag==TAG_BOOL || element.tag==TAG_STRING))
-            return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require flat exact field element tags.");
-        a->field_elements[a->layout_fields[binding.layout]+binding.field]=element.tag;
+            return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact bounded field element tags.");
+        a->field_elements[a->layout_fields[binding.layout]+binding.field]=BIT(element.tag);
     }
     for(uint32_t i=0;i<p->layouts.count;i++) {
         NvmV2Layout *layout=&p->layouts.items[i];
@@ -72,16 +78,34 @@ static int ra_prepare_records(Analysis *a) {
     }
     return 1;
 }
+/* I impose nested child obligations over the final monotone flow summaries.
+ * Every past write remains in all_writes, including removed/replaced aliases. */
 static int ra_check_constraints(Analysis *a) {
     if(!analysis_work(a,ORIGINS*16u))return 0;
+    if(a->nested_arrays && !analysis_work(a,ORIGINS*ORIGINS*4u))return 0;
+    for(uint32_t i=0;i<a->report.origin_count;i++)if(a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY &&
+        a->report.origins[i].declared_tag==TAG_ARRAY) {
+        Value content=a->children[i];merge(&content,a->all_writes[i]);
+        if(content.unknown || (content.tags&~BIT(TAG_ARRAY)) ||
+           (content.tags && !content.origins))
+            return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require proved nested INT array children.");
+        for(uint32_t j=0;j<a->report.origin_count;j++)if(content.origins&(UINT64_C(1)<<j)) {
+            if(a->origin_kind[j]!=NVM_HEAP_ORIGIN_ARRAY || a->report.origins[j].declared_tag!=TAG_INT)
+                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require each nested child to be an INT array origin.");
+            a->required_elements[j]|=BIT(TAG_INT);
+        }
+    }
     for(uint32_t i=0;i<a->report.origin_count;i++)if(a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY) {
         Value writes=a->all_writes[i],children=a->children[i];
-        if(!(RECORD_ARRAY_LEAVES&BIT(a->report.origins[i].declared_tag)) ||
-           writes.unknown || writes.origins || (writes.tags&~RECORD_ARRAY_LEAVES) ||
-           children.unknown || children.origins || (children.tags&~RECORD_ARRAY_LEAVES) ||
-           (a->report.origins[i].child_tags&~RECORD_ARRAY_LEAVES))
-            return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require flat scalar/string content for every array origin.");
-        if(a->required_elements[i] && (writes.tags&~a->required_elements[i]))
+        uint8_t declared=a->report.origins[i].declared_tag;
+        uint16_t allowed=declared==TAG_ARRAY?BIT(TAG_ARRAY):RECORD_ARRAY_LEAVES;
+        if(!(allowed&BIT(declared)) || writes.unknown || children.unknown ||
+           (declared!=TAG_ARRAY && (writes.origins || children.origins)) ||
+           (writes.tags&~allowed) || (children.tags&~allowed) ||
+           (a->report.origins[i].child_tags&~allowed))
+            return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact flat or depth-two INT array content.");
+        if(a->required_elements[i] && (a->required_elements[i]!=BIT(declared) ||
+           (writes.tags&~a->required_elements[i])))
             return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require every aliased array write to preserve its exact field element type.");
     }
     return 1;

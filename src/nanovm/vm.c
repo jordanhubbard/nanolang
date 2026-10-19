@@ -1528,6 +1528,68 @@ static VmResult vm_tail_arguments_preflight(VmState *vm,const NvmFunctionEntry *
     }
     return VM_OK;
 }
+/* I protect array-owner retains on the actual selected ordinary route as well
+ * as the independent private runner. Nested slice children may share owners;
+ * I count duplicates only near saturation, keeping normal slices linear. */
+static VmResult vm_record_array_retain_preflight(VmState *vm,VmCallFrame *frame,
+                                                const VmDispatchInstruction *decoded) {
+    const DecodedInstruction *in=&decoded->instruction;NanoValue retained=val_void();
+    switch(in->opcode) {
+    case OP_LOAD_LOCAL: {
+        uint32_t index=effect_local_index(vm,frame,in->operands[0].u16);
+        if(index>=vm->stack_size)return VM_ERR_TYPE_ERROR;
+        retained=vm->stack[index];
+        if(decoded->super_op==VM_SUPER_LOAD_LOCAL_FIELD) {
+            if(retained.tag!=TAG_STRUCT || !retained.as.sval || decoded->super_operand>=retained.as.sval->field_count)return VM_ERR_TYPE_ERROR;
+            retained=retained.as.sval->fields[decoded->super_operand];
+        }
+        break;
+    }
+    case OP_LOAD_GLOBAL:
+        if(in->operands[0].u32>=vm->global_capacity)return VM_ERR_OUT_OF_BOUNDS;
+        retained=vm->globals[in->operands[0].u32];break;
+    case OP_DUP:case OP_ARR_PUSH:retained=stack_peek(vm,0);break;
+    case OP_AGG_GET: {
+        NanoValue owner=stack_peek(vm,0);uint16_t field=in->operands[0].u16;
+        if(owner.tag!=TAG_STRUCT || !owner.as.sval || field>=owner.as.sval->field_count)return VM_ERR_TYPE_ERROR;
+        retained=owner.as.sval->fields[field];break;
+    }
+    case OP_ARR_GET: {
+        NanoValue owner=stack_peek(vm,1),index=stack_peek(vm,0);
+        if(owner.tag!=TAG_ARRAY || !owner.as.array || index.tag!=TAG_INT)return VM_ERR_TYPE_ERROR;
+        if(index.as.i64>=0 && (uint64_t)index.as.i64<owner.as.array->length)
+            retained=vm_array_get(owner.as.array,(uint32_t)index.as.i64);
+        break;
+    }
+    case OP_ARR_SLICE: {
+        NanoValue owner=stack_peek(vm,2),first=stack_peek(vm,1),last=stack_peek(vm,0);
+        if(owner.tag!=TAG_ARRAY || !owner.as.array)return VM_ERR_TYPE_ERROR;
+        VmArray *a=owner.as.array;if(a->elem_type!=TAG_ARRAY)break;
+        uint32_t start=first.tag==TAG_INT?(uint32_t)first.as.i64:0;
+        uint32_t end=last.tag==TAG_INT?(uint32_t)last.as.i64:a->length;
+        if(start>a->length)start=a->length;
+        if(end>a->length)end=a->length;
+        if(end<=start)break;
+        for(uint32_t i=start;i<end;i++) {
+            NanoValue child=a->elements[i];
+            if(child.tag!=TAG_ARRAY || !child.as.array)return VM_ERR_TYPE_ERROR;
+            uint32_t references=child.as.array->header.ref_count;
+            if(references>UINT32_MAX-(end-start)) {
+                uint32_t copies=0;
+                for(uint32_t j=start;j<end;j++)if(a->elements[j].as.obj==child.as.obj)copies++;
+                if(references>UINT32_MAX-copies)return VM_ERR_MEMORY;
+            }
+        }
+        break;
+    }
+    default:break;
+    }
+    if(retained.tag==TAG_ARRAY) {
+        if(!retained.as.array)return VM_ERR_TYPE_ERROR;
+        if(retained.as.array->header.ref_count==UINT32_MAX)return VM_ERR_MEMORY;
+    }
+    return VM_OK;
+}
 /* I check the actual next retain before the unchanged shared handler commits
  * it. A fused field load retains the field, not its containing shell. */
 static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
@@ -1981,6 +2043,11 @@ vm_dispatch_top:
                                           + (uint32_t)(produced - required)) != VM_OK)
                 return trap_error(vm, VM_ERR_MEMORY,
                                   "I could not reserve instruction output space.");
+        }
+
+        if((admitted && proof->ordinary_arrays) || record_execution) {
+            VmResult checked=vm_record_array_retain_preflight(vm,frame,decoded);
+            if(checked!=VM_OK)return trap_error(vm,checked,"I could not preserve my ordinary array-owner retain headroom: opcode %u status %u.",decoded->instruction.opcode,checked);
         }
 
         if(admitted && proof->owner_arrays) {

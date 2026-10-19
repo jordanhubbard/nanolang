@@ -31,6 +31,12 @@ class FlatArraySourcePublication(unittest.TestCase):
         run=run_captured([binary],cwd=ROOT,text=True,timeout=30)
         if run.returncode:
             raise AssertionError(run.stdout+run.stderr)
+        cls.query_library=ROOT/'bin/libnanoisa_query.so'
+        build=run_captured(['make','-j1','bin/libnanoisa_query.so'],cwd=ROOT,
+            text=True,timeout=180,build=True)
+        (cls.compiler_work/'query-library-build.log').write_text(build.stdout+build.stderr)
+        if build.returncode:
+            raise AssertionError(build.stdout+build.stderr)
         configured=os.environ.get('NANO_FLAT_ARRAY_COMPILERS')
         if configured:
             cls.compilers=configured.split(',')
@@ -84,14 +90,14 @@ class FlatArraySourcePublication(unittest.TestCase):
                     rows=[]
                     for _ in range(types):
                         tag,ref=struct.unpack_from('<B3xI',facts,at);at+=8
-                        self.assertEqual(ref,0xffffffff);rows.append(tag)
+                        self.assertEqual(ref,0 if tag==7 else 0xffffffff);rows.append(tag)
                     bindings=struct.unpack_from('<I',facts,at)[0];at+=4
                     actual=[]
                     for field in range(bindings):
                         layout,ordinal,reserved,element=struct.unpack_from('<IHHI',facts,at);at+=12
                         self.assertEqual((layout,ordinal,reserved),(array_layout,field,0));actual.append(rows[element])
                     self.assertEqual(actual,elements);self.assertEqual(at,len(facts))
-                    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+                    library_path=self.query_library
                     library=ctypes.CDLL(str(library_path));query=library.nl_nanoisa_array_publication
                     query.argtypes=[ctypes.c_char_p];query.restype=ctypes.c_int64
                     self.assertEqual(query(dump.encode()),1)
@@ -134,9 +140,8 @@ class FlatArraySourcePublication(unittest.TestCase):
                     self.run_command(binary)
 
     def test_query_status_and_host_interfaces(self):
-        libraries=list((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
-        self.assertEqual(len(libraries),1)
-        library=ctypes.CDLL(str(libraries[0]));query=library.nl_nanoisa_array_publication
+        self.assertTrue(self.query_library.is_file())
+        library=ctypes.CDLL(str(self.query_library));query=library.nl_nanoisa_array_publication
         query.argtypes=[ctypes.c_char_p];query.restype=ctypes.c_int64
         ordinary=b'.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'
         for source,expected in [(b'not assembly',-1),(None,-1),(ordinary,0),(b' '*((16*1024*1024)+1),0),(ordinary,0)]:
@@ -188,12 +193,55 @@ fn main() -> int { let values: array<int> = [7]
 shadow main { assert (== (main) 0) }
 ''',[1,1,1])
 
-    def test_nested_arrays_remain_unpublished(self):
+    def test_nested_int_arrays_publish_exact_authority(self):
         self.exercise('''struct Box { values: array<array<int>> }
 fn main() -> int { let box: Box = Box { values: [[7]] }
  assert (== (at (at box.values 0) 0) 7) return 0 }
 shadow main { assert (== (main) 0) }
-''',None)
+''',[7])
+
+    def test_nested_aliases_empty_fields_and_generic_forwarder(self):
+        self.exercise('''struct Box { values: array<array<int>>, empty: array<array<int>> }
+fn identity(value:T)->T { return value }
+shadow identity { assert (== (identity 7) 7) }
+fn main()->int {
+ let child: array<int> = [7]
+ let outer: array<array<int>> = [child, child]
+ let box: Box = (identity Box { values: outer, empty: [] })
+ (array_set child 0 11)
+ assert (== (at (at box.values 0) 0) 11)
+ assert (== (at (at box.values 1) 0) 11)
+ assert (== (array_length box.empty) 0)
+ return 0 }
+shadow main { assert (== (main) 0) }
+''',[7,7])
+
+    def test_nested_forward_record_dag(self):
+        self.exercise('''struct Root { child: Box }
+struct Box { values: array<array<int>> }
+fn main()->int { let root:Root = Root { child: Box { values:[[7]] } }
+ assert (== (at (at root.child.values 0) 0) 7) return 0 }
+shadow main { assert (== (main) 0) }
+''',[7],layout_count=2,array_layout=1)
+
+    def test_nested_bound_import(self):
+        previous=self.compilers
+        self.compilers=os.environ.get('NANO_FLAT_ARRAY_BOUND_COMPILERS',str(ROOT/'bin/nano_virt')).split(',')
+        try:
+            self.exercise('''module "types.nano" as types
+fn main()->int { let box:types.Box=types.Box { values:[[7]] }
+ assert (== (at (at box.values 0) 0) 7) return 0 }
+shadow main { assert (== (main) 0) }
+''',[7],modules={'types.nano':'pub struct Box { values: array<array<int>> }\n'})
+        finally:
+            self.compilers=previous
+
+    def test_unsupported_nested_descriptors_stay_optional(self):
+        for declared,value in [('array<array<string>>','[["seven"]]'),
+                               ('array<array<array<int>>>','[[[7]]]')]:
+            with self.subTest(declared=declared):
+                self.exercise('struct Box { values:'+declared+' }\nfn main()->int { let box:Box=Box { values:'+value+' } return 0 }\nshadow main { assert true }\n',None,run=False)
+        self.exercise('extern fn get_argc()->int\nstruct Box { values:array<array<int>> }\nfn main()->int { let box:Box=Box { values:[[7]] } unsafe { return (get_argc) } }\nshadow main { assert true }\n',None,run=False)
 
     def test_forward_record_dag(self):
         self.exercise('struct Root { child: Box }\nstruct Box { values: array<int> }\nfn main() -> int { let root: Root = Root { child: Box { values: [7] } }\n assert (== (at root.child.values 0) 7) return 0 }\nshadow main { assert (== (main) 0) }\n',[1],layout_count=2,array_layout=1)

@@ -2481,6 +2481,20 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     }
                 }
             }
+            if (b->canonical_records && arr.kind == NVM2C_VK_UNK && val.kind == NVM2C_VK_ARR) {
+                /* A closed nested INT proof permits this array-valued write,
+                 * but a forward callee may not yet have a result carrier.
+                 * Preserve unknown storage until facts converge; never seed
+                 * an integer-array carrier from the child's carrier. */
+                Nvm2cSimSlot pushed = arr;
+                pushed.origin = -1;
+                if (!sim_push_slot(b, idx, stk, &sp, pushed) ||
+                    !shape_type(b, arr.shape, NVM_SHAPE_ARRAY) ||
+                    !shape_type(b, val.shape, NVM_SHAPE_ARRAY) ||
+                    !shape_equal(b, shape_child(b, arr.shape, 0), val.shape) ||
+                    !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
+                break;
+            }
             if (arr.kind == NVM2C_VK_UNK && val.kind == NVM2C_VK_VALUE) {
                 /* A tagged element does not determine the array's storage.
                  * Recursive callers may supply that fact on a later pass;
