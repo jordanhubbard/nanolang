@@ -7,7 +7,7 @@ CONTROL_WORK_LIMIT = 4096
 CONTROL_ADD_WORK = 256
 
 
-def prove_exclusive_helper_control(function):
+def prove_exclusive_helper_control(function, helper_locals=False):
     loops = []
 
     def expression(node):
@@ -56,11 +56,26 @@ def prove_exclusive_helper_control(function):
                     updates = 1
                     result = ('rank', rank, 1)
                 env[Expr(stmt[2].tag, 'local', stmt[1])] = result
-            elif kind == 'borrow_read':
+            elif kind == 'borrow_read' or helper_locals and kind in ('multi_borrow_read', 'own_read', 'path_read'):
                 cost += 1
                 env[stmt[1]] = None
             elif kind == 'borrow_write':
                 cost += 1 + expression(stmt[2])
+            elif helper_locals and kind == 'multi_borrow_write':
+                cost += 1 + expression(stmt[3])
+            elif helper_locals and kind == 'assert':
+                cost += 1 + expression(stmt[1])
+            elif helper_locals and kind in ('own_pack', 'own_store', 'own_move', 'own_unpack'):
+                # Ownership and assertion provenance are proved independently.
+                cost += 1
+                if kind == 'own_pack':
+                    for operand in stmt[3]:
+                        cost += 1 if isinstance(operand.tag, tuple) else expression(operand)
+                elif kind == 'own_unpack':
+                    cost += len(stmt[3])
+                    for target in stmt[3]:
+                        if not isinstance(target.tag, tuple):
+                            env[target] = None
             elif kind == 'return':
                 cost += 1 + expression(stmt[1])
                 terminal = True
@@ -119,7 +134,7 @@ def prove_exclusive_helper_control(function):
                     for item in statements:
                         if item[0] == 'store':
                             env.pop(Expr(item[2].tag, 'local', item[1]), None)
-                        elif item[0] in ('let', 'borrow_read'):
+                        elif item[0] in ('let', 'borrow_read') or helper_locals and item[0] in ('multi_borrow_read', 'own_read', 'path_read'):
                             env.pop(item[1], None)
                         elif item[0] == 'if':
                             invalidate(item[2]); invalidate(item[3])

@@ -1,0 +1,10 @@
+{
+  "src/nanoisa/hl_owned_facts.inc": "e4603471a4f84a8f911b5489ea8c3762a1669b93bda6f295b2eec3246fe3f3fb",
+  "scripts/nanoisa_owned_control.py": "7247f5d98256e22b04ed950e7f1317e1d7b5391b61c0c0ba9df5b0f8a4f6024d",
+  "scripts/nanoisa_owned_rendering.py": "857d1bac232cc6f0c299a84a2d1ff20a1b3250e12b9209e79f0645965aa4ffd7",
+  "scripts/nanoisa_owned_origins.py": "c2a40ee91923fb96ca8ef24e40f29bf7f7c5e3fdbce641b2fc6505a6fe6661ec",
+  "scripts/nanoisa_owned_reconstruction.py": "8716ab6f76fb114113f6d0120364761ca26e3528efdc78a639ea8ebb1b932cf7",
+  "scripts/nanoisa_owned_helper_locals.py": "a0cb9f2cac23f4145fa6c3631789f646bcf15f959620ec787b33e397b5d00a82",
+  "scripts/nanoisa_owned_strings.py": "eea45169b4439e55bbe098096fa541aeadc311fa5d6ad47fa2f5c3d52eec1e5c",
+  "scripts/nanoisa_owned_exits.py": "35295d7c411fdb692985ea163cf52ca793db6a1e4bbff731217cac2db65d028b"
+}

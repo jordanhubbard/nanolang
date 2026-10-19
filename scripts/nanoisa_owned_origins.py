@@ -2,7 +2,7 @@
 from nanoisa_reconstruction import Expr, require
 
 
-def prove_owner_reassignment(function):
+def prove_owner_reassignment(function, helper_locals=False):
     """I validate the new entry-only reassignment IR without changing it."""
     reassigned = set()
     serial = [0]
@@ -98,12 +98,16 @@ def prove_owner_reassignment(function):
             elif kind in ('borrow_call', 'path_borrow_call', 'own_read', 'path_read'):
                 require(stmt[2] in live, 'require a live reference root origin')
                 require(not owned(stmt[1]), 'refuse an escaping reference-origin result')
+            elif helper_locals and kind == 'multi_borrow_call':
+                require(not operands and len(stmt[2]) == 2 and len(set(stmt[2])) == 2 and
+                        all(slot in live for slot in stmt[2]) and not owned(stmt[1]),
+                        'require two distinct live caller origins without escaping owners')
             elif kind == 'return':
                 require(not live and not operands and not owned(stmt[1]),
                         'require complete successful owner-origin consumption')
                 terminal = True
             else:
-                require(kind in ('let', 'store', 'assert'), 'require bounded entry owner-origin operations')
+                require(kind in ('let', 'store', 'assert') or helper_locals and kind in ('multi_borrow_read', 'multi_borrow_write'), 'require bounded entry owner-origin operations')
                 def scalar(value):
                     if isinstance(value, Expr):
                         return not owned(value) and all(scalar(arg) for arg in value.args)

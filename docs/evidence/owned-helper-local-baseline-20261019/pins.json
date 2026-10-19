@@ -1,0 +1,57 @@
+{
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/helper_baseline_nano_virt": {
+    "source": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+    "sha256": "78b3578f6b90d364203cd960e45ff95235b91be1b7dc67c0c4ce2b17d984e070"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/helper_baseline_nanoc_stage1": {
+    "source": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+    "sha256": "7044052b5c2ba71435d76abd9e5860e5aa2a2724551c8ffc4b38a8e7c95f0718"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/helper_baseline_nanoc_stage2": {
+    "source": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+    "sha256": "f7ebdb2c585cdcbf92ec39cc2a75e90ff84ec7b3671927364bd3be9e3e3f295f"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm": {
+    "source": "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+    "sha256": "72da879f9fa8a913eb50d69f4eb9fbcd65ab61b2aa79145dbfe7b54ebfd98f68"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa": {
+    "source": "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+    "sha256": "98b1b76099b9cd22970d0773895ba2147b025b851139b4720495972b0eed80a8"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts": {
+    "source": "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts",
+    "sha256": "1067db47bf74bbf0be8e25be1d3014e436c6680343b53c5847dc03da2aaf4297"
+  },
+  "/private/tmp/owned-helper-locals-baseline-20261019/shadow_driver": {
+    "source": "/private/tmp/owned-string-baseline-20261019/shadow_driver",
+    "sha256": "c23774c828833a8213e51c7cf16185d55902fe1706f383e6b4084570b15db571"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/scripts/nanoisa_owned_control.py": {
+    "sha256": "bb08d9188d5428389b79d8cc186494df517067936dd97c179aedb4f91b9e0914"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/scripts/nanoisa_owned_rendering.py": {
+    "sha256": "857d1bac232cc6f0c299a84a2d1ff20a1b3250e12b9209e79f0645965aa4ffd7"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/scripts/nanoisa_owned_origins.py": {
+    "sha256": "38b613257895c4d4a8128721f5fb5a89a4b407e7321ff6294fe2ea19e4e66e6a"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/scripts/nanoisa_owned_reconstruction.py": {
+    "sha256": "08c18d858cb1137ad874b3035a0f70a2c61dc8d1f59b184bc4f998358a273891"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/scripts/nanoisa_owned_strings.py": {
+    "sha256": "eea45169b4439e55bbe098096fa541aeadc311fa5d6ad47fa2f5c3d52eec1e5c"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/scripts/nanoisa_owned_exits.py": {
+    "sha256": "35295d7c411fdb692985ea163cf52ca793db6a1e4bbff731217cac2db65d028b"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/scripts/nanoisa_reconstruction.py": {
+    "sha256": "a3e60685718069ac4b18335e9885e0c79e0d76224fce46b03a25dd8cf7f98776"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl": {
+    "sha256": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c"
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_helper_owners.nano": {
+    "sha256": "26db72d07ce1175ca7d5ad61cd90bf8ba7b9b910fd0eba4de4be4407546853c7"
+  }
+}

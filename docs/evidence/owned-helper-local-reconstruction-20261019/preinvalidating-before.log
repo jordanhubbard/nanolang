@@ -1,0 +1,36 @@
+test_loop_preinvalidates_every_nonrank_write (tests.test_owned_helper_local_witness.HelperLocalWitness.test_loop_preinvalidates_every_nonrank_write) ... 
+  test_loop_preinvalidates_every_nonrank_write (tests.test_owned_helper_local_witness.HelperLocalWitness.test_loop_preinvalidates_every_nonrank_write) (body=[('assert', Expr(tag=4, kind='binary', value='==', args=(Expr(tag=1, kind='local', value=4, args=(), size=1, depth=1), Expr(tag=1, kind='constant', value=0, args=(), size=1, depth=1)), size=3, depth=2)), ('store', 4, Expr(tag=1, kind='constant', value=1, args=(), size=1, depth=1)), ('store', 3, Expr(tag=1, kind='arithmetic', value='add', args=(Expr(tag=1, kind='local', value=3, args=(), size=1, depth=1), Expr(tag=1, kind='constant', value=1, args=(), size=1, depth=1)), size=3, depth=2))]) ... FAIL
+  test_loop_preinvalidates_every_nonrank_write (tests.test_owned_helper_local_witness.HelperLocalWitness.test_loop_preinvalidates_every_nonrank_write) (body=[('multi_borrow_read', Expr(tag=1, kind='temporary', value='observed', args=(), size=1, depth=1), 0, 0), ('assert', Expr(tag=4, kind='binary', value='==', args=(Expr(tag=1, kind='temporary', value='observed', args=(), size=1, depth=1), Expr(tag=1, kind='constant', value=0, args=(), size=1, depth=1)), size=3, depth=2)), ('multi_borrow_write', 0, 0, Expr(tag=1, kind='constant', value=1, args=(), size=1, depth=1)), ('store', 3, Expr(tag=1, kind='arithmetic', value='add', args=(Expr(tag=1, kind='local', value=3, args=(), size=1, depth=1), Expr(tag=1, kind='constant', value=1, args=(), size=1, depth=1)), size=3, depth=2))]) ... FAIL
+  test_loop_preinvalidates_every_nonrank_write (tests.test_owned_helper_local_witness.HelperLocalWitness.test_loop_preinvalidates_every_nonrank_write) (body=[('assert', Expr(tag=4, kind='binary', value='==', args=(Expr(tag=1, kind='local', value=4, args=(), size=1, depth=1), Expr(tag=1, kind='constant', value=0, args=(), size=1, depth=1)), size=3, depth=2)), ('if', Expr(tag=4, kind='constant', value=True, args=(), size=1, depth=1), [('store', 4, Expr(tag=1, kind='constant', value=1, args=(), size=1, depth=1))], []), ('store', 3, Expr(tag=1, kind='arithmetic', value='add', args=(Expr(tag=1, kind='local', value=3, args=(), size=1, depth=1), Expr(tag=1, kind='constant', value=1, args=(), size=1, depth=1)), size=3, depth=2))]) ... FAIL
+
+======================================================================
+FAIL: test_loop_preinvalidates_every_nonrank_write (tests.test_owned_helper_local_witness.HelperLocalWitness.test_loop_preinvalidates_every_nonrank_write) (body=[('assert', Expr(tag=4, kind='binary', value='==', args=(Expr(tag=1, kind='local', value=4, args=(), size=1, depth=1), Expr(tag=1, kind='constant', value=0, args=(), size=1, depth=1)), size=3, depth=2)), ('store', 4, Expr(tag=1, kind='constant', value=1, args=(), size=1, depth=1)), ('store', 3, Expr(tag=1, kind='arithmetic', value='add', args=(Expr(tag=1, kind='local', value=3, args=(), size=1, depth=1), Expr(tag=1, kind='constant', value=1, args=(), size=1, depth=1)), size=3, depth=2))])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_helper_local_witness.py", line 74, in test_loop_preinvalidates_every_nonrank_write
+    with self.subTest(body=body), self.assertRaisesRegex(Refusal, 'assertion witness'):
+                                  ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Refusal not raised
+
+======================================================================
+FAIL: test_loop_preinvalidates_every_nonrank_write (tests.test_owned_helper_local_witness.HelperLocalWitness.test_loop_preinvalidates_every_nonrank_write) (body=[('multi_borrow_read', Expr(tag=1, kind='temporary', value='observed', args=(), size=1, depth=1), 0, 0), ('assert', Expr(tag=4, kind='binary', value='==', args=(Expr(tag=1, kind='temporary', value='observed', args=(), size=1, depth=1), Expr(tag=1, kind='constant', value=0, args=(), size=1, depth=1)), size=3, depth=2)), ('multi_borrow_write', 0, 0, Expr(tag=1, kind='constant', value=1, args=(), size=1, depth=1)), ('store', 3, Expr(tag=1, kind='arithmetic', value='add', args=(Expr(tag=1, kind='local', value=3, args=(), size=1, depth=1), Expr(tag=1, kind='constant', value=1, args=(), size=1, depth=1)), size=3, depth=2))])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_helper_local_witness.py", line 74, in test_loop_preinvalidates_every_nonrank_write
+    with self.subTest(body=body), self.assertRaisesRegex(Refusal, 'assertion witness'):
+                                  ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Refusal not raised
+
+======================================================================
+FAIL: test_loop_preinvalidates_every_nonrank_write (tests.test_owned_helper_local_witness.HelperLocalWitness.test_loop_preinvalidates_every_nonrank_write) (body=[('assert', Expr(tag=4, kind='binary', value='==', args=(Expr(tag=1, kind='local', value=4, args=(), size=1, depth=1), Expr(tag=1, kind='constant', value=0, args=(), size=1, depth=1)), size=3, depth=2)), ('if', Expr(tag=4, kind='constant', value=True, args=(), size=1, depth=1), [('store', 4, Expr(tag=1, kind='constant', value=1, args=(), size=1, depth=1))], []), ('store', 3, Expr(tag=1, kind='arithmetic', value='add', args=(Expr(tag=1, kind='local', value=3, args=(), size=1, depth=1), Expr(tag=1, kind='constant', value=1, args=(), size=1, depth=1)), size=3, depth=2))])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_helper_local_witness.py", line 74, in test_loop_preinvalidates_every_nonrank_write
+    with self.subTest(body=body), self.assertRaisesRegex(Refusal, 'assertion witness'):
+                                  ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Refusal not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=3)
