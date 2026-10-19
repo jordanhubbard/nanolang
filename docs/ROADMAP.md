@@ -28,7 +28,7 @@
 
 - [x] Under #999 I admit independently exact scalar and scalar-leaf resource fields in depth-two consuming parents. I record [my contract](NANOISA_OWNED_MIXED_DEPTH2.md), change descriptor gates and explicitly bound observations to scalar leaves, then qualify mixed stack order, explicit refusal of observations with live child fields, calls/branches and accepted assertion-before-divide evaluation order with unchanged ownership/refusal gates. I retain [five passing methods in 29.799 seconds, exact source/tool hashes, strict syntax and both failed attempts](evidence/owned-mixed-depth2-20261019/README.md). Fresh aggregate qualification and full #999 remain open.
 
-- [x] Under #999 I reconstruct exact depth-two consuming resource fields using the existing source_owned_value_nested fixture. I record [my contract](NANOISA_OWNED_NESTED_DEPTH2.md), retain exact child layouts in facts, implement once-only parent/child pack/unpack transfers, preserve scalar-only borrowed helpers, qualify 31 methods across seven source/VM/paired-native/refusal suites in 222.965 seconds, and retain [strict GCC 16/Clang checks, review and evidence](evidence/owned-nested-depth2-20261019/README.md). Fresh aggregate qualification and full #999 remain open.
+- [x] Under #999 I reconstruct exact depth-two consuming resource fields using the existing source_owned_value_nested fixture. I record [my contract](NANOISA_OWNED_NESTED_DEPTH2.md), retain exact child layouts in facts, implement once-only parent/child pack/unpack transfers, preserve scalar-only borrowed helpers, qualify 31 methods across seven source/VM/paired-native/refusal suites in 222.965 seconds, and retain [strict GCC16/Clang checks, review and evidence](evidence/owned-nested-depth2-20261019/README.md). Fresh aggregate qualification and full #999 remain open.
 
 - [x] Under #999 I reconstruct my existing two-function shared borrowed helper profile with exact mode/nominal identity, complete ephemeral call regions, once-only scalar results and unchanged verifier admission. I record [my bounded contract](NANOISA_OWNED_SHARED_HELPER.md), implement facts and the shared region tree, and qualify 27 actual retained-provider methods with malformed/refusal controls and [review/evidence](evidence/owned-shared-helper-20261019/README.md). The initial missing-shadow/source-fixture failures and one corrected harness selector error remain retained; fresh aggregate stages remain open. Mutable/reborrow/escape and full ownership reconstruction remain open.
 
@@ -12758,7 +12758,7 @@ ARRAY needs separate complete authority rather than reusing a profile flag.
 
 I qualifya522's remaining standalone Darwin embedding boundary at canonical
 `5f988ed79dd1f343fd9dca3d9b40c928264e668c` without production or fixture edits.
-All three existing methods pass in4.991s using explicit Homebrew GCC 16.2 and
+All three existing methods pass in4.991s using explicit Homebrew GCC16.2 and
 Clang23.1, strict C11 O0/O2 and the selected Xcode SDK. Each fresh executable
 passes the existing alias/root-before-disposal and arithmetic assertions;
 `otool -L` reports only libSystem for all four. My [sealed Darwin evidence](evidence/managed-native-embedding-darwin.md)
