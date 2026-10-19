@@ -7,11 +7,12 @@ def owned_type(layout):
 
 
 class OwnedAnalyze(Analyze):
-    def __init__(self, module):
+    def __init__(self, module, index=0):
         self.module = module
         require(module.get('profile') == 'owned-local-v1' and module['entry'] == 0 and
-                len(module['functions']) == 1, 'require one verified local resource entry')
-        self.fn = module['functions'][0]
+                0 < len(module['functions']) <= 8, 'require bounded verified resource functions')
+        self.fn = module['functions'][index]
+        self.index = index
         self.layouts = module['layouts']
         require(0 < len(self.layouts) <= 16, 'require bounded resource layouts')
         for i, layout in enumerate(self.layouts):
@@ -23,18 +24,36 @@ class OwnedAnalyze(Analyze):
         require(len(self.declarations) == self.fn['locals'] <= 128,
                 'require complete local declarations')
         self.types = {i: t for i, (t, _) in enumerate(self.declarations) if t in (INT, BOOL)}
-        self.live = {}
-        self.used = set()
+
+        def declared(pair):
+            tag, layout = pair
+            require(tag in (INT, BOOL) and layout == 4294967295 or
+                    tag == 8 and 0 <= layout < len(self.layouts),
+                    'require exact scalar or nominal resource declarations')
+            return owned_type(layout) if tag == 8 else tag
+        self.params = [declared(t) for t in self.fn['params']]
+        self.result = declared(self.fn['result_type'])
+        require(self.fn['result'] == self.fn['result_type'][0], 'require matching result declarations')
+        require(len(self.params) <= 8 and len(self.params) <= len(self.declarations) and
+                all(declared(self.declarations[i]) == t for i, t in enumerate(self.params)),
+                'require exact initial parameter slots')
+        require(index != 0 or not self.params and self.result == INT,
+                'require a scalar entry without parameters')
+        self.live = {i: t[1] for i, t in enumerate(self.params) if isinstance(t, tuple)}
+        self.used = set(self.live)
         self.seen = set()
         self.calls = set()
         self.code = self.fn['code']
+        require(0 < len(self.code) <= 4096, 'require bounded function instructions')
 
     def owner_local(self, slot):
         require(slot in self.live, 'require a live exact local owner')
         return self.live[slot]
 
     def run(self):
-        stack, body, initialized = [], [], set()
+        stack = []
+        body = [('own_parameter', i, layout) for i, layout in self.live.items()]
+        initialized = set(range(len(self.params)))
         i = 0
         while i < len(self.code):
             ins = self.code[i]
@@ -83,31 +102,48 @@ class OwnedAnalyze(Analyze):
                 body.append(('own_read', target, slot, field))
                 stack.append(target)
                 i += 3
+            elif op == 'CALL':
+                require(0 < arg < len(self.module['functions']), 'require a direct non-entry callee')
+                callee = self.module['functions'][arg]
+                params = [owned_type(t[1]) if t[0] == 8 else t[0] for t in callee['params']]
+                values = tuple(reversed([self.pop(stack, t) for t in reversed(params)]))
+                tag, layout = callee['result_type']
+                result_type = owned_type(layout) if tag == 8 else tag
+                target = Expr(result_type, 'temporary', pc)
+                body.append(('let', target, Expr(result_type, 'call', arg, values)))
+                stack.append(target)
+                self.calls.add(arg)
             elif op == 'RET':
                 require(i == len(self.code) - 1 and not self.live,
                         'require all owners consumed before terminal return')
-                result = self.pop(stack, INT)
-                require(not stack, 'require an empty operand stack after scalar return')
+                result = self.pop(stack, self.result)
+                require(not stack, 'require an empty operand stack after exact return')
                 body.append(('return', result))
             else:
                 require(op in SIMPLE and op not in ('CALL', 'PUSH_U8', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG'),
                         'refuse unsupported resource-route instruction ' + op)
-                require(all(value.tag in (INT, BOOL) for value in stack),
-                        'keep owned tokens out of scalar stack operations')
+                # I isolate the suffix above the last staged owner before scalar evaluation.
+                split = max((n + 1 for n, value in enumerate(stack)
+                             if value.tag not in (INT, BOOL)), default=0)
+                prefix, scalar = stack[:split], stack[split:]
                 if op in ('LOAD_LOCAL', 'STORE_LOCAL'):
                     require(arg in self.types, 'require a declared scalar local')
-                self.simple(i, stack, initialized, body)
-                require(all(value.tag in (INT, BOOL) for value in stack),
+                self.simple(i, scalar, initialized, body)
+                require(all(value.tag in (INT, BOOL) for value in scalar),
                         'require exact scalar resource-route values')
+                stack = prefix + scalar
             i += 1
         require(body and body[-1][0] == 'return', 'require an explicit terminal return')
-        return [Function('owned_main', [], INT, self.types, self.fn['names'], body)]
+        return Function(self.fn['name'], self.params, self.result, self.types, self.fn['names'], body)
 
 
 class OwnedEmit(Emit):
     def __init__(self, functions, language, layouts):
         super().__init__(functions, language)
         self.layouts = layouts
+
+    def name(self, index):
+        return 'main' if self.language == 'nano' and index == 0 else super().name(index)
 
     def type(self, tag):
         if isinstance(tag, tuple) and tag[0] == 'owner':
@@ -118,7 +154,12 @@ class OwnedEmit(Emit):
         c = self.language == 'c'
         for stmt in statements:
             kind = stmt[0]
-            if kind == 'own_pack':
+            if kind == 'own_parameter':
+                _, slot, layout = stmt
+                name, typ = self.local(slot), self.type(owned_type(layout))
+                self.line(f'{typ} {name} = nlr_a{slot};' if c else
+                          f'let {name}: {typ} = nlr_a{slot}', indent)
+            elif kind == 'own_pack':
                 _, target, layout, values = stmt
                 fields = ', '.join((f'.f{i} = ' if c else f'f{i}: ') + self.expression(v)
                                    for i, v in enumerate(values))
@@ -164,8 +205,31 @@ class OwnedEmit(Emit):
         body = super().run(entry).replace(
             '# I reconstruct executable scalar regions; original shadows are not retained.',
             '# I reconstruct ordered resource transfers; original shadows are not retained.')
+        if not c:
+            # I emit the retained entry directly; an extra wrapper exceeds the producer budget.
+            wrapper = 'fn main() -> int {\n    return (main)\n}\n'
+            require(body.endswith(wrapper), 'require the exact generated entry wrapper')
+            body = body[:-len(wrapper)]
+            require(sum(line.startswith('fn ') for line in body.splitlines()) <= 7,
+                    'reserve one of eight producer functions for shadow execution')
         return '\n'.join(declarations) + '\n' + body
 
 
 def reconstruct_owned(module, language):
-    return OwnedEmit(OwnedAnalyze(module).run(), language, module['layouts']).run(module['entry'])
+    require(sum(len(fn['code']) for fn in module['functions']) <= 4096,
+            'limit the complete owned module to 4096 instructions')
+    analyses = [OwnedAnalyze(module, i) for i in range(len(module['functions']))]
+    functions = [analysis.run() for analysis in analyses]
+    visiting, visited = set(), set()
+    def visit(index):
+        require(index not in visiting, 'require acyclic direct resource calls')
+        if index in visited:
+            return
+        visiting.add(index)
+        for target in analyses[index].calls:
+            visit(target)
+        visiting.remove(index)
+        visited.add(index)
+    for index in range(len(functions)):
+        visit(index)
+    return OwnedEmit(functions, language, module['layouts']).run(module['entry'])
