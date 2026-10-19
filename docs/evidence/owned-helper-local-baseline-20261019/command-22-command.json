@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/private/tmp/owned-helper-locals-baseline-20261019/shadow_driver",
+    "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_helper_owners.nano",
+    "0",
+    "raw"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-owned-nested-depth2",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "timeout_seconds": 180
+}
