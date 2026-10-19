@@ -1,0 +1,14 @@
+checked field reads: 22 growth allocation prefixes and independent recovery passed
+checked field reads: exact topology/category, shared limits, allocation failures and recovery passed
+checked field writes: topology, all-family limits, 24 reached allocation prefixes and recovery passed
+checked borrow ledger: lifecycle, invalidation, limits and allocation recovery passed
+test_borrow_suffix_preserves_code_authority_and_references (tests.test_source_borrow_emission.AffineComparisonIsolation.test_borrow_suffix_preserves_code_authority_and_references) ... ok
+test_only_advisory_difference_is_normalized (tests.test_source_borrow_emission.AffineComparisonIsolation.test_only_advisory_difference_is_normalized) ... ok
+test_read_suffix_preserves_code_authority_and_references (tests.test_source_borrow_emission.AffineComparisonIsolation.test_read_suffix_preserves_code_authority_and_references) ... ok
+test_shared_or_untrusted_facts_refuse_normalization (tests.test_source_borrow_emission.AffineComparisonIsolation.test_shared_or_untrusted_facts_refuse_normalization) ... ok
+test_write_suffix_preserves_code_authority_and_references (tests.test_source_borrow_emission.AffineComparisonIsolation.test_write_suffix_preserves_code_authority_and_references) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.006s
+
+OK

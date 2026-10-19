@@ -1008,6 +1008,23 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             if(!valid)return par_error(result,"I require an unambiguous checked field-read source event with valid counted strings.");
             return true;
         }
+        if (strcmp(directive, "field_write") == 0) {
+            NvmFieldWrite fact={0};uint32_t mode,coordinates;
+            if(state->in_function || !parse_uint32(&p,&fact.function) ||
+               !parse_uint32(&p,&fact.line) || !parse_uint32(&p,&fact.column) || !parse_uint32(&p,&mode) || !parse_uint32(&p,&coordinates))
+                return par_error(result,"I require an indexed checked field-write source event outside a function.");
+            size_t capacity=strlen(p)+1;
+            char *path=malloc(capacity),*root=malloc(capacity),*projection=malloc(capacity);
+            fact.mode=mode;fact.coordinates=coordinates;fact.source_path=path;fact.root=root;fact.projection=projection;
+            bool valid=path && root && projection &&
+                parse_quoted_string(&p,path,capacity,&fact.source_path_length) &&
+                parse_quoted_string(&p,root,capacity,&fact.root_length) &&
+                parse_quoted_string(&p,projection,capacity,&fact.projection_length) &&
+                require_line_end(p,result) && nvm_add_field_write(state->mod,&fact);
+            free(path);free(root);free(projection);
+            if(!valid)return par_error(result,"I require an unambiguous checked field-write source event with valid counted strings.");
+            return true;
+        }
 
         if (strcmp(directive, "affine_use") == 0) {
             uint32_t function, line, column, use, coordinates;

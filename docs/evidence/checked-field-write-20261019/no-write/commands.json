@@ -1,0 +1,16 @@
+[
+  [
+    "/private/tmp/nanolang-field-read-c/nano_virt",
+    "/private/tmp/nanolang-field-write-no-write/source.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-field-write-no-write/before.nvm"
+  ],
+  [
+    "/private/tmp/nanolang-field-write-c/nano_virt",
+    "/private/tmp/nanolang-field-write-no-write/source.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-field-write-no-write/after.nvm"
+  ]
+]

@@ -77,6 +77,17 @@ class CheckedBorrowMetadata(unittest.TestCase):
                         self.assertTrue(projection.startswith('.'));self.assertEqual(Path(path).resolve(),source.resolve())
                         site=(fn,line,column,coords,path);self.assertNotIn(site,sites);sites.add(site)
                         facts.append((functions[fn],category,root,projection))
+                    write_entries=[line for line in lines if line.startswith('.metadata ') and strings[int(line.split()[1])]==b'nano.field-write.v1']
+                    writes=[]
+                    for entry in write_entries:
+                        data=strings[int(entry.split()[2])]
+                        fn,row,column,mode,coords,reserved,np,nr,nj=struct.unpack('<3IBBH3I',data[:28])
+                        self.assertEqual(mode,1);self.assertEqual(reserved,0);self.assertEqual(len(data),28+np+nr+nj)
+                        self.assertTrue(row and column);self.assertIn(coords,(1,2))
+                        writes.append((functions[fn],data[28+np:28+np+nr].decode(),data[28+np+nr:].decode()))
+                    if fixture=='source_borrow_exclusive.nano':
+                        self.assertEqual(Counter(w for w in writes if w[0]=='update'),Counter({('update','view','.value'):1,('update','view','.active'):1}))
+                    if fixture=='source_borrow_shared.nano':self.assertEqual(writes,[])
                     for fact in required:self.assertIn(fact,facts)
                     if fixture=='source_borrow_shared.nano':
                         self.assertEqual([fact for fact in facts if fact[0]=='read'],required)
@@ -91,10 +102,44 @@ class CheckedBorrowMetadata(unittest.TestCase):
                     native=work/'program.c';binary=work/'program';self.command([ROOT/'bin/nvm2c',module,'-o',native]);original=native.read_bytes()
                     self.command(shlex.split(os.environ.get('CC','cc'))+['-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined',native,'-lm','-o',binary],build=True)
                     self.command([binary])
-                    for label,variant in [('stripped',[line for line in lines if line not in entries]),('duplicate',lines+entries)]:
+                    for label,variant in [('stripped',[line for line in lines if line not in entries+write_entries]),('duplicate',lines+entries+write_entries)]:
                         assembly.write_text('\n'.join(variant)+'\n');self.command([ROOT/'bin/nanoisa','asm',assembly,'-o',rebuilt])
                         self.command([ROOT/'bin/nano_vm',rebuilt]);self.command([ROOT/'bin/nvm2c',rebuilt,'-o',native])
                         self.assertEqual(original,native.read_bytes(),label)
+
+    def test_write_rhs_order_and_later_failure(self):
+        source="""resource struct Counter { value:int }
+fn update(view:&mut Counter)->int {
+ set view.value (+ view.value 3)
+ set view.value (* view.value 2)
+ return view.value
+}
+shadow update {let mut owner:Counter=Counter{value:7} assert (== (update &mut owner) 20) let Counter{value}=owner assert (== value 20)}
+fn main()->int {let mut owner:Counter=Counter{value:12} assert (== (update &mut owner) 30) let Counter{value}=owner assert (== value 30) return 0}
+shadow main {assert true}
+"""
+        for driver in DRIVERS:
+            with self.subTest(driver=driver),tempfile.TemporaryDirectory(prefix='nano-write-order-') as directory,self.retain_failure(directory):
+                work=Path(directory);src=work/'source.nano';module=work/'source.nvm';src.write_text(source)
+                self.command([driver,src,'--emit-nvm','-o',module])
+                assembly=self.command([ROOT/'bin/nanoisa','dump',module]);(work/'original.nasm').write_text(assembly)
+                lines=assembly.splitlines();start=next(i for i,line in enumerate(lines) if line.startswith('.function update '))
+                body=lines[start:next(i for i in range(start+1,len(lines)) if lines[i].startswith('.end'))]
+                opcodes=[line.strip().split()[0] for line in body if line.strip() and not line.strip().startswith(('.', ';', '#'))]
+                # Existing admitted arithmetic has one actual evaluation per RHS, in source order.
+                self.assertEqual(opcodes.count('REF_SET'),2)
+                self.assertEqual(opcodes.count('ADD'),1);self.assertEqual(opcodes.count('MUL'),1)
+                self.assertLess(opcodes.index('ADD'),opcodes.index('REF_SET'));self.assertLess(opcodes.index('REF_SET'),opcodes.index('MUL'))
+                self.command([ROOT/'bin/nano_vm',module])
+                native=work/'program.c';binary=work/'program';self.command([ROOT/'bin/nvm2c',module,'-o',native])
+                self.command(shlex.split(os.environ.get('CC','cc'))+['-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined',native,'-lm','-o',binary],build=True)
+                self.command([binary])
+                for label,broken in [('rhs',source.replace('(* view.value 2)','true')),('shared',source.replace('view:&mut Counter','view:&Counter')),('shadow',source.replace('shadow main {assert true}','shadow main {assert false}'))]:
+                    src.write_text(broken);module.write_bytes(b'prior artifact')
+                    result=run_captured([str(driver),str(src),'--emit-nvm','-o',str(module)],cwd=ROOT,text=True,timeout=180)
+                    (work/(label+'.log')).write_text(result.stdout+result.stderr)
+                    self.assertNotEqual(result.returncode,0,label);self.assertEqual(module.read_bytes(),b'prior artifact',label)
+                    self.assertIn('shadow' if label=='shadow' else 'field',(result.stdout+result.stderr).lower())
 
     def test_actual_root_and_nested_events(self):
         cases=[('source_borrow_exclusive.nano',[(2,'owner','',0)]),
@@ -158,12 +203,12 @@ class CheckedBorrowMetadata(unittest.TestCase):
         # I execute the changed Nano checker/bridge, not a fabricated fact payload.
         helper = r'''import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
-from "src_nano/compiler/checked_borrow_facts.nano" import borrow_fact_lookup, field_read_fact_lookup
+from "src_nano/compiler/checked_borrow_facts.nano" import borrow_fact_lookup, field_read_fact_lookup, field_write_fact_lookup
 from "src_nano/typecheck.nano" import typecheck_for_immediate_emission
 from "src_nano/compiler/nanoisa_codegen.nano" import nanoisa_check_and_emit
 from "src_nano/compiler/nanoisa_borrows.nano" import nanoisa_borrow_emit, nanoisa_borrow_lower
 fn main() -> int {
- let source:string="resource struct R { value:int } fn read(view:&R)->int{return view.value} shadow read{let owner:R=R{value:7} assert (== (read &owner) 7) let R{value}=owner} fn main()->int{let owner:R=R{value:9} assert (== (read &owner) 9) let R{value}=owner return 0} shadow main{assert true}"
+ let source:string="resource struct R { value:int } fn read(view:&mut R)->int{set view.value (+ view.value 1) return view.value} shadow read{let mut owner:R=R{value:7} assert (== (read &mut owner) 8) let R{value}=owner} fn main()->int{let mut owner:R=R{value:9} assert (== (read &mut owner) 10) let R{value}=owner return 0} shadow main{assert true}"
  let diagnostics:List<CompilerDiagnostic> =(list_CompilerDiagnostic_new)
  let tokens:List<LexerToken> =(tokenize_string source "ledger-context.nano" diagnostics)
  let parser:Parser=(parse_program tokens (list_LexerToken_length tokens) "ledger-context.nano")
@@ -209,15 +254,43 @@ fn main() -> int {
   set i (+ i 1)
  }
  assert (> found_reads 0)
+ let writes:array<FieldWriteFactEvent> =(at checked.borrow_context 0).writes
+ assert (> (array_length writes) 0)
+ let mut found_writes:int=0
+ set i 0
+ while (< i (parser_get_function_count parser)) {
+  let function:ASTFunction=(parser_get_function parser i)
+  let mut j:int=0
+  while (< j (array_length writes)) {
+   let event:FieldWriteFactEvent=(at writes j)
+   if (>= (field_write_fact_lookup parser checked.borrow_context function event.assignment) 0) {
+    set found_writes (+ found_writes 1)
+    let original:ASTSet=(parser_get_set parser event.assignment)
+    (list_ASTSet_set parser.sets event.assignment ASTSet {node_type:original.node_type,line:original.line,column:original.column,target:original.target,value:(- 0 1),value_type:original.value_type,field_name:original.field_name})
+    assert (== (field_write_fact_lookup parser checked.borrow_context function event.assignment) (- 0 1))
+    (list_ASTSet_set parser.sets event.assignment ASTSet {node_type:original.node_type,line:original.line,column:original.column,target:"wrong",value:original.value,value_type:original.value_type,field_name:original.field_name})
+    assert (== (field_write_fact_lookup parser checked.borrow_context function event.assignment) (- 0 1))
+    (list_ASTSet_set parser.sets event.assignment original)
+    assert (>= (field_write_fact_lookup parser checked.borrow_context function event.assignment) 0)
+   }
+   set j (+ j 1)
+  }
+  set i (+ i 1)
+ }
+ assert (> found_writes 0)
  let first:NanoisaBorrowLowering=(nanoisa_borrow_lower parser false 0 true)
  assert (> (array_length first.sites) 0)
  let saved:NanoisaBorrowSite=(at first.sites 0)
  assert (> (array_length first.reads) 0)
  let saved_read:NanoisaFieldReadSite=(at first.reads 0)
+ assert (> (array_length first.writes) 0)
+ let saved_write:NanoisaFieldWriteSite=(at first.writes 0)
  let second:NanoisaBorrowLowering=(nanoisa_borrow_lower parser true 0 true)
  assert (!= second.text "")
  assert (== (at first.sites 0).call saved.call)
  assert (== (at first.reads 0).field saved_read.field)
+ assert (== (at first.writes 0).assignment saved_write.assignment)
+ assert (not (str_contains first.text ".field_write"))
  assert (not (str_contains first.text ".field_read"))
  assert (== (at first.sources saved.emitted) saved.source)
  assert (not (str_contains first.text ".borrow_place"))
@@ -227,7 +300,18 @@ fn main() -> int {
  assert (== emitted.lowering_stage 0)
  assert (str_contains emitted.program ".borrow_place")
  assert (str_contains emitted.program ".field_read")
+ assert (str_contains emitted.program ".field_write")
  assert (!= emitted.shadows "")
+ set i 0
+ while (< i (parser_get_function_count parser)) {
+  let function:ASTFunction=(parser_get_function parser i)
+  let mut j:int=0
+  while (< j (array_length writes)) {
+   assert (== (field_write_fact_lookup parser checked.borrow_context function (at writes j).assignment) (- 0 1))
+   set j (+ j 1)
+  }
+  set i (+ i 1)
+ }
  set i 0
  while (< i (parser_get_function_count parser)) {
   let function:ASTFunction=(parser_get_function parser i)
@@ -251,6 +335,7 @@ fn main() -> int {
  }
  assert (not (str_contains (nanoisa_borrow_emit parser false 0) ".borrow_place"))
  assert (not (str_contains (nanoisa_borrow_emit parser false 0) ".field_read"))
+ assert (not (str_contains (nanoisa_borrow_emit parser false 0) ".field_write"))
  return 0
 }
 shadow main { assert true }

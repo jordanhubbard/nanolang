@@ -14,12 +14,16 @@ struct FieldReadFactEvent {
     line: int, column: int, category: int,
     source_path: string, root: string, projection: string
 }
+struct FieldWriteFactEvent {
+    owner: array<int>, epoch: int, assignment: int, rhs: int, rhs_kind: int,
+    line: int, column: int, source_path: string, root: string, projection: string
+}
 struct BorrowFactContext {
-    events: array<BorrowFactEvent>, reads: array<FieldReadFactEvent>, state: array<int>
+    events: array<BorrowFactEvent>, reads: array<FieldReadFactEvent>, writes: array<FieldWriteFactEvent>, state: array<int>
 }
 # state: enabled, cumulative events, cumulative bytes, cumulative capture work.
 pub fn borrow_fact_context_new() -> array<BorrowFactContext> {
-    return [BorrowFactContext { events: [], reads: [], state: [1,0,0,0] }]
+    return [BorrowFactContext { events: [], reads: [], writes: [], state: [1,0,0,0] }]
 }
 fn borrow_fact_charge(context: array<BorrowFactContext>, count: int) -> bool {
     if (== (array_length context) 0) { return false }
@@ -82,7 +86,7 @@ pub fn borrow_fact_capture(parser: Parser, context: array<BorrowFactContext>, ow
         argument_column: argument.column, mode: argument.borrow_mode, function_id: call.function,
         function_kind: call.function_type, callee: callee, source_path: parser.file_name, root: root, projection: projection }
     let retained: array<BorrowFactEvent> = (array_push current.events event)
-    (array_set context 0 (BorrowFactContext { events: retained, reads: current.reads, state: current.state }))
+    (array_set context 0 (BorrowFactContext { events: retained, reads: current.reads, writes: current.writes, state: current.state }))
     (array_set current.state 1 (+ (at current.state 1) 1))
     (array_set current.state 2 (+ (at current.state 2) bytes))
 }
@@ -255,7 +259,7 @@ pub fn field_read_fact_capture(parser: Parser, context: array<BorrowFactContext>
         field: field_id, root_id: root_id, nodes: nodes, line: field.line, column: field.column,
         category: category, source_path: parser.file_name, root: root, projection: projection }
     let retained: array<FieldReadFactEvent> = (array_push current.reads event)
-    (array_set context 0 (BorrowFactContext { events: current.events, reads: retained, state: current.state }))
+    (array_set context 0 (BorrowFactContext { events: current.events, reads: retained, writes: current.writes, state: current.state }))
     (array_set current.state 1 (+ (at current.state 1) 1))
     (array_set current.state 2 (+ (at current.state 2) bytes))
 }
@@ -350,4 +354,93 @@ shadow field_read_fact_lookup {
     # Parsed storage is not a successful checker certificate.
     assert (== (field_read_fact_lookup parser context (parser_get_function parser 0) event.field) (- 0 1))
     assert (== (field_read_fact_lookup parser [] (parser_get_function parser 0) event.field) (- 0 1))
+}
+
+pub fn field_write_fact_capture(parser: Parser, context: array<BorrowFactContext>, owner: array<int>, epoch: int,
+    assignment_id: int, root: string, projection: string) -> void {
+    if (not (borrow_fact_charge context 1)) { return }
+    if (or (<= epoch 0) (or (!= (array_length owner) 1) (!= (at owner 0) epoch))) { return }
+    if (or (< assignment_id 0) (>= assignment_id parser.sets_count)) { return }
+    let assignment: ASTSet = (parser_get_set parser assignment_id)
+    if (or (<= assignment.line 0) (or (<= assignment.column 0) (or (> assignment.line 4294967295) (> assignment.column 4294967295)))) { return }
+    let current: BorrowFactContext = (at context 0)
+    let np: int = (str_length parser.file_name)
+    let nr: int = (str_length root)
+    let nj: int = (str_length projection)
+    if (not (borrow_fact_charge context (* 2 (+ np (+ nr nj))))) { return }
+    if (or (== np 0) (or (== nr 0) (== nj 0))) { return }
+    if (or (!= (char_at projection 0) 46) (or (not (borrow_fact_text parser.file_name)) (or (not (borrow_fact_text root)) (not (borrow_fact_text projection))))) { return }
+    let bytes: int = (+ 3 (+ np (+ nr nj)))
+    if (or (> (+ nr nj) 4096) (or (>= (at current.state 1) 4096) (> bytes (- 1048576 (at current.state 2))))) {
+        (array_set current.state 0 0) return
+    }
+    let mut i: int = 0
+    while (< i (array_length current.writes)) {
+        if (not (borrow_fact_charge context 1)) { return }
+        let old: FieldWriteFactEvent = (at current.writes i)
+        if (and (== old.epoch epoch) (and (== old.assignment assignment_id) (parser_affine_owner_same old.owner owner))) { return }
+        set i (+ i 1)
+    }
+    let event: FieldWriteFactEvent = FieldWriteFactEvent { owner: owner, epoch: epoch,
+        assignment: assignment_id, rhs: assignment.value, rhs_kind: assignment.value_type,
+        line: assignment.line, column: assignment.column, source_path: parser.file_name, root: root, projection: projection }
+    let retained: array<FieldWriteFactEvent> = (array_push current.writes event)
+    (array_set context 0 (BorrowFactContext { events: current.events, reads: current.reads, writes: retained, state: current.state }))
+    (array_set current.state 1 (+ (at current.state 1) 1))
+    (array_set current.state 2 (+ (at current.state 2) bytes))
+}
+pub fn field_write_fact_lookup(parser: Parser, context: array<BorrowFactContext>, function: ASTFunction, assignment_id: int) -> int {
+    if (== (array_length context) 0) { return -1 }
+    let current: BorrowFactContext = (at context 0)
+    if (or (!= (array_length current.state) 4) (!= (at current.state 0) 1)) { return -1 }
+    if (or (!= function.node_type ParseNodeType.PNODE_FUNCTION) (or (!= function.checked_affine 1) (!= (array_length function.affine_owner) 1))) { return -1 }
+    let epoch: int = (at function.affine_owner 0)
+    if (or (<= epoch 0) (!= function.affine_completed_epoch epoch)) { return -1 }
+    if (or (< assignment_id 0) (>= assignment_id parser.sets_count)) { return -1 }
+    let assignment: ASTSet = (parser_get_set parser assignment_id)
+    let mut i: int = 0
+    while (< i (array_length current.writes)) {
+        let event: FieldWriteFactEvent = (at current.writes i)
+        if (and (== event.epoch epoch) (and (== event.assignment assignment_id) (parser_affine_owner_same event.owner function.affine_owner))) {
+            if (or (!= event.line assignment.line) (or (!= event.column assignment.column) (or (!= event.rhs assignment.value) (!= event.rhs_kind assignment.value_type)))) { return -1 }
+            if (!= event.root assignment.target) { return -1 }
+            let width: int = (str_length assignment.field_name)
+            if (or (<= width 0) (or (> width 4096) (!= (str_length event.projection) (+ width 1)))) { return -1 }
+            if (!= (char_at event.projection 0) 46) { return -1 }
+            let mut j: int = 0
+            while (< j width) {
+                if (!= (char_at assignment.field_name j) (char_at event.projection (+ j 1))) { return -1 }
+                set j (+ j 1)
+            }
+            return i
+        }
+        set i (+ i 1)
+    }
+    return -1
+}
+
+fn field_write_fact_fixture() -> Parser {
+    let source: string = "resource struct R{value:int} fn write(view:&mut R)->int{set view.value (+ view.value 1) return view.value} fn main()->int{return 0}"
+    let tokens: List<LexerToken> = (tokenize_string source "write-storage.nano" (list_CompilerDiagnostic_new))
+    return (parse_program tokens (list_LexerToken_length tokens) "write-storage.nano")
+}
+shadow field_write_fact_fixture { assert (== (field_write_fact_fixture).sets_count 1) }
+shadow field_write_fact_capture {
+    let parser: Parser = (field_write_fact_fixture)
+    let context: array<BorrowFactContext> = (borrow_fact_context_new)
+    let owner: array<int> = [1]
+    (field_write_fact_capture parser context owner 1 0 "view" ".value")
+    assert (== (array_length (at context 0).writes) 1)
+    (field_write_fact_capture parser context owner 1 0 "view" ".value")
+    assert (== (array_length (at context 0).writes) 1)
+    (array_set (at context 0).state 1 4096)
+    (field_write_fact_capture parser context owner 1 0 "view" ".value")
+    assert (== (at (at context 0).state 0) 0)
+}
+shadow field_write_fact_lookup {
+    let parser: Parser = (field_write_fact_fixture)
+    let context: array<BorrowFactContext> = (borrow_fact_context_new)
+    (field_write_fact_capture parser context [1] 1 0 "view" ".value")
+    assert (== (field_write_fact_lookup parser context (parser_get_function parser 0) 0) (- 0 1))
+    assert (== (field_write_fact_lookup parser [] (parser_get_function parser 0) 0) (- 0 1))
 }

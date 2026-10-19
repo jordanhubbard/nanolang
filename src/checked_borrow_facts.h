@@ -25,6 +25,18 @@ bool checked_field_read_capture(Environment *env, ASTNode *function, ASTNode *fi
 const CheckedFieldReadEvent *checked_field_read_lookup(const Environment *env,
     const ASTNode *function, const ASTNode *field);
 
+typedef struct {
+    const ASTNode *function, *assignment, *rhs;
+    ASTNodeType rhs_kind;
+    uint64_t epoch;
+    uint32_t line, column;
+    const char *source_path, *root, *projection;
+} CheckedFieldWriteEvent;
+bool checked_field_write_capture(Environment *env, ASTNode *function,
+    ASTNode *assignment, const char *root, const char *projection);
+const CheckedFieldWriteEvent *checked_field_write_lookup(const Environment *env,
+    const ASTNode *function, const ASTNode *assignment);
+
 bool checked_borrow_begin(Environment *env);
 void checked_borrow_finish_capture(Environment *env);
 bool checked_borrow_seal(Environment *env);

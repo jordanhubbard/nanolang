@@ -127,18 +127,62 @@ static void field_read_controls(void) {
     printf("checked field reads: %u growth allocation prefixes and independent recovery passed\n",growth_calls);
     puts("checked field reads: exact topology/category, shared limits, allocation failures and recovery passed");
 }
+static ASTNode write_node(Fixture *f) {
+    ASTNode node={0};node.type=AST_SET;node.line=27;node.column=3;
+    node.as.set.name="owner";node.as.set.field_name="leaf";node.as.set.value=&f->root;return node;
+}
+static bool capture_write(Fixture *f,ASTNode *node) {
+    return checked_field_write_capture(&f->env,&f->fn,node,"owner",".leaf");
+}
+static void field_write_controls(void) {
+    Fixture f;init(&f);ASTNode node=write_node(&f);
+    assert(checked_borrow_begin(&f.env) && capture(&f) && capture_read(&f,3) && capture_write(&f,&node));
+    assert(capture_write(&f,&node));assert(f.env.checked_borrow_facts->write_count==1);
+    assert(!checked_field_write_lookup(&f.env,&f.fn,&node));seal(&f);
+    const CheckedFieldWriteEvent *event=checked_field_write_lookup(&f.env,&f.fn,&node);assert(event && event->rhs==&f.root);
+    ASTNode clone=node;assert(!checked_field_write_lookup(&f.env,&f.fn,&clone));
+    f.root.type=AST_FIELD_ACCESS;assert(!checked_field_write_lookup(&f.env,&f.fn,&node));f.root.type=AST_IDENTIFIER;
+    node.as.set.value=&f.field;assert(!checked_field_write_lookup(&f.env,&f.fn,&node));node.as.set.value=&f.root;
+    node.as.set.name="other";assert(!checked_field_write_lookup(&f.env,&f.fn,&node));node.as.set.name="owner";
+    node.as.set.field_name="wrong";assert(!checked_field_write_lookup(&f.env,&f.fn,&node));node.as.set.field_name="leaf";
+    node.column++;assert(!checked_field_write_lookup(&f.env,&f.fn,&node));node.column--;
+    f.fn.as.function.affine_check_epoch++;assert(!checked_field_write_lookup(&f.env,&f.fn,&node));f.fn.as.function.affine_check_epoch--;
+    assert(checked_field_write_lookup(&f.env,&f.fn,&node));checked_borrow_end(&f.env);assert(!live);
+    for(unsigned trigger=0;trigger<3;trigger++) {
+        init(&f);node=write_node(&f);assert(checked_borrow_begin(&f.env) && capture(&f) && capture_read(&f,3) && capture_write(&f,&node));
+        f.env.checked_borrow_facts->total_events=BORROW_EVENT_LIMIT;
+        assert(trigger==0?capture(&f):trigger==1?capture_read(&f,3):capture_write(&f,&node));seal(&f);
+        assert(!lookup(&f) && !lookup_read(&f) && !checked_field_write_lookup(&f.env,&f.fn,&node));
+        checked_borrow_end(&f.env);assert(!live);
+    }
+    init(&f);node=write_node(&f);assert(checked_borrow_begin(&f.env) && capture_write(&f,&node));
+    checked_borrow_function_begin(&f.env,&f.fn);seal(&f);assert(!checked_field_write_lookup(&f.env,&f.fn,&node));
+    checked_borrow_end(&f.env);assert(!live);
+    for(unsigned failure=0;failure<=24;failure++) {
+        init(&f);ASTNode nodes[17];alloc_calls=denied=0;fail_at=failure;
+        bool ok=checked_borrow_begin(&f.env) && capture(&f) && capture_read(&f,3);
+        for(unsigned i=0;i<17 && ok;i++){nodes[i]=write_node(&f);nodes[i].line+=i;ok=capture_write(&f,&nodes[i]);}
+        if(failure)assert(!ok && denied==1);else assert(ok && alloc_calls==24);
+        checked_borrow_finish_capture(&f.env);
+        if(ok){assert(checked_borrow_seal(&f.env));for(unsigned i=0;i<17;i++)assert(checked_field_write_lookup(&f.env,&f.fn,&nodes[i]));}
+        else assert(!checked_borrow_seal(&f.env));
+        checked_borrow_end(&f.env);assert(!live);fail_at=0;success();
+    }
+    puts("checked field writes: topology, all-family limits, 24 reached allocation prefixes and recovery passed");
+}
 #ifdef CHECKED_BORROW_ENV_LINK
 int g_argc;
 char **g_argv;
 static void actual_environment_teardown(void) {
-    for(unsigned failure=0;failure<=5;failure++) {
-        Fixture f;init(&f);
+    for(unsigned failure=0;failure<=7;failure++) {
+        Fixture f;init(&f);ASTNode assignment=write_node(&f);
         Environment *env=create_environment();assert(env);
         env->current_file="module.nano";
         alloc_calls=denied=0;fail_at=failure;
         bool began=checked_borrow_begin(env);
         bool captured=began && checked_borrow_capture(env,&f.fn,&f.call,&f.arg,0,"owner",".leaf") &&
-            checked_field_read_capture(env,&f.fn,&f.field,&f.root,1,"owner",".leaf");
+            checked_field_read_capture(env,&f.fn,&f.field,&f.root,1,"owner",".leaf") &&
+            checked_field_write_capture(env,&f.fn,&assignment,"owner",".leaf");
         if(failure)assert(!captured && denied==1);else assert(captured);
         /* Teardown owns snapshots, never the expired AST that produced them. */
         memset(&f,0,sizeof f);
@@ -150,7 +194,7 @@ static void actual_environment_teardown(void) {
 }
 #endif
 int main(void){
-    success();invalid_and_limits();allocation_failures();field_read_controls();
+    success();invalid_and_limits();allocation_failures();field_read_controls();field_write_controls();
 #ifdef CHECKED_BORROW_ENV_LINK
     actual_environment_teardown();
 #endif

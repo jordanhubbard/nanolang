@@ -10,12 +10,15 @@
 
 typedef struct { CheckedBorrowEvent event; char *bytes; } OwnedBorrowEvent;
 typedef struct { CheckedFieldReadEvent event; char *bytes; } OwnedFieldRead;
+typedef struct { CheckedFieldWriteEvent event; char *bytes; } OwnedFieldWrite;
 struct CheckedBorrowLedger {
     Environment *owner;
     OwnedBorrowEvent *events;
     size_t count, capacity, total_events, total_bytes, work;
     OwnedFieldRead *reads;
     size_t read_count, read_capacity;
+    OwnedFieldWrite *writes;
+    size_t write_count, write_capacity;
     bool capturing, sealed, disabled, failed;
 };
 static void clear_events(CheckedBorrowLedger *s) {
@@ -23,6 +26,8 @@ static void clear_events(CheckedBorrowLedger *s) {
     free(s->events);s->events=NULL;s->count=s->capacity=0;
     for(size_t i=0;i<s->read_count;i++)free(s->reads[i].bytes);
     free(s->reads);s->reads=NULL;s->read_count=s->read_capacity=0;
+    for(size_t i=0;i<s->write_count;i++)free(s->writes[i].bytes);
+    free(s->writes);s->writes=NULL;s->write_count=s->write_capacity=0;
 }
 static void disable(CheckedBorrowLedger *s) {
     clear_events(s);s->disabled=true;
@@ -88,6 +93,11 @@ void checked_borrow_function_begin(Environment *env,ASTNode *function) {
     for(size_t i=0;i<s->read_count;) {
         if(!charge(s,1))return;
         if(s->reads[i].event.function==function){free(s->reads[i].bytes);s->reads[i]=s->reads[--s->read_count];}
+        else i++;
+    }
+    for(size_t i=0;i<s->write_count;) {
+        if(!charge(s,1))return;
+        if(s->writes[i].event.function==function){free(s->writes[i].bytes);s->writes[i]=s->writes[--s->write_count];}
         else i++;
     }
 }
@@ -278,6 +288,68 @@ const CheckedFieldReadEvent *checked_field_read_lookup(const Environment *env,
         if(depth!=e->depth || node!=e->root_node)continue;
         CheckedBorrowEvent place={.root=e->root,.projection=e->projection};
         if(same_place(field,&place))return e;
+    }
+    return NULL;
+}
+
+/* I capture only after the existing destination and RHS checks succeed. */
+bool checked_field_write_capture(Environment *env,ASTNode *function,ASTNode *assignment,
+    const char *root,const char *projection) {
+    CheckedBorrowLedger *s=env?env->checked_borrow_facts:NULL;
+    if(!s || !s->capturing || s->disabled)return true;
+    if(s->failed)return false;
+    if(!function || function->type!=AST_FUNCTION || !assignment || assignment->type!=AST_SET ||
+       !assignment->as.set.value || assignment->line<=0 || assignment->column<=0 ||
+       !function->as.function.affine_check_epoch || function->as.function.affine_check_epoch==UINT64_MAX)return true;
+    if(!charge(s,1))return true;
+    CheckedFieldWriteEvent event={.function=function,.assignment=assignment,.rhs=assignment->as.set.value,
+        .rhs_kind=assignment->as.set.value->type,
+        .epoch=function->as.function.affine_check_epoch,.line=(uint32_t)assignment->line,
+        .column=(uint32_t)assignment->column};
+    const char *path=env->current_file;size_t np,nr,nj;
+    if(!length(s,path,&np) || !length(s,root,&nr) || !length(s,projection,&nj))return true;
+    if(!charge(s,np+nr+nj))return true;
+    if(!np || !nr || !nj || projection[0]!='.' || !utf8(path,np) ||
+       !utf8(root,nr) || !utf8(projection,nj))return true;
+    if(nr>BORROW_PATH_LIMIT || nj>BORROW_PATH_LIMIT-nr ||
+       np>BORROW_BYTE_LIMIT-s->total_bytes || nr>BORROW_BYTE_LIMIT-s->total_bytes-np ||
+       nj>BORROW_BYTE_LIMIT-s->total_bytes-np-nr || s->total_events==BORROW_EVENT_LIMIT){disable(s);return true;}
+    size_t size=np+nr+nj+3;
+    if(size>BORROW_BYTE_LIMIT-s->total_bytes){disable(s);return true;}
+    for(size_t i=0;i<s->write_count;i++) {
+        if(!charge(s,1))return true;
+        if(s->writes[i].event.function==function && s->writes[i].event.assignment==assignment)return true;
+    }
+    if(s->write_count==s->write_capacity) {
+        size_t cap=s->write_capacity?s->write_capacity*2:16;
+        if(cap>BORROW_EVENT_LIMIT)cap=BORROW_EVENT_LIMIT;
+        if(cap>SIZE_MAX/sizeof(*s->writes)){s->failed=true;return false;}
+        void *next=realloc(s->writes,cap*sizeof(*s->writes));
+        if(!next){s->failed=true;return false;}s->writes=next;s->write_capacity=cap;
+    }
+    char *bytes=malloc(size);
+    if(!bytes){s->failed=true;return false;}
+    memcpy(bytes,path,np+1);memcpy(bytes+np+1,root,nr+1);memcpy(bytes+np+nr+2,projection,nj+1);
+    event.source_path=bytes;event.root=bytes+np+1;event.projection=bytes+np+nr+2;
+    s->writes[s->write_count++]=(OwnedFieldWrite){event,bytes};
+    s->total_events++;s->total_bytes+=size;return true;
+}
+const CheckedFieldWriteEvent *checked_field_write_lookup(const Environment *env,
+    const ASTNode *function,const ASTNode *assignment) {
+    const CheckedBorrowLedger *s=env?env->checked_borrow_facts:NULL;
+    if(!s || s->owner!=env || !s->sealed || s->capturing || s->disabled || s->failed ||
+       !function || function->type!=AST_FUNCTION || !function->as.function.checked_affine ||
+       !function->as.function.affine_check_epoch || function->as.function.affine_check_epoch==UINT64_MAX ||
+       function->as.function.affine_completed_epoch!=function->as.function.affine_check_epoch ||
+       !assignment || assignment->type!=AST_SET || !assignment->as.set.value)return NULL;
+    for(size_t i=0;i<s->write_count;i++) {
+        const CheckedFieldWriteEvent *e=&s->writes[i].event;
+        if(e->function!=function || e->assignment!=assignment || e->rhs!=assignment->as.set.value || e->rhs_kind!=assignment->as.set.value->type ||
+           e->epoch!=function->as.function.affine_check_epoch || e->line!=(uint32_t)assignment->line ||
+           e->column!=(uint32_t)assignment->column)continue;
+        size_t budget=BORROW_PATH_LIMIT+2;
+        if(same_text(assignment->as.set.name,e->root,&budget) &&
+           e->projection[0]=='.' && same_text(assignment->as.set.field_name,e->projection+1,&budget))return e;
     }
     return NULL;
 }

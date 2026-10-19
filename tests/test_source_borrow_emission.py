@@ -30,6 +30,38 @@ class NativeTestCompilerSelection(unittest.TestCase):
             self.assertEqual(native_test_compiler(), 'cc')
 
 
+def without_field_writes(text, expected):
+    """I remove only validated, exclusively owned new write-advisory suffixes."""
+    lines = text.splitlines()
+    string_lines = [i for i, line in enumerate(lines) if line.startswith('.string ')]
+    strings = [ast.literal_eval(lines[i][8:]).encode('latin1') for i in string_lines]
+    entries = [line for line in lines if line.startswith('.metadata ')]
+    uses = [line for line in entries if strings[int(line.split()[1])] == b'nano.field-write.v1']
+    if not expected:
+        assert not uses, 'I require raw field-write facts to remain absent'
+    if not uses:
+        return text
+    functions = [line.split()[1] for line in lines if line.startswith('.function ')]
+    owned, sites = set(), set()
+    for entry in uses:
+        key, value_index = map(int, entry.split()[1:])
+        owned.update((key, value_index))
+        value = strings[value_index]
+        assert len(value) >= 28
+        fn, row, column, category, coordinates, reserved, np, nr, nj = struct.unpack('<3IBBH3I', value[:28])
+        assert fn < len(functions) and row and column
+        assert category == 1 and coordinates in (1, 2) and not reserved
+        assert np and nr and nj and len(value) == 28 + np + nr + nj and b'\0' not in value[28:]
+        assert value[28+np+nr:28+np+nr+1] == b'.'
+        for part in (value[28:28+np], value[28+np:28+np+nr], value[28+np+nr:]):
+            part.decode('utf-8')
+        site = (fn, row, column, coordinates, value[28:28+np])
+        assert site not in sites
+        sites.add(site)
+    return remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions,
+                                    (b'nano.local.v1', b'nano.affine.v1', b'nano.affine-use.v1', b'nano.borrow-place.v1', b'nano.field-read.v1'))
+
+
 def without_field_reads(text, expected):
     """I remove only validated, exclusively owned new read-advisory suffixes."""
     lines = text.splitlines()
@@ -239,13 +271,33 @@ class AffineComparisonIsolation(unittest.TestCase):
         with self.assertRaises(AssertionError):
             affine_comparison(enriched, 0)
 
+    def test_write_suffix_preserves_code_authority_and_references(self):
+        checked = self.fixture(1)
+        payload = struct.pack('<3IBBH3I', 0, 2, 3, 1, 1, 0, 1, 5, 5) + b'aowner.leaf'
+        suffix = '.string "nano.field-write.v1"\n.string "' + ''.join('\\x%02x' % b for b in payload) + '"\n.metadata 7 8'
+        enriched = checked + '\n' + suffix
+        self.assertEqual(affine_comparison(enriched, 1), affine_comparison(checked, 1))
+        for old, new in [('PUSH_I64 7', 'PUSH_I64 8'), ('.ownership "01000000"', '.ownership "0100000001000000"')]:
+            self.assertNotEqual(affine_comparison(enriched.replace(old, new), 1), affine_comparison(checked, 1))
+        old = struct.pack('<IBBHI', 1, 0, 0, 1, 0).hex()
+        new = struct.pack('<IBBHI', 1, 0, 0, 1, 8).hex()
+        variants = [enriched+'\n.metadata 7 8', enriched+'\n.metadata 3 8',
+                    enriched+'\n.string "unrelated"', enriched+'\n.module_ref "module"',
+                    enriched.replace('PUSH_I64 7', 'PUSH_STR 8'), enriched.replace(old, new),
+                    enriched.replace('main 0', 'nano.field-write.v1 0')]
+        for value in variants:
+            with self.subTest(value=value), self.assertRaises(AssertionError):
+                affine_comparison(value, 1)
+        with self.assertRaises(AssertionError):
+            affine_comparison(enriched, 0)
+
 
 def affine_comparison(text, expected):
     """I normalize advisory facts only; borrowed Nano roots may remain UNKNOWN.
 
     I compare executable/authority structure, not equal per-use fact coverage.
     """
-    lines = without_affine_uses(without_borrow_places(without_field_reads(text, expected), expected), expected).splitlines()
+    lines = without_affine_uses(without_borrow_places(without_field_reads(without_field_writes(text, expected), expected), expected), expected).splitlines()
     string_lines = [i for i, line in enumerate(lines) if line.startswith('.string ')]
     strings = [ast.literal_eval(lines[i][8:]).encode('latin1') for i in string_lines]
     entries = [line for line in lines if line.startswith('.metadata ')]
