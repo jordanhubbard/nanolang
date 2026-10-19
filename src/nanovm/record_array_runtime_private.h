@@ -8,7 +8,7 @@ typedef struct VmRecordArrayPrivate VmRecordArrayPrivate;
 #define VM_RECORD_ARRAY_EXTRA_BYTES (UINT64_C(128)*1024*1024)
 #define VM_RECORD_ARRAY_EXTRA_STEPS UINT64_C(33554432)
 #define VM_RECORD_ARRAY_ROOT_CAPACITY (UINT32_C(1024)*512+1)
-#define VM_RECORD_ARRAY_PATH_MAX 257u
+#define VM_RECORD_ARRAY_PATH_MAX 258u
 typedef enum { VM_RA_RESULT, VM_RA_GLOBAL } VmRecordArrayRoot;
 typedef struct {
     uint64_t epoch, identity, scalar_bits;

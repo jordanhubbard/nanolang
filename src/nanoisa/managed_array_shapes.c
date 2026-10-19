@@ -58,6 +58,7 @@ typedef struct {
     NvmRecordArrayBudget budget;
     uint32_t layout_fields[256];
     uint8_t *field_elements;
+    bool nested_arrays;
     uint16_t required_elements[ORIGINS];
     Value all_writes[ORIGINS];
 } Analysis;
@@ -383,9 +384,7 @@ static int slice_origins(Analysis *a,uint32_t fi,uint32_t pc,Value receiver,Valu
 static int check_write(Analysis *a,uint32_t fi,uint32_t pc,Value receiver,Value value) {
     if(!analysis_work(a,ORIGINS*4u))return 0;
     a->report.checked_writes++;
-    uint16_t allowed=a->structure?RECORD_ARRAY_LEAVES:LEAVES|(a->graph?BIT(TAG_ARRAY):0);
-    if(a->structure && value.origins)
-        return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require flat scalar/string array content without heap children.");
+    uint16_t allowed=a->structure?(RECORD_ARRAY_LEAVES|(a->nested_arrays?BIT(TAG_ARRAY):0)):LEAVES|(a->graph?BIT(TAG_ARRAY):0);
     if(value.unknown || !value.tags || (value.tags&~allowed))
         return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,a->graph && !a->structure?
             "I require proved scalar/string/array graph writes.":"I require proved scalar/string leaf writes.");
@@ -470,7 +469,7 @@ static Value read_record(Analysis *a,Value receiver,uint16_t field) {
     return result;
 }
 static int record_value_matches(Analysis *a,uint32_t fi,uint32_t pc,
-                                const NvmV2LayoutField *field,Value value,uint8_t element) {
+                                const NvmV2LayoutField *field,Value value,uint16_t element) {
     if(!analysis_work(a,ORIGINS*4u))return 0;
     a->checked_field_writes++;
     if(value.unknown || value.tags!=BIT(field->type_tag))
@@ -481,11 +480,10 @@ static int record_value_matches(Analysis *a,uint32_t fi,uint32_t pc,
             return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require complete field array origins and element identity.");
         for(uint32_t i=0;i<a->report.origin_count;i++)if(origins&(UINT64_C(1)<<i)) {
             NvmArrayOrigin *origin=&a->report.origins[i];
-            if(origin->declared_tag!=element || a->children[i].unknown ||
-               a->children[i].origins || (origin->child_tags&~BIT(element)))
-                return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require the exact flat field element contract.");
-            a->required_elements[i]|=BIT(element);
-            if(a->required_elements[i]!=BIT(element))
+            if(!(element&BIT(origin->declared_tag)))
+                return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require the exact field element contract.");
+            a->required_elements[i]|=element;
+            if(a->required_elements[i]!=element)
                 return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I refuse conflicting field element constraints.");
         }
     }
@@ -856,7 +854,7 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
                 nvm_portable_file_read_import(m,d->instruction.operands[0].u32)==2;
             if(op!=OP_ARR_NEW && op!=OP_STR_SPLIT && op!=OP_ARR_LITERAL && !bytes)continue;
             uint8_t declared=bytes?TAG_U8:op==OP_STR_SPLIT?TAG_STRING:d->instruction.operands[0].u8;
-            uint16_t allowed=a->structure?RECORD_ARRAY_LEAVES:LEAVES|(a->graph?BIT(TAG_ARRAY):0);
+            uint16_t allowed=a->structure?(RECORD_ARRAY_LEAVES|(a->nested_arrays?BIT(TAG_ARRAY):0)):LEAVES|(a->graph?BIT(TAG_ARRAY):0);
             if(!(allowed&BIT(declared))){stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I have not qualified this declared array shape.");goto done;}
             if(a->report.origin_count==ORIGINS){stop(a,NVM_ARRAY_LIMIT,fi,d->byte_offset,"I reached my allocation-site origin limit.");goto done;}
             uint32_t origin=a->report.origin_count++;f->origins[i]=(int16_t)origin;

@@ -195,7 +195,14 @@ int main(void){
     make_case(&c,TAG_INT,false);c.module.ownership_size++;refusal(&c,NVM_OAA_INVALID);
     for(uint32_t n=1;n<c.o;n++){make_case(&c,TAG_INT,false);c.module.ownership_size=n;refusal(&c,NVM_OAA_INVALID);}
     for(unsigned reverse=0;reverse<2;reverse++){
-        chain(&c,2,reverse,false);refusal(&c,NVM_OAA_UNKNOWN);
+        chain(&c,2,reverse,false);
+        NvmOrdinaryArrayAuthority *nested=NULL;
+        CHECK(nvm_describe_ordinary_array_authority(&c.module,&nested).status==NVM_OAA_DESCRIBED);
+        NvmOrdinaryArrayType parent,child;NvmOrdinaryArrayBinding binding;
+        CHECK(nvm_ordinary_array_authority_binding(nested,0,&binding));
+        CHECK(nvm_ordinary_array_authority_type(nested,binding.element_type,&parent) && parent.tag==TAG_ARRAY);
+        CHECK(nvm_ordinary_array_authority_type(nested,parent.referent,&child) && child.tag==TAG_INT && child.referent==UINT32_MAX);
+        nvm_ordinary_array_authority_free(nested);
         chain(&c,64,reverse,false);refusal(&c,NVM_OAA_UNKNOWN);
         chain(&c,65,reverse,false);refusal(&c,NVM_OAA_LIMIT);
         chain(&c,4,reverse,true);refusal(&c,NVM_OAA_INVALID);

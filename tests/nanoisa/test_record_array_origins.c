@@ -87,6 +87,40 @@ static NvmRecordArrayOrigins *query(Input *c,NvmArrayEligibilityStatus expected)
 static void positive(Input *c){NvmRecordArrayOrigins *p=query(c,NVM_ARRAY_ELIGIBLE);nvm_record_array_origins_free(p);}
 static void basic(Input *c,uint8_t tag,bool un){init(c,tag,un);array(c,tag);scalar(c,tag);op(c,OP_ARR_PUSH);record(c,0);op(c,OP_POP);finish(c);}
 #define UNCHANGED(Type,call) do{Type out,old;memset(&out,0xa5,sizeof out);memcpy(&old,&out,sizeof out);CHECK(!(call));CHECK(!memcmp(&out,&old,sizeof out));}while(0)
+/* I retain exact ARRAY -> INT rows, not a wildcard ARRAY element tag. */
+static void nested_authority(Input *c) {
+    authority(c);
+    size_t extension=c->o-48,types=extension+8,at;
+    memmove(c->ownership+types+20,c->ownership+types+12,c->o-types-12);
+    c->o+=8;at=extension+4;b32(c->ownership,&at,48);
+    at=types;b32(c->ownership,&at,2);
+    b8(c->ownership,&at,TAG_ARRAY);b8(c->ownership,&at,0);b16(c->ownership,&at,0);b32(c->ownership,&at,1);
+    b8(c->ownership,&at,TAG_INT);b8(c->ownership,&at,0);b16(c->ownership,&at,0);b32(c->ownership,&at,NO);
+    c->m.ownership_size=(uint32_t)c->o;
+}
+static void nested_origins(void) {
+    for(unsigned variant=0;variant<5;variant++) {
+        Input c;init(&c,TAG_INT,false);
+        array(&c,TAG_ARRAY);arg16(&c,OP_STORE_LOCAL,0);
+        array(&c,variant==2?TAG_STRING:TAG_INT);arg16(&c,OP_STORE_LOCAL,1);
+        arg16(&c,OP_LOAD_LOCAL,0);record(&c,0);op(&c,OP_POP);
+        if(variant) {
+            arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_LOAD_LOCAL,1);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+            if(variant>=3) {
+                arg16(&c,OP_LOAD_LOCAL,0);op(&c,OP_ARR_POP);op(&c,OP_POP);
+                arg16(&c,OP_LOAD_LOCAL,1);scalar(&c,variant==4?TAG_U8:TAG_INT);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+            }
+        }
+        finish(&c);nested_authority(&c);
+        if(variant==2 || variant==4)query(&c,NVM_ARRAY_UNRESOLVED);
+        else {
+            NvmRecordArrayOrigins *p=query(&c,NVM_ARRAY_ELIGIBLE);uint16_t requirement;
+            CHECK(nvm_record_array_required_elements(p,0,&requirement)&&requirement==NVM_RECORD_ARRAY_OF_INT);
+            if(variant)CHECK(nvm_record_array_required_elements(p,1,&requirement)&&requirement==MASK(TAG_INT));
+            nvm_record_array_origins_free(p);
+        }
+    }
+}
 static void copied_facts(void){
     for(uint8_t t=TAG_INT;t<=TAG_STRING;t++){
         Input *c=malloc(sizeof *c);CHECK(c);basic(c,t,true);NvmRecordArrayOrigins *p=query(c,NVM_ARRAY_ELIGIBLE);
@@ -201,6 +235,14 @@ static void boundaries(void){
         if(count==64){NvmRecordArrayOriginCounts n;CHECK(nvm_record_array_origins_counts(p,&n)&&n.origins==64);nvm_record_array_origins_free(p);}
     }
 #ifdef RA_WHITEBOX
+    /* I preserve the flat charge and independently bound the nested scan. */
+    for(unsigned nested=0;nested<2;nested++)for(unsigned over=0;over<2;over++) {
+        Analysis a={0};NvmRecordArrayStructure structure={0};a.structure=&structure;a.nested_arrays=nested!=0;
+        uint64_t required=ORIGINS*16u+(nested?ORIGINS*ORIGINS*4u:0);
+        a.budget.work=NVM_RA_STEPS-required+over;
+        int ok=ra_check_constraints(&a);
+        CHECK(over?(!ok&&a.budget.limited):(ok&&a.budget.work==NVM_RA_STEPS));
+    }
     /* I drive actual allocation and transfer callers at exact remaining caps. */
     for(unsigned over=0;over<2;over++){
         Analysis a={0};NvmRecordArrayStructure structure={0};a.structure=&structure;
@@ -233,4 +275,4 @@ static void boundaries(void){
     printf("I measured %zu allocation positions and %zu peak payload bytes; every refusal recovered\n",measured,actual_peak);
 #endif
 }
-int main(void){setvbuf(stdout,NULL,_IONBF,0);puts("I begin copied facts");copied_facts();puts("I begin alias/copy facts");aliases_and_copies();puts("I begin refusal boundaries");refusals();puts("I begin call/global/join facts");field_call_global_join();forward_record_identity();puts("I begin old-mode compatibility");old_mode();puts("I begin bounded accounting and recovery");boundaries();printf("PASS %u record-array origin checks; no runtime admission\n",checks);return 0;}
+int main(void){setvbuf(stdout,NULL,_IONBF,0);puts("I begin copied facts");copied_facts();nested_origins();puts("I begin alias/copy facts");aliases_and_copies();puts("I begin refusal boundaries");refusals();puts("I begin call/global/join facts");field_call_global_join();forward_record_identity();puts("I begin old-mode compatibility");old_mode();puts("I begin bounded accounting and recovery");boundaries();printf("PASS %u record-array origin checks; no runtime admission\n",checks);return 0;}

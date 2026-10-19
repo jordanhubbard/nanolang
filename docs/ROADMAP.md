@@ -15594,3 +15594,15 @@ My first isolated diagnostic-control invocation accidentally imported a TestCase
 class directly, so unittest also discovered the complete unrelated source-plan
 corpus without its compiler providers. I preserve that failed terminal and import
 the module instead; no production assertion is removed.
+### Bounded nested integer-array field authority (#1001)
+
+- [x] I review [my exact depth-two contract](NANOISA_NESTED_INT_ARRAY_AUTHORITY.md) and normalized proof obligations before admission changes; `workspace_repairs` owns isolated branch `fix/5.1-nested-array-authority` from `0f9ca2300`.
+- [x] I implement exact retained nested element constraints and independent public transport proof, preserving typed budgets and all existing flat/non-array boundaries.
+- [x] I qualify copied private and actual public VM lifetime/error paths plus canonical native record aliases under forced collection.
+- [x] I qualify paired source publication, unsupported omissions, forged controls and allocation failures; fresh raw generations and Linux/Darwin remain aggregate-owned gates, and full #1001 remains open.
+
+- [x] Under #1001 I repair the native nested-array forward-result fact ordering exposed by the new public CALL fixture: an initially unknown returned outer carrier must wait for callee facts instead of becoming scalar storage from its known INT-array child. I retain the failed emission and require native CALL/TAIL qualification.
+
+- [x] Under #1001 I make source-publication query qualification explicitly build its real shared query provider: the native module probe can link statically and cannot establish an incidental `.build/current` ctypes library. I preserve the missing-library evidence and retain real host-interface checks.
+
+I retain [my bounded nested-array receipt](evidence/nested-int-array-authority-20261019/README.md). Fresh raw generations and exact Linux/Darwin aggregate acceptance remain open.

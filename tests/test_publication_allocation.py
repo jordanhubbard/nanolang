@@ -21,6 +21,12 @@ CLEANUP_PROVIDERS=['src/nanoisa/nvm_v2_'+name+'.c' for name in ('module','conver
 
 class PublicationAllocation(unittest.TestCase):
     def test_actual_publisher_and_query_prefixes(self):
+        self.qualify(False)
+
+    def test_nested_publisher_and_query_prefixes(self):
+        self.qualify(True)
+
+    def qualify(self, nested):
         work=Path(tempfile.mkdtemp(prefix='nano-publication-allocation-'))
         print('I retain publication allocation evidence at',work,flush=True)
         clean_env=os.environ.copy()
@@ -92,6 +98,8 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
         fixture.write_text('struct Box { values: array<int> }\nfn main() -> int {\n'
                            'let values: array<int> = [7, 11]\nlet box: Box = Box { values: values }\n'
                            'assert (== (array_length box.values) 2)\nreturn 0\n}\n')
+        if nested:
+            fixture.write_text(fixture.read_text().replace('array<int>', 'array<array<int>>').replace('[7, 11]', '[[7], [11]]'))
         run('source-compile',[ROOT/'bin/nano_virt',fixture,'--emit-nvm','-o',module])
         assembly.write_text(run('source-dump',[ROOT/'bin/nanoisa','dump',module]))
         self.assertIn('.ownership "03000000',assembly.read_text())

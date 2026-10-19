@@ -153,9 +153,9 @@ static void release_closure(VmHeap *heap, VmClosure *c);
 static void release_hashmap(VmHeap *heap, VmHashMap *m);
 
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
-/* Exact runtime layout/flat-element checks make this graph a nominal DAG.
+/* Exact runtime layout/bounded-element checks make this graph a nominal DAG.
  * I keep each dead parent allocated until all its edges have been released.
- * Strings have no children; <=256 record layouts plus one array fit below258.
+ * Strings have no children; <=256 record layouts plus two array layers fit below259.
  * This walk does not call vm_release and cannot allocate or run a collector. */
 static void vm_private_dag_release(VmHeap *heap,NanoValue value) {
     uint32_t depth=0;
@@ -172,7 +172,7 @@ static void vm_private_dag_release(VmHeap *heap,NanoValue value) {
                     vm_intern_unlink(heap,s);free(s);
                 } else {
                     assert(value.tag==TAG_ARRAY || value.tag==TAG_STRUCT);
-                    assert(depth<258);
+                    assert(depth<sizeof heap->private_release/sizeof heap->private_release[0]);
                     heap->private_release[depth].value=value;
                     heap->private_release[depth++].child=0;
                 }

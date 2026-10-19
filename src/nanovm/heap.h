@@ -166,7 +166,7 @@ typedef struct VmHeap {
     /* Set only by the private instance after exact nominal DAG validation.
      * Ordinary heaps remain zero/disabled. No private caller exports VmHeap. */
     bool private_record_dag;
-    struct { NanoValue value; uint32_t child; } private_release[258];
+    struct { NanoValue value; uint32_t child; } private_release[259];
 #endif
 } VmHeap;
 
