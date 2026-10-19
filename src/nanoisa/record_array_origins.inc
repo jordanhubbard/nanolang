@@ -56,9 +56,20 @@ static int ra_prepare_records(Analysis *a) {
         if(element.tag==TAG_ARRAY) {
             NvmOrdinaryArrayType child;
             if(!nvm_ownership_declarations_type(a->structure->declarations,element.referent,&child) ||
-               child.tag!=TAG_INT || child.referent!=NVM_V2_NO_INDEX)
-                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact nested INT element authority.");
+               (child.tag!=TAG_INT && child.tag!=TAG_STRING) || child.referent!=NVM_V2_NO_INDEX)
+                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact nested INT or STRING element authority.");
             a->nested_arrays=true;
+            if(child.tag==TAG_STRING) {
+                if(!a->nested_string_fields) {
+                    size_t bytes=(fields+7u)/8u;
+                    a->nested_string_fields=analysis_alloc(a,bytes,1);
+                    if(!a->nested_string_fields)return stop(a,NVM_ARRAY_MEMORY,0,0,"I could not copy nested STRING field constraints.");
+                    if(!analysis_work(a,bytes))return 0;
+                }
+                uint32_t field=a->layout_fields[binding.layout]+binding.field;
+                a->nested_string_fields[field/8]|=(uint8_t)(1u<<(field%8));
+                continue;
+            }
         } else if(element.referent!=NVM_V2_NO_INDEX || !(element.tag==TAG_INT || element.tag==TAG_U8 ||
              element.tag==TAG_FLOAT || element.tag==TAG_BOOL || element.tag==TAG_STRING))
             return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact bounded field element tags.");
@@ -70,7 +81,7 @@ static int ra_prepare_records(Analysis *a) {
         for(uint16_t j=0;j<layout->field_count;j++) {
             uint8_t tag=layout->fields[j].type_tag;
             if(tag==TAG_ARRAY) {
-                if(!a->field_elements[a->layout_fields[i]+j])
+                if(!record_field_element(a,a->layout_fields[i]+j))
                     return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require every array field binding.");
             } else if(!(tag==TAG_INT || tag==TAG_U8 || tag==TAG_FLOAT || tag==TAG_BOOL || tag==TAG_STRING || tag==TAG_STRUCT))
                 return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require the bounded ordinary record field schema.");
@@ -88,11 +99,17 @@ static int ra_check_constraints(Analysis *a) {
         Value content=a->children[i];merge(&content,a->all_writes[i]);
         if(content.unknown || (content.tags&~BIT(TAG_ARRAY)) ||
            (content.tags && !content.origins))
-            return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require proved nested INT array children.");
+            return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require proved nested array children.");
+        uint16_t requirement=a->required_elements[i];
+        uint8_t leaf=requirement==NVM_RECORD_ARRAY_OF_STRING?TAG_STRING:
+                     requirement==NVM_RECORD_ARRAY_OF_INT?TAG_INT:TAG_VOID;
         for(uint32_t j=0;j<a->report.origin_count;j++)if(content.origins&(UINT64_C(1)<<j)) {
-            if(a->origin_kind[j]!=NVM_HEAP_ORIGIN_ARRAY || a->report.origins[j].declared_tag!=TAG_INT)
-                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require each nested child to be an INT array origin.");
-            a->required_elements[j]|=BIT(TAG_INT);
+            uint8_t child=a->report.origins[j].declared_tag;
+            if(a->origin_kind[j]!=NVM_HEAP_ORIGIN_ARRAY ||
+               (child!=TAG_INT && !(a->nested_string_fields && child==TAG_STRING)) ||
+               (leaf!=TAG_VOID && child!=leaf))
+                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require each nested child to preserve its exact INT or STRING leaf.");
+            leaf=child;a->required_elements[j]|=BIT(child);
         }
     }
     for(uint32_t i=0;i<a->report.origin_count;i++)if(a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY) {
@@ -103,9 +120,9 @@ static int ra_check_constraints(Analysis *a) {
            (declared!=TAG_ARRAY && (writes.origins || children.origins)) ||
            (writes.tags&~allowed) || (children.tags&~allowed) ||
            (a->report.origins[i].child_tags&~allowed))
-            return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact flat or depth-two INT array content.");
-        if(a->required_elements[i] && (a->required_elements[i]!=BIT(declared) ||
-           (writes.tags&~a->required_elements[i])))
+            return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact flat or bounded depth-two array content.");
+        uint16_t expected=a->required_elements[i]==NVM_RECORD_ARRAY_OF_STRING?BIT(TAG_ARRAY):a->required_elements[i];
+        if(expected && (expected!=BIT(declared) || (writes.tags&~expected)))
             return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require every aliased array write to preserve its exact field element type.");
     }
     return 1;

@@ -6970,3 +6970,8 @@ test-units: test-ordinary-array-authority
 test-units: test-u8-record-fields
 test-u8-record-fields: bootstrap3 bin/nanoc_c nano_virt nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_u8_record_fields tests.test_u8_field_context
+.PHONY: test-record-array-nested-string
+test-record-array-nested-string: test-record-array-tail-build
+	RECORD_ARRAY_NESTED_CC="$(CC)" RECORD_ARRAY_NESTED_CFLAGS="$(CFLAGS)" RECORD_ARRAY_NESTED_OBJECTS="$(filter-out %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))) $(filter %.a,$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)))" RECORD_ARRAY_NESTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_record_array_nested_string
+
+test-units: test-record-array-nested-string

@@ -155,7 +155,8 @@ static void release_hashmap(VmHeap *heap, VmHashMap *m);
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
 /* Exact runtime layout/bounded-element checks make this graph a nominal DAG.
  * I keep each dead parent allocated until all its edges have been released.
- * Strings have no children; <=256 record layouts plus two array layers fit below259.
+ * Strings are freed inline and never push this stack; at most256 record
+ * parents plus two array parents use258 entries, including nested STRING.
  * This walk does not call vm_release and cannot allocate or run a collector. */
 static void vm_private_dag_release(VmHeap *heap,NanoValue value) {
     uint32_t depth=0;
@@ -368,9 +369,7 @@ VmString *vm_string_new(VmHeap *heap, const char *data, uint32_t length) {
     /* Check intern table for dedup (O(1) expected via bucket chain). */
     VmString *existing = vm_intern_lookup(heap, hash, data, length);
     if (existing) {
-#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
-        if(heap->private_record_dag && existing->header.ref_count==UINT32_MAX)return NULL;
-#endif
+        if (existing->header.ref_count == UINT32_MAX) return NULL;
         existing->header.ref_count++;
         return existing;
     }

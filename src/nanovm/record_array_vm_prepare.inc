@@ -6,7 +6,7 @@
 
 typedef struct {
     NvmV2LayoutField declaration;
-    uint8_t element;
+    uint8_t element, nested_leaf;
 } VmRecordArrayField;
 typedef struct {
     NvmDeclarationLayout declaration;
@@ -94,14 +94,16 @@ static bool vm_ra_layouts(VmRecordArrayPrivate *p) {
         if(!nvm_record_array_execution_binding(p->plan,i,&binding) || binding.layout>=count.layouts ||
            binding.field>=p->layouts[binding.layout].declaration.fields ||
            !nvm_record_array_execution_type(p->plan,binding.element_type,&element))return false;
+        uint8_t nested_leaf=TAG_VOID;
         if(element.tag==TAG_ARRAY) {
             NvmOrdinaryArrayType child;
             if(!nvm_record_array_execution_type(p->plan,element.referent,&child) ||
-               child.tag!=TAG_INT || child.referent!=NVM_V2_NO_INDEX)return false;
+               (child.tag!=TAG_INT && child.tag!=TAG_STRING) || child.referent!=NVM_V2_NO_INDEX)return false;
+            nested_leaf=child.tag;
         } else if(!vm_ra_leaf(element.tag) || element.referent!=NVM_V2_NO_INDEX)return false;
         VmRecordArrayField *field=&p->fields[p->layouts[binding.layout].field_start+binding.field];
         if(field->declaration.type_tag!=TAG_ARRAY || field->element)return false;
-        field->element=element.tag;
+        field->element=element.tag;field->nested_leaf=nested_leaf;
     }
     uint32_t records=0;
     for(uint32_t i=0;i<count.layouts;i++) {
@@ -489,15 +491,27 @@ bool vm_record_array_private_stats(const VmRecordArrayPrivate *p,VmRecordArrayPr
     result.maximum_frames=p->maximum_frames;result.last_status=p->last_status;result.has_result=p->has_result;
     *out=result;return true;
 }
-static bool vm_ra_array_valid(VmArray *a,bool inner) {
+static bool vm_ra_array_valid(VmArray *a,uint8_t expected_leaf) {
     if(!a || a->header.obj_type!=TAG_ARRAY || !a->header.ref_count ||
        a->length>a->capacity || a->unboxed!=vm_array_type_unboxable(a->elem_type) ||
        (a->capacity && !(a->unboxed?a->packed!=NULL:a->elements!=NULL)))return false;
-    if(inner)return a->elem_type==TAG_INT;
+    if(expected_leaf && a->elem_type!=expected_leaf)return false;
+    if(a->elem_type==TAG_STRING) {
+        for(uint32_t i=0;i<a->length;i++) {
+            NanoValue v=a->elements[i];
+            if(v.tag!=TAG_STRING || !v.as.string || v.as.string->header.obj_type!=TAG_STRING ||
+               !v.as.string->header.ref_count)return false;
+        }
+        return true;
+    }
     if(vm_ra_leaf(a->elem_type))return true;
-    if(a->elem_type!=TAG_ARRAY)return false;
-    for(uint32_t i=0;i<a->length;i++)
-        if(a->elements[i].tag!=TAG_ARRAY || !vm_ra_array_valid(a->elements[i].as.array,true))return false;
+    if(expected_leaf || a->elem_type!=TAG_ARRAY)return false;
+    for(uint32_t i=0;i<a->length;i++) {
+        NanoValue child=a->elements[i];
+        if(child.tag!=TAG_ARRAY || !child.as.array ||
+           (child.as.array->elem_type!=TAG_INT && child.as.array->elem_type!=TAG_STRING) ||
+           !vm_ra_array_valid(child.as.array,child.as.array->elem_type))return false;
+    }
     return true;
 }
 static bool vm_ra_value_valid(const VmRecordArrayPrivate *p,NanoValue value) {
@@ -505,7 +519,7 @@ static bool vm_ra_value_valid(const VmRecordArrayPrivate *p,NanoValue value) {
         if(value.tag!=TAG_STRING)return true;
         return value.as.string && value.as.string->header.obj_type==TAG_STRING && value.as.string->header.ref_count;
     }
-    if(value.tag==TAG_ARRAY)return vm_ra_array_valid(value.as.array,false);
+    if(value.tag==TAG_ARRAY)return vm_ra_array_valid(value.as.array,TAG_VOID);
     if(value.tag==TAG_STRUCT) {
         VmStruct *s=value.as.sval;
         return s && s->header.obj_type==TAG_STRUCT && s->header.ref_count &&
@@ -520,7 +534,12 @@ static bool vm_ra_field_accepts(const VmRecordArrayPrivate *p,uint32_t layout,ui
     const VmRecordArrayField *expected=&p->fields[p->layouts[layout].field_start+field];
     if(value.tag!=expected->declaration.type_tag)return false;
     if(value.tag==TAG_STRUCT)return value.as.sval->def_idx==expected->declaration.nested_idx;
-    if(value.tag==TAG_ARRAY)return value.as.array->elem_type==expected->element;
+    if(value.tag==TAG_ARRAY) {
+        if(value.as.array->elem_type!=expected->element)return false;
+        if(expected->nested_leaf)for(uint32_t i=0;i<value.as.array->length;i++)
+            if(!vm_ra_array_valid(value.as.array->elements[i].as.array,expected->nested_leaf))return false;
+        return true;
+    }
     return true;
 }
 static VmResult vm_ra_retain_check(NanoValue value) {
@@ -600,13 +619,13 @@ static VmResult vm_ra_preflight(VmRecordArrayPrivate *p,const VmDispatchInstruct
             for(uint16_t i=0;i<fact->pops;i++) {
                 NanoValue child=stack_peek(vm,i);
                 if(child.tag!=in->operands[0].u8 ||
-                   (child.tag==TAG_ARRAY && !vm_ra_array_valid(child.as.array,true)))return VM_ERR_TYPE_ERROR;
+                   (child.tag==TAG_ARRAY && (!child.as.array || (child.as.array->elem_type!=TAG_INT && child.as.array->elem_type!=TAG_STRING) || !vm_ra_array_valid(child.as.array,child.as.array->elem_type))))return VM_ERR_TYPE_ERROR;
             }
         break;
     case OP_ARR_PUSH:case OP_ARR_SET: {
         NanoValue receiver=stack_peek(vm,in->opcode==OP_ARR_PUSH?1:2),value=stack_peek(vm,0);
         if(receiver.tag!=TAG_ARRAY || value.tag!=receiver.as.array->elem_type ||
-           (value.tag==TAG_ARRAY && !vm_ra_array_valid(value.as.array,true)))return VM_ERR_TYPE_ERROR;
+           (value.tag==TAG_ARRAY && (!value.as.array || (value.as.array->elem_type!=TAG_INT && value.as.array->elem_type!=TAG_STRING) || !vm_ra_array_valid(value.as.array,value.as.array->elem_type))))return VM_ERR_TYPE_ERROR;
         if(in->opcode==OP_ARR_PUSH)retained=value;
         break;
     }

@@ -1535,6 +1535,9 @@ static VmResult vm_record_array_retain_preflight(VmState *vm,VmCallFrame *frame,
                                                 const VmDispatchInstruction *decoded) {
     const DecodedInstruction *in=&decoded->instruction;NanoValue retained=val_void();
     switch(in->opcode) {
+    case OP_PUSH_STR:
+        if(in->operands[0].u32>=vm->module_constants.count)return VM_ERR_OUT_OF_BOUNDS;
+        retained=val_string(vm->module_constants.strings[in->operands[0].u32]);break;
     case OP_LOAD_LOCAL: {
         uint32_t index=effect_local_index(vm,frame,in->operands[0].u16);
         if(index>=vm->stack_size)return VM_ERR_TYPE_ERROR;
@@ -1564,7 +1567,7 @@ static VmResult vm_record_array_retain_preflight(VmState *vm,VmCallFrame *frame,
     case OP_ARR_SLICE: {
         NanoValue owner=stack_peek(vm,2),first=stack_peek(vm,1),last=stack_peek(vm,0);
         if(owner.tag!=TAG_ARRAY || !owner.as.array)return VM_ERR_TYPE_ERROR;
-        VmArray *a=owner.as.array;if(a->elem_type!=TAG_ARRAY)break;
+        VmArray *a=owner.as.array;if(a->elem_type!=TAG_ARRAY && a->elem_type!=TAG_STRING)break;
         uint32_t start=first.tag==TAG_INT?(uint32_t)first.as.i64:0;
         uint32_t end=last.tag==TAG_INT?(uint32_t)last.as.i64:a->length;
         if(start>a->length)start=a->length;
@@ -1572,8 +1575,8 @@ static VmResult vm_record_array_retain_preflight(VmState *vm,VmCallFrame *frame,
         if(end<=start)break;
         for(uint32_t i=start;i<end;i++) {
             NanoValue child=a->elements[i];
-            if(child.tag!=TAG_ARRAY || !child.as.array)return VM_ERR_TYPE_ERROR;
-            uint32_t references=child.as.array->header.ref_count;
+            if(child.tag!=a->elem_type || !child.as.obj)return VM_ERR_TYPE_ERROR;
+            uint32_t references=((VmHeapHeader *)child.as.obj)->ref_count;
             if(references>UINT32_MAX-(end-start)) {
                 uint32_t copies=0;
                 for(uint32_t j=start;j<end;j++)if(a->elements[j].as.obj==child.as.obj)copies++;
@@ -1584,9 +1587,9 @@ static VmResult vm_record_array_retain_preflight(VmState *vm,VmCallFrame *frame,
     }
     default:break;
     }
-    if(retained.tag==TAG_ARRAY) {
-        if(!retained.as.array)return VM_ERR_TYPE_ERROR;
-        if(retained.as.array->header.ref_count==UINT32_MAX)return VM_ERR_MEMORY;
+    if(retained.tag==TAG_ARRAY || retained.tag==TAG_STRING) {
+        if(!retained.as.obj)return VM_ERR_TYPE_ERROR;
+        if(((VmHeapHeader *)retained.as.obj)->ref_count==UINT32_MAX)return VM_ERR_MEMORY;
     }
     return VM_OK;
 }

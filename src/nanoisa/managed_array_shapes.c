@@ -58,6 +58,7 @@ typedef struct {
     NvmRecordArrayBudget budget;
     uint32_t layout_fields[256];
     uint8_t *field_elements;
+    uint8_t *nested_string_fields;
     bool nested_arrays;
     uint16_t required_elements[ORIGINS];
     Value all_writes[ORIGINS];
@@ -321,6 +322,7 @@ static int supported(uint8_t op) {
 bool nvm_record_array_opcode_supported(uint8_t op) {
     return op!=OP_ENUM_VAL && (supported(op) || record_operation(op) || op==OP_TAIL_CALL);
 }
+static uint16_t record_field_element(const Analysis *,uint32_t);
 #include "record_array_origins.inc"
 static int packed(uint8_t t) { return t==TAG_INT || t==TAG_U8 || t==TAG_FLOAT || t==TAG_BOOL; }
 static uint16_t writes(uint8_t t) {
@@ -468,6 +470,11 @@ static Value read_record(Analysis *a,Value receiver,uint16_t field) {
         if(field<a->record_fields[i])merge(&result,a->fields[a->field_start[i]+field]);
     return result;
 }
+static uint16_t record_field_element(const Analysis *a,uint32_t field) {
+    if(a->nested_string_fields && (a->nested_string_fields[field/8]&(1u<<(field%8))))
+        return NVM_RECORD_ARRAY_OF_STRING;
+    return a->field_elements[field];
+}
 static int record_value_matches(Analysis *a,uint32_t fi,uint32_t pc,
                                 const NvmV2LayoutField *field,Value value,uint16_t element) {
     if(!analysis_work(a,ORIGINS*4u))return 0;
@@ -480,7 +487,7 @@ static int record_value_matches(Analysis *a,uint32_t fi,uint32_t pc,
             return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require complete field array origins and element identity.");
         for(uint32_t i=0;i<a->report.origin_count;i++)if(origins&(UINT64_C(1)<<i)) {
             NvmArrayOrigin *origin=&a->report.origins[i];
-            if(!(element&BIT(origin->declared_tag)))
+            if((element==NVM_RECORD_ARRAY_OF_STRING ? BIT(TAG_ARRAY) : element)!=BIT(origin->declared_tag))
                 return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require the exact field element contract.");
             a->required_elements[i]|=element;
             if(a->required_elements[i]!=element)
@@ -509,7 +516,7 @@ static int check_record_access(Analysis *a,uint32_t fi,uint32_t pc,
             return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require a valid field in every possible record receiver.");
         const NvmV2Layout *layout=&a->plan->layouts.items[a->plan->record_to_layout[a->record_ordinal[i]]];
         if(write && !record_value_matches(a,fi,pc,&layout->fields[field],*write,
-            a->structure?a->field_elements[a->layout_fields[a->plan->record_to_layout[a->record_ordinal[i]]]+field]:0))return 0;
+            a->structure?record_field_element(a,a->layout_fields[a->plan->record_to_layout[a->record_ordinal[i]]]+field):0))return 0;
     }
     return 1;
 }
@@ -730,7 +737,7 @@ static int final_check(Analysis *a) {
                     const NvmV2Layout *layout=&a->plan->layouts.items[a->plan->record_to_layout[a->record_ordinal[origin]]];
                     for(uint16_t i=0;i<count;i++)
                         if(!record_value_matches(a,fi,d->byte_offset,&layout->fields[i],stack[depth-count+i],
-                            a->structure?a->field_elements[a->layout_fields[a->plan->record_to_layout[a->record_ordinal[origin]]]+i]:0))return 0;
+                            a->structure?record_field_element(a,a->layout_fields[a->plan->record_to_layout[a->record_ordinal[origin]]]+i):0))return 0;
                 } else {
                     int writes=op==OP_STRUCT_SET || op==OP_AGG_SET;
                     Value receiver=stack[depth-(writes?2:1)];
@@ -772,6 +779,7 @@ static void destroy(Analysis *a) {
     }
     nvm_record_array_structure_free(a->structure);
     free(a->field_elements);
+    free(a->nested_string_fields);
     if(a->global_flow){free(a->global_flow->exits);free(a->global_flow);}
     nvm_record_plan_free(a->plan);
     free(a->fields);

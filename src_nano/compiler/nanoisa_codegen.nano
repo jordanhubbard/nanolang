@@ -314,12 +314,13 @@ fn nisa_ordinary_element(t: string) -> int {
     if (== t "array<bool>") { return 4 }
     if (== t "array<string>") { return 5 }
     if (== t "array<array<int>>") { return 7 }
+    if (== t "array<array<string>>") { return 8 }
     return -1
 }
 shadow nisa_ordinary_element {
     assert (== (nisa_ordinary_element "array<int>") 1)
     assert (== (nisa_ordinary_element "array<array<int>>") 7)
-    assert (== (nisa_ordinary_element "array<array<string>>") -1)
+    assert (== (nisa_ordinary_element "array<array<string>>") 8)
     assert (== (nisa_ordinary_element "array<array<array<int>>>") -1)
     assert (== (nisa_ordinary_element "array<Record>") -1)
 }
@@ -513,7 +514,7 @@ fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {
     if (> parser.imports_count 0) { if (or (not bound) (not (nisa_bound_ordinary_declarations parser))) { return "" } }
     if (or (not nisa_ordinary_ok) (or (<= count 0) (or (> count 128) (or (> (parser_get_enum_count parser) 0) (> (parser_get_union_count parser) 0))))) { return "" }
     if (not (nisa_ordinary_graph parser)) { return "" }
-    let mut element_indices: array<int> = [-1, -1, -1, -1, -1, -1, -1]
+    let mut element_indices: array<int> = [-1, -1, -1, -1, -1, -1, -1, -1]
     let mut array_fields: int = 0
     let mut layouts: string = (nisa_ordinary_hex count 4)
     let mut flags: string = ""
@@ -532,6 +533,7 @@ fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {
                 if (< element 1) { return "" }
                 (array_set element_indices (- element 1) 0)
                 if (== element 7) { (array_set element_indices 0 0) }
+                if (== element 8) { (array_set element_indices 4 0) }
                 set array_fields (+ array_fields 1)
             }
             let mut nested: int = 4294967295
@@ -554,13 +556,18 @@ fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {
         let mut type_count: int = 0
         let mut types: string = ""
         set i 0
-        while (< i 7) {
+        while (< i 8) {
             if (>= (at element_indices i) 0) {
                 (array_set element_indices i type_count)
                 set type_count (+ type_count 1)
                 let mut reference: int = 4294967295
                 if (== i 6) { set reference (at element_indices 0) }
-                set types (+ types (+ (nisa_ordinary_hex (+ i 1) 1) (+ "000000" (nisa_ordinary_hex reference 4))))
+                let mut tag: int = (+ i 1)
+                if (== i 7) {
+                    set tag 7
+                    set reference (at element_indices 4)
+                }
+                set types (+ types (+ (nisa_ordinary_hex tag 1) (+ "000000" (nisa_ordinary_hex reference 4))))
             }
             set i (+ i 1)
         }
