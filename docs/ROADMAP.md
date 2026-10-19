@@ -16121,3 +16121,7 @@ I correct a reviewed draft placement defect before facts execution: raw f64_bits
 I retain the first regenerated FLOAT Nano refusal of float_from_bits. Reviewed correction keeps all bits in facts/C, emits exact finite decimal literals with unary negative zero for Nano, and atomically refuses nonfinite Nano literals. I qualify real finite extremes/subnormals through three producers; no frontend or verifier expansion.
 
 I record the separately reproduced assembler defect: an actual accepted decimal minimum-subnormal token produces correct nonzero bits with libc ERANGE, then parse_double rejects it. I admit ERANGE only for FP_SUBNORMAL; zero underflow, overflow and other errors retain refusal. Installed stages use an immutable absolute libnanoisa path and remain old-provider evidence until an explicitly qualified corrected generation.
+
+### 2026-10-19: integrated FLOAT locals fresh-stage qualification
+
+Candidate `3446ec677` passed fresh bootstrap `run-mjg4sby8` (17 steps, raw Stage 1/2 byte equality, native and installation smoke checks), then all 16 FLOAT/STRING methods through the seed and both installed stages in 78.034s; 14 pinned providers remained unchanged. Receipt: `docs/evidence/owned-float-reconstruction-aggregate-20261019/README.md`. This closes the earlier private-corrected-host-only local evidence boundary. Nonfinite literal Nano output refusal and excluded FLOAT signatures/fields remain explicit. Helper-local-owner reconstruction and exact hosted platform qualification remain open; #999 is not closed.
