@@ -168,7 +168,7 @@ jobs:
           make -f Makefile.gnu CC="${CC:-cc}" test-one-ir-compiler \
             test-native-nested-arrays test-native-array-identity \
             test-native-generic-record-fields test-native-nominal-order \
-            test-imported-ordinary-authority \
+            test-imported-ordinary-authority test-computed-u8-context \
             2>&1 | tee .test_output/retirement/compiler-managed.log
 
       - name: Qualify advisory metadata and paired source effects
