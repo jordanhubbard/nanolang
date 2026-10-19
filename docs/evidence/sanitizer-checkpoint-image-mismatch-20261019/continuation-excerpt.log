@@ -1,0 +1,27 @@
+﻿2026-10-19T18:32:44.2285918Z Current runner version: '2.337.0'
+2026-10-19T18:32:44.2338344Z ##[group]Runner Image Provisioner
+2026-10-19T18:32:44.2339559Z Hosted Compute Agent
+2026-10-19T18:32:44.2340623Z Version: 20261012.601
+2026-10-19T18:32:44.2341845Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+2026-10-19T18:32:44.2342951Z Build Date: 2026-10-12T17:48:21Z
+2026-10-19T18:32:44.2344010Z Worker ID: {8b785ee6-1946-4bb9-9d35-e4f1267d8aef}
+2026-10-19T18:32:44.2345133Z Region: centralus
+2026-10-19T18:32:44.2345969Z Cloud: Azure
+2026-10-19T18:32:44.2346912Z ##[endgroup]
+2026-10-19T18:32:44.2348983Z ##[group]Operating System
+2026-10-19T18:32:44.2349877Z Ubuntu
+2026-10-19T18:32:44.2350608Z 24.04.5
+2026-10-19T18:32:44.2351624Z LTS
+2026-10-19T18:32:44.2352524Z ##[endgroup]
+2026-10-19T18:32:44.2353348Z ##[group]Runner Image
+2026-10-19T18:32:44.2354252Z Image: ubuntu-24.04
+2026-10-19T18:32:44.2355034Z Version: 20261012.334.1
+2026-10-19T18:32:44.2356860Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-19T18:32:44.2359213Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-19T18:32:44.2360733Z ##[endgroup]
+2026-10-19T18:32:44.2362550Z ##[group]GITHUB_TOKEN Permissions
+2026-10-19T18:32:44.2365859Z Contents: read
+2026-10-19T18:32:44.2366830Z Metadata: read
+2026-10-19T18:32:44.2367579Z ##[endgroup]
+2026-10-19T18:42:47.7968974Z I require unchanged flags, toolchain, runtime dependencies and runner image
+2026-10-19T18:42:47.8162960Z ##[error]Process completed with exit code 1.
