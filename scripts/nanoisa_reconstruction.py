@@ -78,7 +78,7 @@ class Analyze:
         self.calls = set()
         self.backedges = {}
         for n, i in enumerate(self.code):
-            require(i['op'] in SIMPLE | BRANCH | {'JMP', 'RET'},
+            require(i['op'] in SIMPLE | BRANCH | {'JMP', 'RET', 'TAIL_CALL'},
                     'do not reconstruct opcode ' + i['op'])
             if i['op'] in BRANCH | {'JMP'}:
                 require(i['target'] in self.positions, 'require exact branch boundaries')
@@ -313,6 +313,18 @@ class Analyze:
                 initialized = right_init if left_ret else left_init if right_ret else left_init & right_init
                 index = join
                 continue
+            if op == 'TAIL_CALL':
+                self.touch(index)
+                callee_index = ins['arg']
+                require(0 <= callee_index < len(self.module['functions']), 'require an existing direct callee')
+                callee = self.module['functions'][callee_index]
+                require(callee['result'] == self.fn['result'], 'require exact tail-call result types')
+                args = [self.pop(stack, tag) for tag in reversed(callee['params'])]
+                require(not stack and index + 1 == end, 'require explicit terminal scalar tail calls')
+                self.calls.add(callee_index)
+                statements.append(('return', Expr(callee['result'], 'call', callee_index,
+                                                  tuple(reversed(args)))))
+                return statements, initialized, True
             if op == 'RET':
                 self.touch(index)
                 value = self.pop(stack, self.fn['result'])

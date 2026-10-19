@@ -32,8 +32,9 @@ I64_DIV_S and I64_REM_S use [guarded signed division and remainder](NANOISA_RECO
 I64_SHL, I64_SHR_S and I64_SHR_U use [masked-count portable helpers](NANOISA_RECONSTRUCT_INTEGER_SHIFTS.md), keeping arithmetic and logical right shift distinct.
 I64_AND/OR/XOR/INVERT preserve [exact64-bit patterns](NANOISA_RECONSTRUCT_INTEGER_BITWISE.md) through unsigned C and bounded NanoLang helpers.
 I64_LT_U/LE_U/GT_U/GE_U retain [unsigned bit-pattern ordering and boolean results](NANOISA_RECONSTRUCT_UNSIGNED_COMPARISONS.md).
-Other arithmetic, wider generic tagged comparisons, implicit returns, multiple returns,
-tail calls and all other operations remain outside this slice.
+Other arithmetic, wider generic tagged comparisons, implicit returns and
+unlisted operations remain outside this slice. My explicit terminal returns may
+appear in admitted diamonds and loop bodies as described below.
 
 I infer exact scalar local types from declared parameters and stores, reject
 mixed-type reuse and uninitialized reads, and require an empty operand stack at
@@ -53,6 +54,14 @@ that body executes; a false loop condition still reaches the continuation. I
 therefore retain the enclosing function's explicit-return requirement and do not
 propagate body initialization facts to the zero-iteration path. This admits no
 new branch topology or value type.
+
+I also preserve terminal direct TAIL_CALL as a structured return of the callee.
+I require exact scalar argument and result tags, consume the entire operand
+stack, and include the callee in my existing acyclic call graph. Recursive tail
+calls, nonterminal tails and residual stack values remain refused. My graph
+limit bounds the reconstructed call depth; I do not promise recursive tail-call
+elimination or infer unknown parameter types. Both actual source producers
+exercise this path with a closed zero-argument helper.
 
 I refuse imports, module links, globals, aggregates, retained ownership/passive
 contracts and effects. This is a closed executable reconstruction slice, not

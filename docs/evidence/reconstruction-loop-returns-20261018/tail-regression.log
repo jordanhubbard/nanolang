@@ -1,0 +1,15 @@
+test_acyclic_terminal_tail_calls (tests.test_scalar_reconstruction.ScalarReconstruction.test_acyclic_terminal_tail_calls) ... ok
+test_diamond_both_results_and_definite_assignment (tests.test_scalar_reconstruction.ScalarReconstruction.test_diamond_both_results_and_definite_assignment) ... ok
+test_int_boundaries_and_boolean_call (tests.test_scalar_reconstruction.ScalarReconstruction.test_int_boundaries_and_boolean_call) ... ok
+test_loaded_value_snapshot_survives_later_store (tests.test_scalar_reconstruction.ScalarReconstruction.test_loaded_value_snapshot_survives_later_store) ... ok
+test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) ... ok
+test_optional_names_do_not_alias_slots (tests.test_scalar_reconstruction.ScalarReconstruction.test_optional_names_do_not_alias_slots) ... ok
+test_refusal_preserves_prior_outputs (tests.test_scalar_reconstruction.ScalarReconstruction.test_refusal_preserves_prior_outputs) ... ok
+test_tail_calls_from_actual_source_producers (tests.test_scalar_reconstruction.ScalarReconstruction.test_tail_calls_from_actual_source_producers) ... ok
+test_tail_result_mismatch_refused_by_verifier (tests.test_scalar_reconstruction.ScalarReconstruction.test_tail_result_mismatch_refused_by_verifier) ... ok
+test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 52.789s
+
+OK

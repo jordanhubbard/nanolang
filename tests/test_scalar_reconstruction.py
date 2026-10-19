@@ -1,5 +1,6 @@
 """I validate two executable source surfaces from the same retained module."""
 from pathlib import Path
+import json
 import os
 import re
 import shlex
@@ -99,9 +100,14 @@ class ScalarReconstruction(unittest.TestCase):
         source.unlink()  # My reconstructor has only the module.
         return module
 
-    def paired(self, text, expected, shadows, structured=False, names=()):
+    def paired(self, text, expected, shadows, structured=False, names=(), module_bytes=None):
         with tempfile.TemporaryDirectory(prefix='nano-reconstruct-') as d:
-            directory=Path(d);module=self.assemble(directory,text)
+            directory=Path(d)
+            if module_bytes is None:
+                module=self.assemble(directory,text)
+            else:
+                module=directory/'input.nvm'
+                module.write_bytes(module_bytes)
             original=module.read_bytes()
             self.checked([ROOT/'bin/nano_vm',module],expected)
             for language in ('c','nano'):
@@ -160,6 +166,54 @@ shadow nlr_f1_walk {{ assert (== (nlr_f1_walk 0) 3) assert (== (nlr_f1_walk 2) 3
                     shadows = (f'shadow nlr_f0_main {{ assert (== (nlr_f0_main) {expected}) }}\n'
                                f'shadow nlr_f1_walk {{ assert (== (nlr_f1_walk {start}) {expected}) }}')
                     self.paired(text, expected, shadows)
+
+    def test_acyclic_terminal_tail_calls(self):
+        for flag in (0, 1):
+            with self.subTest(flag=flag):
+                expected = 41 if flag else 42
+                text = ('.entry main\n.function main 0 0 0 int 1\n'
+                        f'PUSH_BOOL {flag}\nPUSH_I64 41\nPUSH_I64 42\nTAIL_CALL choose\n.end\n'
+                        '.function choose 3 3 0 int 1\nLOAD_LOCAL 0\nJMP_FALSE other\n'
+                        'LOAD_LOCAL 1\nTAIL_CALL identity\nother:\nLOAD_LOCAL 2\nTAIL_CALL identity\n.end\n'
+                        '.parameters choose bool int int\n.function identity 1 1 0 int 1\n'
+                        'LOAD_LOCAL 0\nRET\n.end\n.parameters identity int\n')
+                shadows = (f'shadow nlr_f0_main {{ assert (== (nlr_f0_main) {expected}) }}\n'
+                           'shadow nlr_f1_choose { assert (== (nlr_f1_choose true 11 12) 11) '
+                           'assert (== (nlr_f1_choose false 11 12) 12) }\n'
+                           'shadow nlr_f2_identity { assert (== (nlr_f2_identity -7) -7) }')
+                self.paired(text, expected, shadows)
+        for start in (0, 3):
+            with self.subTest(loop_start=start):
+                text = ('.entry main\n.function main 0 0 0 int 1\n'
+                        f'PUSH_I64 {start}\nTAIL_CALL walk\n.end\n'
+                        '.function walk 1 1 0 int 1\nloop:\nLOAD_LOCAL 0\nPUSH_I64 3\n'
+                        'I64_LT_S\nJMP_FALSE done\nPUSH_I64 7\nTAIL_CALL identity\nJMP loop\n'
+                        'done:\nLOAD_LOCAL 0\nRET\n.end\n.parameters walk int\n'
+                        '.function identity 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n.parameters identity int\n')
+                expected = 7 if start == 0 else 3
+                shadows = (f'shadow nlr_f0_main {{ assert (== (nlr_f0_main) {expected}) }}\n'
+                           'shadow nlr_f1_walk { assert (== (nlr_f1_walk 0) 7) assert (== (nlr_f1_walk 3) 3) }\n'
+                           'shadow nlr_f2_identity { assert (== (nlr_f2_identity 7) 7) }')
+                self.paired(text, expected, shadows)
+
+    def test_tail_calls_from_actual_source_producers(self):
+        for driver in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+            with self.subTest(driver=driver), tempfile.TemporaryDirectory(prefix='nano-source-tail-') as d:
+                directory = Path(d)
+                source, module = directory/'input.nano', directory/'input.nvm'
+                source.write_text('fn value() -> int { return 7 }\n'
+                                  'shadow value { assert (== (value) 7) }\n'
+                                  'fn main() -> int { return (value) }\n'
+                                  'shadow main { assert (== (main) 7) }\n')
+                self.checked([ROOT/'bin'/driver, source, '--emit-nvm', '-o', module])
+                source.unlink()
+                facts = json.loads(self.checked([ROOT/'bin/nanoisa_hl_facts', module]).stdout)
+                self.assertEqual({fn['name'] for fn in facts['functions']}, {'main', 'value'})
+                self.assertTrue(any(ins['op'] == 'TAIL_CALL'
+                                    for fn in facts['functions'] for ins in fn['code']))
+                shadows = '\n'.join(f"shadow nlr_f{i}_{fn['name']} {{ assert (== (nlr_f{i}_{fn['name']}) 7) }}"
+                                    for i, fn in enumerate(facts['functions']))
+                self.paired(None, 7, shadows, module_bytes=module.read_bytes())
 
     def test_diamond_both_results_and_definite_assignment(self):
         for flag in (0,1):
@@ -232,6 +286,18 @@ RET
 shadow nlr_f1_smaller { assert (nlr_f1_smaller -2 3) assert (not (nlr_f1_smaller 3 -2)) }'''
         self.paired(text,42,shadows)
 
+    def test_tail_result_mismatch_refused_by_verifier(self):
+        with tempfile.TemporaryDirectory(prefix='nano-reconstruct-tail-type-') as d:
+            directory = Path(d)
+            source, module = directory/'input.nasm', directory/'input.nvm'
+            source.write_text('.function main 0 0 0 int 1\nTAIL_CALL value\n.end\n'
+                              '.function value 0 0 0 bool 1\nPUSH_BOOL 1\nRET\n.end\n.entry main\n')
+            result = subprocess.run([ROOT/'bin/nanoisa', 'asm', source, '-o', module],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn('incompatible result signature', result.stderr)
+            self.assertFalse(module.exists())
+
     def test_refusal_preserves_prior_outputs(self):
         cases={
             'no_entry':'.function helper 0 0 0 int 1\nPUSH_I64 42\nRET\n.end\n',
@@ -245,6 +311,9 @@ shadow nlr_f1_smaller { assert (nlr_f1_smaller -2 3) assert (not (nlr_f1_smaller
             'terminal_loop_uninitialized_exit': ('.function main 0 1 0 int 1\nloop:\nPUSH_BOOL 0\n'
                 'JMP_FALSE done\nPUSH_I64 7\nSTORE_LOCAL 0\nPUSH_I64 7\nRET\nJMP loop\n'
                 'done:\nLOAD_LOCAL 0\nRET\n.end\n.entry main\n'),
+            'tail_recursive':'.function main 0 0 0 int 1\nTAIL_CALL main\n.end\n.entry main\n',
+            'tail_extra_stack':'.function main 0 0 0 int 1\nPUSH_I64 1\nTAIL_CALL value\n.end\n.function value 0 0 0 int 1\nPUSH_I64 42\nRET\n.end\n.entry main\n',
+            'tail_nonterminal':'.function main 0 0 0 int 1\nTAIL_CALL value\nPUSH_I64 1\nRET\n.end\n.function value 0 0 0 int 1\nPUSH_I64 42\nRET\n.end\n.entry main\n',
             'recursive':'.function main 0 0 0 int 1\nCALL main\nRET\n.end\n.entry main\n',
             'global':'.function main 0 0 0 int 1\nPUSH_I64 1\nSTORE_GLOBAL 0\nPUSH_I64 1\nRET\n.end\n.entry main\n',
         }
