@@ -6910,7 +6910,7 @@ test-units: test-record-array-public
 
 .PHONY: test-native-process
 test-native-process:
-	python3 -m unittest -v tests.test_native_process
+	python3 -m unittest -v tests.test_native_process tests.test_retained_process_evidence
 test-one-ir-compiler test-units: test-native-process
 .PHONY: test-flat-array-source-publication
 test-flat-array-source-publication: $(BIN_DIR)/nanoc_c nano_virt nano_vm nanoisa_dump nvm2c
@@ -6948,3 +6948,4 @@ test-optional-record-join: bootstrap3 nano_virt nano_vm nvm2c $(BIN_DIR)/nano_ao
 	python3 -m unittest -v tests.test_optional_record_join
 
 test-units: test-optional-record-join
+test-file-service-parser: test-native-process

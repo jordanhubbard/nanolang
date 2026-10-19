@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/Users/runner/work/nanolang/nanolang/bin/nanoc_stage1",
+    "/Users/runner/work/nanolang/nanolang/.test_output/retirement/nano-file-service-parser-np790kgg/file_service_parser.nano",
+    "-o",
+    "/Users/runner/work/nanolang/nanolang/.test_output/retirement/nano-file-service-parser-np790kgg/parser-nanoc_stage1",
+    "--keep-c"
+  ],
+  "cwd": "/Users/runner/work/nanolang/nanolang",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

@@ -15582,3 +15582,13 @@ retaining heap, unrelated union and three-way scalar refusals unchanged.
   [I retain the failure and correction evidence](evidence/optional-record-join-20261019/README.md).
 - [ ] I repeat the fresh combined bootstrap and exact platform gates after this
   classifier correction; successful retained-module translation alone is not that gate.
+### Hosted parser compiler deadline evidence (#976)
+
+- [ ] I preserve the Darwin stage1 parser-build 900-second timeout and distinguish its unknown compilation phase from a proven native-C timeout.
+- [ ] I use the existing explicit CMD_TIMEOUT compiler budget for full parser/token compiler invocations, preserving the 900-second default and every guest/shadow deadline; I retain selected deadline, elapsed time and bounded process-group diagnostics.
+- [ ] I qualify timeout cleanup/diagnostics and the full unchanged parser corpus with fresh aggregate tools, then require the exact hosted candidate to pass.
+
+My first isolated diagnostic-control invocation accidentally imported a TestCase
+class directly, so unittest also discovered the complete unrelated source-plan
+corpus without its compiler providers. I preserve that failed terminal and import
+the module instead; no production assertion is removed.
