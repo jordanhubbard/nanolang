@@ -1,0 +1,3525 @@
+{
+  "path": "/private/tmp/nano-optional-scalars-20261019",
+  "sources": {
+    "float-present.nano": "struct Fact { owner:array<float>, completed:float }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0.0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[7.5],completed:0.0})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed 7.5)\n return 0\n}\nshadow main { assert true }\n",
+    "bool-empty.nano": "struct Fact { owner:array<bool>, completed:bool }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else false))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[],completed:false})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed false)\n return 0\n}\nshadow main { assert true }\n",
+    "float-empty.nano": "struct Fact { owner:array<float>, completed:float }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0.0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[],completed:0.0})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed 0.0)\n return 0\n}\nshadow main { assert true }\n",
+    "string-empty.nano": "struct Fact { owner:array<string>, completed:string }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else \"\"))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[],completed:\"\"})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed \"\")\n return 0\n}\nshadow main { assert true }\n",
+    "float-unchecked.nano": "struct Fact { owner:array<float>, completed:float }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0.0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[7.5],completed:0.0})\n (update Parser{functions:functions} 0 0)\n assert (== (list_Fact_get functions 0).completed 0.0)\n return 0\n}\nshadow main { assert true }\n",
+    "bool-present.nano": "struct Fact { owner:array<bool>, completed:bool }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else false))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[true],completed:false})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed true)\n return 0\n}\nshadow main { assert true }\n",
+    "u8-empty.nano": "struct Fact { owner:array<u8>, completed:u8 }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[],completed:0})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed 0)\n return 0\n}\nshadow main { assert true }\n",
+    "u8-unchecked.nano": "struct Fact { owner:array<u8>, completed:u8 }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[7],completed:0})\n (update Parser{functions:functions} 0 0)\n assert (== (list_Fact_get functions 0).completed 0)\n return 0\n}\nshadow main { assert true }\n",
+    "float-raw_missing.nano": "struct Fact { owner:array<float>, completed:float }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((== checked 1) (at f.owner 1)) (else 0.0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[7.5],completed:0.0})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed 7.5)\n return 0\n}\nshadow main { assert true }\n",
+    "u8-present.nano": "struct Fact { owner:array<u8>, completed:u8 }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[7],completed:0})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed 7)\n return 0\n}\nshadow main { assert true }\n",
+    "string-unchecked.nano": "struct Fact { owner:array<string>, completed:string }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else \"\"))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[\"yes\"],completed:\"\"})\n (update Parser{functions:functions} 0 0)\n assert (== (list_Fact_get functions 0).completed \"\")\n return 0\n}\nshadow main { assert true }\n",
+    "string-raw_missing.nano": "struct Fact { owner:array<string>, completed:string }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((== checked 1) (at f.owner 1)) (else \"\"))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[\"yes\"],completed:\"\"})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed \"yes\")\n return 0\n}\nshadow main { assert true }\n",
+    "bool-unchecked.nano": "struct Fact { owner:array<bool>, completed:bool }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else false))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[true],completed:false})\n (update Parser{functions:functions} 0 0)\n assert (== (list_Fact_get functions 0).completed false)\n return 0\n}\nshadow main { assert true }\n",
+    "bool-raw_missing.nano": "struct Fact { owner:array<bool>, completed:bool }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((== checked 1) (at f.owner 1)) (else false))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[true],completed:false})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed true)\n return 0\n}\nshadow main { assert true }\n",
+    "u8-raw_missing.nano": "struct Fact { owner:array<u8>, completed:u8 }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((== checked 1) (at f.owner 1)) (else 0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[7],completed:0})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed 7)\n return 0\n}\nshadow main { assert true }\n",
+    "string-present.nano": "struct Fact { owner:array<string>, completed:string }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else \"\"))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact> =(list_Fact_new)\n (list_Fact_push functions Fact {owner:[\"yes\"],completed:\"\"})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed \"yes\")\n return 0\n}\nshadow main { assert true }\n"
+  },
+  "results": [
+    {
+      "type": "float",
+      "case": "present",
+      "producer": "nano_virt",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 1
+    },
+    {
+      "type": "float",
+      "case": "present",
+      "producer": "nanoc_stage1",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 1
+    },
+    {
+      "type": "float",
+      "case": "present",
+      "producer": "nanoc_stage2",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 1
+    },
+    {
+      "type": "float",
+      "case": "empty",
+      "producer": "nano_virt",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 1
+    },
+    {
+      "type": "float",
+      "case": "empty",
+      "producer": "nanoc_stage1",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 1
+    },
+    {
+      "type": "float",
+      "case": "empty",
+      "producer": "nanoc_stage2",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 1
+    },
+    {
+      "type": "float",
+      "case": "unchecked",
+      "producer": "nano_virt",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 1
+    },
+    {
+      "type": "float",
+      "case": "unchecked",
+      "producer": "nanoc_stage1",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 1
+    },
+    {
+      "type": "float",
+      "case": "unchecked",
+      "producer": "nanoc_stage2",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 1
+    },
+    {
+      "type": "float",
+      "case": "raw_missing",
+      "producer": "nano_virt",
+      "produce": 0,
+      "verify": 0,
+      "vm": 1,
+      "translate": 1
+    },
+    {
+      "type": "float",
+      "case": "raw_missing",
+      "producer": "nanoc_stage1",
+      "produce": 0,
+      "verify": 0,
+      "vm": 1,
+      "translate": 1
+    },
+    {
+      "type": "float",
+      "case": "raw_missing",
+      "producer": "nanoc_stage2",
+      "produce": 0,
+      "verify": 0,
+      "vm": 1,
+      "translate": 1
+    },
+    {
+      "type": "bool",
+      "case": "present",
+      "producer": "nano_virt",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "bool",
+      "case": "present",
+      "producer": "nanoc_stage1",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "bool",
+      "case": "present",
+      "producer": "nanoc_stage2",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "bool",
+      "case": "empty",
+      "producer": "nano_virt",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "bool",
+      "case": "empty",
+      "producer": "nanoc_stage1",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "bool",
+      "case": "empty",
+      "producer": "nanoc_stage2",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "bool",
+      "case": "unchecked",
+      "producer": "nano_virt",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "bool",
+      "case": "unchecked",
+      "producer": "nanoc_stage1",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "bool",
+      "case": "unchecked",
+      "producer": "nanoc_stage2",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "bool",
+      "case": "raw_missing",
+      "producer": "nano_virt",
+      "produce": 0,
+      "verify": 0,
+      "vm": 1,
+      "translate": 0,
+      "O0build": 0,
+      "O0": -6,
+      "O2build": 0,
+      "O2": -6
+    },
+    {
+      "type": "bool",
+      "case": "raw_missing",
+      "producer": "nanoc_stage1",
+      "produce": 0,
+      "verify": 0,
+      "vm": 1,
+      "translate": 0,
+      "O0build": 0,
+      "O0": -6,
+      "O2build": 0,
+      "O2": -6
+    },
+    {
+      "type": "bool",
+      "case": "raw_missing",
+      "producer": "nanoc_stage2",
+      "produce": 0,
+      "verify": 0,
+      "vm": 1,
+      "translate": 0,
+      "O0build": 0,
+      "O0": -6,
+      "O2build": 0,
+      "O2": -6
+    },
+    {
+      "type": "string",
+      "case": "present",
+      "producer": "nano_virt",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "string",
+      "case": "present",
+      "producer": "nanoc_stage1",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "string",
+      "case": "present",
+      "producer": "nanoc_stage2",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "string",
+      "case": "empty",
+      "producer": "nano_virt",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "string",
+      "case": "empty",
+      "producer": "nanoc_stage1",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "string",
+      "case": "empty",
+      "producer": "nanoc_stage2",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "string",
+      "case": "unchecked",
+      "producer": "nano_virt",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "string",
+      "case": "unchecked",
+      "producer": "nanoc_stage1",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "string",
+      "case": "unchecked",
+      "producer": "nanoc_stage2",
+      "produce": 0,
+      "verify": 0,
+      "vm": 0,
+      "translate": 0,
+      "O0build": 0,
+      "O0": 0,
+      "O2build": 0,
+      "O2": 0
+    },
+    {
+      "type": "string",
+      "case": "raw_missing",
+      "producer": "nano_virt",
+      "produce": 0,
+      "verify": 0,
+      "vm": 1,
+      "translate": 0,
+      "O0build": 0,
+      "O0": -6,
+      "O2build": 0,
+      "O2": -6
+    },
+    {
+      "type": "string",
+      "case": "raw_missing",
+      "producer": "nanoc_stage1",
+      "produce": 0,
+      "verify": 0,
+      "vm": 1,
+      "translate": 0,
+      "O0build": 0,
+      "O0": -6,
+      "O2build": 0,
+      "O2": -6
+    },
+    {
+      "type": "string",
+      "case": "raw_missing",
+      "producer": "nanoc_stage2",
+      "produce": 0,
+      "verify": 0,
+      "vm": 1,
+      "translate": 0,
+      "O0build": 0,
+      "O0": -6,
+      "O2build": 0,
+      "O2": -6
+    },
+    {
+      "type": "u8",
+      "case": "present",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "present",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "present",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "empty",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "empty",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "empty",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "unchecked",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "unchecked",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "unchecked",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "raw_missing",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "raw_missing",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "raw_missing",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    }
+  ],
+  "providers": {
+    "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt": "0238ff8c9e8e6baf7034e491750f872db97d5010f6221d599c03a6f63dbeccdb",
+    "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1": "c9557024b57b9a8b0ed8584c82ceb350a9e70096ee13bd672c9be8227524da55",
+    "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2": "3cde2cf9ebf1322904fe3b8e0e509eec0435ecb7061d6b89d638195f5a7623a9",
+    "/private/tmp/nano-optional-scalars-20261019/nvm2c": "624791e41ee204886c2472983c0637c0f9d2c529aa80dc4c3eb9ae08a7d101d5",
+    "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm": "98374e4d998b31f1c6a7c903018c652accaa5122fa5f7f5bdc09b7e8c1cfc4d7",
+    "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o": "fd6fd0145d1de21cfeba2e8f7a0214029825becffda1ce5ff01ead2fbee046c9"
+  },
+  "commands": {
+    "string-present-1-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-1-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-1-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-1.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-1.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-0-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-0.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-0.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-1-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-empty-0-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-0.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-0.c"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/private/tmp/nano-optional-scalars-20261019/float-empty-0.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 43/52\n"
+    },
+    "bool-empty-0-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-0.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-0.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-2-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-1-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/string-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-0-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-0-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-0-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-2-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-present-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/float-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-unchecked-0-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-present-2-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-2.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-2.c"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/private/tmp/nano-optional-scalars-20261019/float-present-2.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 87/96\n"
+    },
+    "float-raw_missing-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-0-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-unchecked-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-2-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-2.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-2.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-0-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-0-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-0-O0"
+      ],
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "I stopped at a native invariant in nl_update at generated C line 1127.\n"
+    },
+    "string-present-1-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-present-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-2-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-1-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-2-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-2-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-2-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-2.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-2.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-0-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-unchecked-1-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-2-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-1-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-1-O0"
+      ],
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "I stopped at a native invariant in nl_update at generated C line 1189.\n"
+    },
+    "string-present-0-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-0-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-0-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-present-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-2-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-0-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-0-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-2-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+    },
+    "bool-present-2-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-1-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-1-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-2-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-2-O2"
+      ],
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "I stopped at a native invariant in nl_update at generated C line 1207.\n"
+    },
+    "float-unchecked-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-unchecked-2-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-2.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-2.c"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/private/tmp/nano-optional-scalars-20261019/float-unchecked-2.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 87/96\n"
+    },
+    "bool-empty-2-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "u8-raw_missing-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/u8-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-raw_missing-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "I cannot lower this checked program: unsupported local type List<Fact>\n",
+      "stderr": ""
+    },
+    "bool-raw_missing-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-raw_missing-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-1-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-1-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-1.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-1.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-0-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-0.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-0.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-2-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-unchecked-1-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-1-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-1.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-1.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-empty-1-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-1.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-1.c"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/private/tmp/nano-optional-scalars-20261019/float-empty-1.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 85/94\n"
+    },
+    "string-unchecked-0-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-2-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-unchecked-0-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-0.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-0.c"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/private/tmp/nano-optional-scalars-20261019/float-unchecked-0.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 43/52\n"
+    },
+    "bool-unchecked-0-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-2-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-2-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-empty-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-2-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-present-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-1-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "u8-present-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/u8-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-present-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "I cannot lower this checked program: unsupported local type List<Fact>\n",
+      "stderr": ""
+    },
+    "string-present-2-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-0-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-2-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-2.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-2.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-0-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-1-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-1-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-raw_missing-0-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-0-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-0.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-0.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "u8-empty-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/u8-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-empty-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "I cannot lower this checked program: unsupported local type List<Fact>\n",
+      "stderr": ""
+    },
+    "bool-present-0-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-0-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "\nRuntime error: Assertion failed\nStack trace (most recent call first):\n  #0   main  /private/tmp/nano-optional-scalars-20261019/string-raw_missing.nano:12:2\nI could not execute the module: Assertion failed\n  Assertion failed\n"
+    },
+    "bool-raw_missing-1-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-1.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-1.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-0-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-0-O2"
+      ],
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "I stopped at a native invariant in nl_update at generated C line 1146.\n"
+    },
+    "bool-empty-0-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-0-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-unchecked-2-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-present-1-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-1.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-1.c"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/private/tmp/nano-optional-scalars-20261019/float-present-1.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 87/96\n"
+    },
+    "u8-present-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/u8-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-present-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "-- E001 TYPE MISMATCH --- /private/tmp/nano-optional-scalars-20261019/u8-present.nano\nI require the cond else value to match the clause value type.\n\n5|  (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0))})\n                                                                    ^\nHint: Use the same type in every cond value arm.\nerror: type check failed\n"
+    },
+    "bool-unchecked-0-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-0-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-1-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-1-O2"
+      ],
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "I stopped at a native invariant in nl_update at generated C line 1207.\n"
+    },
+    "float-present-0-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-0.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-0.c"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/private/tmp/nano-optional-scalars-20261019/float-present-0.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 43/52\n"
+    },
+    "string-raw_missing-1-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+    },
+    "bool-present-1-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-1-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-2-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-1-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-1.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-1.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-1-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-unchecked-2-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-2-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-0-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-0.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-0.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-present-0-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-2-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-2.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-2.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "u8-unchecked-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/u8-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-unchecked-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "I cannot lower this checked program: unsupported local type List<Fact>\n",
+      "stderr": ""
+    },
+    "float-empty-2-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-2.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-2.c"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/private/tmp/nano-optional-scalars-20261019/float-empty-2.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 85/94\n"
+    },
+    "bool-empty-1-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-1-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-2-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-2-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-2-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-2.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-2.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-1-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-0-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-unchecked-1-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-1.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-1.c"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/private/tmp/nano-optional-scalars-20261019/float-unchecked-1.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 87/96\n"
+    },
+    "bool-empty-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-empty-0-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-1-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-2-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-2-O0"
+      ],
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "I stopped at a native invariant in nl_update at generated C line 1189.\n"
+    },
+    "string-unchecked-0-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-0-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-raw_missing-1-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I could not execute the module: Type error\n  F64_EQ requires two floats\n"
+    },
+    "float-raw_missing-1-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-1.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-1.c"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/private/tmp/nano-optional-scalars-20261019/float-raw_missing-1.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 75/84\n"
+    },
+    "string-unchecked-1-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-1.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-1.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-2-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-present-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "u8-present-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/u8-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-present-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "I cannot lower this checked program: unsupported local type List<Fact>\n",
+      "stderr": ""
+    },
+    "bool-unchecked-2-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-1-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-1-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-empty-0-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-0-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-empty-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-0-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-1-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-0-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-0-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-0.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-0.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-0-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-raw_missing-2-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "u8-unchecked-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/u8-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-unchecked-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "-- E001 TYPE MISMATCH --- /private/tmp/nano-optional-scalars-20261019/u8-unchecked.nano\nI require the cond else value to match the clause value type.\n\n5|  (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0))})\n                                                                    ^\nHint: Use the same type in every cond value arm.\nerror: type check failed\n"
+    },
+    "string-empty-0-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-1-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "u8-empty-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/u8-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-empty-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "I cannot lower this checked program: unsupported local type List<Fact>\n",
+      "stderr": ""
+    },
+    "bool-raw_missing-0-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-0-O0"
+      ],
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "I stopped at a native invariant in nl_update at generated C line 1146.\n"
+    },
+    "bool-present-0-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-unchecked-0-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-present-2-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-1-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-empty-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-0-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-0-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-1-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-2-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-1-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-0-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-1-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-2-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-present-2-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-2-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-1-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-1-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-1-O0"
+      ],
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "I stopped at a native invariant in nl_update at generated C line 1207.\n"
+    },
+    "float-raw_missing-0-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "\nRuntime error: Type error\n  F64_EQ requires two floats\nStack trace (most recent call first):\n  #0   main  /private/tmp/nano-optional-scalars-20261019/float-raw_missing.nano:12:2\nI could not execute the module: Type error\n  F64_EQ requires two floats\n"
+    },
+    "string-raw_missing-2-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-2-O2"
+      ],
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "I stopped at a native invariant in nl_update at generated C line 1189.\n"
+    },
+    "bool-empty-1-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-2-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-1-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-0-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-2-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+    },
+    "u8-empty-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/u8-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-empty-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "-- E001 TYPE MISMATCH --- /private/tmp/nano-optional-scalars-20261019/u8-empty.nano\nI require the cond else value to match the clause value type.\n\n5|  (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0))})\n                                                                    ^\nHint: Use the same type in every cond value arm.\nerror: type check failed\n"
+    },
+    "bool-unchecked-1-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-1.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-1.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-1-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-empty-1-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-1-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-raw_missing-0-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-0.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-0.c"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/private/tmp/nano-optional-scalars-20261019/float-raw_missing-0.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 31/40\n"
+    },
+    "float-empty-2-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-2-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-1-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "u8-unchecked-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/u8-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-unchecked-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "I cannot lower this checked program: unsupported local type List<Fact>\n",
+      "stderr": ""
+    },
+    "string-raw_missing-2-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-2.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-2.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-2-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-0-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-0.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-0.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-2-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-0-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-1-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-1-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-present-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/float-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-1-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-0-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/string-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-empty-1-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-2-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-2-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-2.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-2.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-present-1-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-0-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-0.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-0.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-2-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-2-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-0-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-raw_missing-2-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-2.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-2.c"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I cannot translate '/private/tmp/nano-optional-scalars-20261019/float-raw_missing-2.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 75/84\n"
+    },
+    "bool-present-2-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-0-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "u8-raw_missing-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/u8-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-raw_missing-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "-- E001 TYPE MISMATCH --- /private/tmp/nano-optional-scalars-20261019/u8-raw_missing.nano\nI require the cond else value to match the clause value type.\n\n5|  (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((== checked 1) (at f.owner 1)) (else 0))})\n                                                                    ^\nHint: Use the same type in every cond value arm.\nerror: type check failed\n"
+    },
+    "string-present-1-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-present-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-present-1-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-0-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-raw_missing-2-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I could not execute the module: Type error\n  F64_EQ requires two floats\n"
+    },
+    "string-raw_missing-0-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-0-O2"
+      ],
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "I stopped at a native invariant in nl_update at generated C line 1127.\n"
+    },
+    "bool-raw_missing-0-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "\nRuntime error: Assertion failed\nStack trace (most recent call first):\n  #0   main  /private/tmp/nano-optional-scalars-20261019/bool-raw_missing.nano:12:2\nI could not execute the module: Assertion failed\n  Assertion failed\n"
+    },
+    "string-empty-0-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-2-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-2-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-0-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-present-0-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-1-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+    },
+    "string-raw_missing-1-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-1-O2"
+      ],
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "I stopped at a native invariant in nl_update at generated C line 1189.\n"
+    },
+    "bool-present-1-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-2-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-present-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/float-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-raw_missing-1-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-0-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-0.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-0-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-1-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-2-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-0-verify.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-2-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-2-O2.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-present-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/string-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-2-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-2-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-1-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-empty-2-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-raw_missing-1-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-1.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-1.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-unchecked-1-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "string-empty-2-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-raw_missing-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-raw_missing-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-unchecked-2-translate.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/nvm2c",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-2.nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-2.c"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-present-0-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-0.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-1-O2build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-1.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-1-O2"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "u8-raw_missing-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/u8-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-raw_missing-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "I cannot lower this checked program: unsupported local type List<Fact>\n",
+      "stderr": ""
+    },
+    "bool-raw_missing-2-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-2-O0"
+      ],
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "I stopped at a native invariant in nl_update at generated C line 1207.\n"
+    },
+    "bool-raw_missing-2-O0build.json": {
+      "args": [
+        "cc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-2.c",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-empty-1-vm.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-1.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bool-present-2-O0.json": {
+      "args": [
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-2-O0"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "float-unchecked-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-2.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  }
+}

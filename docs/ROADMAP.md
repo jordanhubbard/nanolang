@@ -15533,6 +15533,8 @@ I retain [my direct-tail receipt](evidence/record-array-tail-20261018/README.md)
 
 ### Checked affine identifier-use facts (#998)
 
+- [x] I qualify borrowed resource field-root OBSERVE parity on `fix/5.1-affine-borrowed-roots` from `7c7f3f5af`: reuse exact declared target classification after one canonical borrow qualifier, keep consume/ownership semantics and owner/epoch/completion gates unchanged, and require actual shared/mutable helper observations, unknown/nested-prefix and stale-owner controls, refusal preservation and advisory-independent execution. Full #998 and fresh aggregate/platform acceptance remain open.
+
 - [ ] I review and implement [retained checked identifier-use facts](NANOISA_AFFINE_USE_FACTS.md) through both real resource and ordinary producer routes, retaining UNKNOWN for unsupported identities and exact checker-node provenance before advisory publication.
 - [ ] I qualify paired consume/observe, refusal, canonical transport and advisory independence controls, then fresh combined generations/platforms; function completion alone does not satisfy this child.
 
@@ -15642,3 +15644,9 @@ I do not broaden global inference support in this correction.
   initializer/lexical-shadow controls. [I retain exact evidence](evidence/imported-global-context-20261019/README.md).
 - [ ] I integrate the correction into fresh generations and exact Linux/Darwin
   qualification before closing #986.
+
+### Optional scalar conditional record joins (#976, 2026-10-19)
+
+- [x] I complete the isolated follow-up on `fix/5.1-optional-float-join` after `fce2fcdf4`: actual C and retained Stage1/Stage2 accept FLOAT conditional array reads stored through a shared List record, and original VM execution succeeds for present/empty/unchecked cases, but native translation refuses OPTIONAL-to-FLOAT storage conversion. I retain source, tool hashes, commands and diagnostics in `/private/tmp/nano-optional-scalars-20261019`; BOOL/STRING controls pass VM and O0/O2 sanitized native execution. I require an inferred-storage-only solver fix, unchanged exact-kind refusals, graph controls and actual raw-missing behavior before marking this slice complete. All 3262 graph checks and the 54-module C/retained-stage VM/O0/O2 sanitized matrix pass; I retain exact receipts in [optional FLOAT evidence](evidence/optional-float-join-20261019/README.md). The U8 producer boundary below remains open. This does not establish fresh bootstrap or full #976 acceptance.
+
+- [ ] I retain a separate #976/#1001 U8 profile boundary: correctly typed fallback, initial record field and comparison pass C-produced VM/O0/O2 sanitized native execution, while retained Nano Stage1/Stage2 refuse `unsupported local type List<Fact>`. An untyped fallback is a cond source-type mismatch; a typed fallback with INT comparison separately refuses U8-to-INT native storage conversion. I do not treat these as the FLOAT defect or widen U8 storage.

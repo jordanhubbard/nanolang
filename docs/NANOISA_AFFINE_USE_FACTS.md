@@ -14,4 +14,21 @@ I must map retained identifier nodes through actual ordinary and resource loweri
 
 I require both producer paths with actual consume/observe fixtures, multiple lexical bindings and source coordinates; raw UNKNOWN and generic UNKNOWN controls; move-after-use, double move and borrow conflict refusals preserving old outputs; canonical transport, malformed/duplicate/allocation codec controls; and unchanged VM/native behavior after strip or forgery. Fresh actual Stage1/Stage2 and Linux/Darwin qualification remain mandatory for closure. This slice alone does not close #998's full path-sensitive affine or broader imported/generic fact obligations.
 
-I implement this bounded owned-identifier slice without using function completion alone as source-use evidence. My C checker also retains some borrowed-reference root observations; my Nano checker conservatively leaves those roots UNKNOWN. I do not claim paired borrowed-root or per-path coverage from the owned-identifier corpus. Fresh aggregate generations and platform qualification remain open.
+I implement this bounded owned-identifier slice without using function completion alone as source-use evidence. At my initial checkpoint C retained some borrowed-reference root observations while Nano conservatively left them UNKNOWN. The extension below qualifies only shared/mutable resource field-read roots; the owned-identifier corpus alone does not establish that parity or per-path coverage. Fresh aggregate generations and platform qualification remain open.
+
+## My bounded borrowed-root extension
+
+I extend only successful field-read root observations through one declared
+shared or mutable resource reference. An observation-only type query removes
+exactly one canonical `&` or `&mut ` qualifier and reuses my existing resource
+declaration classifier. Unknown targets, nested references and malformed
+qualifiers remain UNKNOWN. My owned-value classification and consume path are
+unchanged: a borrowed root observation is never evidence of a move.
+
+The existing captured/moved/place-conflict checks must succeed before recording
+OBSERVE. Exact checker owner, current epoch and separately completed epoch still
+gate publication. I require actual shared/mutable helper facts through C and
+changed Nano producers, raw and stale-owner UNKNOWN, refusal of invalid borrow
+uses with prior-output preservation, and unchanged stripped-advisory execution.
+I retain imported/generic, nested-reference, broader projection/path and fresh
+aggregate/platform obligations under #998. This extension does not close them.

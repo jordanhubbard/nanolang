@@ -82,6 +82,63 @@ assert (== (take a) 14) assert (== (other b) 9) return 0 }
                     self.command([ROOT/'bin/nvm2c',rebuilt,'-o',native])
                     self.assertEqual(original,native.read_bytes())
 
+    def test_borrowed_resource_roots_observe_without_consuming(self):
+        for fixture, function, count in (('source_borrow_shared.nano', 'read', 1),
+                                         ('source_borrow_exclusive.nano', 'update', 3)):
+            for driver in DRIVERS:
+                with self.subTest(fixture=fixture, driver=driver), tempfile.TemporaryDirectory(prefix='nano-affine-borrowed-') as directory:
+                    work=Path(directory); module=work/'source.nvm'
+                    source=ROOT/'tests/nanoisa/fixtures'/fixture
+                    self.command([driver,source,'--emit-nvm','-o',module])
+                    canonical=self.command([ROOT/'bin/nanoisa','dump',module])
+                    lines=canonical.splitlines()
+                    strings=[ast.literal_eval(line[8:]).encode('latin1') for line in lines if line.startswith('.string ')]
+                    functions=[shlex.split(line)[1] for line in lines if line.startswith('.function ')]
+                    keys={i for i,value in enumerate(strings) if value==KEY}
+                    entries=[line for line in lines if line.startswith('.metadata ') and int(line.split()[1]) in keys]
+                    roots=[]
+                    for entry in entries:
+                        value=strings[int(entry.split()[2])]
+                        fn,line,column,state,coords,reserved,path_length,name_length=struct.unpack('<IIIBBHII',value[:24])
+                        self.assertEqual(len(value),24+path_length+name_length)
+                        self.assertEqual(reserved,0)
+                        name=value[24+path_length:].decode()
+                        if functions[fn]==function:
+                            roots.append((name,state,line,column,coords))
+                    self.assertEqual(len(roots), count, roots)
+                    self.assertTrue(all(name=='view' and state==1 for name,state,_,_,_ in roots), roots)
+                    self.assertTrue(all(line>0 and column>0 and coords in (1,2)
+                                        for _,_,line,column,coords in roots))
+                    self.command([ROOT/'bin/nano_vm',module])
+                    native=work/'source.c';binary=work/'source'
+                    self.command([ROOT/'bin/nvm2c',module,'-o',native])
+                    original=native.read_bytes()
+                    self.command(shlex.split(os.environ.get('CC','cc'))+['-std=c11','-O2','-Wall','-Wextra','-Werror',
+                        '-fsanitize=address,undefined','-fno-sanitize-recover=all',native,'-lm','-o',binary],build=True)
+                    self.command([binary])
+                    assembly=work/'stripped.nasm';stripped=work/'stripped.nvm'
+                    assembly.write_text('\n'.join(line for line in lines if line not in entries)+'\n')
+                    self.command([ROOT/'bin/nanoisa','asm',assembly,'-o',stripped])
+                    self.command([ROOT/'bin/nano_vm',stripped])
+                    self.command([ROOT/'bin/nvm2c',stripped,'-o',native])
+                    self.assertEqual(original,native.read_bytes())
+
+    def test_borrowed_resource_misuse_preserves_output(self):
+        for driver in DRIVERS:
+            for annotation,body in (('&Counter', 'set view.value 8 return view.value'),
+                                    ('&mut Counter', 'let Counter { value } = view return value'),
+                                    ('&Unknown', 'return view.value'),
+                                    ('&&Counter', 'return view.value'),
+                                    ('&mut &Counter', 'return view.value')):
+                with self.subTest(driver=driver, annotation=annotation), tempfile.TemporaryDirectory(prefix='nano-affine-borrow-refusal-') as directory:
+                    work=Path(directory);source=work/'bad.nano';output=work/'prior.nvm'
+                    source.write_text('resource struct Counter { value:int }\nfn invalid(view:'+annotation+
+                        ')->int{'+body+'}\nshadow invalid { assert true }\nfn main()->int{return 0}\n')
+                    output.write_bytes(b'prior qualified output')
+                    result=run_captured([driver,source,'--emit-nvm','-o',output],cwd=ROOT,text=True,timeout=180)
+                    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+                    self.assertEqual(output.read_bytes(),b'prior qualified output')
+
     def test_invalid_resource_uses_preserve_output(self):
         prelude='resource struct R{value:int} fn take(x:R)->int{let R{value}=x return value} '
         for driver in DRIVERS:

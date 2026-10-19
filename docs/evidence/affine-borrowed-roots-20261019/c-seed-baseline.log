@@ -1,0 +1,7 @@
+test_borrowed_resource_roots_observe_without_consuming (tests.test_affine_use_metadata.AffineUseMetadata.test_borrowed_resource_roots_observe_without_consuming) ... ok
+test_borrowed_resource_misuse_preserves_output (tests.test_affine_use_metadata.AffineUseMetadata.test_borrowed_resource_misuse_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.308s
+
+OK
