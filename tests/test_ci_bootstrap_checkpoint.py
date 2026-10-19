@@ -154,6 +154,42 @@ class CheckpointArchive(unittest.TestCase):
                 with self.subTest(phase=phase, change=change), self.assertRaises(ValueError):
                     checkpoint.require_continuation(altered, prior, phase)
 
+    def test_compact_source_membership_preserves_identity_and_legacy_reading(self):
+        self.metadata['tracked'] = {'tool': checkpoint.record(self.root / 'tool')['sha256']}
+        original = self.pack()
+        with tarfile.open(self.archive) as archive:
+            wire = json.load(archive.extractfile('checkpoint.json'))
+        self.assertEqual(wire['version'], 2)
+        self.assertEqual(wire['tracked'], [1])
+        decoded = checkpoint.read_archive(self.archive, self.root)
+        self.assertEqual(decoded, original)
+        checkpoint.require_identity(decoded, str(self.root), 'exact', self.metadata['tracked'])
+        for names in ([1, 1], [2], [-1], [True], [1, 0], ['tool'], {'tool': 'digest'}):
+            changed = {**wire, 'tracked': names}
+            with self.subTest(names=names), self.assertRaises(ValueError):
+                checkpoint.decode_manifest(json.dumps(changed))
+        legacy = {**wire, 'version': 1, 'tracked': self.metadata['tracked']}
+        self.assertEqual(checkpoint.decode_manifest(json.dumps(legacy)), original)
+        self.metadata['tracked']['tool'] = 'incorrect'
+        with self.assertRaises(ValueError): self.pack()
+
+    def test_large_evidence_manifest_fits_without_relaxing_bound(self):
+        # I model the 84,263 tracked paths at the failing hosted source pin.
+        names = ['docs/evidence/retained-run-' + str(i).zfill(8) +
+                 '/compiler-source-and-native-qualification/retained-command.json'
+                 for i in range(84263)]
+        value = dict(kind='file', sha256='a' * 64, size=1024, mode=420,
+                     mtime_ns=1792340000000000000)
+        manifest = dict(version=1, files={n: value for n in names},
+                        tracked={n: value['sha256'] for n in names})
+        old = json.dumps(manifest, sort_keys=True).encode()
+        self.assertGreater(len(old), checkpoint.MAX_MANIFEST_BYTES)
+        encoded = checkpoint.encode_manifest(manifest)
+        self.assertLess(len(encoded), checkpoint.MAX_MANIFEST_BYTES)
+        self.assertEqual(checkpoint.decode_manifest(encoded), manifest)
+        with self.assertRaises(ValueError):
+            checkpoint.encode_manifest({**manifest, 'extra': 'x' * checkpoint.MAX_MANIFEST_BYTES})
+
     def test_member_beneath_archived_link_refuses(self):
         records={'alias':checkpoint.record(self.root/'alias'),
                  'alias/child':checkpoint.record(self.root/'tool')}

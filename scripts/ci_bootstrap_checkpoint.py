@@ -73,11 +73,44 @@ def validate_links(records, root):
             require(normalized.is_relative_to(root), 'links confined to the original checkout')
 
 
+MAX_MANIFEST_BYTES = 32 * 1024 * 1024
+
+
+def encode_manifest(manifest):
+    # I bind source hashes before omitting their duplicate wire representation.
+    wire = dict(manifest)
+    if 'tracked' in wire:
+        require(all(name in wire['files'] and wire['files'][name]['sha256'] == digest
+                    for name, digest in wire['tracked'].items()),
+                'tracked hashes matching their archived file records')
+        positions = {name: index for index, name in enumerate(sorted(wire['files']))}
+        wire['tracked'] = sorted(positions[name] for name in wire['tracked'])
+    wire['version'] = 2
+    encoded = json.dumps(wire, sort_keys=True, separators=(',', ':')).encode()
+    require(len(encoded) <= MAX_MANIFEST_BYTES, 'a bounded regular checkpoint manifest')
+    return encoded
+
+
+def decode_manifest(encoded):
+    manifest = json.loads(encoded)
+    require(manifest.get('version') in (1, 2), 'checkpoint version one or two')
+    if manifest['version'] == 2 and 'tracked' in manifest:
+        indices = manifest['tracked']
+        names = sorted(manifest['files'])
+        require(isinstance(indices, list) and all(type(i) is int for i in indices) and
+                indices == sorted(set(indices)) and all(0 <= i < len(names) for i in indices),
+                'unique sorted tracked indices with archived file records')
+        manifest['tracked'] = {names[i]: manifest['files'][names[i]]['sha256'] for i in indices}
+    # I keep the in-memory identity contract unchanged for both wire versions.
+    manifest['version'] = 1
+    return manifest
+
+
 def write_archive(root, names, metadata, destination):
     records = {name: record(root / name) for name in sorted(set(names))}
     validate_links(records, root)
     manifest = {**metadata, 'version': 1, 'files': records}
-    encoded = json.dumps(manifest, sort_keys=True).encode()
+    encoded = encode_manifest(manifest)
     with tarfile.open(destination, 'w:gz', format=tarfile.PAX_FORMAT) as archive:
         member = tarfile.TarInfo('checkpoint.json'); member.size = len(encoded)
         archive.addfile(member, io.BytesIO(encoded))
@@ -102,10 +135,9 @@ def read_archive(path, root):
         require(len(names) == len(set(names)) and names.count('checkpoint.json') == 1,
                 'unique archive members and one manifest')
         manifest_member = archive.getmember('checkpoint.json')
-        require(manifest_member.isfile() and manifest_member.size <= 32 * 1024 * 1024,
+        require(manifest_member.isfile() and manifest_member.size <= MAX_MANIFEST_BYTES,
                 'a bounded regular checkpoint manifest')
-        manifest = json.load(archive.extractfile(manifest_member))
-        require(manifest.get('version') == 1, 'checkpoint version one')
+        manifest = decode_manifest(archive.extractfile(manifest_member).read())
         records = manifest['files']; validate_links(records, root)
         require(set(names) == {'checkpoint.json'} | {'files/' + name for name in records},
                 'exact manifest coverage of archive members')

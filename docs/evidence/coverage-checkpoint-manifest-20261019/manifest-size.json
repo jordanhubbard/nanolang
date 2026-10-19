@@ -1,0 +1,15 @@
+{
+  "source": "0d8cd446f",
+  "tracked": 84263,
+  "representative_record": {
+    "kind": "file",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "size": 100,
+    "mode": 420,
+    "mtime_ns": 1792340000000000000
+  },
+  "old_bytes": 37200653,
+  "new_bytes": 21833358,
+  "limit": 33554432,
+  "roundtrip": true
+}
