@@ -1,8 +1,10 @@
 """I qualify retained checker uses without granting execution authority."""
 import ast
+from contextlib import contextmanager
 import os
 from pathlib import Path
 import shlex
+import shutil
 import struct
 import tempfile
 import unittest
@@ -151,6 +153,157 @@ assert (== (take a) 14) assert (== (other b) 9) return 0 }
                     result=run_captured([driver,src,'--emit-nvm','-o',output],cwd=ROOT,text=True,timeout=180)
                     self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
                     self.assertEqual(output.read_bytes(),b'prior qualified output')
+
+    @contextmanager
+    def retain_site_failure(self, directory):
+        try:
+            yield
+        except BaseException:
+            root=Path(os.environ.get('NANOLANG_AFFINE_USE_FAILURE_DIR',ROOT/'.test_output/affine-use-failures'))
+            root.mkdir(parents=True,exist_ok=True)
+            shutil.copytree(directory,root/Path(directory).name,dirs_exist_ok=True)
+            raise
+
+    def imported_site_product(self, driver, work, source):
+        module=work/'sites.nvm'
+        self.command([driver,source,'--emit-nvm','-o',module])
+        canonical=self.command([ROOT/'bin/nanoisa','dump',module])
+        lines=canonical.splitlines()
+        strings=[ast.literal_eval(line[8:]).encode('latin1') for line in lines if line.startswith('.string ')]
+        functions=[shlex.split(line)[1] for line in lines if line.startswith('.function ')]
+        keys={i for i,value in enumerate(strings) if value==KEY}
+        entries=[line for line in lines if line.startswith('.metadata ') and int(line.split()[1]) in keys]
+        facts=[]; sites=set()
+        for entry in entries:
+            value=strings[int(entry.split()[2])]
+            self.assertGreaterEqual(len(value),24)
+            fn,line,column,state,coords,reserved,path_length,name_length=struct.unpack('<IIIBBHII',value[:24])
+            self.assertLess(fn,len(functions)); self.assertEqual(reserved,0)
+            self.assertEqual(len(value),24+path_length+name_length)
+            self.assertGreater(line,0); self.assertGreater(column,0)
+            self.assertEqual(coords,1 if driver.name=='nano_virt' else 2)
+            self.assertIn(state,(1,2))
+            path=Path(value[24:24+path_length].decode())
+            binding=value[24+path_length:].decode()
+            site=(fn,path,line,column,coords)
+            self.assertNotIn(site,sites); sites.add(site)
+            facts.append((fn,path,line,column,state,binding))
+        self.assertTrue(facts)
+        assembly=work/'roundtrip.nasm'; rebuilt=work/'roundtrip.nvm'
+        assembly.write_text(canonical)
+        self.command([ROOT/'bin/nanoisa','asm',assembly,'-o',rebuilt])
+        self.assertEqual(module.read_bytes(),rebuilt.read_bytes())
+        self.command([ROOT/'bin/nano_vm',module])
+        native=work/'sites.c'; binary=work/'sites'
+        self.command([ROOT/'bin/nvm2c',module,'-o',native])
+        original=native.read_bytes()
+        self.command(shlex.split(os.environ.get('CC','cc'))+[
+            '-std=c11','-O2','-Wall','-Wextra','-Werror',
+            '-fsanitize=address,undefined','-fno-sanitize-recover=all',
+            native,'-lm','-o',binary],build=True)
+        self.command([binary])
+        assembly.write_text('\n'.join(line for line in lines if line not in entries)+'\n')
+        self.command([ROOT/'bin/nanoisa','asm',assembly,'-o',rebuilt])
+        self.command([ROOT/'bin/nano_vm',rebuilt])
+        self.command([ROOT/'bin/nvm2c',rebuilt,'-o',native])
+        self.assertEqual(original,native.read_bytes())
+        return functions,facts
+
+    def test_imported_same_spelled_checked_sites(self):
+        for driver in DRIVERS:
+            for reverse in (False,True):
+                with self.subTest(driver=driver,reverse=reverse), tempfile.TemporaryDirectory(prefix='nano-affine-site-imports-') as directory, self.retain_site_failure(directory):
+                    work=Path(directory)
+                    for filename,number in (('left.nano',7),('right.nano',9)):
+                        (work/filename).write_text('resource struct Handle { payload:int }\n'
+                            'fn take(value:Handle)->int { let observed:int=value.payload let Handle{payload}=value return (+ observed payload) }\n'
+                            f'shadow take {{ assert (== (take Handle{{payload:{number}}}) {number*2}) }}\n'
+                            f'pub fn run()->int {{ let value:Handle=Handle{{payload:{number}}} return (take value) }}\n'
+                            f'shadow run {{ assert (== (run) {number*2}) }}\n')
+                    imports=['module "left.nano" as left','module "right.nano" as right']
+                    if reverse: imports.reverse()
+                    source=work/'main.nano'
+                    source.write_text('\n'.join(imports)+'\nfn main()->int{assert (== (left.run) 14) assert (== (right.run) 18) return 0}\nshadow main {assert (== (main) 0)}\n')
+                    functions,facts=self.imported_site_product(driver,work,source)
+                    groups={}; owners={}
+                    for fn,path,line,column,state,binding in facts:
+                        self.assertEqual(binding,'value')
+                        groups.setdefault(fn,[]).append(state)
+                        if driver.name=='nano_virt':
+                            self.assertIn(path.name,('left.nano','right.nano'))
+                            self.assertEqual(path.resolve(),(work/path.name).resolve())
+                            owners.setdefault(path.name,set()).add(fn)
+                        else:
+                            self.assertEqual(path.resolve(),source.resolve())
+                    self.assertEqual(sorted(sorted(states) for states in groups.values()),[[1,2],[1,2],[2],[2]])
+                    self.assertEqual(len(groups),4)
+                    self.assertEqual(len(set(functions)),len(functions))
+                    if driver.name=='nano_virt':
+                        self.assertEqual(set(owners),{'left.nano','right.nano'})
+                        self.assertEqual(len(owners['left.nano']),2)
+                        self.assertEqual(len(owners['right.nano']),2)
+                        self.assertTrue(owners['left.nano'].isdisjoint(owners['right.nano']))
+
+    def test_branch_local_checked_sites(self):
+        source='''resource struct Handle { payload:int }
+fn choose(flag:bool)->int {
+ if flag {
+  let value:Handle=Handle{payload:7}
+  let observed:int=value.payload
+  let Handle{payload}=value
+  return (+ observed payload)
+ } else {
+  let value:Handle=Handle{payload:9}
+  let observed:int=value.payload
+  let Handle{payload}=value
+  return (+ observed payload)
+ }
+}
+shadow choose {assert (== (choose true) 14) assert (== (choose false) 18)}
+fn main()->int{assert (== (choose true) 14) assert (== (choose false) 18) return 0}
+shadow main {assert (== (main) 0)}
+'''
+        for driver in DRIVERS:
+            with self.subTest(driver=driver), tempfile.TemporaryDirectory(prefix='nano-affine-site-branches-') as directory, self.retain_site_failure(directory):
+                work=Path(directory); program=work/'branches.nano'; program.write_text(source)
+                functions,facts=self.imported_site_product(driver,work,program)
+                self.assertEqual(len(facts),4)
+                self.assertEqual({functions[fn] for fn,_,_,_,_,_ in facts},{'choose'})
+                self.assertEqual({path.resolve() for _,path,_,_,_,_ in facts},{program.resolve()})
+                self.assertEqual({binding for _,_,_,_,_,binding in facts},{'value'})
+                ordered=sorted((line,column,state) for _,_,line,column,state,_ in facts)
+                self.assertEqual([state for _,_,state in ordered],[1,2,1,2])
+
+    def test_imported_and_branch_move_refusals(self):
+        for driver in DRIVERS:
+            for imported in (False,True):
+                with self.subTest(driver=driver,imported=imported), tempfile.TemporaryDirectory(prefix='nano-affine-site-refusal-') as directory, self.retain_site_failure(directory):
+                    work=Path(directory); program=work/'main.nano'; output=work/'prior.nvm'
+                    bad='resource struct Handle { payload:int }\npub fn broken(flag:bool)->int { if flag { let value:Handle=Handle{payload:7} let Handle{payload}=value return value.payload } return 0 }\n'
+                    if imported:
+                        (work/'owner.nano').write_text(bad)
+                        program.write_text('module "owner.nano" as owner\nfn main()->int{return (owner.broken true)}\n')
+                    else: program.write_text(bad+'fn main()->int{return (broken true)}\n')
+                    output.write_bytes(b'prior qualified output')
+                    result=run_captured([driver,program,'--emit-nvm','-o',output],cwd=ROOT,text=True,timeout=180)
+                    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+                    self.assertRegex(result.stdout+result.stderr,r'(?i)(moved value|after.{0,30}(mov|consum)|use.{0,30}moved)')
+                    self.assertEqual(output.read_bytes(),b'prior qualified output')
+
+    def test_resource_synthetic_shadow_entry(self):
+        source='resource struct Handle{payload:int}\nfn take(value:Handle)->int{let Handle{payload}=value return payload}\nshadow take {assert (== (take Handle{payload:7}) 7)}\nfn main()->int{return (- (take Handle{payload:7}) 7)}\n'
+        for driver in DRIVERS:
+            with self.subTest(driver=driver), tempfile.TemporaryDirectory(prefix='nano-affine-site-shadow-') as directory, self.retain_site_failure(directory):
+                work=Path(directory); program=work/'main.nano'; output=work/'prior.nvm'
+                program.write_text(source)
+                self.command([driver,program,'--emit-nvm','-o',output])
+                self.command([ROOT/'bin/nano_vm',output])
+                program.write_text(source.replace('shadow take {assert (== (take Handle{payload:7}) 7)}','shadow take {assert false}'))
+                output.write_bytes(b'prior qualified output')
+                result=run_captured([driver,program,'--emit-nvm','-o',output],cwd=ROOT,text=True,timeout=180)
+                self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+                self.assertRegex(result.stdout+result.stderr,r'(?i)shadow')
+                self.assertEqual(output.read_bytes(),b'prior qualified output')
 
     def test_actual_checker_epoch_and_raw_boundary(self):
         with tempfile.TemporaryDirectory(prefix='nano-affine-use-checker-') as directory:

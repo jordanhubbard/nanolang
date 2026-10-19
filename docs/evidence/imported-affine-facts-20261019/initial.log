@@ -1,0 +1,42 @@
+test_imported_same_spelled_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_same_spelled_checked_sites) ... 
+  test_imported_same_spelled_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_same_spelled_checked_sites) (driver=PosixPath('/Users/jkh/Src/nanolang-51-harness/bin/nano_virt'), reverse=False) ... FAIL
+  test_imported_same_spelled_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_same_spelled_checked_sites) (driver=PosixPath('/Users/jkh/Src/nanolang-51-harness/bin/nano_virt'), reverse=True) ... FAIL
+test_branch_local_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_branch_local_checked_sites) ... ok
+test_imported_and_branch_move_refusals (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_and_branch_move_refusals) ... ok
+
+======================================================================
+FAIL: test_imported_same_spelled_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_same_spelled_checked_sites) (driver=PosixPath('/Users/jkh/Src/nanolang-51-harness/bin/nano_virt'), reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 215, in test_imported_same_spelled_checked_sites
+    functions,facts=self.imported_site_product(driver,work,source)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 182, in imported_site_product
+    self.command([ROOT/'bin/nanoisa','asm',assembly,'-o',rebuilt])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 20, in command
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-affine-site-imports-jmtkqnwr/roundtrip.nasm': Duplicate function symbol: take
+
+
+======================================================================
+FAIL: test_imported_same_spelled_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_same_spelled_checked_sites) (driver=PosixPath('/Users/jkh/Src/nanolang-51-harness/bin/nano_virt'), reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 215, in test_imported_same_spelled_checked_sites
+    functions,facts=self.imported_site_product(driver,work,source)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 182, in imported_site_product
+    self.command([ROOT/'bin/nanoisa','asm',assembly,'-o',rebuilt])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 20, in command
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-affine-site-imports-5shbk38y/roundtrip.nasm': Duplicate function symbol: take
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.951s
+
+FAILED (failures=2)

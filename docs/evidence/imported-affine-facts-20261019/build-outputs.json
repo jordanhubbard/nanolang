@@ -1,0 +1,6 @@
+{
+  "/private/tmp/nanolang-imported-affine-build/codegen.o": "209cb36d1696cfc4ae510a317414315e1975377f547d9d13a00f382088d56570",
+  "/private/tmp/nanolang-imported-affine-build/nano_virt": "b3788bd575209d95bfbdc3567f90af9c2fa9b66fc712fa55a08078055cd31428",
+  "src/nanovirt/borrow_codegen.inc": "57af8ebdea39bcba501aa6f60348a968b9ae523f406de5210a418afa2db0901f",
+  "src/nanovirt/codegen.c": "973ab8c675620a556efc868b8c60b4caa33f9ac1e122e4e2c8346cf3f3355865"
+}

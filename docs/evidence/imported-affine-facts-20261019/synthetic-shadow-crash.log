@@ -1,0 +1,56 @@
+test_imported_same_spelled_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_same_spelled_checked_sites) ... 
+  test_imported_same_spelled_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_same_spelled_checked_sites) (driver=PosixPath('/private/tmp/nanolang-imported-affine-build/nano_virt'), reverse=False) ... FAIL
+  test_imported_same_spelled_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_same_spelled_checked_sites) (driver=PosixPath('/private/tmp/nanolang-imported-affine-build/nano_virt'), reverse=True) ... FAIL
+test_branch_local_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_branch_local_checked_sites) ... 
+  test_branch_local_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_branch_local_checked_sites) (driver=PosixPath('/private/tmp/nanolang-imported-affine-build/nano_virt')) ... FAIL
+test_imported_and_branch_move_refusals (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_and_branch_move_refusals) ... ok
+
+======================================================================
+FAIL: test_imported_same_spelled_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_same_spelled_checked_sites) (driver=PosixPath('/private/tmp/nanolang-imported-affine-build/nano_virt'), reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 227, in test_imported_same_spelled_checked_sites
+    functions,facts=self.imported_site_product(driver,work,source)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 169, in imported_site_product
+    self.command([driver,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 22, in command
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -11 != 0 : 
+
+======================================================================
+FAIL: test_imported_same_spelled_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_imported_same_spelled_checked_sites) (driver=PosixPath('/private/tmp/nanolang-imported-affine-build/nano_virt'), reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 227, in test_imported_same_spelled_checked_sites
+    functions,facts=self.imported_site_product(driver,work,source)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 169, in imported_site_product
+    self.command([driver,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 22, in command
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -11 != 0 : 
+
+======================================================================
+FAIL: test_branch_local_checked_sites (tests.test_affine_use_metadata.AffineUseMetadata.test_branch_local_checked_sites) (driver=PosixPath('/private/tmp/nanolang-imported-affine-build/nano_virt'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 269, in test_branch_local_checked_sites
+    functions,facts=self.imported_site_product(driver,work,program)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 169, in imported_site_product
+    self.command([driver,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_affine_use_metadata.py", line 22, in command
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -11 != 0 : 
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.782s
+
+FAILED (failures=3)
