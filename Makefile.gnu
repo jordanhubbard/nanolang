@@ -6996,7 +6996,7 @@ test-checked-borrow-environment: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 test-units: test-checked-borrow-environment
 
 .PHONY: test-checked-borrow-metadata
-test-checked-borrow-metadata: bootstrap3 nano_virt nano_vm nanoisa nvm2c nanoisa_emit
+test-checked-borrow-metadata: bootstrap3 nano_virt nano_vm nanoisa_dump nvm2c nanoisa_emit
 	python3 -m unittest -v tests.test_checked_borrow_metadata tests.test_source_borrow_emission.AffineComparisonIsolation
 
 test-units: test-checked-borrow-metadata

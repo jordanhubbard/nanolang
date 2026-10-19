@@ -1,0 +1,2 @@
+Hello from NanoLang!
+ld: warning: ignoring duplicate libraries: '-lm'

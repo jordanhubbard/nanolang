@@ -15923,3 +15923,7 @@ exact platform qualification remain open under #998; I hand this bounded compone
 to the aggregate coordinator rather than claiming the full issue complete.
 
 - I integrate checked call-borrow facts as `9efc6efe3`, preserving both ROADMAP sides during the append conflict. I wire ledger, actual Environment and paired metadata gates into compiler-contract qualification. Fresh raw generations at the new checked result/event record shapes are the next required gate; component C-hosted success is not that proof.
+
+- I pass all 17 fresh bootstrap steps at `0d8cd446f`, with identical raw generations. My aggregate checked-borrow gate then passes ledger and actual Environment cleanup but stops because its Makefile prerequisite names nonexistent `nanoisa`. I retain `/private/tmp/nanolang-checked-borrow-fresh-0d8.log`, correct only that prerequisite to the existing `nanoisa_dump` target, and rerun the metadata gate before claiming qualification. No compiler source or assertion changes for this correction.
+
+- I qualify the checked-borrow aggregate with all 17 fresh bootstrap steps, nine checked-borrow/comparator methods (79.576s), actual ledger/Environment cleanup, and 54 metadata/declared-purity neighbors (204.113s). Both raw generations are identical and ten provider hashes remain unchanged. I retain the Make prerequisite correction and stopped redundant seed attempt in `docs/evidence/checked-borrow-bootstrap-20261019/`; Linux/current-head release gates and full #998 remain open.
