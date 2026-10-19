@@ -16138,3 +16138,18 @@ Candidate `3446ec677` passed fresh bootstrap `run-mjg4sby8` (17 steps, raw Stage
 - [x] I retain the [first unchanged helper-owner gate](evidence/owned-helper-local-first-gate-20261019/README.md): facts/origins/work/witness pass and C source publishes, but ordinary Nano atomically refuses at the unchanged128 cap (entry49/helper179 estimates; original12/41; shadow38 estimate). No regenerated/native execution follows. Read-only existing finite-planner analysis estimates helper120 with all151 statements covered and19 assertions retained; routing that existing planner into the new helper profile awaits review and actual measurement. I do not call179 or120 measured regenerated counts.
 
 - [x] I qualify bounded v2[2,1] helper-local ownership with the [final receipt](evidence/owned-helper-local-reconstruction-20261019/README.md):18 methods pass98.944s through current seed and both fresh3446 stages, four old byte goldens pass0.408s, strict Clang/GCC16 facts syntax passes. I retain the initial179 estimate/atomic refusal, then reuse only the existing finite planner on cloned Nano helper1 after origin/work/witness proofs; all151 statements and19 assertions remain. Actual entry/helper49/120 and independent consistency-shadow/helper34/120 pass, as do actual128 acceptance/129 atomic refusal and later-call assertion failure. All19 pinned providers remain unchanged. Original shadows are separate retained-producer inputs; the historical single-[2] helper-owner composition, broader scope and platform gates remain open under #999.
+
+## I map single-exclusive helper-local composition (#999, 2026-10-19)
+
+I own design-only branch `design/5.1-single-exclusive-helper-local` from
+`a1cef240f`, limited to this roadmap entry and
+`NANOISA_SINGLE_EXCLUSIVE_HELPER_LOCAL_DESIGN.md`. I preserve the pending
+two-formal helper component and make no production or admission changes.
+
+- [x] I map the exact existing `former_refusal` producer fixture and required ownership/reconstruction rows.
+- [x] I record the distinct single-formal IR, lifetime and witness obligations.
+- [ ] After the current helper component integrates and a worker slot is released, I retain actual unchanged ordinary/shadow baseline dumps, verifier/VM results and reconstruction refusal.
+- [ ] I review actual descriptor use and generated cost before implementation authorization.
+
+I have not executed a baseline for this extension. Source syntax does not prove
+that destructuring emits no local observations.
