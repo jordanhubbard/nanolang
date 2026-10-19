@@ -7011,6 +7011,13 @@ fn purity_identifier(parser: Parser, context: PurityContext, name: string, count
     let mut found: bool = false
     let mut i: int = 0
     while (< i (array_length context.globals)) {
+        # Only bounded advisory analysis charges visits; declared-pure checking
+        # retains its empty-budget semantics.
+        if (> (array_length context.budget) 0) {
+            let remaining: int = (at context.budget 0)
+            if (<= remaining 0) { return 8 }
+            (array_set context.budget 0 (- remaining 1))
+        }
         let sym: Symbol = (at context.globals i)
         if (and (== sym.name name) (not sym.is_function)) {
             set found true
@@ -7304,6 +7311,10 @@ shadow purity_summary {
 # symbol context stays unknown; I never infer a closed result from annotations.
 # My empty budget array leaves existing declared-pure validation unchanged.
 pub fn frontend_advisory_effects(parser: Parser, function: ASTFunction) -> int {
+    return (frontend_advisory_effects_globals parser function [])
+}
+
+fn frontend_advisory_effects_globals(parser: Parser, function: ASTFunction, globals: array<Symbol>) -> int {
     let mut bodies: int = 0
     let mut target: int = -1
     let mut i: int = 0
@@ -7315,6 +7326,12 @@ pub fn frontend_advisory_effects(parser: Parser, function: ASTFunction) -> int {
         set i (+ i 1)
     }
     if (< target 0) { return 8 }
+    return (frontend_advisory_effects_index parser target globals)
+}
+
+fn frontend_advisory_effects_index(parser: Parser, target: int, globals: array<Symbol>) -> int {
+    if (or (< target 0) (>= target parser.functions_count)) { return 8 }
+    let mut i: int = 0
     let mut slots: int = parser.lets_count
     set i 0
     while (< i (parser_get_match_count parser)) {
@@ -7326,9 +7343,26 @@ pub fn frontend_advisory_effects(parser: Parser, function: ASTFunction) -> int {
     let mut seen: array<bool> = []
     set i 0
     while (< i parser.functions_count) { set seen (array_push seen false) set i (+ i 1) }
-    let context: PurityContext = PurityContext { names: [], mutable: [], seen: seen, globals: [], budget: [4096] }
+    let context: PurityContext = PurityContext { names: [], mutable: [], seen: seen, globals: globals, budget: [4096] }
     return (purity_function parser context target)
 }
+shadow frontend_advisory_effects_index {
+    let p: Parser = (resource_test_parser "let mut x:int=9 fn first(x:int)->int{return x} fn second()->int{return x}")
+    let first: ASTFunction = (parser_get_function p 0)
+    let second: ASTFunction = (parser_get_function p 1)
+    # I deliberately create equal spelling/body with different lexical signatures
+    # to prove the private index path does not silently choose the last match.
+    (list_ASTFunction_set p.functions 1 (ASTFunction {
+        node_type: second.node_type, line: second.line, column: second.column,
+        name: first.name, param_start: second.param_start, param_count: second.param_count,
+        return_type: second.return_type, body: first.body, is_pure: second.is_pure,
+        self_name: second.self_name, checked_affine: 0, affine_owner: [0], affine_completed_epoch: 0 }))
+    let globals: array<Symbol> = [(symbol_new "x" (type_int) true false 0 [] (type_void))]
+    assert (== (frontend_advisory_effects_index p 0 globals) 0)
+    assert (== (frontend_advisory_effects_index p 1 globals) 2)
+    assert (== (frontend_advisory_effects_index p -1 globals) 8)
+}
+
 shadow frontend_advisory_effects {
     let p: Parser = (resource_test_parser "fn plus(x: int) -> int { return (+ x 1) } fn noisy() -> int { (println 1) return (plus 1) }")
     assert (== (frontend_advisory_effects p (parser_get_function p 0)) 0)
@@ -7477,15 +7511,95 @@ shadow tc_validate_layouts {
     assert (== (Diagnostics.diag_list_count errors) 1)
 }
 
+# I return these facts only to an immediate checked-emission invocation.
+# They are not a reusable validity token and never retain the Symbol array.
+struct CheckedAdvisoryOutput {
+    phase: TypecheckPhaseOutput,
+    masks: array<int>,
+    functions: array<ASTFunction>,
+    epochs: array<int>
+}
+fn checked_advisory_empty(phase: TypecheckPhaseOutput) -> CheckedAdvisoryOutput {
+    return CheckedAdvisoryOutput { phase: phase, masks: [], functions: [], epochs: [] }
+}
+fn checked_advisory_success(parser: Parser, phase: TypecheckPhaseOutput, globals: array<Symbol>) -> CheckedAdvisoryOutput {
+    # I reject oversized modules before allocating or scanning per-function facts.
+    if (or (or (> parser.functions_count 256) (> (array_length globals) 256))
+        (or (> parser.lets_count 4096) (> (parser_get_match_count parser) 4096))) {
+        return (checked_advisory_empty phase)
+    }
+    let mut slots: int = parser.lets_count
+    let mut match_index: int = 0
+    while (< match_index (parser_get_match_count parser)) {
+        set slots (+ slots (parser_get_match parser match_index).arm_count)
+        if (> slots 4096) { return (checked_advisory_empty phase) }
+        set match_index (+ match_index 1)
+    }
+    let mut bodies: int = 0
+    let mut i: int = 0
+    while (< i parser.functions_count) {
+        if (>= (parser_get_function parser i).body 0) { set bodies (+ bodies 1) }
+        if (> bodies 64) { return (checked_advisory_empty phase) }
+        set i (+ i 1)
+    }
+    let mut masks: array<int> = []
+    let mut functions: array<ASTFunction> = []
+    let mut epochs: array<int> = []
+    set i 0
+    while (< i parser.functions_count) {
+        let function: ASTFunction = (parser_get_function parser i)
+        let mut mask: int = 8
+        let mut epoch: int = 0
+        if (and (== function.node_type ParseNodeType.PNODE_FUNCTION) (== (array_length function.affine_owner) 1)) {
+            set epoch (at function.affine_owner 0)
+            if (> epoch 0) { set mask (frontend_advisory_effects_index parser i globals) }
+        }
+        set masks (array_push masks mask)
+        set functions (array_push functions function)
+        set epochs (array_push epochs epoch)
+        set i (+ i 1)
+    }
+    return CheckedAdvisoryOutput { phase: phase, masks: masks, functions: functions, epochs: epochs }
+}
+
 pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_symbols: array<Symbol>, first_shadow: int) -> TypecheckPhaseOutput {
+    let checked: CheckedAdvisoryOutput = (typecheck_advisory_core parser file_name initial_symbols first_shadow false)
+    return checked.phase
+}
+
+pub fn typecheck_for_immediate_emission(parser: Parser, file_name: string, first_shadow: int) -> CheckedAdvisoryOutput {
+    return (typecheck_advisory_core parser file_name [] first_shadow true)
+}
+
+shadow typecheck_for_immediate_emission {
+    let parser: Parser = (resource_test_parser "let fixed:int=7 let mut changing:int=9 fn immutable()->int{return fixed} fn mutable()->int{return changing} fn chain()->int{return (mutable)} fn local()->int{let changing:int=2 return changing} fn main()->int{return 0}")
+    let checked: CheckedAdvisoryOutput = (typecheck_for_immediate_emission parser "effects.nano" 0)
+    assert (not checked.phase.had_error)
+    assert (== (array_length checked.masks) 5)
+    assert (== (at checked.masks 0) 0)
+    assert (== (at checked.masks 1) 2)
+    assert (== (at checked.masks 2) 2)
+    assert (== (at checked.masks 3) 0)
+    assert (== (frontend_advisory_effects parser (parser_get_function parser 0)) 8)
+    let broken: Parser = (resource_test_parser "fn main()->int{return true}")
+    let failed: CheckedAdvisoryOutput = (typecheck_for_immediate_emission broken "failed.nano" 0)
+    assert failed.phase.had_error
+    assert (== (array_length failed.masks) 0)
+    let context: PurityContext = PurityContext { names: [], mutable: [], seen: [], globals: [(symbol_new "fixed" (type_int) false false 0 [] (type_void))], budget: [0] }
+    assert (== (purity_identifier parser context "fixed" 0) 8)
+    let restored: PurityContext = PurityContext { names: [], mutable: [], seen: [], globals: context.globals, budget: [1] }
+    assert (== (purity_identifier parser restored "fixed" 0) 0)
+}
+
+fn typecheck_advisory_core(parser: Parser, file_name: string, initial_symbols: array<Symbol>, first_shadow: int, collect_advisory: bool) -> CheckedAdvisoryOutput {
     let env: TypeEnvironment = (env_new)
     (tc_effect_declarations parser env.diagnostics file_name)
     if (not (tc_validate_layouts parser env.diagnostics file_name)) {
-        return (typecheck_output env.diagnostics 1 true)
+        return (checked_advisory_empty (typecheck_output env.diagnostics 1 true))
     }
     if (> parser.services_count 0) {
         (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E0037" "I have not resolved File service declarations for this consumer." (Diagnostics.diag_location file_name 0 0)))
-        return (typecheck_output env.diagnostics 1 true)
+        return (checked_advisory_empty (typecheck_output env.diagnostics 1 true))
     }
     let mut symbols: array<Symbol> = (env_copy_symbols initial_symbols)
     let mut error_count: int = 0
@@ -7503,7 +7617,7 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
             if (str_starts_with parameter.var_type "&") {
                 if (or (< item.body 0) (not (scalar_borrow_shape parser parameter.var_type))) {
                     (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E0036" "I currently borrow only checked fixed resource records with numeric or boolean fields" (Diagnostics.diag_location file_name parameter.line parameter.column)))
-                    return (typecheck_output env.diagnostics 1 true)
+                    return (checked_advisory_empty (typecheck_output env.diagnostics 1 true))
                 }
             }
             set argument (+ argument 1)
@@ -7516,7 +7630,7 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
         (println "Error: No functions found")
         let diag: CompilerDiagnostic = (Diagnostics.diag_error CompilerPhase.PHASE_TYPECHECK "TC0001" "No functions found" (Diagnostics.diag_location file_name 0 0))
         (Diagnostics.diag_list_add env.diagnostics diag)
-        return (typecheck_output env.diagnostics (+ error_count 1) true)
+        return (checked_advisory_empty (typecheck_output env.diagnostics (+ error_count 1) true))
     } else {
         (print "")
     }
@@ -7617,7 +7731,7 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
 
     if (or (< first_shadow 0) (> first_shadow parser.shadows_count)) {
         (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0001" "I cannot select this shadow range" (Diagnostics.diag_location file_name 0 0)))
-        return (typecheck_output env.diagnostics (+ error_count 1) true)
+        return (checked_advisory_empty (typecheck_output env.diagnostics (+ error_count 1) true))
     }
     set i first_shadow
     while (< i parser.shadows_count) {
@@ -7655,7 +7769,9 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
     }
     if (> diagnostic_errors error_count) { set error_count diagnostic_errors }
     let had_error: bool = (or (> error_count 0) (Diagnostics.diag_list_has_errors env.diagnostics))
-    return (typecheck_output env.diagnostics error_count had_error)
+    let phase: TypecheckPhaseOutput = (typecheck_output env.diagnostics error_count had_error)
+    if (and collect_advisory (not had_error)) { return (checked_advisory_success parser phase symbols) }
+    return (checked_advisory_empty phase)
 }
 
 shadow typecheck_phase_with_symbols { assert true }

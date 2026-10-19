@@ -1,6 +1,6 @@
 # My invocation-local checked global effects contract
 
-I own #998's `fix/5.1-checked-global-effects` fromdfc8708b6. My primitive
+I own #998's `fix/5.1-checked-global-effects` from `dfc8708b6`. My primitive
 worktree remains untouched; this is a separate compiler advisory-metadata task.
 
 ## Boundary and interfaces
@@ -10,7 +10,7 @@ then emits and executes selected shadows before publishing. Its legacy union
 merge branch is dormant because import_count is fixed at zero. Actual globals
 are built by `typecheck_phase_with_shadows` using bound declaration names; the
 current advisory query discards them by supplying globals=[]. Immutable scalar
-reads therefore report UNKNOWN instead of0 and mutable reads UNKNOWN instead of2.
+reads therefore report UNKNOWN instead of 0 and mutable reads UNKNOWN instead of 2.
 
 I factor a checker core with an optional invocation-local summary sink. Existing
 public checking wrappers retain their behavior and request no summaries. A
@@ -20,7 +20,7 @@ computes these only after all diagnostics, resource checks and selected-shadow
 checks succeed, using the actual bound Symbol array while that array is local.
 No Symbol array or persistent Parser field is retained.
 
-Codegen owns the public check-and-emit bridge. The bridge itself invokes checking;
+Codegen owns the public check-and-emit bridge (phase, program, shadows, lowering_error and lowering_stage result). The bridge itself invokes checking;
 it never accepts trusted masks from its public caller. It synchronously consumes
 its internal summary result to generate program and optional selected-shadow
 text, returning only phase diagnostics, assembly strings and lowering failure.
@@ -59,9 +59,9 @@ checked parser synchronously. The context is never cached for a later invocation
 
 I preserve existing raw behavior and declared-pure validation. For the new
 checked context, oversized modules short-circuit UNKNOWN before per-function
-scans or snapshot allocation. At most64 analyzed bodies, bounded total function
-and global entries, and at most4096 analysis steps per function are accepted.
-Global lookup visits consume the advisory budget; exhausted work returnsUNKNOWN.
+scans or snapshot allocation. At most64 analyzed bodies, at most 256 total function
+and 256 global entries, and at most 4096 analysis steps per function are accepted.
+Match and let preparation is capped at 4096 entries before scanning, and combined let/arm preparation is capped at 4096. Global lookup visits consume the advisory budget; exhausted work returns UNKNOWN.
 The declared-pure path uses an empty budget and keeps its previous semantics.
 Bounds must cover preparation/lookup loops as well as recursive expression visits.
 No effect mask authorizes optimization, execution, ownership or nominal admission.
@@ -73,11 +73,11 @@ annotations and mutable process-global caches are not substitutes.
 
 ## Acceptance
 
-I require original seed and changed Nano immutable-global0/mutable-global2 masks
+I require original seed and changed Nano immutable-global 0/mutable-global 2 masks
 with unchanged VM/native outcomes; calls through multiple bodies; local shadowing;
 imported same-spelled bound globals; copied/unrelated function identity refusal;
 failed check and lowering paths preserving prior output; checked then raw and
-checked then failed invocations without leakage; generic/synthetic UNKNOWN;
+checked then failed invocations without leakage; generic/synthetic UNKNOWN where facts already exist; synthetic initializers retain their existing absence of advisory entries;
 unchanged raw no-global masks and affine-use facts; exact small work-limit
 refusal/recovery; and oversized-module fast UNKNOWN. Selected-shadow diagnostics
 and execution remain separate from program text creation. Fresh raw-generation
