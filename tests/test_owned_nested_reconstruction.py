@@ -92,7 +92,9 @@ shadow main { assert (== (main) 6) }
             if case=='wrong-child':facts['layouts'][-1]['field_types'][0][1]=1
             elif case=='cycle':facts['layouts'][-1]['field_types'][0][1]=2
             elif case=='mixed':facts['layouts'][-1]['fields'][0]=1;facts['layouts'][-1]['field_types'][0]=[1,4294967295]
-            elif case=='deep':facts['layouts'].append(dict(identity=3,resource=True,fields=[8],field_types=[[8,2]]))
+            elif case=='deep':
+                facts['layouts'].append(dict(identity=3,resource=True,fields=[8],field_types=[[8,2]]))
+                facts['layouts'].append(dict(identity=4,resource=True,fields=[8],field_types=[[8,3]]))
             else:
                 fn=next(f for f in facts['functions'] if any(i['op']=='OWN_UNPACK_LOCAL' for i in f['code']))
                 code=fn['code'];unpack=next(n for n,i in enumerate(code) if i['op']=='OWN_UNPACK_LOCAL')
@@ -140,10 +142,13 @@ shadow main { assert (== (main) 6) }
             'deep':'''resource struct Leaf { value: int }
 resource struct Mid { leaf: Leaf }
 resource struct Outer { mid: Mid }
+resource struct Shell { outer: Outer }
 fn main() -> int {
  let leaf: Leaf = Leaf { value: 7 }
  let mid: Mid = Mid { leaf: leaf }
  let outer: Outer = Outer { mid: mid }
+ let shell: Shell = Shell { outer: outer }
+ let Shell { outer } = shell
  let Outer { mid } = outer
  let Mid { leaf } = mid
  let Leaf { value } = leaf

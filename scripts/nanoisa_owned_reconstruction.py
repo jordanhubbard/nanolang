@@ -32,6 +32,7 @@ class OwnedAnalyze(Analyze):
         self.layouts = module['layouts']
         require(0 < len(self.layouts) <= 16, 'require bounded resource layouts')
         self.fields = []
+        self.depths = []
         for i, layout in enumerate(self.layouts):
             require(layout['identity'] == i and layout['resource'] is True and
                     0 < len(layout['fields']) <= 16 and
@@ -44,14 +45,16 @@ class OwnedAnalyze(Analyze):
                     len(fields) == len(layout['fields']) and
                     all(pair[0] == tag for pair, tag in zip(fields, layout['fields'])),
                     'require complete exact resource field descriptors')
+            depth = 1
             for tag, child in fields:
                 if tag == 8:
-                    require(0 <= child < i and
-                            all(t in (INT, BOOL) for t in self.fields[child]),
-                            'require prior scalar-leaf children at depth two')
+                    require(0 <= child < i, 'require exact prior resource children')
+                    depth = max(depth, self.depths[child] + 1)
+                    require(depth <= 3, 'limit consuming resource layouts to depth three')
                 else:
                     require(tag in (INT, BOOL) and child == 4294967295,
                             'require exact scalar fields without child layout identities')
+            self.depths.append(depth)
             self.fields.append([owned_type(child) if tag == 8 else tag for tag, child in fields])
         self.declarations = self.fn['local_types']
         require(len(self.declarations) == self.fn['locals'] <= 128,
@@ -70,6 +73,7 @@ class OwnedAnalyze(Analyze):
                 'require exact value or borrowed parameter modes')
         self.borrowed = any(any(f.get('param_modes', [])) for f in module['functions'])
         if self.borrowed:
+            require(max(self.depths) <= 2, 'retain borrowed modules at depth two')
             require(len(module['functions']) == 2 and
                     module['functions'][0].get('param_modes', []) == [] and
                     module['functions'][1].get('param_modes') in ([1], [2]),
