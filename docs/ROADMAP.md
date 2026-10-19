@@ -15404,3 +15404,10 @@ My adjacent sole-use store fold passes the large carry/division cases. Its first
 My first 87-method scalar/binary64 gate exposes two more source-shape assertions requiring redundant argument/high-word temporaries, and a real U8 regression: inlining a byte literal removes the typed binding that supplies its exact tag at a call. I retain typed U8 temporaries, retain exactly-once call and high-word operation assertions without prescribing unused temporary names, and preserve the failed log. Three focused regression methods pass after these corrections. The two previously tracked computed-U8 source refusal assertions remain #1004 work; I do not report the full gate green.
 
 I retain [my local-pressure correction evidence](evidence/reconstruction-local-pressure-20261018/README.md): all 86 scoped scalar/binary64 methods pass in 412.667 seconds. I explicitly exclude only the separately tracked #1004 contextual-refusal method from this local optimization receipt; the repository gate remains complete and must pass after integration.
+
+### Native compiler qualification budgets (#976, 2026-10-18)
+
+- [x] I separate explicit host C compilation budgets in my OneIR and capture-scope harnesses from unchanged guest deadlines, retaining process-group termination and reaping.
+- [x] I exercise positive/invalid budgets, unchanged guest deadlines and real descendant cleanup, then qualify my actual sanitized capture fixture; I retain hosted timeout evidence and require refreshed Linux CI separately.
+
+I retain the focused receipts in [native compile budget evidence](evidence/native-compile-budget-20261018.md). Refreshed integrated Linux/Darwin hosted qualification remains open under #976.
