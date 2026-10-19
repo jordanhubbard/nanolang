@@ -16004,3 +16004,11 @@ I qualify all seven new call-pretest methods plus the updated original anchor, a
 - [ ] I reconcile [the complete known producer-family inventory](NANOISA_RECONSTRUCTION_REQUIRED_SCOPE_MAP.md) under required9538/10409: distinguish implemented slices, actual source gaps, unresolved wrapper/range mappings, deliberately bounded refusals and exact-candidate/platform gates. I retain string/FLOAT/helper-control/resource-local and owner-transition families explicitly rather than reducing full acceptance to the latest successful fixture. Full #999 remains open.
 
 - [x] I implement the reviewed exact v2 single-shared-path/total forward-helper-diamond slice on `fix/5.1-owned-shared-control`. The unchanged original anchor passes retained NanoVirt/Nano producers, original VM/native and both reconstructed routes; actual entry/helper locals101/5 and independent whole-tree shadow60/5 match the unchanged128 cap. Constant and BOOL helpers, both actual branches, ADD endpoints, original-verifier corruption and defensive initialization controls pass. Ordinary127/5 passes; producer-admitted135/5 remains an atomic Nano-output refusal. I retain [component evidence](evidence/owned-shared-control-20261019/README.md); five old-profile neighbors and exact prior-output equality pass; fresh integration/platform qualification remains separate. Full #999 stays open under the finite required-scope map.
+### Checked exclusive field-write contract ownership (#998)
+
+I record `workspace_repairs` contract-only ownership from `d67295b3d` in
+[NANOISA_CHECKED_FIELD_WRITE_FACTS.md](NANOISA_CHECKED_FIELD_WRITE_FACTS.md).
+Existing accepted exclusive assignments compute checked destination projections
+that current read/call records do not preserve. This completes the same row10407
+affine field-access obligation, without new CFG certificates or executable scope.
+I require interface review before production edits and keep all builds held.
