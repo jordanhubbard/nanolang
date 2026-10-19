@@ -15613,3 +15613,32 @@ I retain [my bounded nested-array receipt](evidence/nested-int-array-authority-2
 - [x] I use the existing explicit host-build budget for that full compiler product, preserving the 900-second default, guest deadlines, assertions and process-group cleanup; qualify budget selection and cleanup before aggregate product validation.
 
 - [ ] I run the actual full compiler product with pinned providers after the coordinator makes a worker slot available; my [budget receipt](evidence/one-ir-product-budget-20261019/README.md) does not claim that qualification yet.
+
+### I preserve imported global declaration context (#986)
+
+- [ ] I retain Linux qualification run39205176925's four fresh-stage failures:
+  two imported modules declare `answer` with distinct int/string types, yet the
+  first module's `read_answer` is checked against the second module's global.
+- [ ] I reproduce the declaring-context binding failure, repair the actual
+  lexical/module boundary, and retain the existing same-name/alias/shadow tests.
+- [ ] I qualify focused producers, dependency shadows, VM/native execution and
+  unchanged refusal/output-preservation controls, then require fresh stages and
+  exact platform qualification before closing #986.
+
+I reproduce all four hosted failures locally with retained Stage1/Stage2. The
+initializer pass calls the ordinary lexical-let checker and ignores its returned
+array, but `array_push` mutates the shared symbol environment. It therefore
+leaks each global's short spelling into every function's lexical lookup. I pass
+an explicit bound declaration name for global initializer publication, leaving
+ordinary lexical lets unchanged and retaining source AST names for diagnostics.
+
+My added initializer fixture first used unannotated public globals, which the C
+producer rejects as unknown declared constants. I retain that failed setup and
+use explicit int/string annotations to test the actual module-context contract;
+I do not broaden global inference support in this correction.
+
+- [x] I build the changed C-hosted Nano producer with dependency/root shadows and
+  pass all29 imported-global methods (9.666s), including both module orders and
+  initializer/lexical-shadow controls. [I retain exact evidence](evidence/imported-global-context-20261019/README.md).
+- [ ] I integrate the correction into fresh generations and exact Linux/Darwin
+  qualification before closing #986.

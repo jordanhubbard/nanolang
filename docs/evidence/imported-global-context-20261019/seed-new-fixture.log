@@ -1,0 +1,6 @@
+test_initializers_keep_owner_and_locals_keep_lexical_priority (tests.test_imported_globals.ImportedGlobals.test_initializers_keep_owner_and_locals_keep_lexical_priority) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.027s
+
+OK
