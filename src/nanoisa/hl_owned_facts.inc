@@ -57,14 +57,15 @@ static int owned_facts(const NvmModule *m) {
 
         if(!nvm_get_string(m,fn->name_idx) || !strcmp(nvm_get_string(m,fn->name_idx),"__init__") ||
            !nvm_affine_value_parameters(state,parameters,NVM_AFFINE_MAX_PARAMETERS,&count) || count!=fn->arity ||
-           !nvm_affine_value_result(state,&result,&fields) || fn->result_count!=1 ||
-           (result.tag!=TAG_INT && result.tag!=TAG_BOOL &&
+           !nvm_affine_value_result(state,&result,&fields) ||
+           fn->result_count!=(result.tag==TAG_VOID?0:1) ||
+           (result.tag!=TAG_VOID && result.tag!=TAG_INT && result.tag!=TAG_BOOL &&
             !(result.tag==TAG_STRUCT && result.layout<layouts.count && nvm_affine_type_is_owned(state,result))))goto done;
         for(uint16_t p=0;p<count;p++)
             if(parameters[p].tag!=TAG_INT && parameters[p].tag!=TAG_BOOL &&
                !(parameters[p].tag==TAG_STRUCT && parameters[p].layout<layouts.count && nvm_affine_type_is_owned(state,parameters[p])))goto done;
         if(function)putchar(',');
-        printf("{\"name\":\"owned_%u\",\"locals\":%u,\"result_type\":[%u,%u],\"result\":%u,\"params\":[",function,fn->local_count,result.tag,result.layout,result.tag);
+        printf("{\"name\":\"owned_%u\",\"locals\":%u,\"result_type\":[%u,%u],\"result\":%u,\"result_count\":%u,\"params\":[",function,fn->local_count,result.tag,result.layout,result.tag,fn->result_count);
         for(uint16_t p=0;p<count;p++){if(p)putchar(',');printf("[%u,%u]",parameters[p].tag,parameters[p].layout);}
         printf("],\"names\":[");
         for(uint16_t i=0;i<fn->local_count;i++){if(i){putchar(',');}printf("\"\"");}
