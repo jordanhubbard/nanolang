@@ -15867,3 +15867,9 @@ Run39224053627/job117966632441 times out after240minutes during Stage2 native co
 - I integrate the reviewed exact three-reference component `eb60641e8` as `90a15961c`, preserving the two-function original-verifier profile and all limits. Its twenty-eight distinct component methods passed; I add its suite to the regular owned reconstruction gate. Fresh aggregate Stage1/Stage2 qualification is queued behind the current checked-borrow native build, without concurrent compiler jobs.
 
 - I pass all twenty-eight aggregate multi-reference/shared/exclusive/extracted methods in 268.282 seconds through current NanoVirt and both fresh74a generations after rebuilding the facts provider. I retain 2259 commands and exact providers in `docs/evidence/owned-multi-reference-aggregate-20261019/`; full #999 and hosted qualification remain open.
+
+### Checked call-borrow place facts contract (#998)
+
+- [x] I record [my contract-only call-borrow event map](NANOISA_CHECKED_CALL_BORROW_FACTS.md) on `design/5.1-call-borrow-facts` from `8161bfc1f`. `workspace_repairs` owns this review; no schema, production or blocked primitive edits occur at this checkpoint.
+- [ ] I resolve owned snapshot lifetime, exact call-site/function identity, clone/reset/free behavior and the Nano generated-list ABI before implementing an independent advisory fact.
+- [ ] I preserve existing checked shared/exclusive call-place events through paired producers and transport, with raw/generic/stale UNKNOWN, refusal and allocation/lifetime controls; I require fresh generations/platform qualification and do not add branch-summary certificates.
