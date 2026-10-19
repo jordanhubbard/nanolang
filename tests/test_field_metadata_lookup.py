@@ -48,15 +48,19 @@ class FieldMetadataLookup(unittest.TestCase):
             generated = native_c.read_text()
             marker = "static nmap_t nmap_owned_new(uint8_t kind) {"
             self.assertEqual(generated.count(marker), 1)
-            generated = generated.replace(marker, "static size_t lookup_maps;\n" + marker +
+            generated = generated.replace(marker, "static size_t lookup_maps, initialization_maps;\n" + marker +
                                           "\n    ++lookup_maps;")
+            call = "    int result = (int)nl_main();"
+            self.assertEqual(generated.count(call), 1)
+            reset = "    initialization_maps = lookup_maps; lookup_maps = 0;\n"
+            generated = generated.replace(call, reset + call)
             entry = "int main(int argc, char **argv)"
             self.assertEqual(generated.count(entry), 1)
             generated = generated.replace(entry, "int original_main(int argc, char **argv)")
             generated += r'''
 int main(int argc, char **argv) {
     int result = original_main(argc, argv);
-    fprintf(stderr, "lookup_maps=%zu\n", lookup_maps);
+    fprintf(stderr, "initialization_maps=%zu lookup_maps=%zu\n", initialization_maps, lookup_maps);
     return result ? result : lookup_maps != 0;
 }
 '''
@@ -68,6 +72,15 @@ int main(int argc, char **argv) {
                               native_c, ROOT / "bin/nano_aot_runtime.o", "-lm", "-o", binary])
             result = self.run_checked([binary], env={**os.environ})
             self.assertIn("lookup_maps=0", result.stderr)
+            # I prove that excluding initialization does not hide a guest allocation.
+            native_c.write_text(generated.replace(reset, reset + "    (void)nmap_owned_new(1);\n"))
+            self.run_checked([cc, "-std=c11", "-O0", "-Wall", "-Wextra", "-Werror",
+                              "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                              native_c, ROOT / "bin/nano_aot_runtime.o", "-lm", "-o", binary])
+            rejected = subprocess.run([binary], cwd=ROOT, capture_output=True, text=True,
+                                      timeout=180, env={**os.environ})
+            self.assertEqual(rejected.returncode, 1, rejected.stdout + rejected.stderr)
+            self.assertIn("lookup_maps=1", rejected.stderr)
 
 
 if __name__ == "__main__":

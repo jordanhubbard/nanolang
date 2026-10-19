@@ -138,7 +138,7 @@ class MixedWebSocketProducts(unittest.TestCase):
         count=0
         for catalogs in [(3,1,2,3),(3,3,3,3,3)]:
             for host in ['127.0.0.1','localhost']:
-                source,_,flags,expected=graph(self.work,catalogs,url=f'ws://{host}:{port}/test',expected=77)
+                source,_,flags,expected=graph(self.work,catalogs,url=f'ws://{host}:{port}/?mode=test',expected=77)
                 if host=='localhost':flags+=['--allow-websocket-lookup','--websocket-resolver-helper',str(ROOT/'bin/nano-resolver')]
                 for driver in self.drivers:
                     wire=self.work/(driver.name+'.nvm');native=self.work/(driver.name+'.native')
