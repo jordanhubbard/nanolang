@@ -1,0 +1,32 @@
+{
+  "bin/nano_virt": {
+    "symlink": false,
+    "resolved": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+    "sha256": "04269be440ea6826fe401d1f9265c2cb012709a8bbed00cf3118a26556402731"
+  },
+  "bin/nanoc_u8_context": {
+    "symlink": false,
+    "resolved": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+    "sha256": "d7c3c1369042dfa16c8a54decdb7a96b5a43166ba2cee604f495f2302eb8977e"
+  },
+  "bin/nano_vm": {
+    "symlink": false,
+    "resolved": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+    "sha256": "843a6bdc2d1defcb5ba8c5af424c31f4dc64a2877293bdebd7aadb2a957726b6"
+  },
+  "bin/nanoisa": {
+    "symlink": false,
+    "resolved": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa",
+    "sha256": "66c5e8e6305adfd51ad1c9c2382cb397ae12d2eb1b368166cada603f42a1a27a"
+  },
+  "bin/nvm2c": {
+    "symlink": false,
+    "resolved": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+    "sha256": "fcf99a346801130aebd03b68b8c238c21c586100fd4e6c4e0b487e51c74bfdf4"
+  },
+  "bin/nano_aot_runtime.o": {
+    "symlink": false,
+    "resolved": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+    "sha256": "fd6fd0145d1de21cfeba2e8f7a0214029825becffda1ce5ff01ead2fbee046c9"
+  }
+}

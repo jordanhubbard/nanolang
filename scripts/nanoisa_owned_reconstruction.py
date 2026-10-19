@@ -72,13 +72,22 @@ class OwnedAnalyze(Analyze):
         require(len(self.modes) == len(self.params) and all(m in (0, 1, 2) for m in self.modes),
                 'require exact value or borrowed parameter modes')
         self.borrowed = any(any(f.get('param_modes', [])) for f in module['functions'])
+        version = module.get('ownership_version', 1)
+        require(version in (1, 2), 'require retained ownership version one or two')
+        self.paths = version == 2
+        if self.paths:
+            require(all('field_types' in layout for layout in self.layouts),
+                    'require complete exact path layout descriptors')
+            require(self.borrowed and len(module['functions']) == 2 and
+                    module['functions'][1].get('param_modes') == [2, 2, 1],
+                    'require the exact nested-path helper profile')
         if self.borrowed:
-            require(max(self.depths) <= 2, 'retain borrowed modules at depth two')
+            require(max(self.depths) <= (3 if self.paths else 2), 'retain nested borrowed modules at depth three' if self.paths else 'retain borrowed modules at depth two')
             require(len(module['functions']) == 2 and
                     module['functions'][0].get('param_modes', []) == [] and
-                    module['functions'][1].get('param_modes') in ([1], [2], [2, 1, 2]),
+                    module['functions'][1].get('param_modes') in (([2, 2, 1],) if self.paths else ([1], [2], [2, 1, 2])),
                     'require the separate entry-to-borrowed-helper profile')
-        self.multi = self.borrowed and module['functions'][1].get('param_modes') == [2, 1, 2]
+        self.multi = self.borrowed and len(module['functions'][1].get('param_modes', [])) == 3
         self.exclusive = self.borrowed and 2 in module['functions'][1].get('param_modes', [])
         self.helper = self.borrowed and index == 1
         if self.helper:
@@ -105,6 +114,20 @@ class OwnedAnalyze(Analyze):
                     all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) | ({'SUB', 'ASSERT'} if self.multi else set()) for ins in self.code),
                     'require a straight-line scalar borrowed helper')
         require(0 < len(self.code) <= 4096, 'require bounded function instructions')
+        self.path_table = {}
+        for instruction in self.code:
+            if instruction['op'] in ('BORROW_PATH_SHARED', 'BORROW_PATH_EXCLUSIVE'):
+                require(self.paths and len(instruction['args']) == 3,
+                        'require exact path borrow operands')
+                path_index = instruction['args'][2]
+                path = instruction.get('path_fields')
+                require(type(path_index) is int and 0 <= path_index < 256 and
+                        isinstance(path, list) and 1 <= len(path) <= 2 and
+                        all(type(field) is int and 0 <= field <= 65535 for field in path),
+                        'require a bounded exact numeric path')
+                require(path_index not in self.path_table or self.path_table[path_index] == tuple(path),
+                        'require consistent retained path identities')
+                self.path_table[path_index] = tuple(path)
         self.positions = {ins['pc']: n for n, ins in enumerate(self.code)}
         require(len(self.positions) == len(self.code), 'require unique instruction boundaries')
         self.positions[self.fn['size']] = len(self.code)
@@ -130,33 +153,72 @@ class OwnedAnalyze(Analyze):
             return 6
         return 4
 
+    def path_place(self, instruction):
+        require(len(instruction['args']) == 3, 'require exact path operands')
+        slot = instruction['args'][1]
+        layout = self.owner_local(slot)
+        path = self.path_table[instruction['args'][2]]
+        for field in path:
+            require(field < len(self.fields[layout]) and isinstance(self.fields[layout][field], tuple),
+                    'require an exact owned-child path step')
+            layout = self.fields[layout][field][1]
+        require(all(tag in (INT, BOOL) for tag in self.fields[layout]),
+                'require a scalar-leaf path endpoint')
+        return slot, path, layout
+
     def observation(self, i, end, stack, body, allow_call=True):
         if self.reference_region_length(i) == 6:
             require(allow_call and self.index == 0 and i + 5 < end,
                     'require a complete three-reference caller region')
-            require(len(self.code[i + 1]['args']) == 2, 'require an exact first reference operand pair')
+            require(len(self.code[i + 1]['args']) == (3 if self.paths else 2), 'require an exact first reference operand pair')
             base = self.code[i + 1]['args'][0]
             borrows = self.code[i + 1:i + 4]
             call, finish = self.code[i + 4:i + 6]
             require(call['args'] == [1, base] and finish['op'] == 'REGION_END' and not finish['args'] and not self.code[i]['args'],
                     'require exact three-reference call and region end')
-            slots = []
+            slots, places = [], []
             for parameter, borrow in enumerate(borrows):
                 mode = self.module['functions'][1]['param_modes'][parameter]
-                require(borrow['op'] == ('BORROW_LOCAL_SHARED' if mode == 1 else 'BORROW_LOCAL_EXCLUSIVE') and
-                        len(borrow['args']) == 2 and borrow['args'][0] == base + parameter,
+                opcode = ('BORROW_PATH_' if self.paths else 'BORROW_LOCAL_') + ('SHARED' if mode == 1 else 'EXCLUSIVE')
+                require(borrow['op'] == opcode and len(borrow['args']) == (3 if self.paths else 2) and
+                        borrow['args'][0] == base + parameter,
                         'require exact ordered reference modes')
-                slot = borrow['args'][1]
-                require(self.module['functions'][1]['params'][parameter] == [8, self.owner_local(slot)],
+                if self.paths:
+                    slot, path, layout = self.path_place(borrow)
+                    places.append(path)
+                else:
+                    slot, layout = borrow['args'][1], self.owner_local(borrow['args'][1])
+                require(self.module['functions'][1]['params'][parameter] == [8, layout],
                         'require exact positional borrowed nominal identity')
                 slots.append(slot)
-            require(len(set(slots)) == 3, 'require three distinct borrowed roots')
+            if self.paths:
+                require(len(set(slots)) == 1, 'require one live nested root')
+                require(all(left[:min(len(left), len(right))] != right[:min(len(left), len(right))]
+                            for n, left in enumerate(places) for right in places[n + 1:]),
+                        'require pairwise disjoint nested projections')
+            else:
+                require(len(set(slots)) == 3, 'require three distinct borrowed roots')
             for offset in range(1, 6):
                 self.touch(i + offset)
             target = Expr(self.module['functions'][1]['result'], 'temporary', call['pc'])
-            body.append(('multi_borrow_call', target, tuple(slots)))
+            body.append(('path_borrow_call', target, slots[0], tuple(places)) if self.paths else
+                        ('multi_borrow_call', target, tuple(slots)))
             stack.append(target)
             self.calls.add(1)
+            return
+        if self.paths and i + 3 < end and self.code[i + 1]['op'] == 'BORROW_PATH_SHARED':
+            borrow, read, finish = self.code[i + 1:i + 4]
+            require(read['op'] == 'REF_GET' and len(read['args']) == 2 and
+                    finish['op'] == 'REGION_END' and not finish['args'] and not self.code[i]['args'] and
+                    borrow['args'][0] == read['args'][0], 'require one complete shared path observation')
+            slot, path, layout = self.path_place(borrow)
+            field = read['args'][1]
+            require(0 <= field < len(self.fields[layout]), 'require an exact path scalar field')
+            target = Expr(self.fields[layout][field], 'temporary', read['pc'])
+            body.append(('path_read', target, slot, path, field))
+            stack.append(target)
+            for offset in range(1, 4):
+                self.touch(i + offset)
             return
         require(i + 3 < end, 'require a complete ephemeral read within its owned region')
         for offset in (1, 2, 3):
@@ -398,8 +460,15 @@ class OwnedEmit(Emit):
         self.layouts = layouts
         self.exclusive = any(isinstance(t, tuple) and t[0] == 'borrow' and len(t) == 3 and t[2] == 2
                              for fn in functions for t in fn.params)
-        self.multi = len(functions) == 2 and [t[2] if isinstance(t, tuple) and t[0] == 'borrow' else 0 for t in functions[1].params] == [2, 1, 2]
-        self.witness = self.multi_witness(functions) if self.multi else None
+        modes = [t[2] if isinstance(t, tuple) and t[0] == 'borrow' else 0 for t in functions[1].params] if len(functions) == 2 else []
+        self.paths = modes == [2, 2, 1]
+        self.multi = modes in ([2, 1, 2], [2, 2, 1])
+        self.witness = self.path_witness(functions, layouts) if self.paths else self.multi_witness(functions) if self.multi else None
+        if self.paths and language == 'nano':
+            from copy import deepcopy
+            self.functions = deepcopy(functions)
+            for function in self.functions:
+                function.body = self.fold_adjacent_assertions(function.body)
         self.inline_add = self.exclusive and language == 'nano'
         self.inline_sub = self.multi and language == 'nano'
         if self.inline_add:
@@ -416,11 +485,57 @@ class OwnedEmit(Emit):
                     else:
                         for child in node:
                             validate_inline(child)
-            for function in functions:
+            for function in self.functions:
                 validate_inline(function.body)
         self.fields = [[owned_type(child) if tag == 8 else tag
                         for tag, child in layout.get('field_types', [[t, 4294967295] for t in layout['fields']])]
                        for layout in layouts]
+
+    @staticmethod
+    def fold_adjacent_assertions(body):
+        # I count declarations and uses before one pass; shared snapshots stay explicit.
+        from collections import Counter
+        occurrences = Counter()
+        def count(node):
+            if isinstance(node, Expr):
+                occurrences[node] += 1
+                for child in node.args:
+                    count(child)
+            elif isinstance(node, (list, tuple)):
+                for child in node:
+                    count(child)
+        count(body)
+        def total(expr):
+            if not isinstance(expr, Expr) or expr.tag not in (INT, BOOL):
+                return False
+            if expr.kind in ('constant', 'local', 'temporary'):
+                return not expr.args
+            if expr.kind == 'not':
+                return expr.tag == BOOL and len(expr.args) == 1 and expr.args[0].tag == BOOL and total(expr.args[0])
+            if expr.kind == 'binary' and expr.value in ('==', '!=', '<', '<=', '>', '>='):
+                return (expr.tag == BOOL and len(expr.args) == 2 and expr.args[0].tag == expr.args[1].tag and
+                        all(total(child) for child in expr.args))
+            return False
+        def fold(statements):
+            result, i = [], 0
+            while i < len(statements):
+                stmt = statements[i]
+                if (stmt[0] == 'let' and isinstance(stmt[1], Expr) and stmt[1].kind == 'temporary' and
+                    stmt[1].tag == BOOL and stmt[2].tag == BOOL and total(stmt[2]) and occurrences[stmt[1]] == 2 and
+                    i + 1 < len(statements) and statements[i + 1] == ('assert', stmt[1])):
+                    result.append(('assert', stmt[2]))
+                    i += 2
+                    continue
+                if stmt[0] == 'if':
+                    stmt = (stmt[0], stmt[1], fold(stmt[2]), fold(stmt[3]))
+                elif stmt[0] == 'while':
+                    stmt = (stmt[0], stmt[1], fold(stmt[2]))
+                elif stmt[0] == 'while_observe':
+                    stmt = (stmt[0], stmt[1], fold(stmt[2]), fold(stmt[3]))
+                result.append(stmt)
+                i += 1
+            return result
+        return fold(body)
 
     @staticmethod
     def multi_witness(functions):
@@ -469,6 +584,120 @@ class OwnedEmit(Emit):
                         'require total straight-line witness helper statements')
         return witness
 
+    @staticmethod
+    def path_witness(functions, layouts):
+        values, owners = {}, {}
+        def literal(expr):
+            return expr if expr.kind == 'constant' and expr.tag in (INT, BOOL) else values.get(expr)
+        witness = None
+        for stmt in functions[0].body:
+            kind = stmt[0]
+            if kind == 'let':
+                values[stmt[1]] = literal(stmt[2])
+            elif kind == 'store':
+                values[Expr(stmt[2].tag, 'local', stmt[1])] = literal(stmt[2])
+            elif kind == 'own_pack':
+                vector = []
+                for descriptor, operand in zip(layouts[stmt[2]]['field_types'], stmt[3]):
+                    if descriptor[0] == 8:
+                        child = owners.pop(operand, None)
+                        require(child is not None and child[0] == descriptor[1],
+                                'require literal exact child snapshots')
+                        vector.append(child)
+                    else:
+                        vector.append(literal(operand))
+                owners[stmt[1]] = (stmt[2], tuple(vector)) if all(v is not None for v in vector) else None
+            elif kind == 'own_store':
+                owners[stmt[1]] = owners.pop(stmt[3], None)
+            elif kind == 'own_move':
+                owners[stmt[1]] = owners.pop(stmt[2], None)
+            elif kind == 'path_borrow_call':
+                tree = owners.get(stmt[2])
+                require(tree is not None, 'require the actual first-call literal tree snapshot')
+                leaves = []
+                for parameter, path in enumerate(stmt[3]):
+                    node = tree
+                    for field in path:
+                        require(isinstance(node, tuple) and field < len(node[1]), 'require a literal path witness')
+                        node = node[1][field]
+                    require(isinstance(node, tuple) and node[0] == functions[1].params[parameter][1],
+                            'require the exact witness leaf identity')
+                    leaves.append(node[1])
+                witness = (tree, stmt[3], tuple(leaves))
+                break
+            else:
+                require(False, 'require a straight-line literal tree witness prefix')
+        require(witness is not None, 'require an actual direct tree-call witness')
+        provenance = {}
+        for stmt in functions[1].body:
+            kind = stmt[0]
+            if kind == 'multi_borrow_read':
+                provenance[stmt[1]] = stmt[3] if stmt[2] == 2 and stmt[1].tag == BOOL else None
+            elif kind == 'let':
+                provenance[stmt[1]] = provenance.get(stmt[2])
+            elif kind == 'store':
+                provenance[Expr(stmt[2].tag, 'local', stmt[1])] = provenance.get(stmt[2])
+            elif kind == 'assert':
+                field = provenance.get(stmt[1])
+                require(field is not None and witness[2][2][field].tag == BOOL and witness[2][2][field].value is True,
+                        'require a true actual tree shared-BOOL assertion witness')
+            else:
+                require(kind in ('multi_borrow_write', 'return'), 'require total straight-line tree helper statements')
+        return witness
+
+    def path_shadow_function(self):
+        tree, paths, _ = self.witness
+        body, captures, results = [], [], []
+        slot_count, temporary_count = 0, 0
+        def temporary(tag):
+            nonlocal temporary_count
+            temporary_count += 1
+            return Expr(tag, 'temporary', f'shadow_{temporary_count}')
+        def store(value, layout):
+            nonlocal slot_count
+            slot = slot_count
+            slot_count += 1
+            body.append(('own_store', slot, layout, value))
+            return slot
+        def pack(node):
+            layout, vector = node
+            operands = tuple(pack(child) if isinstance(child, tuple) else child for child in vector)
+            target = temporary(owned_type(layout))
+            body.append(('own_pack', target, layout, operands))
+            return target
+        def consume(slot, node, output):
+            layout, vector = node
+            targets = tuple(temporary(owned_type(v[0]) if isinstance(v, tuple) else v.tag) for v in vector)
+            body.append(('own_unpack', slot, layout, targets))
+            for value, target in zip(vector, targets):
+                if isinstance(value, tuple):
+                    consume(store(target, value[0]), value, output)
+                else:
+                    output.append(target)
+        for _ in range(2):
+            root = store(pack(tree), tree[0])
+            result = temporary(self.functions[1].result)
+            body.append(('path_borrow_call', result, root, paths))
+            results.append(result)
+            fields = []
+            consume(root, tree, fields)
+            captures.append(fields)
+        body.append(('assert', Expr(BOOL, 'binary', '==', tuple(results))))
+        for left, right in zip(*captures):
+            body.append(('assert', Expr(BOOL, 'binary', '==', (left, right))))
+        return Function('tree_shadow', [], VOID, {}, [''] * slot_count, body)
+
+    def path_shadow(self):
+        function = self.path_shadow_function()
+        require(self.nano_local_cost(function) <= 128, 'limit generated tree shadow to 128 local slots')
+        saved_lines, saved_function = self.lines, self.function
+        self.lines, self.function = [], function
+        try:
+            self.statements(function.body)
+            return f'\nshadow {self.name(1)} {{\n' + '\n'.join(self.lines) + '\n}\n'
+        finally:
+            self.lines, self.function = saved_lines, saved_function
+
     def nano_local_cost(self, function):
         # My emitted subset allocates named lets, constructor staging and pattern slots.
         def statements_cost(body):
@@ -478,7 +707,7 @@ class OwnedEmit(Emit):
                 if kind == 'let':
                     value = stmt[2]
                     total += 7 if value.kind == 'arithmetic' and value.value in ({'add', 'sub'} if self.inline_sub else {'add'}) else 1
-                elif kind in ('borrow_read', 'borrow_call', 'multi_borrow_read', 'multi_borrow_call', 'own_store', 'own_move', 'own_read'):
+                elif kind in ('borrow_read', 'borrow_call', 'multi_borrow_read', 'multi_borrow_call', 'path_read', 'path_borrow_call', 'own_store', 'own_move', 'own_read'):
                     total += 1
                 elif kind == 'own_pack':
                     total += 1 + len(stmt[3])
@@ -575,6 +804,17 @@ class OwnedEmit(Emit):
                 self.inline_add_statement(stmt[1], stmt[2], indent)
             elif kind == 'let' and self.inline_sub and stmt[2].kind == 'arithmetic' and stmt[2].value == 'sub':
                 self.inline_sub_statement(stmt[1], stmt[2], indent)
+            elif kind in ('path_read', 'path_borrow_call'):
+                target, root = stmt[1], self.local(stmt[2])
+                if kind == 'path_read':
+                    value = root + ''.join(f'.f{field}' for field in stmt[3]) + f'.f{stmt[4]}'
+                else:
+                    places = [root + ''.join(f'.f{field}' for field in path) for path in stmt[3]]
+                    value = f'{self.name(1)}(' + ', '.join('&' + place for place in places) + ')' if c else f'({self.name(1)} ' + ' '.join(('&mut ' if parameter != 2 else '&') + place for parameter, place in enumerate(places)) + ')'
+                self.line(f'{self.type(target.tag)} {self.expression(target)} = {value};' if c else
+                          f'let {self.expression(target)}: {self.type(target.tag)} = {value}', indent)
+                if c:
+                    self.line(f'(void){self.expression(target)};', indent)
             elif kind == 'multi_borrow_write':
                 _, slot, field, value = stmt
                 self.line(f'nlr_a{slot}->f{field} = {self.expression(value)};' if c else
@@ -719,7 +959,9 @@ class OwnedEmit(Emit):
             values = ['0' if tag == INT else 'false' for tag in fields]
             entries = ', '.join(f'f{i}: {value}' for i, value in enumerate(values))
             names = ', '.join(f'f{i}' for i in range(len(fields)))
-            if self.multi:
+            if self.paths:
+                body += self.path_shadow()
+            elif self.multi:
                 body += self.multi_shadow()
             elif self.exclusive:
                 body += f'\nshadow {self.name(1)} {{\n'

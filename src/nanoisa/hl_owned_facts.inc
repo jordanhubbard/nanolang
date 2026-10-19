@@ -7,7 +7,7 @@ static int owned_facts(const NvmModule *m) {
     VmDecodedFunction code={0};char error[VM_DECODE_ERROR_SIZE];
     bool ok=false;uint32_t total=0;uint8_t depths[16]={0};
     if(m->ownership_size<4 || !m->ownership_data ||
-       m->ownership_data[0]!=NVM_OWNERSHIP_VERSION || m->ownership_data[1] ||
+       (m->ownership_data[0]!=NVM_OWNERSHIP_VERSION && m->ownership_data[0]!=NVM_OWNERSHIP_PATH_VERSION) || m->ownership_data[1] ||
        m->ownership_data[2] || m->ownership_data[3] || !m->function_count || m->function_count>NVM_OWNED_MAX_FUNCTIONS || m->header.entry_point!=0 || m->import_count ||
        m->module_ref_count || m->passive_size || m->union_count || m->enum_count ||
        !nvm_get_string(m,m->functions[0].name_idx) ||
@@ -37,9 +37,12 @@ static int owned_facts(const NvmModule *m) {
         }
     }
     bool borrowed=!nvm_affine_value_call_graph(m);
+    bool paths=m->ownership_data[0]==NVM_OWNERSHIP_PATH_VERSION;
+    if(paths && (!borrowed || m->function_count!=2 || m->functions[1].arity!=3))goto done;
     if(borrowed && (m->function_count!=2 || (m->functions[1].arity!=1 && m->functions[1].arity!=3)))goto done;
-    if(borrowed)for(uint32_t i=0;i<layouts.count;i++)if(depths[i]>2)goto done;
-    printf("{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[");
+    if(borrowed)for(uint32_t i=0;i<layouts.count;i++)if(depths[i]>(paths?3:2))goto done;
+    if(paths)printf("{\"profile\":\"owned-local-v1\",\"entry\":0,\"ownership_version\":2,\"layouts\":[");
+    else printf("{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[");
     for(uint32_t i=0;i<layouts.count;i++) {
         if(i){putchar(',');}printf("{\"identity\":%u,\"resource\":true,\"fields\":[",i);
         for(uint16_t f=0;f<layouts.items[i].field_count;f++) {
@@ -76,7 +79,7 @@ static int owned_facts(const NvmModule *m) {
             for(uint16_t p=0;p<count;p++) {
                 if(!nvm_affine_parameter_at(state,p,&parameters[p],&modes[p]) ||
                    (count==1 ? (modes[p]!=NVM_REFERENCE_SHARED && modes[p]!=NVM_REFERENCE_EXCLUSIVE) :
-                    modes[p]!=(p==1?NVM_REFERENCE_SHARED:NVM_REFERENCE_EXCLUSIVE)))goto done;
+                    modes[p]!=(p==(paths?2:1)?NVM_REFERENCE_SHARED:NVM_REFERENCE_EXCLUSIVE)))goto done;
                 if(parameters[p].tag!=TAG_STRUCT || parameters[p].layout>=layouts.count)goto done;
                 const NvmV2Layout *leaf=&layouts.items[parameters[p].layout];
                 for(uint16_t field=0;field<leaf->field_count;field++)
@@ -119,8 +122,17 @@ static int owned_facts(const NvmModule *m) {
             }
             if(i){putchar(',');}printf("{\"pc\":%u,\"op\":\"%s\",\"arg\":%" PRId64 ",\"args\":[",di->byte_offset,isa_get_info(in->opcode)->name,args[0]);
             for(uint8_t a=0;a<in->operand_count && a<4;a++){if(a)putchar(',');printf("%" PRId64,args[a]);}
-            printf("],\"target\":%u}", di->resolved_target==UINT32_MAX ? UINT32_MAX :
+            printf("],\"target\":%u", di->resolved_target==UINT32_MAX ? UINT32_MAX :
                 di->resolved_target-fn->code_offset);
+            if(in->opcode==OP_BORROW_PATH_SHARED || in->opcode==OP_BORROW_PATH_EXCLUSIVE) {
+                uint16_t path[NVM_OWNERSHIP_MAX_PATH_DEPTH],length=0;
+                if(!paths || nvm_ownership_path(m,in->operands[2].u32,path,NVM_OWNERSHIP_MAX_PATH_DEPTH,&length)!=NVM_V2_OK ||
+                   !length || length>2)goto done;
+                printf(",\"path_fields\":[");
+                for(uint16_t p=0;p<length;p++){if(p)putchar(',');printf("%u",path[p]);}
+                putchar(']');
+            }
+            putchar('}');
         }
         printf("]}");
         vm_decoded_function_free(&code);nvm_affine_state_free(state);state=NULL;

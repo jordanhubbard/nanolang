@@ -1,0 +1,67 @@
+[
+  {
+    "temporary": "nlr_t205",
+    "expression": "(== nlr_t188 -14)",
+    "occurrences": 2
+  },
+  {
+    "temporary": "nlr_t232",
+    "expression": "(== nlr_t217 13)",
+    "occurrences": 2
+  },
+  {
+    "temporary": "nlr_t259",
+    "expression": "(== nlr_t244 27)",
+    "occurrences": 2
+  },
+  {
+    "temporary": "nlr_t306",
+    "expression": "(== nlr_t289 20)",
+    "occurrences": 2
+  },
+  {
+    "temporary": "nlr_t333",
+    "expression": "(== nlr_t318 10)",
+    "occurrences": 2
+  },
+  {
+    "temporary": "nlr_t360",
+    "expression": "(== nlr_t345 30)",
+    "occurrences": 2
+  },
+  {
+    "temporary": "nlr_t410",
+    "expression": "(== nlr_t398 7)",
+    "occurrences": 2
+  },
+  {
+    "temporary": "nlr_t487",
+    "expression": "(== nlr_t475 10)",
+    "occurrences": 2
+  },
+  {
+    "temporary": "nlr_t489",
+    "expression": "nlr_l30",
+    "occurrences": 2
+  },
+  {
+    "temporary": "nlr_t541",
+    "expression": "(== nlr_t529 30)",
+    "occurrences": 2
+  },
+  {
+    "temporary": "nlr_t546",
+    "expression": "(not nlr_t543)",
+    "occurrences": 2
+  },
+  {
+    "temporary": "nlr_t596",
+    "expression": "(== nlr_t584 3)",
+    "occurrences": 2
+  },
+  {
+    "temporary": "nlr_t598",
+    "expression": "nlr_l36",
+    "occurrences": 2
+  }
+]

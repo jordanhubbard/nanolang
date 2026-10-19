@@ -1,0 +1,35 @@
+resource struct Left { value: int, active: bool }
+resource struct Right { value: int, active: bool, stamp: int }
+resource struct Last { value: int }
+fn adjust(first: &mut Left, middle: &Right, last: &mut Last) -> int {
+ set first.value (+ first.value middle.value)
+ set last.value (- last.value middle.value)
+ assert middle.active
+ return (+ first.value last.value)
+}
+shadow adjust {
+ let mut one: Left = Left { value: -9223372036854775807, active: false }
+ let middle_owner: Right = Right { value: -1, active: true, stamp: 41 }
+ let mut three: Last = Last { value: 9223372036854775807 }
+ assert (== (adjust &mut one &middle_owner &mut three) 0)
+ assert (== one.value (+ -9223372036854775807 -1)) assert (== three.value (+ -9223372036854775807 -1))
+ assert (== (adjust &mut one &middle_owner &mut three) 0)
+ assert (== one.value 9223372036854775807) assert (== three.value -9223372036854775807)
+ let Left { value, active } = one assert (== value 9223372036854775807) assert (not active)
+ let Last { value } = three assert (== value -9223372036854775807)
+ let Right { value, active, stamp } = middle_owner assert (== value -1) assert active assert (== stamp 41)
+}
+fn main() -> int {
+ let mut one: Left = Left { value: -9223372036854775807, active: false }
+ let middle_owner: Right = Right { value: -1, active: true, stamp: 41 }
+ let mut three: Last = Last { value: 9223372036854775807 }
+ assert (== (adjust &mut one &middle_owner &mut three) 0)
+ assert (== one.value (+ -9223372036854775807 -1)) assert (== three.value (+ -9223372036854775807 -1))
+ assert (== (adjust &mut one &middle_owner &mut three) 0)
+ assert (== one.value 9223372036854775807) assert (== three.value -9223372036854775807)
+ let Left { value, active } = one assert (== value 9223372036854775807) assert (not active)
+ let Last { value } = three assert (== value -9223372036854775807)
+ let Right { value, active, stamp } = middle_owner assert (== value -1) assert active assert (== stamp 41)
+ return 0
+}
+shadow main { assert true }

@@ -1,0 +1,13 @@
+{
+  "bin/nano_virt": "04269be440ea6826fe401d1f9265c2cb012709a8bbed00cf3118a26556402731",
+  "bin/nanoc_u8_context": "d7c3c1369042dfa16c8a54decdb7a96b5a43166ba2cee604f495f2302eb8977e",
+  "bin/nano_vm": "843a6bdc2d1defcb5ba8c5af424c31f4dc64a2877293bdebd7aadb2a957726b6",
+  "bin/nanoisa": "66c5e8e6305adfd51ad1c9c2382cb397ae12d2eb1b368166cada603f42a1a27a",
+  "bin/nvm2c": "fcf99a346801130aebd03b68b8c238c21c586100fd4e6c4e0b487e51c74bfdf4",
+  "bin/nanoisa_hl_facts": "c193853213ea6b02fe6542864d57a7ab2db5bc8300d7081bc61c5e4ff6c31ab6",
+  "bin/nano_aot_runtime.o": "fd6fd0145d1de21cfeba2e8f7a0214029825becffda1ce5ff01ead2fbee046c9",
+  "scripts/nanoisa_owned_reconstruction.py": "6376725d419bfda2bd58faee5bc2c507da44dbacc884252f2b6e1f94bf30bd3b",
+  "src/nanoisa/hl_owned_facts.inc": "2b3f5d72162ed641b8ea4abc58a064b93d1f8a14a4a8abda830e827560f1562c",
+  "tests/test_owned_nested_path_reconstruction.py": "75d8933621c348dddc7576b940904a487c67989909a63cd6597a9e53c498e094",
+  "tests/nanoisa/fixtures/source_borrow_nested.nano": "0ab55fc7236677d2b8ded58117668144b9d460e6d912c66d790932ecf6e1652c"
+}
