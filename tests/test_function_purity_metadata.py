@@ -69,9 +69,20 @@ class FunctionPurityMetadata(unittest.TestCase):
                     forged = lines.copy()
                     forged_entry = next((entry for entry in entries if strings[int(entry.split()[2])][4] == 0), entries[0])
                     value_index = int(forged_entry.split()[2])
-                    string_line = [i for i, line in enumerate(lines) if line.startswith('.string ')][value_index]
                     value = bytearray(strings[value_index]); value[4] ^= 1
-                    forged[string_line] = '.string "' + ''.join(f'\\x{b:02x}' for b in value) + '"'
+                    # I preserve string indices when my forged value deduplicates
+                    # against another advisory record for the same function.
+                    value = bytes(value)
+                    if value in strings:
+                        replacement = strings.index(value)
+                    else:
+                        replacement = len(strings)
+                        first_metadata = next(i for i, line in enumerate(forged)
+                                              if line.startswith('.metadata '))
+                        forged.insert(first_metadata, '.string "' + ''.join(
+                            f'\\x{b:02x}' for b in value) + '"')
+                    forged[forged.index(forged_entry)] = (
+                        f'.metadata {forged_entry.split()[1]} {replacement}')
                     alternatives = [stripped, lines + [entries[0]], forged,
                         [line.replace('nano.purity.v1', 'nano.purity.v2') if line == '.string "nano.purity.v1"' else line for line in lines]]
                     for alternate in alternatives:

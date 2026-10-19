@@ -6763,7 +6763,8 @@ struct PurityContext {
     names: array<string>,
     mutable: array<bool>,
     seen: array<bool>,
-    globals: array<Symbol>
+    globals: array<Symbol>,
+    budget: array<int>
 }
 
 fn purity_join(a: int, b: int) -> int {
@@ -6790,7 +6791,7 @@ fn purity_local(context: PurityContext, name: string, count: int) -> int {
     return -1
 }
 shadow purity_local {
-    let c: PurityContext = PurityContext { names: ["x", "x"], mutable: [false, true], seen: [], globals: [] }
+    let c: PurityContext = PurityContext { names: ["x", "x"], mutable: [false, true], seen: [], globals: [], budget: [] }
     assert (== (purity_local c "x" 2) 1)
     assert (== (purity_local c "x" 1) 0)
     assert (== (purity_local c "y" 2) -1)
@@ -6803,7 +6804,7 @@ fn purity_add(context: PurityContext, name: string, mutable: bool, count: int) -
     (array_set flags count mutable)
 }
 shadow purity_add {
-    let c: PurityContext = PurityContext { names: [""], mutable: [false], seen: [], globals: [] }
+    let c: PurityContext = PurityContext { names: [""], mutable: [false], seen: [], globals: [], budget: [] }
     (purity_add c "first" false 0)
     (purity_add c "second" true 0)
     assert (== (array_length c.names) 1)
@@ -6904,7 +6905,7 @@ fn purity_identifier(parser: Parser, context: PurityContext, name: string, count
 }
 shadow purity_identifier {
     let p: Parser = (parser_new (list_LexerToken_new) 0 "purity.nano")
-    let c: PurityContext = PurityContext { names: ["x"], mutable: [true], seen: [], globals: [] }
+    let c: PurityContext = PurityContext { names: ["x"], mutable: [true], seen: [], globals: [], budget: [] }
     assert (== (purity_identifier p c "x" 1) 2)
     assert (== (purity_identifier p c "absent" 1) 8)
     let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
@@ -6930,13 +6931,18 @@ fn purity_call(parser: Parser, context: PurityContext, name: string, count: int)
 }
 shadow purity_call {
     let p: Parser = (parser_new (list_LexerToken_new) 0 "purity.nano")
-    let c: PurityContext = PurityContext { names: ["abs"], mutable: [false], seen: [], globals: [] }
+    let c: PurityContext = PurityContext { names: ["abs"], mutable: [false], seen: [], globals: [], budget: [] }
     assert (== (purity_call p c "abs" 0) 0)
     assert (== (purity_call p c "abs" 1) 8)
     assert (== (purity_call p c "println" 0) 1)
 }
 
 fn purity_node(parser: Parser, id: int, kind: int, context: PurityContext, count: int) -> int {
+    if (> (array_length context.budget) 0) {
+        let remaining: int = (at context.budget 0)
+        if (<= remaining 0) { return 8 }
+        (array_set context.budget 0 (- remaining 1))
+    }
     if (< id 0) { return 0 }
     if (or (or (== kind ParseNodeType.PNODE_NUMBER) (== kind ParseNodeType.PNODE_FLOAT)) (or (== kind ParseNodeType.PNODE_STRING) (== kind ParseNodeType.PNODE_BOOL))) { return 0 }
     if (== kind ParseNodeType.PNODE_IDENTIFIER) {
@@ -7092,17 +7098,17 @@ fn purity_node(parser: Parser, id: int, kind: int, context: PurityContext, count
 }
 shadow purity_node {
     let p: Parser = (parser_new (list_LexerToken_new) 0 "purity.nano")
-    let c: PurityContext = PurityContext { names: [], mutable: [], seen: [], globals: [] }
+    let c: PurityContext = PurityContext { names: [], mutable: [], seen: [], globals: [], budget: [] }
     assert (== (purity_node p -1 ParseNodeType.PNODE_BLOCK c 0) 0)
     assert (== (purity_node p 0 ParseNodeType.PNODE_UNSAFE_BLOCK c 0) 24)
     assert (== (purity_node p 0 ParseNodeType.PNODE_WHILE c 0) 8)
     let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
     let tokens: List<LexerToken> = (tokenize_string "union Choice { Number { value: int }, Empty {} } fn f(choice: Choice) -> int { return match choice { Number(n) => n.value Empty(_e) => 0 } }" "purity.nano" diagnostics)
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "purity.nano")
-    let match_context: PurityContext = PurityContext { names: ["choice", ""], mutable: [false, false], seen: [false], globals: [] }
+    let match_context: PurityContext = PurityContext { names: ["choice", ""], mutable: [false, false], seen: [false], globals: [], budget: [] }
     assert (== (purity_node parsed 0 ParseNodeType.PNODE_MATCH match_context 1) 0)
     let guarded: Parser = (resource_test_parser "union Choice { Number { value: int }, Empty {} } fn f(choice: Choice, flag: bool) -> int { return match choice { Number(n) if flag => n.value Number(n) => 0 Empty(e) => 0 } } fn g(choice: Choice) -> int { return match choice { Number(n) if (== n.value 1) => n.value Number(n) => 0 Empty(e) => 0 } }")
-    let context: PurityContext = PurityContext { names: ["choice", "flag", ""], mutable: [false, true, false], seen: [false, false], globals: [] }
+    let context: PurityContext = PurityContext { names: ["choice", "flag", ""], mutable: [false, true, false], seen: [false, false], globals: [], budget: [] }
     assert (== (purity_node guarded 0 ParseNodeType.PNODE_MATCH context 2) 2)
     assert (== (purity_node guarded 1 ParseNodeType.PNODE_MATCH context 2) 0)
 }
@@ -7128,7 +7134,7 @@ fn purity_function(parser: Parser, parent: PurityContext, index: int) -> int {
         set flags (array_push flags false)
         set slot (+ slot 1)
     }
-    let context: PurityContext = PurityContext { names: names, mutable: flags, seen: parent.seen, globals: parent.globals }
+    let context: PurityContext = PurityContext { names: names, mutable: flags, seen: parent.seen, globals: parent.globals, budget: parent.budget }
     let mut result: int = (purity_type parser f.return_type)
     let mut i: int = 0
     while (< i f.param_count) {
@@ -7144,7 +7150,7 @@ shadow purity_function {
     let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
     let tokens: List<LexerToken> = (tokenize_string "fn f(x: int) -> int { return (+ x 1) }" "purity.nano" diagnostics)
     let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "purity.nano")
-    let c: PurityContext = PurityContext { names: [], mutable: [], seen: [false], globals: [] }
+    let c: PurityContext = PurityContext { names: [], mutable: [], seen: [false], globals: [], budget: [] }
     assert (== (purity_function p c 0) 0)
     assert (at c.seen 0)
 }
@@ -7153,7 +7159,7 @@ fn purity_summary(parser: Parser, index: int, globals: array<Symbol>) -> int {
     let mut seen: array<bool> = []
     let mut i: int = 0
     while (< i parser.functions_count) { set seen (array_push seen false) set i (+ i 1) }
-    let context: PurityContext = PurityContext { names: [], mutable: [], seen: seen, globals: globals }
+    let context: PurityContext = PurityContext { names: [], mutable: [], seen: seen, globals: globals, budget: [] }
     return (purity_function parser context index)
 }
 shadow purity_summary {
@@ -7161,6 +7167,43 @@ shadow purity_summary {
     let tokens: List<LexerToken> = (tokenize_string "fn f() -> int { return (g) } fn g() -> int { (println 1) return (f) }" "purity.nano" diagnostics)
     let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "purity.nano")
     assert (== (purity_summary p 0 []) 1)
+}
+
+# I reuse checked-body analysis for small ordinary functions. Missing global
+# symbol context stays unknown; I never infer a closed result from annotations.
+# My empty budget array leaves existing declared-pure validation unchanged.
+pub fn frontend_advisory_effects(parser: Parser, function: ASTFunction) -> int {
+    let mut bodies: int = 0
+    let mut target: int = -1
+    let mut i: int = 0
+    while (< i parser.functions_count) {
+        let candidate: ASTFunction = (parser_get_function parser i)
+        if (>= candidate.body 0) { set bodies (+ bodies 1) }
+        if (> bodies 64) { return 8 }
+        if (and (== candidate.name function.name) (== candidate.body function.body)) { set target i }
+        set i (+ i 1)
+    }
+    if (< target 0) { return 8 }
+    let mut slots: int = parser.lets_count
+    set i 0
+    while (< i (parser_get_match_count parser)) {
+        set slots (+ slots (parser_get_match parser i).arm_count)
+        if (> slots 4096) { return 8 }
+        set i (+ i 1)
+    }
+    if (> slots 4096) { return 8 }
+    let mut seen: array<bool> = []
+    set i 0
+    while (< i parser.functions_count) { set seen (array_push seen false) set i (+ i 1) }
+    let context: PurityContext = PurityContext { names: [], mutable: [], seen: seen, globals: [], budget: [4096] }
+    return (purity_function parser context target)
+}
+shadow frontend_advisory_effects {
+    let p: Parser = (resource_test_parser "fn plus(x: int) -> int { return (+ x 1) } fn noisy() -> int { (println 1) return (plus 1) }")
+    assert (== (frontend_advisory_effects p (parser_get_function p 0)) 0)
+    assert (== (frontend_advisory_effects p (parser_get_function p 1)) 1)
+    let context: PurityContext = PurityContext { names: [], mutable: [], seen: [false, false], globals: [], budget: [0] }
+    assert (== (purity_function p context 0) 8)
 }
 
 # I follow stored values, not the types behind pointers or callback signatures.

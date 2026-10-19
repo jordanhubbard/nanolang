@@ -6864,3 +6864,8 @@ test-effect-array-producer: nano_virt $(OBJ_DIR)/nanovirt/codegen_effect_arrays.
 	python3 -m unittest -v tests.test_effect_array_producer
 
 test-units: test-effect-array-producer
+
+.PHONY: test-function-effects-metadata
+test-units: test-function-effects-metadata
+test-function-effects-metadata: nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_function_effects_metadata

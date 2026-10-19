@@ -1,3 +1,4 @@
+from "src_nano/typecheck.nano" import frontend_advisory_effects
 from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
 import "src_nano/compiler/generic_types.nano"
 from "src_nano/compiler/function_signature.nano" import function_type_parts
@@ -7290,6 +7291,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         }
         if func.is_pure { set header (+ header ".function_purity 1\n") }
         else { set header (+ header ".function_purity 0\n") }
+        set header (+ header (+ ".function_effects " (+ (int_to_string (frontend_advisory_effects parser func)) "\n")))
         if (>= nisa_generic_active 0) {
             let instance: NisaGeneric = (at nisa_generics nisa_generic_active)
             if (== func.name instance.name) {

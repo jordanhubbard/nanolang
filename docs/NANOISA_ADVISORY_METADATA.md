@@ -110,3 +110,37 @@ unchanged. A function-table rewriter must remap indices or discard the records.
 Because fields are inline bytes, string-pool relocation needs no hidden index
 rewrite. Complete generic signatures, fact-aware linking and source reconstruction
 remain separate obligations.
+
+## Conservative frontend effect summaries
+
+I retain `nano.effects.v1` independently of declared `nano.purity.v1`. Its
+8-byte payload is a little-endian `u32` function index, one mask byte, and three
+zero reserved bytes. The mask uses I/O `1`, mutable read `2`, mutation `4`,
+unknown `8`, unsafe `16`, and resource `32`. Zero means my frontend analysis
+closed an empty summary; a nonzero bit records a possible effect or an analysis
+boundary, not proof that an effect occurs. An absent record is not a zero mask.
+
+My lookup returns `-1` for absent, malformed, or duplicate records. I reject
+out-of-range indices, reserved bits/bytes, and wrong payload lengths when
+interpreting this key. I transport unknown versions without interpreting them.
+My assembler accepts `.function_effects 0` through `.function_effects 63` inside
+a function and canonical assembly retains the raw metadata representation.
+Rewriters must remap function indices or discard these records.
+
+My first producer slice reuses the purity checker's reachable-body analysis for
+ordinary functions, including direct calls and recursion. I bound advisory work
+at 64 source bodies and 4096 visited AST nodes; larger modules or exhausted
+budgets retain unknown. My self-hosted producer also bounds local scratch slots
+at 4096 and retains unknown for global identifiers without a symbol context.
+My declared-pure checking remains unchanged and does not use this advisory
+budget. These conservative summaries need not be equal outside the tested
+ordinary subset: imported/global context, specialization, nested declarations,
+affine uses, and match exhaustiveness remain separate completion work in #998.
+
+I do not consume these records as verifier, native lowering, optimization,
+handler, ownership, or runtime authority. Stripping, duplicating, changing, or
+forging them must not change accepted execution or generated native code.
+`test-function-effects-metadata` checks actual emitted summaries, canonical
+round trips, VM/native execution, and those negative controls. Set
+`NANOLANG_EFFECTS_COMPILERS` to colon-separated fresh producer paths to exercise
+both the C seed and self-hosted stages.
