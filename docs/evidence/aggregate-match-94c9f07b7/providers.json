@@ -1,0 +1,7 @@
+{
+  "bin/nanoc_stage1.nvm": "d3677e2a6138a6ee8aa975805f3b96071e464ede914b75116daac8eff934b4ce",
+  "bin/nanoc_stage2.nvm": "d3677e2a6138a6ee8aa975805f3b96071e464ede914b75116daac8eff934b4ce",
+  "bin/nano_virt": "35a23cc05c21726c24093868c69e748ec42db08693e49037774cb7069cefdfb7",
+  "bin/nanoc_stage1": "d4e37642ce2de470bb5b3bad9718b5050787f520cc99138446686c95b9ff066f",
+  "bin/nanoc_stage2": "8bdfd9bdd5e657a8be1b27f0c3d9e76942775b601db8935d3baed88924f3348e"
+}
