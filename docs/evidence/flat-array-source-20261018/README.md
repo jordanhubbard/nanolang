@@ -9,3 +9,5 @@ The initial transitive module build fails to find nanoisa.h; explicit module inc
 I preserve the baseline C/selfhost difference for a zero-local array-return function with no array fields: C keeps identical existing v1 coarse-result facts and Nano keeps omission. I do not change unrelated behavior to force metadata parity.
 
 These Nano executables are C-hosted builds, not fresh raw Stage1/Stage2. New source-wrapper allocation-failure prefixes and exact combined Linux/Darwin/bootstrap qualification remain open. Existing consumer allocation tests do not establish those wrapper paths. Logs scrub local paths; raw hashes identify retained private originals. No full bootstrap ran here.
+
+My later [source-wrapper allocation receipt](../flat-array-publication-allocations-20261018/README.md) qualifies the bounded C/query paths and corrects a reproduced assembler buffer-growth failure. The original checkpoint above remains historical; fresh generations/platforms and generic authority qualification remain separate.
