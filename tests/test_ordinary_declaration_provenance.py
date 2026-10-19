@@ -1,4 +1,4 @@
-"""I retain declaration identity while keeping imported authority unpublished."""
+"""I qualify checked ordinary declarations without guessing nominal identity."""
 from pathlib import Path
 import os
 import re
@@ -19,16 +19,26 @@ class OrdinaryDeclarationProvenance(unittest.TestCase):
         return result.stdout
 
     def check(self, source, modules=None, fields=None):
+        for compiler in os.environ.get('NANO_ORDINARY_COMPILERS', 'nano_virt').split(','):
+            with self.subTest(compiler=compiler):
+                self.check_compiler(compiler, source, modules, fields)
+
+    def check_compiler(self, compiler, source, modules, fields):
         with tempfile.TemporaryDirectory(prefix='nano-declaration-provenance-') as directory:
             work = Path(directory)
             for name, text in (modules or {}).items():
                 (work/name).write_text(text)
             program, module = work/'main.nano', work/'main.nvm'
             program.write_text(source)
-            self.command(ROOT/'bin/nano_virt', program, '--emit-nvm', '-o', module)
+            self.command(ROOT/'bin'/compiler, program, '--emit-nvm', '-o', module)
             self.command(ROOT/'bin/nano_vm', '--verify-only', module)
             self.command(ROOT/'bin/nano_vm', module)
             dump = self.command(ROOT/'bin/nanoisa', 'dump', module)
+            assembly, roundtrip = work/'roundtrip.nasm', work/'roundtrip.nvm'
+            assembly.write_text(dump)
+            self.command(ROOT/'bin/nanoisa', 'asm', assembly, '-o', roundtrip)
+            self.command(ROOT/'bin/nano_vm', '--verify-only', roundtrip)
+            self.assertEqual(self.command(ROOT/'bin/nanoisa', 'dump', roundtrip), dump)
             raw = lambda key: bytes.fromhex(''.join(re.findall(
                 r'^\.' + key + r' "([0-9a-f]*)"$', dump, re.M)))
             layouts, authority = raw('layouts'), raw('ownership')
@@ -70,7 +80,7 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''', fields=[[(8, 1), (8, 2)], [(1, 0xffffffff)], [(1, 0xffffffff)]])
 
-    def test_repeated_direct_and_transitive_import_stays_unknown(self):
+    def test_repeated_direct_and_transitive_import_retains_authority(self):
         self.check('''module "leaf.nano" as leaf
 module "relay.nano" as relay
 fn main() -> int { assert (== (leaf.value) 7) assert (== (relay.value) 7) return 0 }
@@ -83,9 +93,9 @@ shadow value { assert (== (value) 7) }
 module "leaf.nano" as leaf
 pub fn value() -> int { return (leaf.value) }
 shadow value { assert (== (value) 7) }
-'''})
+'''}, fields=[[(1, 0xffffffff)]])
 
-    def test_same_spelling_in_distinct_imports_stays_unknown(self):
+    def test_same_spelling_in_distinct_imports_retains_distinct_authority(self):
         modules = {}
         for name, value in [('Left', 7), ('Right', 11)]:
             modules[name.lower()+'.nano'] = f'''module {name}
@@ -97,7 +107,22 @@ shadow value {{ assert (== (value) {value}) }}
 module "right.nano" as right
 fn main() -> int { assert (== (left.value) 7) assert (== (right.value) 11) return 0 }
 shadow main { assert (== (main) 0) }
-''', modules)
+''', modules, fields=[[(1, 0xffffffff)], [(1, 0xffffffff)]])
+
+    def test_imported_field_identity_preserves_distinct_same_spelling(self):
+        modules = {'left.nano': 'module Left\npub struct Entry { value: int }\n',
+                   'right.nano': 'module Right\npub struct Entry { value: string }\n'}
+        # I require dependency-first ordinals and distinct int/string records.
+        expected = [[(1, 0xffffffff)], [(5, 0xffffffff)], [(8, 0), (8, 1)]]
+        self.check('''module "left.nano" as left
+module "right.nano" as right
+struct Root { left: left.Entry, right: right.Entry }
+fn main() -> int {
+ let root: Root = Root { left: left.Entry { value: 7 }, right: right.Entry { value: "eleven" } }
+ assert (== root.left.value 7) assert (== root.right.value "eleven") return 0
+}
+shadow main { assert (== (main) 0) }
+''', modules, fields=expected)
 
     def test_array_schema_retains_existing_unknown_boundary(self):
         self.check('''struct Entries { values: array<int> }

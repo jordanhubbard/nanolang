@@ -1,0 +1,53 @@
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Error at line 452, column 48: I cannot find a variable named `mb_source_paths`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 452, column 79: I cannot find a variable named `mb_file_starts`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 453, column 39: I cannot find a variable named `mb_targets`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 454, column 39: I cannot find a variable named `mb_names`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 454, column 81: I cannot find a variable named `mb_owners`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 454, column 120: I cannot find a variable named `mb_definition_owners`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 456, column 30: I cannot find a variable named `mb_source_paths`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 468, column 29: I cannot find a variable named `mb_owners`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 468, column 29: I cannot find a variable named `mb_owners`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 468, column 29: I require an array as the first argument to array access.
+Hint: Pass an array before its index.
+Error at line 468, column 62: I cannot find a variable named `mb_definition_owners`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 468, column 62: I cannot find a variable named `mb_definition_owners`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 468, column 62: I require an array as the first argument to array access.
+Hint: Pass an array before its index.
+Error at line 468, column 119: I cannot find a variable named `mb_names`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 468, column 119: I cannot find a variable named `mb_names`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 468, column 119: I require an array as the first argument to array access.
+Hint: Pass an array before its index.
+Error at line 468, column 149: I cannot find a variable named `mb_targets`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 468, column 149: I cannot find a variable named `mb_targets`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 468, column 149: I require an array as the first argument to array access.
+Hint: Pass an array before its index.
+Warning at line 3094, column 9: Unused variable 'rejected'
+Warning at line 3399, column 9: Unused variable 'rejected'
+Warning at line 3403, column 9: Unused variable 'rejected'
+Warning at line 3407, column 9: Unused variable 'rejected'
+Warning at line 3411, column 9: Unused variable 'rejected'
+Warning at line 3418, column 13: Unused variable 'rejected'
+Warning at line 3567, column 9: Unused variable 'rejected'
+Warning at line 3571, column 9: Unused variable 'rejected'
+Warning at line 3578, column 13: Unused variable 'rejected'
+Warning at line 7835, column 17: Unused variable 'imported'
+Error: Type checking failed for module '/Users/jkh/Src/nanolang-51-authority/src_nano/compiler/nanoisa_codegen.nano'
+Error at line 7, column 1: Failed to load module '/Users/jkh/Src/nanolang-51-authority/src_nano/compiler/nanoisa_codegen.nano'
+Module loading failed

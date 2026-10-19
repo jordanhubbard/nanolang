@@ -2013,13 +2013,13 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
             } else { (print "") }
 
             # I lower once, check selected shadows, then publish the requested product.
-                let assembly: string = (nanoisa_emit_program_nasm parser)
+                let assembly: string = (nanoisa_emit_bound_program_nasm parser)
                 if (== assembly "") {
                     (println (+ "I cannot lower this checked program: " (nanoisa_last_lowering_error)))
                     return 1
                 }
                 if (and has_shadows (not emit_c)) {
-                    let shadow_assembly: string = (nanoisa_emit_shadows_nasm parser first_shadow)
+                    let shadow_assembly: string = (nanoisa_emit_bound_shadows_nasm parser first_shadow)
                     if (== shadow_assembly "") {
                         (println (+ "I cannot lower the selected shadows: " (nanoisa_last_lowering_error)))
                         return 1

@@ -5520,7 +5520,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     }
 
     canonicalize_function_code(&cg);
-    if(!cg.had_error) publish_ordinary_authority(&cg,program);
+    if(!cg.had_error) publish_ordinary_authority(&cg,program,modules);
     while(authority_slots) {
         CgAuthoritySlot *next=authority_slots->next;free(authority_slots);authority_slots=next;
     }

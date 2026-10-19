@@ -10,6 +10,6 @@
     "bin/nanoisa": "ea45b7124756ed66c5a48bc499c846b905ba115a24f055b3a0c39804de7bca7b"
   },
   "host": "Darwin 27.0.0 arm64",
-  "generated_native_cc": "/opt/homebrew/opt/llvm/bin/clang",
+  "generated_native_cc": "cc (Apple Clang; Makefile overrides the environment CC assignment)",
   "scope": "C seed only; no fresh selfhost bootstrap or Linux execution"
 }

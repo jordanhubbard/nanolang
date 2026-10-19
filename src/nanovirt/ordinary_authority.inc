@@ -27,31 +27,46 @@ static bool ordinary_graph(const NvmV2Layouts *layouts) {
     }
     return true;
 }
-static void publish_ordinary_authority(CG *cg,ASTNode *program) {
+/* I cover loaded declarations by identity, not by source spelling. */
+static bool ordinary_declarations(CG *cg, ASTNode *program, ModuleList *modules,
+                                  ASTNode **records) {
+    bool seen[MAX_STRUCT_DEFS]={0};
+    unsigned count=cg->struct_count;
+    int imported=modules?modules->count:0;
+    for(int source=0;source<=imported;source++) {
+        ASTNode *tree=source==imported?program:get_cached_module_ast(modules->module_paths[source]);
+        if(!tree || tree->type!=AST_PROGRAM)return false;
+        for(int i=0;i<tree->as.program.count;i++) {
+            ASTNode *node=bytecode_declaration(tree->as.program.items[i]);
+            if(node->type==AST_ENUM_DEF || node->type==AST_UNION_DEF)return false;
+            if(node->type==AST_IMPORT && !imported)return false;
+            if(node->type!=AST_STRUCT_DEF)continue;
+            unsigned ordinal=0;
+            while(ordinal<count && cg->structs[ordinal].declaration!=node)ordinal++;
+            if(ordinal==count)return false;
+            seen[ordinal]=true;
+        }
+    }
+    for(unsigned i=0;i<count;i++) {
+        const CgStructDef *registered=&cg->structs[i];
+        ASTNode *node=registered->declaration;
+        if(!seen[i] || !node || registered->declaration_ambiguous || node->type!=AST_STRUCT_DEF ||
+           registered->def_idx!=i || registered->name!=node->as.struct_def.name ||
+           node->as.struct_def.is_resource || node->as.struct_def.is_extern ||
+           strchr(node->as.struct_def.name,'<'))return false;
+        for(unsigned k=0;k<i;k++)
+            if(!strcmp(node->as.struct_def.name,records[k]->as.struct_def.name))return false;
+        records[i]=node;
+    }
+    return true;
+}
+
+static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modules) {
     NvmModule *module=cg->module;
     if(!cg->struct_count || cg->enum_count || cg->union_count || cg->extern_count || cg->passive ||
        module->layout_size || module->ownership_size)return;
     ASTNode *records[MAX_STRUCT_DEFS]={0};unsigned count=cg->struct_count;
-    /* I preserve the closed-source boundary while retaining exact declaration
-     * provenance for a separately qualified imported-source extension. */
-    unsigned source_count=0;
-    for(int i=0;i<program->as.program.count;i++) {
-        ASTNode *node=bytecode_declaration(program->as.program.items[i]);
-        if(node->type==AST_IMPORT || node->type==AST_ENUM_DEF || node->type==AST_UNION_DEF)return;
-        if(node->type==AST_STRUCT_DEF)source_count++;
-    }
-    if(source_count!=count)return;
-    for(unsigned i=0;i<count;i++) {
-        const CgStructDef *registered=&cg->structs[i];
-        ASTNode *node=registered->declaration;
-        if(!node || registered->declaration_ambiguous || node->type!=AST_STRUCT_DEF ||
-           registered->def_idx!=i || registered->name!=node->as.struct_def.name ||
-           node->as.struct_def.is_resource || node->as.struct_def.is_extern ||
-           strchr(node->as.struct_def.name,'<'))return;
-        for (unsigned k=0;k<i;k++)
-            if (!strcmp(node->as.struct_def.name,records[k]->as.struct_def.name)) return;
-        records[i]=node;
-    }
+    if(!ordinary_declarations(cg,program,modules,records))return;
     size_t size=8+((count+3u)&~3u)+4;
     for(uint32_t f=0;f<module->function_count;f++) {
         NvmFunctionEntry *fn=&module->functions[f];
