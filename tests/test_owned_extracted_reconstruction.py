@@ -139,7 +139,7 @@ class OwnedExtractedReconstruction(unittest.TestCase):
                     native=rebuilt.with_suffix('.c')
                     self.command([ROOT/'bin/nvm2c',rebuilt,'-o',native]);self.native(native,35)
 
-    def test_actual_multiple_reference_fixture_stays_outside_profile(self):
+    def test_actual_multiple_reference_fixture_has_explicit_witness(self):
         source=ROOT/'tests/nanoisa/fixtures/source_borrow_multi.nano'
         for compiler in self.compilers:
             module=self.work/('multiple-'+compiler.name+'.nvm')
@@ -147,7 +147,9 @@ class OwnedExtractedReconstruction(unittest.TestCase):
             self.command([ROOT/'bin/nano_vm','--verify-only',module])
             self.command([ROOT/'bin/nano_vm',module])
             for language in ('c','nano'):
-                output=self.work/('multiple-prior.'+language);output.write_text('prior checked source')
-                result=self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output],None)
-                self.assertNotEqual(result.returncode,0)
-                self.assertEqual(output.read_text(),'prior checked source')
+                output=self.work/('multiple-witness.'+language)
+                self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+                self.assertIn('NlrOwned',output.read_text())
+                if language=='nano':
+                    self.assertIn('owner_first_2',output.read_text())
+                    self.assertIn('field_second_2_1',output.read_text())

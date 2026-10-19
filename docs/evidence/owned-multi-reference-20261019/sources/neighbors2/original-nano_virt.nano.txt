@@ -1,0 +1,47 @@
+resource struct NlrOwned0 { f0: int, f1: bool }
+resource struct NlrOwned1 { f0: int, f1: bool }
+# I reconstruct ordered resource transfers; original shadows are not retained.
+fn main() -> int {
+    let mut nlr_l0: int = 0
+    let mut nlr_l1: bool = false
+    let mut nlr_l4: int = 0
+    let mut nlr_l5: bool = false
+    set nlr_l0 12
+    set nlr_l1 false
+    let nlr_t17: int = nlr_l0
+    let nlr_t20: bool = nlr_l1
+    let nlr_t23: NlrOwned0 = NlrOwned0 { f0: nlr_t17, f1: nlr_t20 }
+    let nlr_l2: NlrOwned0 = nlr_t23
+    let nlr_t37: int = (nlr_f1_owned_1 &nlr_l2)
+    let nlr_t54: bool = (== nlr_t37 12)
+    assert nlr_t54
+    let nlr_t56: NlrOwned0 = nlr_l2
+    let nlr_l3: NlrOwned0 = nlr_t56
+    let nlr_t68: int = nlr_l3.f0
+    set nlr_l4 nlr_t68
+    let nlr_t83: bool = nlr_l3.f1
+    set nlr_l5 nlr_t83
+    let nlr_t92: int = nlr_l4
+    let nlr_t104: bool = (== nlr_t92 12)
+    assert nlr_t104
+    let nlr_t106: bool = nlr_l5
+    let nlr_t109: bool = (not nlr_t106)
+    assert nlr_t109
+    let NlrOwned0 { f0, f1 } = nlr_l3
+    let nlr_t120_0: int = f0
+    let nlr_t120_1: bool = f1
+    return 0
+}
+fn nlr_f1_owned_1(nlr_a0: &NlrOwned0) -> int {
+    let nlr_t0: int = nlr_a0.f0
+    return nlr_t0
+}
+
+shadow nlr_f1_owned_1 {
+    let owner: NlrOwned0 = NlrOwned0 { f0: 0, f1: false }
+    let observed: int = (nlr_f1_owned_1 &owner)
+    assert (== observed (nlr_f1_owned_1 &owner))
+    let NlrOwned0 { f0, f1 } = owner
+    assert (== f0 0)
+    assert (== f1 false)
+}

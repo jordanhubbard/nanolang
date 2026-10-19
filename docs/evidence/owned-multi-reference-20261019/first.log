@@ -1,0 +1,14 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-josdx37e
+test_defensive_exact_reference_and_witness_controls (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_defensive_exact_reference_and_witness_controls) ... ok
+test_endpoints_distinct_nominals_and_unequal_fields (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_endpoints_distinct_nominals_and_unequal_fields) ... ok
+test_existing_source_roundtrips (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_existing_source_roundtrips) ... ok
+test_false_first_witness_refuses_atomically (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_false_first_witness_refuses_atomically) ... ok
+test_generated_local_boundary_precedes_publication (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_generated_local_boundary_precedes_publication) ... ok
+test_generated_shadow_is_direct_and_consumes_witness (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_generated_shadow_is_direct_and_consumes_witness) ... ok
+test_later_false_call_retains_runtime_assertion (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_later_false_call_retains_runtime_assertion) ... ok
+test_original_verifier_rejects_reference_corruption (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_original_verifier_rejects_reference_corruption) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 66.286s
+
+OK
