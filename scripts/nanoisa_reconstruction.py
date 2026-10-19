@@ -596,6 +596,8 @@ static int64_t nlr_f64_to_bits(double value) {
             collect(function.body)
         if getattr(self, 'inline_add', False):
             needed.discard('add')
+        if getattr(self, 'inline_sub', False):
+            needed.discard('sub')
         if 'bool_int' in needed:
             needed.remove('bool_int')
             if self.language != 'c':
