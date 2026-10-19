@@ -1,0 +1,12 @@
+{
+  "bin/nanoc_c": "dac6fda45ab6c414dd647ef277ae8f7f4e4b94655bf93b974e2eb7be491ecce4",
+  "bin/nano_virt": "f525a9ad8f555f7a812bff6e370fb47766826dadbf8c2ce01114d2d5e8820fa6",
+  "bin/nano_vm": "0accd36619c83a636a191f333467fb3acaacced7e63cf0c8e86f30e5f19b6c3b",
+  "bin/nanoisa": "3b7a0ba468e580a77a16fcdae38e64d16dfdaa35602e4c2530ae6db6cbbd4517",
+  "bin/nvm2c": "b3da39240bff2f80bf25349750beeb67e7066d91575d30f7d9ee13e1efac02ec",
+  "bin/nano_aot_runtime.o": "d48980563f3c31ce8eb4b0b1a3309a7dbc17749fd9a42f445bca4c42ff487863",
+  "bin/nanoc_stage1": "d4874afe0e4cfbe76b9450c3e3cfd6bcc8fa047612a7fa6853e0bafca5060ef3",
+  "bin/nanoc_stage2": "542119cb5e90f18cfb5b9bb0688b3261469372921b10e751122745bf7a860fff",
+  "bin/nanoc_stage1.nvm": "b790c67874db5d44b4f8f21b4f9ead65797443d08ebf081961a0d1fb32701c31",
+  "bin/nanoc_stage2.nvm": "b790c67874db5d44b4f8f21b4f9ead65797443d08ebf081961a0d1fb32701c31"
+}

@@ -1,0 +1,8 @@
+2026-10-19T11:09:38.4135291Z Validating 1 functions
+2026-10-19T11:09:38.4135692Z NSType checking complete!
+2026-10-19T11:09:38.4135933Z I passed my NanoISA emitter entry assertions.
+2026-10-19T11:09:38.4136443Z I cannot translate '/tmp/nano_bytecode_product_yb6FGH/program.nvm': function 589: join at 213 has a value-kind mismatch
+2026-10-19T11:09:38.4136954Z I could not translate the verified module to C
+2026-10-19T11:09:38.4137235Z I could not publish the requested product:
+2026-10-19T11:09:38.4137543Z make: *** [Makefile.gnu:3821: .stage2.built] Error 1
+2026-10-19T11:09:38.4164775Z ##[error]Process completed with exit code 2.

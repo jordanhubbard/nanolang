@@ -189,6 +189,8 @@ jobs:
           NANOLANG_AFFINE_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
           NANOLANG_MATCH_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
           NANOLANG_EFFECTS_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
+          NANOLANG_PURITY_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
+          NANOLANG_GENERIC_METADATA_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
           make -f Makefile.gnu CC="${CC:-cc}" test-local-binding-producers \
             test-effect-binding-metadata test-function-purity-metadata test-function-effects-metadata test-match-coverage-metadata test-function-affine-metadata test-affine-use-metadata \
             test-generic-binding-metadata test-owned-effect-c-source test-selfhost-effects \

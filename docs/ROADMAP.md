@@ -15801,3 +15801,9 @@ My final local boolean-join strict gate passes all 444 Clang/GCC compilations wi
 - [ ] I qualify the canonical callsite, imported globals, selected shadows, unchanged affine facts and exact aggregate generations/platforms before closing #998.
 
 I pass my C-hosted compiler build and 33 focused methods across the retained metadata and prerequisite-corrected purity runs. I preserve initial fixture and missing-runtime-object failures in [my checked-global receipt](evidence/checked-global-effects-20261019/README.md). My new compiler record shapes still require fresh raw Stage 1/Stage 2 and exact hosted qualification; #998 remains open.
+
+### Fresh checked-global generation and metadata qualification (#998)
+
+- [x] I pass all 17 bootstrap steps at `74a565150`, with byte-identical raw generations and native smoke execution; I retain the exact receipt before claiming platform closure.
+- [x] I run purity and generic metadata against NanoVirt and both freshly installed stages, then wire their existing driver selectors into the retirement workflow; default-only seed execution does not establish fresh-stage coverage.
+- [x] I retain all 50 fresh-stage metadata/contract methods passing in 195.891 seconds in `docs/evidence/checked-effects-bootstrap-74a565150-20261019/`; hosted Linux/Darwin qualification remains open.

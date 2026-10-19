@@ -1,0 +1,10 @@
+{
+  "run": 39224053627,
+  "job": 117966632509,
+  "head": "5bb06c298",
+  "raw_log_sha256": "877519e59342a26303ed297230666f39605cf1be35bb2efd50a40b1c1fd29491",
+  "artifact": 12182430367,
+  "failure": "function 589: join at 213 has a value-kind mismatch",
+  "correction": "c6fcfd59d",
+  "scope": "old baseline; current hosted correction not yet qualified"
+}
