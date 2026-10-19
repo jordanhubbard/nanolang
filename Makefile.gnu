@@ -6925,7 +6925,7 @@ test-units: test-publication-allocation
 
 .PHONY: test-owned-reconstruction
 test-owned-reconstruction: nvm2hl nano_virt nano_vm nvm2c
-	python3 -m unittest -v tests.test_owned_reconstruction
+	python3 -m unittest -v tests.test_owned_reconstruction tests.test_owned_call_reconstruction
 test-units: test-owned-reconstruction
 
 .PHONY: test-record-array-tail-build

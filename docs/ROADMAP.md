@@ -15503,6 +15503,8 @@ I retain [my concrete generic authority receipt](evidence/concrete-generic-autho
 
 ### Local resource reconstruction (#999, 2026-10-18)
 
+- [x] I extend this bounded slice to acyclic direct mode-zero INT/BOOL/resource calls with exact nominal arguments/results, live parameter owners, ordered once-only call snapshots and scalar operations confined above staged owners. I retain existing verifier admission and budgets, refuse broader paths atomically, and qualify actual C/Stage1/Stage2 source producers against VM and sanitized structured C/Nano outputs. I explicitly count generated arithmetic helpers and reserve a shadow-entry slot in the Nano output budget; oversized source refuses before publication. I own this work on `fix/5.1-owned-calls` from `36930e1d3`; full #999 remains open.
+
 - [x] I establish actual consuming-destructure syntax and numeric nominal layout mapping, retaining my [bounded contract](NANOISA_OWNED_LOCAL_RECONSTRUCTION.md) before implementation.
 - [x] I extract verified resource/layout/local facts and reconstruct ordered construction/move/unpack through one owned region tree into structured C and Nano; unsupported paths refuse atomically.
 - [x] I qualify actual C-hosted source producers, paired executions, authority/nominal refusals and existing scalar neighbors. Full generic/borrow/call/control reconstruction and fresh-stage/platform qualification remain open.

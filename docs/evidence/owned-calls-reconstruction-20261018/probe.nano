@@ -1,0 +1,16 @@
+resource struct Left { value: int, yes: bool }
+resource struct Right { value: int, yes: bool }
+fn make(value: int, yes: bool) -> Left { return Left { value: value, yes: yes } }
+shadow make { let Left { value, yes } = (make 7 true) assert (== value 7) }
+fn forward(owner: Left) -> Left { return owner }
+shadow forward { let Left { value, yes } = (forward Left { value: 7, yes: true }) assert (== value 7) }
+fn consume(owner: Left, extra: int) -> int { let Left { value, yes } = owner return (+ value extra) }
+shadow consume { assert (== (consume Left { value: 7, yes: true } 3) 10) }
+fn main() -> int {
+ let mut n: int = 3
+ let owner: Left = (forward (make n true))
+ set n (+ n 17)
+ let result: int = (consume owner (+ n 1))
+ return result
+}
+shadow main { assert (== (main) 24) }

@@ -5,10 +5,10 @@
 static int owned_facts(const NvmModule *m) {
     NvmV2Layouts layouts={0};NvmAffineState *state=NULL;
     VmDecodedFunction code={0};char error[VM_DECODE_ERROR_SIZE];
-    bool ok=false;
+    bool ok=false;uint32_t total=0;
     if(m->ownership_size<4 || !m->ownership_data ||
        m->ownership_data[0]!=NVM_OWNERSHIP_VERSION || m->ownership_data[1] ||
-       m->ownership_data[2] || m->ownership_data[3] || m->function_count!=1 || m->header.entry_point!=0 || m->import_count ||
+       m->ownership_data[2] || m->ownership_data[3] || !m->function_count || m->function_count>NVM_OWNED_MAX_FUNCTIONS || m->header.entry_point!=0 || m->import_count ||
        m->module_ref_count || m->passive_size || m->union_count || m->enum_count ||
        !nvm_get_string(m,m->functions[0].name_idx) ||
        !strcmp(nvm_get_string(m,m->functions[0].name_idx),"__init__") ||
@@ -29,15 +29,7 @@ static int owned_facts(const NvmModule *m) {
             if((l->fields[f].type_tag!=TAG_INT && l->fields[f].type_tag!=TAG_BOOL) ||
                l->fields[f].nested_idx!=NVM_V2_NO_INDEX)goto done;
     }
-    state=nvm_affine_state_create(m,0,m->functions[0].local_count);
-    if(!state || !nvm_affine_analyze_function(m,0).ok ||
-       !vm_decode_function(m,0,&code,error) || code.instruction_count>4096)goto done;
-    for(uint16_t i=0;i<m->functions[0].local_count;i++) {
-        NvmAffineType t;
-        if(!nvm_affine_local_type(state,i,&t) ||
-           (t.tag!=TAG_INT && t.tag!=TAG_BOOL &&
-            !(t.tag==TAG_STRUCT && t.layout<layouts.count && nvm_affine_type_is_owned(state,t))))goto done;
-    }
+    if(!nvm_affine_value_call_graph(m))goto done;
     printf("{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[");
     for(uint32_t i=0;i<layouts.count;i++) {
         if(i){putchar(',');}printf("{\"identity\":%u,\"resource\":true,\"fields\":[",i);
@@ -46,30 +38,61 @@ static int owned_facts(const NvmModule *m) {
         }
         printf("]}");
     }
-    printf("],\"functions\":[{\"name\":\"owned_main\",\"locals\":%u,\"result\":1,\"params\":[],\"names\":[",m->functions[0].local_count);
-    for(uint16_t i=0;i<m->functions[0].local_count;i++){if(i){putchar(',');}printf("\"\"");}
-    printf("],\"local_types\":[");
-    for(uint16_t i=0;i<m->functions[0].local_count;i++) {
-        NvmAffineType t;if(!nvm_affine_local_type(state,i,&t))goto done;
-        if(i){putchar(',');}printf("[%u,%u]",t.tag,t.layout);
-    }
-    printf("],\"size\":%u,\"code\":[",code.code_size);
-    for(uint32_t i=0;i<code.instruction_count;i++) {
-        const VmDecodedInstruction *di=&code.instructions[i];
-        const DecodedInstruction *in=&di->instruction;int64_t args[4]={0};
-        for(uint8_t a=0;a<in->operand_count && a<4;a++)switch(in->operand_types[a]) {
-            case OPERAND_U8:args[a]=in->operands[a].u8;break;
-            case OPERAND_U16:args[a]=in->operands[a].u16;break;
-            case OPERAND_U32:args[a]=in->operands[a].u32;break;
-            case OPERAND_I32:args[a]=in->operands[a].i32;break;
-            case OPERAND_I64:args[a]=in->operands[a].i64;break;
-            default:break;
+    printf("],\"functions\":[");
+    for(uint32_t function=0;function<m->function_count;function++) {
+        const NvmFunctionEntry *fn=&m->functions[function];
+        NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS],result;
+        uint16_t count=0,fields=0;
+        if(fn->local_count>128)goto done;
+        state=nvm_affine_state_create(m,function,fn->local_count);
+        if(!state || !nvm_affine_analyze_function(m,function).ok ||
+           !vm_decode_function(m,function,&code,error) || code.instruction_count>4096)goto done;
+        total+=code.instruction_count;if(total>4096)goto done;
+        for(uint16_t i=0;i<fn->local_count;i++) {
+            NvmAffineType t;
+            if(!nvm_affine_local_type(state,i,&t) ||
+               (t.tag!=TAG_INT && t.tag!=TAG_BOOL &&
+                !(t.tag==TAG_STRUCT && t.layout<layouts.count && nvm_affine_type_is_owned(state,t))))goto done;
         }
-        if(i){putchar(',');}printf("{\"pc\":%u,\"op\":\"%s\",\"arg\":%" PRId64 ",\"args\":[",di->byte_offset,isa_get_info(in->opcode)->name,args[0]);
-        for(uint8_t a=0;a<in->operand_count && a<4;a++){if(a)putchar(',');printf("%" PRId64,args[a]);}
+
+        if(!nvm_get_string(m,fn->name_idx) || !strcmp(nvm_get_string(m,fn->name_idx),"__init__") ||
+           !nvm_affine_value_parameters(state,parameters,NVM_AFFINE_MAX_PARAMETERS,&count) || count!=fn->arity ||
+           !nvm_affine_value_result(state,&result,&fields) || fn->result_count!=1 ||
+           (result.tag!=TAG_INT && result.tag!=TAG_BOOL &&
+            !(result.tag==TAG_STRUCT && result.layout<layouts.count && nvm_affine_type_is_owned(state,result))))goto done;
+        for(uint16_t p=0;p<count;p++)
+            if(parameters[p].tag!=TAG_INT && parameters[p].tag!=TAG_BOOL &&
+               !(parameters[p].tag==TAG_STRUCT && parameters[p].layout<layouts.count && nvm_affine_type_is_owned(state,parameters[p])))goto done;
+        if(function)putchar(',');
+        printf("{\"name\":\"owned_%u\",\"locals\":%u,\"result_type\":[%u,%u],\"result\":%u,\"params\":[",function,fn->local_count,result.tag,result.layout,result.tag);
+        for(uint16_t p=0;p<count;p++){if(p)putchar(',');printf("[%u,%u]",parameters[p].tag,parameters[p].layout);}
+        printf("],\"names\":[");
+        for(uint16_t i=0;i<fn->local_count;i++){if(i){putchar(',');}printf("\"\"");}
+        printf("],\"local_types\":[");
+        for(uint16_t i=0;i<fn->local_count;i++) {
+            NvmAffineType t;if(!nvm_affine_local_type(state,i,&t))goto done;
+            if(i){putchar(',');}printf("[%u,%u]",t.tag,t.layout);
+        }
+        printf("],\"size\":%u,\"code\":[",code.code_size);
+        for(uint32_t i=0;i<code.instruction_count;i++) {
+            const VmDecodedInstruction *di=&code.instructions[i];
+            const DecodedInstruction *in=&di->instruction;int64_t args[4]={0};
+            for(uint8_t a=0;a<in->operand_count && a<4;a++)switch(in->operand_types[a]) {
+                case OPERAND_U8:args[a]=in->operands[a].u8;break;
+                case OPERAND_U16:args[a]=in->operands[a].u16;break;
+                case OPERAND_U32:args[a]=in->operands[a].u32;break;
+                case OPERAND_I32:args[a]=in->operands[a].i32;break;
+                case OPERAND_I64:args[a]=in->operands[a].i64;break;
+                default:break;
+            }
+            if(i){putchar(',');}printf("{\"pc\":%u,\"op\":\"%s\",\"arg\":%" PRId64 ",\"args\":[",di->byte_offset,isa_get_info(in->opcode)->name,args[0]);
+            for(uint8_t a=0;a<in->operand_count && a<4;a++){if(a)putchar(',');printf("%" PRId64,args[a]);}
+            printf("]}");
+        }
         printf("]}");
+        vm_decoded_function_free(&code);nvm_affine_state_free(state);state=NULL;
     }
-    puts("]}]}");ok=!ferror(stdout);
+    puts("]}");ok=!ferror(stdout);
 done:
     vm_decoded_function_free(&code);nvm_affine_state_free(state);nvm_v2_layouts_free(&layouts);
     if(!ok)fputs("I require a verified bounded local resource module with scalar fields.\n",stderr);
