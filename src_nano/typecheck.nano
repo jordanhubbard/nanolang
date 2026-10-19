@@ -6710,7 +6710,10 @@ fn apply_return_type_hint(expr_type: NSType, expected_type: NSType) -> NSType {
 }
 
 fn apply_value_type_hint(parser: Parser, node_id: int, node_type: int, expr_type: NSType, expected_type: NSType) -> NSType {
-    if (and (== (type_to_string expected_type) "u8") (and (== expr_type.kind TypeKind.TYPE_INT) (== node_type ParseNodeType.PNODE_NUMBER))) {
+    if (and (== (type_to_string expected_type) "u8") (== expr_type.kind TypeKind.TYPE_INT)) {
+        # I admit checked computed integers only where the emitter retains CAST_U8.
+        # My literal range policy stays separate from modulo-256 conversion.
+        if (!= node_type ParseNodeType.PNODE_NUMBER) { return expected_type }
         let literal: int = (string_to_int (parser_get_number parser node_id).value)
         if (and (>= literal 0) (<= literal 255)) { return expected_type }
     }
@@ -6724,7 +6727,9 @@ shadow apply_value_type_hint {
     let computed: ASTLet = (parser_get_let parser 2)
     assert (== (type_to_string (apply_value_type_hint parser octet.value octet.value_type (type_int) (type_from_string "u8"))) "u8")
     assert (== (apply_value_type_hint parser too_large.value too_large.value_type (type_int) (type_from_string "u8")).kind TypeKind.TYPE_INT)
-    assert (== (apply_value_type_hint parser computed.value computed.value_type (type_int) (type_from_string "u8")).kind TypeKind.TYPE_INT)
+    assert (== (type_to_string (apply_value_type_hint parser computed.value computed.value_type (type_int) (type_from_string "u8"))) "u8")
+    assert (== (apply_value_type_hint parser computed.value computed.value_type (type_bool) (type_from_string "u8")).kind TypeKind.TYPE_BOOL)
+    assert (== (apply_value_type_hint parser computed.value computed.value_type (type_float) (type_from_string "u8")).kind TypeKind.TYPE_FLOAT)
 }
 
 shadow apply_return_type_hint {

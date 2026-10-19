@@ -4389,7 +4389,13 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
             if (or (< literal 0) (> literal 255)) { return (nisa_fail "I require a byte literal from 0 through 255") }
             return (nisa_line_imm "PUSH_U8" (int_to_string literal))
         }
-        if (!= (nisa_expr_type parser node_id node_type) "u8") {
+        let actual: string = (nisa_expr_type parser node_id node_type)
+        # I evaluate a checked integer once, then narrow modulo 256.
+        # Literal range checks above remain stricter than computed conversion.
+        if (== actual "int") {
+            return (+ (nisa_emit_expr parser node_id node_type) (nisa_line "CAST_U8"))
+        }
+        if (!= actual "u8") {
             return (nisa_fail "I require the declared byte value type")
         }
     }
@@ -4500,6 +4506,9 @@ shadow nisa_emit_expected_expr {
     assert (str_contains choice_text "JMP_FALSE")
     assert (str_contains choice_text "FUNCREF")
     assert (== (array_length nisa_generics) 2)
+    let computed: string = (nanoisa_emit_nasm "fn octet()->u8{return (- 0 1)} fn main()->int{return (cast_int (octet))}")
+    assert nisa_ok
+    assert (str_contains computed "I64_SUB\n  CAST_U8\n  RET")
     let _2: int = (nisa_reset)
 }
 
@@ -6911,6 +6920,11 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         if (and (== nisa_return_type "int") (== (nisa_expr_type parser r.value r.value_type) "u8")) {
             return (+ (nisa_emit_expected_expr parser r.value r.value_type "int") (nisa_line "RET"))
         }
+        # I retain the conversion after direct, generic, and indirect calls;
+        # a tail call cannot replace a pending change of result tag.
+        if (and (== nisa_return_type "u8") (!= (nisa_expr_type parser r.value r.value_type) "u8")) {
+            return (+ (nisa_emit_expected_expr parser r.value r.value_type "u8") (nisa_line "RET"))
+        }
         if (and (!= (nisa_map_value_type nisa_return_type) "")
                 (and (not (nisa_is_map_constructor parser r.value r.value_type))
                      (!= (nisa_expr_type parser r.value r.value_type) nisa_return_type))) {
@@ -7077,6 +7091,10 @@ shadow nisa_emit_stmt {
     let joined: string = (nanoisa_emit_nasm (+ "f" "n main() -> string { return (str_concat \"a\" \"b\") }"))
     assert (str_contains joined "STR_CONCAT\n  RET")
     assert nisa_ok
+    let narrowed: string = (nanoisa_emit_nasm "fn integer()->int{return 257} fn octet()->u8{return (integer)} fn main()->int{return (cast_int (octet))}")
+    assert nisa_ok
+    assert (str_contains narrowed "CALL integer\n  CAST_U8\n  RET")
+    assert (not (str_contains narrowed "TAIL_CALL integer"))
     let inferred: string = (nanoisa_emit_nasm (+ "f" "n main() -> int { let value = 7 let copy = (+ value 1) return copy }"))
     assert nisa_ok
     assert (str_contains inferred ".function main 0 2 0 int 1")
