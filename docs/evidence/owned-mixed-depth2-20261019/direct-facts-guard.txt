@@ -1,0 +1,4 @@
+I use the retained successful basic-nano_virt.nvm facts from second-commands.json, insert REGION_BEGIN/BORROW_LOCAL_SHARED 0 parent/REF_GET 0 1/REGION_END/POP after parent store, and renumber instruction positions. This deliberately changed facts input is not verifier-admitted evidence.
+C: I require a scalar-leaf owner for ephemeral field observation
+Nano: I require a scalar-leaf owner for ephemeral field observation
+Both explicit diagnostic assertions passed.

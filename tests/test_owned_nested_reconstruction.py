@@ -135,20 +135,8 @@ shadow main { assert (== (main) 6) }
                 self.assertNotIn('checksum',result.stderr.lower())
                 self.assertEqual(output.read_text(),'prior checked source')
 
-    def test_verified_deeper_mixed_and_borrowed_layouts_refuse_atomically(self):
+    def test_verified_deeper_and_borrowed_layouts_refuse_atomically(self):
         sources={
-            'mixed':'''resource struct Leaf { value: int }
-resource struct Box { leaf: Leaf, active: bool }
-fn main() -> int {
- let leaf: Leaf = Leaf { value: 7 }
- let box: Box = Box { active: true, leaf: leaf }
- let Box { leaf, active } = box
- assert active
- let Leaf { value } = leaf
- return value
-}
-shadow main { assert true }
-''',
             'deep':'''resource struct Leaf { value: int }
 resource struct Mid { leaf: Leaf }
 resource struct Outer { mid: Mid }

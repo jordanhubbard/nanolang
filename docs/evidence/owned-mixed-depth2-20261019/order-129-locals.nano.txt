@@ -1,0 +1,39 @@
+resource struct Left { value: int }
+resource struct Right { value: int }
+resource struct First { stamp: int, leaf: Left, active: bool }
+resource struct Second { left: Left, stamp: int, right: Right, active: bool }
+fn pass(pair: First, choice: bool) -> First {
+ if choice { return pair } else { return pair }
+}
+shadow pass { assert true }
+fn consume(pair: First) -> int {
+ let First { active, leaf, stamp } = pair
+ assert active
+ let Left { value } = leaf
+ return (+ stamp value)
+}
+shadow consume { assert true }
+fn main() -> int {
+ let mut stamp: int = 5
+ let leaf: Left = Left { value: 1 }
+ let pair: First = First { active: true, leaf: leaf, stamp: stamp }
+ set stamp 99
+ let mut again: bool = true
+ while again { set again false }
+ let first: int = (consume (pass pair true))
+ let next_leaf: Left = Left { value: 2 }
+ let next_pair: First = First { leaf: next_leaf, active: true, stamp: 10 }
+ let second: int = (consume (pass next_pair false))
+ let left: Left = Left { value: 3 }
+ let right: Right = Right { value: 4 }
+ let other: Second = Second { active: false, right: right, stamp: 20, left: left }
+ let Second { right, active, left, stamp } = other
+ assert (== stamp 20)
+ assert (not active)
+ assert (== left.value 3)
+ let Left { value } = left
+ let left_value: int = value
+ let Right { value } = right
+ return (+ (+ first second) (+ stamp (+ left_value value)))
+}
+shadow main { assert (== (main) 45) }
