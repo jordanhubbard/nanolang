@@ -15927,3 +15927,16 @@ to the aggregate coordinator rather than claiming the full issue complete.
 - I pass all 17 fresh bootstrap steps at `0d8cd446f`, with identical raw generations. My aggregate checked-borrow gate then passes ledger and actual Environment cleanup but stops because its Makefile prerequisite names nonexistent `nanoisa`. I retain `/private/tmp/nanolang-checked-borrow-fresh-0d8.log`, correct only that prerequisite to the existing `nanoisa_dump` target, and rerun the metadata gate before claiming qualification. No compiler source or assertion changes for this correction.
 
 - I qualify the checked-borrow aggregate with all 17 fresh bootstrap steps, nine checked-borrow/comparator methods (79.576s), actual ledger/Environment cleanup, and 54 metadata/declared-purity neighbors (204.113s). Both raw generations are identical and ten provider hashes remain unchanged. I retain the Make prerequisite correction and stopped redundant seed attempt in `docs/evidence/checked-borrow-bootstrap-20261019/`; Linux/current-head release gates and full #998 remain open.
+
+### Checked resource field-read projection design (#998)
+
+- [x] I record contract-only ownership by `workspace_repairs` on
+  `design/5.1-checked-field-read-facts` from `c56b6ef67`. My previous call-borrow
+  component has passed fresh aggregate bootstrap and metadata qualification.
+- [ ] I review the existing accepted field-read event and exact emission mapping
+  in [my bounded design](NANOISA_CHECKED_FIELD_READ_FACTS.md) before changing any
+  schema, producer or test. This is the existing row10407 affine projection
+  obligation; I do not invent branch certificates or extend executable profiles.
+- [ ] After explicit interface review, I qualify any approved retention through
+  both producers, transport, failure/lifetime controls and fresh platform gates.
+
