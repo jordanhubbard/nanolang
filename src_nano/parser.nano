@@ -6432,8 +6432,7 @@ fn parse_named_function(p: Parser) -> Parser {
         node_type: ParseNodeType.PNODE_LAMBDA, line: function.line, column: function.column,
         name: name, param_start: function.param_start, param_count: function.param_count,
         return_type: function.return_type, body: function.body, is_pure: function.is_pure,
-        self_name: function.name
-    }))
+        self_name: function.name, checked_affine: 0 }))
     let value: Parser = (parser_store_identifier parsed name function.line function.column)
     return (parser_store_let value function.name "" value.last_expr_node_id value.last_expr_node_type false function.line function.column)
 }
@@ -6551,7 +6550,7 @@ fn parser_mark_lambda(p: Parser) -> Parser {
     (list_ASTFunction_set p.functions index (ASTFunction {
         node_type: ParseNodeType.PNODE_LAMBDA, line: func.line, column: func.column,
         name: func.name, param_start: func.param_start, param_count: func.param_count,
-        return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name }))
+        return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name, checked_affine: func.checked_affine }))
     return p
 }
 shadow parser_mark_lambda {
@@ -6585,7 +6584,7 @@ shadow parser_lambda_function {
     (list_ASTFunction_set parser.functions 0 (ASTFunction {
         node_type: func.node_type, line: func.line, column: func.column,
         name: "__nano_module_0_renamed", param_start: func.param_start, param_count: func.param_count,
-        return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name }))
+        return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name, checked_affine: func.checked_affine }))
     assert (== (parser_lambda_function parser (parser_get_identifier parser 1)) 0)
 }
 
@@ -6597,7 +6596,7 @@ fn parser_mark_pure(p: Parser) -> Parser {
     (list_ASTFunction_set p.functions index (ASTFunction {
         node_type: func.node_type, line: func.line, column: func.column,
         name: func.name, param_start: func.param_start, param_count: func.param_count,
-        return_type: func.return_type, body: func.body, is_pure: true, self_name: func.self_name }))
+        return_type: func.return_type, body: func.body, is_pure: true, self_name: func.self_name, checked_affine: func.checked_affine }))
     return p
 }
 shadow parser_mark_pure {
@@ -6607,6 +6606,24 @@ shadow parser_mark_pure {
     assert (not (parser_get_function ordinary 0).is_pure)
     let marked: Parser = (parser_mark_pure ordinary)
     assert (parser_get_function marked 0).is_pure
+}
+
+# I retain completion of the existing affine checker, never runtime authority.
+pub fn parser_set_function_affine(p: Parser, index: int, checked: int) -> void {
+    let func: ASTFunction = (parser_get_function p index)
+    (list_ASTFunction_set p.functions index (ASTFunction {
+        node_type: func.node_type, line: func.line, column: func.column,
+        name: func.name, param_start: func.param_start, param_count: func.param_count,
+        return_type: func.return_type, body: func.body, is_pure: func.is_pure,
+        self_name: func.self_name, checked_affine: checked }))
+}
+shadow parser_set_function_affine {
+    let p: Parser = (parser_store_function (parser_new (list_LexerToken_new) 0 "affine.nano") "value" 0 0 "int" -1 1 1)
+    assert (== (parser_get_function p 0).checked_affine 0)
+    (parser_set_function_affine p 0 1)
+    assert (== (parser_get_function p 0).checked_affine 1)
+    (parser_set_function_affine p 0 0)
+    assert (== (parser_get_function p 0).checked_affine 0)
 }
 
 /* Helper: Store function node */
@@ -6620,7 +6637,7 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         param_count: param_count,
         return_type: return_type,
         body: body_id,
-        is_pure: false, self_name: "" }
+        is_pure: false, self_name: "", checked_affine: 0 }
     let node_id: int = p.functions_count
     (list_ASTFunction_push p.functions node)
     

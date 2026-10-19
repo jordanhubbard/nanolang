@@ -6892,3 +6892,8 @@ test-match-coverage-metadata: nano_virt nanoisa_dump nano_vm nvm2c
 test-shadow-trace-names:
 	python3 -m unittest -v tests.test_shadow_trace_names
 test-units test-file-service-parser: test-shadow-trace-names
+
+.PHONY: test-function-affine-metadata
+test-units: test-function-affine-metadata
+test-function-affine-metadata: $(COMPILER_C) nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_function_affine_metadata

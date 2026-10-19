@@ -1205,7 +1205,7 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
             set name (+ prefix (+ (int_to_string owner) (+ "_" func.name)))
         }
         (mb_add owner func.name name)
-        (list_ASTFunction_set parser.functions i (ASTFunction { node_type: func.node_type, line: func.line, column: func.column, name: name, param_start: func.param_start, param_count: func.param_count, return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name }))
+        (list_ASTFunction_set parser.functions i (ASTFunction { node_type: func.node_type, line: func.line, column: func.column, name: name, param_start: func.param_start, param_count: func.param_count, return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name, checked_affine: func.checked_affine }))
         set i (+ i 1)
     }
     set i 0

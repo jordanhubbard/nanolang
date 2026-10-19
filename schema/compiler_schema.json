@@ -870,6 +870,10 @@
         [
           "self_name",
           "string"
+        ],
+        [
+          "checked_affine",
+          "int"
         ]
       ],
       "emit_c": true

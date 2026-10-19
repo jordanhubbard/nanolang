@@ -67,6 +67,27 @@ int main(void) {
         if(succeeded)break;
     }
     assert(succeeded);
+    for(unsigned prior=0;prior<2;prior++) {
+        succeeded=false;
+        for(unsigned attempt=1;attempt<128;attempt++) {
+            m=nvm_module_new(); assert(m);
+            NvmFunctionEntry function={0}; assert(nvm_add_function(m,&function)==0);
+            if(prior)assert(nvm_add_function_purity(m,0,true));
+            calls=0;fail_at=attempt;
+            bool added=nvm_add_function_affine(m,0,1);fail_at=0;++checks;
+            assert(nvm_metadata_valid(m));
+            if(prior)assert(nvm_function_purity(m,0)==1);
+            if(added) { assert(nvm_function_affine(m,0)==1);succeeded=true; }
+            else {
+                assert(m->metadata_count==prior && nvm_function_affine(m,0)==-1);
+                assert(nvm_add_function_affine(m,0,0));
+                assert(nvm_function_affine(m,0)==0);
+            }
+            nvm_module_free(m);
+            if(succeeded)break;
+        }
+        assert(succeeded);
+    }
     for (unsigned prior = 0; prior < 2; ++prior) {
         succeeded = false;
         for (unsigned attempt = 1; attempt < 128; ++attempt) {

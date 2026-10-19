@@ -984,6 +984,8 @@ void check_global_ownership(Environment *env, ASTNode *global, bool *has_error) 
 
 void check_function_ownership(Environment *env, ASTNode *function, bool *has_error) {
     if (!function || function->type != AST_FUNCTION) return;
+    function->as.function.checked_affine = 0;
+    bool started_clean = !*has_error;
     bool any_resource = false;
     for (int i = 0; i < env->struct_count; ++i) any_resource |= env->structs[i].is_resource;
     if (!any_resource) return;
@@ -1002,4 +1004,5 @@ void check_function_ownership(Environment *env, ASTNode *function, bool *has_err
     unsigned result = own_node(&flow, function->as.function.body, false);
     if (result & OWN_NEXT) own_leaks(&flow, 0, function);
     free(flow.bindings);
+    if (started_clean && !*has_error) function->as.function.checked_affine = 1;
 }

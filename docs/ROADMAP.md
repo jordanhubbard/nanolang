@@ -15416,3 +15416,15 @@ I retain [my local-pressure correction evidence](evidence/reconstruction-local-p
 I retain [my complete local File parser qualification](evidence/file-parser-qualification-20261018/README.md): both complete methods pass in 1,210.354 seconds after the focused sanitized ownership gate.
 
 - [ ] Under #978 I refresh Linux and Darwin retirement qualification on the combined candidate; the local correction receipt does not close this platform obligation.
+
+## Retained affine checker completion — #998
+
+- [x] I retain UNKNOWN initially and record CHECKER_COMPLETED only after my existing resource-flow traversal and exit checks finish without diagnostics for an exact source body. I preserve UNKNOWN for skipped, external, synthesized and generic-instance bodies; this advisory fact does not establish per-use/path ownership or runtime authority.
+- [x] I transport the versioned fact through ordinary and actual resource producers, with bounded codec queries and malformed/duplicate refusal.
+- [x] I qualify called consume/borrow/join cases, unchanged resource refusals, raw/generic UNKNOWN, and advisory stripping/forgery independence. I leave fresh selfhosted generations and platform qualification to the integrated gate and keep the full #998 affine-use/path obligation open.
+
+I retain my first affine fixture failure: I combined an arbitrary external declaration with the existing bounded resource emitter, which deliberately accepts only its module-introspection extern signature. The four emission assertions fail on its refused output. I separate the external checker-reset control from the actual resource-emission fixture, preserving the emitter boundary and all completion assertions.
+
+My corrected affine fixture passes its shadows, then exposes undeclared C names for lexer/parser helpers reached only through transitive imports. I import the helper-owning modules explicitly in the fixture, preserving all assertions and retaining the failed terminal. This does not claim a transitive native import implementation repair.
+
+I retain [my bounded affine completion evidence](evidence/affine-checker-completion-20261018.md): checked/raw resource producers, codec/allocation controls, five source methods, 15 metadata neighbors and strict local compiles pass. Fresh generations/platforms and full per-use/path facts remain open under #998.

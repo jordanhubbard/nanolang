@@ -296,6 +296,59 @@ bool nvm_add_function_effects(NvmModule *mod, uint32_t function, unsigned effect
     return data != UINT32_MAX && nvm_add_metadata(mod, key, data);
 }
 
+static const char affine_key[] = "nano.affine.v1";
+
+/* I leave unknown versions transportable and uninterpreted. */
+static bool affine_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {
+    return mod->string_lengths[entry->key_idx] == sizeof affine_key - 1 &&
+        memcmp(mod->strings[entry->key_idx], affine_key, sizeof affine_key - 1) == 0;
+}
+
+static bool affine_record(const NvmModule *mod, const NvmMetadataEntry *entry,
+                          uint32_t *function, int *affine) {
+    if (mod->string_lengths[entry->value_idx] != 8) return false;
+    const unsigned char *p = (const unsigned char *)mod->strings[entry->value_idx];
+    *function = (uint32_t)p[0] | (uint32_t)p[1] << 8 |
+        (uint32_t)p[2] << 16 | (uint32_t)p[3] << 24;
+    *affine = p[4];
+    return *function < mod->function_count && p[4] <= 1 &&
+        !p[5] && !p[6] && !p[7];
+}
+
+int nvm_function_affine(const NvmModule *mod, uint32_t function) {
+    if (!nvm_metadata_valid(mod) || function >= mod->function_count) return -1;
+    int found = -1;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        const NvmMetadataEntry *entry = &mod->metadata[i];
+        if (!affine_entry(mod, entry)) continue;
+        uint32_t index; int affine;
+        if (!affine_record(mod, entry, &index, &affine)) return -1;
+        if (index == function) {
+            if (found != -1) return -1;
+            found = affine;
+        }
+    }
+    return found;
+}
+
+bool nvm_add_function_affine(NvmModule *mod, uint32_t function, unsigned affine) {
+    if (affine > 1 || !nvm_metadata_valid(mod) || function >= mod->function_count) return false;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        const NvmMetadataEntry *entry = &mod->metadata[i];
+        if (!affine_entry(mod, entry)) continue;
+        uint32_t index; int previous;
+        if (!affine_record(mod, entry, &index, &previous) || index == function)
+            return false;
+    }
+    unsigned char value[8] = {0};
+    for (unsigned i = 0; i < 4; ++i) value[i] = (unsigned char)(function >> (8 * i));
+    value[4] = affine;
+    uint32_t key = nvm_add_string(mod, affine_key, sizeof affine_key - 1);
+    if (key == UINT32_MAX) return false;
+    uint32_t data = nvm_add_string(mod, (const char *)value, sizeof value);
+    return data != UINT32_MAX && nvm_add_metadata(mod, key, data);
+}
+
 static const char match_key[] = "nano.match.v1";
 
 static bool match_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {

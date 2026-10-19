@@ -610,6 +610,7 @@ typedef struct nl_ASTFunction {
     int body;
     bool is_pure;
     const char * self_name;
+    int checked_affine;
 } nl_ASTFunction;
 typedef nl_ASTFunction ASTFunction;
 #endif

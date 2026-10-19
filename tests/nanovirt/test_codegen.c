@@ -6,6 +6,7 @@
  */
 
 #include "nanolang.h"
+#include "resource_tracking.h"
 #include "nanovirt/codegen.h"
 #include "nanoisa/isa.h"
 #include "nanoisa/nvm_format.h"
@@ -1365,6 +1366,31 @@ static void test_enum_variant(void) {
     fprintf(stderr, " ok\n");
 }
 
+static void test_affine_checker_retention(void) {
+    int count = 0;
+    Token *tokens = tokenize("resource struct Handle { value:int } extern fn outside()->int fn main()->int{return 0}", &count);
+    ASSERT(tokens, "I tokenize my affine completion fixture");
+    ASTNode *program = parse_program(tokens, count);
+    ASSERT(program, "I parse my affine completion fixture");
+    ASTNode *external = program->as.program.items[1];
+    ASTNode *body = program->as.program.items[2];
+    ASSERT(external->as.function.checked_affine == 0 && body->as.function.checked_affine == 0,
+           "I initialize both parsed bodies to UNKNOWN");
+    Environment *env = create_environment();
+    env->suppress_shadow_warnings = true;
+    ASSERT(type_check(program, env), "I check the resource declaration and exact source body");
+    ASSERT(external->as.function.checked_affine == 0 && body->as.function.checked_affine == 1,
+           "I retain only the completed concrete body traversal");
+    bool failed = true;
+    check_function_ownership(env, body, &failed);
+    ASSERT(body->as.function.checked_affine == 0, "I reset a stale positive on an unsuccessful pass");
+    failed = false;
+    check_function_ownership(env, body, &failed);
+    ASSERT(!failed && body->as.function.checked_affine == 1, "I retain actual repeated successful completion");
+    free_ast(program); free_environment(env); free_tokens(tokens, count);
+    TEST_PASS();
+}
+
 static void test_match_coverage_checker_retention(void) {
     int count = 0;
     Token *tokens = tokenize("fn main()->int { return match 1 { _ => 42 } }", &count);
@@ -2258,6 +2284,7 @@ int main(void) {
 
     fprintf(stderr, "\nComplex Types - Unions/Match:\n");
     test_match_coverage_checker_retention();
+    test_affine_checker_retention();
     test_union_construct_match();
     test_union_match_err_path();
 
