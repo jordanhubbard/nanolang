@@ -16089,3 +16089,12 @@ I correct two reproduced checkpoint dependency failures without bypassing the co
 I integrate the structured loop-exit design/baseline and implementation as aa119c8f3, preserving the independent checkpoint correction. I attach all fifteen new methods to owned reconstruction and require current NanoVirt plus both fresh282d stages and four old-output byte controls before aggregate qualification. Compiler/runtime/facts providers are unchanged; no new bootstrap or platform success is claimed.
 
 I pass all nineteen aggregate loop-exit/old-byte methods in150.996s through current NanoVirt and both fresh282d stages; ten providers remain unchanged. Unchanged anchors60/13 and108/14, shadows20/13 and20/14, actual128 success/129 atomic refusal and sanitized native roundtrips pass. I retain [the aggregate receipt](evidence/owned-loop-exits-aggregate-20261019/README.md). Full #999 and exact platform gates remain open.
+
+## I prepare bounded owned FLOAT-local reconstruction (#999)
+
+I record design ownership by workspace_repairs on `design/5.1-owned-float-locals`, based on fbd503d59. I own only this roadmap entry and `NANOISA_OWNED_FLOAT_RECONSTRUCTION_DESIGN.md` now; the STRING child retains the shared facts implementation.
+
+- [x] I map the unchanged unsafe/local-shadow fixture and existing scalar binary64 transport.
+- [ ] I review the bounded design and wait for integrated STRING facts before implementation/rebase.
+- [ ] I retain original ordinary and selected-shadow baselines, then qualify exact local-only transport and both renderers.
+- [ ] I qualify bit/predicate/refusal neighbors, unchanged old profiles and exact candidate platforms; I keep consuming loop-exit composition separate.
