@@ -15843,3 +15843,5 @@ I retain [six green three-producer methods, exact input/output hashes, unchanged
 - [x] I qualify integrated exact wrapping pretests at `62673cd2c`: all 14 three-producer wrapping/observation/loop/assertion methods pass in 263.150 seconds; I retain `docs/evidence/owned-wrapping-aggregate-20261019/` and add the suite to my regular owned reconstruction target. Full #999 and hosted platform gates remain open.
 
 - [x] I qualify integrated exclusive resource helpers at `b3e29ee4d`: all 15 exclusive/shared methods pass in 115.974 seconds through NanoVirt and fresh `74a565150` stages; I retain `docs/evidence/owned-exclusive-aggregate-20261019/` and wire the suite into my regular target. Full #999 and hosted gates remain open.
+
+- [x] I qualify extracted scalar-leaf borrowed helpers at `f495e98f1`: all 12 extracted/nested/flat-boundary/shared-output methods pass in 107.020 seconds through current NanoVirt and fresh `74a565150` stages; receipt `docs/evidence/owned-extracted-aggregate-20261019/`. Full #999 and hosted gates remain open.
