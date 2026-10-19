@@ -79,15 +79,16 @@ class OwnedAnalyze(Analyze):
             require(all('field_types' in layout for layout in self.layouts),
                     'require complete exact path layout descriptors')
             require(self.borrowed and len(module['functions']) == 2 and
-                    module['functions'][1].get('param_modes') == [2, 2, 1],
+                    module['functions'][1].get('param_modes') in ([2, 2, 1], [1, 1]),
                     'require the exact nested-path helper profile')
         if self.borrowed:
             require(max(self.depths) <= (3 if self.paths else 2), 'retain nested borrowed modules at depth three' if self.paths else 'retain borrowed modules at depth two')
             require(len(module['functions']) == 2 and
                     module['functions'][0].get('param_modes', []) == [] and
-                    module['functions'][1].get('param_modes') in (([2, 2, 1],) if self.paths else ([1], [2], [2, 1, 2])),
+                    module['functions'][1].get('param_modes') in (([2, 2, 1], [1, 1]) if self.paths else ([1], [2], [2, 1, 2])),
                     'require the separate entry-to-borrowed-helper profile')
-        self.multi = self.borrowed and len(module['functions'][1].get('param_modes', [])) == 3
+        self.shared_paths = self.paths and module['functions'][1].get('param_modes') == [1, 1]
+        self.multi = self.borrowed and len(module['functions'][1].get('param_modes', [])) > 1
         self.exclusive = self.borrowed and 2 in module['functions'][1].get('param_modes', [])
         self.helper = self.borrowed and index == 1
         if self.helper:
@@ -111,7 +112,7 @@ class OwnedAnalyze(Analyze):
         self.code = self.fn['code']
         if self.helper:
             require(self.result in (INT, BOOL) and
-                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) | ({'SUB', 'ASSERT'} if self.multi else set()) for ins in self.code),
+                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) | ({'SUB', 'ASSERT'} if self.multi else set()) | ({'ADD', 'MUL'} if self.shared_paths else set()) for ins in self.code),
                     'require a straight-line scalar borrowed helper')
         require(0 < len(self.code) <= 4096, 'require bounded function instructions')
         self.path_table = {}
@@ -149,6 +150,8 @@ class OwnedAnalyze(Analyze):
         return self.live[slot]
 
     def reference_region_length(self, i):
+        if self.shared_paths and i + 3 < len(self.code) and self.code[i + 3]['op'] == 'CALL_REF':
+            return 5
         if self.multi and i + 4 < len(self.code) and self.code[i + 4]['op'] == 'CALL_REF':
             return 6
         return 4
@@ -167,15 +170,18 @@ class OwnedAnalyze(Analyze):
         return slot, path, layout
 
     def observation(self, i, end, stack, body, allow_call=True):
-        if self.reference_region_length(i) == 6:
-            require(allow_call and self.index == 0 and i + 5 < end,
-                    'require a complete three-reference caller region')
+        length = self.reference_region_length(i)
+        if length in (5, 6):
+            count = length - 3
+            require(allow_call and self.index == 0 and i + length - 1 < end,
+                    'require a complete two-reference caller region' if self.shared_paths else 'require a complete three-reference caller region')
             require(len(self.code[i + 1]['args']) == (3 if self.paths else 2), 'require an exact first reference operand pair')
             base = self.code[i + 1]['args'][0]
-            borrows = self.code[i + 1:i + 4]
-            call, finish = self.code[i + 4:i + 6]
+            require(count == len(self.module['functions'][1]['params']), 'require exact region parameter count')
+            borrows = self.code[i + 1:i + 1 + count]
+            call, finish = self.code[i + 1 + count:i + length]
             require(call['args'] == [1, base] and finish['op'] == 'REGION_END' and not finish['args'] and not self.code[i]['args'],
-                    'require exact three-reference call and region end')
+                    'require exact two-reference call and region end' if self.shared_paths else 'require exact three-reference call and region end')
             slots, places = [], []
             for parameter, borrow in enumerate(borrows):
                 mode = self.module['functions'][1]['param_modes'][parameter]
@@ -193,12 +199,12 @@ class OwnedAnalyze(Analyze):
                 slots.append(slot)
             if self.paths:
                 require(len(set(slots)) == 1, 'require one live nested root')
-                require(all(left[:min(len(left), len(right))] != right[:min(len(left), len(right))]
+                require(self.shared_paths or all(left[:min(len(left), len(right))] != right[:min(len(left), len(right))]
                             for n, left in enumerate(places) for right in places[n + 1:]),
                         'require pairwise disjoint nested projections')
             else:
                 require(len(set(slots)) == 3, 'require three distinct borrowed roots')
-            for offset in range(1, 6):
+            for offset in range(1, length):
                 self.touch(i + offset)
             target = Expr(self.module['functions'][1]['result'], 'temporary', call['pc'])
             body.append(('path_borrow_call', target, slots[0], tuple(places)) if self.paths else
@@ -461,20 +467,22 @@ class OwnedEmit(Emit):
         self.exclusive = any(isinstance(t, tuple) and t[0] == 'borrow' and len(t) == 3 and t[2] == 2
                              for fn in functions for t in fn.params)
         modes = [t[2] if isinstance(t, tuple) and t[0] == 'borrow' else 0 for t in functions[1].params] if len(functions) == 2 else []
-        self.paths = modes == [2, 2, 1]
-        self.multi = modes in ([2, 1, 2], [2, 2, 1])
+        self.shared_paths = modes == [1, 1]
+        self.paths = modes in ([2, 2, 1], [1, 1])
+        self.multi = modes in ([2, 1, 2], [2, 2, 1], [1, 1])
         self.witness = self.path_witness(functions, layouts) if self.paths else self.multi_witness(functions) if self.multi else None
         if self.paths and language == 'nano':
             from copy import deepcopy
             self.functions = deepcopy(functions)
             for function in self.functions:
                 function.body = self.fold_adjacent_assertions(function.body)
-        self.inline_add = self.exclusive and language == 'nano'
+        self.inline_add = (self.exclusive or self.shared_paths) and language == 'nano'
+        self.inline_mul = self.shared_paths and language == 'nano'
         self.inline_sub = self.multi and language == 'nano'
         if self.inline_add:
             def validate_inline(node, direct=False):
                 if isinstance(node, Expr):
-                    require(node.kind != 'arithmetic' or node.value not in ({'add', 'sub'} if self.inline_sub else {'add'}) or direct,
+                    require(node.kind != 'arithmetic' or node.value not in (({'add', 'sub'} if self.inline_sub else {'add'}) | ({'mul'} if self.inline_mul else set())) or direct,
                             'require guarded arithmetic at an explicit inline statement boundary')
                     for child in node.args:
                         validate_inline(child)
@@ -632,14 +640,14 @@ class OwnedEmit(Emit):
         for stmt in functions[1].body:
             kind = stmt[0]
             if kind == 'multi_borrow_read':
-                provenance[stmt[1]] = stmt[3] if stmt[2] == 2 and stmt[1].tag == BOOL else None
+                provenance[stmt[1]] = (stmt[2], stmt[3]) if functions[1].params[stmt[2]][2] == 1 and stmt[1].tag == BOOL else None
             elif kind == 'let':
                 provenance[stmt[1]] = provenance.get(stmt[2])
             elif kind == 'store':
                 provenance[Expr(stmt[2].tag, 'local', stmt[1])] = provenance.get(stmt[2])
             elif kind == 'assert':
-                field = provenance.get(stmt[1])
-                require(field is not None and witness[2][2][field].tag == BOOL and witness[2][2][field].value is True,
+                source = provenance.get(stmt[1])
+                require(source is not None and witness[2][source[0]][source[1]].tag == BOOL and witness[2][source[0]][source[1]].value is True,
                         'require a true actual tree shared-BOOL assertion witness')
             else:
                 require(kind in ('multi_borrow_write', 'return'), 'require total straight-line tree helper statements')
@@ -706,6 +714,9 @@ class OwnedEmit(Emit):
                 kind = stmt[0]
                 if kind == 'let':
                     value = stmt[2]
+                    if self.inline_mul and value.kind == 'arithmetic' and value.value == 'mul':
+                        total += 27
+                        continue
                     total += 7 if value.kind == 'arithmetic' and value.value in ({'add', 'sub'} if self.inline_sub else {'add'}) else 1
                 elif kind in ('borrow_read', 'borrow_call', 'multi_borrow_read', 'multi_borrow_call', 'path_read', 'path_borrow_call', 'own_store', 'own_move', 'own_read'):
                     total += 1
@@ -796,21 +807,65 @@ class OwnedEmit(Emit):
         self.line(f'if (> {a} {boundary}) {{ set {name} {formula(negative)} }} else {{ set {name} (- {a} {b}) }}', indent + 1)
         self.line(f'}} else {{ set {name} (- {a} {b}) }} }}', indent)
 
+    def inline_mul_statement(self, target, value, indent):
+        from nanoisa_reconstruction import NANO_INTEGER_HELPERS
+        require(NANO_INTEGER_HELPERS['mul'].split('\nshadow ', 1)[0] == '''fn nlr_i64_mul(a: int, b: int) -> int {
+    let mut factor: int = a
+    let mut remaining: int = b
+    let mut result: int = 0
+    while (!= remaining 0) {
+        let digit: int = (% remaining 2)
+        if (> digit 0) { set result (nlr_i64_add result factor) }
+        if (< digit 0) { set result (nlr_i64_sub result factor) }
+        set remaining (/ remaining 2)
+        set factor (nlr_i64_add factor factor)
+    }
+    return result
+}''', 'require the unchanged total signed-digit MUL algorithm')
+        def temp(suffix):
+            return Expr(INT, 'temporary', f'{target.value}_mul_{suffix}')
+        a, b, factor, remaining, digit = (temp(s) for s in ('a', 'b', 'factor', 'remaining', 'digit'))
+        name = self.expression
+        for operand, original in ((a, value.args[0]), (b, value.args[1])):
+            self.line(f'let {name(operand)}: int = {name(original)}', indent)
+        self.line(f'let mut {name(factor)}: int = {name(a)}', indent)
+        self.line(f'let mut {name(remaining)}: int = {name(b)}', indent)
+        self.line(f'let mut {name(target)}: int = 0', indent)
+        self.line(f'while (!= {name(remaining)} 0) {{', indent)
+        self.line(f'let {name(digit)}: int = (% {name(remaining)} 2)', indent + 1)
+        for op, compare in (('add', '>'), ('sub', '<')):
+            result = temp(op)
+            self.line(f'if ({compare} {name(digit)} 0) {{', indent + 1)
+            renderer = self.inline_add_statement if op == 'add' else self.inline_sub_statement
+            renderer(result, Expr(INT, 'arithmetic', op, (target, factor)), indent + 2)
+            self.line(f'set {name(target)} {name(result)}', indent + 2)
+            self.line('}', indent + 1)
+        self.line(f'set {name(remaining)} (/ {name(remaining)} 2)', indent + 1)
+        doubled = temp('double')
+        self.inline_add_statement(doubled, Expr(INT, 'arithmetic', 'add', (factor, factor)), indent + 1)
+        self.line(f'set {name(factor)} {name(doubled)}', indent + 1)
+        self.line('}', indent)
+
     def statements(self, statements, indent=1):
         c = self.language == 'c'
+        if c and self.shared_paths and statements is self.function.body and indent == 1:
+            for parameter in range(len(self.function.params)):
+                self.line(f'(void)nlr_a{parameter};', indent)
         for stmt in statements:
             kind = stmt[0]
             if kind == 'let' and self.inline_add and stmt[2].kind == 'arithmetic' and stmt[2].value == 'add':
                 self.inline_add_statement(stmt[1], stmt[2], indent)
             elif kind == 'let' and self.inline_sub and stmt[2].kind == 'arithmetic' and stmt[2].value == 'sub':
                 self.inline_sub_statement(stmt[1], stmt[2], indent)
+            elif kind == 'let' and self.inline_mul and stmt[2].kind == 'arithmetic' and stmt[2].value == 'mul':
+                self.inline_mul_statement(stmt[1], stmt[2], indent)
             elif kind in ('path_read', 'path_borrow_call'):
                 target, root = stmt[1], self.local(stmt[2])
                 if kind == 'path_read':
                     value = root + ''.join(f'.f{field}' for field in stmt[3]) + f'.f{stmt[4]}'
                 else:
                     places = [root + ''.join(f'.f{field}' for field in path) for path in stmt[3]]
-                    value = f'{self.name(1)}(' + ', '.join('&' + place for place in places) + ')' if c else f'({self.name(1)} ' + ' '.join(('&mut ' if parameter != 2 else '&') + place for parameter, place in enumerate(places)) + ')'
+                    value = f'{self.name(1)}(' + ', '.join('&' + place for place in places) + ')' if c else f'({self.name(1)} ' + ' '.join(('&mut ' if self.functions[1].params[parameter][2] == 2 else '&') + place for parameter, place in enumerate(places)) + ')'
                 self.line(f'{self.type(target.tag)} {self.expression(target)} = {value};' if c else
                           f'let {self.expression(target)}: {self.type(target.tag)} = {value}', indent)
                 if c:
