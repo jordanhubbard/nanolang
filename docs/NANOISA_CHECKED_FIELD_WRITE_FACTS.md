@@ -106,3 +106,17 @@ normalization, retaining all surviving string/CODE/authority references.
 I own ledger/codec/checker/resource emitter/tests/docs only after interface review.
 The coordinator owns aggregate build/workflow integration. No build or production
 change is authorized by this document alone; blocked primitive files stay untouched.
+
+## Reviewed implementation checkpoint
+
+I implement the approved bounded interfaces on `fix/5.1-checked-field-write-facts`.
+My first direct ledger, actual Environment, 1504 codec checks, five comparator
+controls and 14 strict GCC/Clang syntax checks pass. Changed producer execution
+and C-hosted Nano qualification remain pending the coordinated build slot.
+The admitted RHS order fixture uses reads, ADD and MUL followed by two REF_SETs;
+I do not require a foreign/helper side-effect profile that is not admitted.
+
+My [final local receipt](evidence/checked-field-write-20261019/README.md) now
+qualifies the changed C and C-hosted Nano producers, exact admitted RHS order,
+all-three-family lifetime/limits, codec and final standalone raw comparisons.
+Fresh aggregate generations/fixed point and exact platforms remain pending.

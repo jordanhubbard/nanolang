@@ -486,11 +486,51 @@ static void test_field_reads(void) {
     CHECK(nvm_add_metadata(m,unknown,junk));CHECK(nvm_field_read_at(m,0,&view));nvm_module_free(m);
 }
 
+static void test_field_writes(void) {
+    NvmModule *m=ordinary();
+    NvmFieldWrite fact={0,2,3,1,1,"module.nano","owner",".left",11,5,5},view={0};
+    CHECK(nvm_add_field_write(m,&fact));CHECK(nvm_field_write_at(m,0,&view));
+    CHECK(view.mode==1 && view.projection_length==5);
+    NvmFieldWrite alternate=fact;alternate.mode=1;alternate.root="other";
+    CHECK(!nvm_add_field_write(m,&alternate)); /* descriptive changes do not create another site */
+    NvmModule *c=copy(m);compare_wire(m,c);CHECK(nvm_field_write_at(c,0,&view));
+    char *text=disasm_module_styled(c,DISASM_STYLE_CANONICAL);CHECK(text);
+    AsmResult assembled;NvmModule *round=asm_assemble(text,&assembled);CHECK(round);compare_wire(m,round);
+    free(text);nvm_module_free(round);nvm_module_free(c);
+    char error[256];char *native=nvm2c_emit(m,error,sizeof error);CHECK(native);
+    uint32_t value=m->metadata[0].value_idx,size=m->string_lengths[value];
+    uint8_t *bytes=(uint8_t *)m->strings[value];uint8_t saved[128];CHECK(size<=sizeof saved);memcpy(saved,bytes,size);
+    const unsigned offsets[]={0,4,8,12,13,14,15,16,20,24,28};
+    for(size_t i=0;i<sizeof offsets/sizeof *offsets;i++) {
+        memcpy(bytes,saved,size);
+        if(offsets[i]<=8)word(bytes+offsets[i],offsets[i]?0:UINT32_MAX);
+        else if(offsets[i]>=16 && offsets[i]<=24)word(bytes+offsets[i],UINT32_MAX);
+        else bytes[offsets[i]]=offsets[i]==28?0xff:0xff;
+        view.line=777;CHECK(!nvm_field_write_at(m,0,&view) && view.line==777);
+        CHECK(nvm_verify(m).ok);char *again=nvm2c_emit(m,error,sizeof error);CHECK(again && !strcmp(native,again));free(again);
+    }
+    memcpy(bytes,saved,size);
+    for(uint32_t n=0;n<size;n++) {m->string_lengths[value]=n;view.line=777;CHECK(!nvm_field_write_at(m,0,&view) && view.line==777);}
+    m->string_lengths[value]=size;
+    /* A forged duplicate with a changed mode is still ambiguous. */
+    saved[12]=1;uint32_t duplicate=nvm_add_string(m,(const char *)saved,size);
+    CHECK(duplicate!=UINT32_MAX && nvm_add_metadata(m,m->metadata[0].key_idx,duplicate));
+    view.line=777;CHECK(!nvm_field_write_at(m,0,&view) && view.line==777);
+    CHECK(!nvm_field_write_at(m,1,&view) && view.line==777);
+    CHECK(nvm_verify(m).ok);char *again=nvm2c_emit(m,error,sizeof error);CHECK(again && !strcmp(native,again));free(again);
+    m->metadata_count=0;again=nvm2c_emit(m,error,sizeof error);CHECK(again && !strcmp(native,again));free(again);free(native);
+    nvm_module_free(m);
+    m=ordinary();fact.projection="";fact.projection_length=0;CHECK(!nvm_add_field_write(m,&fact));
+    fact.projection=".left";fact.projection_length=5;CHECK(nvm_add_field_write(m,&fact));
+    uint32_t unknown=nvm_add_string(m,"nano.field-write.v9",19),junk=nvm_add_string(m,"opaque",6);
+    CHECK(nvm_add_metadata(m,unknown,junk));CHECK(nvm_field_write_at(m,0,&view));nvm_module_free(m);
+}
+
 int main(int argc, char **argv) {
     test_purity();
     test_effects();
     test_affine();
-    test_match_coverage(); test_affine_use(); test_borrow_places(); test_field_reads();
+    test_match_coverage(); test_affine_use(); test_borrow_places(); test_field_reads(); test_field_writes();
     test_generic_bindings();
     NvmModule *m = ordinary();
     uint32_t legacy_size; uint8_t *legacy = nvm_serialize(m, &legacy_size);

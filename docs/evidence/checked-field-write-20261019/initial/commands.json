@@ -1,0 +1,23 @@
+[
+  [
+    "cc",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Isrc",
+    "tests/test_checked_borrow_ledger.c",
+    "-o",
+    "/private/tmp/nanolang-field-write-initial/ledger"
+  ],
+  [
+    "/private/tmp/nanolang-field-write-initial/ledger"
+  ],
+  [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_source_borrow_emission.AffineComparisonIsolation"
+  ]
+]

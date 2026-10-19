@@ -20,7 +20,7 @@
 
 - [x] Under #999 I admit independently exact scalar and scalar-leaf resource fields in depth-two consuming parents. I record [my contract](NANOISA_OWNED_MIXED_DEPTH2.md), change descriptor gates and explicitly bound observations to scalar leaves, then qualify mixed stack order, explicit refusal of observations with live child fields, calls/branches and accepted assertion-before-divide evaluation order with unchanged ownership/refusal gates. I retain [five passing methods in 29.799 seconds, exact source/tool hashes, strict syntax and both failed attempts](evidence/owned-mixed-depth2-20261019/README.md). Fresh aggregate qualification and full #999 remain open.
 
-- [x] Under #999 I reconstruct exact depth-two consuming resource fields using the existing source_owned_value_nested fixture. I record [my contract](NANOISA_OWNED_NESTED_DEPTH2.md), retain exact child layouts in facts, implement once-only parent/child pack/unpack transfers, preserve scalar-only borrowed helpers, qualify 31 methods across seven source/VM/paired-native/refusal suites in 222.965 seconds, and retain [strict GCC16/Clang checks, review and evidence](evidence/owned-nested-depth2-20261019/README.md). Fresh aggregate qualification and full #999 remain open.
+- [x] Under #999 I reconstruct exact depth-two consuming resource fields using the existing source_owned_value_nested fixture. I record [my contract](NANOISA_OWNED_NESTED_DEPTH2.md), retain exact child layouts in facts, implement once-only parent/child pack/unpack transfers, preserve scalar-only borrowed helpers, qualify 31 methods across seven source/VM/paired-native/refusal suites in 222.965 seconds, and retain [strict GCC 16/Clang checks, review and evidence](evidence/owned-nested-depth2-20261019/README.md). Fresh aggregate qualification and full #999 remain open.
 
 - [x] Under #999 I reconstruct my existing two-function shared borrowed helper profile with exact mode/nominal identity, complete ephemeral call regions, once-only scalar results and unchanged verifier admission. I record [my bounded contract](NANOISA_OWNED_SHARED_HELPER.md), implement facts and the shared region tree, and qualify 27 actual retained-provider methods with malformed/refusal controls and [review/evidence](evidence/owned-shared-helper-20261019/README.md). The initial missing-shadow/source-fixture failures and one corrected harness selector error remain retained; fresh aggregate stages remain open. Mutable/reborrow/escape and full ownership reconstruction remain open.
 
@@ -12750,7 +12750,7 @@ ARRAY needs separate complete authority rather than reusing a profile flag.
 
 I qualifya522's remaining standalone Darwin embedding boundary at canonical
 `5f988ed79dd1f343fd9dca3d9b40c928264e668c` without production or fixture edits.
-All three existing methods pass in4.991s using explicit Homebrew GCC16.2 and
+All three existing methods pass in4.991s using explicit Homebrew GCC 16.2 and
 Clang23.1, strict C11 O0/O2 and the selected Xcode SDK. Each fresh executable
 passes the existing alias/root-before-disposal and arithmetic assertions;
 `otool -L` reports only libSystem for all four. My [sealed Darwin evidence](evidence/managed-native-embedding-darwin.md)
@@ -15973,3 +15973,22 @@ Existing accepted exclusive assignments compute checked destination projections
 that current read/call records do not preserve. This completes the same row10407
 affine field-access obligation, without new CFG certificates or executable scope.
 I require interface review before production edits and keep all builds held.
+
+I begin reviewed field-write implementation on `fix/5.1-checked-field-write-facts`.
+I own invocation ledger, independent codec, actual checker/emitter capture and
+focused tests. RHS expressions remain within the existing admitted profile;
+no builds start until coordinated release.
+
+My initial field-write ledger/actual Environment controls, 1504 metadata checks,
+five comparator controls and 14 GCC/Clang syntax checks pass. I hold changed
+provider and C-hosted compiler qualification behind the aggregate bootstrap slot.
+No raw-stage or platform success is claimed for this component yet.
+
+### Checked exclusive field-write final local receipt (#998)
+
+I pass [the bounded component gates](evidence/checked-field-write-20261019/README.md):
+13 paired methods in 85.640s, final raw neighbors in 3.452s, 1504 codec checks, 14 strict
+GCC/Clang checks, 24 reached write-allocation prefixes and actual Environment
+cleanup. No-write modules remain byte-identical. I retain the actual original
+normalizer refusal, reviewed correction and source/product pins. Fresh aggregate
+raw generations and exact Linux/Darwin qualification remain open under #998.

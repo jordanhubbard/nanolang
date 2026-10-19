@@ -640,8 +640,13 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
                 if (!binding || binding->moved || !binding->type_info || !path ||
                     binding->type_info->base_type != TYPE_BORROW_MUT || own_conflict(binding, path, true))
                     own_error(flow, node, "I require an available exclusive borrow for field mutation", node->as.set.name);
+                bool clean_write = !*flow->error;
+                unsigned result = own_node(flow, node->as.set.value, true);
+                if (clean_write && !*flow->error && flow->fact_owner &&
+                    !checked_field_write_capture(flow->env, flow->fact_owner, node, node->as.set.name, path))
+                    own_error(flow, node, "I need storage for checked field-write facts", NULL);
                 free(path);
-                return own_node(flow, node->as.set.value, true);
+                return result;
             }
             if (binding && binding->resource && index < flow->exit_first)
                 own_error(flow, node, "I cannot assign a captured resource", binding->name);

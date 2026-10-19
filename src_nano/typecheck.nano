@@ -1419,13 +1419,18 @@ fn resource_flow_node_context(parser: Parser, node_id: int, node_type: int, stat
         let assignment: ASTSet = (parser_get_set parser node_id)
         let index: int = (resource_find states assignment.target)
         if (!= assignment.field_name "") {
+            let write_errors: int = (Diagnostics.diag_list_count diags)
             let mut allowed: bool = false
             if (>= index 0) {
                 let owner: ResourceState = (at states index)
                 set allowed (and (str_starts_with owner.type_name "&mut ") (and (not owner.moved) (not (resource_place_conflict owner.held_places (+ "." assignment.field_name) true))))
             }
             if (not allowed) { (resource_flow_error diags file_name assignment.line assignment.column "I require an available exclusive borrow for field mutation") }
-            return (resource_flow_node_context parser assignment.value assignment.value_type states true loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
+            let next: ResourceFlow = (resource_flow_node_context parser assignment.value assignment.value_type states true loop_entry diags file_name return_type "" fact_owner fact_epoch borrow_context)
+            if (and allowed (and (> fact_epoch 0) (== write_errors (Diagnostics.diag_list_count diags)))) {
+                (field_write_fact_capture parser borrow_context fact_owner fact_epoch node_id assignment.target (+ "." assignment.field_name))
+            }
+            return next
         }
         if (>= index 0) {
             let state: ResourceState = (at states index)
