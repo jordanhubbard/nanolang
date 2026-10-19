@@ -1,0 +1,28 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-895jpsly
+test_valid_caller_reassignment_remains_separate (tests.test_single_exclusive_helper_local_reconstruction.SingleExclusiveHelperLocalReconstruction.test_valid_caller_reassignment_remains_separate) ... FAIL
+
+======================================================================
+FAIL: test_valid_caller_reassignment_remains_separate (tests.test_single_exclusive_helper_local_reconstruction.SingleExclusiveHelperLocalReconstruction.test_valid_caller_reassignment_remains_separate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_single_exclusive_helper_local_reconstruction.py", line 117, in test_valid_caller_reassignment_remains_separate
+    module = self.module(compiler, text, 'single-reassignment')
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_nested_path_reconstruction.py", line 24, in module
+    self.command([compiler,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 3, column 85: Unused variable 'value'
+Warning at line 3, column 85: Unused variable 'active'
+Warning at line 95, column 2: Unused variable 'value'
+Warning at line 95, column 2: Unused variable 'active'
+Warning at line 97, column 2: Unused variable 'value'
+Warning at line 97, column 2: Unused variable 'active'
+error: codegen failed at line 96: I require an exact live owner assigned to a consumed mutable owner in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.026s
+
+FAILED (failures=1)

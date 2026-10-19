@@ -99,7 +99,10 @@ class OwnedAnalyze(Analyze):
                     module['functions'][1].get('param_modes') in (([2, 2, 1], [1, 1], [1], [2], [2, 1]) if self.paths else ([1], [2], [2, 1, 2])),
                     'require the separate entry-to-borrowed-helper profile')
         self.helper_owners = self.paths and module['functions'][1].get('param_modes') == [2, 1]
-        if self.helper_owners:
+        self.helper_local_single = (self.paths and module['functions'][1].get('param_modes') == [2] and
+                                    any(ins['op'] in ('OWN_PACK', 'OWN_STORE_LOCAL', 'OWN_MOVE_LOCAL', 'OWN_UNPACK_LOCAL')
+                                        for ins in module['functions'][1]['code']))
+        if self.helper_owners or self.helper_local_single:
             require(max(self.depths) <= 2, 'retain helper-local owner layouts at depth two')
         self.shared_paths = self.paths and module['functions'][1].get('param_modes') == [1, 1]
         self.single_shared_path = self.paths and module['functions'][1].get('param_modes') == [1]
@@ -138,16 +141,20 @@ class OwnedAnalyze(Analyze):
         self.seen = set()
         self.calls = set()
         self.code = self.fn['code']
-        if self.helper_owners:
+        if self.helper_owners or self.helper_local_single:
             require(all(type(ins.get('arg')) is int and isinstance(ins.get('args'), list) and
                         all(type(value) is int for value in ins['args']) and
                         ins['arg'] == (ins['args'][0] if ins['args'] else 0) for ins in self.code),
                     'require exact integer helper-owner operand facts')
         require(not any(ins['op'] == 'STORE_LOCAL' and ins['arg'] in self.string_params for ins in self.code),
                 'refuse writes to immutable STRING parameters')
+        if self.helper and self.helper_local_single:
+            require(self.result == INT and not any(ins['op'] in
+                    ('ASSERT', 'JMP', 'JMP_TRUE', 'JMP_FALSE', 'CALL', 'CALL_REF', 'TAIL_CALL') for ins in self.code),
+                    'require a straight-line assertion-free single-exclusive local-owner helper')
         if self.helper:
             require(self.result in (INT, BOOL) and
-                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) | ({'SUB', 'ASSERT'} if self.multi else set()) | ({'ADD', 'MUL'} if self.shared_paths else set()) | ({'JMP', 'JMP_TRUE', 'JMP_FALSE'} if self.single_shared_path or self.exclusive_control or self.helper_owners else set()) | ({'OWN_PACK', 'OWN_STORE_LOCAL', 'OWN_MOVE_LOCAL', 'OWN_UNPACK_LOCAL', 'POP', 'REGION_BEGIN', 'REGION_END', 'BORROW_LOCAL_SHARED', 'BORROW_PATH_SHARED'} if self.helper_owners else set()) for ins in self.code),
+                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} | ({'ADD', 'REF_SET'} if self.exclusive else set()) | ({'SUB', 'ASSERT'} if self.multi else set()) | ({'ADD', 'MUL'} if self.shared_paths else set()) | ({'JMP', 'JMP_TRUE', 'JMP_FALSE'} if self.single_shared_path or self.exclusive_control or self.helper_owners else set()) | ({'OWN_PACK', 'OWN_STORE_LOCAL', 'OWN_MOVE_LOCAL', 'OWN_UNPACK_LOCAL', 'POP', 'REGION_BEGIN', 'REGION_END', 'BORROW_LOCAL_SHARED', 'BORROW_PATH_SHARED'} if self.helper_owners or self.helper_local_single else set()) for ins in self.code),
                     'require bounded exclusive helper control' if self.exclusive_control else
                     'require total scalar shared-helper diamonds' if self.single_shared_path else
                     'require a straight-line scalar borrowed helper')
@@ -212,7 +219,7 @@ class OwnedAnalyze(Analyze):
 
     def observation(self, i, end, stack, body, allow_call=True):
         length = self.reference_region_length(i)
-        if self.helper and self.helper_owners:
+        if self.helper and (self.helper_owners or self.helper_local_single):
             require(length == 4 and i + 3 < end and not self.code[i]['args'] and
                     self.code[i + 3]['op'] == 'REGION_END' and not self.code[i + 3]['args'] and
                     self.code[i + 1]['args'] and self.code[i + 1]['args'][0] == len(self.params) and
@@ -646,6 +653,7 @@ class OwnedAnalyze(Analyze):
         require(len(self.seen) == len(self.code), 'require complete owned instruction coverage')
         function = Function(self.fn['name'], self.params, self.result, self.types, self.fn['names'], parameters + body)
         function.helper_owners = self.helper_owners
+        function.helper_local_single = self.helper_local_single
         return function
 
 
@@ -657,6 +665,11 @@ class OwnedEmit(Emit):
                              for fn in functions for t in fn.params)
         modes = [t[2] if isinstance(t, tuple) and t[0] == 'borrow' else 0 for t in functions[1].params] if len(functions) == 2 else []
         self.helper_owners = modes == [2, 1] and all(getattr(fn, 'helper_owners', False) for fn in functions)
+        self.helper_local_single = modes == [2] and all(getattr(fn, 'helper_local_single', False) for fn in functions)
+        if self.helper_local_single:
+            from nanoisa_owned_origins import prove_owner_reassignment
+            for function in functions:
+                prove_owner_reassignment(function, single_helper_locals=True)
         self.loop_exits = any(getattr(fn, 'loop_exits', False) for fn in functions)
         if self.loop_exits:
             require(len(functions) == 2 and modes == [2] and all(getattr(fn, 'loop_exits', False) for fn in functions),
@@ -669,12 +682,14 @@ class OwnedEmit(Emit):
                     'require single-exclusive entry reassignment origins')
             from nanoisa_owned_origins import prove_owner_reassignment
             self.reassigned = prove_owner_reassignment(functions[0])
+        require(not self.helper_local_single or not self.reassigned,
+                'refuse combining single-helper local ownership with caller owner reassignment')
         self.shared_paths = modes == [1, 1]
         self.single_shared_path = modes == [1] and any(
             stmt[0] == 'path_borrow_call' for stmt in self.walk_statements(functions[0].body))
         self.single_exclusive_path = modes == [2] and any(
             stmt[0] == 'path_borrow_call' for stmt in self.walk_statements(functions[0].body))
-        self.exclusive_control = modes == [2] and (self.loop_exits or self.single_exclusive_path or any(
+        self.exclusive_control = modes == [2] and (self.helper_local_single or self.loop_exits or self.single_exclusive_path or any(
             stmt[0] in ('if', 'while', 'while_observe') for stmt in self.walk_statements(functions[1].body)))
         self.control_proof = None
         if self.exclusive_control:
@@ -683,7 +698,7 @@ class OwnedEmit(Emit):
                 from nanoisa_owned_exits import prove_exit_helper
                 self.control_proof = prove_exit_helper(functions[1])
             else:
-                self.control_proof = prove_exclusive_helper_control(functions[1])
+                self.control_proof = prove_exclusive_helper_control(functions[1], helper_locals=self.helper_local_single)
         self.paths = modes in ([2, 2, 1], [1, 1]) or self.single_shared_path or self.single_exclusive_path
         self.multi = modes in ([2, 1, 2], [2, 2, 1], [1, 1], [2, 1])
         self.witness = (self.helper_owner_witness(functions) if self.helper_owners else
@@ -731,6 +746,11 @@ class OwnedEmit(Emit):
             from nanoisa_owned_rendering import plan_reassignment_nano
             lowered, self.helper_owner_plan = plan_reassignment_nano(self.functions[1])
             self.functions = [self.functions[0], lowered]
+        self.single_helper_caller_plan = None
+        if self.helper_local_single and language == 'nano':
+            from nanoisa_owned_rendering import plan_reassignment_nano
+            lowered, self.single_helper_caller_plan = plan_reassignment_nano(self.functions[0])
+            self.functions = [lowered, self.functions[1]]
         if (self.reassigned or self.loop_exits) and language == 'nano':
             from nanoisa_owned_rendering import plan_reassignment_nano
             planned = []
