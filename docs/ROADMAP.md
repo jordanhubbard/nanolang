@@ -15655,3 +15655,9 @@ I do not broaden global inference support in this correction.
 - [ ] I qualify the integrated nested-array, global-context, borrowed-root and FLOAT corrections with a new raw bootstrap and exact platform gates; I wire nested proof/runtime targets into the compiler contracts workflow.
 
 - [x] I pass the exact `4cfad3737` 17-step bootstrap and 53-method fresh three-producer source matrix, retaining [my combined receipt](evidence/combined-bootstrap-4cfad-20261019/README.md). Linux/Darwin hosted gates and the instrumented bootstrap performance blocker remain open.
+### Relocated OneIR compiler capture prerequisite (#976)
+
+- [x] I retain the actual Linux capture failure from run39205176925 job117906341352: the helper was built, but the relocated native compiler searched its temporary sibling directory because its test omitted NANO_AS_CAPTURE_HELPER. `workspace_repairs` owns this isolated harness followup on fix/5.1-one-ir-product-budget.
+- [x] I propagate the existing explicit helper path to relocated compiler calls and child suites, qualify environment propagation without mocking native success, and preserve fail-closed capture. Actual Linux product qualification remains required.
+
+- [ ] I qualify the relocated compiler capture prerequisite with the actual Linux full product; Darwin environment propagation does not prove Linux capture.

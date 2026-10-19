@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from tests.native_process import native_compile_timeout, run_captured
 
@@ -15,7 +16,28 @@ HOST_RUNTIME = [ROOT / "bin/nano_aot_runtime.o", "-lm",
                 *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else [])]
 
 
+def compiler_capture_environment():
+    """I locate the built Linux capture helper for temporary compiler products."""
+    return ({"NANO_AS_CAPTURE_HELPER": str(ROOT / "bin/nano_as_capture.so")}
+            if sys.platform.startswith("linux") else {})
+
+
 class OneIrCompiler(unittest.TestCase):
+    def test_relocated_compiler_capture_environment_reaches_descendants(self):
+        # I exercise the real supervisor/environment path, not native compilation.
+        with patch.object(sys, "platform", "linux"):
+            helper = compiler_capture_environment()
+        self.assertEqual(helper, {"NANO_AS_CAPTURE_HELPER": str(ROOT / "bin/nano_as_capture.so")})
+        with patch.object(sys, "platform", "darwin"):
+            self.assertEqual(compiler_capture_environment(), {})
+        child = "import os; print(os.environ['NANO_AS_CAPTURE_HELPER']); print(os.environ['NANOLANG_SELFHOST_COMPILER'])"
+        driver = "import subprocess,sys; subprocess.run([sys.executable,'-c'," + repr(child) + "],check=True)"
+        with tempfile.TemporaryDirectory(prefix="nano-relocated-env-") as directory:
+            relocated = str(Path(directory) / "compiler")
+            output = self.run_checked([sys.executable, "-c", driver], timeout=10,
+                extra_env={**helper, "NANOLANG_SELFHOST_COMPILER": relocated})
+            self.assertEqual(output.decode().splitlines(), [helper["NANO_AS_CAPTURE_HELPER"], relocated])
+
     def assert_no_vm_wrapper(self, source):
         # I inspect identifiers, preserving compiler literals such as the
         # path used to run a separately emitted shadow-test module.
@@ -321,6 +343,7 @@ static inline void tracked_free(void *p) {
     def test_compiler_bytecode_to_native_to_program(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")
+        helper_env = compiler_capture_environment()
         with tempfile.TemporaryDirectory(prefix="nano-one-ir-compiler-") as tmp:
             work = Path(tmp)
             module, source, compiler = work / "compiler.nvm", work / "compiler.c", work / "compiler"
@@ -331,28 +354,28 @@ static inline void tracked_free(void *p) {
             self.assert_no_vm_wrapper(source.read_text())
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
                               source, "-o", compiler, *HOST_RUNTIME], build=True)
-            help_output = self.run_checked([compiler, "--help"], timeout=10)
+            help_output = self.run_checked([compiler, "--help"], timeout=10, extra_env=helper_env)
             self.assertIn(b"Compiler", help_output)
             self.run_checked([sys.executable, "-m", "unittest", "tests.test_selfhost_captures",
                               "tests.test_native_mutable_record_arrays", "tests.test_genenv_scope"],
-                             timeout=180, extra_env={"NANOLANG_SELFHOST_COMPILER": str(compiler)})
+                             timeout=180, extra_env={**helper_env, "NANOLANG_SELFHOST_COMPILER": str(compiler)})
             # I require the native compiler to parse and lower its full source,
             # including recursive record calls that a hello product cannot cover.
             # I use the explicit build budget here, retaining my default and
             # keeping ordinary guest execution deadlines independent.
             rebuilt = work / "rebuilt-compiler.nvm"
             self.run_checked([compiler, ROOT / "src_nano/nanoc_v06.nano", "--emit-nvm",
-                              "-o", rebuilt], timeout=native_compile_timeout(default=900))
+                              "-o", rebuilt], timeout=native_compile_timeout(default=900), extra_env=helper_env)
             self.run_checked([ROOT / "bin/nano_vm", "--verify-only", rebuilt])
             hello = work / "hello"
-            self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano", "-o", hello])
+            self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano", "-o", hello], extra_env=helper_env)
             self.assertEqual(self.run_checked([hello], timeout=10), b"Hello from NanoLang!\n")
             # I require an actual NanoISA product from the generated compiler,
             # then exercise that same product in both execution paths.
             hello_module, hello_c, hello_aot = (work / name for name in
                                                ("hello.nvm", "hello.c", "hello-aot"))
             self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano",
-                              "--emit-nvm", "-o", hello_module])
+                              "--emit-nvm", "-o", hello_module], extra_env=helper_env)
             self.assertGreater(hello_module.stat().st_size, 0)
             self.assertEqual(self.run_checked([ROOT / "bin/nano_vm", hello_module], timeout=10),
                              b"Hello from NanoLang!\n")
@@ -365,8 +388,7 @@ static inline void tracked_free(void *p) {
         """I execute my canonical emitter before translating its compiler product."""
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")
-        helper_env = ({"NANO_AS_CAPTURE_HELPER": str(ROOT / "bin/nano_as_capture.so")}
-                      if sys.platform.startswith("linux") else {})
+        helper_env = compiler_capture_environment()
         with tempfile.TemporaryDirectory(prefix="nano-selfhost-native-product-") as tmp:
             work = Path(tmp)
             seed, module, source, compiler = (work / name for name in
@@ -381,10 +403,10 @@ static inline void tracked_free(void *p) {
             self.assert_no_vm_wrapper(source.read_text())
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
                               source, "-o", compiler, *HOST_RUNTIME], build=True)
-            self.assertIn(b"Compiler", self.run_checked([compiler, "--help"], timeout=10))
+            self.assertIn(b"Compiler", self.run_checked([compiler, "--help"], timeout=10, extra_env=helper_env))
             self.run_checked([sys.executable, "-m", "unittest", "tests.test_selfhost_captures",
                               "tests.test_native_mutable_record_arrays", "tests.test_genenv_scope"],
-                             timeout=180, extra_env={"NANOLANG_SELFHOST_COMPILER": str(compiler)})
+                             timeout=180, extra_env={**helper_env, "NANOLANG_SELFHOST_COMPILER": str(compiler)})
             hello_module, hello_c, hello_native = (work / name for name in
                                                    ("hello.nvm", "hello.c", "hello"))
             self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano",
