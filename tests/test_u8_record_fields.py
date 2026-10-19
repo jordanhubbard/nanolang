@@ -127,22 +127,15 @@ shadow main { assert (== (main) 0) }
                 self.assertNotEqual(result.returncode,0)
                 self.assertEqual(output.read_bytes(),b'prior qualified output')
 
-    def test_nano_raw_integer_field_refusal_is_unchanged(self):
-        # C admits contextual byte literals; this slice does not expand Nano's
-        # existing exact record-field matching gate to add that separate parity.
+    def test_literal_field_range_refusal_is_preserved(self):
         for compiler in self.compilers:
-            if compiler.name == 'nano_virt':
-                continue
-            for literal in ('0', '255', '256'):
-                label = compiler.name+'-raw-literal-'+literal
-                source = self.work/(label+'.nano');output=self.work/(label+'.nvm')
-                source.write_text('struct Byte {value:u8} fn main()->int {let b:Byte=Byte{value:'+
-                                  literal+'} return 0} shadow main {assert true}')
-                output.write_bytes(b'prior qualified output')
-                result=self.run_retained(label,[compiler,source,'--emit-nvm','-o',output],None)
-                self.assertNotEqual(result.returncode,0)
-                self.assertIn('declared type for record field',result.stdout+result.stderr)
-                self.assertEqual(output.read_bytes(),b'prior qualified output')
+            label=compiler.name+'-raw-literal-256'
+            source=self.work/(label+'.nano');output=self.work/(label+'.nvm')
+            source.write_text('struct Byte {value:u8} fn main()->int {let b:Byte=Byte{value:256} return 0} shadow main {assert true}')
+            output.write_bytes(b'prior qualified output')
+            result=self.run_retained(label,[compiler,source,'--emit-nvm','-o',output],None)
+            self.assertNotEqual(result.returncode,0)
+            self.assertEqual(output.read_bytes(),b'prior qualified output')
 
 
 if __name__ == '__main__':

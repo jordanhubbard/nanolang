@@ -1,0 +1,27 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-igdfuixv
+test_checked_imports_keep_distinct_record_identity (tests.test_u8_field_context.U8FieldContext.test_checked_imports_keep_distinct_record_identity) ... ok
+test_checked_registry_identity (tests.test_u8_field_context.U8FieldContext.test_checked_registry_identity) ... ok
+test_field_refusals_preserve_output (tests.test_u8_field_context.U8FieldContext.test_field_refusals_preserve_output) ... ok
+test_native_c_profiles (tests.test_u8_field_context.U8FieldContext.test_native_c_profiles) ... FAIL
+test_ordered_exact_field_context (tests.test_u8_field_context.U8FieldContext.test_ordered_exact_field_context) ... ok
+
+======================================================================
+FAIL: test_native_c_profiles (tests.test_u8_field_context.U8FieldContext.test_native_c_profiles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_u8_field_context.py", line 121, in test_native_c_profiles
+    self.run_retained(label+opt+'-strict-build',[*self.cc,'-std=c11',opt,'-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',selected,'-lm','-o',binary],build=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 102, in run_retained
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-igdfuixv/legacy-direct-strict.c:153:70: error: implicit conversion from 'long long' to 'uint8_t' (aka 'unsigned char') changes value from 256 to 0 [-Werror,-Wconstant-conversion]
+  153 |   NanoStruct_Byte wrapped = (NanoStruct_Byte){.value = (INT64_C(256) + INT64_C(0))};
+      |                                              ~          ~~~~~~~~~~~~~^~~~~~~~~~~~
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.148s
+
+FAILED (failures=1)

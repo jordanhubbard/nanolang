@@ -35,6 +35,23 @@
 #include <math.h>
 #include <limits.h>
 
+/* I narrow an already evaluated operand only at its declared byte field. */
+static bool eval_record_field_context(const StructDef *definition,
+        const char *field, Value *value) {
+    if (!definition) return true;
+    for (int i = 0; i < definition->field_count; ++i) {
+        if (strcmp(definition->field_names[i], field)) continue;
+        if (definition->field_types[i] != TYPE_U8) return true;
+        if (value->type != VAL_INT) {
+            fprintf(stderr, "I require a checked integer at a byte record field.\n");
+            return false;
+        }
+        value->as.int_val = (int64_t)(uint8_t)value->as.int_val;
+        return true;
+    }
+    return true;
+}
+
 /* g_argc/g_argv are defined in main.c / nano_main.c */
 extern int g_argc;
 extern char **g_argv;
@@ -5435,6 +5452,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 if (base_val.is_return) return base_val;
                 StructValue *base_sv = base_val.type == VAL_STRUCT ? base_val.as.struct_val : NULL;
                 int base_count = base_sv ? base_sv->field_count : 0;
+                const char *context_name = struct_name ? struct_name :
+                    (base_sv ? base_sv->struct_name : NULL);
+                StructDef *context = context_name ? env_get_struct(env, context_name) : NULL;
                 int over_count = expr->as.struct_literal.field_count;
                 int merged_cap = base_count + over_count;
                 char **merged_names  = malloc(sizeof(char*) * (merged_cap + 1));
@@ -5465,6 +5485,12 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                         free(merged_names);
                         free(merged_values);
                         return result;
+                    }
+                    if (!eval_record_field_context(context, merged_names[merged_count],
+                            &merged_values[merged_count])) {
+                        free(merged_names);
+                        free(merged_values);
+                        return create_void();
                     }
                     merged_count++;
                 }
@@ -5502,6 +5528,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     free(field_names);
                     free(field_values);
                     return result;
+                }
+                if (!eval_record_field_context(struct_def, field_names[i], &field_values[i])) {
+                    free(field_names);
+                    free(field_values);
+                    return create_void();
                 }
             }
             

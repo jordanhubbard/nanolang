@@ -1,0 +1,63 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z
+test_checked_imports_keep_distinct_record_identity (tests.test_u8_field_context.U8FieldContext.test_checked_imports_keep_distinct_record_identity) ... ok
+test_checked_registry_identity (tests.test_u8_field_context.U8FieldContext.test_checked_registry_identity) ... ok
+test_field_refusals_preserve_output (tests.test_u8_field_context.U8FieldContext.test_field_refusals_preserve_output) ... ok
+test_native_c_profiles (tests.test_u8_field_context.U8FieldContext.test_native_c_profiles) ... FAIL
+test_ordered_exact_field_context (tests.test_u8_field_context.U8FieldContext.test_ordered_exact_field_context) ... ok
+
+======================================================================
+FAIL: test_native_c_profiles (tests.test_u8_field_context.U8FieldContext.test_native_c_profiles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_u8_field_context.py", line 122, in test_native_c_profiles
+    self.run_retained(label+opt+'-strict-build',[*self.cc,'-std=c11',opt,'-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',selected,'-lm','-o',binary],build=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 102, in run_retained
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:40:22: error: unused function 'nano_cb_0_f64_add' [-Werror,-Wunused-function]
+   40 | static inline double nano_cb_0_f64_add(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~~~
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:44:22: error: unused function 'nano_cb_0_f64_sub' [-Werror,-Wunused-function]
+   44 | static inline double nano_cb_0_f64_sub(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~~~
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:48:22: error: unused function 'nano_cb_0_f64_mul' [-Werror,-Wunused-function]
+   48 | static inline double nano_cb_0_f64_mul(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~~~
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:52:22: error: unused function 'nano_cb_0_f64_div' [-Werror,-Wunused-function]
+   52 | static inline double nano_cb_0_f64_div(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~~~
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:62:22: error: unused function 'nano_cb_0_from_bits' [-Werror,-Wunused-function]
+   62 | static inline double nano_cb_0_from_bits(int64_t value) { uint64_t bits = (uint64_t)value; double result; (void)sizeof(char[sizeof(result) == sizeof(bits) ? 1 : -1]); __builtin___memcpy_chk (&result, &bits, sizeof(result), __builtin_object_size (&result, 0)); return result; }
+      |                      ^~~~~~~~~~~~~~~~~~~
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:63:23: error: unused function 'nano_cb_0_to_bits' [-Werror,-Wunused-function]
+   63 | static inline int64_t nano_cb_0_to_bits(double value) { uint64_t bits; (void)sizeof(char[sizeof(value) == sizeof(bits) ? 1 : -1]); __builtin___memcpy_chk (&bits, &value, sizeof(bits), __builtin_object_size (&bits, 0)); return bits <= 9223372036854775807LL ? (int64_t)bits : -1 - (int64_t)(18446744073709551615ULL - bits); }
+      |                       ^~~~~~~~~~~~~~~~~
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:73:832: error: unused function 'nano_cb_0_f64_print' [-Werror,-Wunused-function]
+   73 | typedef char nano_cb_0_f64_format_storage[(sizeof(double) == 8 && sizeof(uint64_t) == 8) ? 1 : -1]; static inline const char *nano_cb_0_f64_nonfinite(double value) { uint64_t bits; __builtin___memcpy_chk (&bits, &value, sizeof bits, __builtin_object_size (&bits, 0)); if ((bits & (0x7ff0000000000000ULL)) != (0x7ff0000000000000ULL)) return ((void*)0); if (bits & (0x000fffffffffffffULL)) return bits >> 63 ? "-nan" : "nan"; return bits >> 63 ? "-inf" : "inf"; } static inline int nano_cb_0_f64_format(char *out, size_t size, double value) { const char *special = nano_cb_0_f64_nonfinite(value); return special ? __builtin___snprintf_chk (out, size, 0, __builtin_object_size (out, 2 > 1 ? 1 : 0), "%s", special) : __builtin___snprintf_chk (out, size, 0, __builtin_object_size (out, 2 > 1 ? 1 : 0), "%g", value); } static inline int nano_cb_0_f64_print(FILE *out, double value) { const char *special = nano_cb_0_f64_nonfinite(value); return special ? fprintf(out, "%s", special) : fprintf(out, "%g", value); }
+      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^~~~~~~~~~~~~~~~~~~
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:75:12: error: unused function 'nano_cb_0_string_equal' [-Werror,-Wunused-function]
+   75 | static int nano_cb_0_string_equal(const char *left, const char *right) {
+      |            ^~~~~~~~~~~~~~~~~~~~~~
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:113:20: error: unused function 'nano_cb_0_string_concat' [-Werror,-Wunused-function]
+  113 | static const char *nano_cb_0_string_concat(const char *left, const char *right) {
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:121:20: error: unused function 'nano_cb_0_float_text_new' [-Werror,-Wunused-function]
+  121 | static const char *nano_cb_0_float_text_new(double value) {
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:128:20: error: unused function 'nano_cb_0_int_text_new' [-Werror,-Wunused-function]
+  128 | static const char *nano_cb_0_int_text_new(int64_t value) {
+      |                    ^~~~~~~~~~~~~~~~~~~~~~
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:135:12: error: unused function 'nano_cb_0_public_float_print' [-Werror,-Wunused-function]
+  135 | static int nano_cb_0_public_float_print(double value, int newline) {
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ikkg_r3z/legacy-direct-strict.c:140:20: error: unused function 'nano_cb_0_bool_text' [-Werror,-Wunused-function]
+  140 | static const char* nano_cb_0_bool_text(int b) {
+      |                    ^~~~~~~~~~~~~~~~~~~
+13 errors generated.
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.017s
+
+FAILED (failures=1)
