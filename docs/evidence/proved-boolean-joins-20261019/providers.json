@@ -1,0 +1,11 @@
+{
+  "bin/nano_virt": "5f79f32cc86812dd943e2cf89062e02b3a6c3e4b91656c9029d2802345d8a242",
+  "bin/nanoc_stage1": "b07896f8a84457b62e13111d0ff2b71635a567c0a80a2c8e03d4e87a0870f5a3",
+  "bin/nanoc_stage2": "4e7ac7aed1df4814271e646fc37f7bc28fb6fe505369c3fa8abae2a18e5243d8",
+  "bin/nvm2c": "b3da39240bff2f80bf25349750beeb67e7066d91575d30f7d9ee13e1efac02ec",
+  "bin/nano_vm": "e276f5a37e379d3da08801608d7262704df287c001defaf9fae1745080e5ddcf",
+  "bin/nano_aot_runtime.o": "d48980563f3c31ce8eb4b0b1a3309a7dbc17749fd9a42f445bca4c42ff487863",
+  "src/nanoisa/nvm2c.c": "9e52afef4640ab154ff7acee099957c825883fd98e7c6f9a0bbc050635bc9d78",
+  "tests/test_optional_record_join.py": "ddb7d02ec9f35104c6b8496c38c98df937e80541bebe9f7b36dc8d1a0e8fb1af",
+  "tests/test_native_scalar_joins.py": "e189625559a850d2f49830e1019a2def8ac601f475c27e39c797bd2c49e310d2"
+}

@@ -3783,9 +3783,12 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
         return 0;
     }
     int needed = 0;
-    for (int i = 0; i < stack->sp; ++i)
-        if (scalar_kind_tags(stack->kinds[i]) != NVM2C_SCALAR_UNKNOWN &&
-            nvm_shape_kind(&b->shapes, shape->shapes[i]) == NVM_SHAPE_OPTIONAL) needed = 1;
+    for (int i = 0; i < stack->sp; ++i) {
+        NvmShapeKind destination = nvm_shape_kind(&b->shapes, shape->shapes[i]);
+        if ((scalar_kind_tags(stack->kinds[i]) != NVM2C_SCALAR_UNKNOWN &&
+             destination == NVM_SHAPE_OPTIONAL) ||
+            (stack->kinds[i] == NVM2C_VK_VALUE && destination == NVM_SHAPE_BOOL)) needed = 1;
+    }
     if (!needed) return record_join_storage(b, idx, joins, set, target, stack);
     Nvm2cStack edge = *stack;
     edge.slots = malloc((size_t)edge.sp * sizeof *edge.slots);
@@ -3797,6 +3800,18 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
     memcpy(edge.slots, stack->slots, (size_t)edge.sp * sizeof *edge.slots);
     memcpy(edge.kinds, stack->kinds, (size_t)edge.sp * sizeof *edge.kinds);
     for (int i = 0; i < edge.sp; ++i) {
+        /* I extract only a proved exact boolean, retaining the runtime tag
+         * check for boxed record projections. I do not coerce truth values. */
+        if (edge.kinds[i] == NVM2C_VK_VALUE &&
+            nvm_shape_kind(&b->shapes, shape->shapes[i]) == NVM_SHAPE_BOOL) {
+            if ((size_t)edge.next_temp >= edge.capacity) {
+                nvm2c_fail(b, "I cannot represent another boolean join temporary"); break;
+            }
+            int boolean = edge.next_temp++;
+            nvm2c_printf(b, "    t[%d] = nvalue_require_bool(v[%d]);\n", boolean, edge.slots[i]);
+            edge.slots[i] = boolean; edge.kinds[i] = NVM2C_VK_BOOL;
+            continue;
+        }
         if (scalar_kind_tags(edge.kinds[i]) == NVM2C_SCALAR_UNKNOWN ||
             nvm_shape_kind(&b->shapes, shape->shapes[i]) != NVM_SHAPE_OPTIONAL) continue;
         if ((size_t)edge.next_value >= edge.capacity) {

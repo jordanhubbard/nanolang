@@ -15771,3 +15771,13 @@ I integrate the reviewed loop and VOID/assert components into my aggregate owned
 I complete both fresh paired parser methods in 1597.282 seconds using unchanged `16eb3b1f9` compiler providers, including C and both installed parser products, schema/token consumers and prior-output refusals. I retain [my exact paired parser receipt](evidence/parser-paired-16eb3b1f9-20261019/README.md); hosted join and full release obligations remain open.
 
 I rebuild my aggregate facts extractor and pass all 23 local/call/branch/loop/VOID reconstruction methods in 229.816 seconds against NanoVirt and both fresh `16eb3b1f9` installed generations. I retain [my aggregate receipt](evidence/owned-aggregate-9c076ab62-20261019/README.md). Hosted and broader #999 obligations remain open.
+
+### I normalize proved boolean join carriers (#976, 2026-10-19)
+
+- [x] I reproduce the hosted emitter failure with my current fresh Stage 2 producer: `purity_identifier`, function 589, join 213, slot 0 retains VALUE on one edge and BOOL on the other; the solved destination shape is exact BOOL.
+- [ ] I normalize only boxed VALUE edges at exact BOOL destinations with my existing checked boolean extractor, leaving OPTIONAL boxing, fallthrough, parallel assignments and unsupported shape refusals intact.
+- [ ] I qualify both edge orders, short-circuit behavior, exact-tag refusal, neighboring scalar joins and the original emitter publication before crediting the fix.
+
+My first expanded guard harness failed to compile because it assumed an unavailable generated cleanup function. I retain that terminal and use the three actual generated cleanup functions; the product translator and its assertions are unchanged by this harness correction.
+
+I pass the same full emitter module through corrected translation in 15.907 seconds, 14 scalar/optional-record methods in 66.053 seconds, and expanded three-producer forward/reverse boolean join and actual NDEBUG tag-guard controls in 50.461 seconds. I retain [my reviewed correction and failure receipts](evidence/proved-boolean-joins-20261019/README.md). Full native emitter publication and hosted coverage remain pending while worker pressure holds heavy jobs.

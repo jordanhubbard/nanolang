@@ -147,6 +147,75 @@ class OptionalRecordJoin(unittest.TestCase):
                             None if case == 'raw-missing' else 0,
                             'requires two floats' if kind == 'float' else 'Assertion failed')
 
+    def test_proved_boolean_record_projection_short_circuit(self):
+        for operation in ('or', 'and'):
+            for reverse in (False, True):
+                for populated in (False, True):
+                    body = 'assert (not (choose [] true))' if not populated else ''
+                    if populated:
+                        for left in (False, True):
+                            for right in (False, True):
+                                result = (left or right) if operation == 'or' else (left and right)
+                                evaluated = True if reverse else ((not left) if operation == 'or' else left)
+                                body += (f'set calls 0\nassert (== (choose [Flag {{ enabled: {str(left).lower()} }}] '
+                                         f'{str(right).lower()}) {str(result).lower()})\n'
+                                         f'assert (== calls {int(evaluated)})\n')
+                    expression = ('(evaluate rhs) item.enabled' if reverse else 'item.enabled (evaluate rhs)')
+                    source = f"""struct Flag {{ enabled: bool }}
+let mut calls: int = 0
+fn evaluate(value: bool) -> bool {{ set calls (+ calls 1) return (not (not value)) }}
+shadow evaluate {{ assert true }}
+fn choose(items: array<Flag>, rhs: bool) -> bool {{
+    if (== (array_length items) 0) {{ return false }}
+    let item: Flag = (at items 0)
+    return ({operation} {expression})
+}}
+shadow choose {{ assert true }}
+fn main() -> int {{ {body} return 0 }}
+shadow main {{ assert true }}
+"""
+                    case = f'boolean-{operation}-{reverse}-{populated}'
+                    self.paired(case, source, 0)
+                    if not populated:
+                        for number, compiler in enumerate(self.compilers):
+                            generated = self.work/f'{case}-{number}-{compiler.name}.c'
+                            self.assertRegex(generated.read_text(),
+                                r't\[\d+\] = nvalue_require_bool\(v\[\d+\]\)')
+                        if not reverse:
+                            self.checked_boolean_guard(case, generated, operation == 'or')
+
+    def checked_boolean_guard(self, case, generated, value):
+        # I execute the actual boxed record edge with exact BOOL or adversarial
+        # INT storage. OR(true) and AND(false) retain that edge at the join.
+        wrapper = self.work/(case+'-guard.c')
+        wrapper.write_text(f"""#define main retained_main
+#include "{generated}"
+#undef main
+int main(int argc, char **argv) {{
+    if (argc != 2) return 3;
+    nrec_t record = {{0}};
+    record.n = 1; record.k[0] = 8;
+    record.vk[0] = (uint8_t)atoi(argv[1]); record.f[0] = {int(value)};
+    nrarr_s array = {{0}}; array.data = &record; array.len = 1;
+    int64_t result = nl_choose(&array, 0);
+    nrec_release_snapshots(); nmap_release_owned(); nrarr_release_owned();
+    return result == {int(value)} ? 0 : 4;
+}}
+""")
+        for optimization in ('-O0', '-O2'):
+            label = case+'-guard'+optimization[1:]
+            binary = self.work/label
+            self.run_retained(label+'-build', [*self.cc, '-std=c11', optimization, '-DNDEBUG',
+                '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined',
+                '-fno-sanitize-recover=all', wrapper, ROOT/'bin/nano_aot_runtime.o',
+                '-lm', *native_link_flags(), '-o', binary], build=True)
+            self.run_retained(label+'-bool', [binary, '4'])
+            invalid = self.run_retained(label+'-int', [binary, '1'], expected=None)
+            self.assertNotEqual(invalid.returncode, 0)
+            self.assertIn('native invariant', invalid.stderr)
+            self.assertNotIn('ERROR: AddressSanitizer', invalid.stderr)
+            self.assertNotIn('runtime error:', invalid.stderr)
+
     def test_missing_raw_reads_do_not_become_integer_zero(self):
         for index in (-1, 1):
             self.paired('raw-missing-'+str(index), source_text('[7]', 1, index, guarded=False))

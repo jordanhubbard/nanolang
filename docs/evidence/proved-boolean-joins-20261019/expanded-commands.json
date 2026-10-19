@@ -1,0 +1,3355 @@
+[
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virtO0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virtO0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virtO0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virtO0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virtO2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virtO2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virtO2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-0-nano_virtO2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-1-nanoc_stage1O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-2-nanoc_stage2O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO0-bool-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO0",
+      "4"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO0-bool-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guard.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO0-int-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO0",
+      "1"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO0-int-status.json",
+    "receipt": {
+      "returncode": -6
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO2-bool-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO2",
+      "4"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO2-bool-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guard.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO2-int-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO2",
+      "1"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-False-guardO2-int-status.json",
+    "receipt": {
+      "returncode": -6
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virtO0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virtO0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virtO0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virtO0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virtO2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virtO2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virtO2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-0-nano_virtO2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-1-nanoc_stage1O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-False-True-2-nanoc_stage2O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virtO0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virtO0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virtO0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virtO0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virtO2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virtO2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virtO2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-0-nano_virtO2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-1-nanoc_stage1O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-False-2-nanoc_stage2O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virtO0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virtO0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virtO0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virtO0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virtO2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virtO2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virtO2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-0-nano_virtO2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-1-nanoc_stage1O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-and-True-True-2-nanoc_stage2O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virtO0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virtO0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virtO0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virtO0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virtO2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virtO2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virtO2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-0-nano_virtO2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-1-nanoc_stage1O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-2-nanoc_stage2O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO0-bool-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO0",
+      "4"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO0-bool-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guard.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO0-int-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO0",
+      "1"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO0-int-status.json",
+    "receipt": {
+      "returncode": -6
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO2-bool-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO2",
+      "4"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO2-bool-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guard.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO2-int-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO2",
+      "1"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-False-guardO2-int-status.json",
+    "receipt": {
+      "returncode": -6
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virtO0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virtO0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virtO0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virtO0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virtO2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virtO2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virtO2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-0-nano_virtO2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-1-nanoc_stage1O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-False-True-2-nanoc_stage2O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virtO0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virtO0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virtO0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virtO0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virtO2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virtO2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virtO2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-0-nano_virtO2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-1-nanoc_stage1O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-False-2-nanoc_stage2O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virtO0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virtO0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virtO0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virtO0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virtO0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virtO2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virt.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virtO2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virtO2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virtO2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-0-nano_virtO2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-1-nanoc_stage1O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2-produce-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2-produce-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2-translate-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2.c"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2-translate-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2-verify-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2-verify-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2-vm-command.json",
+    "receipt": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2.nvm"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2-vm-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2O0-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2O0-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2O0-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2O0"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2O0-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2O2-build-command.json",
+    "receipt": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2.c",
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2O2-build-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2O2-native-command.json",
+    "receipt": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2O2"
+    ]
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/boolean-or-True-True-2-nanoc_stage2O2-native-status.json",
+    "receipt": {
+      "returncode": 0
+    }
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6/providers.json",
+    "receipt": [
+      {
+        "path": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+        "sha256": "5f79f32cc86812dd943e2cf89062e02b3a6c3e4b91656c9029d2802345d8a242"
+      },
+      {
+        "path": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+        "sha256": "b07896f8a84457b62e13111d0ff2b71635a567c0a80a2c8e03d4e87a0870f5a3"
+      },
+      {
+        "path": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+        "sha256": "4e7ac7aed1df4814271e646fc37f7bc28fb6fe505369c3fa8abae2a18e5243d8"
+      },
+      {
+        "path": "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "sha256": "e276f5a37e379d3da08801608d7262704df287c001defaf9fae1745080e5ddcf"
+      },
+      {
+        "path": "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "sha256": "b3da39240bff2f80bf25349750beeb67e7066d91575d30f7d9ee13e1efac02ec"
+      },
+      {
+        "path": "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+        "sha256": "d48980563f3c31ce8eb4b0b1a3309a7dbc17749fd9a42f445bca4c42ff487863"
+      }
+    ]
+  }
+]

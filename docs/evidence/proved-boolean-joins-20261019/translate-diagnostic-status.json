@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/private/tmp/nanolang-emitter-join-20261019/nvm2c-diagnostic",
+    "/private/tmp/nanolang-emitter-join-20261019/retry-20261019-030242/driver.nvm",
+    "-o",
+    "/private/tmp/nanolang-emitter-join-20261019/diagnostic.c"
+  ],
+  "returncode": 1,
+  "elapsed_seconds": 16.169680583989248,
+  "timeout": 600
+}

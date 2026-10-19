@@ -59,6 +59,26 @@ class NativeScalarJoins(unittest.TestCase):
                             'PUSH_BOOL 1\nCALL choose\n'+('' if truth else 'BOOL_NOT\n')+'ASSERT\n')
                     self.compare(self.program(body,self.choose(instruction,tag,reverse)))
 
+    def test_proved_boolean_global_edges_preserve_short_circuit(self):
+        for operation in ('or', 'and'):
+            branch = 'JMP_TRUE' if operation == 'or' else 'JMP_FALSE'
+            helper = ('.function choose 1 1 0 bool 1\n.parameters choose bool\n'
+                'LOAD_GLOBAL 0\nDUP\n'+branch+' join\nPOP\n'
+                'LOAD_GLOBAL 1\nPUSH_I64 1\nI64_ADD\nSTORE_GLOBAL 1\n'
+                'LOAD_LOCAL 0\nBOOL_NOT\njoin:\nRET\n.end\n')
+            body = ''
+            for left in (False, True):
+                for right in (False, True):
+                    result = (left or right) if operation == 'or' else (left and right)
+                    evaluated = (not left) if operation == 'or' else left
+                    body += (f'PUSH_BOOL {int(left)}\nSTORE_GLOBAL 0\n'
+                        'PUSH_I64 0\nSTORE_GLOBAL 1\n'
+                        f'PUSH_BOOL {int(not right)}\nCALL choose\n'
+                        f'PUSH_BOOL {int(result)}\nEQ\nASSERT\n'
+                        f'LOAD_GLOBAL 1\nPUSH_I64 {int(evaluated)}\nI64_EQ\nASSERT\n')
+            with self.subTest(operation=operation):
+                self.compare(self.program(body, helper))
+
     def test_explicit_void_local_retains_join_provenance(self):
         function = self.choose('PUSH_I64 7', 1).replace(
             '.parameters choose bool\n', '.parameters choose bool\nPUSH_VOID\nSTORE_LOCAL 1\n')
