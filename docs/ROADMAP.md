@@ -15653,3 +15653,11 @@ I do not broaden global inference support in this correction.
 
 - [x] I retain the successful 17-step combined bootstrap at `7c7f3f5af` in [my checkpoint receipt](evidence/combined-bootstrap-7c7f3-20261019/README.md).
 - [ ] I qualify the integrated nested-array, global-context, borrowed-root and FLOAT corrections with a new raw bootstrap and exact platform gates; I wire nested proof/runtime targets into the compiler contracts workflow.
+
+### Exact U8 record field emission (#1001, 2026-10-19)
+
+- [x] I complete `fix/5.1-u8-record-fields` from frozen aggregate `4cfad3737`. I add only exact scalar `u8` field classification to the Nano emitter's existing recursive record predicate. The retained conditional List<Fact> refusal comes from this missing scalar case, while actual C-produced VM/native execution already succeeds. I require direct/nested/List record observations, typed 0/255 boundaries, exact wrong-type and raw-literal refusal controls, original VM and O0/O2 sanitized native parity, and unchanged unknown/cyclic/ownership boundaries. I do not broaden literal coercion, type matching, shape solving or verifier authority; fresh aggregate stages and full #1001 remain open.
+
+- [ ] I retain a separate #1001 contextual byte literal gap discovered during this slice: C accepts `Byte{value:256}` while both producers reject `let bad:u8=256`; Nano still refuses raw integer record fields 0/255/256 at its exact field matching gate. The retained C module contains `PUSH_I64 256` with a TAG_U8 field layout. This unused-field probe does not establish runtime narrowing or safe field-read behavior. I keep investigation separate from exact-U8 field classification and do not count record-literal range as qualified.
+
+I pass seven focused methods in 10.306 seconds through retained C and a changed-source C-hosted Nano producer, with 12 original verified VM modules and 24 sanitized O0/O2 native runs. I retain prior failures, hashes, source and command receipts in [exact U8 field evidence](evidence/u8-record-fields-20261019/README.md). Full fresh-stage/platform acceptance and the contextual literal gaps above remain open.

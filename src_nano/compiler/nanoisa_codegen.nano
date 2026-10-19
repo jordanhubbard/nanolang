@@ -2376,6 +2376,7 @@ fn nisa_field_shape_supported_seen(parser: Parser, field: string, ancestors: arr
     if (str_starts_with field "fn(") { return (nisa_function_type_ok_seen parser field signatures) }
     if (>= (nisa_enum_index parser field) 0) { return true }
     if (!= (nisa_map_value_type field) "") { return true }
+    if (== field "u8") { return true }
     if (or (== field "float") (or (== field "int") (or (== field "string") (== field "bool")))) { return true }
     if (or (== field "array<float>") (== field "array<u8>")) { return true }
     if (or (== field "array<bool>") (or (== field "array<int>") (== field "array<string>"))) { return true }
@@ -2412,6 +2413,9 @@ shadow nisa_field_shape_supported {
     assert (nisa_field_shape_supported parser "array<bool>" [])
     assert (nisa_field_shape_supported parser "List<bool>" [])
     assert (nisa_field_shape_supported parser "float" [])
+    assert (nisa_field_shape_supported parser "u8" [])
+    assert (not (nisa_field_shape_supported parser "U8" []))
+    assert (not (nisa_field_shape_supported parser "Missing" []))
     assert (nisa_field_shape_supported parser "array<float>" [])
     assert (nisa_field_shape_supported parser "array<array<float>>" [])
     assert (not (nisa_field_shape_supported parser "array<array<Missing>>" []))
@@ -2449,6 +2453,13 @@ fn nisa_record_shape_supported(parser: Parser, name: string, ancestors: array<st
 }
 
 shadow nisa_record_shape_supported {
+    let byte_tokens: List<LexerToken> = (tokenize_string "struct Byte { value: u8 } struct Box { child: Byte } struct Loop { next: Loop } struct Bad { value: Missing }" "byte-shape.nano" (diag_list_new))
+    let byte_parser: Parser = (parse_program byte_tokens (list_LexerToken_length byte_tokens) "byte-shape.nano")
+    assert (nisa_record_shape_supported byte_parser "Byte" [])
+    assert (nisa_record_shape_supported byte_parser "Box" [])
+    assert (nisa_type_ok byte_parser "List<Byte>")
+    assert (not (nisa_record_shape_supported byte_parser "Loop" []))
+    assert (not (nisa_record_shape_supported byte_parser "Bad" []))
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = "struct Point { x: int } struct Pair { first: Point, second: Point } struct Cycle { next: List<Cycle> }"
     let tokens: List<LexerToken> = (tokenize_string source "shape.nano" diagnostics)

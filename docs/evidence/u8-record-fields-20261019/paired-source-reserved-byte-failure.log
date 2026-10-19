@@ -1,0 +1,152 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-wu9co07o
+test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) ... 
+  test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) (case='u8-present', compiler='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt') ... FAIL
+  test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) (case='u8-empty', compiler='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt') ... FAIL
+  test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) (case='u8-unchecked', compiler='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt') ... FAIL
+  test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) (case='u8-raw-missing', compiler='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt') ... FAIL
+test_direct_nested_and_list_fields (tests.test_u8_record_fields.U8RecordFields.test_direct_nested_and_list_fields) ... ok
+test_exact_u8_layout (tests.test_u8_record_fields.U8RecordFields.test_exact_u8_layout) ... ok
+test_nano_raw_integer_field_refusal_is_unchanged (tests.test_u8_record_fields.U8RecordFields.test_nano_raw_integer_field_refusal_is_unchanged) ... ok
+test_out_of_range_byte_literal_preserves_output (tests.test_u8_record_fields.U8RecordFields.test_out_of_range_byte_literal_preserves_output) ... ok
+test_wrong_field_types_preserve_output (tests.test_u8_record_fields.U8RecordFields.test_wrong_field_types_preserve_output) ... ok
+
+======================================================================
+FAIL: test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) (case='u8-present', compiler='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 112, in paired
+    self.run_retained(label+'-produce', [compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 102, in run_retained
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 10, column 5: Expected variable name
+Error at line 10, column 13: Unexpected token in expression: COLON (type=14)
+Error at line 10, column 15: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 10, column 18: Unexpected token in expression: ASSIGN (type=17)
+Error at line 13, column 63: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 13, column 63: Expected field name in struct literal
+Error at line 13, column 63: Expected '}' at end of struct literal (got TYPE_U8)
+Error at line 13, column 63: Failed to parse function argument
+Error at line 13, column 69: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 5: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 6: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 20: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 22: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 31: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 33: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 43: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 45: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 46: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 15, column 5: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+error: parser failed
+
+
+======================================================================
+FAIL: test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) (case='u8-empty', compiler='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 112, in paired
+    self.run_retained(label+'-produce', [compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 102, in run_retained
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 10, column 5: Expected variable name
+Error at line 10, column 13: Unexpected token in expression: COLON (type=14)
+Error at line 10, column 15: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 10, column 18: Unexpected token in expression: ASSIGN (type=17)
+Error at line 13, column 63: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 13, column 63: Expected field name in struct literal
+Error at line 13, column 63: Expected '}' at end of struct literal (got TYPE_U8)
+Error at line 13, column 63: Failed to parse function argument
+Error at line 13, column 69: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 5: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 6: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 20: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 22: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 31: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 33: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 43: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 45: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 46: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 15, column 5: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+error: parser failed
+
+
+======================================================================
+FAIL: test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) (case='u8-unchecked', compiler='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 112, in paired
+    self.run_retained(label+'-produce', [compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 102, in run_retained
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 10, column 5: Expected variable name
+Error at line 10, column 13: Unexpected token in expression: COLON (type=14)
+Error at line 10, column 15: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 10, column 18: Unexpected token in expression: ASSIGN (type=17)
+Error at line 13, column 63: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 13, column 63: Expected field name in struct literal
+Error at line 13, column 63: Expected '}' at end of struct literal (got TYPE_U8)
+Error at line 13, column 63: Failed to parse function argument
+Error at line 13, column 69: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 5: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 6: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 20: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 22: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 31: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 33: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 43: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 45: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 46: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 15, column 5: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+error: parser failed
+
+
+======================================================================
+FAIL: test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) (case='u8-raw-missing', compiler='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 112, in paired
+    self.run_retained(label+'-produce', [compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 102, in run_retained
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 10, column 5: Expected variable name
+Error at line 10, column 13: Unexpected token in expression: COLON (type=14)
+Error at line 10, column 15: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 10, column 18: Unexpected token in expression: ASSIGN (type=17)
+Error at line 13, column 63: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 13, column 63: Expected field name in struct literal
+Error at line 13, column 63: Expected '}' at end of struct literal (got TYPE_U8)
+Error at line 13, column 63: Failed to parse function argument
+Error at line 13, column 69: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 5: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 6: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 20: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 22: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 31: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 33: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 43: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 45: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 14, column 46: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 15, column 5: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+error: parser failed
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 7.096s
+
+FAILED (failures=4)
