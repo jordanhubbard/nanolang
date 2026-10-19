@@ -1,6 +1,7 @@
 """I qualify positive checker events without granting executable borrow authority."""
 import ast
 from contextlib import contextmanager
+from collections import Counter
 import os
 from pathlib import Path
 import shlex
@@ -50,6 +51,50 @@ class CheckedBorrowMetadata(unittest.TestCase):
             self.assertNotIn(site,sites);sites.add(site)
             facts.append((functions[fn],mode,coords,root,projection,ordinal,path))
         return lines,strings,entries,facts
+
+    def test_checked_field_reads_keep_projection_and_root_category(self):
+        cases=[('source_borrow_shared.nano', [('read',2,'view','.value')]),
+               ('source_borrow_exclusive.nano', [('update',3,'view','.value'),('update',3,'view','.active'),('main',1,'owner','.active')]),
+               ('source_borrow_nested.nano', [('main',1,'root','.branch.left.value'),('main',1,'root','.branch.right.value')])]
+        for driver in DRIVERS:
+            for fixture,required in cases:
+                with self.subTest(driver=driver,fixture=fixture),tempfile.TemporaryDirectory(prefix='nano-read-facts-') as directory,self.retain_failure(directory):
+                    work=Path(directory);module=work/'source.nvm';source=ROOT/'tests/nanoisa/fixtures'/fixture
+                    self.command([driver,source,'--emit-nvm','-o',module])
+                    canonical=self.command([ROOT/'bin/nanoisa','dump',module]);(work/'original.nasm').write_text(canonical)
+                    lines=canonical.splitlines()
+                    strings=[ast.literal_eval(line[8:]).encode('latin1') for line in lines if line.startswith('.string ')]
+                    functions=[shlex.split(line)[1] for line in lines if line.startswith('.function ')]
+                    entries=[line for line in lines if line.startswith('.metadata ') and strings[int(line.split()[1])]==b'nano.field-read.v1']
+                    facts=[];sites=set()
+                    for entry in entries:
+                        data=strings[int(entry.split()[2])]
+                        fn,line,column,category,coords,reserved,np,nr,nj=struct.unpack('<3IBBH3I',data[:28])
+                        self.assertEqual(len(data),28+np+nr+nj);self.assertEqual(reserved,0)
+                        self.assertGreater(line,0);self.assertGreater(column,0);self.assertLess(fn,len(functions))
+                        self.assertIn(category,(1,2,3));self.assertIn(coords,(1,2));self.assertTrue(np and nr and nj)
+                        path=data[28:28+np].decode();root=data[28+np:28+np+nr].decode();projection=data[28+np+nr:].decode()
+                        self.assertTrue(projection.startswith('.'));self.assertEqual(Path(path).resolve(),source.resolve())
+                        site=(fn,line,column,coords,path);self.assertNotIn(site,sites);sites.add(site)
+                        facts.append((functions[fn],category,root,projection))
+                    for fact in required:self.assertIn(fact,facts)
+                    if fixture=='source_borrow_shared.nano':
+                        self.assertEqual([fact for fact in facts if fact[0]=='read'],required)
+                    elif fixture=='source_borrow_exclusive.nano':
+                        self.assertEqual(Counter(fact for fact in facts if fact[0]=='update'),Counter({('update',3,'view','.value'):2,('update',3,'view','.active'):1}))
+                    else:
+                        self.assertEqual(Counter(fact for fact in facts if fact[0]=='main'),Counter({('main',1,'root','.branch.left.value'):2,('main',1,'root','.branch.right.value'):2}))
+                    self.assertFalse(any(path in ('.branch','.branch.left','.branch.right') for *_,path in facts))
+                    assembly=work/'roundtrip.nasm';rebuilt=work/'roundtrip.nvm';assembly.write_text(canonical)
+                    self.command([ROOT/'bin/nanoisa','asm',assembly,'-o',rebuilt]);self.assertEqual(module.read_bytes(),rebuilt.read_bytes())
+                    self.command([ROOT/'bin/nano_vm',module])
+                    native=work/'program.c';binary=work/'program';self.command([ROOT/'bin/nvm2c',module,'-o',native]);original=native.read_bytes()
+                    self.command(shlex.split(os.environ.get('CC','cc'))+['-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined',native,'-lm','-o',binary],build=True)
+                    self.command([binary])
+                    for label,variant in [('stripped',[line for line in lines if line not in entries]),('duplicate',lines+entries)]:
+                        assembly.write_text('\n'.join(variant)+'\n');self.command([ROOT/'bin/nanoisa','asm',assembly,'-o',rebuilt])
+                        self.command([ROOT/'bin/nano_vm',rebuilt]);self.command([ROOT/'bin/nvm2c',rebuilt,'-o',native])
+                        self.assertEqual(original,native.read_bytes(),label)
 
     def test_actual_root_and_nested_events(self):
         cases=[('source_borrow_exclusive.nano',[(2,'owner','',0)]),
@@ -113,7 +158,7 @@ class CheckedBorrowMetadata(unittest.TestCase):
         # I execute the changed Nano checker/bridge, not a fabricated fact payload.
         helper = r'''import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
-from "src_nano/compiler/checked_borrow_facts.nano" import borrow_fact_lookup
+from "src_nano/compiler/checked_borrow_facts.nano" import borrow_fact_lookup, field_read_fact_lookup
 from "src_nano/typecheck.nano" import typecheck_for_immediate_emission
 from "src_nano/compiler/nanoisa_codegen.nano" import nanoisa_check_and_emit
 from "src_nano/compiler/nanoisa_borrows.nano" import nanoisa_borrow_emit, nanoisa_borrow_lower
@@ -140,12 +185,40 @@ fn main() -> int {
   set i (+ i 1)
  }
  assert (> found 0)
+ let reads:array<FieldReadFactEvent> =(at checked.borrow_context 0).reads
+ assert (> (array_length reads) 0)
+ let mut found_reads:int=0
+ set i 0
+ while (< i (parser_get_function_count parser)) {
+  let function:ASTFunction=(parser_get_function parser i)
+  let mut j:int=0
+  while (< j (array_length reads)) {
+   let event:FieldReadFactEvent=(at reads j)
+   if (>= (field_read_fact_lookup parser checked.borrow_context function event.field) 0) {
+    set found_reads (+ found_reads 1)
+    let original:ASTFieldAccess=(parser_get_field_access parser event.field)
+    (list_ASTFieldAccess_set parser.field_accesses event.field ASTFieldAccess {node_type:original.node_type,line:original.line,column:original.column,object:original.object,object_type:original.object_type,field_name:"wrong"})
+    assert (== (field_read_fact_lookup parser checked.borrow_context function event.field) (- 0 1))
+    (list_ASTFieldAccess_set parser.field_accesses event.field ASTFieldAccess {node_type:original.node_type,line:original.line,column:original.column,object:(- 0 1),object_type:original.object_type,field_name:original.field_name})
+    assert (== (field_read_fact_lookup parser checked.borrow_context function event.field) (- 0 1))
+    (list_ASTFieldAccess_set parser.field_accesses event.field original)
+    assert (>= (field_read_fact_lookup parser checked.borrow_context function event.field) 0)
+   }
+   set j (+ j 1)
+  }
+  set i (+ i 1)
+ }
+ assert (> found_reads 0)
  let first:NanoisaBorrowLowering=(nanoisa_borrow_lower parser false 0 true)
  assert (> (array_length first.sites) 0)
  let saved:NanoisaBorrowSite=(at first.sites 0)
+ assert (> (array_length first.reads) 0)
+ let saved_read:NanoisaFieldReadSite=(at first.reads 0)
  let second:NanoisaBorrowLowering=(nanoisa_borrow_lower parser true 0 true)
  assert (!= second.text "")
  assert (== (at first.sites 0).call saved.call)
+ assert (== (at first.reads 0).field saved_read.field)
+ assert (not (str_contains first.text ".field_read"))
  assert (== (at first.sources saved.emitted) saved.source)
  assert (not (str_contains first.text ".borrow_place"))
  assert (not (str_contains (nanoisa_borrow_emit parser false 0) ".borrow_place"))
@@ -153,6 +226,7 @@ fn main() -> int {
  assert (not emitted.phase.had_error)
  assert (== emitted.lowering_stage 0)
  assert (str_contains emitted.program ".borrow_place")
+ assert (str_contains emitted.program ".field_read")
  assert (!= emitted.shadows "")
  set i 0
  while (< i (parser_get_function_count parser)) {
@@ -165,7 +239,18 @@ fn main() -> int {
   }
   set i (+ i 1)
  }
+ set i 0
+ while (< i (parser_get_function_count parser)) {
+  let function:ASTFunction=(parser_get_function parser i)
+  let mut j:int=0
+  while (< j (array_length reads)) {
+   assert (== (field_read_fact_lookup parser checked.borrow_context function (at reads j).field) (- 0 1))
+   set j (+ j 1)
+  }
+  set i (+ i 1)
+ }
  assert (not (str_contains (nanoisa_borrow_emit parser false 0) ".borrow_place"))
+ assert (not (str_contains (nanoisa_borrow_emit parser false 0) ".field_read"))
  return 0
 }
 shadow main { assert true }

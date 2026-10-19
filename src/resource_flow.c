@@ -603,13 +603,19 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
                 if (own_conflict(binding, path, false))
                     own_error(flow, node, "I cannot access an exclusively borrowed place", binding->name);
             } else result = own_node(flow, node->as.field_access.object, false);
-            free(path);
             if (move && resource) own_error(flow, node, "I cannot partially move a resource field", node->as.field_access.field_name);
             if (root && binding && binding->resource && clean_use && !*flow->error && flow->fact_owner) {
                 root->checked_affine_use = 1;
                 root->affine_use_owner = flow->fact_owner;
                 root->affine_use_epoch = flow->fact_owner->as.function.affine_check_epoch;
+                unsigned category = !binding->borrowed ? 1 : binding->type_info &&
+                    binding->type_info->base_type == TYPE_BORROW_SHARED ? 2 : binding->type_info &&
+                    binding->type_info->base_type == TYPE_BORROW_MUT ? 3 : 0;
+                if (category && !checked_field_read_capture(flow->env, flow->fact_owner, node,
+                        root, category, binding->name, path))
+                    own_error(flow, node, "I need storage for checked field-read facts", NULL);
             }
+            free(path);
             return result;
         }
         case AST_LET: {

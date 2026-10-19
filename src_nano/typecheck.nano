@@ -1551,6 +1551,11 @@ fn resource_flow_node_context(parser: Parser, node_id: int, node_type: int, stat
             }
             if (and (== root_kind ParseNodeType.PNODE_IDENTIFIER) (and (> fact_epoch 0) (and (resource_observation_type parser state.type_name) (== use_errors (Diagnostics.diag_list_count diags))))) {
                 (parser_set_identifier_affine parser root_id fact_owner fact_epoch 1)
+                let mut category: int = 1
+                # I classify the checked binding type, not descriptive root spelling.
+                if (str_starts_with state.type_name "&mut ") { set category 3 }
+                else { if (str_starts_with state.type_name "&") { set category 2 } }
+                (field_read_fact_capture parser borrow_context fact_owner fact_epoch node_id root_id category root (resource_place_path parser node_id node_type))
             }
             return flow
         }

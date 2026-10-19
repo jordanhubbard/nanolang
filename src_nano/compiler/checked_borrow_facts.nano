@@ -9,12 +9,17 @@ struct BorrowFactEvent {
     mode: int, function_id: int, function_kind: int,
     callee: string, source_path: string, root: string, projection: string
 }
+struct FieldReadFactEvent {
+    owner: array<int>, epoch: int, field: int, root_id: int, nodes: array<int>,
+    line: int, column: int, category: int,
+    source_path: string, root: string, projection: string
+}
 struct BorrowFactContext {
-    events: array<BorrowFactEvent>, state: array<int>
+    events: array<BorrowFactEvent>, reads: array<FieldReadFactEvent>, state: array<int>
 }
 # state: enabled, cumulative events, cumulative bytes, cumulative capture work.
 pub fn borrow_fact_context_new() -> array<BorrowFactContext> {
-    return [BorrowFactContext { events: [], state: [1,0,0,0] }]
+    return [BorrowFactContext { events: [], reads: [], state: [1,0,0,0] }]
 }
 fn borrow_fact_charge(context: array<BorrowFactContext>, count: int) -> bool {
     if (== (array_length context) 0) { return false }
@@ -77,7 +82,7 @@ pub fn borrow_fact_capture(parser: Parser, context: array<BorrowFactContext>, ow
         argument_column: argument.column, mode: argument.borrow_mode, function_id: call.function,
         function_kind: call.function_type, callee: callee, source_path: parser.file_name, root: root, projection: projection }
     let retained: array<BorrowFactEvent> = (array_push current.events event)
-    (array_set context 0 (BorrowFactContext { events: retained, state: current.state }))
+    (array_set context 0 (BorrowFactContext { events: retained, reads: current.reads, state: current.state }))
     (array_set current.state 1 (+ (at current.state 1) 1))
     (array_set current.state 2 (+ (at current.state 2) bytes))
 }
@@ -205,4 +210,144 @@ shadow borrow_fact_lookup {
     let context: array<BorrowFactContext> = (borrow_fact_fixture_capture parser)
     let event: BorrowFactEvent = (at (at context 0).events 0)
     assert (== (borrow_fact_lookup parser context (parser_get_function parser 1) event.call event.argument event.ordinal) (- 0 1))
+}
+
+# I receive the category from the actual checked lexical resource binding.
+pub fn field_read_fact_capture(parser: Parser, context: array<BorrowFactContext>, owner: array<int>, epoch: int,
+    field_id: int, root_id: int, category: int, root: string, projection: string) -> void {
+    if (not (borrow_fact_charge context 1)) { return }
+    if (or (<= epoch 0) (or (!= (array_length owner) 1) (!= (at owner 0) epoch))) { return }
+    if (or (< field_id 0) (or (>= field_id parser.field_accesses_count) (or (< root_id 0) (>= root_id parser.identifiers_count)))) { return }
+    if (or (< category 1) (> category 3)) { return }
+    let field: ASTFieldAccess = (parser_get_field_access parser field_id)
+    if (or (<= field.line 0) (or (<= field.column 0) (or (> field.line 4294967295) (> field.column 4294967295)))) { return }
+    let current: BorrowFactContext = (at context 0)
+    let np: int = (str_length parser.file_name)
+    let nr: int = (str_length root)
+    let nj: int = (str_length projection)
+    if (not (borrow_fact_charge context (* 2 (+ np (+ nr nj))))) { return }
+    if (or (== np 0) (or (== nr 0) (== nj 0))) { return }
+    if (or (!= (char_at projection 0) 46) (or (not (borrow_fact_text parser.file_name)) (or (not (borrow_fact_text root)) (not (borrow_fact_text projection))))) { return }
+    let bytes: int = (+ 3 (+ np (+ nr nj)))
+    if (or (> (+ nr nj) 4096) (or (>= (at current.state 1) 4096) (> bytes (- 1048576 (at current.state 2))))) {
+        (array_set current.state 0 0) return
+    }
+    let mut nodes: array<int> = []
+    let mut id: int = field_id
+    let mut kind: int = ParseNodeType.PNODE_FIELD_ACCESS
+    while (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
+        if (not (borrow_fact_charge context 1)) { return }
+        if (>= (array_length nodes) 32) { (array_set current.state 0 0) return }
+        if (or (< id 0) (>= id parser.field_accesses_count)) { return }
+        set nodes (array_push nodes id)
+        let node: ASTFieldAccess = (parser_get_field_access parser id)
+        set id node.object set kind node.object_type
+    }
+    if (or (!= kind ParseNodeType.PNODE_IDENTIFIER) (!= id root_id)) { return }
+    let mut i: int = 0
+    while (< i (array_length current.reads)) {
+        if (not (borrow_fact_charge context 1)) { return }
+        let old: FieldReadFactEvent = (at current.reads i)
+        if (and (== old.epoch epoch) (and (== old.field field_id) (parser_affine_owner_same old.owner owner))) { return }
+        set i (+ i 1)
+    }
+    let event: FieldReadFactEvent = FieldReadFactEvent { owner: owner, epoch: epoch,
+        field: field_id, root_id: root_id, nodes: nodes, line: field.line, column: field.column,
+        category: category, source_path: parser.file_name, root: root, projection: projection }
+    let retained: array<FieldReadFactEvent> = (array_push current.reads event)
+    (array_set context 0 (BorrowFactContext { events: current.events, reads: retained, state: current.state }))
+    (array_set current.state 1 (+ (at current.state 1) 1))
+    (array_set current.state 2 (+ (at current.state 2) bytes))
+}
+fn field_read_fact_same_place(parser: Parser, event: FieldReadFactEvent) -> bool {
+    let mut id: int = event.field
+    let mut kind: int = ParseNodeType.PNODE_FIELD_ACCESS
+    let mut depth: int = 0
+    let mut end: int = (str_length event.projection)
+    if (or (> end 4096) (> (array_length event.nodes) 32)) { return false }
+    while (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
+        if (or (>= depth (array_length event.nodes)) (or (< id 0) (>= id parser.field_accesses_count))) { return false }
+        if (!= id (at event.nodes depth)) { return false }
+        let field: ASTFieldAccess = (parser_get_field_access parser id)
+        let length: int = (str_length field.field_name)
+        if (or (<= length 0) (>= length end)) { return false }
+        let start: int = (- end length)
+        if (!= (char_at event.projection (- start 1)) 46) { return false }
+        let mut i: int = 0
+        while (< i length) {
+            if (!= (char_at event.projection (+ start i)) (char_at field.field_name i)) { return false }
+            set i (+ i 1)
+        }
+        set end (- start 1) set depth (+ depth 1)
+        set id field.object set kind field.object_type
+    }
+    if (or (!= end 0) (or (!= depth (array_length event.nodes)) (or (!= kind ParseNodeType.PNODE_IDENTIFIER) (!= id event.root_id)))) { return false }
+    if (or (< id 0) (>= id parser.identifiers_count)) { return false }
+    return (== (parser_get_identifier parser id).name event.root)
+}
+pub fn field_read_fact_lookup(parser: Parser, context: array<BorrowFactContext>, function: ASTFunction, field_id: int) -> int {
+    if (== (array_length context) 0) { return -1 }
+    let current: BorrowFactContext = (at context 0)
+    if (or (!= (array_length current.state) 4) (!= (at current.state 0) 1)) { return -1 }
+    if (or (!= function.node_type ParseNodeType.PNODE_FUNCTION) (or (!= function.checked_affine 1) (!= (array_length function.affine_owner) 1))) { return -1 }
+    let epoch: int = (at function.affine_owner 0)
+    if (or (<= epoch 0) (!= function.affine_completed_epoch epoch)) { return -1 }
+    if (or (< field_id 0) (>= field_id parser.field_accesses_count)) { return -1 }
+    let field: ASTFieldAccess = (parser_get_field_access parser field_id)
+    let mut i: int = 0
+    while (< i (array_length current.reads)) {
+        let event: FieldReadFactEvent = (at current.reads i)
+        if (and (== event.epoch epoch) (and (== event.field field_id) (parser_affine_owner_same event.owner function.affine_owner))) {
+            if (or (!= event.line field.line) (!= event.column field.column)) { return -1 }
+            if (not (field_read_fact_same_place parser event)) { return -1 }
+            return i
+        }
+        set i (+ i 1)
+    }
+    return -1
+}
+
+fn field_read_fact_fixture_capture(parser: Parser) -> array<BorrowFactContext> {
+    let context: array<BorrowFactContext> = (borrow_fact_context_new)
+    let owner: array<int> = [1]
+    let mut i: int = 0
+    while (< i parser.field_accesses_count) {
+        let field: ASTFieldAccess = (parser_get_field_access parser i)
+        if (== field.object_type ParseNodeType.PNODE_IDENTIFIER) {
+            let root: ASTIdentifier = (parser_get_identifier parser field.object)
+            (field_read_fact_capture parser context owner 1 i field.object 2 root.name (+ "." field.field_name))
+        }
+        set i (+ i 1)
+    }
+    return context
+}
+shadow field_read_fact_fixture_capture {
+    assert (> (array_length (at (field_read_fact_fixture_capture (borrow_fact_fixture)) 0).reads) 0)
+}
+shadow field_read_fact_capture {
+    let parser: Parser = (borrow_fact_fixture)
+    let context: array<BorrowFactContext> = (field_read_fact_fixture_capture parser)
+    let event: FieldReadFactEvent = (at (at context 0).reads 0)
+    let before: int = (array_length (at context 0).reads)
+    (field_read_fact_capture parser context event.owner event.epoch event.field event.root_id event.category event.root event.projection)
+    assert (== (array_length (at context 0).reads) before)
+    (array_set (at context 0).state 1 4096)
+    (field_read_fact_capture parser context event.owner event.epoch event.field event.root_id event.category event.root event.projection)
+    assert (== (at (at context 0).state 0) 0)
+}
+shadow field_read_fact_same_place {
+    let parser: Parser = (borrow_fact_fixture)
+    let context: array<BorrowFactContext> = (field_read_fact_fixture_capture parser)
+    let event: FieldReadFactEvent = (at (at context 0).reads 0)
+    assert (field_read_fact_same_place parser event)
+    (array_set event.nodes 0 (- 0 1))
+    assert (not (field_read_fact_same_place parser event))
+}
+shadow field_read_fact_lookup {
+    let parser: Parser = (borrow_fact_fixture)
+    let context: array<BorrowFactContext> = (field_read_fact_fixture_capture parser)
+    let event: FieldReadFactEvent = (at (at context 0).reads 0)
+    # Parsed storage is not a successful checker certificate.
+    assert (== (field_read_fact_lookup parser context (parser_get_function parser 0) event.field) (- 0 1))
+    assert (== (field_read_fact_lookup parser [] (parser_get_function parser 0) event.field) (- 0 1))
 }

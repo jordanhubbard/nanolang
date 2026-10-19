@@ -13,6 +13,18 @@ typedef struct {
     const char *source_path, *root, *projection, *callee_name, *callee_owner;
 } CheckedBorrowEvent;
 
+typedef struct {
+    const ASTNode *function, *field, *root_node, *nodes[32];
+    uint64_t epoch;
+    uint32_t line, column;
+    unsigned category, depth;
+    const char *source_path, *root, *projection;
+} CheckedFieldReadEvent;
+bool checked_field_read_capture(Environment *env, ASTNode *function, ASTNode *field,
+    ASTNode *root_node, unsigned category, const char *root, const char *projection);
+const CheckedFieldReadEvent *checked_field_read_lookup(const Environment *env,
+    const ASTNode *function, const ASTNode *field);
+
 bool checked_borrow_begin(Environment *env);
 void checked_borrow_finish_capture(Environment *env);
 bool checked_borrow_seal(Environment *env);

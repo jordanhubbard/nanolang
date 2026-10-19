@@ -483,6 +483,7 @@ bool nvm_add_affine_use(NvmModule *mod, uint32_t function, uint32_t line,
 }
 
 #include "borrow_place_facts.inc"
+#include "field_read_facts.inc"
 
 static const char generic_key[] = "nano.generic.v1";
 
