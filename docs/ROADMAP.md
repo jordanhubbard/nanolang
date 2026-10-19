@@ -15560,3 +15560,25 @@ the setup. A trailing-newline bookkeeping failure in the narrow comparison is
 retained and corrected without changing surviving canonical lines. Borrowed-root
 facts remain conservative UNKNOWN in my Nano producer where C retains observations;
 I do not claim parity or close #998. Fresh combined generations/platforms remain open.
+
+- [ ] Under #998/#976 I diagnose the fresh `36930e1d3` bootstrap's exact Stage1 native translation refusal: an OPTIONAL aggregate field flows into an exactly constrained INT destination (shape nodes 1107522/133576, conversion1107522/133571). Seed generation and Stage1 bytecode generation/verification pass; I preserve run-4e5te4dr before changing the responsible shape/source path.
+
+My reduced actual-producer fixture joins an unresolved array read with zero, then
+stores the resulting field through List<Fact>. The classifier unified the late
+read with the alternate's exact INT shape before the array-read solver established
+OPTIONAL storage. I give unresolved joins their own directed destination and retain
+that destination when their carrier kind becomes known; I do not relax exact
+shape constraints. The previously failed full Stage1 module now translates.
+
+My neighboring scalar-join suite also exposes a stale U8/INT refusal expectation:
+the independently rebuilt unchanged `36930e1d3` translator fails that same test.
+Commit `9b1ed4a26` explicitly admitted finite byte/integer carriers. I replace only
+that stale pair with both-order, both-arm exact-tag/value execution controls,
+retaining heap, unrelated union and three-way scalar refusals unchanged.
+
+- [x] I qualify the reduced conditional/List case with three retained producers,
+  VM and O0/O2 sanitized native execution, including missing-read and unselected
+  branch controls; 3,126 shape checks and 20 neighboring methods pass.
+  [I retain the failure and correction evidence](evidence/optional-record-join-20261019/README.md).
+- [ ] I repeat the fresh combined bootstrap and exact platform gates after this
+  classifier correction; successful retained-module translation alone is not that gate.

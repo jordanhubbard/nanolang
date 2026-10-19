@@ -6942,3 +6942,9 @@ test-units: test-record-array-tail
 test-affine-use-metadata: $(COMPILER_C) nano_virt nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_affine_use_metadata
 test-units: test-affine-use-metadata
+
+.PHONY: test-optional-record-join
+test-optional-record-join: bootstrap3 nano_virt nano_vm nvm2c $(BIN_DIR)/nano_aot_runtime.o
+	python3 -m unittest -v tests.test_optional_record_join
+
+test-units: test-optional-record-join

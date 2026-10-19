@@ -1134,11 +1134,14 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                     continue;
                 }
                 if (kind != NVM2C_VK_STR && kind != NVM2C_VK_INT &&
-                    kind != NVM2C_VK_BOOL && kind != NVM2C_VK_VALUE) continue;
-                /* Destination storage never rewrites the exact producer. */
+                    kind != NVM2C_VK_BOOL && kind != NVM2C_VK_VALUE &&
+                    kind != NVM2C_VK_UNK) continue;
+                /* Destination storage never rewrites the exact producer. An
+                 * unresolved array read may later become OPTIONAL; it must
+                 * not borrow the exact scalar shape of the other branch. */
                 NvmShapeId storage = 0;
                 storage = shape_variable(b, &storage);
-                if (!shape_field_kind(b, storage, kind) ||
+                if ((kind != NVM2C_VK_UNK && !shape_field_kind(b, storage, kind)) ||
                     (kind == NVM2C_VK_VALUE && boxed_carrier_tags(join->slots[i].scalar_tags) &&
                      !shape_carrier_box(b, storage, join->slots[i].scalar_tags)) ||
                     !nvm_shape_convert(&b->shapes, stack[i].shape, storage) || !shape_ok(b)) return 0;
@@ -1217,7 +1220,9 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                                      stack[i].rec_k, fields)) return 0;
             join->slots[i].rec_k = fields;
         }
-        if (b->track_shapes && !record_join && !((optional_join || scalar_join)
+        /* I retain directed edges until late producer shapes resolve. */
+        int unresolved_join = join->slots[i].kind == NVM2C_VK_UNK || stack[i].kind == NVM2C_VK_UNK;
+        if (b->track_shapes && !record_join && !((optional_join || scalar_join || unresolved_join)
                 ? nvm_shape_convert(&b->shapes, stack[i].shape, join->slots[i].shape)
                 : nvm_shape_unify(&b->shapes, join->slots[i].shape, stack[i].shape))) {
             nvm2c_fail(b, "I found incompatible shapes at a join in function %u: %s", idx, b->shapes.error);
@@ -1226,7 +1231,10 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         join->slots[i].scalar_tags = tags;
         int origin = join->slots[i].origin == stack[i].origin ? stack[i].origin : -1;
         if (join->slots[i].kind == NVM2C_VK_UNK) {
+            /* Adopting a carrier kind does not replace the join storage. */
+            NvmShapeId storage = join->slots[i].shape;
             join->slots[i] = stack[i];
+            join->slots[i].shape = storage;
             join->slots[i].array_payload_kind = array_payload;
             join->slots[i].origin = origin;
             continue;

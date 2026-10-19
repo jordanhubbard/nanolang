@@ -1,0 +1,26 @@
+[
+  {
+    "path": "/Users/jkh/Src/nanolang-owned-calls/bin/nano_virt",
+    "sha256": "6baaf7d5f1c6ed5664e29ffd4d93e1a5244263abbcfbd622c9d7db4bb80bca72"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-owned-calls/bin/nanoc_stage1",
+    "sha256": "c9557024b57b9a8b0ed8584c82ceb350a9e70096ee13bd672c9be8227524da55"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-owned-calls/bin/nanoc_stage2",
+    "sha256": "3cde2cf9ebf1322904fe3b8e0e509eec0435ecb7061d6b89d638195f5a7623a9"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+    "sha256": "058d227659590d91fcc11d5c653eded461b290eda5b94ac3e9fc1a556807951a"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+    "sha256": "f0133b2998d696808a63a9b330ec85675aafe63352621fa6e7eed49323478616"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+    "sha256": "d48980563f3c31ce8eb4b0b1a3309a7dbc17749fd9a42f445bca4c42ff487863"
+  }
+]

@@ -121,10 +121,23 @@ class NativeScalarJoins(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0)
                     self.assertEqual(target.read_text(), 'previous')
 
+    def test_byte_integer_join_retains_exact_tags(self):
+        for reverse in (False, True):
+            first, second = ('PUSH_U8 255', 'PUSH_I64 255')
+            if reverse:
+                first, second = second, first
+            byte_arm = 1 if reverse else 0
+            helper = ('.function choose 1 1 0 bool 1\n.parameters choose bool\n'
+                'LOAD_LOCAL 0\nJMP_TRUE right\n'+first+'\nJMP join\nright:\n'+second+
+                '\njoin:\nDUP\nTYPE_CHECK 2\nLOAD_LOCAL 0\n'+
+                ('' if byte_arm else 'BOOL_NOT\n')+'EQ\nASSERT\n'
+                'CAST_INT\nPUSH_I64 255\nI64_EQ\nRET\n.end\n')
+            self.compare(self.program('PUSH_BOOL 0\nCALL choose\nASSERT\n'
+                                      'PUSH_BOOL 1\nCALL choose\nASSERT\n', helper))
+
     def test_heap_and_unrelated_union_still_refuse_publication(self):
         for left,right in [('PUSH_VOID','ARR_NEW 1'), ('ARR_NEW 1\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0','PUSH_I64 1'),
-                           ('PUSH_BOOL 1','PUSH_I64 1'),
-                           ('PUSH_U8 1','PUSH_I64 1')]:
+                           ('PUSH_BOOL 1','PUSH_I64 1')]:
             with self.subTest(left=left,right=right):
                 source=self.program('PUSH_BOOL 0\nJMP_TRUE right\n'+left+'\nJMP join\nright:\n'+right+'\njoin:\nPOP\n')
                 module=self.module(source)
