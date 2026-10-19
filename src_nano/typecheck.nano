@@ -4398,7 +4398,8 @@ fn tc_record_spread(parser: Parser, literal: ASTStructLiteral, symbols: array<Sy
                 let kind: int = (at literal.field_value_types i)
                 let raw: NSType = (check_expr_node parser id kind symbols diags file_name)
                 let expected: NSType = (type_from_string_with_parser parser (at record.field_types field))
-                let checked: NSType = (check_constructor_argument parser id kind raw expected symbols diags file_name)
+                let contextual: NSType = (apply_value_type_hint parser id kind raw expected)
+                let checked: NSType = (check_constructor_argument parser id kind contextual expected symbols diags file_name)
                 if (not (types_equal checked expected)) { (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require a spread override to match its declared field type." (Diagnostics.diag_location file_name literal.line literal.column))) }
                 if (resource_type_is_declared parser (resource_type_identity parser (at record.field_types field) record.line)) {
                     (resource_flow_error diags file_name literal.line literal.column "I cannot discard an inherited resource field in a spread override")
@@ -4425,6 +4426,34 @@ fn check_record_callable_fields(parser: Parser, literal: ASTStructLiteral, symbo
     while (< r (parser_get_struct_def_count parser)) {
         let record: ASTStruct = (parser_get_struct_def parser r)
         if (== record.name literal.struct_name) {
+            let mut byte_fields: bool = false
+            let mut field: int = 0
+            while (< field record.field_count) {
+                if (== (at record.field_types field) "u8") { set byte_fields true }
+                set field (+ field 1)
+            }
+            if byte_fields {
+                if (!= literal.field_count record.field_count) {
+                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require every declared byte record field exactly once." (Diagnostics.diag_location file_name literal.line literal.column)))
+                }
+                let mut written: int = 0
+                while (< written literal.field_count) {
+                    let name: string = (at literal.field_names written)
+                    let mut found: bool = false
+                    set field 0
+                    while (< field record.field_count) {
+                        if (== name (at record.field_names field)) { set found true }
+                        set field (+ field 1)
+                    }
+                    let mut prior: int = 0
+                    while (< prior written) {
+                        if (== name (at literal.field_names prior)) { set found false }
+                        set prior (+ prior 1)
+                    }
+                    if (not found) { (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require distinct declared byte record fields." (Diagnostics.diag_location file_name literal.line literal.column))) }
+                    set written (+ written 1)
+                }
+            }
             let mut i: int = 0
             while (< i literal.field_count) {
                 let mut f: int = 0
@@ -4435,7 +4464,11 @@ fn check_record_callable_fields(parser: Parser, literal: ASTStructLiteral, symbo
                         let kind: int = (at literal.field_value_types i)
                         let raw: NSType = (check_expr_node parser id kind symbols diags file_name)
                         let expected: NSType = (type_from_string_with_parser parser spelling)
-                        let checked: NSType = (check_constructor_argument parser id kind raw expected symbols diags file_name)
+                        let contextual: NSType = (apply_value_type_hint parser id kind raw expected)
+                        let checked: NSType = (check_constructor_argument parser id kind contextual expected symbols diags file_name)
+                        if (and (== spelling "u8") (not (types_equal checked expected))) {
+                            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require a byte literal in 0..255 or a checked INT/U8 field value." (Diagnostics.diag_location file_name literal.line literal.column)))
+                        }
                         if (and (or (str_contains spelling "fn(") (== expected.kind TypeKind.TYPE_UNION)) (not (types_equal checked expected))) {
                             (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require the complete declared callback storage signature." (Diagnostics.diag_location file_name literal.line literal.column)))
                         }
@@ -4453,6 +4486,12 @@ shadow check_record_callable_fields {
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     (check_record_callable_fields parser (parser_get_struct_literal parser 0) [] diags "storage.nano")
     assert (> (list_CompilerDiagnostic_length diags) 0)
+    let good: Parser = (resource_test_parser "struct B{value:u8} fn f()->int{let b:B=B{value:(+ 255 1)} let c={..b,value:(- 0 1)} return 0}")
+    assert (not (typecheck_phase good "byte.nano").had_error)
+    let bad: Parser = (resource_test_parser "struct B{value:u8} fn f()->int{let b:B=B{value:256} return 0}")
+    assert (typecheck_phase bad "byte.nano").had_error
+    let wrong: Parser = (resource_test_parser "struct B{value:u8} fn f()->int{let b:B=B{value:true} return 0}")
+    assert (typecheck_phase wrong "byte.nano").had_error
 }
 
 # I preserve lexical receivers while resolving imported callable declarations.

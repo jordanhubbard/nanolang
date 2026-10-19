@@ -11,6 +11,7 @@
 
 #include "../checked_loop_binding.h"
 #include "nanovirt/codegen.h"
+#include "nanovirt/checked_record_identity.h"
 #include "../nanoisa/local_bindings.h"
 #include "nanolang.h"
 #include "../builtins_registry.h"
@@ -3153,6 +3154,32 @@ static void compile_expr(CG *cg, ASTNode *node) {
             cg_error(cg, node->line, "undefined struct '%s'", sname ? sname : "(null)");
             break;
         }
+        bool byte_fields = false;
+        ASTNode *declaration = sd->declaration;
+        if (!nanovirt_checked_record_identity(declaration, sd->name,
+                sd->field_names, sd->field_count, sd->declaration_ambiguous)) {
+            cg_error(cg, node->line, "I require one exact checked record declaration");
+            break;
+        }
+        for (int i = 0; i < sd->field_count; ++i)
+            if (declaration->as.struct_def.field_types[i] == TYPE_U8) byte_fields = true;
+        /* I validate the complete staging map before emitting any operand. */
+        if (byte_fields) {
+            int count = node->as.struct_literal.field_count;
+            if ((!node->as.struct_literal.spread_source && count != sd->field_count) ||
+                count < 0 || count > sd->field_count) {
+                cg_error(cg, node->line, "I require every declared byte record field exactly once");
+                break;
+            }
+            for (int j = 0; j < count; ++j) {
+                if (struct_field_index(sd, node->as.struct_literal.field_names[j]) < 0)
+                    cg_error(cg, node->line, "I require declared byte record field names");
+                for (int k = 0; k < j; ++k)
+                    if (!strcmp(node->as.struct_literal.field_names[j], node->as.struct_literal.field_names[k]))
+                        cg_error(cg, node->line, "I require distinct byte record fields");
+            }
+            if (cg->had_error) break;
+        }
         ASTNode *spread = node->as.struct_literal.spread_source;
         CgStructDef *spread_def = NULL;
         uint16_t spread_slot = 0;
@@ -3169,18 +3196,28 @@ static void compile_expr(CG *cg, ASTNode *node) {
         }
         /* I stage overrides in source order before arranging the record layout. */
         uint16_t *override_slots = NULL;
-        if (spread && node->as.struct_literal.field_count) {
+        if ((spread || byte_fields) && node->as.struct_literal.field_count) {
             override_slots = malloc((size_t)node->as.struct_literal.field_count * sizeof(*override_slots));
             if (!override_slots) {
                 cg_error(cg, node->line, "I cannot retain ordered record overrides");
                 break;
             }
             for (int j = 0; j < node->as.struct_literal.field_count; ++j) {
-                compile_expr(cg, node->as.struct_literal.field_values[j]);
+                int16_t field = struct_field_index(sd, node->as.struct_literal.field_names[j]);
+                if (byte_fields && field >= 0 && declaration->as.struct_def.field_types[field] == TYPE_U8)
+                    compile_expected_tag(cg, node->as.struct_literal.field_values[j], TAG_U8);
+                else compile_expr(cg, node->as.struct_literal.field_values[j]);
+                if (cg->had_error) break;
                 override_slots[j] = local_add(cg, "", node->line);
+                if (byte_fields) {
+                    Type stored = declaration->as.struct_def.field_types[field] == TYPE_U8 ? TYPE_U8 :
+                        check_expression(node->as.struct_literal.field_values[j], cg->env);
+                    local_name_begin(cg, override_slots[j], NULL, stored, node->line);
+                }
                 emit_op(cg, OP_STORE_LOCAL, (int)override_slots[j]);
             }
         }
+        if (cg->had_error) { free(override_slots); break; }
         /* Push field values in definition order */
         for (int i = 0; i < sd->field_count; i++) {
             /* Find matching field in the literal */

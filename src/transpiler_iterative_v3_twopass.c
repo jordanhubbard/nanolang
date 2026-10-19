@@ -3087,6 +3087,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
             
+            bool byte_fields = false;
+            if (sdef) for (int i = 0; i < sdef->field_count; ++i)
+                if (sdef->field_types[i] == TYPE_U8) byte_fields = true;
             ASTNode *spread = expr->as.struct_literal.spread_source;
             char spread_name[64];
             unsigned override_id = 0;
@@ -3098,13 +3101,16 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_formatted(list, "({ __auto_type %s = ", spread_name);
                 build_expr(list, spread, env);
                 emit_formatted(list, "; (void)%s; ", spread_name);
+            }
+            if (byte_fields && !spread) emit_literal(list, "({ ");
+            if ((spread && sdef) || byte_fields) {
                 override_id = build_ordered_call_args(list, expr->as.struct_literal.field_values, field_count, env, NULL);
             }
             emit_formatted(list, "(%s){", get_prefixed_type_name(struct_name));
             for (int i = 0; i < field_count; i++) {
                 if (i > 0) emit_literal(list, ", ");
                 emit_formatted(list, ".%s = ", expr->as.struct_literal.field_names[i]);
-                if (spread && sdef) emit_formatted(list, "__nl_arg_%u_%d", override_id, i);
+                if ((spread && sdef) || byte_fields) emit_formatted(list, "__nl_arg_%u_%d", override_id, i);
                 else build_expr(list, expr->as.struct_literal.field_values[i], env);
             }
             if (spread && sdef) {
@@ -3120,7 +3126,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
             emit_literal(list, "}");
-            if (spread && sdef) emit_literal(list, "; })");
+            if ((spread && sdef) || byte_fields) emit_literal(list, "; })");
             break;
         }
         

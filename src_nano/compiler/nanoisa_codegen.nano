@@ -2376,6 +2376,7 @@ fn nisa_field_shape_supported_seen(parser: Parser, field: string, ancestors: arr
     if (str_starts_with field "fn(") { return (nisa_function_type_ok_seen parser field signatures) }
     if (>= (nisa_enum_index parser field) 0) { return true }
     if (!= (nisa_map_value_type field) "") { return true }
+    if (== field "u8") { return true }
     if (or (== field "float") (or (== field "int") (or (== field "string") (== field "bool")))) { return true }
     if (or (== field "array<float>") (== field "array<u8>")) { return true }
     if (or (== field "array<bool>") (or (== field "array<int>") (== field "array<string>"))) { return true }
@@ -2412,6 +2413,9 @@ shadow nisa_field_shape_supported {
     assert (nisa_field_shape_supported parser "array<bool>" [])
     assert (nisa_field_shape_supported parser "List<bool>" [])
     assert (nisa_field_shape_supported parser "float" [])
+    assert (nisa_field_shape_supported parser "u8" [])
+    assert (not (nisa_field_shape_supported parser "U8" []))
+    assert (not (nisa_field_shape_supported parser "Missing" []))
     assert (nisa_field_shape_supported parser "array<float>" [])
     assert (nisa_field_shape_supported parser "array<array<float>>" [])
     assert (not (nisa_field_shape_supported parser "array<array<Missing>>" []))
@@ -2449,6 +2453,13 @@ fn nisa_record_shape_supported(parser: Parser, name: string, ancestors: array<st
 }
 
 shadow nisa_record_shape_supported {
+    let byte_tokens: List<LexerToken> = (tokenize_string "struct Byte { value: u8 } struct Box { child: Byte } struct Loop { next: Loop } struct Bad { value: Missing }" "byte-shape.nano" (diag_list_new))
+    let byte_parser: Parser = (parse_program byte_tokens (list_LexerToken_length byte_tokens) "byte-shape.nano")
+    assert (nisa_record_shape_supported byte_parser "Byte" [])
+    assert (nisa_record_shape_supported byte_parser "Box" [])
+    assert (nisa_type_ok byte_parser "List<Byte>")
+    assert (not (nisa_record_shape_supported byte_parser "Loop" []))
+    assert (not (nisa_record_shape_supported byte_parser "Bad" []))
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = "struct Point { x: int } struct Pair { first: Point, second: Point } struct Cycle { next: List<Cycle> }"
     let tokens: List<LexerToken> = (tokenize_string source "shape.nano" diagnostics)
@@ -4678,6 +4689,98 @@ shadow nisa_emit_array_literal {
     let _2: int = (nisa_reset)
 }
 
+# I validate names before staging values, retaining exact declaration positions.
+fn nisa_record_field_error(record: ASTStruct, literal: ASTStructLiteral, start: int) -> string {
+    if (and (== start 0) (!= literal.field_count record.field_count)) { return "I require every declared record field exactly once" }
+    let mut i: int = start
+    while (< i literal.field_count) {
+        let name: string = (at literal.field_names i)
+        let mut found: bool = false
+        let mut field: int = 0
+        while (< field record.field_count) {
+            if (== name (at record.field_names field)) { set found true }
+            set field (+ field 1)
+        }
+        if (not found) { return "I require declared record field names" }
+        let mut prior: int = start
+        while (< prior i) {
+            if (== name (at literal.field_names prior)) { return "I require distinct record fields" }
+            set prior (+ prior 1)
+        }
+        set i (+ i 1)
+    }
+    return ""
+}
+
+shadow nisa_record_field_error {
+    let tokens: List<LexerToken> = (tokenize_string "struct B{x:u8} fn main()->int{let b:B=B{x:1} return 0}" "fields.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "fields.nano")
+    let record: ASTStruct = (parser_get_struct_def parser 0)
+    let literal: ASTStructLiteral = (parser_get_struct_literal parser 0)
+    assert (== (nisa_record_field_error record literal 0) "")
+    (array_set literal.field_names 0 "unknown")
+    assert (!= (nisa_record_field_error record literal 0) "")
+}
+
+fn nisa_emit_record_field_value(parser: Parser, id: int, kind: int, expected: string) -> string {
+    let actual: string = (nisa_expr_type parser id kind)
+    let contextual_byte: bool = (and (== expected "u8") (or (== actual "int") (== actual "u8")))
+    let contextual_array: bool = (and (== kind ParseNodeType.PNODE_ARRAY_LITERAL)
+        (and (str_starts_with expected "array<") (nisa_type_ok parser expected)))
+    let contextual_map: bool = (and (!= (nisa_map_value_type expected) "") (nisa_is_map_constructor parser id kind))
+    let contextual_function: bool = (nisa_function_type_ok parser expected)
+    if (and (not (or contextual_byte (or contextual_function (or contextual_array contextual_map)))) (not (nisa_value_type_matches parser actual expected))) {
+        return (nisa_fail "I require the declared type for record field value")
+    }
+    return (nisa_emit_expected_expr parser id kind expected)
+}
+
+shadow nisa_emit_record_field_value {
+    let _: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->int{let b:u8=255 return 0}" "field.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "field.nano")
+    let binding: ASTLet = (parser_get_let parser 0)
+    assert (== (nisa_emit_record_field_value parser binding.value binding.value_type "u8") "  PUSH_U8 255\n")
+    assert (== (nisa_reset) 0)
+}
+
+# I stage all supplied values in written order before loading declared positions.
+fn nisa_emit_byte_record(parser: Parser, literal: ASTStructLiteral, record: ASTStruct, index: int) -> string {
+    let error: string = (nisa_record_field_error record literal 0)
+    if (!= error "") { return (nisa_fail error) }
+    let mut out: string = ""
+    let mut slots: array<string> = []
+    let mut i: int = 0
+    while (< i literal.field_count) {
+        let mut field: int = 0
+        while (!= (at record.field_names field) (at literal.field_names i)) { set field (+ field 1) }
+        let expected: string = (at record.field_types field)
+        set out (+ out (nisa_emit_record_field_value parser (at literal.field_value_ids i) (at literal.field_value_types i) expected))
+        if (not nisa_ok) { return "" }
+        let slot: string = (nisa_temp_local expected)
+        set slots (array_push slots slot)
+        set out (+ out (nisa_line_imm "STORE_LOCAL" slot))
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i record.field_count) {
+        let mut written: int = 0
+        while (!= (at literal.field_names written) (at record.field_names i)) { set written (+ written 1) }
+        set out (+ out (nisa_line_imm "LOAD_LOCAL" (at slots written)))
+        set i (+ i 1)
+    }
+    return (+ out (nisa_line_imm "AGG_PACK" (+ "0 " (+ (int_to_string index) (+ " 0 " (int_to_string record.field_count))))))
+}
+
+shadow nisa_emit_byte_record {
+    let _: int = (nisa_reset)
+    let output: string = (nanoisa_emit_nasm "struct B{x:u8,y:int} fn main()->int{let b:B=B{y:7,x:(+ 255 1)} return b.y}")
+    assert nisa_ok
+    assert (str_contains output "CAST_U8")
+    assert (str_contains output "AGG_PACK")
+    assert (== (nisa_reset) 0)
+}
+
 # I evaluate the source once, then every override in written order.
 fn nisa_emit_record_spread(parser: Parser, literal: ASTStructLiteral) -> string {
     let source_id: int = (at literal.field_value_ids 0)
@@ -4686,6 +4789,8 @@ fn nisa_emit_record_spread(parser: Parser, literal: ASTStructLiteral) -> string 
     if (not (nisa_is_pin_record parser identity)) { return (nisa_fail "I require a supported record spread source") }
     let index: int = (nisa_struct_index parser identity)
     let record: ASTStruct = (parser_get_struct_def parser index)
+    let error: string = (nisa_record_field_error record literal 1)
+    if (!= error "") { return (nisa_fail error) }
     let mut out: string = (nisa_emit_expr parser source_id source_kind)
     let source_slot: string = (nisa_temp_local identity)
     set out (+ out (nisa_line_imm "STORE_LOCAL" source_slot))
@@ -4744,6 +4849,11 @@ fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
     } else {
         let sidx: int = (nisa_struct_index parser lit.struct_name)
         let sd: ASTStruct = (parser_get_struct_def parser sidx)
+        let mut field: int = 0
+        while (< field sd.field_count) {
+            if (== (at sd.field_types field) "u8") { return (nisa_emit_byte_record parser lit sd sidx) }
+            set field (+ field 1)
+        }
         let mut out: string = ""
         let mut i: int = 0
         while (< i sd.field_count) {

@@ -1,0 +1,21 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-6bf1dvva
+test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) ... ok
+test_direct_nested_and_list_fields (tests.test_u8_record_fields.U8RecordFields.test_direct_nested_and_list_fields) ... ok
+test_exact_u8_layout (tests.test_u8_record_fields.U8RecordFields.test_exact_u8_layout) ... ok
+test_nano_raw_integer_field_refusal_is_unchanged (tests.test_u8_record_fields.U8RecordFields.test_nano_raw_integer_field_refusal_is_unchanged) ... ok
+test_out_of_range_byte_literal_preserves_output (tests.test_u8_record_fields.U8RecordFields.test_out_of_range_byte_literal_preserves_output) ... FAIL
+test_wrong_field_types_preserve_output (tests.test_u8_record_fields.U8RecordFields.test_wrong_field_types_preserve_output) ... ok
+
+======================================================================
+FAIL: test_out_of_range_byte_literal_preserves_output (tests.test_u8_record_fields.U8RecordFields.test_out_of_range_byte_literal_preserves_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_u8_record_fields.py", line 116, in test_out_of_range_byte_literal_preserves_output
+    self.assertNotEqual(result.returncode,0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+----------------------------------------------------------------------
+Ran 6 tests in 10.585s
+
+FAILED (failures=1)
