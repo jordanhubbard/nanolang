@@ -40,6 +40,38 @@ fn main() -> int {{
 '''
 
 
+def scalar_source_text(kind, value, zero, case):
+    values = '[]' if case == 'empty' else '[' + value + ']'
+    checked = 0 if case == 'unchecked' else 1
+    index = 1 if case == 'raw-missing' else 0
+    condition = ('(== checked 1)' if case == 'raw-missing' else
+                 '(and (== checked 1) (== (array_length f.owner) 1))')
+    expected = zero if case in ('empty', 'unchecked') else value
+    return f'''struct Fact {{ owner: array<{kind}>, completed: {kind} }}
+struct Parser {{ functions: List<Fact> }}
+fn update(p: Parser, index: int, checked: int) -> void {{
+    let f: Fact = (list_Fact_get p.functions index)
+    (list_Fact_set p.functions index Fact {{ owner: f.owner,
+        completed: (cond ({condition} (at f.owner {index})) (else {zero})) }})
+}}
+shadow update {{
+    let functions: List<Fact> = (list_Fact_new)
+    (list_Fact_push functions Fact {{ owner: [{value}], completed: {value} }})
+    (update Parser {{ functions: functions }} 0 0)
+    assert (== (list_Fact_get functions 0).completed {zero})
+}}
+fn main() -> int {{
+    let functions: List<Fact> = (list_Fact_new)
+    (list_Fact_push functions Fact {{ owner: {values}, completed: {zero} }})
+    (update Parser {{ functions: functions }} 0 {checked})
+    assert (== (list_Fact_get functions 0).completed {expected})
+    return 0
+}}
+# I exercise main in the VM/native matrix; raw-missing intentionally fails.
+shadow main {{ assert true }}
+'''
+
+
 class OptionalRecordJoin(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -70,7 +102,7 @@ class OptionalRecordJoin(unittest.TestCase):
             self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
         return result
 
-    def paired(self, case, text, expected=None):
+    def paired(self, case, text, expected=None, missing_error="requires two integers"):
         source = self.work/(case+'.nano')
         source.write_text(text)
         for number, compiler in enumerate(self.compilers):
@@ -82,7 +114,7 @@ class OptionalRecordJoin(unittest.TestCase):
                 vm = self.run_retained(label+'-vm', [ROOT/'bin/nano_vm', module], expected)
                 if expected is None:
                     self.assertNotEqual(vm.returncode, 0)
-                    self.assertIn('requires two integers', vm.stderr)
+                    self.assertIn(missing_error, vm.stderr)
                 self.run_retained(label+'-translate', [ROOT/'bin/nvm2c', module, '-o', native_source])
                 for optimization in ('-O0', '-O2'):
                     name = label+optimization[1:]
@@ -105,6 +137,15 @@ class OptionalRecordJoin(unittest.TestCase):
             ('unchecked', '[7]', 0, 0),
         ):
             self.paired(case, source_text(values, checked), expected)
+
+    def test_float_bool_string_conditional_record_fields(self):
+        for kind, value, zero in (('float', '7.5', '0.0'),
+                                  ('bool', 'true', 'false'),
+                                  ('string', '"yes"', '""')):
+            for case in ('present', 'empty', 'unchecked', 'raw-missing'):
+                self.paired(kind + '-' + case, scalar_source_text(kind, value, zero, case),
+                            None if case == 'raw-missing' else 0,
+                            'requires two floats' if kind == 'float' else 'Assertion failed')
 
     def test_missing_raw_reads_do_not_become_integer_zero(self):
         for index in (-1, 1):
