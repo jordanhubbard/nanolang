@@ -39,7 +39,7 @@ class OwnedAnalyze(Analyze):
         self.depths = []
         for i, layout in enumerate(self.layouts):
             require(layout['identity'] == i and layout['resource'] is True and
-                    0 < len(layout['fields']) <= 16 and
+                    (0 < len(layout['fields']) or not self.borrowed) and len(layout['fields']) <= 16 and
                     all(t in (INT, BOOL, 8) for t in layout['fields']),
                     'require exact resource identity and bounded fields')
             fields = layout.get('field_types', [[t, 4294967295] for t in layout['fields']])
@@ -1409,6 +1409,8 @@ class OwnedEmit(Emit):
                 _, target, layout, values = stmt
                 fields = ', '.join((f'.f{i} = ' if c else f'f{i}: ') + self.expression(v)
                                    for i, v in enumerate(values))
+                if c and not values:
+                    fields = '.nlr_empty = 0'
                 name, typ = self.expression(target), self.type(target.tag)
                 self.line(f'{typ} {name} = ({typ}){{{fields}}};' if c else
                           f'let {name}: {typ} = {typ} {{ {fields} }}', indent)
@@ -1451,6 +1453,8 @@ class OwnedEmit(Emit):
                             all(type(keep) is bool and (keep or target.tag in (INT, BOOL))
                                 for target, keep in zip(targets, stmt[4])),
                             'require only unused scalar unpack copies to be omitted')
+                if c and not targets:
+                    self.line(f'(void){self.local(slot)};', indent)
                 if not c:
                     fields = ', '.join(f'f{i}' for i in range(len(targets)))
                     self.line(f'let NlrOwned{layout} {{ {fields} }} = {self.local(slot)}', indent)
@@ -1507,6 +1511,8 @@ class OwnedEmit(Emit):
         for i, layout in enumerate(self.layouts):
             fields = (' '.join(f'{self.type(t)} f{j};' for j, t in enumerate(self.fields[i])) if c else
                       ', '.join(f'f{j}: {self.type(t)}' for j, t in enumerate(self.fields[i])))
+            if c and not layout['fields']:
+                fields = 'unsigned char nlr_empty;'
             declarations.append(f'typedef struct {{ {fields} }} NlrOwned{i};' if c else
                                 f'resource struct NlrOwned{i} {{ {fields} }}')
         body = super().run(entry).replace(

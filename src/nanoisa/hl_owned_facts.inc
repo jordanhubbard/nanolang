@@ -5,7 +5,7 @@
 static int owned_facts(const NvmModule *m) {
     NvmV2Layouts layouts={0};NvmAffineState *state=NULL;
     VmDecodedFunction code={0};char error[VM_DECODE_ERROR_SIZE];
-    bool ok=false,strings=false;uint32_t total=0;uint8_t depths[16]={0};
+    bool ok=false,strings=false,has_empty=false;uint32_t total=0;uint8_t depths[16]={0};
     uint32_t string_indexes[4096],string_count=0,string_bytes=0;
     if(m->ownership_size<4 || !m->ownership_data ||
        (m->ownership_data[0]!=NVM_OWNERSHIP_VERSION && m->ownership_data[0]!=NVM_OWNERSHIP_PATH_VERSION) || m->ownership_data[1] ||
@@ -25,7 +25,8 @@ static int owned_facts(const NvmModule *m) {
         NvmV2Layout *l=&layouts.items[i];
         if(nvm_ownership_layout_authority(m,i,&authority)!=NVM_V2_OK ||
            authority!=NVM_LAYOUT_AUTHORITY_RESOURCE || l->kind!=NVM_V2_LAYOUT_STRUCT ||
-           !l->field_count || l->field_count>16)goto done;
+           l->field_count>16)goto done;
+        if(!l->field_count)has_empty=true;
         depths[i]=1;
         for(uint16_t f=0;f<l->field_count;f++) {
             uint8_t tag=l->fields[f].type_tag;uint32_t child=l->fields[f].nested_idx;
@@ -38,6 +39,7 @@ static int owned_facts(const NvmModule *m) {
         }
     }
     bool borrowed=!nvm_affine_value_call_graph(m);
+    if(has_empty && borrowed)goto done;
     bool paths=m->ownership_data[0]==NVM_OWNERSHIP_PATH_VERSION;
     if(paths && (!borrowed || m->function_count!=2 || (m->functions[1].arity!=1 && m->functions[1].arity!=2 && m->functions[1].arity!=3)))goto done;
     if(borrowed && (m->function_count!=2 || (m->functions[1].arity!=1 && m->functions[1].arity!=3 && !(paths && m->functions[1].arity==2))))goto done;
