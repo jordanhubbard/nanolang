@@ -1,0 +1,636 @@
+[
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_virt",
+      "/Users/jkh/Src/nanolang-owned-shared-helper/tests/nanoisa/fixtures/source_borrow_shared.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4]},{\"identity\":1,\"resource\":true,\"fields\":[1,4]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":6,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295]],\"size\":126,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":23,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":28,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":31,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":32,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":37,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":44,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":45,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":54,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":55,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":56,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":59,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":62,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":63,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":68,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":73,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":74,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":77,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":78,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":83,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":88,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":89,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":92,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":95,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":104,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":105,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":106,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":109,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":110,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":111,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":120,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":123,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":124,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\"],\"local_types\":[[8,0]],\"size\":6,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nano"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nano_virt.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Warning at line 31, column 5: Unused variable 'nlr_t120_0'\nWarning at line 32, column 5: Unused variable 'nlr_t120_1'\nWarning: Function 'nlr_f1_owned_1' is missing a shadow test\nI could not compile shadows at line 0: I require I require explicit owned entry execution and a non-escaping scalar helper in my source borrow profile\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoc_u8_context",
+      "/Users/jkh/Src/nanolang-owned-shared-helper/tests/nanoisa/fixtures/source_borrow_shared.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4]},{\"identity\":1,\"resource\":true,\"fields\":[1,4]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":6,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295]],\"size\":126,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":23,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":28,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":31,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":32,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":37,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":44,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":45,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":54,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":55,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":56,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":59,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":62,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":63,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":68,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":73,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":74,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":77,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":78,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":83,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":88,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":89,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":92,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":95,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":104,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":105,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":106,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":109,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":110,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":111,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":120,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":123,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":124,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\"],\"local_types\":[[8,0]],\"size\":6,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.nano"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nanoc_u8_context.nano_virt.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Warning at line 31, column 5: Unused variable 'nlr_t120_0'\nWarning at line 32, column 5: Unused variable 'nlr_t120_1'\nWarning: Function 'nlr_f1_owned_1' is missing a shadow test\nI could not compile shadows at line 0: I require I require explicit owned entry execution and a non-escaping scalar helper in my source borrow profile\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/shared-bool.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/bool-nano_virt.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not compile shadows at line 14: I require straight-line scalar expressions and one borrowed helper in my source borrow profile\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoc_u8_context",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/shared-bool.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/bool-nanoc_u8_context.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "I cannot lower the selected shadows: I require the declared direct borrowed helper arity in my source borrow profile\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_virt",
+      "/Users/jkh/Src/nanolang-owned-shared-helper/tests/nanoisa/fixtures/source_borrow_shared.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4]},{\"identity\":1,\"resource\":true,\"fields\":[1,4]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":6,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295]],\"size\":126,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":23,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":28,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":31,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":32,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":37,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":44,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":45,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":54,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":55,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":56,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":59,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":62,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":63,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":68,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":73,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":74,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":77,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":78,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":83,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":88,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":89,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":92,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":95,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":104,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":105,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":106,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":109,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":110,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":111,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":120,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":123,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":124,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\"],\"local_types\":[[8,0]],\"size\":6,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_virt",
+      "/Users/jkh/Src/nanolang-owned-shared-helper/tests/nanoisa/fixtures/source_borrow_exclusive.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/exclusive.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/exclusive.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/exclusive.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/exclusive.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded local resource module with scalar fields.\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/exclusive.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/exclusive.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded local resource module with scalar fields.\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_virt",
+      "/Users/jkh/Src/nanolang-owned-shared-helper/tests/nanoisa/fixtures/source_borrow_shared.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4]},{\"identity\":1,\"resource\":true,\"fields\":[1,4]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":6,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295]],\"size\":126,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":23,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":28,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":31,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":32,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":37,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":44,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":45,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":54,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":55,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":56,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":59,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":62,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":63,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":68,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":73,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":74,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":77,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":78,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":83,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":88,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":89,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":92,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":95,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":104,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":105,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":106,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":109,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":110,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":111,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":120,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":123,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":124,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\"],\"local_types\":[[8,0]],\"size\":6,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/call-reference.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/call-reference.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/call-reference.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/call-reference.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/call-target.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/call-target.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require entry-to-helper reference calls without recursion\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/call-target.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require entry-to-helper reference calls without recursion\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/call-target.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require entry-to-helper reference calls without recursion\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/absent-owner.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/absent-owner.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 32: I require an available scalar-leaf resource owner and reference slot in a live region\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/absent-owner.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 32: I require an available scalar-leaf resource owner and reference slot in a live region\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/absent-owner.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 32: I require an available scalar-leaf resource owner and reference slot in a live region\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/missing-end.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/missing-end.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 56: I require a live unheld owner for an explicit move\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/missing-end.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 56: I require a live unheld owner for an explicit move\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/missing-end.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 56: I require a live unheld owner for an explicit move\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/helper-reference.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/helper-reference.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/helper-reference.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/helper-reference.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/helper-field.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/helper-field.nvm': NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/helper-field.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/helper-field.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/missing-authority.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/missing-authority.nvm': Invalid NVM v2 module: unknown-section-type\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/missing-authority.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: Invalid NVM v2 module: unknown-section-type\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/missing-authority.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_0iqpjia/prior.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I cannot load this module: Invalid NVM v2 module: unknown-section-type\nI did not publish reconstructed source\n"
+  }
+]

@@ -44,20 +44,38 @@ class OwnedAnalyze(Analyze):
                     'require exact scalar or nominal resource declarations')
             return owned_type(layout) if tag == 8 else tag
         self.params = [declared(t) for t in self.fn['params']]
+        self.modes = self.fn.get('param_modes', [0] * len(self.params))
+        require(len(self.modes) == len(self.params) and all(m in (0, 1) for m in self.modes),
+                'require exact value or shared parameter modes')
+        self.borrowed = any(any(f.get('param_modes', [])) for f in module['functions'])
+        if self.borrowed:
+            require(len(module['functions']) == 2 and
+                    module['functions'][0].get('param_modes', []) == [] and
+                    module['functions'][1].get('param_modes') == [1],
+                    'require the separate entry-to-shared-helper profile')
+        self.helper = self.borrowed and index == 1
+        if self.helper:
+            require(len(self.params) == 1 and isinstance(self.params[0], tuple),
+                    'require one exact shared resource parameter')
+            self.params[0] = ('borrow', self.params[0][1])
         self.result = VOID if self.fn['result_type'] == [VOID, 4294967295] else declared(self.fn['result_type'])
         require(self.fn.get('result_count') == (0 if self.result == VOID else 1),
                 'require the exact owned helper result count')
         require(self.fn['result'] == self.fn['result_type'][0], 'require matching result declarations')
         require(len(self.params) <= 8 and len(self.params) <= len(self.declarations) and
-                all(declared(self.declarations[i]) == t for i, t in enumerate(self.params)),
+                all(declared(self.declarations[i]) == (owned_type(t[1]) if self.modes[i] else t) for i, t in enumerate(self.params)),
                 'require exact initial parameter slots')
         require(index != 0 or not self.params and self.result == INT,
                 'require a scalar entry without parameters')
-        self.live = {i: t[1] for i, t in enumerate(self.params) if isinstance(t, tuple)}
+        self.live = {i: t[1] for i, t in enumerate(self.params) if isinstance(t, tuple) and t[0] == 'owner'}
         self.used = set(self.live)
         self.seen = set()
         self.calls = set()
         self.code = self.fn['code']
+        if self.helper:
+            require(self.result in (INT, BOOL) and
+                    all(ins['op'] in OWNED_PRETEST | {'STORE_LOCAL', 'REF_GET', 'RET'} for ins in self.code),
+                    'require a straight-line scalar observation helper')
         require(0 < len(self.code) <= 4096, 'require bounded function instructions')
         self.positions = {ins['pc']: n for n, ins in enumerate(self.code)}
         require(len(self.positions) == len(self.code), 'require unique instruction boundaries')
@@ -195,24 +213,44 @@ class OwnedAnalyze(Analyze):
                 body.append(('own_unpack', arg, layout, values))
                 del self.live[arg]
                 stack.extend(values)
+            elif op == 'REF_GET':
+                require(self.helper and len(ins['args']) == 2 and arg == 0,
+                        'require the exact shared helper parameter reference')
+                field, layout = ins['args'][1], self.params[0][1]
+                require(0 <= field < len(self.layouts[layout]['fields']), 'require an exact shared parameter field')
+                target = Expr(self.layouts[layout]['fields'][field], 'temporary', pc)
+                body.append(('borrow_read', target, field))
+                stack.append(target)
             elif op == 'REGION_BEGIN':
                 require(i + 3 < end, 'require a complete ephemeral read within its owned region')
                 for offset in (1, 2, 3):
                     self.touch(i + offset)
                 borrow, read, region_end_instruction = self.code[i + 1:i + 4]
-                require(borrow['op'] == 'BORROW_LOCAL_SHARED' and read['op'] == 'REF_GET' and
+                require(borrow['op'] == 'BORROW_LOCAL_SHARED' and
+                        read['op'] in ('REF_GET', 'CALL_REF') and
                         region_end_instruction['op'] == 'REGION_END' and len(borrow['args']) == 2 and
-                        len(read['args']) == 2 and borrow['args'][0] == read['args'][0],
-                        'require one matching ephemeral shared scalar-field read')
-                slot, field = borrow['args'][1], read['args'][1]
+                        len(read['args']) == 2,
+                        'require one complete ephemeral shared observation')
+                slot = borrow['args'][1]
                 layout = self.owner_local(slot)
-                require(0 <= field < len(self.layouts[layout]['fields']),
-                        'require a field within the exact owner layout')
-                target = Expr(self.layouts[layout]['fields'][field], 'temporary', read['pc'])
-                body.append(('own_read', target, slot, field))
+                if read['op'] == 'CALL_REF':
+                    require(self.borrowed and self.index == 0 and read['args'] == [1, borrow['args'][0]] and
+                            self.module['functions'][1]['params'] == [[8, layout]],
+                            'require exact caller owner and shared helper identity')
+                    target = Expr(self.module['functions'][1]['result'], 'temporary', read['pc'])
+                    body.append(('borrow_call', target, slot))
+                    self.calls.add(1)
+                else:
+                    field = read['args'][1]
+                    require(borrow['args'][0] == read['args'][0] and
+                            0 <= field < len(self.layouts[layout]['fields']),
+                            'require a field within the exact owner layout')
+                    target = Expr(self.layouts[layout]['fields'][field], 'temporary', read['pc'])
+                    body.append(('own_read', target, slot, field))
                 stack.append(target)
                 i += 3
             elif op == 'CALL':
+                require(not self.borrowed, 'refuse mixed consuming and borrowed calls')
                 require(0 < arg < len(self.module['functions']), 'require a direct non-entry callee')
                 callee = self.module['functions'][arg]
                 params = [owned_type(t[1]) if t[0] == 8 else t[0] for t in callee['params']]
@@ -277,6 +315,8 @@ class OwnedEmit(Emit):
     def type(self, tag):
         if tag == VOID:
             return 'void'
+        if isinstance(tag, tuple) and tag[0] == 'borrow':
+            return f'const NlrOwned{tag[1]} *' if self.language == 'c' else f'&NlrOwned{tag[1]}'
         if isinstance(tag, tuple) and tag[0] == 'owner':
             return f'NlrOwned{tag[1]}'
         return super().type(tag)
@@ -285,7 +325,17 @@ class OwnedEmit(Emit):
         c = self.language == 'c'
         for stmt in statements:
             kind = stmt[0]
-            if kind == 'call_void':
+            if kind in ('borrow_read', 'borrow_call'):
+                _, target, operand = stmt
+                if kind == 'borrow_read':
+                    value = f'nlr_a0->f{operand}' if c else f'nlr_a0.f{operand}'
+                else:
+                    value = f'{self.name(1)}(&{self.local(operand)})' if c else f'({self.name(1)} &{self.local(operand)})'
+                self.line(f'{self.type(target.tag)} {self.expression(target)} = {value};' if c else
+                          f'let {self.expression(target)}: {self.type(target.tag)} = {value}', indent)
+                if c:
+                    self.line(f'(void){self.expression(target)};', indent)
+            elif kind == 'call_void':
                 self.line(self.expression(stmt[1]) + (';' if c else ''), indent)
             elif kind == 'return_void':
                 self.line('return;' if c else 'return', indent)
@@ -351,6 +401,24 @@ class OwnedEmit(Emit):
             body = body[:-len(wrapper)]
             require(sum(line.startswith('fn ') for line in body.splitlines()) <= 7,
                     'reserve one of eight producer functions for shadow execution')
+        borrowed = (len(self.functions) == 2 and self.functions[1].params and
+                    isinstance(self.functions[1].params[0], tuple) and
+                    self.functions[1].params[0][0] == 'borrow')
+        if not c and borrowed:
+            require(sum(line.startswith('fn ') for line in body.splitlines()) == 2,
+                    'require the existing two-function borrowed Nano profile')
+            layout = self.functions[1].params[0][1]
+            fields = self.layouts[layout]['fields']
+            values = ['0' if tag == INT else 'false' for tag in fields]
+            entries = ', '.join(f'f{i}: {value}' for i, value in enumerate(values))
+            names = ', '.join(f'f{i}' for i in range(len(fields)))
+            body += f'\nshadow {self.name(1)} {{\n    let owner: NlrOwned{layout} = NlrOwned{layout} {{ {entries} }}\n'
+            body += f'    let observed: {self.type(self.functions[1].result)} = ({self.name(1)} &owner)\n'
+            body += f'    assert (== observed ({self.name(1)} &owner))\n'
+            body += f'    let NlrOwned{layout} {{ {names} }} = owner\n'
+            for i, value in enumerate(values):
+                body += f'    assert (== f{i} {value})\n'
+            body += '}\n'
         return '\n'.join(declarations) + '\n' + body
 
 
