@@ -183,7 +183,9 @@ class OwnedAnalyze(Analyze):
 
     def observation(self, i, end, stack, body, allow_call=True):
         length = self.reference_region_length(i)
-        if length in (5, 6) or ((self.single_shared_path or self.single_exclusive_path) and i + 2 < len(self.code) and
+        single_path_call = self.single_shared_path or (self.single_exclusive_path and
+                           i + 1 < len(self.code) and self.code[i + 1]['op'] == 'BORROW_PATH_EXCLUSIVE')
+        if length in (5, 6) or (single_path_call and i + 2 < len(self.code) and
                                   self.code[i + 2]['op'] == 'CALL_REF'):
             count = length - 3
             require(allow_call and self.index == 0 and i + length - 1 < end,
@@ -416,12 +418,16 @@ class OwnedAnalyze(Analyze):
                 body.append(('own_pack', target, arg, values))
                 stack.append(target)
             elif op == 'OWN_STORE_LOCAL':
-                require(0 <= arg < len(self.declarations) and arg not in self.used,
-                        'require a fresh declared owner destination')
+                require(0 <= arg < len(self.declarations) and arg not in self.live,
+                        'require a consumed declared owner destination')
+                repeated = arg in self.used
+                require(not repeated or (self.index == 0 and self.borrowed and
+                        self.module['functions'][1].get('param_modes') == [2]),
+                        'require single-exclusive entry owner reassignment')
                 tag, layout = self.declarations[arg]
                 require(tag == 8, 'require an owned record local')
                 value = self.pop(stack, owned_type(layout))
-                body.append(('own_store', arg, layout, value))
+                body.append(('own_assign' if repeated else 'own_store', arg, layout, value))
                 self.live[arg] = layout
                 self.used.add(arg)
             elif op == 'OWN_MOVE_LOCAL':
@@ -514,6 +520,12 @@ class OwnedEmit(Emit):
         self.exclusive = any(isinstance(t, tuple) and t[0] == 'borrow' and len(t) == 3 and t[2] == 2
                              for fn in functions for t in fn.params)
         modes = [t[2] if isinstance(t, tuple) and t[0] == 'borrow' else 0 for t in functions[1].params] if len(functions) == 2 else []
+        self.reassigned = frozenset()
+        if any(stmt[0] == 'own_assign' for function in functions for stmt in self.walk_statements(function.body)):
+            require(modes == [2] and not any(stmt[0] == 'own_assign' for stmt in self.walk_statements(functions[1].body)),
+                    'require single-exclusive entry reassignment origins')
+            from nanoisa_owned_origins import prove_owner_reassignment
+            self.reassigned = prove_owner_reassignment(functions[0])
         self.shared_paths = modes == [1, 1]
         self.single_shared_path = modes == [1] and any(
             stmt[0] == 'path_borrow_call' for stmt in self.walk_statements(functions[0].body))
@@ -561,6 +573,19 @@ class OwnedEmit(Emit):
         self.fields = [[owned_type(child) if tag == 8 else tag
                         for tag, child in layout.get('field_types', [[t, 4294967295] for t in layout['fields']])]
                        for layout in layouts]
+        self.reassignment_plans = []
+        self.scratch_functions = set()
+        if self.reassigned and language == 'nano':
+            from nanoisa_owned_rendering import plan_reassignment_nano
+            planned = []
+            for function in self.functions:
+                lowered, receipt = plan_reassignment_nano(function)
+                planned.append(lowered)
+                self.reassignment_plans.append(receipt)
+                if any(stmt[0] == 'let' and stmt[2].kind == 'arithmetic' and stmt[2].value == 'add'
+                       for stmt in self.walk_statements(lowered.body)):
+                    self.scratch_functions.add(id(lowered))
+            self.functions = planned
 
     @staticmethod
     def walk_statements(body):
@@ -893,15 +918,22 @@ class OwnedEmit(Emit):
                     if self.inline_mul and value.kind == 'arithmetic' and value.value == 'mul':
                         total += 27
                         continue
-                    total += 7 if value.kind == 'arithmetic' and value.value in ({'add', 'sub'} if self.inline_sub else {'add'}) else 1
+                    total += (1 if id(function) in self.scratch_functions and value.kind == 'arithmetic' and value.value == 'add' else
+                              7 if value.kind == 'arithmetic' and value.value in ({'add', 'sub'} if self.inline_sub else {'add'}) else 1)
                 elif kind in ('borrow_read', 'borrow_call', 'multi_borrow_read', 'multi_borrow_call', 'path_read', 'path_borrow_call', 'own_store', 'own_move', 'own_read'):
                     total += 1
                 elif kind == 'own_pack':
                     total += 1 + len(stmt[3])
-                elif kind == 'own_unpack':
+                elif kind == 'own_pack_store':
+                    total += 1 + len(stmt[3])
+                elif kind == 'own_move_store':
+                    total += 0 if stmt[4] else 1
+                elif kind == 'own_read_store':
+                    pass
+                elif kind in ('own_unpack', 'own_unpack_pruned'):
                     # Child-bearing patterns stage every field before named projections.
                     staged = any(isinstance(target.tag, tuple) for target in stmt[3])
-                    total += 1 + (3 if staged else 2) * len(stmt[3])
+                    total += 1 + (2 if staged else 1) * len(stmt[3]) + (sum(stmt[4]) if kind == 'own_unpack_pruned' else len(stmt[3]))
                 elif kind == 'if':
                     total += statements_cost(stmt[2]) + statements_cost(stmt[3])
                 elif kind == 'while':
@@ -909,10 +941,10 @@ class OwnedEmit(Emit):
                 elif kind == 'while_observe':
                     total += statements_cost(stmt[2]) + statements_cost(stmt[3])
                 else:
-                    require(kind in ('store', 'borrow_write', 'multi_borrow_write', 'assert', 'return'),
+                    require(kind in ('store', 'own_assign', 'borrow_write', 'multi_borrow_write', 'assert', 'return'),
                             'require counted exclusive Nano statement storage')
             return total
-        return len(function.locals) + len(function.params) + statements_cost(function.body)
+        return len(function.locals) + len(function.params) + statements_cost(function.body) + (5 if id(function) in self.scratch_functions else 0)
 
     def name(self, index):
         return 'main' if self.language == 'nano' and index == 0 else super().name(index)
@@ -929,6 +961,8 @@ class OwnedEmit(Emit):
         return super().type(tag)
 
     def inline_add_statement(self, target, value, indent):
+        if id(getattr(self, 'function', None)) in getattr(self, 'scratch_functions', set()):
+            return self.scratch_add_statement(target, value, indent)
         name = self.expression(target)
         a, b = name + '_a', name + '_b'
         low, high, boundary = name + '_low', name + '_high', name + '_boundary'
@@ -953,6 +987,31 @@ class OwnedEmit(Emit):
         self.line(f'if (> {a} {boundary}) {{ set {name} {formula(positive)} }} else {{ set {name} (+ {a} {b}) }}', indent + 1)
         self.line(f'}} else {{ if (< {b} 0) {{', indent)
         self.line(f'let {boundary}: int = (- {low} {b})', indent + 1)
+        self.line(f'if (< {a} {boundary}) {{ set {name} {formula(negative)} }} else {{ set {name} (+ {a} {b}) }}', indent + 1)
+        self.line(f'}} else {{ set {name} (+ {a} {b}) }} }}', indent)
+
+    def scratch_add_statement(self, target, value, indent):
+        # This private bank is not used by any expression or lasting result.
+        name = self.expression(target)
+        a, b, low, high, boundary = (f'nlr_rs_{part}' for part in ('a', 'b', 'low', 'high', 'boundary'))
+        self.line(f'set {a} {self.expression(value.args[0])}', indent)
+        self.line(f'set {b} {self.expression(value.args[1])}', indent)
+        self.line(f'let mut {name}: int = 0', indent)
+        from nanoisa_reconstruction import NANO_INTEGER_HELPERS
+        helper = NANO_INTEGER_HELPERS['add']
+        positive = 'return (+ low (- (- a boundary) 1))'
+        negative = 'return (+ high (+ (- a boundary) 1))'
+        require(positive in helper and negative in helper and 'return (+ a b)' in helper,
+                'require unchanged shared-bank guarded ADD formulas')
+        def formula(text):
+            import re
+            names = {'a': a, 'b': b, 'low': low, 'high': high, 'boundary': boundary}
+            return re.sub(r'\b(a|b|low|high|boundary)\b', lambda m: names[m[0]], text[7:])
+        self.line(f'if (> {b} 0) {{', indent)
+        self.line(f'set {boundary} (- {high} {b})', indent + 1)
+        self.line(f'if (> {a} {boundary}) {{ set {name} {formula(positive)} }} else {{ set {name} (+ {a} {b}) }}', indent + 1)
+        self.line(f'}} else {{ if (< {b} 0) {{', indent)
+        self.line(f'set {boundary} (- {low} {b})', indent + 1)
         self.line(f'if (< {a} {boundary}) {{ set {name} {formula(negative)} }} else {{ set {name} (+ {a} {b}) }}', indent + 1)
         self.line(f'}} else {{ set {name} (+ {a} {b}) }} }}', indent)
 
@@ -1024,6 +1083,12 @@ class OwnedEmit(Emit):
 
     def statements(self, statements, indent=1):
         c = self.language == 'c'
+        if not c and statements is self.function.body and indent == 1 and id(self.function) in self.scratch_functions:
+            self.line('let mut nlr_rs_a: int = 0', indent)
+            self.line('let mut nlr_rs_b: int = 0', indent)
+            self.line('let nlr_rs_low: int = (- -9223372036854775807 1)', indent)
+            self.line('let nlr_rs_high: int = 9223372036854775807', indent)
+            self.line('let mut nlr_rs_boundary: int = 0', indent)
         if c and (self.shared_paths or self.single_shared_path or self.exclusive_control) and statements is self.function.body and indent == 1:
             for parameter in range(len(self.function.params)):
                 self.line(f'(void)nlr_a{parameter};', indent)
@@ -1104,6 +1169,24 @@ class OwnedEmit(Emit):
                 name, typ = self.expression(target), self.type(target.tag)
                 self.line(f'{typ} {name} = ({typ}){{{fields}}};' if c else
                           f'let {name}: {typ} = {typ} {{ {fields} }}', indent)
+            elif kind == 'own_pack_store':
+                require(not c, 'require Nano-only planned owner construction')
+                _, slot, layout, values = stmt
+                fields = ', '.join(f'f{i}: ' + self.expression(value) for i, value in enumerate(values))
+                self.line(f'let mut {self.local(slot)}: NlrOwned{layout} = NlrOwned{layout} {{ {fields} }}', indent)
+            elif kind == 'own_move_store':
+                require(not c, 'require Nano-only planned owner transfer')
+                _, slot, layout, source, assignment = stmt
+                self.line(f'set {self.local(slot)} {self.local(source)}' if assignment else
+                          f'let mut {self.local(slot)}: NlrOwned{layout} = {self.local(source)}', indent)
+            elif kind == 'own_read_store':
+                require(not c, 'require Nano-only planned scalar observation')
+                _, slot, owner, field = stmt
+                self.line(f'set {self.local(slot)} {self.local(owner)}.f{field}', indent)
+            elif kind == 'own_assign':
+                _, slot, _, value = stmt
+                self.line(f'{self.local(slot)} = {self.expression(value)};' if c else
+                          f'set {self.local(slot)} {self.expression(value)}', indent)
             elif kind in ('own_store', 'own_move'):
                 if kind == 'own_store':
                     _, slot, layout, value = stmt
@@ -1118,12 +1201,19 @@ class OwnedEmit(Emit):
                 self.line(f'{typ} {name} = {value};' if c else f'let {name}: {typ} = {value}', indent)
                 if c:
                     self.line(f'(void){name};', indent)
-            elif kind == 'own_unpack':
-                _, slot, layout, targets = stmt
+            elif kind in ('own_unpack', 'own_unpack_pruned'):
+                _, slot, layout, targets = stmt[:4]
+                if kind == 'own_unpack_pruned':
+                    require(not c and len(stmt[4]) == len(targets) and
+                            all(type(keep) is bool and (keep or target.tag in (INT, BOOL))
+                                for target, keep in zip(targets, stmt[4])),
+                            'require only unused scalar unpack copies to be omitted')
                 if not c:
                     fields = ', '.join(f'f{i}' for i in range(len(targets)))
                     self.line(f'let NlrOwned{layout} {{ {fields} }} = {self.local(slot)}', indent)
                 for i, target in enumerate(targets):
+                    if kind == 'own_unpack_pruned' and not stmt[4][i]:
+                        continue
                     name, typ = self.expression(target), self.type(target.tag)
                     self.line(f'{typ} {name} = {self.local(slot)}.f{i};' if c else
                               f'let {name}: {typ} = f{i}', indent)
