@@ -1,0 +1,15 @@
+{
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "parent_commit": "00c91196ab99620abbffab7c94d6da809d441b03",
+  "qualification": "scoped reconstruction optimization, not fresh compiler bootstrap; installed stages retained from 55da02bf9 run-jmaawfev",
+  "files": {
+    "scripts/nanoisa_reconstruction.py": "64f5a7fa610b97046126995a693b3047bc77132f261b41850068e9d8953fbd77",
+    "bin/nano_virt": "77fb065602336c9ddc099f51baf59349f81e3a0477b7fbbb458ffb3ec4375904",
+    "bin/nanoc_stage1": "6ed5982517c2d5424e7d9d538c127a4e7a8f8bd7b808c5cb49114099d99f132a",
+    "bin/nanoc_stage2": "c76048a66075bf001b519521a79f99d409c52e171de076660f443a11101b0bf9",
+    "bin/nvm2hl": "c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4",
+    "bin/nano_vm": "61afe250ee9b587a86d3ae525dfddff93effd0a910b4e2aad9509eb7cda93574",
+    "bin/nvm2c": "ec973fc467623300581129db3871b81731bfa0d1733c521b850059062647876c",
+    "bin/nanoisa": "8e4686d40a7a53ed5426af88fb9f9b3ef00ae3751ac13b482c1821ae90fbfa55"
+  }
+}

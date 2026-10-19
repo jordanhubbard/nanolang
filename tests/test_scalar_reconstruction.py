@@ -238,6 +238,15 @@ RET
 '''
         self.paired(text,42,'shadow nlr_f0_main { assert (== (nlr_f0_main) 42) }')
 
+    def test_shared_snapshot_survives_store_compaction(self):
+        text = ('.entry main\n.function main 0 3 0 int 1\n'
+                'PUSH_I64 7\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nDUP\nSTORE_LOCAL 1\n'
+                'PUSH_I64 99\nSTORE_LOCAL 0\nSTORE_LOCAL 2\n'
+                'LOAD_LOCAL 1\nPUSH_I64 7\nI64_EQ\n'
+                'LOAD_LOCAL 2\nPUSH_I64 7\nI64_EQ\nBOOL_AND\nJMP_FALSE bad\n'
+                'PUSH_I64 0\nRET\nbad:\nPUSH_I64 1\nRET\n.end\n')
+        self.paired(text, 0, 'shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }')
+
     def test_optional_names_do_not_alias_slots(self):
         text=''' .string "nano.local.v99"
 .string "ignored"

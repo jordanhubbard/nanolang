@@ -250,7 +250,9 @@ class Analyze:
             self.calls.add(arg)
         else:
             raise Refusal('I require a simple scalar instruction here')
-        if pure:
+        # I retain immutable literals directly; they need no evaluation snapshot.
+        # Byte literals keep typed bindings because bare Nano numerals are INT.
+        if pure or (expr.kind in ('constant', 'float_bits') and expr.tag != U8):
             stack.append(expr)
         else:
             temporary = Expr(expr.tag, 'temporary', ins['pc'])
@@ -342,7 +344,46 @@ class Analyze:
         require(returns, 'require every function path to return explicitly')
         require(len(self.seen) == len(self.code), 'require complete instruction coverage')
         return Function(self.fn['name'], self.fn['params'], self.fn['result'],
-                        self.types, self.fn['names'], body), self.calls
+                        self.types, self.fn['names'], compact_stores(body)), self.calls
+
+
+def compact_stores(body):
+    """I fold only an adjacent temporary's sole use into its local assignment."""
+    uses = {}
+
+    def expression(expr):
+        if expr.kind == 'temporary':
+            uses[expr.value] = uses.get(expr.value, 0) + 1
+        for arg in expr.args:
+            expression(arg)
+
+    def count(statements):
+        for statement in statements:
+            op = statement[0]
+            if op in ('let', 'store'):
+                expression(statement[2])
+            elif op == 'return':
+                expression(statement[1])
+            else:
+                expression(statement[1])
+                for child in statement[2:]:
+                    count(child)
+
+    def fold(statements):
+        result = []
+        for statement in statements:
+            op = statement[0]
+            if op in ('if', 'while'):
+                statement = (op, statement[1], *(fold(child) for child in statement[2:]))
+            if (op == 'store' and result and result[-1][0] == 'let' and
+                    statement[2] == result[-1][1] and uses.get(statement[2].value) == 1):
+                previous = result.pop()
+                statement = ('store', statement[1], previous[2])
+            result.append(statement)
+        return result
+
+    count(body)
+    return fold(body)
 
 
 def analyze(module):
