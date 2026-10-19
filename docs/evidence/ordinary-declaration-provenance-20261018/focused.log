@@ -1,0 +1,11 @@
+python3 scripts/embed_binary64_parser.py --check
+python3 -m unittest -v tests.test_ordinary_declaration_provenance
+test_array_schema_retains_existing_unknown_boundary (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_array_schema_retains_existing_unknown_boundary) ... ok
+test_distinct_equal_shape_and_forward_ordinals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_distinct_equal_shape_and_forward_ordinals) ... ok
+test_repeated_direct_and_transitive_import_stays_unknown (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_repeated_direct_and_transitive_import_stays_unknown) ... ok
+test_same_spelling_in_distinct_imports_stays_unknown (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_same_spelling_in_distinct_imports_stays_unknown) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.280s
+
+OK

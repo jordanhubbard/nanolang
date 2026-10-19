@@ -31,19 +31,27 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program) {
     NvmModule *module=cg->module;
     if(!cg->struct_count || cg->enum_count || cg->union_count || cg->extern_count || cg->passive ||
        module->layout_size || module->ownership_size)return;
-    ASTNode *records[MAX_STRUCT_DEFS]={0};unsigned count=0;
+    ASTNode *records[MAX_STRUCT_DEFS]={0};unsigned count=cg->struct_count;
+    /* I preserve the closed-source boundary while retaining exact declaration
+     * provenance for a separately qualified imported-source extension. */
+    unsigned source_count=0;
     for(int i=0;i<program->as.program.count;i++) {
         ASTNode *node=bytecode_declaration(program->as.program.items[i]);
         if(node->type==AST_IMPORT || node->type==AST_ENUM_DEF || node->type==AST_UNION_DEF)return;
-        if(node->type!=AST_STRUCT_DEF)continue;
-        if(count>=(unsigned)cg->struct_count || node->as.struct_def.is_resource ||
-           node->as.struct_def.is_extern || strchr(node->as.struct_def.name,'<') ||
-           strcmp(node->as.struct_def.name,cg->structs[count].name))return;
-        for (unsigned k=0;k<count;k++)
-            if (!strcmp(node->as.struct_def.name,records[k]->as.struct_def.name)) return;
-        records[count++]=node;
+        if(node->type==AST_STRUCT_DEF)source_count++;
     }
-    if(count!=(unsigned)cg->struct_count)return;
+    if(source_count!=count)return;
+    for(unsigned i=0;i<count;i++) {
+        const CgStructDef *registered=&cg->structs[i];
+        ASTNode *node=registered->declaration;
+        if(!node || registered->declaration_ambiguous || node->type!=AST_STRUCT_DEF ||
+           registered->def_idx!=i || registered->name!=node->as.struct_def.name ||
+           node->as.struct_def.is_resource || node->as.struct_def.is_extern ||
+           strchr(node->as.struct_def.name,'<'))return;
+        for (unsigned k=0;k<i;k++)
+            if (!strcmp(node->as.struct_def.name,records[k]->as.struct_def.name)) return;
+        records[i]=node;
+    }
     size_t size=8+((count+3u)&~3u)+4;
     for(uint32_t f=0;f<module->function_count;f++) {
         NvmFunctionEntry *fn=&module->functions[f];

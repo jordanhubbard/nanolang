@@ -6864,3 +6864,8 @@ test-effect-array-producer: nano_virt $(OBJ_DIR)/nanovirt/codegen_effect_arrays.
 	python3 -m unittest -v tests.test_effect_array_producer
 
 test-units: test-effect-array-producer
+
+.PHONY: test-ordinary-declaration-provenance
+test-ordinary-declaration-provenance: nano_virt nano_vm nanoisa_dump nvm2c
+	python3 -m unittest -v tests.test_ordinary_declaration_provenance
+test-quick test-units: test-ordinary-declaration-provenance

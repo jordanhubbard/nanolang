@@ -92,6 +92,8 @@ typedef struct {
     char **field_type_names;  /* Struct type names for struct-typed fields (NULL entries for non-struct) */
     int field_count;
     uint32_t def_idx;
+    ASTNode *declaration; /* I retain the checked declaration behind this ordinal. */
+    bool declaration_ambiguous;
 } CgStructDef;
 
 typedef struct {
@@ -4806,6 +4808,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         if (item->type == AST_STRUCT_DEF && cg.struct_count < MAX_STRUCT_DEFS) {
             CgStructDef *sd = &cg.structs[cg.struct_count];
             sd->name = item->as.struct_def.name;
+            sd->declaration = item;
             sd->field_names = item->as.struct_def.field_names;
             sd->field_type_names = item->as.struct_def.field_type_names;
             sd->field_count = item->as.struct_def.field_count;
@@ -4977,6 +4980,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         bool dup = false;
                         for (int s = 0; s < cg.struct_count; s++) {
                             if (strcmp(cg.structs[s].name, mitem->as.struct_def.name) == 0) {
+                                if (cg.structs[s].declaration != mitem)
+                                    cg.structs[s].declaration_ambiguous = true;
                                 dup = true;
                                 break;
                             }
@@ -4984,6 +4989,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         if (!dup) {
                             CgStructDef *sd = &cg.structs[cg.struct_count];
                             sd->name = mitem->as.struct_def.name;
+                            sd->declaration = mitem;
                             sd->field_names = mitem->as.struct_def.field_names;
                             sd->field_type_names = mitem->as.struct_def.field_type_names;
                             sd->field_count = mitem->as.struct_def.field_count;
@@ -5133,12 +5139,15 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                     bool dup = false;
                     for (int s = 0; s < cg.struct_count; s++) {
                         if (strcmp(cg.structs[s].name, mitem->as.struct_def.name) == 0) {
+                            if (cg.structs[s].declaration != mitem)
+                                cg.structs[s].declaration_ambiguous = true;
                             dup = true; break;
                         }
                     }
                     if (!dup) {
                         CgStructDef *sd = &cg.structs[cg.struct_count];
                         sd->name = mitem->as.struct_def.name;
+                        sd->declaration = mitem;
                         sd->field_names = mitem->as.struct_def.field_names;
                         sd->field_type_names = mitem->as.struct_def.field_type_names;
                         sd->field_count = mitem->as.struct_def.field_count;
