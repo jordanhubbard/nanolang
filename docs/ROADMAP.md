@@ -15988,3 +15988,5 @@ Fresh aggregate raw generations and exact Linux/Darwin gates remain open;
 C-hosted qualification does not satisfy those gates or close full #998.
 
 - I integrate checked field-read facts as 65d86ecf2 after retaining both append-only ROADMAP sides. I will qualify the new event/result record shapes through fresh raw Stage 1/Stage 2, fixed-point verification and the existing three-producer metadata gates. Component C-hosted results do not replace this aggregate evidence.
+
+- I pass all 17 fresh field-read bootstrap steps at 261f67bde, identical raw generations 693587593970b4588910fabb4f3c29a461c89031bb3974e7b61b000c18009389, ledger/Environment cleanup and 11 paired metadata methods in 87.978s. Eight providers remain unchanged. I retain docs/evidence/checked-field-read-bootstrap-20261019/; combined write-candidate metadata neighbors and exact platform gates remain open.
