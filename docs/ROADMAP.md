@@ -15514,3 +15514,5 @@ I retain [local resource reconstruction evidence](evidence/owned-local-reconstru
 - [x] I integrate bounded source-array publication, actual allocation-failure repairs, concrete generic authority controls and local owned reconstruction, preserving every component acceptance boundary.
 - [x] I wire both fresh installed stages into source publication, imported/generic authority and owned reconstruction in hosted qualification.
 - [ ] I require another fresh combined bootstrap and exact Linux/Darwin results before treating these integrated sources as qualified.
+
+My fresh all-stage publisher qualification exposed a harness prerequisite: configured artifact producers avoid the default native emitter build, so its incidental Nanoisa shared-library generation was absent. I explicitly build and execute a real host-query provider probe before the source corpus; I retain the original missing-library failures and leave all query/publication assertions intact.

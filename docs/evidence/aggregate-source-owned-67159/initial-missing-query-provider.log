@@ -1,0 +1,282 @@
+I retain producer build evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-producers-91p306af
+test_bound_imports (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_bound_imports) ... 
+  test_bound_imports (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_bound_imports) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt') ... ERROR
+  test_bound_imports (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_bound_imports) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1') ... ERROR
+  test_bound_imports (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_bound_imports) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2') ... ERROR
+test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) ... 
+  test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt') ... ERROR
+  test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1') ... ERROR
+  test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2') ... ERROR
+test_existing_array_result_without_array_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_existing_array_result_without_array_fields) ... ok
+test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) ... 
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt', element='int') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1', element='int') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2', element='int') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt', element='u8') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1', element='u8') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2', element='u8') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt', element='float') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1', element='float') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2', element='float') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt', element='bool') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1', element='bool') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2', element='bool') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt', element='string') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1', element='string') ... ERROR
+  test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2', element='string') ... ERROR
+test_foreign_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_foreign_module_omits_optional_envelope) ... ok
+test_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_forward_record_dag) ... 
+  test_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_forward_record_dag) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt') ... ERROR
+  test_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_forward_record_dag) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1') ... ERROR
+  test_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_forward_record_dag) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2') ... ERROR
+test_generic_tail_calls_omit_unproved_array_profile (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_generic_tail_calls_omit_unproved_array_profile) ... ok
+test_large_closed_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_large_closed_module_omits_optional_envelope) ... ok
+test_nested_arrays_remain_unpublished (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_arrays_remain_unpublished) ... ok
+test_query_status_and_host_interfaces (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_query_status_and_host_interfaces) ... FAIL
+test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) ... 
+  test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt') ... ERROR
+  test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1') ... ERROR
+  test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2') ... ERROR
+test_concrete_generic_equal_shapes_keep_forward_ordinals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_concrete_generic_equal_shapes_keep_forward_ordinals) ... ok
+test_distinct_equal_shape_and_forward_ordinals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_distinct_equal_shape_and_forward_ordinals) ... ok
+test_generic_repeated_variable_refuses_distinct_import_owners (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_generic_repeated_variable_refuses_distinct_import_owners) ... ok
+test_generic_repeated_variable_refuses_equal_shape_distinct_nominals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_generic_repeated_variable_refuses_equal_shape_distinct_nominals) ... ok
+test_imported_field_identity_preserves_distinct_same_spelling (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_imported_field_identity_preserves_distinct_same_spelling) ... ok
+test_imported_generic_instances_preserve_source_owners (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_imported_generic_instances_preserve_source_owners) ... ok
+test_nested_array_schema_retains_existing_unknown_boundary (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_nested_array_schema_retains_existing_unknown_boundary) ... ok
+test_repeated_direct_and_transitive_import_retains_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_repeated_direct_and_transitive_import_retains_authority) ... ok
+test_same_spelling_in_distinct_imports_retains_distinct_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_same_spelling_in_distinct_imports_retains_distinct_authority) ... ok
+test_actual_producers_preserve_nominal_moves_fields_and_snapshots (tests.test_owned_reconstruction.OwnedReconstruction.test_actual_producers_preserve_nominal_moves_fields_and_snapshots) ... ok
+test_corrupt_ownership_and_regions_preserve_prior_output (tests.test_owned_reconstruction.OwnedReconstruction.test_corrupt_ownership_and_regions_preserve_prior_output) ... ok
+test_initializer_named_entry_refuses_atomically (tests.test_owned_reconstruction.OwnedReconstruction.test_initializer_named_entry_refuses_atomically) ... ok
+test_verified_control_path_outside_slice_refuses (tests.test_owned_reconstruction.OwnedReconstruction.test_verified_control_path_outside_slice_refuses) ... ok
+
+======================================================================
+ERROR: test_bound_imports (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_bound_imports) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_bound_imports (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_bound_imports) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_bound_imports (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_bound_imports) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt', element='u8')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1', element='u8')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2', element='u8')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt', element='float')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1', element='float')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2', element='float')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt', element='bool')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1', element='bool')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2', element='bool')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt', element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1', element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2', element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_forward_record_dag) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_forward_record_dag) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_forward_record_dag) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+ERROR: test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) (compiler='/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 78, in exercise
+    library_path=next((ROOT/'modules/nanoisa/.build/current').glob('libnanoisa.*'))
+StopIteration
+
+======================================================================
+FAIL: test_query_status_and_host_interfaces (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_query_status_and_host_interfaces)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_flat_array_source_publication.py", line 122, in test_query_status_and_host_interfaces
+    self.assertEqual(len(libraries),1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 24 tests in 17.074s
+
+FAILED (failures=1, errors=27)

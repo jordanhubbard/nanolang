@@ -8,6 +8,7 @@ import struct
 import subprocess
 import tempfile
 import unittest
+from tests.native_process import run_captured
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -15,6 +16,21 @@ class FlatArraySourcePublication(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.compiler_work=Path(tempfile.mkdtemp(prefix='nano-flat-source-producers-'))
+        # I explicitly prepare the real query library even when fresh artifact
+        # producers are supplied: --emit-nvm alone need not build a native module.
+        probe=cls.compiler_work/'query-provider.nano'
+        binary=cls.compiler_work/'query-provider'
+        probe.write_text('module "modules/nanoisa/nanoisa.nano" as Isa\n'
+            'fn main()->int { assert (== (Isa.array_publication "not assembly") -1) return 0 }\n'
+            'shadow main { assert (== (main) 0) }\n')
+        build=run_captured([ROOT/'bin/nanoc_c',probe,'-o',binary],cwd=ROOT,
+            text=True,timeout=180,build=True)
+        (cls.compiler_work/'query-provider-build.log').write_text(build.stdout+build.stderr)
+        if build.returncode:
+            raise AssertionError(build.stdout+build.stderr)
+        run=run_captured([binary],cwd=ROOT,text=True,timeout=30)
+        if run.returncode:
+            raise AssertionError(run.stdout+run.stderr)
         configured=os.environ.get('NANO_FLAT_ARRAY_COMPILERS')
         if configured:
             cls.compilers=configured.split(',')
