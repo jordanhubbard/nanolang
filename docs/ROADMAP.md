@@ -15815,3 +15815,5 @@ I pass my C-hosted compiler build and 33 focused methods across the retained met
 - [x] I retain all 50 fresh-stage metadata/contract methods passing in 195.891 seconds in `docs/evidence/checked-effects-bootstrap-74a565150-20261019/`; hosted Linux/Darwin qualification remains open.
 
 - [x] I qualify integrated mixed scalar/resource fields with fresh `74a565150` generations: all 13 mixed/nested/shared methods pass in 91.573 seconds; I wire the mixed corpus into `test-owned-reconstruction` and retain `docs/evidence/owned-mixed-aggregate-20261019/`. Full #999 and hosted gates remain open.
+
+- [x] I qualify integrated observation pretests with fresh `74a565150` stages: all 13 observation/loop/shared methods pass in 107.648 seconds, with unchanged providers and `docs/evidence/owned-observation-aggregate-20261019/`; arithmetic and broader ownership scope remain open.
