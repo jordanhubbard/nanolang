@@ -1,0 +1,95 @@
+/* I exercise the actual scoped provider, including injected allocation failures. */
+#include "nanolang.h"
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+static unsigned alloc_calls,fail_at,denied,live;
+static bool deny(void){alloc_calls++;if(fail_at && alloc_calls==fail_at){denied++;return true;}return false;}
+static void *probe_malloc(size_t n){if(deny())return NULL;void *p=malloc(n);if(p)live++;return p;}
+static void *probe_calloc(size_t n,size_t z){if(deny())return NULL;void *p=calloc(n,z);if(p)live++;return p;}
+static void *probe_realloc(void *p,size_t n){if(deny())return NULL;bool fresh=!p;void *q=realloc(p,n);if(q && fresh)live++;return q;}
+static void probe_free(void *p){if(p){assert(live);live--;free(p);}}
+#define malloc probe_malloc
+#define calloc probe_calloc
+#define realloc probe_realloc
+#define free probe_free
+#include "../src/checked_borrow_facts.c"
+#undef malloc
+#undef calloc
+#undef realloc
+#undef free
+
+typedef struct {Environment env;ASTNode fn,call,arg,field,root;ASTNode *args[1],*place[1];} Fixture;
+static void init(Fixture *f) {
+    memset(f,0,sizeof *f);f->env.current_file="module.nano";
+    f->fn.type=AST_FUNCTION;f->fn.as.function.affine_check_epoch=1;
+    f->fn.as.function.affine_completed_epoch=1;f->fn.as.function.checked_affine=1;
+    f->root.type=AST_IDENTIFIER;f->root.as.identifier="owner";
+    f->field.type=AST_FIELD_ACCESS;f->field.as.field_access.object=&f->root;f->field.as.field_access.field_name="leaf";
+    f->place[0]=&f->field;f->arg.type=AST_CALL;f->arg.line=2;f->arg.column=8;
+    f->arg.as.call.args=f->place;f->arg.as.call.arg_count=1;f->arg.as.call.borrow_mode=2;
+    f->args[0]=&f->arg;f->call.type=AST_CALL;f->call.as.call.name="helper";f->call.line=2;f->call.column=2;
+    f->call.as.call.args=f->args;f->call.as.call.arg_count=1;
+}
+static bool capture(Fixture *f){return checked_borrow_capture(&f->env,&f->fn,&f->call,&f->arg,0,"owner",".leaf");}
+static const CheckedBorrowEvent *lookup(Fixture *f){return checked_borrow_lookup(&f->env,&f->fn,&f->call,&f->arg,0);}
+static void seal(Fixture *f){checked_borrow_finish_capture(&f->env);assert(checked_borrow_seal(&f->env));}
+static void success(void) {
+    Fixture f;init(&f);assert(checked_borrow_begin(&f.env));assert(!checked_borrow_begin(&f.env));
+    assert(!checked_borrow_seal(&f.env));assert(capture(&f));assert(!lookup(&f));seal(&f);
+    const CheckedBorrowEvent *e=lookup(&f);assert(e && !strcmp(e->projection,".leaf"));
+    f.field.as.field_access.field_name="changed";assert(!lookup(&f));f.field.as.field_access.field_name="leaf";
+    f.call.as.call.name="other";assert(!lookup(&f));f.call.as.call.name="helper";
+    f.fn.as.function.checked_affine=0;assert(!lookup(&f));f.fn.as.function.checked_affine=1;
+    f.fn.as.function.affine_check_epoch=2;assert(!lookup(&f));f.fn.as.function.affine_check_epoch=1;
+    ASTNode cloned=f.arg;f.args[0]=&cloned;assert(!lookup(&f));f.args[0]=&f.arg;assert(lookup(&f));
+    checked_borrow_end(&f.env);checked_borrow_end(&f.env);assert(!f.env.checked_borrow_facts && !live);
+}
+static void invalid_and_limits(void) {
+    Fixture f;init(&f);assert(checked_borrow_begin(&f.env));
+    f.env.current_file="bad\xff";assert(capture(&f));f.env.current_file="module.nano";
+    f.arg.column=0;assert(capture(&f));f.arg.column=8;seal(&f);assert(!lookup(&f));checked_borrow_end(&f.env);
+    assert(checked_borrow_begin(&f.env));assert(capture(&f));checked_borrow_function_begin(&f.env,&f.fn);seal(&f);assert(!lookup(&f));checked_borrow_end(&f.env);
+    assert(checked_borrow_begin(&f.env));assert(capture(&f));
+    char *huge=malloc(BORROW_WORK_LIMIT+2);assert(huge);memset(huge,'x',BORROW_WORK_LIMIT+1);huge[BORROW_WORK_LIMIT+1]=0;
+    f.env.current_file=huge;assert(capture(&f));free(huge);seal(&f);assert(!lookup(&f));checked_borrow_end(&f.env);assert(!live);
+}
+static void allocation_failures(void) {
+    alloc_calls=0;success();unsigned count=alloc_calls;assert(count==3);
+    for(unsigned i=1;i<=count;i++) {
+        Fixture f;init(&f);alloc_calls=denied=0;fail_at=i;
+        bool began=checked_borrow_begin(&f.env);
+        if(began){assert(!capture(&f));checked_borrow_finish_capture(&f.env);assert(!checked_borrow_seal(&f.env));}
+        assert(denied==1);checked_borrow_end(&f.env);assert(!live);
+        fail_at=0;success(); /* independent recovery after each real denial */
+    }
+}
+#ifdef CHECKED_BORROW_ENV_LINK
+int g_argc;
+char **g_argv;
+static void actual_environment_teardown(void) {
+    for(unsigned failure=0;failure<=3;failure++) {
+        Fixture f;init(&f);
+        Environment *env=create_environment();assert(env);
+        env->current_file="module.nano";
+        alloc_calls=denied=0;fail_at=failure;
+        bool began=checked_borrow_begin(env);
+        bool captured=began && checked_borrow_capture(env,&f.fn,&f.call,&f.arg,0,"owner",".leaf");
+        if(failure)assert(!captured && denied==1);else assert(captured);
+        /* Teardown owns snapshots, never the expired AST that produced them. */
+        memset(&f,0,sizeof f);
+        free_environment(env);
+        assert(!live);
+        fail_at=0;success();
+    }
+    puts("actual Environment teardown: active scope, failures and recovery passed");
+}
+#endif
+int main(void){
+    success();invalid_and_limits();allocation_failures();
+#ifdef CHECKED_BORROW_ENV_LINK
+    actual_environment_teardown();
+#endif
+    puts("checked borrow ledger: lifecycle, invalidation, limits and allocation recovery passed");return 0;
+}

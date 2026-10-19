@@ -1,0 +1,25 @@
+test_actual_checker_context_raw_recheck_and_descriptor_lifetime (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_actual_checker_context_raw_recheck_and_descriptor_lifetime) ... FAIL
+
+======================================================================
+FAIL: test_actual_checker_context_raw_recheck_and_descriptor_lifetime (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_actual_checker_context_raw_recheck_and_descriptor_lifetime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 150, in test_actual_checker_context_raw_recheck_and_descriptor_lifetime
+    self.command([ROOT/'bin/nanoc_c',source,'-o',binary],build=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 20, in command
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 9, column 41: Expected '>' after List type parameter
+Error at line 9, column 41: Expected '=' in let statement (got GE)
+Error at line 10, column 28: Expected '>' after List type parameter
+Error at line 10, column 28: Expected '=' in let statement (got GE)
+Error at line 15, column 34: Expected '>' after array element type
+Error at line 15, column 34: Expected '=' in let statement (got GE)
+Parsing error
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.007s
+
+FAILED (failures=1)

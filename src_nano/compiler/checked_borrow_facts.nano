@@ -1,0 +1,208 @@
+# I retain only invocation-local checker events; these are never runtime proof.
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+
+struct BorrowFactEvent {
+    owner: array<int>, epoch: int,
+    call: int, argument: int, ordinal: int, place_id: int, place_kind: int,
+    call_line: int, call_column: int, argument_line: int, argument_column: int,
+    mode: int, function_id: int, function_kind: int,
+    callee: string, source_path: string, root: string, projection: string
+}
+struct BorrowFactContext {
+    events: array<BorrowFactEvent>, state: array<int>
+}
+# state: enabled, cumulative events, cumulative bytes, cumulative capture work.
+pub fn borrow_fact_context_new() -> array<BorrowFactContext> {
+    return [BorrowFactContext { events: [], state: [1,0,0,0] }]
+}
+fn borrow_fact_charge(context: array<BorrowFactContext>, count: int) -> bool {
+    if (== (array_length context) 0) { return false }
+    let state: array<int> = (at context 0).state
+    if (or (!= (array_length state) 4) (!= (at state 0) 1)) { return false }
+    if (or (< count 0) (> count (- 131072 (at state 3)))) { (array_set state 0 0) return false }
+    (array_set state 3 (+ (at state 3) count))
+    return true
+}
+fn borrow_fact_text(text: string) -> bool {
+    if (not (parser_service_utf8 text)) { return false }
+    let mut i: int = 0
+    while (< i (str_length text)) {
+        if (== (char_at text i) 0) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+pub fn borrow_fact_capture(parser: Parser, context: array<BorrowFactContext>, owner: array<int>, epoch: int,
+    call_id: int, argument_id: int, ordinal: int, root: string, projection: string) -> void {
+    if (not (borrow_fact_charge context 1)) { return }
+    if (or (<= epoch 0) (or (!= (array_length owner) 1) (!= (at owner 0) epoch))) { return }
+    if (or (< call_id 0) (or (>= call_id parser.calls_count) (or (< argument_id 0) (>= argument_id parser.calls_count)))) { return }
+    let call: ASTCall = (parser_get_call parser call_id)
+    let argument: ASTCall = (parser_get_call parser argument_id)
+    if (or (<= call.line 0) (or (<= call.column 0) (or (<= argument.line 0) (<= argument.column 0)))) { return }
+    if (or (> call.line 4294967295) (or (> call.column 4294967295) (or (> argument.line 4294967295) (> argument.column 4294967295)))) { return }
+    if (or (not (or (== argument.borrow_mode 1) (== argument.borrow_mode 2))) (!= argument.arg_count 1)) { return }
+    if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (or (< call.function 0) (>= call.function parser.identifiers_count))) { return }
+    let callee: string = (parser_get_identifier parser call.function).name
+    let np: int = (str_length parser.file_name)
+    let nr: int = (str_length root)
+    let nj: int = (str_length projection)
+    let nc: int = (str_length callee)
+    if (not (borrow_fact_charge context (* 2 (+ (+ np nr) (+ nj nc))))) { return }
+    if (or (== np 0) (or (== nr 0) (or (not (borrow_fact_text parser.file_name)) (or (not (borrow_fact_text root)) (not (borrow_fact_text projection)))))) { return }
+    let current: BorrowFactContext = (at context 0)
+    let bytes: int = (+ 4 (+ (+ np nr) (+ nj nc)))
+    if (or (> (+ nr nj) 4096) (or (> nc 4096) (or (>= (at current.state 1) 4096) (> bytes (- 1048576 (at current.state 2)))))) {
+        (array_set current.state 0 0) return
+    }
+    if (not (borrow_fact_charge context nj)) { return }
+    let mut depth: int = 0
+    let mut i: int = 0
+    while (< i nj) {
+        if (== (char_at projection i) 46) { set depth (+ depth 1) }
+        set i (+ i 1)
+    }
+    if (> depth 32) { (array_set current.state 0 0) return }
+    set i 0
+    while (< i (array_length current.events)) {
+        if (not (borrow_fact_charge context 1)) { return }
+        let old: BorrowFactEvent = (at current.events i)
+        if (and (== old.epoch epoch) (and (== old.call call_id) (and (== old.argument argument_id) (and (== old.ordinal ordinal) (parser_affine_owner_same old.owner owner))))) { return }
+        set i (+ i 1)
+    }
+    let place: ASTStmtRef = (parser_get_call_arg parser argument.arg_start)
+    let event: BorrowFactEvent = BorrowFactEvent { owner: owner, epoch: epoch, call: call_id, argument: argument_id,
+        ordinal: ordinal, place_id: place.node_id, place_kind: place.node_type, call_line: call.line, call_column: call.column, argument_line: argument.line,
+        argument_column: argument.column, mode: argument.borrow_mode, function_id: call.function,
+        function_kind: call.function_type, callee: callee, source_path: parser.file_name, root: root, projection: projection }
+    let retained: array<BorrowFactEvent> = (array_push current.events event)
+    (array_set context 0 (BorrowFactContext { events: retained, state: current.state }))
+    (array_set current.state 1 (+ (at current.state 1) 1))
+    (array_set current.state 2 (+ (at current.state 2) bytes))
+}
+fn borrow_fact_same_place(parser: Parser, event: BorrowFactEvent, argument: ASTCall) -> bool {
+    let place: ASTStmtRef = (parser_get_call_arg parser argument.arg_start)
+    if (or (!= place.node_id event.place_id) (!= place.node_type event.place_kind)) { return false }
+    let mut id: int = place.node_id
+    let mut kind: int = place.node_type
+    let mut depth: int = 0
+    let mut remaining: int = (str_length event.projection)
+    while (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
+        if (or (>= depth 32) (or (< id 0) (>= id parser.field_accesses_count))) { return false }
+        let field: ASTFieldAccess = (parser_get_field_access parser id)
+        let width: int = (str_length field.field_name)
+        if (or (> width 4096) (>= width remaining)) { return false }
+        let start: int = (- remaining width)
+        if (!= (char_at event.projection (- start 1)) 46) { return false }
+        let mut offset: int = 0
+        while (< offset width) {
+            if (!= (char_at event.projection (+ start offset)) (char_at field.field_name offset)) { return false }
+            set offset (+ offset 1)
+        }
+        set remaining (- start 1)
+        set id field.object set kind field.object_type set depth (+ depth 1)
+    }
+    if (or (!= kind ParseNodeType.PNODE_IDENTIFIER) (or (< id 0) (>= id parser.identifiers_count))) { return false }
+    return (and (== remaining 0) (== (parser_get_identifier parser id).name event.root))
+}
+# I return an index only for the exact original completed source function/site.
+pub fn borrow_fact_lookup(parser: Parser, context: array<BorrowFactContext>, function: ASTFunction,
+    call_id: int, argument_id: int, ordinal: int) -> int {
+    if (== (array_length context) 0) { return -1 }
+    let current: BorrowFactContext = (at context 0)
+    if (or (!= (array_length current.state) 4) (!= (at current.state 0) 1)) { return -1 }
+    if (or (!= function.node_type ParseNodeType.PNODE_FUNCTION) (or (!= function.checked_affine 1) (!= (array_length function.affine_owner) 1))) { return -1 }
+    let epoch: int = (at function.affine_owner 0)
+    if (or (<= epoch 0) (!= function.affine_completed_epoch epoch)) { return -1 }
+    if (or (< call_id 0) (or (>= call_id parser.calls_count) (or (< argument_id 0) (>= argument_id parser.calls_count)))) { return -1 }
+    let call: ASTCall = (parser_get_call parser call_id)
+    let argument: ASTCall = (parser_get_call parser argument_id)
+    if (or (< ordinal 0) (or (>= ordinal call.arg_count) (!= argument.arg_count 1))) { return -1 }
+    let selected: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start ordinal))
+    if (or (!= selected.node_type ParseNodeType.PNODE_CALL) (!= selected.node_id argument_id)) { return -1 }
+    let mut i: int = 0
+    while (< i (array_length current.events)) {
+        let event: BorrowFactEvent = (at current.events i)
+        if (and (== event.epoch epoch) (and (== event.call call_id) (and (== event.argument argument_id) (and (== event.ordinal ordinal) (parser_affine_owner_same event.owner function.affine_owner))))) {
+            if (or (!= event.call_line call.line) (or (!= event.call_column call.column) (or (!= event.argument_line argument.line) (!= event.argument_column argument.column)))) { return -1 }
+            if (or (!= event.mode argument.borrow_mode) (or (!= event.function_id call.function) (!= event.function_kind call.function_type))) { return -1 }
+            if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (or (< call.function 0) (>= call.function parser.identifiers_count))) { return -1 }
+            if (!= event.callee (parser_get_identifier parser call.function).name) { return -1 }
+            if (not (borrow_fact_same_place parser event argument)) { return -1 }
+            return i
+        }
+        set i (+ i 1)
+    }
+    return -1
+}
+
+shadow borrow_fact_context_new {
+    let left: array<BorrowFactContext> = (borrow_fact_context_new)
+    let right: array<BorrowFactContext> = (borrow_fact_context_new)
+    (array_set (at left 0).state 0 0)
+    assert (== (at (at right 0).state 0) 1)
+    assert (== (array_length (at right 0).events) 0)
+}
+shadow borrow_fact_charge {
+    let context: array<BorrowFactContext> = (borrow_fact_context_new)
+    assert (borrow_fact_charge context 131072)
+    assert (not (borrow_fact_charge context 1))
+    assert (not (borrow_fact_charge context 0))
+    assert (not (borrow_fact_charge [] 1))
+}
+shadow borrow_fact_text { assert (borrow_fact_text "") assert (borrow_fact_text "owner.leaf") }
+
+# I test capture storage with parsed sites, without pretending they are checked.
+fn borrow_fact_fixture() -> Parser {
+    let source: string = "resource struct R{value:int} fn read(view:&R)->int{return view.value} fn main()->int{let owner:R=R{value:1} assert (== (read &owner) 1) let R{value}=owner return 0}"
+    let tokens: List<LexerToken> = (tokenize_string source "borrow-storage.nano" (list_CompilerDiagnostic_new))
+    return (parse_program tokens (list_LexerToken_length tokens) "borrow-storage.nano")
+}
+shadow borrow_fact_fixture { assert (> (borrow_fact_fixture).calls_count 0) }
+fn borrow_fact_fixture_capture(parser: Parser) -> array<BorrowFactContext> {
+    let context: array<BorrowFactContext> = (borrow_fact_context_new)
+    let owner: array<int> = [1]
+    let mut i: int = 0
+    while (< i parser.calls_count) {
+        let call: ASTCall = (parser_get_call parser i)
+        let mut ordinal: int = 0
+        while (< ordinal call.arg_count) {
+            let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start ordinal))
+            if (== argument.node_type ParseNodeType.PNODE_CALL) {
+                if (> (parser_get_call parser argument.node_id).borrow_mode 0) {
+                    (borrow_fact_capture parser context owner 1 i argument.node_id ordinal "owner" "")
+                }
+            }
+            set ordinal (+ ordinal 1)
+        }
+        set i (+ i 1)
+    }
+    return context
+}
+shadow borrow_fact_fixture_capture {
+    assert (== (array_length (at (borrow_fact_fixture_capture (borrow_fact_fixture)) 0).events) 1)
+}
+shadow borrow_fact_capture {
+    let parser: Parser = (borrow_fact_fixture)
+    let context: array<BorrowFactContext> = (borrow_fact_fixture_capture parser)
+    let event: BorrowFactEvent = (at (at context 0).events 0)
+    (borrow_fact_capture parser context event.owner event.epoch event.call event.argument event.ordinal "owner" "")
+    assert (== (array_length (at context 0).events) 1)
+    (array_set (at context 0).state 2 1048576)
+    (borrow_fact_capture parser context event.owner event.epoch event.call event.argument event.ordinal "owner" "")
+    assert (== (at (at context 0).state 0) 0)
+}
+shadow borrow_fact_same_place {
+    let parser: Parser = (borrow_fact_fixture)
+    let context: array<BorrowFactContext> = (borrow_fact_fixture_capture parser)
+    let event: BorrowFactEvent = (at (at context 0).events 0)
+    assert (borrow_fact_same_place parser event (parser_get_call parser event.argument))
+    assert (not (borrow_fact_same_place parser event (parser_get_call parser event.call)))
+}
+shadow borrow_fact_lookup {
+    let parser: Parser = (borrow_fact_fixture)
+    let context: array<BorrowFactContext> = (borrow_fact_fixture_capture parser)
+    let event: BorrowFactEvent = (at (at context 0).events 0)
+    assert (== (borrow_fact_lookup parser context (parser_get_function parser 1) event.call event.argument event.ordinal) (- 0 1))
+}

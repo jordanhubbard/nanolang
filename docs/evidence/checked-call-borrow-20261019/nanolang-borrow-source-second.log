@@ -1,0 +1,7 @@
+test_actual_root_and_nested_events (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_actual_root_and_nested_events) ... ok
+test_later_argument_and_runtime_shadow_failure_preserve_output (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_later_argument_and_runtime_shadow_failure_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.338s
+
+OK

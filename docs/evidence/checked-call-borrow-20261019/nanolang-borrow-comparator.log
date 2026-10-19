@@ -1,0 +1,8 @@
+test_borrow_suffix_preserves_code_authority_and_references (tests.test_source_borrow_emission.AffineComparisonIsolation.test_borrow_suffix_preserves_code_authority_and_references) ... ok
+test_only_advisory_difference_is_normalized (tests.test_source_borrow_emission.AffineComparisonIsolation.test_only_advisory_difference_is_normalized) ... ok
+test_shared_or_untrusted_facts_refuse_normalization (tests.test_source_borrow_emission.AffineComparisonIsolation.test_shared_or_untrusted_facts_refuse_normalization) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+OK

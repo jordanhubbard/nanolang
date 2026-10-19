@@ -1,4 +1,5 @@
 #include "resource_tracking.h"
+#include "checked_borrow_facts.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -722,6 +723,9 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
                         held[i].exclusive = arg->as.call.borrow_mode == 2;
                         held[i].next = binding->holds;
                         binding->holds = &held[i];
+                        if (!*flow->error && !checked_borrow_capture(flow->env, flow->fact_owner, node, arg,
+                                (unsigned)i, root->as.identifier, held[i].path))
+                            own_error(flow, arg, "I cannot retain checked borrow facts", NULL);
                     }
                 } else {
                     result = (result & ~OWN_NEXT) | own_node(flow, arg, true);
@@ -1011,6 +1015,7 @@ void check_function_ownership(Environment *env, ASTNode *function, bool *has_err
     uint64_t epoch = function->as.function.affine_check_epoch;
     epoch = epoch >= UINT64_MAX - 1 ? UINT64_MAX : epoch + 1;
     function->as.function.affine_check_epoch = epoch;
+    checked_borrow_function_begin(env, function);
     bool started_clean = !*has_error;
     bool any_resource = false;
     for (int i = 0; i < env->struct_count; ++i) any_resource |= env->structs[i].is_resource;

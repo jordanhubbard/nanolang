@@ -15833,7 +15833,7 @@ I retain [six green three-producer methods, exact input/output hashes, unchanged
 ### Checked call-borrow place facts contract (#998)
 
 - [x] I record [my contract-only call-borrow event map](NANOISA_CHECKED_CALL_BORROW_FACTS.md) on `design/5.1-call-borrow-facts` from `8161bfc1f`. `workspace_repairs` owns this review; no schema, production or blocked primitive edits occur at this checkpoint.
-- [ ] I resolve owned snapshot lifetime, exact call-site/function identity, clone/reset/free behavior and the Nano generated-list ABI before implementing an independent advisory fact.
+- [x] I resolve owned snapshot lifetime, exact call-site/function identity, clone/reset/free behavior and the Nano generated-list ABI through the reviewed invocation-scoped ledger contract.
 - [ ] I preserve existing checked shared/exclusive call-place events through paired producers and transport, with raw/generic/stale UNKNOWN, refusal and allocation/lifetime controls; I require fresh generations/platform qualification and do not add branch-summary certificates.
 
 
@@ -15845,3 +15845,41 @@ managed roots separately from C-hosted compilation-lifetime strings, fixed the
 40-byte advisory codec and bounded capture policy, and retained C collector /
 Nano final-phase interface threading as the next review gate. I made no
 production/schema change and ran no builds. Full #998 remains open.
+
+### Checked call-borrow implementation ownership (#998)
+
+I own the reviewed invocation-ledger capture/codec slice on
+`fix/5.1-call-borrow-facts`, following contract commit `81a32f43b`.
+I will implement Environment-owned C capture with explicit final sealing and
+Nano final-pass optional context, preserve raw APIs and existing facts, and
+qualify independent transport, failure cleanup and actual producer behavior.
+I will update all real env.c linker consumers for the ledger provider. I will
+not alter existing canonical comparisons until new-key-only normalization is
+reviewed against executable references. Heavy builds wait for the shared slot;
+fresh raw generation and platform qualification remain integration gates.
+
+I retain the first local call-borrow qualification checkpoint: the C ledger
+lifecycle/allocation gate passes, and the expanded advisory codec passes 1250
+checks. My fourth C-hosted compiler build passes after correcting real module
+visibility and generated-C import errors. My initial paired source corpus passes
+2 methods (1.338s), including actual VM and sanitized native execution, exact
+borrow events, canonical transport, advisory tampering invariance and prior-output
+preservation. The first refusal fixture used reserved `use` as a name; an explicit
+diagnostic assertion caught that parse refusal, and I preserve the failure before
+correcting the fixture. I still owe raw/rechecked/imported context controls,
+provider/environment neighbors, final provider pins, and fresh raw-stage/platform
+qualification. I do not close #998 or claim the component ready to merge.
+
+### Checked call-borrow final local component receipt (#998)
+
+I retain [my final component receipt](evidence/checked-call-borrow-20261019/README.md):
+9 source/comparator methods pass in 77.384s with final changed C and C-hosted
+canonical/raw Nano providers; actual Environment teardown/allocation and three
+real link-consumer neighbors pass. Both GCC 16 and Clang pass 14 strict provider
+checks after a retained misleading-indentation warning was corrected by splitting
+one line; the direct ledger harness passes again. Exact pre-format binary/source
+pins and final reviewed source pins remain separate. My source helper shadows
+pass through the C-hosted builds. I preserve the existing imported-helper Nano
+refusal and do not broaden the executable profile. Fresh raw generations and
+exact platform qualification remain open under #998; I hand this bounded component
+to the aggregate coordinator rather than claiming the full issue complete.

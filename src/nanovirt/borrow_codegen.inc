@@ -37,7 +37,9 @@ typedef struct {
     unsigned program_count;
     ModuleList *source_modules;
     const char *root_file;
-    bool affine_synthetic;
+    bool affine_synthetic, checked_borrows;
+    struct BorrowPlaceUse { const CheckedBorrowEvent *event; uint32_t function; } *borrow_places;
+    size_t borrow_place_count, borrow_place_capacity;
     struct BorrowAffineUse { ASTNode *node; uint32_t function; const char *path; } *affine_uses;
     size_t affine_use_count, affine_use_capacity;
     ASTNode *current_program;
@@ -104,6 +106,24 @@ static void borrow_affine_use(BorrowCG *b, ASTNode *node) {
         b->affine_uses=next;b->affine_use_capacity=capacity;
     }
     b->affine_uses[b->affine_use_count++]=(struct BorrowAffineUse){node,b->current_function,path};
+}
+static void borrow_checked_place(BorrowCG *b, ASTNode *call, ASTNode *argument, unsigned ordinal) {
+    if(!b->checked_borrows || b->affine_synthetic || b->cg->had_error || b->cg->generic_active ||
+       !b->current_source || cg_generic_declaration(b->cg,b->current_source))return;
+    const CheckedBorrowEvent *event=checked_borrow_lookup(b->env,b->current_source,call,argument,ordinal);
+    if(!event)return;
+    for(size_t i=0;i<b->borrow_place_count;i++)
+        if(b->borrow_places[i].event==event && b->borrow_places[i].function==b->current_function)return;
+    if(b->borrow_place_count==b->borrow_place_capacity) {
+        size_t capacity=b->borrow_place_capacity?b->borrow_place_capacity*2:16;
+        if(capacity>4096 || capacity>SIZE_MAX/sizeof(*b->borrow_places)) {
+            b->checked_borrows=false;b->borrow_place_count=0;return;
+        }
+        void *next=realloc(b->borrow_places,capacity*sizeof(*b->borrow_places));
+        if(!next){borrow_error(b,argument,"available checked borrow emission");return;}
+        b->borrow_places=next;b->borrow_place_capacity=capacity;
+    }
+    b->borrow_places[b->borrow_place_count++]=(struct BorrowPlaceUse){event,b->current_function};
 }
 static uint8_t borrow_tag(Type type) {
     return type==TYPE_INT?TAG_INT:type==TYPE_BOOL?TAG_BOOL:TAG_VOID;
@@ -934,6 +954,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
                 borrow_error(b,n,"disjoint places for every exclusive argument");return TAG_VOID;
             }
             places[i]=place;modes[i]=mode;
+            borrow_checked_place(b,n,arg,(unsigned)i);
             borrow_reference(b,&place,(unsigned)i,mode);
         }
         emit_op(cg,OP_CALL_REF,(uint32_t)1,0);emit_op(cg,OP_REGION_END);
@@ -1748,10 +1769,10 @@ static bool borrow_source_uses_owner(ASTNode *n,Environment *env) {
     }
     return false;
 }
-static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,ModuleList *modules,bool shadows) {
+static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,ModuleList *modules,bool shadows,bool checked_borrows) {
     CodegenResult out={0};CG *cg=calloc(1,sizeof(*cg));BorrowCG *b=calloc(1,sizeof(*b));
     if(!cg || !b){free(cg);free(b);snprintf(out.error_msg,sizeof(out.error_msg),"I cannot allocate my source borrow compiler");return out;}
-    b->cg=cg;b->env=env;b->source_modules=modules;b->root_file=env_current_file(env);cg->env=env;cg->module=nvm_module_new();cg->code=malloc(CODE_INITIAL);cg->code_cap=CODE_INITIAL;
+    b->cg=cg;b->env=env;b->checked_borrows=checked_borrows;b->source_modules=modules;b->root_file=env_current_file(env);cg->env=env;cg->module=nvm_module_new();cg->code=malloc(CODE_INITIAL);cg->code_cap=CODE_INITIAL;
     ASTNode *entry=NULL,*declared[8];unsigned declared_count=0;bool has_borrow=false;
     if(!cg->module || !cg->code)borrow_error(b,NULL,"available module storage");
     unsigned module_count=modules && modules->count>0?(unsigned)modules->count:0;
@@ -2006,6 +2027,14 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
                 (uint32_t)node->column,node->checked_affine_use,1,fact->path,node->as.identifier))
                 borrow_error(b,node,"unambiguous affine source fact storage");
         }
+        for(size_t i=0;i<b->borrow_place_count && !cg->had_error;i++) {
+            const CheckedBorrowEvent *e=b->borrow_places[i].event;
+            if(checked_borrow_lookup(b->env,e->function,e->call,e->argument,e->ordinal)!=e)continue;
+            NvmBorrowPlace fact={b->borrow_places[i].function,e->call_line,e->call_column,
+                e->argument_line,e->argument_column,e->ordinal,e->mode,1,e->source_path,e->root,e->projection,
+                (uint32_t)strlen(e->source_path),(uint32_t)strlen(e->root),(uint32_t)strlen(e->projection)};
+            if(!nvm_add_borrow_place(cg->module,&fact))borrow_error(b,NULL,"unambiguous checked borrow facts");
+        }
         if(!cg->had_error) {
             cg->module->ownership_data=b->contracts;b->contracts=NULL;cg->module->ownership_size=(uint32_t)b->contract_size;
             cg->module->header.flags|=NVM_FLAG_HAS_MAIN;cg->module->header.entry_point=0;
@@ -2034,5 +2063,5 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
     out.ok=!cg->had_error;out.error_line=cg->error_line;snprintf(out.error_msg,sizeof(out.error_msg),"%s",cg->error_msg);
     if(out.ok)out.module=cg->module;else if(cg->module)nvm_module_free(cg->module);
     nvm_v2_layouts_free(&layouts);for(unsigned i=0;i<b->union_count;i++){free(b->unions[i].name);free_payload_type_info(b->unions[i].arguments);}
-    free(b->affine_uses);free(b->contracts);free(b->programs);free(cg->code);free(cg);free(b);return out;
+    free(b->borrow_places);free(b->affine_uses);free(b->contracts);free(b->programs);free(cg->code);free(cg);free(b);return out;
 }

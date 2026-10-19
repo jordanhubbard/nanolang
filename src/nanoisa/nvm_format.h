@@ -354,6 +354,17 @@ bool nvm_add_affine_use(NvmModule *, uint32_t function, uint32_t line,
     uint32_t column, unsigned state, unsigned coordinates, const char *path, const char *binding);
 bool nvm_affine_use_at(const NvmModule *, uint32_t metadata_index, NvmAffineUse *out);
 
+/* I borrow counted UTF-8 source descriptions, never executable authority. */
+typedef struct {
+    uint32_t function, call_line, call_column, argument_line, argument_column, ordinal;
+    unsigned mode, coordinates;
+    const char *source_path, *root, *projection;
+    uint32_t source_path_length, root_length, projection_length;
+} NvmBorrowPlace;
+bool nvm_add_borrow_place(NvmModule *, const NvmBorrowPlace *);
+/* I leave output unchanged on absent, malformed or duplicate site records. */
+bool nvm_borrow_place_at(const NvmModule *, uint32_t metadata_index, NvmBorrowPlace *);
+
 /* I borrow counted, non-NUL-terminated frontend descriptions. These strings
  * are advisory and never grant type, layout or ownership authority. */
 typedef struct {
