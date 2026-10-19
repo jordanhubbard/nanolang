@@ -5,7 +5,7 @@
 static int owned_facts(const NvmModule *m) {
     NvmV2Layouts layouts={0};NvmAffineState *state=NULL;
     VmDecodedFunction code={0};char error[VM_DECODE_ERROR_SIZE];
-    bool ok=false;uint32_t total=0;
+    bool ok=false,nested=false;uint32_t total=0;
     if(m->ownership_size<4 || !m->ownership_data ||
        m->ownership_data[0]!=NVM_OWNERSHIP_VERSION || m->ownership_data[1] ||
        m->ownership_data[2] || m->ownership_data[3] || !m->function_count || m->function_count>NVM_OWNED_MAX_FUNCTIONS || m->header.entry_point!=0 || m->import_count ||
@@ -25,17 +25,31 @@ static int owned_facts(const NvmModule *m) {
         if(nvm_ownership_layout_authority(m,i,&authority)!=NVM_V2_OK ||
            authority!=NVM_LAYOUT_AUTHORITY_RESOURCE || l->kind!=NVM_V2_LAYOUT_STRUCT ||
            !l->field_count || l->field_count>16)goto done;
-        for(uint16_t f=0;f<l->field_count;f++)
-            if((l->fields[f].type_tag!=TAG_INT && l->fields[f].type_tag!=TAG_BOOL) ||
-               l->fields[f].nested_idx!=NVM_V2_NO_INDEX)goto done;
+        bool parent=l->fields[0].type_tag==TAG_STRUCT;
+        for(uint16_t f=0;f<l->field_count;f++) {
+            uint8_t tag=l->fields[f].type_tag;uint32_t child=l->fields[f].nested_idx;
+            if(parent) {
+                if(tag!=TAG_STRUCT || child>=i)goto done;
+                const NvmV2Layout *leaf=&layouts.items[child];
+                for(uint16_t j=0;j<leaf->field_count;j++)
+                    if((leaf->fields[j].type_tag!=TAG_INT && leaf->fields[j].type_tag!=TAG_BOOL) ||
+                       leaf->fields[j].nested_idx!=NVM_V2_NO_INDEX)goto done;
+                nested=true;
+            } else if((tag!=TAG_INT && tag!=TAG_BOOL) || child!=NVM_V2_NO_INDEX)goto done;
+        }
     }
     bool borrowed=!nvm_affine_value_call_graph(m);
-    if(borrowed && (m->function_count!=2 || m->functions[1].arity!=1))goto done;
+    if(borrowed && (nested || m->function_count!=2 || m->functions[1].arity!=1))goto done;
     printf("{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[");
     for(uint32_t i=0;i<layouts.count;i++) {
         if(i){putchar(',');}printf("{\"identity\":%u,\"resource\":true,\"fields\":[",i);
         for(uint16_t f=0;f<layouts.items[i].field_count;f++) {
             if(f){putchar(',');}printf("%u",layouts.items[i].fields[f].type_tag);
+        }
+        printf("],\"field_types\":[");
+        for(uint16_t f=0;f<layouts.items[i].field_count;f++) {
+            if(f)putchar(',');
+            printf("[%u,%u]",layouts.items[i].fields[f].type_tag,layouts.items[i].fields[f].nested_idx);
         }
         printf("]}");
     }
@@ -105,6 +119,6 @@ static int owned_facts(const NvmModule *m) {
     puts("]}");ok=!ferror(stdout);
 done:
     vm_decoded_function_free(&code);nvm_affine_state_free(state);nvm_v2_layouts_free(&layouts);
-    if(!ok)fputs("I require a verified bounded local resource module with scalar fields.\n",stderr);
+    if(!ok)fputs("I require a verified bounded resource module with exact fields.\n",stderr);
     return ok?0:1;
 }

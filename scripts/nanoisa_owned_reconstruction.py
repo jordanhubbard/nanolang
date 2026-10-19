@@ -27,11 +27,29 @@ class OwnedAnalyze(Analyze):
         self.index = index
         self.layouts = module['layouts']
         require(0 < len(self.layouts) <= 16, 'require bounded resource layouts')
+        self.fields = []
         for i, layout in enumerate(self.layouts):
             require(layout['identity'] == i and layout['resource'] is True and
                     0 < len(layout['fields']) <= 16 and
-                    all(t in (INT, BOOL) for t in layout['fields']),
-                    'require exact resource identity and scalar fields')
+                    all(t in (INT, BOOL, 8) for t in layout['fields']),
+                    'require exact resource identity and bounded fields')
+            fields = layout.get('field_types', [[t, 4294967295] for t in layout['fields']])
+            require(isinstance(fields, list) and
+                    all(isinstance(pair, list) and len(pair) == 2 and
+                        all(type(value) is int for value in pair) for pair in fields) and
+                    len(fields) == len(layout['fields']) and
+                    all(pair[0] == tag for pair, tag in zip(fields, layout['fields'])),
+                    'require complete exact resource field descriptors')
+            parent = fields[0][0] == 8
+            for tag, child in fields:
+                if parent:
+                    require(tag == 8 and 0 <= child < i and
+                            all(t in (INT, BOOL) for t in self.fields[child]),
+                            'require prior scalar-leaf children at depth two')
+                else:
+                    require(tag in (INT, BOOL) and child == 4294967295,
+                            'require exact scalar leaves without mixed child fields')
+            self.fields.append([owned_type(child) if tag == 8 else tag for tag, child in fields])
         self.declarations = self.fn['local_types']
         require(len(self.declarations) == self.fn['locals'] <= 128,
                 'require complete local declarations')
@@ -49,6 +67,8 @@ class OwnedAnalyze(Analyze):
                 'require exact value or shared parameter modes')
         self.borrowed = any(any(f.get('param_modes', [])) for f in module['functions'])
         if self.borrowed:
+            require(all(all(t in (INT, BOOL) for t in fields) for fields in self.fields),
+                    'retain scalar-only layouts in the borrowed helper profile')
             require(len(module['functions']) == 2 and
                     module['functions'][0].get('param_modes', []) == [] and
                     module['functions'][1].get('param_modes') == [1],
@@ -186,7 +206,7 @@ class OwnedAnalyze(Analyze):
                 self.touch(i)
             if op == 'OWN_PACK':
                 require(0 <= arg < len(self.layouts), 'require a retained nominal layout')
-                fields = self.layouts[arg]['fields']
+                fields = self.fields[arg]
                 values = tuple(reversed([self.pop(stack, t) for t in reversed(fields)]))
                 target = Expr(owned_type(arg), 'temporary', pc)
                 body.append(('own_pack', target, arg, values))
@@ -209,7 +229,7 @@ class OwnedAnalyze(Analyze):
             elif op == 'OWN_UNPACK_LOCAL':
                 layout = self.owner_local(arg)
                 values = tuple(Expr(t, 'temporary', f'{pc}_{f}')
-                               for f, t in enumerate(self.layouts[layout]['fields']))
+                               for f, t in enumerate(self.fields[layout]))
                 body.append(('own_unpack', arg, layout, values))
                 del self.live[arg]
                 stack.extend(values)
@@ -217,8 +237,9 @@ class OwnedAnalyze(Analyze):
                 require(self.helper and len(ins['args']) == 2 and arg == 0,
                         'require the exact shared helper parameter reference')
                 field, layout = ins['args'][1], self.params[0][1]
-                require(0 <= field < len(self.layouts[layout]['fields']), 'require an exact shared parameter field')
-                target = Expr(self.layouts[layout]['fields'][field], 'temporary', pc)
+                require(0 <= field < len(self.fields[layout]), 'require an exact shared parameter field')
+                require(self.fields[layout][field] in (INT, BOOL), 'require a scalar shared field')
+                target = Expr(self.fields[layout][field], 'temporary', pc)
                 body.append(('borrow_read', target, field))
                 stack.append(target)
             elif op == 'REGION_BEGIN':
@@ -243,9 +264,10 @@ class OwnedAnalyze(Analyze):
                 else:
                     field = read['args'][1]
                     require(borrow['args'][0] == read['args'][0] and
-                            0 <= field < len(self.layouts[layout]['fields']),
+                            0 <= field < len(self.fields[layout]),
                             'require a field within the exact owner layout')
-                    target = Expr(self.layouts[layout]['fields'][field], 'temporary', read['pc'])
+                    require(self.fields[layout][field] in (INT, BOOL), 'require a scalar shared field')
+                    target = Expr(self.fields[layout][field], 'temporary', read['pc'])
                     body.append(('own_read', target, slot, field))
                 stack.append(target)
                 i += 3
@@ -308,6 +330,9 @@ class OwnedEmit(Emit):
     def __init__(self, functions, language, layouts):
         super().__init__(functions, language)
         self.layouts = layouts
+        self.fields = [[owned_type(child) if tag == 8 else tag
+                        for tag, child in layout.get('field_types', [[t, 4294967295] for t in layout['fields']])]
+                       for layout in layouts]
 
     def name(self, index):
         return 'main' if self.language == 'nano' and index == 0 else super().name(index)
@@ -387,8 +412,8 @@ class OwnedEmit(Emit):
         c = self.language == 'c'
         declarations = ['#include <stdint.h>\n#include <stdbool.h>\n#include <stdio.h>\n#include <stdlib.h>'] if c else []
         for i, layout in enumerate(self.layouts):
-            fields = (' '.join(f'{self.type(t)} f{j};' for j, t in enumerate(layout['fields'])) if c else
-                      ', '.join(f'f{j}: {self.type(t)}' for j, t in enumerate(layout['fields'])))
+            fields = (' '.join(f'{self.type(t)} f{j};' for j, t in enumerate(self.fields[i])) if c else
+                      ', '.join(f'f{j}: {self.type(t)}' for j, t in enumerate(self.fields[i])))
             declarations.append(f'typedef struct {{ {fields} }} NlrOwned{i};' if c else
                                 f'resource struct NlrOwned{i} {{ {fields} }}')
         body = super().run(entry).replace(
@@ -408,7 +433,7 @@ class OwnedEmit(Emit):
             require(sum(line.startswith('fn ') for line in body.splitlines()) == 2,
                     'require the existing two-function borrowed Nano profile')
             layout = self.functions[1].params[0][1]
-            fields = self.layouts[layout]['fields']
+            fields = self.fields[layout]
             values = ['0' if tag == INT else 'false' for tag in fields]
             entries = ', '.join(f'f{i}: {value}' for i, value in enumerate(values))
             names = ', '.join(f'f{i}' for i in range(len(fields)))
