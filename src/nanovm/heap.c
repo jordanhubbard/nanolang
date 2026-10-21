@@ -156,7 +156,7 @@ static void release_hashmap(VmHeap *heap, VmHashMap *m);
 /* Exact runtime layout/bounded-element checks make this graph a nominal DAG.
  * I keep each dead parent allocated until all its edges have been released.
  * Strings are freed inline and never push this stack; at most256 record
- * parents plus two array parents use258 entries, including nested STRING.
+ * parents plus three array parents use259 entries, including nested STRING.
  * This walk does not call vm_release and cannot allocate or run a collector. */
 static void vm_private_dag_release(VmHeap *heap,NanoValue value) {
     uint32_t depth=0;

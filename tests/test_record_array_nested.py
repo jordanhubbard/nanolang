@@ -17,7 +17,7 @@ class RecordArrayNested(unittest.TestCase):
     def test_private_nested_consumers(self):
         self.qualify(True)
 
-    def qualify(self, private, leaf=None):
+    def qualify(self, private, leaf=None, depth=2):
         artifacts = Path(tempfile.mkdtemp(prefix='nano-record-array-nested-'))
         print(f'I retain nested qualification at {artifacts}', flush=True)
         def run(name, command, build=False):
@@ -30,6 +30,7 @@ class RecordArrayNested(unittest.TestCase):
         flags = [*shlex.split(os.environ.get('RECORD_ARRAY_NESTED_CFLAGS', '')), '-std=c11',
                  '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined',
                  '-fno-sanitize-recover=all', '-Isrc', '-Isrc/nanoisa']
+        flags += ['-DNESTED_TEST_DEPTH='+str(depth)]
         if leaf is not None:
             flags += ['-DNESTED_TEST_LEAF='+leaf]
         if private:

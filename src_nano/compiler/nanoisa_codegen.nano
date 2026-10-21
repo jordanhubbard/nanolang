@@ -319,6 +319,11 @@ fn nisa_ordinary_element(t: string) -> int {
     if (== t "array<array<u8>>") { return 9 }
     if (== t "array<array<float>>") { return 10 }
     if (== t "array<array<bool>>") { return 11 }
+    if (== t "array<array<array<int>>>") { return 12 }
+    if (== t "array<array<array<u8>>>") { return 13 }
+    if (== t "array<array<array<float>>>") { return 14 }
+    if (== t "array<array<array<bool>>>") { return 15 }
+    if (== t "array<array<array<string>>>") { return 16 }
     return -1
 }
 shadow nisa_ordinary_element {
@@ -328,7 +333,9 @@ shadow nisa_ordinary_element {
     assert (== (nisa_ordinary_element "array<array<u8>>") 9)
     assert (== (nisa_ordinary_element "array<array<float>>") 10)
     assert (== (nisa_ordinary_element "array<array<bool>>") 11)
-    assert (== (nisa_ordinary_element "array<array<array<int>>>") -1)
+    assert (== (nisa_ordinary_element "array<array<array<int>>>") 12)
+    assert (== (nisa_ordinary_element "array<array<array<string>>>") 16)
+    assert (== (nisa_ordinary_element "array<array<array<array<int>>>>") -1)
     assert (== (nisa_ordinary_element "array<Record>") -1)
 }
 fn nisa_ordinary_tag(parser: Parser, t: string) -> int {
@@ -521,7 +528,7 @@ fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {
     if (> parser.imports_count 0) { if (or (not bound) (not (nisa_bound_ordinary_declarations parser))) { return "" } }
     if (or (not nisa_ordinary_ok) (or (<= count 0) (or (> count 128) (or (> (parser_get_enum_count parser) 0) (> (parser_get_union_count parser) 0))))) { return "" }
     if (not (nisa_ordinary_graph parser)) { return "" }
-    let mut element_indices: array<int> = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+    let mut element_indices: array<int> = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
     let mut array_fields: int = 0
     let mut layouts: string = (nisa_ordinary_hex count 4)
     let mut flags: string = ""
@@ -541,7 +548,15 @@ fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {
                 (array_set element_indices (- element 1) 0)
                 if (== element 7) { (array_set element_indices 0 0) }
                 if (== element 8) { (array_set element_indices 4 0) }
-                if (>= element 9) { (array_set element_indices (- element 8) 0) }
+                if (and (>= element 9) (<= element 11)) { (array_set element_indices (- element 8) 0) }
+                if (>= element 12) {
+                    let leaf: int = (- element 11)
+                    (array_set element_indices (- leaf 1) 0)
+                    let mut nested: int = (+ leaf 7)
+                    if (== leaf 1) { set nested 7 }
+                    if (== leaf 5) { set nested 8 }
+                    (array_set element_indices (- nested 1) 0)
+                }
                 set array_fields (+ array_fields 1)
             }
             let mut nested: int = 4294967295
@@ -564,7 +579,7 @@ fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {
         let mut type_count: int = 0
         let mut types: string = ""
         set i 0
-        while (< i 11) {
+        while (< i 16) {
             if (>= (at element_indices i) 0) {
                 (array_set element_indices i type_count)
                 set type_count (+ type_count 1)
@@ -575,9 +590,16 @@ fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {
                     set tag 7
                     set reference (at element_indices 4)
                 }
-                if (>= i 8) {
+                if (and (>= i 8) (< i 11)) {
                     set tag 7
                     set reference (at element_indices (- i 7))
+                }
+                if (>= i 11) {
+                    set tag 7
+                    let mut nested: int = (- i 4)
+                    if (== i 11) { set nested 6 }
+                    if (== i 15) { set nested 7 }
+                    set reference (at element_indices nested)
                 }
                 set types (+ types (+ (nisa_ordinary_hex tag 1) (+ "000000" (nisa_ordinary_hex reference 4))))
             }

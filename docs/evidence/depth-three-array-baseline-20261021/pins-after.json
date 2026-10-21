@@ -1,0 +1,10 @@
+{
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "7b62e3e22c2370fcad480ee426ba3631421d4a4e7a4de3a94e017e11ce43dda5",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "3b0faa1dcb8e02a4eef18a8504922134c1f060fb524979bea77016f7ba0ddadb",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "802a6db9e401a07a227cbffafdc384a4fe4ac48cbe198a24b24412f4a95b4d99",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "373ff4ec968ba2c57e39c8db3916879cbf406b661f84fdcd4da7bafbec67ba71",
+  "/Users/jkh/Src/nanolang-51-harness/tests/test_ordinary_declaration_provenance.py": "c617fc806b2cf938b39d72ec5477f7e64e4d94677e8cac5ecc41865ff1d4ffb9",
+  "/Users/jkh/Src/nanolang-51-harness/tests/nanoisa/fixtures/nested_array_contexts.nano": "ebc35fceec4dab1d9c609a05142f23b480afa6648713d7677d58602b91e817a0"
+}
