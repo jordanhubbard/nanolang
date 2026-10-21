@@ -16669,3 +16669,7 @@ loader/native/publisher admission is enabled by this checkpoint.
 I am integrating the qualified private borrowed invocation component and wiring its exact target into compiler contracts. I will run the actual Make target against all twelve retained producer modules and the 68 workflow/schema controls before committing. Public selection remains closed.
 
 I completed the aggregate gate: both dispatch modes passed 2,112 checks each (two methods, 9.445s), and all 68 workflow/schema controls passed (1.956s). I retained the actual target/plan logs and source pins in `docs/evidence/map-borrowed-aggregate-20261021/`. Public selection remains closed; exact-head hosted qualification remains pending.
+
+### #1001 public map consumer/transport contract ownership (2026-10-22)
+
+owned_calls owns contract-only planning from db59bc247 on design/5.1-map-public-activation. See [public activation contract](NANOISA_MAP_PUBLIC_ACTIVATION_DESIGN.md) for exact verifier/conversion/assembler/VM/native hooks and fail-closed ordering. First proposed implementation is consumer/transport activation only; source annotations remain explicit and publishers remain unchanged pending consumer qualification. Counted/dynamic STRING VM semantics and restricted native NUL-free literal domain remain separate; native STRUCT/nonidentity and broader accepted-source gaps are not waived. No implementation/build is authorized by this checkpoint.
