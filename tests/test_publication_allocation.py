@@ -45,6 +45,9 @@ class PublicationAllocation(unittest.TestCase):
     def test_map_delete_publisher_and_query_prefixes(self):
         self.qualify('map_delete')
 
+    def test_map_string_publisher_and_query_prefixes(self):
+        self.qualify('map_string')
+
     def qualify(self, nested):
         work=Path(tempfile.mkdtemp(prefix='nano-publication-allocation-'))
         print('I retain publication allocation evidence at',work,flush=True)
@@ -136,6 +139,8 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
             self.assertEqual(source.count('HashMap<string,string>'),1)
             self.assertEqual(source.count('"kept"'),2)
             fixture.write_text(source.replace('HashMap<string,string>','HashMap<string,int>').replace('"kept"','42'))
+        if nested == 'map_string':
+            fixture.write_bytes((ROOT/'tests/unit/test_map_field_operations.nano').read_bytes())
         seed=Path(os.environ.get('PUBLICATION_SEED', str(ROOT/'bin/nano_virt')))
         dumper=Path(os.environ.get('PUBLICATION_NANOISA', str(ROOT/'bin/nanoisa')))
         run('source-compile',[seed,fixture,'--emit-nvm','-o',module])

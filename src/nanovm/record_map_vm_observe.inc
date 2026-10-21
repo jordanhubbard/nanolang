@@ -51,7 +51,8 @@ static bool vm_rmo_shell(const VmRecordMapPrivate *p,NanoValue value,VmRmObserve
     }
     if(value.tag==TAG_HASHMAP) {
         uint32_t length;
-        return vm_rm_heap_len(value.as.hashmap,&length)==VM_RM_HEAP_OK&&
+        return (value.as.hashmap->val_type==TAG_STRING?vm_rm_heap_ss_len(value.as.hashmap,&length):
+            vm_rm_heap_len(value.as.hashmap,&length))==VM_RM_HEAP_OK&&
             (!expected.key||value.as.hashmap->key_type==expected.key)&&
             (!expected.value||value.as.hashmap->val_type==expected.value);
     }
@@ -95,7 +96,8 @@ static VmRecordMapObservationStatus vm_rmo_walk(const VmRecordMapPrivate *p,VmRe
         } else return VM_RM_OBS_INVALID;
     }
     if(value.tag==TAG_HASHMAP&&validate_map) {
-        VmRecordMapObservationStatus s=vm_rmo_heap_status(vm_rm_heap_validate(value.as.hashmap,w));
+        VmRecordMapObservationStatus s=vm_rmo_heap_status(value.as.hashmap->val_type==TAG_STRING?
+            vm_rm_heap_ss_validate(value.as.hashmap,w):vm_rm_heap_validate(value.as.hashmap,w));
         if(s!=VM_RM_OBS_OK)return s;
     }
     *out=value;return VM_RM_OBS_OK;
@@ -124,7 +126,9 @@ VmRecordMapObservationStatus vm_record_map_private_lookup(const VmRecordMapPriva
     VmRecordMapObservationStatus s=vm_rmo_arguments(p,path,count,NULL,0,key,length,w,out,sizeof *out);if(s!=VM_RM_OBS_OK)return s;
     NanoValue value,result;s=vm_rmo_walk(p,root,global,path,count,w,false,&value);if(s!=VM_RM_OBS_OK)return s;
     if(value.tag!=TAG_HASHMAP)return VM_RM_OBS_INVALID;
-    s=vm_rmo_heap_status(vm_rm_heap_observe_lookup(value.as.hashmap,key,length,w,&result));if(s!=VM_RM_OBS_OK)return s;
+    s=vm_rmo_heap_status(value.as.hashmap->val_type==TAG_STRING?
+        vm_rm_heap_ss_observe_lookup(value.as.hashmap,key,length,w,&result):
+        vm_rm_heap_observe_lookup(value.as.hashmap,key,length,w,&result));if(s!=VM_RM_OBS_OK)return s;
     if(!vm_rmo_charge(w,1))return VM_RM_OBS_LIMIT;
     *out=vm_rmo_copy(p,result);return VM_RM_OBS_OK;
 }
@@ -149,4 +153,21 @@ VmRecordMapObservationStatus vm_record_map_private_same_identity(const VmRecordM
     VmRecordMapIdentityComparison result={.epoch=p->epoch,.same=left.tag==right.tag&&left.as.obj==right.as.obj};
     if(!vm_rmo_charge(w,1))return VM_RM_OBS_LIMIT;
     *out=result;return VM_RM_OBS_OK;
+}
+
+VmRecordMapObservationStatus vm_record_map_private_lookup_string(const VmRecordMapPrivate *p,VmRecordMapRoot root,
+    uint32_t global,const uint32_t *path,uint16_t count,const void *key,uint32_t key_length,
+    uint32_t start,uint32_t length,VmRmObservationWork *w,void *out) {
+    VmRecordMapObservationStatus s=vm_rmo_arguments(p,path,count,NULL,0,key,key_length,w,out,length);
+    if(s!=VM_RM_OBS_OK)return s;
+    NanoValue map,value;s=vm_rmo_walk(p,root,global,path,count,w,false,&map);
+    if(s!=VM_RM_OBS_OK)return s;
+    if(map.tag!=TAG_HASHMAP || map.as.hashmap->val_type!=TAG_STRING)return VM_RM_OBS_INVALID;
+    s=vm_rmo_heap_status(vm_rm_heap_ss_observe_lookup(map.as.hashmap,key,key_length,w,&value));
+    if(s!=VM_RM_OBS_OK)return s;
+    if(value.tag!=TAG_STRING || start>value.as.string->length || length>value.as.string->length-start)
+        return VM_RM_OBS_INVALID;
+    if(!vm_rmo_charge(w,(uint64_t)length+1) || !vm_rmo_charge(w,1))return VM_RM_OBS_LIMIT;
+    if(length)memcpy(out,value.as.string->data+start,length);
+    return VM_RM_OBS_OK;
 }

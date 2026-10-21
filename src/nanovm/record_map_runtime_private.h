@@ -28,6 +28,10 @@ VmRecordMapObservationStatus vm_record_map_private_lookup(const VmRecordMapPriva
     const uint32_t *,uint16_t,const void *,uint32_t,VmRmObservationWork *,VmRecordMapObservation *);
 VmRecordMapObservationStatus vm_record_map_private_string(const VmRecordMapPrivate *,VmRecordMapRoot,uint32_t,
     const uint32_t *,uint16_t,uint32_t,uint32_t,VmRmObservationWork *,void *);
+/* Same graph/output/work disjointness precondition, no heap-interior alias
+ * discovery claim. Missing/non-string lookup refuses before any byte commit. */
+VmRecordMapObservationStatus vm_record_map_private_lookup_string(const VmRecordMapPrivate *,VmRecordMapRoot,uint32_t,
+    const uint32_t *,uint16_t,const void *,uint32_t,uint32_t,uint32_t,VmRmObservationWork *,void *);
 VmRecordMapObservationStatus vm_record_map_private_same_identity(const VmRecordMapPrivate *,
     VmRecordMapRoot,uint32_t,const uint32_t *,uint16_t,VmRecordMapRoot,uint32_t,const uint32_t *,uint16_t,
     VmRmObservationWork *,VmRecordMapIdentityComparison *);

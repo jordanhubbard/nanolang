@@ -597,7 +597,7 @@ static int publish_records(Analysis *a,NvmRecordEligibilityReport **out) {
     *out=report;return 1;
 }
 
-static int walk_map(Analysis *a,uint32_t fi,NvmRecordMapAnalysisContext *maps) {
+static int walk_map_pair(Analysis *a,uint32_t fi,NvmRecordMapAnalysisContext *maps,uint8_t value_tag) {
     Function *f=&a->functions[fi];const NvmFunctionEntry *entry=&a->module->functions[fi];
     if(!analysis_work(a,(uint64_t)f->decoded.instruction_count+1))return 0;
     for(uint32_t i=0;i<=f->decoded.instruction_count;i++)if(f->seen[i])enqueue(f,i);
@@ -685,7 +685,7 @@ static int walk_map(Analysis *a,uint32_t fi,NvmRecordMapAnalysisContext *maps) {
             if(!maps)return stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I require map proof context.");
             /* Removal changes runtime entries, never historical obligations. */
             result=stack[base];break;
-        case OP_HM_GET: result=tag(TAG_INT);result.tags|=BIT(TAG_VOID);break;
+        case OP_HM_GET: result=tag(value_tag);result.tags|=BIT(TAG_VOID);break;
         case OP_HM_HAS: result=tag(TAG_BOOL);break;
         case OP_HM_LEN: result=tag(TAG_INT);break;
         case OP_ARR_NEW: case OP_STR_SPLIT: case OP_ARR_LITERAL:
@@ -766,8 +766,9 @@ static int walk_map(Analysis *a,uint32_t fi,NvmRecordMapAnalysisContext *maps) {
     }
     return 1;
 }
+static int walk_map(Analysis *a,uint32_t fi,NvmRecordMapAnalysisContext *maps) { return walk_map_pair(a,fi,maps,TAG_INT); }
 static int walk(Analysis *a,uint32_t fi) { return walk_map(a,fi,NULL); }
-static int final_check(Analysis *a,NvmRecordMapAnalysisContext *maps) {
+static int final_check(Analysis *a,NvmRecordMapAnalysisContext *maps,uint8_t value_tag) {
     if(!analysis_work(a,SLOTS+FUNCTIONS))return 0;
     for(uint32_t i=0;i<a->global_count;i++)if(a->globals[i].unknown)
         return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I cannot resolve an escaped global value.");
@@ -796,7 +797,7 @@ static int final_check(Analysis *a,NvmRecordMapAnalysisContext *maps) {
             }
             if(maps && nvm_record_map_opcode(op)) {
                 Value *stack=f->states+(size_t)pc*f->stride+f->locals;
-                if(!map_operation(a,maps,fi,d,stack,f->depths[pc]))return 0;
+                if(!map_operation(a,maps,fi,d,stack,f->depths[pc],value_tag))return 0;
                 continue;
             }
             if(a->records && record_operation(op)) {
@@ -871,9 +872,9 @@ static int map_boundary_value_valid(Value value,uint64_t arrays,uint64_t records
     return !(value.origins&~allowed);
 }
 /* Optional detached export; old callers retain the exact NULL path. */
-static NvmArrayEligibilityResult analyze_boundary(const NvmModule *m,NvmArrayEligibilityReport **out,
+static NvmArrayEligibilityResult analyze_boundary_pair(const NvmModule *m,NvmArrayEligibilityReport **out,
                                           NvmArrayGraphEligibilityReport **graph_out,
-                                          NvmRecordEligibilityReport **record_out,NvmRecordArrayOrigins **mixed_out,uint16_t *prepared_stacks, int portable_reads,NvmRecordMapFrozenContext **map_out,NvmMapGlobalExport *globals_out) {
+                                          NvmRecordEligibilityReport **record_out,NvmRecordArrayOrigins **mixed_out,uint16_t *prepared_stacks, int portable_reads,NvmRecordMapFrozenContext **map_out,NvmMapGlobalExport *globals_out,uint8_t *map_value_out) {
     NvmArrayEligibilityResult early={NVM_ARRAY_INVALID,0,0,"I require a module and report output."};
     if(!m || (!out && !graph_out && !record_out && !mixed_out && !map_out) || (globals_out && !map_out))return early;
     NvmRecordArrayBudget budget={0};NvmRecordArrayStructure *structure=NULL;
@@ -888,14 +889,14 @@ static NvmArrayEligibilityResult analyze_boundary(const NvmModule *m,NvmArrayEli
     }
     Analysis *a=allocate(1,sizeof *a);
     if(!a){nvm_map_declarations_free(map_declarations);nvm_record_array_structure_free(structure);early.status=NVM_ARRAY_MEMORY;snprintf(early.message,sizeof early.message,"I could not allocate array analysis state.");return early;}
-    NvmRecordMapAnalysisContext *maps=NULL;
+    NvmRecordMapAnalysisContext *maps=NULL;uint8_t value_tag=TAG_INT;
     NvmMapGlobalExport globals={0};
     a->module=m;a->structure=structure;a->budget=budget;a->portable_reads=portable_reads;
     if(map_out) {
         maps=analysis_alloc(a,1,sizeof *maps);
         if(!maps){nvm_map_declarations_free(map_declarations);stop(a,NVM_ARRAY_MEMORY,0,0,"I could not allocate map proof state.");goto done;}
         maps->declarations=map_declarations;
-        if(!map_declarations_exact(a,maps))goto done;
+        if(!map_declarations_exact(a,maps,&value_tag))goto done;
     }
     a->records=record_out!=NULL || mixed_out!=NULL || map_out!=NULL;a->graph=graph_out!=NULL || a->records;
     if(!a->structure && !verified(a,nvm_verify(m)))goto done;
@@ -955,8 +956,8 @@ static NvmArrayEligibilityResult analyze_boundary(const NvmModule *m,NvmArrayEli
                 continue;
             }
             if(maps && op==OP_HM_NEW) {
-                if(d->instruction.operands[0].u8!=TAG_STRING || d->instruction.operands[1].u8!=TAG_INT) {
-                    stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I require exact STRING-to-INT map creation.");goto done;
+                if(d->instruction.operands[0].u8!=TAG_STRING || d->instruction.operands[1].u8!=value_tag) {
+                    stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I require map creation to match the exact copied STRING-keyed pair.");goto done;
                 }
                 if(a->report.origin_count==ORIGINS){stop(a,NVM_ARRAY_LIMIT,fi,d->byte_offset,"I reached my shared origin limit.");goto done;}
                 uint32_t origin=a->report.origin_count++;f->origins[i]=(int16_t)origin;
@@ -997,7 +998,7 @@ static NvmArrayEligibilityResult analyze_boundary(const NvmModule *m,NvmArrayEli
                     a->global_count?a->global_flow->exits+(size_t)initializer*a->global_count:a->globals))goto done;
             } else if(!seed(a,m->header.entry_point,NULL,a->globals))goto done;
         }
-        for(uint32_t fi=0;fi<m->function_count;fi++)if(!(maps?walk_map(a,fi,maps):walk(a,fi)))goto done;
+        for(uint32_t fi=0;fi<m->function_count;fi++)if(!(maps?walk_map_pair(a,fi,maps,value_tag):walk(a,fi)))goto done;
         if(!a->changed && !seeded_unused) {
             seeded_unused=1;
             for(uint32_t fi=0;fi<m->function_count;fi++)if(!a->functions[fi].seen[0]) {
@@ -1007,10 +1008,10 @@ static NvmArrayEligibilityResult analyze_boundary(const NvmModule *m,NvmArrayEli
             }
         }
     } while(a->changed);
-    if(!final_check(a,maps))goto done;
+    if(!final_check(a,maps,value_tag))goto done;
     if(map_out) {
         if(prepared_stacks && !analysis_work(a,256))goto done;
-        if(!ra_check_constraints(a) || !map_final(a,maps))goto done;
+        if(!ra_check_constraints(a) || !map_final(a,maps,value_tag))goto done;
         if(globals_out) {
             if(a->global_count>SLOTS || a->report.origin_count>ORIGINS ||
                !analysis_work(a,128u+(uint64_t)a->global_count*8u))goto done;
@@ -1034,6 +1035,7 @@ static NvmArrayEligibilityResult analyze_boundary(const NvmModule *m,NvmArrayEli
             }
         }
         if(!map_freeze(a,maps,map_out))goto done;
+        if(map_value_out)*map_value_out=value_tag;
         if(globals_out){*globals_out=globals;globals.rows=NULL;}
         if(prepared_stacks)memcpy(prepared_stacks,a->structure->stacks,sizeof a->structure->stacks);
     } else if(mixed_out) {
@@ -1064,6 +1066,12 @@ static NvmArrayEligibilityResult analyze_boundary(const NvmModule *m,NvmArrayEli
     NvmArrayEligibilityResult result=a->result;
     if(maps){nvm_map_declarations_free(maps->declarations);free(maps);}
     free(globals.rows);destroy(a);return result;
+}
+static NvmArrayEligibilityResult analyze_boundary(const NvmModule *m,NvmArrayEligibilityReport **out,
+    NvmArrayGraphEligibilityReport **graph_out,NvmRecordEligibilityReport **record_out,
+    NvmRecordArrayOrigins **mixed_out,uint16_t *prepared_stacks,int portable_reads,
+    NvmRecordMapFrozenContext **map_out,NvmMapGlobalExport *globals_out) {
+    return analyze_boundary_pair(m,out,graph_out,record_out,mixed_out,prepared_stacks,portable_reads,map_out,globals_out,NULL);
 }
 static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityReport **out,
     NvmArrayGraphEligibilityReport **graph_out,NvmRecordEligibilityReport **record_out,

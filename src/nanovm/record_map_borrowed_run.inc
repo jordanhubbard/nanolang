@@ -1,5 +1,5 @@
 #include "record_map_borrowed_private.h"
-static VmResult vm_rmb_call_root(VmRecordMapBorrowedInvocation *v,uint32_t function) {
+static VmResult vm_rmb_call_root(VmRecordMapBorrowedInvocation *v,uint32_t function,uint8_t value_tag) {
     const VmRecordMapPublicPreparation *p=v->preparation;VmState *vm=v->vm;
     if(function>=p->counts.carrier.functions)return VM_ERR_UNDEFINED_FUNCTION;
     const NvmFunctionEntry *fn=&p->functions[function].signature;
@@ -15,7 +15,7 @@ static VmResult vm_rmb_call_root(VmRecordMapBorrowedInvocation *v,uint32_t funct
     vm->frame_count=1;vm->current_fn=function;vm->ip=fn->code_offset;
     vm->activation_floor=0;vm->halt_requested=false;
     for(;;) {
-        VmTrap trap=vm_core_execute_views(vm,NULL,NULL,NULL,NULL,v);
+        VmTrap trap=vm_core_execute_pair(vm,NULL,NULL,NULL,NULL,v,value_tag);
         if(trap.type==TRAP_ASSERT) {
             bool success=val_truthy(trap.data.assert_check.condition);
             vm_release(&vm->heap,trap.data.assert_check.condition);
@@ -39,9 +39,11 @@ static void vm_rmb_unwind(VmState *vm) {
     vm_clear_reference_activations(vm);effect_prune(vm,0);
 }
 static VmResult vm_execute_record_maps(const NvmModule *module,VmState *vm) {
+    (void)vm_record_map_public_prepare; /* Retain the old static query wrapper. */
     if(!vm || !module || module!=vm->module || module!=vm->root_module)return VM_ERR_TYPE_ERROR;
     VmRecordMapPublicPreparation *p=NULL;
-    NvmArrayEligibilityResult prepared=vm_record_map_public_prepare(vm,&p);
+    uint8_t value_tag=TAG_VOID;
+    NvmArrayEligibilityResult prepared=vm_rmp_prepare_reserved_pair(vm,&p,0,0,&value_tag);
     if(prepared.status!=NVM_ARRAY_ELIGIBLE)
         return prepared.status==NVM_ARRAY_MEMORY?VM_ERR_MEMORY:VM_ERR_TYPE_ERROR;
     VmResult status=VM_ERR_TYPE_ERROR;
@@ -68,10 +70,10 @@ static VmResult vm_execute_record_maps(const NvmModule *module,VmState *vm) {
     vm->last_error=VM_OK;vm->error_msg[0]='\0';
     VmRecordMapBorrowedInvocation view={p,vm,module,UINT32_MAX,0,true};
     if(initializer!=UINT32_MAX) {
-        status=vm_rmb_call_root(&view,initializer);
+        status=vm_rmb_call_root(&view,initializer,value_tag);
         if(status==VM_OK)while(vm->stack_size)vm_release(&vm->heap,stack_pop(vm));
     }
-    if(status==VM_OK)status=vm_rmb_call_root(&view,entry);
+    if(status==VM_OK)status=vm_rmb_call_root(&view,entry,value_tag);
     if(status!=VM_OK) {
         if(vm->last_error==VM_OK)vm_error(vm,status,"I stopped the borrowed map invocation.");
         vm_rmb_unwind(vm);

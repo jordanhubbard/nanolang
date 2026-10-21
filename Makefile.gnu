@@ -7095,6 +7095,13 @@ test-record-map-delete: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $
 
 test-units: test-record-map-delete
 
+.PHONY: test-record-map-string
+# Selected STRING map ownership, copied observations and native failure boundaries.
+test-record-map-string: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	LSAN_OPTIONS= RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_string
+
+test-units: test-record-map-string
+
 .PHONY: test-record-map-observation
 # Copied private observations; no public selector or trusted context escapes.
 test-record-map-observation: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
@@ -7143,6 +7150,13 @@ test-record-map-ordinary-heap:
 
 test-units: test-record-map-ordinary-heap
 
+.PHONY: test-record-map-string-heap
+# Fixed STRING-value ownership only; no selected VM enrollment.
+test-record-map-string-heap:
+	RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" python3 -m unittest -f -v tests.test_record_map_string_heap
+
+test-units: test-record-map-string-heap
+
 $(OBJ_DIR)/nanovm/vm.o: $(NANOVM_DIR)/record_map_borrowed_types.inc $(NANOVM_DIR)/record_map_borrowed_context.inc $(NANOVM_DIR)/record_map_borrowed_run.inc $(NANOVM_DIR)/record_map_borrowed_private.h
 
 .PHONY: test-record-map-borrowed
@@ -7184,4 +7198,5 @@ test-map-field-publication: bootstrap nano_virt nano_vm nanoisa_dump nvm2c
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(MAP_FIELD_TEST_OBJECTS) $(LDFLAGS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_map_publication tests/nanovirt/test_map_publication.c $(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(MAP_FIELD_TEST_OBJECTS)) $(LDFLAGS)
 	$(OBJ_DIR)/test_map_publication tests/nanoisa/fixtures/map_record_fields.nano
+	$(OBJ_DIR)/test_map_publication tests/unit/test_map_field_operations.nano --string
 	MAP_PUBLICATION_CC="$(CC)" python3 -m unittest -f -v tests.test_map_field_publication

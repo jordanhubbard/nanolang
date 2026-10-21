@@ -25,7 +25,7 @@ VM_RMP_API void vm_record_map_public_preparation_free(VmRecordMapPublicPreparati
     if(!p)return;
     free(p->instructions);free(p->fields);nvm_record_map_boundary_free(p->boundary);free(p);
 }
-static bool vm_rmp_layouts(VmRecordMapPublicPreparation *p,NvmArrayEligibilityStatus *status) {
+static bool vm_rmp_layouts(VmRecordMapPublicPreparation *p,NvmArrayEligibilityStatus *status,uint8_t *value_out) {
     NvmDeclarationCounts count;
     if(!nvm_record_map_execution_declaration_counts(p->plan,&count) || count.layouts>256 ||
        p->counts.carrier.records>256)return false;
@@ -74,7 +74,7 @@ static bool vm_rmp_layouts(VmRecordMapPublicPreparation *p,NvmArrayEligibilitySt
         if(field->declaration.type_tag!=TAG_ARRAY || field->element)return false;
         field->element=element.tag;field->nested_leaf=nested_leaf;field->array_depth=depth;
     }
-    uint32_t records=0;
+    uint32_t records=0;uint8_t uniform=TAG_VOID;
     for(uint32_t i=0;i<count.layouts;i++) {
         VmRecordMapRuntimeLayout *layout=&p->layouts[i];
         if(layout->declaration.kind!=NVM_V2_LAYOUT_STRUCT)continue;
@@ -88,11 +88,13 @@ static bool vm_rmp_layouts(VmRecordMapPublicPreparation *p,NvmArrayEligibilitySt
             if(field->declaration.type_tag==TAG_ARRAY && !field->element)return false;
             if(field->declaration.type_tag==TAG_HASHMAP) {
                 if(!nvm_record_map_execution_map_field(p->plan,i,j,&field->key,&field->value) ||
-                   field->key!=TAG_STRING || field->value!=TAG_INT)return false;
+                   field->key!=TAG_STRING || (field->value!=TAG_INT && field->value!=TAG_STRING) ||
+                   (uniform!=TAG_VOID && uniform!=field->value))return false;
+                uniform=field->value;
             }
         }
     }
-    if(records!=p->counts.carrier.records)return false;
+    if(uniform==TAG_VOID || records!=p->counts.carrier.records)return false;
     /* Explicit DFS: each nominal field edge is examined once. Rank decreases
      * along every physical record edge, so <=256 record nodes can be nested. */
     /* DFS scratch was prepaid before boundary proof. */
@@ -120,10 +122,11 @@ static bool vm_rmp_layouts(VmRecordMapPublicPreparation *p,NvmArrayEligibilitySt
             }
         }
     }
+    *value_out=uniform;
     return true;
 }
 
-static bool vm_rmp_coverage(VmRecordMapPublicPreparation *p,const VmState *vm,NvmArrayEligibilityStatus *status) {
+static bool vm_rmp_coverage(VmRecordMapPublicPreparation *p,const VmState *vm,NvmArrayEligibilityStatus *status,uint8_t value_tag) {
     const NvmModule *m=p->module;
     const VmDecodedModule *dm=&vm->decoded_module;
     const VmDispatchModule *dispatch=&vm->dispatch_module;
@@ -190,14 +193,14 @@ static bool vm_rmp_coverage(VmRecordMapPublicPreparation *p,const VmState *vm,Nv
             case OP_HM_NEW:operation=NVM_RM_NEW;result=1u<<TAG_HASHMAP;break;
             case OP_HM_SET:operation=NVM_RM_SET;result=1u<<TAG_HASHMAP;break;
             case OP_HM_DELETE:operation=NVM_RM_DELETE;result=1u<<TAG_HASHMAP;break;
-            case OP_HM_GET:operation=NVM_RM_GET;result=(1u<<TAG_INT)|(1u<<TAG_VOID);break;
+            case OP_HM_GET:operation=NVM_RM_GET;result=(1u<<value_tag)|(1u<<TAG_VOID);break;
             case OP_HM_HAS:operation=NVM_RM_HAS;result=1u<<TAG_BOOL;break;
             case OP_HM_LEN:operation=NVM_RM_LEN;result=1u<<TAG_INT;break;
             default:break;
             }
             if(map->map_operation!=operation || map->result_tags!=result ||
                map->key_tags!=(operation?(1u<<TAG_STRING):0) ||
-               map->value_tags!=(operation?(1u<<TAG_INT):0))return false;
+               map->value_tags!=(operation?(1u<<value_tag):0))return false;
             uint32_t next=i+1<fn->instruction_count?i+1:VM_DISPATCH_NO_INDEX;
             if(row->next_index!=next)return false;
             int pops=info->pop_count,pushes=info->push_count;
@@ -278,8 +281,8 @@ static bool vm_rmp_functions(VmRecordMapPublicPreparation *p,const VmState *vm,N
 }
 /* Positive-only internal reservation seam. The normal constructor supplies0/0;
  * additions are conservative live overlap, never a credit or trusted token. */
-static NvmArrayEligibilityResult vm_rmp_prepare_reserved(const VmState *vm,VmRecordMapPublicPreparation **out,
-    uint64_t extra_bytes,uint64_t extra_work) {
+static NvmArrayEligibilityResult vm_rmp_prepare_reserved_pair(const VmState *vm,VmRecordMapPublicPreparation **out,
+    uint64_t extra_bytes,uint64_t extra_work,uint8_t *value_out) {
     NvmArrayEligibilityResult result={NVM_ARRAY_INVALID,0,0,"I require stable idle ordinary VM storage for preparation."};
     if(!vm || !out || !vm->module || vm->module!=vm->root_module ||
        !vm_rmo_disjoint(out,sizeof *out,vm,sizeof *vm) ||
@@ -341,7 +344,8 @@ static NvmArrayEligibilityResult vm_rmp_prepare_reserved(const VmState *vm,VmRec
        !vm_rmp_charge(p,&status,0,(uint64_t)p->counts.carrier.instructions*4u))goto failed;
     for(uint32_t i=0;i<p->counts.carrier.instructions;i++)
         if(!nvm_record_map_execution_instruction(p->plan,i,&p->instructions[i]))goto failed;
-    if(!vm_rmp_layouts(p,&status) || !vm_rmp_coverage(p,vm,&status) || !vm_rmp_constants(p,vm,&status))goto failed;
+    uint8_t value_tag=TAG_VOID;
+    if(!vm_rmp_layouts(p,&status,&value_tag) || !vm_rmp_coverage(p,vm,&status,value_tag) || !vm_rmp_constants(p,vm,&status))goto failed;
     VmRmImportState imported={0};VmRmImportReport report;
     VmRmImportStatus checked=vm_rmi_check_reserved(boundary,vm,&imported,&report,
         p->bytes-bc.peak_bytes_reserved,p->work-bc.work_reserved);
@@ -352,7 +356,7 @@ static NvmArrayEligibilityResult vm_rmp_prepare_reserved(const VmState *vm,VmRec
         goto failed;
     }
     p->bytes=report.preparation_bytes;p->work=report.preparation_work;
-    *out=p;
+    *out=p;if(value_out)*value_out=value_tag;
     snprintf(result.message,sizeof result.message,"I prepared immutable tables and checked ordinary imports without execution.");
     return result;
 failed:
@@ -360,6 +364,10 @@ failed:
     snprintf(result.message,sizeof result.message,"I could not prepare exact borrowed-state map tables and imports.");return result;
 }
 
+static NvmArrayEligibilityResult vm_rmp_prepare_reserved(const VmState *vm,VmRecordMapPublicPreparation **out,
+    uint64_t bytes,uint64_t work) {
+    return vm_rmp_prepare_reserved_pair(vm,out,bytes,work,NULL);
+}
 VM_RMP_API NvmArrayEligibilityResult vm_record_map_public_prepare(const VmState *vm,VmRecordMapPublicPreparation **out) {
     return vm_rmp_prepare_reserved(vm,out,0,0);
 }

@@ -89,7 +89,7 @@ os.execv(os.environ['MAP_REAL_VM'],[os.environ['MAP_REAL_VM']]+args)
     def facts(text, kind):
         return bytes.fromhex(''.join(re.findall(r'^\.'+kind+r' "([0-9a-f]*)"$', text, re.M)))
 
-    def check_wire(self, text, published):
+    def check_wire(self, text, published, value_tag=1):
         layouts, owned = [self.facts(text, k) for k in ('layouts', 'ownership')]
         if not published:
             self.assertEqual((layouts, owned), (b'', b''))
@@ -124,18 +124,22 @@ os.execv(os.environ['MAP_REAL_VM'],[os.environ['MAP_REAL_VM']]+args)
             rows[kind] = owned[at:at+length]; at += length
         self.assertEqual(at, len(owned)); self.assertIn(list(rows), ([5], [2, 5]))
         table = rows[5]
-        self.assertEqual(table[:32], struct.pack('<IB3xIB3xIIII', 2, 1, 0xffffffff, 5, 0xffffffff, 1, 1, 0))
-        bindings, = struct.unpack_from('<I', table, 32)
-        self.assertEqual(len(table), 36+12*bindings)
-        self.assertEqual([struct.unpack_from('<IHHI', table, 36+12*i) for i in range(bindings)], field_maps)
+        self.assertIn(value_tag, (1, 5))
+        prefix = (struct.pack('<IB3xIB3xIIII', 2, 1, 0xffffffff, 5, 0xffffffff, 1, 1, 0)
+                  if value_tag == 1 else struct.pack('<IB3xIIII', 1, 5, 0xffffffff, 1, 0, 0))
+        self.assertEqual(table[:len(prefix)], prefix)
+        bindings, = struct.unpack_from('<I', table, len(prefix))
+        start = len(prefix)+4
+        self.assertEqual(len(table), start+12*bindings)
+        self.assertEqual([struct.unpack_from('<IHHI', table, start+12*i) for i in range(bindings)], field_maps)
         self.assertTrue(field_maps)
         return layouts, rows
 
-    def qualify(self, name, module, published):
+    def qualify(self, name, module, published, value_tag=1):
         self.command(name+'-verify', [self.tools['nano_vm'], '--verify-only', module])
         self.command(name+'-vm', [self.tools['nano_vm'], module])
         text = self.command(name+'-dump', [self.tools['nanoisa'], 'dump', module]).decode()
-        wire = self.check_wire(text, published)
+        wire = self.check_wire(text, published, value_tag)
         asm = self.work/(name+'.nasm'); copy = self.work/(name+'-roundtrip.nvm'); asm.write_text(text)
         self.command(name+'-assemble', [self.tools['nanoisa'], 'asm', asm, '-o', copy])
         self.assertEqual(text, self.command(name+'-roundtrip', [self.tools['nanoisa'], 'dump', copy]).decode())
@@ -155,32 +159,32 @@ int main(void){(void)nmap_collection_budget;int r=fixture_main();nmap_collect();
             self.command(name+'-run-O'+opt, [exe])
         return wire
 
-    def corpus(self, label, source, ordinary=True, shadow=True):
+    def corpus(self, label, source, ordinary=True, shadow=True, value_tag=1):
         path = self.work/(label+'.nano'); path.write_text(source)
         wires = []; shadow_wires = []
         seed = self.work/(label+'-seed.nvm')
         self.command(label+'-seed-source', [self.tools['nano_virt'], path, '--emit-nvm', '-o', seed])
-        wires.append(self.qualify(label+'-seed', seed, ordinary))
+        wires.append(self.qualify(label+'-seed', seed, ordinary, value_tag))
         name = label+'-seed-shadow'; asm = self.work/(name+'.nasm'); module = self.work/(name+'.nvm')
         asm.write_bytes(self.command(name+'-source', [self.c_shadow, path]))
         self.command(name+'-assemble', [self.tools['nanoisa'], 'asm', asm, '-o', module])
-        shadow_wires.append(self.qualify(name, module, shadow))
+        shadow_wires.append(self.qualify(name, module, shadow, value_tag))
         for i, compiler in enumerate(self.compilers):
             name = f'{label}-checked-{i}'; module = self.work/(name+'.nvm'); selected = self.work/(name+'-shadow.nvm')
             env = dict(self.env, NANO_VM=str(self.capture), MAP_REAL_VM=str(self.tools['nano_vm']), MAP_SHADOW_CAPTURE=str(selected))
             self.command(name+'-source', [compiler, path, '--emit-nvm', '-o', module], env=env)
-            wires.append(self.qualify(name, module, ordinary))
-            shadow_wires.append(self.qualify(name+'-shadow', selected, shadow))
+            wires.append(self.qualify(name, module, ordinary, value_tag))
+            shadow_wires.append(self.qualify(name+'-shadow', selected, shadow, value_tag))
         for i, driver in enumerate(self.raw_drivers):
             name = f'{label}-raw-{i}'; asm = self.work/(name+'.nasm'); module = self.work/(name+'.nvm')
             asm.write_bytes(self.command(name+'-source', [driver, path, 0, 'raw']))
             self.command(name+'-assemble', [self.tools['nanoisa'], 'asm', asm, '-o', module])
-            shadow_wires.append(self.qualify(name, module, shadow))
+            shadow_wires.append(self.qualify(name, module, shadow, value_tag))
             name += '-program'
             asm = self.work/(name+'.nasm'); module = self.work/(name+'.nvm')
             asm.write_bytes(self.command(name+'-source', [driver, path, 0, 'program']))
             self.command(name+'-assemble', [self.tools['nanoisa'], 'asm', asm, '-o', module])
-            wires.append(self.qualify(name, module, ordinary))
+            wires.append(self.qualify(name, module, ordinary, value_tag))
         self.assertTrue(all(wire == wires[0] for wire in wires))
         self.assertTrue(all(wire == shadow_wires[0] for wire in shadow_wires))
 
@@ -196,8 +200,30 @@ int main(void){(void)nmap_collection_budget;int r=fixture_main();nmap_collect();
         source = source.replace('HashMap<string,string>', 'HashMap<string,int>').replace('"kept"', '42')
         self.corpus('integer-delete', source)
 
+    def test_unchanged_string_delete_and_concat(self):
+        source = (ROOT/'tests/unit/test_map_field_operations.nano').read_text()
+        self.corpus('string-delete', source, value_tag=5)
+        self.assertEqual(source.count('"kept"'), 2)
+        self.corpus('string-concat', source.replace('"kept"', '(+ "ke" "pt")'), value_tag=5)
+
+    def test_string_array_and_mixed_pair_omission(self):
+        source = (ROOT/'tests/unit/test_map_field_operations.nano').read_text()
+        self.assertEqual(source.count('struct Holder { values: HashMap<string,string> }'), 1)
+        self.assertEqual(source.count('Holder { values: (map_new) }'), 1)
+        source = source.replace('struct Holder { values: HashMap<string,string> }',
+            'struct Holder { values: HashMap<string,string>, nums: array<int> }')
+        source = source.replace('Holder { values: (map_new) }', 'Holder { values: (map_new), nums: [7] }')
+        source = source.replace(' assert (map_has h.values "key")',
+            ' assert (== (at h.nums 0) 7)\n assert (map_has h.values "key")')
+        self.corpus('string-array', source, value_tag=5)
+        source = source.replace('nums: array<int> }', 'nums: array<int>, ints: HashMap<string,int> }')
+        source = source.replace('nums: [7] }', 'nums: [7], ints: (map_new) }')
+        source = source.replace(' assert (== (at h.nums 0) 7)',
+            ' (map_set h.ints "other" 9)\n assert (== (map_get h.ints "other") 9)\n assert (== (at h.nums 0) 7)')
+        self.corpus('mixed-pair-array', source, ordinary=False, shadow=False)
+
     def test_map_only_multiple_fields_forward_record(self):
-        self.corpus('map-only-forward', '''struct Root { child: Leaf }
+        source = '''struct Root { child: Leaf }
 struct Leaf { first: HashMap<string,int>, second: HashMap<string,int> }
 fn main() -> int {
     let first: HashMap<string,int> = (map_new)
@@ -216,7 +242,14 @@ fn main() -> int {
     return 0
 }
 shadow main { assert (== (main) 0) }
-''')
+'''
+        self.corpus('map-only-forward', source)
+        self.assertEqual(source.count('HashMap<string,int>'), 4)
+        self.assertEqual(source.count(' 7'), 2)
+        self.assertEqual(source.count(' 9'), 2)
+        strings = source.replace('HashMap<string,int>', 'HashMap<string,string>')
+        strings = strings.replace(' 7', ' "seven"').replace(' 9', ' "nine"')
+        self.corpus('string-map-only-forward', strings, value_tag=5)
 
     def test_nested_u8(self):
         self.corpus('nested-u8', (ROOT/'tests/nanoisa/fixtures/map_nested_u8_borrowed.nano').read_text())

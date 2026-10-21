@@ -1,0 +1,17 @@
+CASE mutation=0 published=1 shadows=0
+CASE mutation=0 published=1 shadows=1
+CASE mutation=1 published=0 shadows=0
+CASE mutation=2 published=0 shadows=0
+CASE mutation=3 published=0 shadows=0
+Error at line 3, column 35: I require int or string map keys and values.
+Hint: Declare HashMap<K,V> with supported scalar types.
+Error at line 4, column 2: I cannot accept this map call: Cannot infer HashMap<K,V> type arguments.
+Hint: Match the map operation arity and declared key/value types.
+Error at line 6, column 13: I cannot accept this map call: Cannot infer HashMap<K,V> type arguments.
+Hint: Match the map operation arity and declared key/value types.
+Error at line 8, column 2: I cannot accept this map call: Cannot infer HashMap<K,V> type arguments.
+Hint: Match the map operation arity and declared key/value types.
+Error at line 9, column 14: I cannot accept this map call: Cannot infer HashMap<K,V> type arguments.
+Hint: Match the map operation arity and declared key/value types.
+VERIFY: function[0] stack underflow at offset 34 (POP needs 1, has 0)
+FAIL line 44: nvm_verify(r.module).ok

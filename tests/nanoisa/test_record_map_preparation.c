@@ -110,7 +110,7 @@ static void preparation_limits(void) {
 }
 static void preparation_corrupt(void) {
     Input c;map_basic(&c);NvmRecordMapExecutionPlan *source=execution_prepare(&c.m);
-    VmRecordMapPrivate *p=prepare_runtime(source);CHECK(vm_rm_coverage(p));
+    VmRecordMapPrivate *p=prepare_runtime(source);CHECK(vm_rm_coverage(p,TAG_INT));
     uint32_t fi=0,ii=0;
     VmDispatchInstruction *dispatch=&p->vm.dispatch_module.functions[fi].instructions[ii];
     VmDecodedInstruction *decoded=&p->vm.decoded_module.functions[fi].instructions[ii];
@@ -128,8 +128,8 @@ static void preparation_corrupt(void) {
         if(variant==5)dispatch->call_handle.resolved=true;
         if(variant==6)p->instructions[0].base.successors[0]++;
         if(variant==7)dispatch->instruction.operands[0].u8=TAG_BOOL;
-        CHECK(!vm_rm_coverage(p));p->instructions[0]=saved;*dispatch=ds;*decoded=dec;
-        p->work=0;CHECK(vm_rm_coverage(p));
+        CHECK(!vm_rm_coverage(p,TAG_INT));p->instructions[0]=saved;*dispatch=ds;*decoded=dec;
+        p->work=0;CHECK(vm_rm_coverage(p,TAG_INT));
     }
     nvm_record_map_execution_free(source);vm_record_map_private_destroy(p);CHECK(!ra_live&&!ra_bytes);
 }

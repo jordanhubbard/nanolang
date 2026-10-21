@@ -19,7 +19,8 @@ static bool vm_rmb_value_valid(const VmRecordMapPublicPreparation *p,const VmHea
             !value.as.string->header.buffered && value.as.string->header.colour==VM_GC_BLACK;
     }
     if(value.tag==TAG_HASHMAP) {
-        uint32_t count;return vm_rm_ordinary_len(heap,value.as.hashmap,&count)==VM_RM_HEAP_OK;
+        uint32_t count;if(!value.as.hashmap)return false;
+        return (value.as.hashmap->val_type==TAG_STRING?vm_rm_ordinary_ss_len(heap,value.as.hashmap,&count):vm_rm_ordinary_len(heap,value.as.hashmap,&count))==VM_RM_HEAP_OK;
     }
     if(val_is_heap_obj(value)) {
         if(!value.as.obj)return false;
@@ -79,8 +80,8 @@ static bool vm_rmb_context(const VmRecordMapBorrowedInvocation *v,const VmState 
        vm->ip-fn->code_offset>fn->code_length)return false;
     return true;
 }
-static VmResult vm_rmb_preflight(VmRecordMapBorrowedInvocation *v,const VmDispatchInstruction *instruction) {
-    if(!v || !v->preparation)return VM_ERR_TYPE_ERROR;
+static VmResult vm_rmb_preflight(VmRecordMapBorrowedInvocation *v,const VmDispatchInstruction *instruction,uint8_t value_tag) {
+    if((value_tag!=TAG_INT && value_tag!=TAG_STRING) || !v || !v->preparation)return VM_ERR_TYPE_ERROR;
     const VmRecordMapPublicPreparation *p=v->preparation;VmState *vm=v->vm;
     if(!vm_rmb_context(v,vm))return VM_ERR_TYPE_ERROR;
     const VmCallFrame *frame=&vm->frames[vm->frame_count-1];
@@ -105,13 +106,13 @@ static VmResult vm_rmb_preflight(VmRecordMapBorrowedInvocation *v,const VmDispat
     case OP_HM_NEW:operation=NVM_RM_NEW;result=1u<<TAG_HASHMAP;break;
     case OP_HM_SET:operation=NVM_RM_SET;result=1u<<TAG_HASHMAP;break;
     case OP_HM_DELETE:operation=NVM_RM_DELETE;result=1u<<TAG_HASHMAP;break;
-    case OP_HM_GET:operation=NVM_RM_GET;result=(1u<<TAG_INT)|(1u<<TAG_VOID);break;
+    case OP_HM_GET:operation=NVM_RM_GET;result=(1u<<value_tag)|(1u<<TAG_VOID);break;
     case OP_HM_HAS:operation=NVM_RM_HAS;result=1u<<TAG_BOOL;break;
     case OP_HM_LEN:operation=NVM_RM_LEN;result=1u<<TAG_INT;break;
     default:break;
     }
     if(map->map_operation!=operation || map->result_tags!=result || map->key_tags!=(operation?(1u<<TAG_STRING):0) ||
-       map->value_tags!=(operation?(1u<<TAG_INT):0))return VM_ERR_DECODE;
+       map->value_tags!=(operation?(1u<<value_tag):0))return VM_ERR_DECODE;
     if(instruction->next_index!=(encoded<fn->instruction_count?encoded:VM_DISPATCH_NO_INDEX))return VM_ERR_DECODE;
     uint32_t target=UINT32_MAX,branch=UINT32_MAX;
     if(fact->opcode==OP_JMP || fact->opcode==OP_JMP_TRUE || fact->opcode==OP_JMP_FALSE) {
@@ -151,13 +152,15 @@ static VmResult vm_rmb_preflight(VmRecordMapBorrowedInvocation *v,const VmDispat
     NanoValue retained=val_void();
     switch(in->opcode) {
     case OP_HM_NEW:
-        if(in->operands[0].u8!=TAG_STRING || in->operands[1].u8!=TAG_INT)return VM_ERR_TYPE_ERROR;
+        if(in->operands[0].u8!=TAG_STRING || in->operands[1].u8!=value_tag)return VM_ERR_TYPE_ERROR;
         break;
     case OP_HM_SET:case OP_HM_GET:case OP_HM_HAS:case OP_HM_LEN:case OP_HM_DELETE: {
         uint16_t receiver=in->opcode==OP_HM_SET?2:in->opcode==OP_HM_LEN?0:1;
-        if(stack_peek(vm,receiver).tag!=TAG_HASHMAP ||
+        if(stack_peek(vm,receiver).tag!=TAG_HASHMAP || !stack_peek(vm,receiver).as.hashmap ||
+           stack_peek(vm,receiver).as.hashmap->key_type!=TAG_STRING ||
+           stack_peek(vm,receiver).as.hashmap->val_type!=value_tag ||
            (in->opcode!=OP_HM_LEN && stack_peek(vm,receiver-1).tag!=TAG_STRING) ||
-           (in->opcode==OP_HM_SET && stack_peek(vm,0).tag!=TAG_INT))return VM_ERR_TYPE_ERROR;
+           (in->opcode==OP_HM_SET && stack_peek(vm,0).tag!=value_tag))return VM_ERR_TYPE_ERROR;
         break;
     }
     case OP_RET:
@@ -307,10 +310,10 @@ static VmResult vm_rmb_preflight(VmRecordMapBorrowedInvocation *v,const VmDispat
 /* All fallible map work occurs while input operands remain actual stack roots.
  * After success, exact consumed edges are released and the result is transferred
  * into pre-reserved storage; no additional retain/allocation is required. */
-static VmResult vm_rmb_map_instruction(VmRecordMapBorrowedInvocation *v,uint8_t opcode) {
+static VmResult vm_rmb_map_instruction(VmRecordMapBorrowedInvocation *v,uint8_t opcode,uint8_t value_tag) {
     VmState *vm=v->vm;NanoValue output=val_void();VmRmHeapStatus status;
     if(opcode==OP_HM_NEW) {
-        VmHashMap *m=NULL;status=vm_rm_ordinary_new(&vm->heap,&m);
+        VmHashMap *m=NULL;status=value_tag==TAG_STRING?vm_rm_ordinary_ss_new(&vm->heap,&m):vm_rm_ordinary_new(&vm->heap,&m);
         if(status!=VM_RM_HEAP_OK)return vm_rmx_heap_status(status);
         output=val_hashmap(m);
     } else {
@@ -318,16 +321,16 @@ static VmResult vm_rmb_map_instruction(VmRecordMapBorrowedInvocation *v,uint8_t 
         NanoValue map=stack_peek(vm,pops-1),key=pops>1?stack_peek(vm,pops-2):val_void();
         switch(opcode) {
         case OP_HM_SET:
-            status=vm_rm_ordinary_set(&vm->heap,map.as.hashmap,key,stack_peek(vm,0));output=map;break;
+            status=value_tag==TAG_STRING?vm_rm_ordinary_ss_set(&vm->heap,map.as.hashmap,key,stack_peek(vm,0)):vm_rm_ordinary_set(&vm->heap,map.as.hashmap,key,stack_peek(vm,0));output=map;break;
         case OP_HM_DELETE:
-            status=vm_rm_ordinary_delete(&vm->heap,map.as.hashmap,key);output=map;break;
-        case OP_HM_GET:status=vm_rm_ordinary_get(&vm->heap,map.as.hashmap,key,&output);break;
+            status=value_tag==TAG_STRING?vm_rm_ordinary_ss_delete(&vm->heap,map.as.hashmap,key):vm_rm_ordinary_delete(&vm->heap,map.as.hashmap,key);output=map;break;
+        case OP_HM_GET:status=value_tag==TAG_STRING?vm_rm_ordinary_ss_get_owned(&vm->heap,map.as.hashmap,key,&output):vm_rm_ordinary_get(&vm->heap,map.as.hashmap,key,&output);break;
         case OP_HM_HAS: {
-            bool found=false;status=vm_rm_ordinary_has(&vm->heap,map.as.hashmap,key,&found);
+            bool found=false;status=value_tag==TAG_STRING?vm_rm_ordinary_ss_has(&vm->heap,map.as.hashmap,key,&found):vm_rm_ordinary_has(&vm->heap,map.as.hashmap,key,&found);
             output=val_bool(found);break;
         }
         case OP_HM_LEN: {
-            uint32_t length=0;status=vm_rm_ordinary_len(&vm->heap,map.as.hashmap,&length);
+            uint32_t length=0;status=value_tag==TAG_STRING?vm_rm_ordinary_ss_len(&vm->heap,map.as.hashmap,&length):vm_rm_ordinary_len(&vm->heap,map.as.hashmap,&length);
             output=val_int(length);break;
         }
         default:return VM_ERR_INVALID_OPCODE;

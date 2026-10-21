@@ -1,0 +1,1 @@
+PASS 80 Clang/GCC16 strict cases: default/array/combined x switch/goto, changed providers+harnesses

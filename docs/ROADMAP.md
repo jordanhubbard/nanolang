@@ -16795,3 +16795,30 @@ The exact integer DELETE publisher qualification passed: fresh current C-hosted 
 I merged the qualified heap, atomic consumer and paired-publication ancestry through 1ea583ed9, preserving f83927078. I will qualify the actual aggregate C/public tools with the retained current C-hosted canonical/raw drivers, run both DELETE dispatch tests and workflow/checkpoint controls, and retain exact receipts before pushing. I add the DELETE target to explicit compiler-contract qualification; fresh raw generations and Linux/Darwin acceptance remain open.
 
 I completed the map DELETE aggregate gate: 100 C controls, eight paired publication methods (33.403s), both permanent DELETE dispatch methods (9.514s; 2,090 assertions each), and 68 workflow/checkpoint controls (1.990s). All 16 retained component pins still match. I retain the plan, terminals and provider pins in docs/evidence/map-delete-aggregate-20261021; no frontend/bootstrap claim or issue closure follows.
+
+### Exact STRING-valued map authority design (2026-10-22)
+
+I own this #1001 design-only checkpoint on `design/5.1-map-string-value-authority` from aggregate `200c4f850`. I preserve the complete DELETE ancestry and receipts. The unchanged `tests/unit/test_map_field_operations.nano` already executes through current producers but still omits authority; stored STRING ownership is the next exact prerequisite.
+
+- [x] Review the exact single-pair STRING→STRING contract, checked owned-result heap interfaces and unchanged INT budgets before implementation.
+- [x] Retain four unchanged ordinary/original-shadow baselines before admission changes.
+- [ ] Qualify checked heap ownership/topology/teardown independently, then atomic proof/recipes/import/VM/native consumers including missing GET STRING|VOID.
+- [ ] Qualify paired publication only after consumers, retaining mixed-pair atomic omission and old byte goldens. Fresh-stage/platform acceptance remains separate.
+
+I completed the design review and four unchanged original baselines: all public verifier/VM gates and eight sanitized native executions pass, authority remains absent, and exact independently validated declarations refuse only at the current STRING→INT proof boundary. Receipt: docs/evidence/map-string-value-baseline-20261022. The appended first heap-only source plan remains unimplemented pending review.
+
+I am implementing only the reviewed heap checkpoint: fixed STRING→STRING owned-GET adapters, charged physical topology validation and inline private teardown with direct tests. I keep all proof, recipe, import selection, VM dispatch, native and publisher enrollment closed; no compile precedes frozen-source review.
+
+I completed the isolated physical heap gate: 543 new SS assertions plus unchanged ordinary/private INT neighbors (4,445/10,318), explicit O1 ASan/UBSan and eight Clang/GCC16 syntax cases. I retain exact old heap bodies/layouts and the receipt in docs/evidence/map-string-heap-20261022. Consumer/dispatch/native/publication enrollment remains closed.
+
+I am auditing the second consumer phase only in the STRING-value design: stack-local uniform pair threading, owned GET transfer, charged import/observation and native optional STRING|VOID. Physical heap commit a33d1025a remains frozen; no consumer production edit or compiler run follows this design checkpoint.
+
+I am drafting the reviewed atomic SS consumer slice after contract921f54a03: local pair threading, owned GET transfer, copied import/observation and native optional-value correspondence. I hold all builds until frozen-source review and keep publisher source untouched.
+
+I completed the atomic STRING→STRING consumer gate without publisher changes: both VM dispatches pass 2,785 assertions each, four original native outputs pass 16 executions, synthetic native helper/tail/absence controls pass 12 outcomes, and 42 generated allocation positions per optimization pass both denial modes. I retain exact old sizes, six budget rows and four INT native output bytes, plus strict/neighbor evidence in docs/evidence/map-string-consumer-20261022. Source publication and fresh-stage/platform acceptance remain open.
+
+I own the next #1001 STRING-value paired publisher interface audit on consumer0de7b2181. This checkpoint is design-only: exact uniform map declaration rows, existing complete-candidate query/atomic omission and old wire preservation. I make no publisher edit or compiler build before review.
+
+I am drafting the reviewed paired STRING-value publisher slice after designc5f30b542. I preserve uniform-pair omission, current independent query and raw/checked provenance, and will freeze paired source/helper shadows before the first unchanged Holder C gate. No compiler build is part of this source checkpoint.
+
+I completed the reviewed paired STRING-value publication slice: direct C SS152/SI130, fresh C-hosted canonical/raw products, paired10methods/72modules/144native runs, actual older operations2, publisher729/query515 allocation positions in both denial modes,13 exact old-byte comparisons and strict4. I retain failures, provider identities and the scoped aggregate handoff in docs/evidence/map-string-publication-20261022; fresh-stage/platform acceptance remains independent.

@@ -73,14 +73,15 @@ static bool ordinary_map_plain(const TypeInfo *t) {
         !t->row_field_type_info && !t->row_field_type_names && !t->row_field_count &&
         !t->type_var_names && !t->type_var_count;
 }
-static bool ordinary_map_pair(const TypeInfo *t) {
+static bool ordinary_map_pair(const TypeInfo *t,uint8_t *value_out) {
     if(!ordinary_map_plain(t) || t->base_type!=TYPE_HASHMAP || !t->generic_name ||
        strcmp(t->generic_name,"HashMap") || t->type_param_count!=2 || !t->type_params)return false;
     for(unsigned i=0;i<2;i++) {
         const TypeInfo *leaf=t->type_params[i];
-        if(!ordinary_map_plain(leaf) || leaf->base_type!=(i?TYPE_INT:TYPE_STRING) ||
+        if(!ordinary_map_plain(leaf) || (i?(leaf->base_type!=TYPE_INT && leaf->base_type!=TYPE_STRING):leaf->base_type!=TYPE_STRING) ||
            leaf->generic_name || leaf->type_params || leaf->type_param_count)return false;
     }
+    *value_out=t->type_params[1]->base_type==TYPE_INT?TAG_INT:TAG_STRING;
     return true;
 }
 
@@ -115,7 +116,7 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
     if(!data || !items){free(data);free(items);cg_error(cg,0,"I cannot allocate ordinary declaration facts");return;}
     NvmV2Layouts layouts={items,count};
     bool supported=true;
-    uint32_t arrays=0,maps=0;uint8_t elements[16]={0};
+    uint32_t arrays=0,maps=0;uint8_t elements[16]={0},map_value=TAG_VOID;
     for(unsigned i=0;i<count && supported;i++) {
         ASTNode *node=records[i];int fields=node->as.struct_def.field_count;
         if(fields<0 || fields>UINT16_MAX){supported=false;break;}
@@ -129,8 +130,10 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
             Type declared=info?info->base_type:node->as.struct_def.field_types[j];
             uint8_t tag=ordinary_slot_tag(declared);uint32_t child=NVM_V2_NO_INDEX;
             if(tag==TAG_HASHMAP) {
-                if(node->as.struct_def.field_types[j]!=TYPE_HASHMAP || !ordinary_map_pair(info)) {supported=false;break;}
-                maps++;
+                uint8_t value=TAG_VOID;
+                if(node->as.struct_def.field_types[j]!=TYPE_HASHMAP || !ordinary_map_pair(info,&value) ||
+                   (map_value!=TAG_VOID && map_value!=value)) {supported=false;break;}
+                map_value=value;maps++;
             }
             if(tag==TAG_ARRAY) {
                 TypeInfo *element=info?info->element_type:NULL;
@@ -191,7 +194,7 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
         uint32_t types=0,index[16]={0};
         for(unsigned i=0;i<16;i++)if(elements[i])index[i]=types++;
         size_t extra=12u+(arrays?16u+(size_t)types*8u+(size_t)arrays*12u:0u)+
-            (maps?44u+(size_t)maps*12u:0u);
+            (maps?(map_value==TAG_INT?44u:36u)+(size_t)maps*12u:0u);
         if(extra>UINT32_MAX-size){supported=false;}
         else {
             uint8_t *grown=realloc(data,size+extra);
@@ -227,12 +230,12 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
                 }
                 if(maps) {
                     ordinary_word(data+at,5,2);ordinary_word(data+at+2,1,2);
-                    ordinary_word(data+at+4,36u+maps*12u,4);at+=8;
-                    ordinary_word(data+at,2,4);at+=4;
-                    data[at]=TAG_INT;ordinary_word(data+at+4,NVM_V2_NO_INDEX,4);at+=8;
+                    ordinary_word(data+at+4,(map_value==TAG_INT?36u:28u)+maps*12u,4);at+=8;
+                    ordinary_word(data+at,map_value==TAG_INT?2u:1u,4);at+=4;
+                    if(map_value==TAG_INT){data[at]=TAG_INT;ordinary_word(data+at+4,NVM_V2_NO_INDEX,4);at+=8;}
                     data[at]=TAG_STRING;ordinary_word(data+at+4,NVM_V2_NO_INDEX,4);at+=8;
                     ordinary_word(data+at,1,4);at+=4;
-                    ordinary_word(data+at,1,4);at+=8; /* STRING row1 -> INT row0. */
+                    ordinary_word(data+at,map_value==TAG_INT?1u:0u,4);at+=8; /* Key STRING; value always row0. */
                     ordinary_word(data+at,maps,4);at+=4;
                     for(unsigned i=0;i<count;i++)for(unsigned j=0;j<items[i].field_count;j++)
                         if(items[i].fields[j].type_tag==TAG_HASHMAP) {

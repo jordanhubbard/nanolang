@@ -55,6 +55,32 @@ VmRmHeapStatus vm_rm_heap_import_validate(const VmHashMap *,VmRmObservationWork 
 #ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
 /* Full topology validation and byte probe occur in one read-only call. No
  * caller-provided flag can bypass validation; result is only INT or VOID. */
+VmRmHeapStatus vm_rm_heap_ss_observe_lookup(const VmHashMap *,const void *,uint32_t,VmRmObservationWork *,NanoValue *);
 VmRmHeapStatus vm_rm_heap_observe_lookup(const VmHashMap *,const void *,uint32_t,VmRmObservationWork *,NanoValue *);
 #endif
+/* Fixed STRING->STRING physical adapters only; no module admission. Receiver,
+ * query key and value are borrowed live roots in the same managed heap.
+ * Immutable string storage/intern ownership and full topology must follow from
+ * closed construction or same-invocation validation; headers are not arbitrary
+ * pointer validation. Outputs/work are disjoint from inputs and one another.
+ * GET owns exactly one returned STRING edge (absent is VOID); failure preserves
+ * output and all refcounts. SET replacement retains only value; insertion retains
+ * key and value cumulatively. Full-live absent GET/HAS/DELETE succeeds; SET may
+ * refuse a no-slot full table. Ordinary buffering is preserved unchanged. */
+#ifdef NANO_RECORD_MAP_PRIVATE_HEAP
+VmRmHeapStatus vm_rm_heap_ss_new(VmHeap *,VmHashMap **);
+VmRmHeapStatus vm_rm_heap_ss_set(VmHeap *,VmHashMap *,NanoValue,NanoValue);
+VmRmHeapStatus vm_rm_heap_ss_get_owned(VmHeap *,const VmHashMap *,NanoValue,NanoValue *);
+VmRmHeapStatus vm_rm_heap_ss_delete(VmHeap *,VmHashMap *,NanoValue);
+VmRmHeapStatus vm_rm_heap_ss_has(const VmHashMap *,NanoValue,bool *);
+VmRmHeapStatus vm_rm_heap_ss_len(const VmHashMap *,uint32_t *);
+VmRmHeapStatus vm_rm_heap_ss_validate(const VmHashMap *,VmRmObservationWork *);
+#endif
+VmRmHeapStatus vm_rm_ordinary_ss_new(VmHeap *,VmHashMap **);
+VmRmHeapStatus vm_rm_ordinary_ss_set(VmHeap *,VmHashMap *,NanoValue,NanoValue);
+VmRmHeapStatus vm_rm_ordinary_ss_get_owned(VmHeap *,const VmHashMap *,NanoValue,NanoValue *);
+VmRmHeapStatus vm_rm_ordinary_ss_delete(VmHeap *,VmHashMap *,NanoValue);
+VmRmHeapStatus vm_rm_ordinary_ss_has(const VmHeap *,const VmHashMap *,NanoValue,bool *);
+VmRmHeapStatus vm_rm_ordinary_ss_len(const VmHeap *,const VmHashMap *,uint32_t *);
+VmRmHeapStatus vm_rm_heap_ss_import_validate(const VmHashMap *,VmRmObservationWork *);
 #endif

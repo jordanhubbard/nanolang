@@ -7,5 +7,7 @@ typedef struct {
     NvmArrayEligibilityResult eligibility;
     uint64_t work;
 } NvmRecordMapTargetResult;
+/* Optional disjoint output is published only on full ELIGIBLE validation. */
+NvmRecordMapTargetResult nvm_record_map_native_target_pair(const NvmRecordMapImage *,uint64_t allowance,uint8_t *);
 NvmRecordMapTargetResult nvm_record_map_native_target(const NvmRecordMapImage *,uint64_t allowance);
 #endif

@@ -98,6 +98,7 @@ static VmRmImportStatus vm_rmi_string(VmRmImportState *s,const VmString *str) {
 /* Each occurrence checks descriptors before a completed identity can be reused. */
 static VmRmImportStatus vm_rmi_enter(VmRmImportState *s,const NvmRecordMapExecutionPlan *plan,
     uint32_t origins,NanoValue value,NvmRecordValueOrigins expected,uint32_t nominal,uint32_t *depth) {
+    uint8_t map_value=TAG_VOID;
     if(vm_rmi_charge(s,0,16)!=VM_RM_IMPORT_OK)return VM_RM_IMPORT_LIMIT;
     if(expected.unknown || value.tag>=16 || !(expected.tags&(uint16_t)(1u<<value.tag)))return VM_RM_IMPORT_UNRESOLVED;
     if(value.tag==TAG_VOID || value.tag==TAG_INT || value.tag==TAG_FLOAT || value.tag==TAG_BOOL || value.tag==TAG_U8)
@@ -151,8 +152,10 @@ static VmRmImportStatus vm_rmi_enter(VmRmImportState *s,const NvmRecordMapExecut
     } else {
         uint8_t key,val;
         if(vm_rmi_charge(s,0,NVM_RECORD_MAP_ORIGIN_QUERY_WORK)!=VM_RM_IMPORT_OK)return VM_RM_IMPORT_LIMIT;
-        if(!nvm_record_map_execution_map_origin(plan,selected,&key,&val) || key!=TAG_STRING || val!=TAG_INT)
+        if(!nvm_record_map_execution_map_origin(plan,selected,&key,&val) || key!=TAG_STRING || (val!=TAG_INT && val!=TAG_STRING) ||
+           value.as.hashmap->key_type!=key || value.as.hashmap->val_type!=val)
             return VM_RM_IMPORT_UNRESOLVED;
+        map_value=val;
     }
     VmRmImportIdentity *identity;VmRmImportStatus status=vm_rmi_slot(s,h,&identity);
     if(status!=VM_RM_IMPORT_OK)return status;
@@ -163,7 +166,8 @@ static VmRmImportStatus vm_rmi_enter(VmRmImportState *s,const NvmRecordMapExecut
     identity->obligation=selected;identity->colour=1;s->objects++;
     if(value.tag==TAG_HASHMAP) {
         VmRmObservationWork work={.used=s->work,.limit=NVM_RECORD_ARRAY_EXECUTION_STEPS};
-        VmRmHeapStatus checked=vm_rm_heap_import_validate(value.as.hashmap,&work);s->work=work.used;
+        VmRmHeapStatus checked=map_value==TAG_STRING?vm_rm_heap_ss_import_validate(value.as.hashmap,&work):
+            vm_rm_heap_import_validate(value.as.hashmap,&work);s->work=work.used;
         if(checked!=VM_RM_HEAP_OK)return checked==VM_RM_HEAP_LIMIT?VM_RM_IMPORT_LIMIT:VM_RM_IMPORT_INVALID;
         identity->colour=2;return VM_RM_IMPORT_OK;
     }

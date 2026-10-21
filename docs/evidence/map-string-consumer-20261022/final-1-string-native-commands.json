@@ -1,0 +1,1766 @@
+[
+  {
+    "name": "string-0-raw-O0-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-0-raw-O0.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-0-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-0-raw-O0-run",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-0-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-0-raw-O2-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-0-raw-O2.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-0-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-0-raw-O2-run",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-0-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-0-forced-O0-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-0-forced-O0.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-0-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-0-forced-O0-run",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-0-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-0-forced-O2-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-0-forced-O2.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-0-forced-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-0-forced-O2-run",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-0-forced-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-1-raw-O0-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-1-raw-O0.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-1-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-1-raw-O0-run",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-1-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-1-raw-O2-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-1-raw-O2.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-1-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-1-raw-O2-run",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-1-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-1-forced-O0-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-1-forced-O0.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-1-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-1-forced-O0-run",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-1-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-1-forced-O2-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-1-forced-O2.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-1-forced-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-1-forced-O2-run",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-1-forced-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-2-raw-O0-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-2-raw-O0.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-2-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-2-raw-O0-run",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-2-raw-O0"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-2-raw-O2-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-2-raw-O2.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-2-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-2-raw-O2-run",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-2-raw-O2"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-2-forced-O0-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-2-forced-O0.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-2-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-2-forced-O0-run",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-2-forced-O0"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-2-forced-O2-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-2-forced-O2.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-2-forced-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-2-forced-O2-run",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-2-forced-O2"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-allocation-O0-measure",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-allocation-O0-denied-False-0",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "0"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-1",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "1"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-2",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "2"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-3",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "3"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-4",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "4"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-5",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "5"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-6",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "6"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-7",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "7"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-8",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "8"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-9",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "9"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-10",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "10"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-11",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "11"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-12",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "12"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-13",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "13"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-14",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "14"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-15",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "15"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-16",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "16"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-17",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "17"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-18",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "18"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-19",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "19"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-20",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "20"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-21",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "21"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-22",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "22"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-23",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "23"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-24",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "24"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-25",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "25"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-26",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "26"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-27",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "27"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-28",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "28"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-29",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "29"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-30",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "30"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-31",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "31"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-32",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "32"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-33",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "33"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-34",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "34"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-35",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "35"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-36",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "36"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-37",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "37"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-38",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "38"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-39",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "39"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-40",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "40"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-False-41",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "41"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-0",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "0",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-1",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "1",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-2",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "2",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-3",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "3",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-4",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "4",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-5",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "5",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-6",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "6",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-7",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "7",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-8",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "8",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-9",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "9",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-10",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "10",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-11",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "11",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-12",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "12",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-13",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "13",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-14",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "14",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-15",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "15",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-16",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "16",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-17",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "17",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-18",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "18",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-19",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "19",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-20",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "20",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-21",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "21",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-22",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "22",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-23",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "23",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-24",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "24",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-25",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "25",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-26",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "26",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-27",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "27",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-28",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "28",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-29",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "29",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-30",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "30",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-31",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "31",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-32",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "32",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-33",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "33",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-34",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "34",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-35",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "35",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-36",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "36",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-37",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "37",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-38",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "38",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-39",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "39",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-40",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "40",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-denied-True-41",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0",
+      "41",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O0-retry",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-allocation-O2-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-allocation-O2-measure",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "string-allocation-O2-denied-False-0",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "0"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-1",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "1"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-2",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "2"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-3",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "3"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-4",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "4"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-5",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "5"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-6",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "6"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-7",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "7"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-8",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "8"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-9",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "9"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-10",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "10"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-11",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "11"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-12",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "12"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-13",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "13"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-14",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "14"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-15",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "15"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-16",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "16"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-17",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "17"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-18",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "18"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-19",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "19"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-20",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "20"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-21",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "21"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-22",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "22"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-23",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "23"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-24",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "24"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-25",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "25"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-26",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "26"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-27",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "27"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-28",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "28"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-29",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "29"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-30",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "30"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-31",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "31"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-32",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "32"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-33",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "33"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-34",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "34"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-35",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "35"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-36",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "36"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-37",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "37"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-38",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "38"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-39",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "39"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-40",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "40"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-False-41",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "41"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-0",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "0",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-1",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "1",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-2",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "2",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-3",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "3",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-4",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "4",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-5",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "5",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-6",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "6",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-7",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "7",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-8",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "8",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-9",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "9",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-10",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "10",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-11",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "11",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-12",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "12",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-13",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "13",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-14",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "14",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-15",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "15",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-16",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "16",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-17",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "17",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-18",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "18",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-19",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "19",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-20",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "20",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-21",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "21",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-22",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "22",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-23",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "23",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-24",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "24",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-25",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "25",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-26",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "26",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-27",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "27",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-28",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "28",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-29",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "29",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-30",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "30",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-31",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "31",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-32",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "32",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-33",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "33",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-34",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "34",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-35",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "35",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-36",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "36",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-37",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "37",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-38",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "38",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-39",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "39",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-40",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "40",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-denied-True-41",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2",
+      "41",
+      "persistent"
+    ],
+    "status": -6
+  },
+  {
+    "name": "string-allocation-O2-retry",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-anam0u30/string-allocation-O2"
+    ],
+    "status": 0
+  }
+]

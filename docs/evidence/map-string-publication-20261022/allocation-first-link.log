@@ -1,0 +1,549 @@
+I retain publication allocation evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z
+ test_map_string_publisher_and_query_prefixes (tests.test_publication_allocation.PublicationAllocation.test_map_string_publisher_and_query_prefixes) ... FAIL
+
+======================================================================
+FAIL: test_map_string_publisher_and_query_prefixes (tests.test_publication_allocation.PublicationAllocation.test_map_string_publisher_and_query_prefixes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_publication_allocation.py", line 49, in test_map_string_publisher_and_query_prefixes
+    self.qualify('map_string')
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_publication_allocation.py", line 118, in qualify
+    run('link',[*cc,*flags,'tests/nanoisa/test_publication_allocation.c',
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               'tests/nanoisa/publication_alloc.c',*objects,*common,*ldflags,'-o',executable])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_publication_allocation.py", line 68, in run
+    self.assertEqual(result.returncode,0,f'{name}: '+stdout.decode(errors='replace')+stderr.decode(errors='replace'))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : link: duplicate symbol '_nvm_record_map_execution_header' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_size' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_mixed_samples_obligations' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_array_declaration_field' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_effect_types' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_mixed_samples_signature' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_prepare_record_map_execution' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_globals' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_describe_ordinary_array_authority' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_analyze_managed_array_graphs' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_origin' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_map_declarations_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_map_execution_map_origin' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_variant' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_array_eligibility_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_boundary_execution' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_variant' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_image_borrow' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_image_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_declaration_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_opcode_supported' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_declarations_type' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_map_frozen_field' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_origin_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_descriptor' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_declarations_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_owned_array_route_classified' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_mixed_samples_local' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_verify_profile' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_array_execution_type' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_verify_function_max_stack' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_map_execution_type' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_owned_array_plan_signature' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_map_execution_section' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_eligibility_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_select_managed_heap' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_owned_array_plan_source' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_map_execution_bytes' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_declarations_binding' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_analyze_managed_arrays' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_image_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_heap_origin' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_declaration_type' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ordinary_array_authority_binding' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_mixed_samples_transport' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_map_execution_binding' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_declarations_variant' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_prepare_record_map_boundary' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_frozen_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_boundary_global' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_structure_prepare' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_map_execution_origin_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_admit' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_field_value' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_layout_authorities' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_verify' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_mixed_samples_candidate' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_array_required_elements' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_image_plan' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_prepare_map_declarations_split' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_verify_function' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_array_execution_debug' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_uses_owned_transfers' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_ownership_contracts_validate' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_array_execution_size' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_declarations_retained_cost' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_map_declarations_field' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_ownership_array_constructor' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_map_execution_origin' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_structure_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_map_image_instruction' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_array_graph_eligibility_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_layout' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_field_value' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_parameter' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_owned_array_route' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_owned_array_plan_local' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_array_declaration_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_origin' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_mixed_samples_admit' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_map_frozen_origin' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_publication' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_image_cost' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_field_value' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_descriptor' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_field' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_field' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_header' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_managed_heap_plan_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_binding' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_image_bound' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_analyze_managed_records' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_mixed_samples_candidate_classified' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_map_execution_map_field' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_path' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_map_image_copy_reserved' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_declarations_layout' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_array_candidate' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_instruction' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_prepare_record_array_execution' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_function' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_declaration_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_metadata' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_owned_array_admit' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_owned_array_plan_transport' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_prepare_map_declarations' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_array_declaration_variant' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_owned_array_plan_layout' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_map_native_target_pair' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_layout_authority' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_map_image_copy' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_mixed_samples_plan_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_select_portable_read_heap' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_prepare_record_map_boundary_reserved_private' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_layout' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_map_declarations_binding' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_prepare_owned_array_authority' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_array_declaration_binding' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_image_copy' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_select_managed_array_mode' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ordinary_array_authority_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_map_declarations_pair' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_map_execution_function' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_union_variant' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_mixed_samples_record' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_verify_declared_max_stacks' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_owned_array_plan_obligation' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_array_declaration_layout' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_owned_array_plan_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_map_declarations_scalar' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_map_frozen_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_image_borrow' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_declarations_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_array_execution_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_route' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_map_execution_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_verify_owned_module' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_map_image_field' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_analyze_record_array_origins' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_boundary_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ordinary_array_authority_type' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_analyze_record_map_origins' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_mixed_samples_prepare' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_array_admit' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_parameter' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_image_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_origins_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_instruction' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_structure_prepare' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_map_execution_debug' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_image_origin' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_required_elements' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_native_target' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_ownership_declarations_field' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_ownership_effect' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_array_execution_bytes' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_metadata' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_owned_array_plan_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_ordinary_array_authority_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_prepare_ownership_declarations' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_array_image_cost' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_verify_affine_function' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_array_field_value' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_origins_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_map_declarations_counts' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_record_map_boundary_free' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_required_elements' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_map_execution_uniform_pair' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_record_array_execution_section' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/managed_array_shapes.o
+    /private/tmp/nanolang-map-string-consumer-20261022/managed_array_shapes.o
+duplicate symbol '_nvm_map_declarations_retained_cost' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+duplicate symbol '_nvm_verify_linked' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/verifier.o
+    /private/tmp/nanolang-map-string-consumer-20261022/verifier.o
+duplicate symbol '_nvm_record_map_wire_selected' in:
+    /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-cax67f8z/ownership_contracts.o
+    /private/tmp/nanolang-map-string-consumer-20261022/ownership_contracts.o
+ld: 174 duplicate symbols
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 7.853s
+
+FAILED (failures=1)
+

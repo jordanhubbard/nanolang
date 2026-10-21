@@ -19,14 +19,14 @@ static int rme_recipe(uint8_t op,NvmRecordArrayExecutionInstruction *r) {
     if(op==OP_HM_SET || op==OP_HM_GET)r->obligations|=NVM_RA_RETAIN_BEFORE_RELEASE;
     return 1;
 }
-static void rme_tags(NvmRecordMapExecutionInstruction *r) {
+static void rme_tags(NvmRecordMapExecutionInstruction *r,uint8_t value_tag) {
     if(r->base.recipe!=NVM_RM_INVALID_BASE_RECIPE)return;
-    r->key_tags=(uint16_t)(1u<<TAG_STRING);r->value_tags=(uint16_t)(1u<<TAG_INT);
+    r->key_tags=(uint16_t)(1u<<TAG_STRING);r->value_tags=(uint16_t)(1u<<value_tag);
     switch(r->base.opcode) {
     case OP_HM_NEW:r->map_operation=NVM_RM_NEW;r->result_tags=(uint16_t)(1u<<TAG_HASHMAP);break;
     case OP_HM_DELETE:r->map_operation=NVM_RM_DELETE;r->result_tags=(uint16_t)(1u<<TAG_HASHMAP);break;
     case OP_HM_SET:r->map_operation=NVM_RM_SET;r->result_tags=(uint16_t)(1u<<TAG_HASHMAP);break;
-    case OP_HM_GET:r->map_operation=NVM_RM_GET;r->result_tags=(uint16_t)((1u<<TAG_INT)|(1u<<TAG_VOID));break;
+    case OP_HM_GET:r->map_operation=NVM_RM_GET;r->result_tags=(uint16_t)((1u<<value_tag)|(1u<<TAG_VOID));break;
     case OP_HM_HAS:r->map_operation=NVM_RM_HAS;r->result_tags=(uint16_t)(1u<<TAG_BOOL);break;
     case OP_HM_LEN:r->map_operation=NVM_RM_LEN;r->result_tags=(uint16_t)(1u<<TAG_INT);break;
     }
@@ -59,9 +59,9 @@ static NvmArrayEligibilityResult rme_prepare_boundary(const NvmModule *m,NvmReco
         if(memchr(c->snapshot.strings[name],0,length)){c->failure=NVM_ARRAY_UNRESOLVED;goto fail;}
     }
     /* One analysis publishes facts and stacks only after complete success. */
-    result=globals_out?
-        analyze_boundary(&c->snapshot,NULL,NULL,NULL,NULL,c->maximum_stacks,0,&p->facts,&globals):
-        analyze(&c->snapshot,NULL,NULL,NULL,NULL,c->maximum_stacks,0,&p->facts);
+    uint8_t value_tag=TAG_VOID;
+    result=analyze_boundary_pair(&c->snapshot,NULL,NULL,NULL,NULL,c->maximum_stacks,0,&p->facts,
+        globals_out?&globals:NULL,&value_tag);
     if(result.status!=NVM_ARRAY_ELIGIBLE){free(globals.rows);nvm_record_map_execution_free(p);return result;}
     /* Analysis allocations fit the unchanged 64 MiB proof reserve. These rows
      * survive analysis, so also reserve their live overlap without refunding it. */
@@ -89,7 +89,7 @@ static NvmArrayEligibilityResult rme_prepare_boundary(const NvmModule *m,NvmReco
     if(c->counts.instructions && !p->instructions)goto fail;
     if(!rae_charge(c,0,(uint64_t)c->counts.instructions*4u))goto fail;
     for(uint32_t i=0;i<c->counts.instructions;i++) {
-        p->instructions[i].base=c->instructions[i];rme_tags(&p->instructions[i]);
+        p->instructions[i].base=c->instructions[i];rme_tags(&p->instructions[i],value_tag);
     }
     if(!rae_same(c,m) || (globals_out && globals.count!=c->counts.globals))goto fail;
     c->counts.strings=c->snapshot.string_count;c->counts.sections=c->snapshot.section_count;
@@ -187,3 +187,16 @@ bool nvm_record_map_execution_variant(const NvmRecordMapExecutionPlan *p,uint32_
 }
 
 #include "managed_record_map_boundary.inc"
+
+/* Four logical immutable probes, prepaid by each caller. No allocation, scan,
+ * trusted execution token or output mutation on failure. */
+bool nvm_record_map_execution_uniform_pair(const NvmRecordMapExecutionPlan *p,uint8_t *out) {
+    NvmMapDeclarationCounts counts;NvmMapDeclarationPair pair;uint8_t key,value;
+    if(!p || !p->facts || !out ||
+       !nvm_map_declarations_counts(p->facts->declarations,&counts) || counts.pairs!=1 ||
+       !nvm_map_declarations_pair(p->facts->declarations,0,&pair) ||
+       !nvm_map_declarations_scalar(p->facts->declarations,pair.key_type,&key) ||
+       !nvm_map_declarations_scalar(p->facts->declarations,pair.value_type,&value) ||
+       key!=TAG_STRING || (value!=TAG_INT && value!=TAG_STRING))return false;
+    *out=value;return true;
+}

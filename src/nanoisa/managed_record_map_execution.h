@@ -17,6 +17,10 @@ typedef struct {
     uint8_t map_operation;
 } NvmRecordMapExecutionInstruction;
 NvmArrayEligibilityResult nvm_prepare_record_map_execution(const NvmModule *,NvmRecordMapExecutionPlan **);
+/* Immutable query only; caller prepays four logical probes. Output is disjoint
+ * from the plan storage and changes only for a complete valid single pair. */
+#define NVM_RECORD_MAP_PAIR_QUERY_WORK 4u
+bool nvm_record_map_execution_uniform_pair(const NvmRecordMapExecutionPlan *,uint8_t *);
 void nvm_record_map_execution_free(NvmRecordMapExecutionPlan *);
 bool nvm_record_map_execution_counts(const NvmRecordMapExecutionPlan *,NvmRecordMapExecutionCounts *);
 bool nvm_record_map_execution_instruction(const NvmRecordMapExecutionPlan *,uint32_t,NvmRecordMapExecutionInstruction *);

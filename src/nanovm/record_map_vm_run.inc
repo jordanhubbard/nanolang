@@ -1,5 +1,5 @@
 /* Root supervision only. All guest control flow uses the real scoped core. */
-static VmResult vm_rmx_call_root(VmRecordMapInvocation *v,uint32_t function) {
+static VmResult vm_rmx_call_root(VmRecordMapInvocation *v,uint32_t function,uint8_t value_tag) {
     VmRecordMapPrivate *p=v->owner;VmState *vm=v->vm;
     if(function>=p->counts.functions)return VM_ERR_UNDEFINED_FUNCTION;
     const NvmFunctionEntry *fn=&p->functions[function].signature;
@@ -18,7 +18,7 @@ static VmResult vm_rmx_call_root(VmRecordMapInvocation *v,uint32_t function) {
     vm->activation_floor=0;vm->halt_requested=false;
     if(p->maximum_frames<1)p->maximum_frames=1;
     for(;;) {
-        VmTrap trap=vm_core_execute_context(vm,NULL,NULL,NULL,v);
+        VmTrap trap=vm_core_execute_pair(vm,NULL,NULL,NULL,v,NULL,value_tag);
         if(trap.type==TRAP_ASSERT) {
             bool success=val_truthy(trap.data.assert_check.condition);
             vm_release(&vm->heap,trap.data.assert_check.condition);
@@ -52,6 +52,14 @@ VmResult vm_record_map_private_run(VmRecordMapPrivate *p) {
        vm->heap.gc_running || vm->verified || vm->module!=nvm_record_map_image_borrow(p->image) ||
        vm->root_module!=vm->module || !vm->decoded_module_valid || !vm->dispatch_module_valid ||
        vm->dispatch_profile.fuse_load_local_field)return VM_ERR_TYPE_ERROR;
+    /* Fixed per-invocation query budget, not prepaid guest execution work.
+     * Read only this owner's immutable image plan, before any activation. */
+    uint64_t pair_work=0;const uint64_t pair_limit=NVM_RECORD_MAP_PAIR_QUERY_WORK;
+    uint8_t value_tag=TAG_VOID;
+    if(NVM_RECORD_MAP_PAIR_QUERY_WORK>pair_limit-pair_work)return VM_ERR_TYPE_ERROR;
+    pair_work+=NVM_RECORD_MAP_PAIR_QUERY_WORK;
+    if(pair_work!=pair_limit || p->plan!=nvm_record_map_image_plan(p->image) ||
+       !nvm_record_map_execution_uniform_pair(p->plan,&value_tag))return VM_ERR_TYPE_ERROR;
     /* Only constructor-owned constants and prior closed result/global graphs
      * exist here. The policy stays enabled for those roots after this call. */
     vm->heap.private_record_dag=true;
@@ -59,8 +67,8 @@ VmResult vm_record_map_private_run(VmRecordMapPrivate *p) {
     VmRecordMapInvocation view={p,vm,vm->module,p->epoch,UINT32_MAX,0,true};
     VmResult status=VM_OK;NanoValue replacement=val_void();bool publish=false;
     if(!(vm->module->header.flags&NVM_FLAG_HAS_MAIN))status=VM_ERR_UNDEFINED_FUNCTION;
-    if(status==VM_OK && p->counts.initializer!=UINT32_MAX)status=vm_rmx_call_root(&view,p->counts.initializer);
-    if(status==VM_OK)status=vm_rmx_call_root(&view,p->counts.entry);
+    if(status==VM_OK && p->counts.initializer!=UINT32_MAX)status=vm_rmx_call_root(&view,p->counts.initializer,value_tag);
+    if(status==VM_OK)status=vm_rmx_call_root(&view,p->counts.entry,value_tag);
     if(status==VM_OK) {
         if(p->functions[p->counts.entry].signature.result_count)replacement=stack_pop(vm);
         publish=true;

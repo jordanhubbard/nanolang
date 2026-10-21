@@ -1,0 +1,9 @@
+test_string_heap (tests.test_record_map_string_heap.RecordMapStringHeap.test_string_heap) ... I retain heap artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-string-heap-if4g829w
+I checked 381 STRING-value heap assertions; no VM dispatch or admission.
+
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.049s
+
+OK

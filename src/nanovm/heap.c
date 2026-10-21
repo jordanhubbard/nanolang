@@ -174,6 +174,36 @@ static void vm_private_dag_release(VmHeap *heap,NanoValue value) {
                     vm_intern_unlink(heap,s);free(s);
                 }
 #ifdef NANO_RECORD_MAP_PRIVATE_HEAP
+                else if(value.tag==TAG_HASHMAP && value.as.hashmap->val_type==TAG_STRING) {
+                    /* Two stored STRING edges retire inline; alias occurrences
+                     * each own a reference. No extra release-stack frame. */
+                    VmHashMap *m=value.as.hashmap;
+                    assert(m->key_type==TAG_STRING && m->count<=m->bucket_count &&
+                           m->tombstone_count<=m->bucket_count-m->count);
+                    for(uint32_t i=0;i<m->bucket_count;i++) {
+                        VmHMEntry *entry=&m->entries[i];
+                        if(entry->state!=1) {
+                            assert(entry->state<=2 && entry->key.tag==TAG_VOID && entry->value.tag==TAG_VOID);
+                            continue;
+                        }
+                        assert(entry->key.tag==TAG_STRING && entry->value.tag==TAG_STRING);
+                        NanoValue edges[2]={entry->key,entry->value};
+                        entry->key=val_void();entry->value=val_void();entry->state=0;
+                        for(unsigned edge=0;edge<2;edge++) {
+                            VmString *string=edges[edge].as.string;
+                            assert(string && string->header.obj_type==TAG_STRING &&
+                                   string->header.ref_count && !string->header.buffered);
+                            heap->stats.release_calls++;
+                            if(--string->header.ref_count==0) {
+                                heap->stats.freed+=sizeof *string+string->length+1;
+                                heap->stats.num_objects--;
+                                vm_intern_unlink(heap,string);free(string);
+                            }
+                        }
+                    }
+                    heap->stats.freed+=sizeof *m+(size_t)m->bucket_count*sizeof(VmHMEntry);
+                    heap->stats.num_objects--;free(m->entries);free(m);
+                }
                 else if(value.tag==TAG_HASHMAP) {
                     /* Exact STRING->INT maps add no parent frame. Each stored
                      * key edge is retired inline, never via recursive release. */

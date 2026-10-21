@@ -250,34 +250,34 @@ static __attribute__((noinline)) void borrowed_context_controls(void) {
     ra_fail=ra_calls;CHECK(stack_reserve(&vm,VM_RM_ROOT_CAPACITY)==VM_ERR_MEMORY);ra_fail=SIZE_MAX;
     CHECK(vm.stack==before&&vm.stack_capacity==capacity&&!vm.stack_size&&!vm.frame_count&&ra_live==live&&ra_bytes==bytes);
     vm.last_error=VM_OK;VmRecordMapBorrowedInvocation view;borrowed_activate_whitebox(&vm,p,&view);
-    VmTrap trap=vm_core_execute_views(&vm,NULL,NULL,NULL,NULL,&view);CHECK(trap.type==TRAP_ASSERT);
+    VmTrap trap=vm_core_execute_pair(&vm,NULL,NULL,NULL,NULL,&view,TAG_INT);CHECK(trap.type==TRAP_ASSERT);
     vm_release(&vm.heap,trap.data.assert_check.condition);
     uint32_t ip=vm.ip,size=vm.stack_size;NanoValue owner=stack_peek(&vm,0);
     CHECK(owner.as.obj==stack_peek(&vm,16).as.obj);
     VmHeapHeader *header=owner.as.obj;uint32_t refs=header->ref_count;
     header->ref_count=UINT32_MAX-16;
-    trap=vm_core_execute_views(&vm,NULL,NULL,NULL,NULL,&view);
+    trap=vm_core_execute_pair(&vm,NULL,NULL,NULL,NULL,&view,TAG_INT);
     CHECK(trap.type==TRAP_ERROR&&trap.data.error.code==VM_ERR_MEMORY&&vm.ip==ip&&vm.stack_size==size);
     CHECK(header->ref_count==UINT32_MAX-16&&view.active_root==0);header->ref_count=refs;
     for(unsigned bad=0;bad<4;bad++) {
         switch(bad){case 0:view.active=false;break;case 1:view.module=NULL;break;case 2:vm.current_fn=UINT32_MAX;break;default:vm.heap.private_record_dag=true;break;}
-        trap=vm_core_execute_views(&vm,NULL,NULL,NULL,NULL,&view);
+        trap=vm_core_execute_pair(&vm,NULL,NULL,NULL,NULL,&view,TAG_INT);
         CHECK(trap.type==TRAP_ERROR&&trap.data.error.code==VM_ERR_TYPE_ERROR&&vm.ip==ip&&vm.stack_size==size);
         view.active=true;view.module=&c.m;vm.current_fn=0;vm.heap.private_record_dag=false;
     }
     uint32_t index=vm.decoded_module.functions[0].instruction_indices[ip]-1;
     VmDispatchInstruction *instruction=&vm.dispatch_module.functions[0].instructions[index];
     instruction->call_handle.function_index=1;
-    trap=vm_core_execute_views(&vm,NULL,NULL,NULL,NULL,&view);
+    trap=vm_core_execute_pair(&vm,NULL,NULL,NULL,NULL,&view,TAG_INT);
     CHECK(trap.type==TRAP_ERROR&&trap.data.error.code==VM_ERR_DECODE&&vm.ip==ip&&vm.stack_size==size);
     instruction->call_handle.function_index=0;
     uint8_t recipe=p->instructions[index].base.recipe;p->instructions[index].base.recipe=UINT8_MAX;
-    trap=vm_core_execute_views(&vm,NULL,NULL,NULL,NULL,&view);
+    trap=vm_core_execute_pair(&vm,NULL,NULL,NULL,NULL,&view,TAG_INT);
     CHECK(trap.type==TRAP_ERROR&&trap.data.error.code==VM_ERR_DECODE&&vm.ip==ip&&vm.stack_size==size);
     p->instructions[index].base.recipe=recipe;vm.last_error=VM_OK;
-    trap=vm_core_execute_views(&vm,NULL,NULL,NULL,NULL,&view);CHECK(trap.type==TRAP_ASSERT&&view.active_root==1);
+    trap=vm_core_execute_pair(&vm,NULL,NULL,NULL,NULL,&view,TAG_INT);CHECK(trap.type==TRAP_ASSERT&&view.active_root==1);
     vm_release(&vm.heap,trap.data.assert_check.condition);
-    do {trap=vm_core_execute_views(&vm,NULL,NULL,NULL,NULL,&view);
+    do {trap=vm_core_execute_pair(&vm,NULL,NULL,NULL,NULL,&view,TAG_INT);
         if(trap.type==TRAP_ASSERT){CHECK(val_truthy(trap.data.assert_check.condition));vm_release(&vm.heap,trap.data.assert_check.condition);}
     } while(trap.type==TRAP_ASSERT);
     CHECK(trap.type==TRAP_NONE);borrowed_consume(&vm,37);
