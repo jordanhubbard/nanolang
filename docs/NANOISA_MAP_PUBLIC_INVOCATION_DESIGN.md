@@ -333,3 +333,16 @@ nodes followed by at most3 array levels. A map endpoint instead needs at most
 256record+1map; STRING keys/scalars are validated inline and acquire no static
 origin assignment or DFS frame. These are separate paths, not256records+3arrays+
 map: map arrays are outside this profile. Actual positive depth must be measured.
+
+### Boundary-summary implementation charge clarification
+
+I charge the optional row allocation inside the existing 64 MiB analysis reserve.
+Before its scan I charge128 logical probes for two origin-kind masks, then8G
+for exact tag/unknown/kind validation and copying; scalar and string rows carry no
+heap origins. The masks retain only ARRAY and STRUCT sites, never map sites.
+The execution constructor reserves the40-byte wrapper before proof. Once G is
+known, it additionally reserves16G retained row bytes and24G work before recipe
+publication, preserving the full proof reserve rather than refunding it. A late
+LIMIT may therefore follow reversible proof allocations; all detached rows and
+plans are freed and the caller output remains unchanged. Old NULL exports incur
+none of these charges.
