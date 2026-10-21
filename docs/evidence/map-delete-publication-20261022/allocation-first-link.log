@@ -1,0 +1,31 @@
+I retain publication allocation evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-3snrzj2d
+ test_map_delete_publisher_and_query_prefixes (tests.test_publication_allocation.PublicationAllocation.test_map_delete_publisher_and_query_prefixes) ... FAIL
+
+======================================================================
+FAIL: test_map_delete_publisher_and_query_prefixes (tests.test_publication_allocation.PublicationAllocation.test_map_delete_publisher_and_query_prefixes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_publication_allocation.py", line 46, in test_map_delete_publisher_and_query_prefixes
+    self.qualify('map_delete')
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_publication_allocation.py", line 115, in qualify
+    run('link',[*cc,*flags,'tests/nanoisa/test_publication_allocation.c',
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               'tests/nanoisa/publication_alloc.c',*objects,*common,*ldflags,'-o',executable])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_publication_allocation.py", line 65, in run
+    self.assertEqual(result.returncode,0,f'{name}: '+stdout.decode(errors='replace')+stderr.decode(errors='replace'))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : link: Undefined symbols for architecture arm64:
+  "___asan_version_mismatch_check_v8", referenced from:
+      _asan.module_ctor in heap.o
+      _asan.module_ctor in vm.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 8.210s
+
+FAILED (failures=1)
+

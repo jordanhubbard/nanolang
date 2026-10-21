@@ -97,7 +97,11 @@ class MapFieldOperations(unittest.TestCase):
                         self.checked([ROOT/'bin/nano_vm', module])
                         dump = self.checked([ROOT/'bin/nanoisa', 'dump', module]).stdout
                         self.assertIn('HM_DELETE', dump)
-                        self.assertNotIn('.ownership ', dump)
+                        if case == 'integer':
+                            self.assertIn('.layouts ', dump)
+                            self.assertIn('.ownership ', dump)
+                        else:
+                            self.assertNotIn('.ownership ', dump)
                         c = module.with_suffix('.c')
                         self.checked([ROOT/'bin/nvm2c', module, '-o', c])
                         for opt in ('-O0', '-O2'):

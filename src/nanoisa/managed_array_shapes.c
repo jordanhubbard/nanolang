@@ -681,6 +681,10 @@ static int walk_map(Analysis *a,uint32_t fi,NvmRecordMapAnalysisContext *maps) {
                 a->changed|=merge(&maps->values[i],stack[base+2]);
             }
             result=stack[base];break;
+        case OP_HM_DELETE:
+            if(!maps)return stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I require map proof context.");
+            /* Removal changes runtime entries, never historical obligations. */
+            result=stack[base];break;
         case OP_HM_GET: result=tag(TAG_INT);result.tags|=BIT(TAG_VOID);break;
         case OP_HM_HAS: result=tag(TAG_BOOL);break;
         case OP_HM_LEN: result=tag(TAG_INT);break;

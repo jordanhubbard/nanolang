@@ -62,7 +62,7 @@ static int vm_rm_recipe(uint8_t op,NvmRecordArrayExecutionInstruction *r) {
     case OP_ARR_PUSH:r->recipe=NVM_RA_ROOT_ARRAY_PUSH;r->obligations|=NVM_RA_SAFEPOINT_BEFORE|NVM_RA_STAGE_OPERANDS|NVM_RA_RETAIN_BEFORE_RELEASE;break;
     case OP_ARR_POP:r->recipe=NVM_RA_ROOT_ARRAY_POP;r->obligations|=NVM_RA_CHECK_BOUNDS|NVM_RA_RETAIN_BEFORE_RELEASE;break;
     case OP_ARR_SLICE:r->recipe=NVM_RA_ROOT_ARRAY_COPY;r->obligations|=NVM_RA_SAFEPOINT_BEFORE|NVM_RA_STAGE_OPERANDS|NVM_RA_CHECK_BOUNDS;break;
-    case OP_HM_NEW:case OP_HM_SET:case OP_HM_GET:case OP_HM_HAS:case OP_HM_LEN:
+    case OP_HM_NEW:case OP_HM_SET:case OP_HM_GET:case OP_HM_HAS:case OP_HM_LEN:case OP_HM_DELETE:
         r->recipe=NVM_RM_INVALID_BASE_RECIPE;
         r->obligations=NVM_RA_FIRST_ERROR_CLEANUP|NVM_RA_CHECK_TAGS|NVM_RA_STAGE_OPERANDS;
         if(op==OP_HM_NEW || op==OP_HM_SET)r->obligations|=NVM_RA_SAFEPOINT_BEFORE;

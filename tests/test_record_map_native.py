@@ -17,7 +17,7 @@ MACROS = ['-DNANO_RECORD_MAP_PRIVATE_NATIVE', '-DNANO_RECORD_MAP_PRIVATE_PREPARA
           '-DNANO_RECORD_MAP_PRIVATE_RUNTIME', '-DNANO_RECORD_MAP_PRIVATE_HEAP',
           '-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME', '-DNANO_NO_COMPUTED_GOTO']
 CASES = ['alias-replacement', 'missing-void', 'missing-assert', 'unused-declaration',
-         'initializer', 'tail-duplicates', 'nonzero-layout', 'growth', 'concat-lifetime', 'concat-empty']
+         'initializer', 'tail-duplicates', 'nonzero-layout', 'growth', 'concat-lifetime', 'concat-empty', 'delete-concat-lifetime', 'delete-concat-empty']
 
 
 class RecordMapNative(unittest.TestCase):
@@ -117,7 +117,7 @@ class RecordMapNative(unittest.TestCase):
                     out = self.command(name+'-run', [str(native)], failure=case=='missing-assert', assertion=True)
                     self.assertEqual(out, b'')
         counts = {}
-        for case in originals+['alias-replacement', 'growth', 'concat-lifetime', 'concat-empty']:
+        for case in originals+['alias-replacement', 'growth', 'concat-lifetime', 'concat-empty', 'delete-concat-lifetime', 'delete-concat-empty']:
             text = (self.work/(case+'.c')).read_text()
             contents = ((ROOT/'tests/nanoisa/native_map_alloc_probe.h').read_text()+
                 '\n#define main fixture_main\n'+self.force_collection(text)+

@@ -132,8 +132,123 @@ static void collisions(void) {
     vm_release(&h,val_hashmap(m));vm_gc_collect_cycles(&h);vm_heap_destroy(&h);
     CHECK(!ra_live&&!ra_bytes);
 }
+static void deletion_bounds(VmHashMap *m,bool private_heap,NanoValue key) {
+    VmRmObservationWork w={0,VM_RM_OBSERVATION_WORK_MAX,false};size_t calls=ra_calls;
+    CHECK((private_heap?vm_rm_heap_validate(m,&w):vm_rm_heap_import_validate(m,&w))==VM_RM_HEAP_OK);
+    uint64_t exact=w.used;CHECK(exact>0&&ra_calls==calls);
+    w=(VmRmObservationWork){0,exact,false};
+    CHECK((private_heap?vm_rm_heap_validate(m,&w):vm_rm_heap_import_validate(m,&w))==VM_RM_HEAP_OK&&w.used==exact);
+    w=(VmRmObservationWork){0,exact-1,false};
+    CHECK((private_heap?vm_rm_heap_validate(m,&w):vm_rm_heap_import_validate(m,&w))==VM_RM_HEAP_LIMIT&&w.limited);
+    w=(VmRmObservationWork){0,exact,false};
+    CHECK((private_heap?vm_rm_heap_validate(m,&w):vm_rm_heap_import_validate(m,&w))==VM_RM_HEAP_OK);
+    if(private_heap) {
+        NanoValue out=val_int(71);const VmString *k=key.as.string;
+        w=(VmRmObservationWork){0,VM_RM_OBSERVATION_WORK_MAX,false};
+        CHECK(vm_rm_heap_observe_lookup(m,k->data,k->length,&w,&out)==VM_RM_HEAP_OK);
+        NanoValue expected=out;exact=w.used;
+        w=(VmRmObservationWork){0,exact,false};out=val_int(71);
+        CHECK(vm_rm_heap_observe_lookup(m,k->data,k->length,&w,&out)==VM_RM_HEAP_OK&&w.used==exact);
+        CHECK(val_equal(out,expected));
+        w=(VmRmObservationWork){0,exact-1,false};out=val_int(71);
+        CHECK(vm_rm_heap_observe_lookup(m,k->data,k->length,&w,&out)==VM_RM_HEAP_LIMIT&&w.limited);
+        CHECK(out.tag==TAG_INT&&out.as.i64==71);
+        w=(VmRmObservationWork){0,exact,false};
+        CHECK(vm_rm_heap_observe_lookup(m,k->data,k->length,&w,&out)==VM_RM_HEAP_OK&&val_equal(out,expected));
+    }
+    CHECK(ra_calls==calls);
+}
+/* Physical direct controls, not selected opcode execution. */
+static void deletion(bool private_heap) {
+    VmHeap h;vm_heap_init(&h);CHECK(h.intern_buckets);
+    h.private_record_dag=private_heap;
+    VmHashMap *m=NULL;
+    CHECK((private_heap?vm_rm_heap_new(&h,&m):vm_rm_ordinary_new(&h,&m))==VM_RM_HEAP_OK);
+    NanoValue keys[17];unsigned kept=0;
+    /* All keys start at the last bucket: actual wraparound collision chain. */
+    for(unsigned i=0;kept<17;i++) {
+        char text[32];int n=snprintf(text,sizeof text,"delete-%u",i);
+        text[n++]=0;text[n++]='x'; /* Counted-NUL key domain is VM-only. */
+        VmString *key=vm_string_new(&h,text,(uint32_t)n);CHECK(key);
+        if(key->hash%16==15)keys[kept++]=val_string(key);
+        else vm_release(&h,val_string(key));
+    }
+    /* Build a fully occupied legal table without invoking growth. Every edge
+     * has its actual retain; full charged validation establishes topology. */
+    for(unsigned i=0;i<16;i++) {
+        uint32_t at=keys[i].as.string->hash%m->bucket_count;
+        while(m->entries[at].state)at=(at+1)%m->bucket_count;
+        vm_retain(&h,keys[i]);m->entries[at].key=keys[i];
+        m->entries[at].value=val_int(i);m->entries[at].state=1;m->count++;
+    }
+    if(!private_heap){vm_retain(&h,val_hashmap(m));vm_release(&h,val_hashmap(m));CHECK(m->header.buffered);}
+    VmRmObservationWork w={0,VM_RM_OBSERVATION_WORK_MAX,false};
+    CHECK((private_heap?vm_rm_heap_validate(m,&w):vm_rm_heap_import_validate(m,&w))==VM_RM_HEAP_OK);
+    deletion_bounds(m,private_heap,keys[0]);
+    size_t calls=ra_calls;
+    CHECK((private_heap?vm_rm_heap_delete(&h,m,keys[16]):vm_rm_ordinary_delete(&h,m,keys[16]))==VM_RM_HEAP_OK);
+    CHECK(m->count==16&&!m->tombstone_count&&ra_calls==calls);
+    for(unsigned i=0;i<16;i++) {
+        CHECK((private_heap?vm_rm_heap_delete(&h,m,keys[i]):vm_rm_ordinary_delete(&h,m,keys[i]))==VM_RM_HEAP_OK);
+        CHECK(keys[i].as.string->header.ref_count==1&&m->count==15-i&&m->tombstone_count==i+1);
+        CHECK(ra_calls==calls);
+        w=(VmRmObservationWork){0,VM_RM_OBSERVATION_WORK_MAX,false};
+        CHECK((private_heap?vm_rm_heap_validate(m,&w):vm_rm_heap_import_validate(m,&w))==VM_RM_HEAP_OK);
+        for(unsigned j=i+1;j<16;j++)CHECK(vm_hashmap_has(m,keys[j]));
+        if(i==0) {
+            deletion_bounds(m,private_heap,keys[0]);
+            deletion_bounds(m,private_heap,keys[15]);
+            /* Duplicate equal live keys after a tombstone must not pass. */
+            VmHMEntry saved=m->entries[1];m->entries[1]=m->entries[0];
+            w=(VmRmObservationWork){0,VM_RM_OBSERVATION_WORK_MAX,false};
+            CHECK((private_heap?vm_rm_heap_validate(m,&w):vm_rm_heap_import_validate(m,&w))==VM_RM_HEAP_INVALID);
+            m->entries[1]=saved;
+        }
+    }
+    CHECK((private_heap?vm_rm_heap_delete(&h,m,keys[16]):vm_rm_ordinary_delete(&h,m,keys[16]))==VM_RM_HEAP_OK);
+    CHECK(!m->count&&m->tombstone_count==16&&ra_calls==calls);
+    deletion_bounds(m,private_heap,keys[16]);
+    NanoValue missing=val_int(7);
+    CHECK((private_heap?vm_rm_heap_get(m,keys[16],&missing):vm_rm_ordinary_get(&h,m,keys[16],&missing))==VM_RM_HEAP_OK&&missing.tag==TAG_VOID);
+    /* A subsequent growth failure preserves the already committed deletion. */
+    VmHMEntry *entries=m->entries;size_t live=ra_live,bytes=ra_bytes;
+    for(unsigned persistent=0;persistent<2;persistent++) {
+        ra_fail=ra_calls;ra_persistent=persistent;
+        CHECK((private_heap?vm_rm_heap_set(&h,m,keys[0],val_int(9)):vm_rm_ordinary_set(&h,m,keys[0],val_int(9)))==VM_RM_HEAP_MEMORY);
+        ra_fail=SIZE_MAX;ra_persistent=0;
+        CHECK(m->entries==entries&&!m->count&&m->tombstone_count==16&&ra_live==live&&ra_bytes==bytes);
+    }
+    CHECK((private_heap?vm_rm_heap_set(&h,m,keys[0],val_int(9)):vm_rm_ordinary_set(&h,m,keys[0],val_int(9)))==VM_RM_HEAP_OK);
+    CHECK(m->count==1&&!m->tombstone_count&&m->bucket_count==32);
+    CHECK((private_heap?vm_rm_heap_delete(&h,m,keys[0]):vm_rm_ordinary_delete(&h,m,keys[0]))==VM_RM_HEAP_OK);
+    CHECK(m->tombstone_count==1);
+    /* Sparse reinsert reuses the tombstone without growth or extra allocation. */
+    calls=ra_calls;
+    CHECK((private_heap?vm_rm_heap_set(&h,m,keys[0],val_int(11)):vm_rm_ordinary_set(&h,m,keys[0],val_int(11)))==VM_RM_HEAP_OK);
+    CHECK(m->count==1&&!m->tombstone_count&&ra_calls==calls);
+    VmString *stored=keys[0].as.string;size_t key_bytes=sizeof *stored+stored->length+1;
+    VmString *equal=ra_test_malloc(key_bytes);CHECK(equal);memcpy(equal,stored,key_bytes);
+    equal->header.ref_count=UINT32_MAX;equal->intern_next=NULL;
+    h.stats.allocated+=key_bytes;h.stats.num_objects++;h.stats.allocation_calls++;
+    calls=ra_calls;
+    CHECK((private_heap?vm_rm_heap_delete(&h,m,val_string(equal)):vm_rm_ordinary_delete(&h,m,val_string(equal)))==VM_RM_HEAP_OK);
+    CHECK(ra_calls==calls&&stored->header.ref_count==1&&equal->header.ref_count==UINT32_MAX);
+    equal->header.ref_count=1;vm_release(&h,val_string(equal));
+    CHECK((private_heap?vm_rm_heap_delete(&h,m,keys[0]):vm_rm_ordinary_delete(&h,m,keys[0]))==VM_RM_HEAP_OK);
+    uint32_t at=keys[0].as.string->hash%m->bucket_count;CHECK(m->entries[at].state==2);
+    m->entries[at].value=val_int(7);w=(VmRmObservationWork){0,VM_RM_OBSERVATION_WORK_MAX,false};
+    CHECK((private_heap?vm_rm_heap_validate(m,&w):vm_rm_heap_import_validate(m,&w))==VM_RM_HEAP_INVALID);
+    m->entries[at].value=val_void();m->tombstone_count=0;
+    w=(VmRmObservationWork){0,VM_RM_OBSERVATION_WORK_MAX,false};
+    CHECK((private_heap?vm_rm_heap_validate(m,&w):vm_rm_heap_import_validate(m,&w))==VM_RM_HEAP_INVALID);
+    m->tombstone_count=1;
+    for(unsigned i=0;i<17;i++)vm_release(&h,keys[i]);
+    vm_release(&h,val_hashmap(m));if(!private_heap)vm_gc_collect_cycles(&h);
+    vm_heap_destroy(&h);CHECK(!ra_live&&!ra_bytes);
+}
 int main(void) {
     run(false);run(true);constructor_prefixes();unbuffered_purple();collisions();
+    deletion(false);deletion(true);
     printf("I checked %u ordinary heap assertions; no VM dispatch or admission.\n",checks);
     return 0;
 }

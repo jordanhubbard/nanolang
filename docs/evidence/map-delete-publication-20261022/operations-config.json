@@ -1,0 +1,23 @@
+{
+  "test_ROOT": "/private/tmp/nanolang-map-delete-publication-20261022/operation-root",
+  "tests_link": "/Users/jkh/Src/nanolang-51-platform-qualification/tests",
+  "tool_links": {
+    "/private/tmp/nanolang-map-delete-publication-20261022/operation-root/bin/nanoisa": "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa",
+    "/private/tmp/nanolang-map-delete-publication-20261022/operation-root/bin/nano_vm": "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm",
+    "/private/tmp/nanolang-map-delete-publication-20261022/operation-root/bin/nvm2c": "/private/tmp/nanolang-map-delete-consumer-20261022/nvm2c",
+    "/private/tmp/nanolang-map-delete-publication-20261022/operation-root/bin/nano_virt": "/private/tmp/nanolang-map-delete-publication-20261022/nano_virt"
+  },
+  "selectors": {
+    "NANO_FLAT_ARRAY_BOUND_COMPILERS": "/private/tmp/nanolang-map-delete-publication-20261022/nano_virt,/private/tmp/nanolang-map-delete-publication-20261022/canonical",
+    "NANO_VM": "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm"
+  },
+  "pins": {
+    "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa": "ede47ac355dea0ed6616ddfc8b74f9da710a2ef2a11a02fbe740093d698db1ad",
+    "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm": "06e1726b0594b0e3fbb2c6897fb5f245502aeb2d353b08921b187168ef71e9e9",
+    "/private/tmp/nanolang-map-delete-consumer-20261022/nvm2c": "cfa0c9bcd4d1482b7709a20dbf2db9a6c9fc23465b4c37aeb74b0e7fe0193d91",
+    "/private/tmp/nanolang-map-delete-publication-20261022/nano_virt": "af90b461a2410647074c529756bffb093afe01ee3cba156d30558c3945c76888",
+    "/private/tmp/nanolang-map-delete-publication-20261022/canonical": "867e1320008995c87562323ef3788a885eda2cff64a2bcc375a10b79c7fea4b5",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_map_field_operations.py": "620509ba625d2a0e730354f3c37c23316065c9b18a1b129c142237d7a44c4f2d",
+    "/Users/jkh/Src/nanolang-51-platform-qualification/tests/unit/test_map_field_operations.nano": "cdc01a4c0306ec8e6a322c871a6ad98bfa7ecca0002469593e2a53d0b83a7e0c"
+  }
+}

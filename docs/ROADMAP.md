@@ -16750,6 +16750,28 @@ I integrated reviewed ancestry b622e9065 after ca00599d2, preserving the separat
 
 I completed that scoped aggregate gate:100 C checks,5 methods20.577s and68 workflow/schema controls2.043s, with unchanged selected provider hashes. The required target is wired for default fresh-stage hosted qualification. I also retained older884 sanitizer continuation evidence:all17 generation/verification steps passed and raw generations matched; schema-check then failed the obsolete instr.opcode marker already corrected by8bb872b97. Neither scoped publisher success nor the older bootstrap closes current-head hosted acceptance.
 
+### Exact STRING-to-INT map removal prerequisite (2026-10-21)
+
+I own contract-only reconciliation for [#1001](https://github.com/jordanhubbard/nanolang/issues/1001) on `design/5.1-map-delete-authority`, based on `d5bc83d23`. My files are this roadmap and `docs/NANOISA_MAP_DELETE_AUTHORITY_DESIGN.md`; no production changes or builds are authorized at this checkpoint.
+
+- [ ] Review explicit tombstone policy, unchanged exact source variant and all-history obligations before implementation.
+- [ ] Qualify checked heap adapters, import/observation/teardown, then immutable recipes and actual public/private/native execution before publisher admission.
+- [ ] Preserve old bytes/budgets and complete fresh-stage/platform qualification separately.
+
+The unchanged STRING-to-STRING Holder fixture still requires a separate value-owner contract as well as removal.
+
+I retained the exact four-original DELETE baseline in [map-delete-baseline](evidence/map-delete-baseline-20261022/README.md): ordinary seed/C-hosted and independent C/raw Nano shadows verify/VM pass; annotated selected modules refuse with prior output preserved. Nonexecuted schema controls are separate. The first proposed patch is heap-only; proof/recipe/public enrollment remains closed pending review.
+
+I now own the approved first heap-only source checkpoint: explicit tombstone representation, checked private/ordinary deletion, import/observation/teardown and direct controls. Proof/opcode/recipe/public/native enrollment stays closed. Full-live absent deletion must be a no-op; zero-tombstone charges remain unchanged.
+
+I qualified the heap-only DELETE checkpoint: final4445direct+10318oldprivate assertions in2.774s with explicitO1ASan/UBSan, strict8Clang/GCC16, measured exact topology/observation bounds and unchanged zero-tombstone scan bytes. [Receipt](evidence/map-delete-heap-20261022/README.md). Selected proof/opcode/native/public admission remains closed.
+
+I prepared a source-audited second-patch interface proposal covering DELETE transfer, all256 recipe coverage, independent copied-image validation, both public/private preparations/dispatch and native target correspondence. No production edits or builds follow the frozen heap commit yet. The proposal explicitly notes that query eligibility affects existing publisher decisions and requires deliberate fixture expectation review after consumer qualification.
+
+I own the approved atomic DELETE consumer source draft after contract1c9444937: exact proof transfer/recipes, copied correspondence, both contexts and selected dispatch plus native target. No compiler build or publisher test edits before source review; heap1f9c receipt remains intact.
+
+I qualified atomic selected DELETE consumers without publisher rebuilds: both dispatches2,090checks;73public/4private allocation positions;16original+48synthetic native executions and exact generated OOM prefixes; old map/array neighbors; strict80; old VM/heap sizes, ten native outputs and six budget rows exact. [Receipt](evidence/map-delete-consumer-20261022/README.md). Initial manual closure/count-guard and test-loader/link/instrumentation failures remain retained. Publisher expectation migration and actual current-provider ordinary/shadow publication remain separate next work.
+
 
 ### Paired publisher contract coverage correction (2026-10-21)
 
@@ -16763,3 +16785,7 @@ The missing complete publisher case passed in 4.052s through all five producer p
 I found that the prior raw test driver exercised only selected shadows, while the publisher contract separately requires raw ordinary-program publication. I am adding a test-owned dual-path parser driver and qualifying both raw APIs with the existing current C seed/host closure. This requires one bounded driver build, not a compiler bootstrap, and preserves raw parsed provenance rather than asserting checker completion.
 
 The explicit raw ordinary gate passed: dual test-driver build79.451s, full six-method corpus27.485s/36 modules/72 sanitized native executions, plus actual declaration-mismatch refusal0.090s. Both raw APIs emit no authority on that mismatch; checked producers preserve prior output. The old shared shadow driver and all production sources remain unchanged.
+
+I merged aggregate f83927078 test ancestry after atomic consumer879db48ac, preserving both roadmap append histories. I own the reviewed publisher qualification update: exact integer DELETE positive, integer-only old operation expectation, and mixed unsupported trim preserving DELETE/prior assertions. Current C ordinary/original-shadow publication and100direct controls pass; fresh isolated C-hosted canonical/dual raw driver builds use current module query sources and explicit900s budgets. No raw-stage/bootstrap or installed-provider substitution is claimed.
+
+The exact integer DELETE publisher qualification passed: fresh current C-hosted canonical/raw builds141.997s/77.323s, full eight-method corpus58.459s (42 modules/84 sanitized native executions), actual old operation methods8.837s, and independently measured723 publisher+508 query allocation positions389.984s with denial/recovery. Eight old source byte goldens and Clang/GCC16 strict checks remain green. Receipt: docs/evidence/map-delete-publication-20261022. This preserves explicit raw provenance and keeps fresh-stage/platform qualification separate.

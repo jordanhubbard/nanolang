@@ -1,0 +1,62 @@
+[
+  {
+    "name": "alias-replacement",
+    "sha256": "dcf8b65f11a8fdc6d25fae42fcd4c0a592ec8381fa0538185c09ad242c26c887",
+    "before": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ja2kaly3/alias-replacement.c",
+    "after": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-l8okjn2z/alias-replacement.c"
+  },
+  {
+    "name": "missing-void",
+    "sha256": "580d4e583f81bda263afbebeb2f518157778e78e7d484175a80d2395475d5545",
+    "before": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ja2kaly3/missing-void.c",
+    "after": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-l8okjn2z/missing-void.c"
+  },
+  {
+    "name": "missing-assert",
+    "sha256": "b1555d9796066ccc9b629a5dd4a62d6d4fd6fcc849b36eab08d832e385079993",
+    "before": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ja2kaly3/missing-assert.c",
+    "after": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-l8okjn2z/missing-assert.c"
+  },
+  {
+    "name": "unused-declaration",
+    "sha256": "9c439af63a3111408eff8da3d27047fb69831f11915ee190a852a555e7bcc06c",
+    "before": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ja2kaly3/unused-declaration.c",
+    "after": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-l8okjn2z/unused-declaration.c"
+  },
+  {
+    "name": "initializer",
+    "sha256": "3f920b4abfdf92fb6b03b99736899d80f476c277bfb5efe5e10e9a38cc31d1dd",
+    "before": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ja2kaly3/initializer.c",
+    "after": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-l8okjn2z/initializer.c"
+  },
+  {
+    "name": "tail-duplicates",
+    "sha256": "a98085ffecb3bb76ee973c2316e90c575c5a5591b5e270a861da458b9173692e",
+    "before": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ja2kaly3/tail-duplicates.c",
+    "after": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-l8okjn2z/tail-duplicates.c"
+  },
+  {
+    "name": "nonzero-layout",
+    "sha256": "7996efcb2b3c7d7481324de4a16f3d77d13538765e72e3b0707b6f87fac94695",
+    "before": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ja2kaly3/nonzero-layout.c",
+    "after": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-l8okjn2z/nonzero-layout.c"
+  },
+  {
+    "name": "growth",
+    "sha256": "32570e7831a2f396460d4a0476d327daaa8827df2ae1b5fac3c44926f4c531e9",
+    "before": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ja2kaly3/growth.c",
+    "after": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-l8okjn2z/growth.c"
+  },
+  {
+    "name": "concat-lifetime",
+    "sha256": "8d5b5a12d9c7f1d14add92d60e01db8afbe57ccc7f3081831aeebb6224205eb6",
+    "before": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ja2kaly3/concat-lifetime.c",
+    "after": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-l8okjn2z/concat-lifetime.c"
+  },
+  {
+    "name": "concat-empty",
+    "sha256": "5eb2c773140921908e5a6866ad4db2aecbefae77bbb140650d5ccf2bea9cf73a",
+    "before": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ja2kaly3/concat-empty.c",
+    "after": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-l8okjn2z/concat-empty.c"
+  }
+]

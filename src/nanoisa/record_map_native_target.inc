@@ -80,7 +80,7 @@ NvmRecordMapTargetResult nvm_record_map_native_target(const NvmRecordMapImage *i
                 RMT_UNSUPPORTED("I have not qualified this native map string producer or STRUCT transport.");
             uint8_t operation=in.opcode==OP_HM_NEW?NVM_RM_NEW:in.opcode==OP_HM_SET?NVM_RM_SET:
                 in.opcode==OP_HM_GET?NVM_RM_GET:in.opcode==OP_HM_HAS?NVM_RM_HAS:
-                in.opcode==OP_HM_LEN?NVM_RM_LEN:NVM_RM_NONE;
+                in.opcode==OP_HM_LEN?NVM_RM_LEN:in.opcode==OP_HM_DELETE?NVM_RM_DELETE:NVM_RM_NONE;
             if(row.map_operation!=operation)return result;
             if(operation) {
                 uint16_t result_tags=operation==NVM_RM_GET?(1u<<TAG_INT)|(1u<<TAG_VOID):

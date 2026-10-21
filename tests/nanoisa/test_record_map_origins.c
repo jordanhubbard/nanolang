@@ -75,7 +75,7 @@ static void map_refusals(void) {
         init(&c,TAG_INT,false);map_new(&c,bad==0?TAG_INT:TAG_STRING,bad==1?TAG_STRING:TAG_INT);
         if(bad>=2) {
             scalar(&c,bad==2?TAG_INT:TAG_STRING);scalar(&c,bad==3?TAG_BOOL:TAG_INT);op(&c,OP_HM_SET);
-            if(bad==4){scalar(&c,TAG_STRING);op(&c,OP_HM_DELETE);}
+            if(bad==4){scalar(&c,TAG_BOOL);op(&c,OP_HM_DELETE);} /* DELETE requires a STRING key. */
             if(bad==5){op(&c,OP_POP);scalar(&c,TAG_INT);}
         }
         record(&c,0);op(&c,OP_POP);map_finish(&c);map_query(&c,NVM_ARRAY_UNRESOLVED);

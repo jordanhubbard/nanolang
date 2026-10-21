@@ -133,7 +133,7 @@ static void native_growth(void) {
     native_record(&c,0);arg16(&c,OP_AGG_GET,0);op(&c,OP_HM_LEN);native_expect(&c,20);map_finish(&c);
     native_fixture(&c,"growth",VM_OK);
 }
-static void native_concat_lifetime(bool empty) {
+static void native_concat_lifetime(bool empty,bool deletion) {
     Input c;init(&c,TAG_INT,false);c.strings[1]=empty?"":"\xce\xba";
     c.lengths[1]=(uint32_t)strlen(c.strings[1]);
     map_new(&c,TAG_STRING,TAG_INT);native_record(&c,0);arg16(&c,OP_STORE_LOCAL,0);
@@ -144,7 +144,21 @@ static void native_concat_lifetime(bool empty) {
     }
     arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_AGG_GET,0);op(&c,OP_HM_LEN);native_expect(&c,1);
     arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_AGG_GET,0);arg32(&c,OP_CALL,1);
-    op(&c,OP_HM_GET);native_expect(&c,9);map_finish(&c);
+    op(&c,OP_HM_GET);native_expect(&c,9);
+    if(deletion) {
+        for(unsigned i=0;i<2;i++) {
+            arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_AGG_GET,0);arg32(&c,OP_CALL,1);
+            op(&c,OP_HM_DELETE);op(&c,OP_POP);
+        }
+        arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_AGG_GET,0);op(&c,OP_HM_LEN);native_expect(&c,0);
+        arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_AGG_GET,0);arg32(&c,OP_CALL,1);
+        op(&c,OP_HM_HAS);op(&c,OP_BOOL_NOT);op(&c,OP_ASSERT);
+        arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_AGG_GET,0);arg32(&c,OP_CALL,1);
+        native_integer(&c,11);op(&c,OP_HM_SET);op(&c,OP_POP);
+        arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_AGG_GET,0);arg32(&c,OP_CALL,1);
+        op(&c,OP_HM_GET);native_expect(&c,11);
+    }
+    map_finish(&c);
     c.m.function_count=3;c.fn[1].name_idx=2;c.fn[1].code_offset=(uint32_t)c.n;
     c.fn[1].result_count=1;c.fn[1].result_tag=TAG_STRING;c.fn[1].local_count=1;
     scalar(&c,TAG_STRING);scalar(&c,TAG_STRING);op(&c,OP_STR_CONCAT);
@@ -154,7 +168,7 @@ static void native_concat_lifetime(bool empty) {
     c.fn[2].result_count=1;c.fn[2].result_tag=TAG_STRING;c.fn[2].arity=c.fn[2].local_count=1;
     uint8_t parameter=TAG_STRING;c.param_rows[2]=&parameter;c.m.function_param_types=c.param_rows;
     arg16(&c,OP_LOAD_LOCAL,0);op(&c,OP_RET);c.fn[2].code_length=(uint32_t)c.n-c.fn[2].code_offset;
-    map_authority(&c);native_fixture(&c,empty?"concat-empty":"concat-lifetime",VM_OK);
+    map_authority(&c);native_fixture(&c,deletion?(empty?"delete-concat-empty":"delete-concat-lifetime"):(empty?"concat-empty":"concat-lifetime"),VM_OK);
 }
 static void native_target_refusal(Input *c,const char *diagnostic,bool public_eligible) {
     NvmRecordMapExecutionPlan *plan=NULL;VmRecordMapPrivate *vm=NULL;
@@ -175,7 +189,7 @@ static void native_target_negatives(void) {
     c.fn[1].result_count=1;c.fn[1].result_tag=TAG_STRUCT;map_new(&c,TAG_STRING,TAG_INT);native_record(&c,0);op(&c,OP_RET);
     c.fn[1].code_length=(uint32_t)c.n-c.fn[1].code_offset;map_authority(&c);native_target_refusal(&c,"VOID/INT native map initializer",false);
     map_basic(&c);native_target_refusal(&c,"STRUCT transport",true);
-    init(&c,TAG_INT,false);map_new(&c,TAG_STRING,TAG_INT);scalar(&c,TAG_STRING);op(&c,OP_HM_DELETE);op(&c,OP_POP);map_finish(&c);
+    map_basic(&c);c.code[0]=OP_HM_DELETE; /* Malformed NEW-to-DELETE retains the stack/encoding refusal. */
     NvmRecordMapExecutionPlan *sentinel=(void *)(uintptr_t)1;
     CHECK(nvm_prepare_record_map_execution(&c.m,&sentinel).status!=NVM_ARRAY_ELIGIBLE);CHECK(sentinel==(void *)(uintptr_t)1);
     char error[512];CHECK(!nvm2c_emit_record_map_private(&c.m,error,sizeof error));
@@ -197,5 +211,5 @@ int MAP_NATIVE_MAIN(int argc,char **argv) {
 #endif
         nvm_record_map_image_free(native_images[i]);free(native_texts[i]);
     }
-    native_semantics();native_nonzero_layout();native_growth();native_concat_lifetime(false);native_concat_lifetime(true);native_target_negatives();printf("PASS %u private native publication checks; public boundaries checked.\n",checks);return 0;
+    native_semantics();native_nonzero_layout();native_growth();native_concat_lifetime(false,false);native_concat_lifetime(true,false);native_concat_lifetime(false,true);native_concat_lifetime(true,true);native_target_negatives();printf("PASS %u private native publication checks; public boundaries checked.\n",checks);return 0;
 }
