@@ -16845,3 +16845,9 @@ I own the next #1001 proof-only union-field slice following `2025a38dd`: separat
 I found the actual unchanged union match emits a terminal HALT failure arm. I retain the first proof refusal and model HALT only in the opt-in union proof, with no successor/result/global-return summary; old opcode predicates remain unchanged. Direct HALT-only blocked callees and normal-return/HALT branches are required proof controls, not execution qualification.
 
 I completed the proof-only union gate: 338 linked checks across six retained ordinary/shadow originals, 393 allocation checks covering 37 positions in both denial modes, exact remaining-analysis caps, old array/map neighbors, Clang/GCC strict checks and six byte-identical legacy resource rows. Receipt: `docs/evidence/union-field-proof-20261022/README.md`. Descriptive transport is preserved while public execution refuses; None-match and historical field-alias precision remain explicit conservative boundaries. No recipe/runtime/native/publisher enrollment follows.
+
+### 2026-10-21: union proof aggregate qualification
+
+I integrated the descriptive union proof through16f90b823 as e51459cb9, preserving both roadmap histories. I add its explicit retirement target and qualify the current aggregate against six retained original modules and workflow controls before publication. Public union execution/publisher enrollment remains closed.
+
+I passed the current aggregate proof target with all six retained originals (338/393 checks,5.069s) and68 workflow/checkpoint/capture/container/schema controls (2.003s). Receipt: `docs/evidence/union-field-proof-aggregate-20261021/README.md`. Public union execution and publication remain closed.
