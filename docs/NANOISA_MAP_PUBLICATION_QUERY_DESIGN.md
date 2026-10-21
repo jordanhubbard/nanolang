@@ -1,6 +1,6 @@
 # Complete-module map publication query
 
-I record this design against d67d11eba for [#1001](https://github.com/jordanhubbard/nanolang/issues/1001). This is a contract-only checkpoint. I have not implemented the query or changed either publisher.
+I record this design against d67d11eba for [#1001](https://github.com/jordanhubbard/nanolang/issues/1001). I first recorded this as a contract-only checkpoint. The query/target extraction is now implemented and qualified as recorded in [the receipt](evidence/map-publication-query-20261022/README.md); neither publisher is changed.
 
 ## Scope and retained boundary
 
@@ -67,4 +67,4 @@ The proof-plus-target counters total at most three times 33,554,432 units, compr
 3. Run actual native/public-private neighbors and byte goldens, both host closures, strict compilers, six old proof budgets and old map plan/image counts. Audit exported symbols: only module query public, internal classifier no trust capability, observation APIs unchanged.
 4. After separate review, wire complete staged C/Nano publisher candidates, retain their existing final verification and atomic outputs, and qualify paired producers/program-shadow independence. Do not change expected source publication before consumer/query evidence is green.
 
-My prospective production files are the three new headers/includes above, `managed_array_shapes.c`, `nvm2c_map_private.inc` and exact Make include dependencies. Later publisher wiring is separately reviewed in ordinary_authority.inc and the existing host facade; module.json must remain free of emitter providers. Test files/required target registration will be proposed with that source checkpoint. Current work changes only this contract and ROADMAP.
+My prospective production files are the four new headers/includes above, `managed_array_shapes.c`, `nvm2c_map_private.inc` and exact Make include dependencies. Later publisher wiring is separately reviewed in ordinary_authority.inc and the existing host facade; module.json must remain free of emitter providers. Test files/required target registration will be proposed with that source checkpoint. Publisher wiring remains separately held after this query-only component.

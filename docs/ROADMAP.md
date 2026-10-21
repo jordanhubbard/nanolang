@@ -16709,7 +16709,7 @@ I assign owned_calls contract-only ownership on `design/5.1-map-publication-quer
 
 - [x] Map actual C/Nano host hooks, native restrictions and compiler-module link closure.
 - [x] Review typed complete-module query, independent proof accounting and shared target scan; route framing work is separately bounded, not included in proof counters.
-- [ ] Implement and qualify query/consumer extraction without publisher changes.
+- [x] Implement and qualify query/consumer extraction without publisher changes.
 - [ ] Separately review and qualify staged paired publisher integration; retain unsupported dynamic STRING/DELETE/pair gaps.
 
 I begin only the reviewed query/consumer extraction source slice on this branch after the accounting correction. I own the shared non-emitting target classifier, module-taking query and exact dependency/test changes; publishers remain held. I will present the source checkpoint before any bounded build.
@@ -16717,3 +16717,5 @@ I begin only the reviewed query/consumer extraction source slice on this branch 
 I am holding production implementation while review resolves conservative pre-image UNRESOLVED versus fully checked copied-image target status. The draft now makes omission non-authoritative and retains original base validation; no query success is inferred from DEFER. No source changes have been made.
 
 The conservative status refinement is reviewed: pre-image UNRESOLVED is not a validity certificate. I resume only query/target extraction, keeping publishers unchanged and testing unsupported-before-malformed as non-authoritative omission.
+
+I qualified the query-only slice: final linked/whitebox342/1509 checks on nine distinct ordinary/concat/shadow candidates,115allocation positions, exact scan LIMIT/recovery, actual42-provider module host closure without emitter objects, native2methods100.976s/14bytegoldens, oldimage/recipe2methods15.389s, strict12 and six exactlegacybudgets. I retained the first compiler/harness failures and all source/provider pins in [the receipt](evidence/map-publication-query-20261022/README.md). Publishers remain unchanged pending separate review.

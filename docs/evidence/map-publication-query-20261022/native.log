@@ -1,0 +1,17 @@
+test_compiler_allocation_prefixes (tests.test_record_map_native.RecordMapNative.test_compiler_allocation_prefixes) ... I retain private native evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-wmufuhm4
+ERROR
+
+======================================================================
+ERROR: test_compiler_allocation_prefixes (tests.test_record_map_native.RecordMapNative.test_compiler_allocation_prefixes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_native.py", line 30, in setUp
+    self.objects = shlex.split(os.environ['RECORD_ARRAY_VM_OBJECTS'])
+                               ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'RECORD_ARRAY_VM_OBJECTS'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (errors=1)

@@ -7156,3 +7156,12 @@ test-record-map-public: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $
 	RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_public
 
 test-units: test-record-map-public
+
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/record_map_native_target_internal.h $(NANOISA_DIR)/record_map_native_target.inc $(NANOISA_DIR)/record_map_publication.h $(NANOISA_DIR)/record_map_publication.inc
+$(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/record_map_native_target_internal.h
+
+.PHONY: test-record-map-publication
+test-record-map-publication: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_publication
+
+test-units: test-record-map-publication

@@ -1,0 +1,72 @@
+[
+  {
+    "name": "original-0",
+    "bytes": 54740,
+    "sha256": "e7dc9c75a5541500c7760ad7212ef8a493a088a694afa448d03e8e0be0be558a"
+  },
+  {
+    "name": "original-1",
+    "bytes": 54740,
+    "sha256": "ef271edabe707e6b2972c8baf7a593be608676cee432a62e2271548dd220713f"
+  },
+  {
+    "name": "original-2",
+    "bytes": 54740,
+    "sha256": "ef271edabe707e6b2972c8baf7a593be608676cee432a62e2271548dd220713f"
+  },
+  {
+    "name": "original-3",
+    "bytes": 54740,
+    "sha256": "ef271edabe707e6b2972c8baf7a593be608676cee432a62e2271548dd220713f"
+  },
+  {
+    "name": "alias-replacement",
+    "bytes": 43493,
+    "sha256": "dcf8b65f11a8fdc6d25fae42fcd4c0a592ec8381fa0538185c09ad242c26c887"
+  },
+  {
+    "name": "missing-void",
+    "bytes": 42740,
+    "sha256": "580d4e583f81bda263afbebeb2f518157778e78e7d484175a80d2395475d5545"
+  },
+  {
+    "name": "missing-assert",
+    "bytes": 42761,
+    "sha256": "b1555d9796066ccc9b629a5dd4a62d6d4fd6fcc849b36eab08d832e385079993"
+  },
+  {
+    "name": "unused-declaration",
+    "bytes": 41779,
+    "sha256": "9c439af63a3111408eff8da3d27047fb69831f11915ee190a852a555e7bcc06c"
+  },
+  {
+    "name": "initializer",
+    "bytes": 43942,
+    "sha256": "3f920b4abfdf92fb6b03b99736899d80f476c277bfb5efe5e10e9a38cc31d1dd"
+  },
+  {
+    "name": "tail-duplicates",
+    "bytes": 45921,
+    "sha256": "a98085ffecb3bb76ee973c2316e90c575c5a5591b5e270a861da458b9173692e"
+  },
+  {
+    "name": "nonzero-layout",
+    "bytes": 47824,
+    "sha256": "7996efcb2b3c7d7481324de4a16f3d77d13538765e72e3b0707b6f87fac94695"
+  },
+  {
+    "name": "growth",
+    "bytes": 44723,
+    "sha256": "32570e7831a2f396460d4a0476d327daaa8827df2ae1b5fac3c44926f4c531e9"
+  },
+  {
+    "name": "concat-lifetime",
+    "bytes": 48770,
+    "sha256": "8d5b5a12d9c7f1d14add92d60e01db8afbe57ccc7f3081831aeebb6224205eb6"
+  },
+  {
+    "name": "concat-empty",
+    "bytes": 48754,
+    "sha256": "5eb2c773140921908e5a6866ad4db2aecbefae77bbb140650d5ccf2bea9cf73a"
+  }
+]

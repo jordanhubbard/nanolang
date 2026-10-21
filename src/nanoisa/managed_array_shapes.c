@@ -1177,3 +1177,6 @@ NvmArrayEligibilityResult nvm_analyze_record_map_origins(const NvmModule *m,NvmR
 }
 
 #include "record_map_admission.inc"
+
+#include "record_map_native_target.inc"
+#include "record_map_publication.inc"
