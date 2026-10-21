@@ -114,7 +114,9 @@ shadow last_error {
     }
 }
 
-# I query optional facts without publishing files or retaining an admission token.
+# I query complete optional ARRAY/MAP candidates without publishing files or
+# retaining an admission token. Zero means unsupported/unestablished/limit,
+# not a validity certificate; the base candidate still needs its normal validation.
 extern fn nl_nanoisa_array_publication(source: string) -> int
 pub fn array_publication(source: string) -> int {
     unsafe { return (nl_nanoisa_array_publication source) }

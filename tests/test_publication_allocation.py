@@ -39,6 +39,9 @@ class PublicationAllocation(unittest.TestCase):
             with self.subTest(leaf=leaf):
                 self.qualify(leaf)
 
+    def test_map_publisher_and_query_prefixes(self):
+        self.qualify('map')
+
     def qualify(self, nested):
         work=Path(tempfile.mkdtemp(prefix='nano-publication-allocation-'))
         print('I retain publication allocation evidence at',work,flush=True)
@@ -123,8 +126,12 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
             leaf=nested.removeprefix('depth3_')
             values='[[[true]], [[false]]]' if leaf=='bool' else '[[["first"]], [["second"]]]'
             fixture.write_text(fixture.read_text().replace('array<array<int>>',f'array<array<array<{leaf}>>>').replace('[[7], [11]]',values))
-        run('source-compile',[ROOT/'bin/nano_virt',fixture,'--emit-nvm','-o',module])
-        assembly.write_text(run('source-dump',[ROOT/'bin/nanoisa','dump',module]))
+        if nested == 'map':
+            fixture.write_bytes((ROOT/'tests/nanoisa/fixtures/map_record_fields.nano').read_bytes())
+        seed=Path(os.environ.get('PUBLICATION_SEED', str(ROOT/'bin/nano_virt')))
+        dumper=Path(os.environ.get('PUBLICATION_NANOISA', str(ROOT/'bin/nanoisa')))
+        run('source-compile',[seed,fixture,'--emit-nvm','-o',module])
+        assembly.write_text(run('source-dump',[dumper,'dump',module]))
         self.assertIn('.ownership "03000000',assembly.read_text())
         for mode in ('publisher','query'):
             args=[executable,mode,fixture,assembly,work/'output.nvm','reserved']

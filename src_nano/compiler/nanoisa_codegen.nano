@@ -285,6 +285,7 @@ let mut nisa_lambda_text: string = ""
 
 # I retain optional declaration authority independently from instruction flow.
 let mut nisa_ordinary_array_slots: bool = false
+let mut nisa_ordinary_map_slots: bool = false
 let mut nisa_ordinary_ok: bool = true
 let mut nisa_ordinary_functions: string = ""
 let mut nisa_ordinary_count: int = 0
@@ -346,6 +347,7 @@ fn nisa_ordinary_tag(parser: Parser, t: string) -> int {
     if (== t "float") { return 3 }
     if (== t "bool") { return 4 }
     if (== t "string") { return 5 }
+    if (== t "HashMap<string,int>") { return 13 }
     let mut i: int = 0
     while (< i (parser_get_struct_def_count parser)) {
         if (== (parser_get_struct_def parser i).name t) { return 8 }
@@ -357,10 +359,13 @@ shadow nisa_ordinary_tag {
     let p: Parser = (parse_program (tokenize_string "" "ordinary.nano" (diag_list_new)) 0 "ordinary.nano")
     assert (== (nisa_ordinary_tag p "string") 5)
     assert (== (nisa_ordinary_tag p "array<int>") 7)
+    assert (== (nisa_ordinary_tag p "HashMap<string,int>") 13)
+    assert (== (nisa_ordinary_tag p "HashMap<string,string>") -1)
 }
 fn nisa_ordinary_contract(parser: Parser, result_type: string, parameters: int, types: array<string>) -> string {
     let result: int = (nisa_ordinary_tag parser result_type)
     if (== result 7) { set nisa_ordinary_array_slots true }
+    if (== result 13) { set nisa_ordinary_map_slots true }
     let locals: int = (array_length types)
     if (or (< result 0) (or (> locals 65535) (> parameters locals))) { set nisa_ordinary_ok false return "" }
     let mut out: string = (+ (nisa_ordinary_hex locals 2) (nisa_ordinary_hex parameters 2))
@@ -369,6 +374,7 @@ fn nisa_ordinary_contract(parser: Parser, result_type: string, parameters: int, 
     while (< i locals) {
         let tag: int = (nisa_ordinary_tag parser (at types i))
         if (== tag 7) { set nisa_ordinary_array_slots true }
+        if (== tag 13) { set nisa_ordinary_map_slots true }
         if (<= tag 0) { set nisa_ordinary_ok false return "" }
         set out (+ out (+ (nisa_ordinary_hex tag 1) "000000ffffffff"))
         set i (+ i 1)
@@ -379,11 +385,13 @@ shadow nisa_ordinary_contract {
     let p: Parser = (parse_program (tokenize_string "" "ordinary.nano" (diag_list_new)) 0 "ordinary.nano")
     set nisa_ordinary_ok true
     set nisa_ordinary_array_slots false
+    set nisa_ordinary_map_slots false
     assert (== (nisa_ordinary_contract p "int" 1 ["string"]) "0100010001000000ffffffff05000000ffffffff")
     assert (== (nisa_ordinary_contract p "int" 0 [""]) "")
     assert (not nisa_ordinary_ok)
     set nisa_ordinary_ok true
     set nisa_ordinary_array_slots false
+    set nisa_ordinary_map_slots false
 }
 fn nisa_ordinary_record_index(parser: Parser, name: string) -> int {
     let mut found: int = -1
@@ -528,6 +536,23 @@ fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {
     if (> parser.imports_count 0) { if (or (not bound) (not (nisa_bound_ordinary_declarations parser))) { return "" } }
     if (or (not nisa_ordinary_ok) (or (<= count 0) (or (> count 128) (or (> (parser_get_enum_count parser) 0) (> (parser_get_union_count parser) 0))))) { return "" }
     if (not (nisa_ordinary_graph parser)) { return "" }
+    # I bound new map staging before hex construction; raw local declarations
+    # are parsed representations, not a semantic-checker receipt.
+    let mut map_fields: int = 0
+    let mut total_fields: int = 0
+    let mut scan: int = 0
+    while (< scan count) {
+        let record: ASTStruct = (parser_get_struct_def parser scan)
+        if (or (< record.field_count 0) (> record.field_count 65535)) { return "" }
+        set total_fields (+ total_fields record.field_count)
+        let mut field: int = 0
+        while (< field record.field_count) {
+            if (== (at record.field_types field) "HashMap<string,int>") { set map_fields (+ map_fields 1) }
+            set field (+ field 1)
+        }
+        set scan (+ scan 1)
+    }
+    if (and (> map_fields 0) (> total_fields 65536)) { return "" }
     let mut element_indices: array<int> = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
     let mut array_fields: int = 0
     let mut layouts: string = (nisa_ordinary_hex count 4)
@@ -621,9 +646,35 @@ fn nisa_ordinary_publication(parser: Parser, bound: bool) -> string {
         }
         let payload: string = (+ (nisa_ordinary_hex type_count 4) (+ types (+ (nisa_ordinary_hex array_fields 4) bindings)))
         set version "03000000"
-        set suffix (+ "04000000000000000100000002000100" (+ (nisa_ordinary_hex (/ (str_length payload) 2) 4) payload))
+        let mut extensions: int = 1
+        if (> map_fields 0) { set extensions 2 }
+        set suffix (+ "0400000000000000" (+ (nisa_ordinary_hex extensions 4) (+ "02000100" (+ (nisa_ordinary_hex (/ (str_length payload) 2) 4) payload))))
     } else {
         if nisa_ordinary_array_slots { return "" }
+    }
+    if (> map_fields 0) {
+        let mut bindings: string = ""
+        set i 0
+        while (< i count) {
+            let record: ASTStruct = (parser_get_struct_def parser i)
+            let mut field: int = 0
+            while (< field record.field_count) {
+                if (== (at record.field_types field) "HashMap<string,int>") {
+                    set bindings (+ bindings (+ (nisa_ordinary_hex i 4) (+ (nisa_ordinary_hex field 2) "000000000000")))
+                }
+                set field (+ field 1)
+            }
+            set i (+ i 1)
+        }
+        # Two sorted scalar rows INT/STRING, one pair STRING row1 -> INT row0.
+        let payload: string = (+ "0200000001000000ffffffff05000000ffffffff010000000100000000000000" (+ (nisa_ordinary_hex map_fields 4) bindings))
+        let expected: int = (+ 36 (* map_fields 12))
+        if (!= (str_length payload) (* expected 2)) { return (nisa_fail "I cannot size map declaration facts") }
+        if (== array_fields 0) { set suffix "040000000000000001000000" }
+        set version "03000000"
+        set suffix (+ suffix (+ "05000100" (+ (nisa_ordinary_hex expected 4) payload)))
+    } else {
+        if nisa_ordinary_map_slots { return "" }
     }
     let ownership: string = (+ version (+ (nisa_ordinary_hex count 4) (+ flags (+ (nisa_ordinary_hex functions 4) (+ nisa_ordinary_functions (+ nisa_ordinary_init suffix))))))
     return (+ (nisa_metadata_chunks "layouts" layouts) (+ (nisa_metadata_chunks "ownership" ownership) nisa_ordinary_parameters))
@@ -670,6 +721,30 @@ shadow nisa_ordinary_publication {
     (list_ASTStruct_set plain.structs 0 (ASTStruct { node_type: record.node_type, line: record.line, column: record.column, name: record.name, field_start: record.field_start, field_count: record.field_count, field_names: record.field_names, field_types: record.field_types, is_resource: record.is_resource, is_extern: true }))
     assert (== (nisa_ordinary_publication plain false) "")
     let _: int = (nisa_reset)
+    # I test parsed local declaration rows separately from complete module eligibility.
+    let map_tokens: List<LexerToken> = (tokenize_string "struct Box { values: HashMap<string,int> }" "raw-map.nano" (diag_list_new))
+    let parser: Parser = (parse_program map_tokens (list_LexerToken_length map_tokens) "raw-map.nano")
+    let facts: string = (nisa_ordinary_publication parser false)
+    assert (str_contains facts "0d000000ffffffffffffffff")
+    assert (str_contains facts "0500010030000000")
+    assert (str_contains facts "0200000001000000ffffffff05000000ffffffff01000000010000000000000001000000000000000000000000000000")
+    # A raw declaration is insufficient to authorize a malformed complete body.
+    assert (== (nisa_finish_ordinary parser false "not assembly") "")
+    assert (not nisa_ok)
+    let _: int = (nisa_reset)
+    let mixed_tokens: List<LexerToken> = (tokenize_string "struct Mixed { values: array<int>, index: HashMap<string,int> }" "raw-map.nano" (diag_list_new))
+    let mixed: Parser = (parse_program mixed_tokens (list_LexerToken_length mixed_tokens) "raw-map.nano")
+    let combined: string = (nisa_ordinary_publication mixed false)
+    assert (str_contains combined "04000000000000000200000002000100")
+    assert (str_contains combined "0500010030000000")
+    let other_tokens: List<LexerToken> = (tokenize_string "struct Other { values: HashMap<string,string> }" "raw-map.nano" (diag_list_new))
+    let other: Parser = (parse_program other_tokens (list_LexerToken_length other_tokens) "raw-map.nano")
+    assert (== (nisa_ordinary_publication other false) "")
+    let plain_tokens: List<LexerToken> = (tokenize_string "struct Plain { value: int }" "raw-map.nano" (diag_list_new))
+    let map_plain: Parser = (parse_program plain_tokens (list_LexerToken_length plain_tokens) "raw-map.nano")
+    set nisa_ordinary_map_slots true
+    assert (== (nisa_ordinary_publication map_plain false) "")
+    let _: int = (nisa_reset)
 }
 
 fn nisa_reset() -> int {
@@ -688,6 +763,7 @@ fn nisa_reset() -> int {
     set nisa_has_callables false
     set nisa_ordinary_ok true
     set nisa_ordinary_array_slots false
+    set nisa_ordinary_map_slots false
     set nisa_ordinary_functions ""
     set nisa_ordinary_count 0
     set nisa_ordinary_init ""

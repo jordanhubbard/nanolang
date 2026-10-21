@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-map-paired-publication-20261022/first.py", line 27, in <module>
+    dump=run('ordinary-dump',[agg/'bin/nanoisa','dump',module]);(out/'ordinary.nasm').write_bytes(dump)
+  File "/private/tmp/nanolang-map-paired-publication-20261022/first.py", line 18, in run
+    assert p.returncode==0,(name,p.stdout.decode(errors='replace'),p.stderr.decode(errors='replace'))
+           ^^^^^^^^^^^^^^^
+AssertionError: ('ordinary-dump', '', "I cannot load '/private/tmp/nanolang-map-paired-publication-20261022/ordinary.nvm': Invalid NVM v2 module: index-out-of-range\n")

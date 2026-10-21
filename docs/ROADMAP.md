@@ -16725,3 +16725,20 @@ I qualified the query-only slice: final linked/whitebox342/1509 checks on nine d
 I integrated d0d2079af by ancestry at 2f88c0c6d after query/interface and receipt review. I am adding its required target to retirement compiler contracts and running the actual Make target with all nine ordinary/original-shadow candidates, followed by the 68 workflow/schema controls. Publishers remain unchanged.
 
 I completed the aggregate query target with all nine inputs: 342 linked and 1,509 instrumented checks in 5.624s, including all 115 allocation positions in both failure modes. All 68 workflow/schema controls passed in 2.019s. Receipt: `docs/evidence/map-publication-query-aggregate-20261021/`. Publishers and hosted closure remain pending.
+
+### #1001 paired map publisher contract ownership (2026-10-22)
+
+I assign owned_calls contract-only ownership on `design/5.1-map-paired-publication`, based on integrated ca00599d2. I map checked TypeInfo/canonical type binding to the existing kind5 STRING→INT rows, mixed kind2/kind5 candidates and the complete publication query. See [paired publisher contract](NANOISA_MAP_PAIRED_PUBLICATION_DESIGN.md). No publisher source or build is authorized by this checkpoint.
+
+- [x] Map exact current producer/type/host ABI paths and existing wire/query prerequisites.
+- [ ] Review paired wire construction, complete-candidate dispatch and failure/omission semantics.
+- [ ] Implement the reviewed source checkpoint, then qualify ordinary and independent selected-shadow publication before broader paired gates.
+- [ ] Preserve old bytes/budgets and explicit unsupported dynamic STRING, DELETE and other-pair gaps.
+
+I corrected the paired publisher provenance contract after review: raw Nano emission parses and lowers without a semantic checker, and local ordinary publication already permits bound=false. Proposed map rows therefore use exact parsed declaration binding plus actual lowering and independent complete-module proof on raw paths; only nanoisa_check_and_emit supplies synchronous checker provenance. Imported binding checks and existing raw authority behavior remain unchanged. This is a documentation correction only; source implementation remains held for review.
+
+The provenance correction is approved. I take source ownership for the reviewed paired publisher draft: C/Nano exact declaration rows and mixed suffixes, coarse local map bookkeeping, and map-first complete-candidate host query. I will freeze the complete source diff before any build; no runtime/schema/native eligibility or installed provider changes are authorized in this slice.
+
+First narrow publisher gate: changed C publisher/facade compiled and unchanged source emitted. The retained installed nanoisa reader refused new map metadata; I retained that old-binary terminal, then relinked only isolated current CLI consumers from pinned aggregate objects. The exact same module passed dump/verify/VM/native. Host facade27checks covered ordinary output plus separately annotated original shadow. Focused C90checks covered actual ordinary/shadow generation, TypeInfo corruption omission and mixed unsupported omission; a new fixture reserved-name parse error was retained and corrected. Nano publisher source/shadows remain uncompiled pending the separately coordinated C-hosted build.
+
+I completed local paired publisher qualification: current C and C-hosted Nano ordinary/independent checked/raw shadows,25modules/50sanitized native runs,100direct C controls,3968source/query allocation denials+recovery, malformed sentinel/retry,8old byte goldens, strict6 and six unchanged proof budgets. See [receipt](evidence/map-paired-publication-20261022/README.md). The required test-map-field-publication target defaults to fresh Stage1/Stage2 plus independent raw drivers, while local retained selectors remain explicitly C-hosted evidence. Installed stages, fresh bootstrap and hosted qualification are not claimed by this component.
