@@ -16444,3 +16444,7 @@ I refine the copied-image design with constructor-derived capacities: no decoded
 - [x] I own the reviewed retained-cost/image slice from `e63187eec`: exact owning-TU no-allocation cost helpers and a separately reproved copied image within unchanged preparation caps. I first qualify retained bytes against the independent live allocation oracle. Public/runtime/native/publisher admission remains refused; source checkpoint precedes compilation.
 
 I retain [private copied-image qualification](evidence/map-copied-image-20261021/README.md): exact live-payload cost oracles, independently reproved copies,61 failure positions with prior-image/source preservation, semantic reproof controls, unchanged six old budgets and old VM/recipe neighbors. Public/runtime/native/publisher admission and full #1001 remain open.
+
+### I audit closed map runtime integration (2026-10-21)
+
+- [x] I own the contract-only next #1001 checkpoint above `75bf0ef55`: [runtime integration design](NANOISA_MAP_RUNTIME_INTEGRATION_DESIGN.md). I distinguish private image ownership from call-local public context lifetime, exact probe topology and insertion headroom from tag checks, and a concrete private DAG map teardown prerequisite. Runtime/admission/native/publisher changes remain unapproved; numeric runtime preparation accounting must precede implementation.
