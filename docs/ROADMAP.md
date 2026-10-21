@@ -16510,3 +16510,15 @@ I passed the actual aggregate private preparation target (2 methods,9.300s) agai
 I integratef8c2f127f preserving both roadmap histories, wire its direct heap gate into platform qualification and run the actual aggregate target under ASan/UBSan. Shared changes remain net growth accounting; private adapters/teardown do not enable VM dispatch or public admission.
 
 I passed aggregate10318 heap assertions under ASan/UBSan and68 workflow/schema controls. Receipt:`docs/evidence/map-heap-aggregate-20261021/`. VM routing and exact hosted qualification remain pending.
+
+- #1001 owned_calls owns contract-only private invocation checkpoint after heapf8c2f127f/aggregatead5332c58: docs/NANOISA_MAP_PRIVATE_INVOCATION_DESIGN.md maps automatic invocation view, separate old-array accessors, exact recipes/frame identities/retains, initializer+ASSERT+tail supervision and prior-result cleanup. No dispatch/public/native/publisher source change; runtime implementation and observation interfaces await review.
+
+- #1001 owned_calls starts reviewed private invocation source draft after contractc13bc34d6. Separate map context/preflight, scoped five-handler adapters and root supervisor only; initializer/entry reset identities independently and teardown policy survives view invalidation. Stats/whitebox only, observation API deferred. Source checkpoint precedes first switch gate; no public/native/publisher admission.
+
+- #1001 private invocation checkpoint qualified: actual switch/goto2715 checks each; final runtime+old array+preparation6 methods61.735s; four retained original modules execute after source destruction; initializer/tail/assert/global aliases, five tail/map and six growth allocation positions in both failure modes; ten strict cases and six unchanged budget rows. Runtime owner818512/view48 are reserved separately. Original O1 instrumented ordinary-admission stack overflow reproduces at HEAD; separate no-inline success is not O1 credit. Receipt evidence/map-private-invocation-20261021. Required test-record-map-runtime is wired; observation/public/native/publisher remain closed.
+
+### 2026-10-21: I integrate private map invocation
+
+I integrate3ec90edcb preserving both roadmap histories and run its actual aggregate target against four original modules. I add private runtime qualification to platform checks; public/native/publisher/observation admission remains closed.
+
+I passed actual aggregate private runtime switch/goto gates (2 methods8.824s,2714 checks each) and68 workflow/schema controls. Receipt:`docs/evidence/map-runtime-aggregate-20261021/`. Exact hosted and public/native/publisher/observation work remain open.

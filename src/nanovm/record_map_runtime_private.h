@@ -2,8 +2,23 @@
 #define NANOVM_RECORD_MAP_RUNTIME_PRIVATE_H
 #include "vm.h"
 #include "../nanoisa/record_map_snapshot_private.h"
-/* Preparation/query only. No run API or executable admission. */
+/* Private preparation, with a separately gated private invocation API.
+ * Ordinary public execution admission is never supplied by this header. */
 typedef struct VmRecordMapPrivate VmRecordMapPrivate;
+typedef struct VmRecordMapInvocation VmRecordMapInvocation;
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+#if !defined(NANO_RECORD_MAP_PRIVATE_PREPARATION) || !defined(NANO_RECORD_MAP_PRIVATE_HEAP) || !defined(NANO_RECORD_ARRAY_PRIVATE_RUNTIME)
+#error "private map invocation requires consistent preparation, heap and DAG macros"
+#endif
+typedef struct {
+    uint64_t epoch,heap_objects,heap_live_bytes;
+    uint32_t active_frames,active_stack,maximum_frames;
+    VmResult last_status;
+    bool has_result;
+} VmRecordMapPrivateStats;
+VmResult vm_record_map_private_run(VmRecordMapPrivate *);
+bool vm_record_map_private_stats(const VmRecordMapPrivate *,VmRecordMapPrivateStats *);
+#endif
 #ifdef NANO_RECORD_MAP_PRIVATE_PREPARATION
 typedef struct {
     uint64_t runtime_bytes,runtime_work,image_overlap_bytes,image_overlap_work;

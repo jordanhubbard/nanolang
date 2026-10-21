@@ -24,7 +24,24 @@ struct VmRecordMapPrivate {
     uint64_t bytes,work,byte_limit,work_limit;
     NvmArrayEligibilityStatus preparation_status;
     bool prepared;
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+    uint64_t epoch;
+    NanoValue result;
+    VmResult last_status;
+    uint32_t maximum_frames;
+    bool busy,has_result;
+#endif
 };
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+struct VmRecordMapInvocation {
+    VmRecordMapPrivate *owner;
+    VmState *vm;
+    const NvmModule *module;
+    uint64_t epoch;
+    uint32_t active_root,root_base;
+    bool active;
+};
+#endif
 #define VM_RM_ROOT_CAPACITY (VM_MAX_FRAMES*512u+1u)
 _Static_assert(VM_MAX_FRAMES==NVM_RECORD_ARRAY_EXECUTION_FRAMES,"unchanged frame bound");
 static bool vm_rm_charge(VmRecordMapPrivate *p,uint64_t b,uint64_t w) {
@@ -357,6 +374,9 @@ static bool vm_rm_budget(const NvmRecordMapExecutionPlan *plan,VmRmBudget *b) {
        !vm_rm_budget_memory(b,c->globals,sizeof(NanoValue)) ||
        !vm_rm_budget_memory(b,c->functions,sizeof(VmDecodedFunction)+sizeof(VmDispatchFunction)) ||
        !vm_rm_budget_memory(b,1,256u+256u*2u*sizeof(uint16_t)))return false;
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+    if(!vm_rm_budget_memory(b,1,sizeof(VmRecordMapInvocation)))return false;
+#endif
     uint32_t total=0;
     for(uint32_t i=0;i<c->functions;i++) {
         NvmRecordArrayExecutionFunction f;
@@ -403,6 +423,10 @@ static bool vm_rm_budget(const NvmRecordMapExecutionPlan *plan,VmRmBudget *b) {
 
 void vm_record_map_private_destroy(VmRecordMapPrivate *p) {
     if(!p || !pthread_equal(p->vm.owner_thread,pthread_self()))return;
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+    if(p->busy)return;
+    if(p->has_result)vm_release(&p->vm.heap,p->result);
+#endif
     vm_destroy(&p->vm);free(p->fields);free(p->instructions);
     nvm_record_map_image_free(p->image);free(p);
 }
