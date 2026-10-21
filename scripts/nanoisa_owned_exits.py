@@ -6,6 +6,10 @@ from nanoisa_reconstruction import Expr, Function, INT, BOOL, SIMPLE, require
 def needs_loop_exits(module):
     if module.get('ownership_version', 1) != 1 or len(module['functions']) != 2 or module['functions'][1].get('param_modes') != [2]:
         return False
+    return has_structured_exits(module)
+
+
+def has_structured_exits(module):
     for fn in module['functions']:
         code = fn['code']; positions = {ins['pc']: n for n, ins in enumerate(code)}
         groups = {}
@@ -170,12 +174,16 @@ class ExitRegions:
         body, edges = self.region(0, len(a.code), self.edge('fallthrough', None, set(range(len(a.params)))))
         require(edges and all(edge.kind == 'return' for edge in edges), 'require all exit-aware function paths to return')
         require(len(a.seen) == len(a.code), 'require complete loop-exit instruction coverage')
-        function = Function(a.fn['name'], a.params, a.result, a.types, a.fn['names'], body)
-        function.loop_exits = True
+        consuming = getattr(a, 'consuming_exits', False)
+        parameters = [('own_parameter', i, t[1]) for i, t in enumerate(a.params)
+                      if consuming and isinstance(t, tuple) and t[0] == 'owner']
+        function = Function(a.fn['name'], a.params, a.result, a.types, a.fn['names'], parameters + body)
+        function.loop_exits = not consuming
+        function.consuming_exits = consuming
         return function
 
 
-def prove_exit_origins(function):
+def prove_exit_origins(function, consuming_functions=None, layouts=None):
     """I prove original entry origins on all structured outcomes without editing IR."""
     sites, serial = set(), [0]
     def owned(value):return isinstance(value, Expr) and isinstance(value.tag, tuple) and value.tag[0] == 'owner'
@@ -190,7 +198,28 @@ def prove_exit_origins(function):
             operands[value] = origin
         for position, stmt in enumerate(body):
             kind = stmt[0]
-            if kind == 'own_pack':
+            if kind == 'own_parameter':
+                _, slot, layout = stmt
+                require(consuming_functions is not None and layouts is not None and
+                        type(slot) is int and 0 <= slot < len(function.params) and
+                        function.params[slot] == ('owner', layout) and slot not in live and slot not in declared and
+                        not context, 'require exact consuming parameter origins')
+                declared[slot] = layout
+                live[slot] = ('parameter', slot, (), layout, tuple(None for _ in layouts[layout]['fields']))
+            elif kind == 'let' and isinstance(stmt[2], Expr) and stmt[2].kind == 'call':
+                call = stmt[2]
+                require(consuming_functions is not None and type(call.value) is int and
+                        0 < call.value < len(consuming_functions), 'require an exact consuming callee')
+                callee = consuming_functions[call.value]
+                require(call.tag == INT and stmt[1].tag == INT and callee.result == INT and
+                        len(call.args) == len(callee.params), 'require exact consuming call signature')
+                for value, tag in zip(call.args, callee.params):
+                    require(isinstance(value, Expr) and value.tag == tag, 'require typed consuming call arguments')
+                    if owned(value):consume(value, tag[1])
+                    else:
+                        require(tag in (INT, BOOL) and value.kind in ('constant', 'local', 'temporary') and not value.args,
+                                'require materialized scalar consuming arguments')
+            elif kind == 'own_pack':
                 _, target, layout, values = stmt
                 require(target.value not in sites, 'require unique loop-exit pack sites');sites.add(target.value)
                 children = tuple(consume(v, v.tag[1]) if owned(v) else None for v in values)
@@ -245,7 +274,7 @@ def prove_exit_origins(function):
                 require(stmt[2] in live and not owned(stmt[1]), 'require a live nonescaping loop-exit reference root')
             else:
                 require(kind in ('let', 'store', 'assert'), 'retain bounded loop-exit entry ownership operations')
-                def scalar(node):return not isinstance(node, Expr) or not owned(node) and all(scalar(child) for child in node.args)
+                def scalar(node):return not isinstance(node, Expr) or not owned(node) and (consuming_functions is None or node.kind != 'call') and all(scalar(child) for child in node.args)
                 require(all(scalar(node) for node in stmt[1:]), 'refuse owners in loop-exit scalar operands')
         require(not operands, 'require consumed origin operands at lexical exit')
         return abrupt + [('fallthrough', live)]

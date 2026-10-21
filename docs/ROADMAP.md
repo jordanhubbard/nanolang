@@ -16284,3 +16284,15 @@ I qualify the reviewed first-eager-pretest witness without planner/runtime/provi
 
 
 I integrate loop-first witness reconstruction atebc430c70 and pass all eight aggregate methods in117.399s through seven unchanged providers; [receipt](evidence/loop-first-witness-aggregate-20261020/README.md). No new planner/runtime/provider change is required. Component hosted coverage now passes exact checkpoint validation/restoration and runs its tests; final platform and full release scope remain open.
+
+### I retain consuming FLOAT loop exits (2026-10-20)
+
+- [x] I execute the unchanged accepted ordinary source through all three producers and an independent original-shadow input; verifier/VM pass, facts succeed, and reconstruction atomically refuses the non-crossing diamond. I retain ten unchanged pins and the harness-only missing-key correction in `evidence/consuming-float-exits-baseline-20261020/`.
+- [ ] I implement the separate consuming-exit region and exact parameter/call-origin contract in `NANOISA_CONSUMING_FLOAT_EXITS_RECONSTRUCTION.md`, after interface review. I retain original ownership and all assertions; no borrowed witness or planner is implied.
+- [ ] I measure the unchanged rendered local counts, qualify ordinary/original-shadow VM/native behavior and adversarial origin/initialization/transfer controls, preserve prior-profile bytes, then integrate and run exact aggregate/platform gates.
+
+I correct the first documentation commit's mistaken root-level ROADMAP path here; my authoritative queue remains this file. No production code changed before that correction.
+
+My first consuming-exit output gate publishes both targets; actual seed-regenerated ordinary12/6/10/55 and original-shadow14/6/10/55/12 modules verify and execute. Existing scalar ADD helper accounts for the extra function; the conservative worker estimate61 exceeds actual55. The first three-method corpus passes unchanged all-three/native reconstruction and call-origin negatives but its no-witness test incorrectly also forbids the existing scalar ADD helper shadow. I retain the failure and restrict that assertion to resource/entry shadows; no production change or synthesized consuming witness.
+
+I pass all seven consuming FLOAT-exit methods plus six earlier FLOAT methods in41.083s, with unchanged provider pins and eight old output-byte comparisons. Exact parameter/call origins precede rendering; actual unchanged counts12/6/10/55, no planner/scratch/resource witness. I retain the first scalar-shadow test assumption and numeric BOOL assembly fixture corrections in `evidence/consuming-float-exits-reconstruction-20261020/README.md`. Required target now includes the new seven-method module; aggregate/platform gates remain open.

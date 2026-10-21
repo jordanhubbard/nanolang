@@ -1,0 +1,1634 @@
+[
+  {
+    "file": "command-1-command.json",
+    "sha256": "3ed8d081470756126d7704d179127681e63f6c90d291cf88e0221d4a63fe6183",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_virt\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-0.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-0.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-1-status.json",
+    "sha256": "d84fe391771853adbd597b3633feb70f64045f712eab84c4cb9a469a76f15cce",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.03542641701642424,\n  \"pid\": 96423,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-1.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-1.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-10-command.json",
+    "sha256": "3950efc07949ef8870826ef455a85bfae53fe230b5b3ceb67e1851153eaf0040",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-7.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-10-status.json",
+    "sha256": "6db3ba89ae55369e6119492f60ebc19fe6c2f015440996f2d4561629f83edb9d",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009439290966838598,\n  \"pid\": 96436,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-10.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-10.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-11-command.json",
+    "sha256": "ff1ccae62e320a7c485335a35ba92f4a321b53f9c477709b2dfd1560b7e95c05",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-10.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-10.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-11-status.json",
+    "sha256": "1385516eb3e63d2ad49e246f373227b25fb928273244eff8b74caefd7abdead8",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.23553325003013015,\n  \"pid\": 96437,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-11.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-11.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-12-command.json",
+    "sha256": "01f34a784e8b476b88daa19aa3e6ad55eccbe91626261579028e36ac744beec6",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-10.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-12-status.json",
+    "sha256": "70cc55a3fc5fe2c8995e392bc595972007f681f9758ca2ac8468bf4217fdb93b",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010192500019911677,\n  \"pid\": 96440,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-12.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-12.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-13-command.json",
+    "sha256": "446ac792e5af753ddc8c883b7fbf44df1a6b859bb5a41d751238dd1cede8b19a",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-10.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-13-status.json",
+    "sha256": "94c42dfa6d65374dedd68ea4c8691aec880486dcdda161e4616a75dfe99c4a78",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.01739454100606963,\n  \"pid\": 96441,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-13.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-13.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-14-command.json",
+    "sha256": "7d8a17bed00aff757d24e3d3e3585008ac9f0db28359ad4e27c3f8f6f301c50c",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O0\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-13.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-13.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-14-status.json",
+    "sha256": "548cd3b212f1d5210df6dbf2b520684f7f8f03e649bce68adb52b6fbc5f5da98",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.11936479201540351,\n  \"pid\": 96442,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-14.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-14.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-15-command.json",
+    "sha256": "a6ec1e02289fab964e8f81e28e80b2bc4df181ba75060fc7f7b06e4f6deafed3",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-13.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-15-status.json",
+    "sha256": "b857d6aeb20b554423731308a70fc79347c86f112bdab079091304e5707b28d8",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.5324150830274448,\n  \"pid\": 96446,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-15.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-15.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-16-command.json",
+    "sha256": "83cdcc1becb6abcd83d3261f0e6c3984d4b706bc077a1186b3510556aa277a65",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O2\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-13.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-13.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-16-status.json",
+    "sha256": "a4f90f477d960cc789623507f4508202753b67431611b9feeb21a398dc72e936",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.07627870800206438,\n  \"pid\": 96447,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-16.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-16.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-17-command.json",
+    "sha256": "94d45a5f6f9c05da14ecd70927e2fe87e3c83f55a7a2f38692f43d8648c67b44",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-13.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-17-status.json",
+    "sha256": "702d77718099dba825de125346bc9d0cf6b7049fbeae923c9b0f88344b8f6d1e",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.28044408396817744,\n  \"pid\": 96450,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-17.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-17.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-18-command.json",
+    "sha256": "971e42029f4ae08bc299c96761c9fcf1f101c8a822fb95589dae5daef58c8aa2",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-17.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-17.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-18-status.json",
+    "sha256": "b8b0193cd0ef59c8e66ad7071d9d775983140f6669beb11064e8a541dbe74958",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.1250321670086123,\n  \"pid\": 96452,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-18.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-18.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-19-command.json",
+    "sha256": "c4dfbd261b8af7c3bfdee1f149071645bc16362aa14419ee7eccb2c9861b0308",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-17.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-19-status.json",
+    "sha256": "58540f0b5177d2c958ffba248f5cb09bec6aa060d685304c5a092a0e1b206307",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009298749966546893,\n  \"pid\": 96456,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-19.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-19.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-2-command.json",
+    "sha256": "356fe533bcf0738f74cfd81de8f57c78df0d11543068abe3a9d1ea7387fcd47b",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-0.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-2-status.json",
+    "sha256": "5b83ef2815fbc359ae70250864ff70d7e70735258983b42ce6793c7d4dc02ca1",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010819499962963164,\n  \"pid\": 96425,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-2.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-2.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-20-command.json",
+    "sha256": "f2e885f96ad9b906a44cb67be635e0f8f51753c47d3f7a019000aceaafb22c1f",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-17.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-20-status.json",
+    "sha256": "f09550cdbc97eee80ba16bf1bd73961224a8f6741fb0033035ea859e2cef3867",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009788666036911309,\n  \"pid\": 96457,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-20.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-20.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-21-command.json",
+    "sha256": "b3ea54a8ba8c0489e3f12504a8880759de4964fbf1b965924d8e682c550def3a",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-17.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-21-status.json",
+    "sha256": "66b989b49767c52567c87ee21d9cfed1dd99e8ed6c0f19f70664c5755f3466f8",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.005544207990169525,\n  \"pid\": 96458,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-21.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-21.stdout",
+    "sha256": "fb41a7da24f00cca302ae6f229f2b7ad26e86c533e94f99f76e95adefbc42838",
+    "encoding": "utf8",
+    "content": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1],\"field_types\":[[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":2,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\"],\"local_types\":[[1,4294967295],[1,4294967295]],\"size\":86,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":15,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":22,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":2},{\"pc\":27,\"op\":\"PUSH_I64\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":36,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":37,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":38,\"op\":\"PUSH_I64\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":47,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":50,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":53,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":58,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":2},{\"pc\":65,\"op\":\"PUSH_I64\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":74,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":75,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":76,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":85,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":3,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[0],\"names\":[\"\",\"\",\"\"],\"local_types\":[[8,0],[8,0],[1,4294967295]],\"size\":29,\"code\":[{\"pc\":0,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":3,\"op\":\"OWN_STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":6,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":7,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":1,\"args\":[1,1],\"target\":4294967295},{\"pc\":12,\"op\":\"REF_GET\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":17,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":18,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":21,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":24,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":27,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":28,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_2\",\"locals\":8,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0],[4,4294967295]],\"param_modes\":[0,0],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[8,0],[4,4294967295],[3,4294967295],[3,4294967295],[1,4294967295],[3,4294967295],[3,4294967295],[3,4294967295]],\"size\":323,\"code\":[{\"pc\":0,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":12,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":15,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":18,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"JMP_FALSE\",\"arg\":22,\"args\":[22],\"target\":42},{\"pc\":25,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4058c00000000000\"},{\"pc\":34,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":37,\"op\":\"JMP\",\"arg\":-19,\"args\":[-19],\"target\":18},{\"pc\":42,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":51,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":54,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"PUSH_I64\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":66,\"op\":\"LT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":67,\"op\":\"JMP_FALSE\",\"arg\":55,\"args\":[55],\"target\":122},{\"pc\":72,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":75,\"op\":\"PUSH_I64\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":84,\"op\":\"ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":85,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":88,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":91,\"op\":\"JMP_FALSE\",\"arg\":10,\"args\":[10],\"target\":101},{\"pc\":96,\"op\":\"JMP\",\"arg\":26,\"args\":[26],\"target\":122},{\"pc\":101,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":104,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":113,\"op\":\"F64_ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":114,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":117,\"op\":\"JMP\",\"arg\":-63,\"args\":[-63],\"target\":54},{\"pc\":122,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":125,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":134,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":135,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":136,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":139,\"op\":\"JMP_FALSE\",\"arg\":24,\"args\":[24],\"target\":163},{\"pc\":144,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":147,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":156,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":157,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":158,\"op\":\"JMP\",\"arg\":19,\"args\":[19],\"target\":177},{\"pc\":163,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":166,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4012000000000000\"},{\"pc\":175,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":176,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":177,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4004000000000000\"},{\"pc\":186,\"op\":\"F64_NEG\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":187,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":190,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":193,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"0000000000000000\"},{\"pc\":202,\"op\":\"F64_LT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":203,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":204,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4202a05f20000000\"},{\"pc\":213,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":216,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":219,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":222,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":223,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":226,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":229,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":232,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":233,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":236,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":239,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":242,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":243,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":246,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":249,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":252,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":253,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":256,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":259,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":262,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":263,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":266,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":269,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":272,\"op\":\"F64_SUB\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":273,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":276,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":279,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":282,\"op\":\"F64_NE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":283,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":284,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":287,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":296,\"op\":\"F64_LE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":297,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":298,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":299,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":302,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":311,\"op\":\"F64_GE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":312,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":313,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":314,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":317,\"op\":\"CALL\",\"arg\":1,\"args\":[1],\"target\":4294967182},{\"pc\":322,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n"
+  },
+  {
+    "file": "command-22-command.json",
+    "sha256": "c2f3f0fa5639f9e7ded60c30b69a6bfa26ae1a4d78cdba779d3a1bb5dedebb77",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_virt\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-21.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-21.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-22-status.json",
+    "sha256": "75bf30e96d089976c4ec4b048e8fbc54d44b2c2fdd0488ce235a9649511c6637",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.036348082998301834,\n  \"pid\": 96459,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-22.stderr",
+    "sha256": "09edd56237f0817534df6e9b0687ee0e6515f55fca7752196bc1f9f9cd20e409",
+    "encoding": "utf8",
+    "content": "Warning at line 49, column 5: Unused variable 'nlr_t24_0'\nWarning: Function 'nlr_f1_owned_1' is missing a shadow test\nWarning: Function 'nlr_f2_owned_2' is missing a shadow test\n"
+  },
+  {
+    "file": "command-22.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-23-command.json",
+    "sha256": "8d980f75e0fb631a8fa20435cc2b781418a451c92051b0210344c8255665ee61",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-21.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-23-status.json",
+    "sha256": "f6080a8d2f93d99c1d7a0fc7bebbf3be5134e4beec408df6d60c757d877b6e94",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010218790965154767,\n  \"pid\": 96461,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-23.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-23.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-24-command.json",
+    "sha256": "3cb7c82c740307a5e2e112231ff13f5ef16d77f64e2a8a0bffa9b45f43cbf7e9",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-21.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-24-status.json",
+    "sha256": "0354453671f701f7e744f5feb14b8b209f5ba4220d8bb41a99e47fe416f512c6",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010540332994423807,\n  \"pid\": 96462,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-24.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-24.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-25-command.json",
+    "sha256": "33a758281bf60e68f045a091f41b2692db0cdae648742c0907d580c9c1344803",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-24.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-24.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-25-status.json",
+    "sha256": "1d12f56b8aaf9985f008af7822d88a75ddd28d78d7e88096d7eeb8078c525a57",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22559858398744836,\n  \"pid\": 96463,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-25.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-25.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-26-command.json",
+    "sha256": "ab9b2ef07cd8d7235709ca01608eb6f4efee0d8312f030be0c091bdb82598896",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-24.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-26-status.json",
+    "sha256": "64d673708f2f9dc7c57ccf372be6bc019c0353e60a26ec79e4e3453ac7513c83",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010427707980852574,\n  \"pid\": 96466,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-26.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-26.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-27-command.json",
+    "sha256": "b415b3b31858626b13ddb03ac625fd461bcb1a5a4972c565b846c109f75734da",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-24.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-27-status.json",
+    "sha256": "9c8ea919b0160eba04a23d0d5210fcbd742f5a0a996e329f050f10a335854fce",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009503917011898011,\n  \"pid\": 96467,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-27.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-27.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-28-command.json",
+    "sha256": "84f7059a60a60bd069bcdefada16e98d3b7df3772fa4a6081c8b528327ef1698",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-27.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-27.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-28-status.json",
+    "sha256": "f3b4b3205c532360e2128db720bb0a656a0b4372e23850d4ea87494a9670f5ed",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22483687498606741,\n  \"pid\": 96468,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-28.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-28.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-29-command.json",
+    "sha256": "7832c37f7b164207a2ef1208a2c93eabeb032e1acd0e4fb8abb5648faec9ba6d",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-27.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-29-status.json",
+    "sha256": "e07c9c7d923517b3aea74a4fb80c15d0b8896300515d956fa2f6afef4077b1d9",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009784916997887194,\n  \"pid\": 96471,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-29.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-29.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-3-command.json",
+    "sha256": "67e922539e4772cefa82da9b95209240b8538e98e38b65ed18dd23781b82c3dc",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-0.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-3-status.json",
+    "sha256": "4f6dbfafa69fcfea5c8d337371f8355151743a517142138750b8049c381928f5",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010151916008908302,\n  \"pid\": 96426,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-3.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-3.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-30-command.json",
+    "sha256": "9c376250d0cefe478d54ce6cd1178c7534e9c396109e4eee2ea220a0ae215a77",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-27.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-30-status.json",
+    "sha256": "14e061259801d5b849a6039b0a00110bf156a26ffb5e8d4d07677a26c08cebc6",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009899042022880167,\n  \"pid\": 96472,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-30.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-30.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-31-command.json",
+    "sha256": "11427df42903213d0913dd18b3a8aaa07caf217f3c09c57fed05d89b651bf7a6",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O0\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-30.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-30.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-31-status.json",
+    "sha256": "bf86ee6070c22a818b970ad394cb797d30edb36876d8962329fff3736aa78f4b",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.07036479201633483,\n  \"pid\": 96473,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-31.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-31.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-32-command.json",
+    "sha256": "b4088bff9759c30ad6c872b8af4906ace0a6ba66a1772234619deec16308769d",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-30.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-32-status.json",
+    "sha256": "36c334e3d6ff449a1656c84d6dd3dbea4a3669f888e6272a73614709e9efcf31",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.2839170829975046,\n  \"pid\": 96476,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-32.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-32.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-33-command.json",
+    "sha256": "daac70f798b778857cc31344071b720ccb4eda11d457d9ebbf50413486383671",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O2\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-30.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-30.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-33-status.json",
+    "sha256": "825716e5c4b1779a7fb0ab309fc56307655e23a729a5b03d79bdb12bce492876",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.07646766601828858,\n  \"pid\": 96479,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-33.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-33.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-34-command.json",
+    "sha256": "bfd9827b02a1fa0cda66eb062f3c1d4d22caf8633b6fae33a38801c635608c94",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-30.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-34-status.json",
+    "sha256": "d601dffe6010611fd870d49eed82f0c21ec3b067e3937a34af9cf0e9282bd9b1",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.2838255840470083,\n  \"pid\": 96482,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-34.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-34.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-35-command.json",
+    "sha256": "085ff5bfa1d4bd35244fd4f93dcd07e9c1030d1155513dfbe7cd7b42c26d2d01",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-34.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-34.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-35-status.json",
+    "sha256": "2b0807b4d7ae6d614942cef2e95b2fe6c565a61050cac63678c23cfb3d6be48f",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.12154058297164738,\n  \"pid\": 96484,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-35.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-35.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-36-command.json",
+    "sha256": "84a1fe8df7b15643ef57b9c304dd6b0cfd37de1464cb099bfdf1802b03339ec8",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-34.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-36-status.json",
+    "sha256": "6c769854081a676f47689f932f87e988960f9c91aa57820c883dafe9be3594c8",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010148875007871538,\n  \"pid\": 96488,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-36.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-36.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-37-command.json",
+    "sha256": "149e8454cd20a2d0d2e8cd2da1ae054bbc2580aa28ddfdbf55dd1c5859025000",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-34.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-37-status.json",
+    "sha256": "4eaf70b39842a521944fd1440dc7456079131dcf24cedc7ad25c07afae537405",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010545208002440631,\n  \"pid\": 96489,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-37.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-37.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-38-command.json",
+    "sha256": "809b6f8a42ce6d5e0eff321e520057b7985981be630294c7407ded73efaff71e",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-34.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-38-status.json",
+    "sha256": "8b059cc76c6de421cab7a90f37cbc8cb4c6355de746572d70ed13770e62da171",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.005381792027037591,\n  \"pid\": 96490,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-38.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-38.stdout",
+    "sha256": "fb41a7da24f00cca302ae6f229f2b7ad26e86c533e94f99f76e95adefbc42838",
+    "encoding": "utf8",
+    "content": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1],\"field_types\":[[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":2,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\"],\"local_types\":[[1,4294967295],[1,4294967295]],\"size\":86,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":15,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":22,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":2},{\"pc\":27,\"op\":\"PUSH_I64\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":36,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":37,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":38,\"op\":\"PUSH_I64\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":47,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":50,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":53,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":58,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":2},{\"pc\":65,\"op\":\"PUSH_I64\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":74,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":75,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":76,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":85,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":3,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[0],\"names\":[\"\",\"\",\"\"],\"local_types\":[[8,0],[8,0],[1,4294967295]],\"size\":29,\"code\":[{\"pc\":0,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":3,\"op\":\"OWN_STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":6,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":7,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":1,\"args\":[1,1],\"target\":4294967295},{\"pc\":12,\"op\":\"REF_GET\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":17,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":18,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":21,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":24,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":27,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":28,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_2\",\"locals\":8,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0],[4,4294967295]],\"param_modes\":[0,0],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[8,0],[4,4294967295],[3,4294967295],[3,4294967295],[1,4294967295],[3,4294967295],[3,4294967295],[3,4294967295]],\"size\":323,\"code\":[{\"pc\":0,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":12,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":15,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":18,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"JMP_FALSE\",\"arg\":22,\"args\":[22],\"target\":42},{\"pc\":25,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4058c00000000000\"},{\"pc\":34,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":37,\"op\":\"JMP\",\"arg\":-19,\"args\":[-19],\"target\":18},{\"pc\":42,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":51,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":54,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"PUSH_I64\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":66,\"op\":\"LT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":67,\"op\":\"JMP_FALSE\",\"arg\":55,\"args\":[55],\"target\":122},{\"pc\":72,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":75,\"op\":\"PUSH_I64\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":84,\"op\":\"ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":85,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":88,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":91,\"op\":\"JMP_FALSE\",\"arg\":10,\"args\":[10],\"target\":101},{\"pc\":96,\"op\":\"JMP\",\"arg\":26,\"args\":[26],\"target\":122},{\"pc\":101,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":104,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":113,\"op\":\"F64_ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":114,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":117,\"op\":\"JMP\",\"arg\":-63,\"args\":[-63],\"target\":54},{\"pc\":122,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":125,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":134,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":135,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":136,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":139,\"op\":\"JMP_FALSE\",\"arg\":24,\"args\":[24],\"target\":163},{\"pc\":144,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":147,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":156,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":157,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":158,\"op\":\"JMP\",\"arg\":19,\"args\":[19],\"target\":177},{\"pc\":163,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":166,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4012000000000000\"},{\"pc\":175,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":176,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":177,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4004000000000000\"},{\"pc\":186,\"op\":\"F64_NEG\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":187,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":190,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":193,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"0000000000000000\"},{\"pc\":202,\"op\":\"F64_LT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":203,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":204,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4202a05f20000000\"},{\"pc\":213,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":216,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":219,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":222,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":223,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":226,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":229,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":232,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":233,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":236,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":239,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":242,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":243,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":246,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":249,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":252,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":253,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":256,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":259,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":262,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":263,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":266,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":269,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":272,\"op\":\"F64_SUB\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":273,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":276,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":279,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":282,\"op\":\"F64_NE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":283,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":284,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":287,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":296,\"op\":\"F64_LE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":297,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":298,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":299,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":302,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":311,\"op\":\"F64_GE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":312,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":313,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":314,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":317,\"op\":\"CALL\",\"arg\":1,\"args\":[1],\"target\":4294967182},{\"pc\":322,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n"
+  },
+  {
+    "file": "command-39-command.json",
+    "sha256": "22a13707e9bbf89068857f3e79256b65187c1bde7787de034ba19cc56c23cc07",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_virt\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-38.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-38.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-39-status.json",
+    "sha256": "8d898d5665a96e07e1006a84a86733195986166bccc775d5c98d3960d116d2c3",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.03532870800700039,\n  \"pid\": 96491,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-39.stderr",
+    "sha256": "09edd56237f0817534df6e9b0687ee0e6515f55fca7752196bc1f9f9cd20e409",
+    "encoding": "utf8",
+    "content": "Warning at line 49, column 5: Unused variable 'nlr_t24_0'\nWarning: Function 'nlr_f1_owned_1' is missing a shadow test\nWarning: Function 'nlr_f2_owned_2' is missing a shadow test\n"
+  },
+  {
+    "file": "command-39.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-4-command.json",
+    "sha256": "bef30857a6ec8968c270a0d9ad26ea02e22f63be5047e91155211fb322b3182a",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-0.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-4-status.json",
+    "sha256": "e63d6c2d5b9517c00ce5115a224f488b6fa6543ec23bf800e564a925cdb92905",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010648792027495801,\n  \"pid\": 96427,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-4.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-4.stdout",
+    "sha256": "fb41a7da24f00cca302ae6f229f2b7ad26e86c533e94f99f76e95adefbc42838",
+    "encoding": "utf8",
+    "content": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1],\"field_types\":[[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":2,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\"],\"local_types\":[[1,4294967295],[1,4294967295]],\"size\":86,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":15,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":22,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":2},{\"pc\":27,\"op\":\"PUSH_I64\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":36,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":37,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":38,\"op\":\"PUSH_I64\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":47,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":50,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":53,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":58,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":2},{\"pc\":65,\"op\":\"PUSH_I64\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":74,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":75,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":76,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":85,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":3,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[0],\"names\":[\"\",\"\",\"\"],\"local_types\":[[8,0],[8,0],[1,4294967295]],\"size\":29,\"code\":[{\"pc\":0,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":3,\"op\":\"OWN_STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":6,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":7,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":1,\"args\":[1,1],\"target\":4294967295},{\"pc\":12,\"op\":\"REF_GET\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":17,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":18,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":21,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":24,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":27,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":28,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_2\",\"locals\":8,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0],[4,4294967295]],\"param_modes\":[0,0],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[8,0],[4,4294967295],[3,4294967295],[3,4294967295],[1,4294967295],[3,4294967295],[3,4294967295],[3,4294967295]],\"size\":323,\"code\":[{\"pc\":0,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":12,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":15,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":18,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"JMP_FALSE\",\"arg\":22,\"args\":[22],\"target\":42},{\"pc\":25,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4058c00000000000\"},{\"pc\":34,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":37,\"op\":\"JMP\",\"arg\":-19,\"args\":[-19],\"target\":18},{\"pc\":42,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":51,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":54,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"PUSH_I64\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":66,\"op\":\"LT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":67,\"op\":\"JMP_FALSE\",\"arg\":55,\"args\":[55],\"target\":122},{\"pc\":72,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":75,\"op\":\"PUSH_I64\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":84,\"op\":\"ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":85,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":88,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":91,\"op\":\"JMP_FALSE\",\"arg\":10,\"args\":[10],\"target\":101},{\"pc\":96,\"op\":\"JMP\",\"arg\":26,\"args\":[26],\"target\":122},{\"pc\":101,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":104,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":113,\"op\":\"F64_ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":114,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":117,\"op\":\"JMP\",\"arg\":-63,\"args\":[-63],\"target\":54},{\"pc\":122,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":125,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":134,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":135,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":136,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":139,\"op\":\"JMP_FALSE\",\"arg\":24,\"args\":[24],\"target\":163},{\"pc\":144,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":147,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":156,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":157,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":158,\"op\":\"JMP\",\"arg\":19,\"args\":[19],\"target\":177},{\"pc\":163,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":166,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4012000000000000\"},{\"pc\":175,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":176,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":177,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4004000000000000\"},{\"pc\":186,\"op\":\"F64_NEG\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":187,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":190,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":193,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"0000000000000000\"},{\"pc\":202,\"op\":\"F64_LT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":203,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":204,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4202a05f20000000\"},{\"pc\":213,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":216,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":219,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":222,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":223,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":226,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":229,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":232,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":233,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":236,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":239,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":242,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":243,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":246,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":249,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":252,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":253,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":256,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":259,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":262,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":263,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":266,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":269,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":272,\"op\":\"F64_SUB\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":273,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":276,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":279,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":282,\"op\":\"F64_NE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":283,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":284,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":287,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":296,\"op\":\"F64_LE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":297,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":298,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":299,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":302,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":311,\"op\":\"F64_GE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":312,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":313,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":314,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":317,\"op\":\"CALL\",\"arg\":1,\"args\":[1],\"target\":4294967182},{\"pc\":322,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n"
+  },
+  {
+    "file": "command-40-command.json",
+    "sha256": "9da77df371d19c462175a0d98cb743b2ccdaa574664be116184053d6eb0ed872",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-38.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-40-status.json",
+    "sha256": "3aa3f0dcd35279149de4ad902593c11bb2fcbd0c2d5ba4716d221bb6c938aa0f",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010112624964676797,\n  \"pid\": 96493,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-40.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-40.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-41-command.json",
+    "sha256": "256cc1e33ffcfb00f904c3d6a91c9fc70ce14dcc22b501cf0742fbb19da0ae33",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-38.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-41-status.json",
+    "sha256": "11d41e4eac0ae40d1d524ada226967f2508a92838b51dd5980e31b222878d1d0",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010102542000822723,\n  \"pid\": 96494,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-41.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-41.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-42-command.json",
+    "sha256": "c862840eaf30824d52ec07da635fa828f6947934d731b92a100df7a5da41f603",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-41.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-41.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-42-status.json",
+    "sha256": "d305d7098c97efc55921efd8c7f34322e214e7e46d3b301214279b37f5fa5bc3",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22147691703867167,\n  \"pid\": 96495,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-42.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-42.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-43-command.json",
+    "sha256": "9e329bacfe2372d2401be431b9fd35667bdecf99046f72d04dbdc250fb3ef98e",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-41.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-43-status.json",
+    "sha256": "7fc2cf61adf71d200f56728c0a3b4b9d5a9165cb38e3e90c412079f16933c5cb",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009595834009815007,\n  \"pid\": 96498,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-43.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-43.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-44-command.json",
+    "sha256": "4838aafb0c130f3284e410fe096c2992439f6889a1a104d9aa550b80f870cb77",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-41.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-44-status.json",
+    "sha256": "09b33243fd3432ec285377d14c1b680386232fb703be9ce7072d079d045b59b8",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010723708022851497,\n  \"pid\": 96499,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-44.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-44.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-45-command.json",
+    "sha256": "56aea7423d910e3f9b9674b3d4ff5e8204925485a80ce21399a75167743f6ed2",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-44.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-44.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-45-status.json",
+    "sha256": "fb1143bf91b8acae1a7cb6765454124e9b1f0ba13a7149b489b46986bad4fbdb",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.2217740840278566,\n  \"pid\": 96500,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-45.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-45.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-46-command.json",
+    "sha256": "18d5dff8232f6f5e6de5cc122f0366e45d7e8593e9beab391e8dd358aa69498e",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-44.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-46-status.json",
+    "sha256": "c207e0226012ae0f6f6a01567afef752130a1129ad9079f09918e1359e9fdfa8",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009562292019836605,\n  \"pid\": 96504,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-46.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-46.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-47-command.json",
+    "sha256": "7d3058d6a81479735a29368adce594376960b02a759a809ba3f0625789ec97d8",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-44.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-47-status.json",
+    "sha256": "fb8e0b45086185b476cc054723fd7b97d5446fce0318c63a120065cd16b92bdb",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.01060116698499769,\n  \"pid\": 96505,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-47.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-47.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-48-command.json",
+    "sha256": "f607d8fc953083604ce9089a255d32fed1129bcb0ce7003afa85d10379b40322",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O0\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-47.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-47.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-48-status.json",
+    "sha256": "c1d719119bf96d05b61725349e7ba8a969f1a4143e7372c9de3c393a32091d8f",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.06703925004694611,\n  \"pid\": 96506,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-48.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-48.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-49-command.json",
+    "sha256": "5edb03a34c5efdcfbb5b38e795231eb92ad49849696cfe9d5b7ac5815656a1f8",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-47.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-49-status.json",
+    "sha256": "299fad5fabd8b11efb39058c1f84ac0904fbb99fd6848d9233bc7a75cf3e7d76",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.27225754101527855,\n  \"pid\": 96510,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-49.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-49.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-5-command.json",
+    "sha256": "d7ec341853b3fabd1015238d94b37aed2cbf13c27c745b50339bc0ad4e1383c7",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_virt\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-4.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-4.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-5-status.json",
+    "sha256": "c7bc14d204e7d70aead1c6c46f0bc0dad6fd0fe3d5613df37cc1fb01ea6fa6bb",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.03663429198786616,\n  \"pid\": 96428,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-5.stderr",
+    "sha256": "09edd56237f0817534df6e9b0687ee0e6515f55fca7752196bc1f9f9cd20e409",
+    "encoding": "utf8",
+    "content": "Warning at line 49, column 5: Unused variable 'nlr_t24_0'\nWarning: Function 'nlr_f1_owned_1' is missing a shadow test\nWarning: Function 'nlr_f2_owned_2' is missing a shadow test\n"
+  },
+  {
+    "file": "command-5.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-50-command.json",
+    "sha256": "075c43dfb44d2b2dd48a14c96cc96fa52819fbee21c5de4f0ce0b040bdd946ec",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O2\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-47.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-47.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-50-status.json",
+    "sha256": "09758bd9db8275d824cf37f75573c1b0bd14efcf36042267ed89fdb923462510",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.07415679201949388,\n  \"pid\": 96512,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-50.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-50.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-51-command.json",
+    "sha256": "0a1bd3c1f907cacebf3af43d682003f462807afa609d3675b1af95da69c196c2",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-47.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-51-status.json",
+    "sha256": "aec0a59055f8311d995b7e8e06d9aefceb465c01b532e33b597184459a14fcfc",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.2909531660261564,\n  \"pid\": 96515,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-51.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-51.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-52-command.json",
+    "sha256": "1693c5f8a41e904294f42e856bf530e7b97021cdc60a19e32028d568d3e026fc",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoisa\",\n    \"asm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/original-shadow.nasm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/original-shadow.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-52-status.json",
+    "sha256": "05c13a7f7c08a47cbdeb5f06ab0ea9529992a9f3db9c3fcc5ed0963b4099acf8",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.023866416013333946,\n  \"pid\": 96516,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-52.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-52.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-53-command.json",
+    "sha256": "b4087a1bdb2c60c404b2194fa548ab9ab90b86e1aef3bd9980f1c9158f32340c",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/original-shadow.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-53-status.json",
+    "sha256": "127fc3aeb8e830582d291602ae944ea84a9c538a58756c9d1f2743da93ab4cb7",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.012199916993267834,\n  \"pid\": 96517,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-53.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-53.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-54-command.json",
+    "sha256": "9ea53da822c6aecad7414ac17278d88a3bbbc7286c372e954e75ef6c9a4a95f3",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/original-shadow.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-54-status.json",
+    "sha256": "3a5bbd75a56a679307fbe039e7ceada681e1f093d3a57fa335f4b02896665fe8",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010319332999642938,\n  \"pid\": 96518,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-54.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-54.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-55-command.json",
+    "sha256": "85a506e6db5b5a4c9e1a1bd9e2c6e9eb495e1f7cd26c1d317e48e5121cac11e7",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/original-shadow.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-55-status.json",
+    "sha256": "c9e49bf885fa6ab14ad9969fae3b8b565632d01a1c4356afc447319034d6cb21",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.00960641703568399,\n  \"pid\": 96519,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-55.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-55.stdout",
+    "sha256": "ba12483ad3679762323a219b34545e95ed909b3dfadfe5f9bccb281a00a9ccb3",
+    "encoding": "utf8",
+    "content": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1],\"field_types\":[[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":2,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\"],\"local_types\":[[1,4294967295],[1,4294967295]],\"size\":103,\"code\":[{\"pc\":0,\"op\":\"NOP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":1,\"op\":\"PUSH_I64\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":10,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":13,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":16,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":21,\"op\":\"CALL\",\"arg\":1,\"args\":[1],\"target\":1},{\"pc\":26,\"op\":\"PUSH_I64\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":35,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":36,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":37,\"op\":\"NOP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":38,\"op\":\"PUSH_I64\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":47,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":50,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":53,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":58,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":2},{\"pc\":65,\"op\":\"PUSH_I64\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":74,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":75,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":76,\"op\":\"NOP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":77,\"op\":\"CALL\",\"arg\":3,\"args\":[3],\"target\":3},{\"pc\":82,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":91,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":92,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":93,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":102,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":3,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[0],\"names\":[\"\",\"\",\"\"],\"local_types\":[[8,0],[8,0],[1,4294967295]],\"size\":29,\"code\":[{\"pc\":0,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":3,\"op\":\"OWN_STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":6,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":7,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":1,\"args\":[1,1],\"target\":4294967295},{\"pc\":12,\"op\":\"REF_GET\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":17,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":18,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":21,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":24,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":27,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":28,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_2\",\"locals\":8,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0],[4,4294967295]],\"param_modes\":[0,0],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[8,0],[4,4294967295],[3,4294967295],[3,4294967295],[1,4294967295],[3,4294967295],[3,4294967295],[3,4294967295]],\"size\":323,\"code\":[{\"pc\":0,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":12,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":15,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":18,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"JMP_FALSE\",\"arg\":22,\"args\":[22],\"target\":42},{\"pc\":25,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4058c00000000000\"},{\"pc\":34,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":37,\"op\":\"JMP\",\"arg\":-19,\"args\":[-19],\"target\":18},{\"pc\":42,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":51,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":54,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"PUSH_I64\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":66,\"op\":\"LT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":67,\"op\":\"JMP_FALSE\",\"arg\":55,\"args\":[55],\"target\":122},{\"pc\":72,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":75,\"op\":\"PUSH_I64\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":84,\"op\":\"ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":85,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":88,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":91,\"op\":\"JMP_FALSE\",\"arg\":10,\"args\":[10],\"target\":101},{\"pc\":96,\"op\":\"JMP\",\"arg\":26,\"args\":[26],\"target\":122},{\"pc\":101,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":104,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":113,\"op\":\"F64_ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":114,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":117,\"op\":\"JMP\",\"arg\":-63,\"args\":[-63],\"target\":54},{\"pc\":122,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":125,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":134,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":135,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":136,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":139,\"op\":\"JMP_FALSE\",\"arg\":24,\"args\":[24],\"target\":163},{\"pc\":144,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":147,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":156,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":157,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":158,\"op\":\"JMP\",\"arg\":19,\"args\":[19],\"target\":177},{\"pc\":163,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":166,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4012000000000000\"},{\"pc\":175,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":176,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":177,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4004000000000000\"},{\"pc\":186,\"op\":\"F64_NEG\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":187,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":190,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":193,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"0000000000000000\"},{\"pc\":202,\"op\":\"F64_LT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":203,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":204,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4202a05f20000000\"},{\"pc\":213,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":216,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":219,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":222,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":223,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":226,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":229,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":232,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":233,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":236,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":239,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":242,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":243,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":246,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":249,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":252,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":253,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":256,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":259,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":262,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":263,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":266,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":269,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":272,\"op\":\"F64_SUB\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":273,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":276,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":279,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":282,\"op\":\"F64_NE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":283,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":284,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":287,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":296,\"op\":\"F64_LE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":297,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":298,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":299,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":302,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":311,\"op\":\"F64_GE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":312,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":313,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":314,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":317,\"op\":\"CALL\",\"arg\":1,\"args\":[1],\"target\":4294967165},{\"pc\":322,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_3\",\"locals\":2,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\"],\"local_types\":[[1,4294967295],[1,4294967295]],\"size\":86,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":15,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":22,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":4294966843},{\"pc\":27,\"op\":\"PUSH_I64\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":36,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":37,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":38,\"op\":\"PUSH_I64\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":47,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":50,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":53,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":58,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":4294966843},{\"pc\":65,\"op\":\"PUSH_I64\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":74,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":75,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":76,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":85,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n"
+  },
+  {
+    "file": "command-56-command.json",
+    "sha256": "1311c09cb8c00e9f0780ee89211eedfe2c09ed006a3898d4a93e899a786ca5bd",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_virt\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-55.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-55.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-56-status.json",
+    "sha256": "06d29c7c0f385215156b97eefbd9637140ff4302a7cf39b6fd7d0f04d114cd94",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.06719400000292808,\n  \"pid\": 96520,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-56.stderr",
+    "sha256": "32530a51c1366de889b8f15b6c934748162936cf26b28e743fb22805b1d8a774",
+    "encoding": "utf8",
+    "content": "Warning at line 52, column 5: Unused variable 'nlr_t24_0'\nWarning: Function 'nlr_f1_owned_1' is missing a shadow test\nWarning: Function 'nlr_f2_owned_2' is missing a shadow test\nWarning: Function 'nlr_f3_owned_3' is missing a shadow test\n"
+  },
+  {
+    "file": "command-56.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-57-command.json",
+    "sha256": "d1a134db3bbb019d9b96bd9103367b796771b52b2534ec2c38907ee35f74ba02",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-55.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-57-status.json",
+    "sha256": "9236aa43b1b82a18facf8fd1875383f7558d382fd9246c864807a3efafd79d21",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009876874973997474,\n  \"pid\": 96522,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-57.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-57.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-58-command.json",
+    "sha256": "620aa0652313e57e3db5ac4bb48e7a5cb5c814a687ee8c72418076a0add56030",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-55.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-58-status.json",
+    "sha256": "51ca013ed9cc1f8935b98b40209481c96f97af9a0c9ce06f089ef3d886bfa2d0",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.019659333978779614,\n  \"pid\": 96523,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-58.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-58.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-59-command.json",
+    "sha256": "2e772e0fe4d3e4b3042b2bbd947eac09587d52fdb839754494b8b9494922cfb9",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-58.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-58.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-59-status.json",
+    "sha256": "915d261cb8dabccae7c74eac7e88019804151406881993ed1365c5f5a0358d4d",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22504345898050815,\n  \"pid\": 96524,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-59.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-59.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-6-command.json",
+    "sha256": "332c836f54db030c5b703721d98ca49a6624d8a0a92816eedb60a734f425bcbf",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-4.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-6-status.json",
+    "sha256": "1924bb0bb829b3963344f171bc486b877e4013596059db7f979e9133ece3ca7b",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010622750036418438,\n  \"pid\": 96430,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-6.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-6.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-60-command.json",
+    "sha256": "9482aa190ea3039306f118a9487fc4ece9f1995ff6ded44fe26b07e2e024ac79",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-58.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-60-status.json",
+    "sha256": "b8a29c49d59ea1b16a7794cb9e0ef0530f6f5e8396815d5c8f319f666db75bdb",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.00930841697845608,\n  \"pid\": 96529,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-60.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-60.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-61-command.json",
+    "sha256": "ef9e06612acec95fb411d9cc6d33c5acd9fd8f52d968fa9c3bb79836c4d6b93c",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-58.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-61-status.json",
+    "sha256": "f3db4731e02a82295b4b4d97a9ed95615931198f32f00c63fccfb551fde39963",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.0193697499926202,\n  \"pid\": 96530,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-61.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-61.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-62-command.json",
+    "sha256": "cc68b4cc8c2d4c20a91e26f2fbf4c6cbbebe6ca8e7b6b973f63ab4cad40889d3",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-61.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-61.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-62-status.json",
+    "sha256": "9b5f2a55ad4d2e35ead0f2ec6afeed404b04d8fa043b13923ef1a2621c2e37f0",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22409304196480662,\n  \"pid\": 96531,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-62.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-62.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-63-command.json",
+    "sha256": "f91b92ef52d1b000140e684f9e2c5021095b9d3b6d06146d38bacb5fba9f7812",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-61.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-63-status.json",
+    "sha256": "21915e85ff07d0b925db3a6ea8dfc66a6c9874285cf513b6ddcbcc7913286e6d",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009323000034783036,\n  \"pid\": 96534,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-63.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-63.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-64-command.json",
+    "sha256": "fcda485286ad9b602dd5c7d8c1c8ff7bc3febe8f1a6947d0f06f3b6dff53e2bb",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-61.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-64-status.json",
+    "sha256": "79fc543e8c98e8993a2991269c4a0c6dff5fc5b554ce9506b14a29b1c8e002c0",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.017691041983198375,\n  \"pid\": 96535,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-64.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-64.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-65-command.json",
+    "sha256": "ec2a1be3e5e203da23416072c4e53d8b124b62f85f08d5ed527f64589bd7a8f1",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O0\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-64.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-64.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-65-status.json",
+    "sha256": "846ca7176524a343d267994d8b7f45856cb4edc427a539d8e0819b8d3e86958d",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.06861374998698011,\n  \"pid\": 96536,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-65.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-65.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-66-command.json",
+    "sha256": "bb784c392d4ea45bcb1f9b1bb91139a6c93c11e77758f5abe5db8238b201e772",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-64.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-66-status.json",
+    "sha256": "6ce5c32f328532087c4042217fa6950e138f5859e94dc983288e7bdf64e84f50",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.2743856250308454,\n  \"pid\": 96539,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-66.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-66.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-67-command.json",
+    "sha256": "bd97ee0a96f490b70c589b4898e371c8bad714590371c71ebc5d7db25bf8821f",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O2\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-64.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-64.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-67-status.json",
+    "sha256": "51fe64eabd30afab90eb2f0b987712e0d0e607744327c3a9f980e6f9130e7715",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.07259541697567329,\n  \"pid\": 96540,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-67.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-67.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-68-command.json",
+    "sha256": "cacf5c3e47a7cf9ae550168d666f00087b11c3ad3f3ddcfb353bfcc65247b1ea",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/generated-64.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-68-status.json",
+    "sha256": "8881e636467806354f54156c3baebd183ee4fb817ddc1be8e8aae1c701d59c9b",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.2849634999874979,\n  \"pid\": 96543,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-68.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-68.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-7-command.json",
+    "sha256": "f556c2046899d7981778ddffaf1df9df678b37465cdf1a0ee6eeb8dabcdafa76",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-4.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-7-status.json",
+    "sha256": "c30e4f0b5c32f1cfe2ae0918bf09e13e0dbb959d6c82ef8a0c4793ca086c927a",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009553708019666374,\n  \"pid\": 96431,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-7.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-7.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-8-command.json",
+    "sha256": "de48c8d53c2bd447817b10e069b07573f54f9d8cd6e3896002f448a232cfe808",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-7.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-7.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-8-status.json",
+    "sha256": "7907b2a917ef8f9f6f10d9025ce8492cb7323ab768766b0adb61ac7cbb94f117",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22936745802871883,\n  \"pid\": 96432,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-8.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-8.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-9-command.json",
+    "sha256": "db2e1edd84520a04468d631569837c12f10eae2532bdd54f61ce5044168cffd6",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l/source-7.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-9-status.json",
+    "sha256": "7df4e5cb1b0997674fdd5452dfcb42e79ade7716c4a02a9fe18f76dc29b6f95d",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010502417047973722,\n  \"pid\": 96435,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-9.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-9.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  }
+]
