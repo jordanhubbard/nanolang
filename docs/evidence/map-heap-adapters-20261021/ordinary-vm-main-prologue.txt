@@ -1,0 +1,30 @@
+
+/private/tmp/nanolang-map-heap-20261021/ordinary-vm:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000100000a08 <_main>:
+100000a08: 6db63bef    	stp	d15, d14, [sp, #-0xa0]!
+100000a0c: 6d0133ed    	stp	d13, d12, [sp, #0x10]
+100000a10: 6d022beb    	stp	d11, d10, [sp, #0x20]
+100000a14: 6d0323e9    	stp	d9, d8, [sp, #0x30]
+100000a18: a9046ffc    	stp	x28, x27, [sp, #0x40]
+100000a1c: a90567fa    	stp	x26, x25, [sp, #0x50]
+100000a20: a9065ff8    	stp	x24, x23, [sp, #0x60]
+100000a24: a90757f6    	stp	x22, x21, [sp, #0x70]
+100000a28: a9084ff4    	stp	x20, x19, [sp, #0x80]
+100000a2c: a9097bfd    	stp	x29, x30, [sp, #0x90]
+100000a30: 910243fd    	add	x29, sp, #0x90
+100000a34: d17fffe9    	sub	x9, sp, #0xfff, lsl #12 ; =0xfff000
+100000a38: d17ffd29    	sub	x9, x9, #0xfff, lsl #12 ; =0xfff000
+100000a3c: d17ffd29    	sub	x9, x9, #0xfff, lsl #12 ; =0xfff000
+100000a40: d17ffd29    	sub	x9, x9, #0xfff, lsl #12 ; =0xfff000
+100000a44: d17ffd29    	sub	x9, x9, #0xfff, lsl #12 ; =0xfff000
+100000a48: d17ffd29    	sub	x9, x9, #0xfff, lsl #12 ; =0xfff000
+100000a4c: d17ffd29    	sub	x9, x9, #0xfff, lsl #12 ; =0xfff000
+100000a50: d1739529    	sub	x9, x9, #0xce5, lsl #12 ; =0xce5000
+100000a54: d1088129    	sub	x9, x9, #0x220
+100000a58: 927be93f    	and	sp, x9, #0xffffffffffffffe0
+100000a5c: b0001c28    	adrp	x8, 0x100385000 <_builtin_function_names+0x178>
+100000a60: f942d908    	ldr	x8, [x8, #0x5b0]
+100000a64: f9400108    	ldr	x8, [x8]

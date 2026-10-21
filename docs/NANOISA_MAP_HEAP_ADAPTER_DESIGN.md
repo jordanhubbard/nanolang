@@ -1,6 +1,6 @@
 # Private STRING→INT map heap adapter and teardown checkpoint
 
-Status: contract-only above preparation34d080e06 / aggregate96504adf5, #1001 open. I own this next scoped audit. No dispatch/public/native/publisher change is authorized by this document. DELETE, KEYS, VALUES and heap-valued map values remain outside the selected profile. The existing shared VM still implements its old legacy opcode behavior.
+Status: reviewed private heap checkpoint above preparation34d080e06 / aggregate96504adf5; qualified evidence is in evidence/map-heap-adapters-20261021, #1001 open. I own this next scoped audit. No dispatch/public/native/publisher change is authorized by this document. DELETE, KEYS, VALUES and heap-valued map values remain outside the selected profile. The existing shared VM still implements its old legacy opcode behavior.
 
 ## Existing behavior and exact mutation sites
 

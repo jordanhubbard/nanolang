@@ -1,0 +1,108 @@
+/* Included by heap.c only, after the shared hash/probe/resize helpers. */
+static bool vm_rm_map_header(const VmHashMap *m) {
+    return m && m->header.obj_type==TAG_HASHMAP && m->header.ref_count && !m->header.buffered &&
+        m->key_type==TAG_STRING && m->val_type==TAG_INT && m->entries &&
+        m->bucket_count>=HM_INITIAL_BUCKETS && !(m->bucket_count&(m->bucket_count-1)) &&
+        sizeof(VmHMEntry)<=SIZE_MAX/(size_t)m->bucket_count &&
+        m->count<=m->bucket_count && !m->tombstone_count;
+}
+static bool vm_rm_string(NanoValue key) {
+    return key.tag==TAG_STRING && key.as.string && key.as.string->header.obj_type==TAG_STRING &&
+        key.as.string->header.ref_count && !key.as.string->header.buffered &&
+        (uint64_t)key.as.string->length+sizeof(VmString)+1<=SIZE_MAX;
+}
+VmRmHeapStatus vm_rm_heap_new(VmHeap *heap,VmHashMap **out) {
+    if(!heap || !out || heap->gc_running)return VM_RM_HEAP_INVALID;
+    VmHashMap *m=vm_hashmap_new(heap,TAG_STRING,TAG_INT);
+    if(!m)return VM_RM_HEAP_MEMORY;
+    *out=m;return VM_RM_HEAP_OK;
+}
+VmRmHeapStatus vm_rm_heap_set(VmHeap *heap,VmHashMap *m,NanoValue key,NanoValue value) {
+    if(!heap || heap->gc_running || !vm_rm_map_header(m) || !vm_rm_string(key) || value.tag!=TAG_INT)
+        return VM_RM_HEAP_INVALID;
+    uint32_t slot;bool found;
+    if(!hm_find_slot(m,key,&slot,&found))return VM_RM_HEAP_INVALID;
+    if(found) {
+        if(m->entries[slot].state!=1 || m->entries[slot].value.tag!=TAG_INT)return VM_RM_HEAP_INVALID;
+        /* Replacement borrows even a maximum-refcount key. Both values are
+         * scalars, so there is no retain/release or allocation to perform. */
+        m->entries[slot].value=value;return VM_RM_HEAP_OK;
+    }
+    if(key.as.string->header.ref_count==UINT32_MAX)return VM_RM_HEAP_RETAIN_OVERFLOW;
+    if(m->entries[slot].state!=0)return VM_RM_HEAP_INVALID;
+    uint64_t occupied=(uint64_t)m->count+1;
+    if((double)occupied/(double)m->bucket_count>HM_LOAD_FACTOR) {
+        if(m->bucket_count>UINT32_MAX/2 || !hm_resize(heap,m,m->bucket_count*2))return VM_RM_HEAP_MEMORY;
+        /* Rehash invalidates slot; topology induction guarantees a new empty
+         * slot. An impossible violation is not mislabeled allocator failure. */
+        if(!hm_find_slot(m,key,&slot,&found) || found || m->entries[slot].state!=0)
+            return VM_RM_HEAP_INVALID;
+    }
+    /* Nothing fallible follows this exact one-edge retain. */
+    vm_retain(heap,key);
+    m->entries[slot].key=key;m->entries[slot].value=value;
+    m->entries[slot].state=1;m->count++;
+    return VM_RM_HEAP_OK;
+}
+VmRmHeapStatus vm_rm_heap_get(const VmHashMap *m,NanoValue key,NanoValue *out) {
+    if(!out || !vm_rm_map_header(m) || !vm_rm_string(key))return VM_RM_HEAP_INVALID;
+    uint32_t slot;bool found;
+    if(!hm_find_slot(m,key,&slot,&found))return VM_RM_HEAP_INVALID;
+    NanoValue result=val_void();
+    if(found) {
+        if(m->entries[slot].state!=1 || m->entries[slot].value.tag!=TAG_INT)return VM_RM_HEAP_INVALID;
+        result=m->entries[slot].value;
+    }
+    *out=result;return VM_RM_HEAP_OK;
+}
+VmRmHeapStatus vm_rm_heap_has(const VmHashMap *m,NanoValue key,bool *out) {
+    if(!out || !vm_rm_map_header(m) || !vm_rm_string(key))return VM_RM_HEAP_INVALID;
+    uint32_t slot;bool found;
+    if(!hm_find_slot(m,key,&slot,&found))return VM_RM_HEAP_INVALID;
+    if(found && (m->entries[slot].state!=1 || m->entries[slot].value.tag!=TAG_INT))return VM_RM_HEAP_INVALID;
+    *out=found;return VM_RM_HEAP_OK;
+}
+VmRmHeapStatus vm_rm_heap_len(const VmHashMap *m,uint32_t *out) {
+    if(!out || !vm_rm_map_header(m))return VM_RM_HEAP_INVALID;
+    *out=m->count;return VM_RM_HEAP_OK;
+}
+static bool vm_rm_observation_charge(VmRmObservationWork *w,uint64_t amount) {
+    if(w->limited || w->used>w->limit || amount>w->limit-w->used) {
+        w->limited=true;return false;
+    }
+    w->used+=amount;return true;
+}
+VmRmHeapStatus vm_rm_heap_validate(const VmHashMap *m,VmRmObservationWork *w) {
+    if(!w || w->limit>VM_RM_OBSERVATION_WORK_MAX)return VM_RM_HEAP_INVALID;
+    if(!vm_rm_observation_charge(w,16))return VM_RM_HEAP_LIMIT;
+    if(!vm_rm_map_header(m))return VM_RM_HEAP_INVALID;
+    uint32_t count=0;
+    for(uint32_t i=0;i<m->bucket_count;i++) {
+        if(!vm_rm_observation_charge(w,8))return VM_RM_HEAP_LIMIT;
+        const VmHMEntry *entry=&m->entries[i];
+        if(!entry->state)continue;
+        if(entry->state!=1 || !vm_rm_string(entry->key) || entry->value.tag!=TAG_INT)return VM_RM_HEAP_INVALID;
+        count++;
+        const VmString *key=entry->key.as.string;
+        if(!vm_rm_observation_charge(w,(uint64_t)key->length+1))return VM_RM_HEAP_LIMIT;
+        if(fnv1a(key->data,key->length)!=key->hash)return VM_RM_HEAP_INVALID;
+        uint32_t index=key->hash%m->bucket_count;bool located=false;
+        /* This is the charged read-only equivalent of hm_find_slot for the
+         * no-tombstone profile. It never invokes an uncharged full lookup. */
+        for(uint32_t probes=0;probes<m->bucket_count;probes++) {
+            if(!vm_rm_observation_charge(w,4))return VM_RM_HEAP_LIMIT;
+            const VmHMEntry *candidate=&m->entries[index];
+            if(candidate->state==0)return VM_RM_HEAP_INVALID;
+            if(candidate->state!=1 || !vm_rm_string(candidate->key))return VM_RM_HEAP_INVALID;
+            uint64_t comparison=candidate->key.as.string->length==key->length?(uint64_t)key->length+1:1;
+            if(!vm_rm_observation_charge(w,comparison))return VM_RM_HEAP_LIMIT;
+            if(val_equal(candidate->key,entry->key)) {
+                if(index!=i)return VM_RM_HEAP_INVALID;
+                located=true;break;
+            }
+            index=(index+1)%m->bucket_count;
+        }
+        if(!located)return VM_RM_HEAP_INVALID;
+    }
+    return count==m->count?VM_RM_HEAP_OK:VM_RM_HEAP_INVALID;
+}
