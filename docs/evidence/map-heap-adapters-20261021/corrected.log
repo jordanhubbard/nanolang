@@ -1,0 +1,9 @@
+test_private_heap (tests.test_record_map_heap.RecordMapHeap.test_private_heap) ... I retain heap artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-heap-dt3mw7o4
+I checked 523 private heap assertions; no VM dispatch or admission. Heap size 6312.
+
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.766s
+
+OK

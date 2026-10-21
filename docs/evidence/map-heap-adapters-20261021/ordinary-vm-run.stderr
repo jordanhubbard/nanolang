@@ -1,0 +1,8 @@
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==84073==ERROR: AddressSanitizer: stack-overflow on address 0x00016595d258 (pc 0x0001027c4a9c bp 0x00016d63a860 sp 0x00016595c5a0 T0)
+    #0 0x0001027c4a9c in main test_vm.c:5909
+    #1 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+SUMMARY: AddressSanitizer: stack-overflow test_vm.c:5909 in main
+==84073==ABORTING

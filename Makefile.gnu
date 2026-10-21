@@ -7069,3 +7069,12 @@ test-record-map-preparation: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJEC
 	LSAN_OPTIONS= RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_preparation
 
 test-units: test-record-map-preparation
+
+$(OBJ_DIR)/nanovm/heap.o: $(NANOVM_DIR)/record_map_heap_private.h $(NANOVM_DIR)/record_map_heap.inc
+
+.PHONY: test-record-map-heap
+# Direct private adapters and teardown; this target enables no VM admission.
+test-record-map-heap:
+	RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" python3 -m unittest -f -v tests.test_record_map_heap
+
+test-units: test-record-map-heap

@@ -16498,3 +16498,15 @@ I passed all32 merged generic-record/affine methods. The aggregate receipt prese
 I integrate34d080e06 preserving both roadmap histories, add its constructor gate to platform qualification and run the aggregate target against four retained originals. This enables preparation only, with no run API or public admission.
 
 I passed the actual aggregate private preparation target (2 methods,9.300s) against all four retained originals and68 capture/workflow/checkpoint/container/schema controls. Receipt:`docs/evidence/map-preparation-aggregate-20261021/`. Execution and exact hosted qualification remain pending.
+
+- #1001 owned_calls owns contract-only next heap adapter/teardown audit above map preparation34d080e06 (aggregate96504adf5): exact STRING→INT private helpers, insertion/replacement headroom, net bucket-growth stats correction proposal and inline key teardown. Existing handler/allocator baseline grounds docs/NANOISA_MAP_HEAP_ADAPTER_DESIGN.md. No dispatch/public/native/publisher mutation; private macro/layout choice awaits review before code.
+
+- #1001 owned_calls starts reviewed heap adapter source checkpoint above93f4f71d4: isolated net-capacity stats correction, private STRING→INT checked helpers/charged physical validator, inline map-key teardown under combined private macros. No vm.c handler/admission changes; source review precedes builds and direct allocator qualification.
+
+- #1001 private heap checkpoint qualified: 10318 direct ASan/UBSan checks, combined preparation2/all4 originals, old array VM2 and six exact budgets, strict8, legacy allocation and ordinary VM274654 at harness-onlyO0. Retained optional full-harnessO1 stack overflow is not a green claim. Actual combined owner818472/heap6312; net-growth accounting balances7126/7126 with independent allocation tracking. See evidence/map-heap-adapters-20261021. Public/runtime/native/publisher admission remains closed.
+
+### 2026-10-21: I integrate scoped map heap adapters
+
+I integratef8c2f127f preserving both roadmap histories, wire its direct heap gate into platform qualification and run the actual aggregate target under ASan/UBSan. Shared changes remain net growth accounting; private adapters/teardown do not enable VM dispatch or public admission.
+
+I passed aggregate10318 heap assertions under ASan/UBSan and68 workflow/schema controls. Receipt:`docs/evidence/map-heap-aggregate-20261021/`. VM routing and exact hosted qualification remain pending.

@@ -1,0 +1,12 @@
+RECORD_ARRAY_VM_CC="cc" RECORD_ARRAY_VM_CFLAGS="-fsanitize=address,undefined -fno-sanitize-recover=all -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.0.3/include" python3 -m unittest -f -v tests.test_record_map_heap
+test_private_heap (tests.test_record_map_heap.RecordMapHeap.test_private_heap) ... I retain heap artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-heap-e_j5fm5r
+I checked 32 partial record/map construction prefixes with independent retry.
+I measured corrected legacy growth allocated=7126; freed=7126, objects=0.
+I checked 10318 private heap assertions; no VM dispatch or admission. Heap size 6312.
+
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.123s
+
+OK

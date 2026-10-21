@@ -3,6 +3,7 @@
  */
 
 #include "heap.h"
+#include "record_map_heap_private.h"
 #include "../binary64_format.h"
 #include <stdlib.h>
 #include <string.h>
@@ -171,7 +172,32 @@ static void vm_private_dag_release(VmHeap *heap,NanoValue value) {
                     heap->stats.freed+=sizeof *s+s->length+1;
                     heap->stats.num_objects--;
                     vm_intern_unlink(heap,s);free(s);
-                } else {
+                }
+#ifdef NANO_RECORD_MAP_PRIVATE_HEAP
+                else if(value.tag==TAG_HASHMAP) {
+                    /* Exact STRING->INT maps add no parent frame. Each stored
+                     * key edge is retired inline, never via recursive release. */
+                    VmHashMap *m=value.as.hashmap;
+                    assert(m->key_type==TAG_STRING && m->val_type==TAG_INT && !m->tombstone_count);
+                    for(uint32_t i=0;i<m->bucket_count;i++) {
+                        VmHMEntry *entry=&m->entries[i];
+                        if(!entry->state)continue;
+                        assert(entry->state==1 && entry->key.tag==TAG_STRING && entry->value.tag==TAG_INT);
+                        VmString *key=entry->key.as.string;
+                        assert(key && key->header.obj_type==TAG_STRING && key->header.ref_count && !key->header.buffered);
+                        entry->key=val_void();entry->value=val_void();entry->state=0;
+                        heap->stats.release_calls++;
+                        if(--key->header.ref_count==0) {
+                            heap->stats.freed+=sizeof *key+key->length+1;
+                            heap->stats.num_objects--;
+                            vm_intern_unlink(heap,key);free(key);
+                        }
+                    }
+                    heap->stats.freed+=sizeof *m+(size_t)m->bucket_count*sizeof(VmHMEntry);
+                    heap->stats.num_objects--;free(m->entries);free(m);
+                }
+#endif
+                else {
                     assert(value.tag==TAG_ARRAY || value.tag==TAG_STRUCT);
                     assert(depth<sizeof heap->private_release/sizeof heap->private_release[0]);
                     heap->private_release[depth].value=value;
@@ -866,7 +892,7 @@ VmHashMap *vm_hashmap_new(VmHeap *heap, uint8_t key_type, uint8_t val_type) {
     return m;
 }
 
-static bool hm_find_slot(VmHashMap *m, NanoValue key, uint32_t *slot, bool *found) {
+static bool hm_find_slot(const VmHashMap *m, NanoValue key, uint32_t *slot, bool *found) {
     uint32_t idx = hash_value(key) % m->bucket_count;
     uint32_t first_tombstone = UINT32_MAX;
     for (uint32_t probes = 0; probes < m->bucket_count; probes++) {
@@ -893,7 +919,7 @@ static bool hm_find_slot(VmHashMap *m, NanoValue key, uint32_t *slot, bool *foun
     return false;
 }
 
-static bool hm_resize(VmHashMap *m, uint32_t new_count) {
+static bool hm_resize(VmHeap *heap, VmHashMap *m, uint32_t new_count) {
     VmHMEntry *old_entries = m->entries;
     uint32_t old_count = m->bucket_count;
     if (!new_count || sizeof(VmHMEntry) > SIZE_MAX / (size_t)new_count) return false;
@@ -919,9 +945,16 @@ static bool hm_resize(VmHashMap *m, uint32_t new_count) {
         }
     }
     *m = replacement;
+    /* All current callers grow by doubling. Match array_grow's net retained
+     * capacity accounting; failed replacement never changes these counters. */
+    if (heap) heap->stats.allocated += (size_t)(new_count - old_count) * sizeof(VmHMEntry);
     free(old_entries);
     return true;
 }
+
+#ifdef NANO_RECORD_MAP_PRIVATE_HEAP
+#include "record_map_heap.inc"
+#endif
 
 NanoValue vm_hashmap_get(VmHashMap *m, NanoValue key) {
     uint32_t slot;
@@ -944,7 +977,7 @@ bool vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value) 
     }
     uint64_t occupied = (uint64_t)m->count + m->tombstone_count + 1;
     if ((double)occupied / (double)m->bucket_count > HM_LOAD_FACTOR) {
-        if (m->bucket_count > UINT32_MAX / 2 || !hm_resize(m, m->bucket_count * 2)) return false;
+        if (m->bucket_count > UINT32_MAX / 2 || !hm_resize(heap, m, m->bucket_count * 2)) return false;
         if (!hm_find_slot(m, key, &slot, &found)) return false;
     }
     VmHMEntry *entry = &m->entries[slot];
