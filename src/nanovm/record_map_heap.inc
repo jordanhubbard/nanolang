@@ -106,3 +106,32 @@ VmRmHeapStatus vm_rm_heap_validate(const VmHashMap *m,VmRmObservationWork *w) {
     }
     return count==m->count?VM_RM_HEAP_OK:VM_RM_HEAP_INVALID;
 }
+
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+static VmRmHeapStatus vm_rm_validated_byte_probe(const VmHashMap *m,const void *bytes,uint32_t length,
+                                                VmRmObservationWork *w,NanoValue *out) {
+    if(!vm_rm_observation_charge(w,(uint64_t)length+1))return VM_RM_HEAP_LIMIT;
+    uint32_t hash=fnv1a(bytes,length),index=hash%m->bucket_count;
+    for(uint32_t probe=0;probe<m->bucket_count;probe++) {
+        if(!vm_rm_observation_charge(w,4))return VM_RM_HEAP_LIMIT;
+        const VmHMEntry *entry=&m->entries[index];
+        if(!entry->state){*out=val_void();return VM_RM_HEAP_OK;}
+        const VmString *key=entry->key.as.string;
+        if(!vm_rm_observation_charge(w,key->length==length?(uint64_t)length+1:1))return VM_RM_HEAP_LIMIT;
+        if(key->length==length && (!length || !memcmp(key->data,bytes,length))) {
+            *out=entry->value;return VM_RM_HEAP_OK;
+        }
+        index=(index+1)%m->bucket_count;
+    }
+    *out=val_void();return VM_RM_HEAP_OK;
+}
+VmRmHeapStatus vm_rm_heap_observe_lookup(const VmHashMap *m,const void *bytes,uint32_t length,
+                                        VmRmObservationWork *w,NanoValue *out) {
+    if(!out || (length&&!bytes) || !w || w->used>w->limit || w->limit>VM_RM_OBSERVATION_WORK_MAX)
+        return VM_RM_HEAP_INVALID;
+    if(w->limited)return VM_RM_HEAP_LIMIT;
+    VmRmHeapStatus status=vm_rm_heap_validate(m,w);
+    if(status!=VM_RM_HEAP_OK)return status;
+    return vm_rm_validated_byte_probe(m,bytes,length,w,out);
+}
+#endif

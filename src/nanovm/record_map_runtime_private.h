@@ -10,6 +10,27 @@ typedef struct VmRecordMapInvocation VmRecordMapInvocation;
 #if !defined(NANO_RECORD_MAP_PRIVATE_PREPARATION) || !defined(NANO_RECORD_MAP_PRIVATE_HEAP) || !defined(NANO_RECORD_ARRAY_PRIVATE_RUNTIME)
 #error "private map invocation requires consistent preparation, heap and DAG macros"
 #endif
+#include "record_map_heap_private.h"
+#define VM_RECORD_MAP_PATH_MAX 258u
+typedef enum { VM_RM_RESULT, VM_RM_GLOBAL } VmRecordMapRoot;
+typedef enum { VM_RM_OBS_OK, VM_RM_OBS_INVALID, VM_RM_OBS_LIMIT } VmRecordMapObservationStatus;
+typedef struct {
+    uint64_t epoch,scalar_bits;
+    uint32_t length,layout;
+    uint8_t tag,element_tag,key_tag,value_tag;
+} VmRecordMapObservation;
+typedef struct { uint64_t epoch;bool same; } VmRecordMapIdentityComparison;
+/* Caller-owned output/work must be disjoint from each other, inputs and the
+ * owned graph. Descriptive copies are epoch-scoped, never admission tokens. */
+VmRecordMapObservationStatus vm_record_map_private_observe(const VmRecordMapPrivate *,VmRecordMapRoot,uint32_t,
+    const uint32_t *,uint16_t,VmRmObservationWork *,VmRecordMapObservation *);
+VmRecordMapObservationStatus vm_record_map_private_lookup(const VmRecordMapPrivate *,VmRecordMapRoot,uint32_t,
+    const uint32_t *,uint16_t,const void *,uint32_t,VmRmObservationWork *,VmRecordMapObservation *);
+VmRecordMapObservationStatus vm_record_map_private_string(const VmRecordMapPrivate *,VmRecordMapRoot,uint32_t,
+    const uint32_t *,uint16_t,uint32_t,uint32_t,VmRmObservationWork *,void *);
+VmRecordMapObservationStatus vm_record_map_private_same_identity(const VmRecordMapPrivate *,
+    VmRecordMapRoot,uint32_t,const uint32_t *,uint16_t,VmRecordMapRoot,uint32_t,const uint32_t *,uint16_t,
+    VmRmObservationWork *,VmRecordMapIdentityComparison *);
 typedef struct {
     uint64_t epoch,heap_objects,heap_live_bytes;
     uint32_t active_frames,active_stack,maximum_frames;

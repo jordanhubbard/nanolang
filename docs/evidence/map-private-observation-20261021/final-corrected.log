@@ -1,0 +1,161 @@
+I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-i60hkfu9
+I copied observations32/identity16 with owner818512 unchanged; lookup work229.
+I measured exact observe33/string36/empty-string34/identity430 logical work.
+I bounded64 colliding keys at34950 lookup work and retained exact counted-NUL keys.
+I observed actual64-origin tree scalar path63; path259 refused without traversal.
+I reserved actual runtime owner818512/view48, 9243573 bytes/9269707 work (overlap 76474578/26145831).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266740 work (overlap 76473835/26142410).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+PASS 19208 private copied map observation checks; public admission remains refused.
+
+I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-nd_qkvhu
+I copied observations32/identity16 with owner818512 unchanged; lookup work229.
+I measured exact observe33/string36/empty-string34/identity430 logical work.
+I bounded64 colliding keys at34950 lookup work and retained exact counted-NUL keys.
+I observed actual64-origin tree scalar path63; path259 refused without traversal.
+I reserved actual runtime owner818512/view48, 9243573 bytes/9269707 work (overlap 76474578/26145831).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266740 work (overlap 76473835/26142410).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+PASS 19208 private copied map observation checks; public admission remains refused.
+
+I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-e1yizgcq
+I checked 5 tail/map execution allocation positions in both failure modes.
+I checked 6 growth execution positions in both modes with distinct counted-NUL keys.
+I reserved actual runtime owner818512/view48, 9243573 bytes/9269707 work (overlap 76474578/26145831).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266740 work (overlap 76473835/26142410).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+I executed original0 with result0, maximum_frames2, heap objects29.
+I executed original1 with result0, maximum_frames2, heap objects27.
+I executed original2 with result0, maximum_frames2, heap objects27.
+I executed original3 with result0, maximum_frames2, heap objects27.
+PASS 2714 actual private map runtime checks; public admission remains refused.
+
+I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-b3zoeduk
+I checked 5 tail/map execution allocation positions in both failure modes.
+I checked 6 growth execution positions in both modes with distinct counted-NUL keys.
+I reserved actual runtime owner818512/view48, 9243573 bytes/9269707 work (overlap 76474578/26145831).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266740 work (overlap 76473835/26142410).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+I executed original0 with result0, maximum_frames2, heap objects29.
+I executed original1 with result0, maximum_frames2, heap objects27.
+I executed original2 with result0, maximum_frames2, heap objects27.
+I executed original3 with result0, maximum_frames2, heap objects27.
+PASS 2714 actual private map runtime checks; public admission remains refused.
+
+I retain private VM artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-vm-xekm2snp
+I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I begin tail_staging_failure_prefixes
+I checked 5 tail staging/runtime allocation positions with prior result preservation.
+I begin public_tail_duplicate_headroom
+I begin tail_duplicate_headroom
+I begin private_bounds_and_busy
+I begin affinity_and_retain_overflow
+I begin boxed_partial_copy_cleanup
+I begin recipe_and_dispatch_agreement
+I retired all 94 recipes and checked all 256 opcode decisions and independent maps.
+I begin allocation_prefixes
+I checked 86 preparation and 8 execution allocation positions in both modes with independent recovery.
+I passed 6197 private mixed VM checks; no public or generated consumer admission.
+I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I begin tail_staging_failure_prefixes
+I checked 5 tail staging/runtime allocation positions with prior result preservation.
+I begin public_tail_duplicate_headroom
+I begin tail_duplicate_headroom
+I begin private_bounds_and_busy
+I begin affinity_and_retain_overflow
+I begin boxed_partial_copy_cleanup
+I begin recipe_and_dispatch_agreement
+I retired all 94 recipes and checked all 256 opcode decisions and independent maps.
+I begin allocation_prefixes
+I checked 86 preparation and 8 execution allocation positions in both modes with independent recovery.
+I passed 6197 private mixed VM checks; no public or generated consumer admission.
+I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I passed 2390 private mixed VM checks; no public or generated consumer admission.
+I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I passed 2390 private mixed VM checks; no public or generated consumer admission.
+I retain heap artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-heap-3vyhmh8a
+I checked 32 partial record/map construction prefixes with independent retry.
+I measured corrected legacy growth allocated=7126; freed=7126, objects=0.
+I checked 10318 private heap assertions; no VM dispatch or admission. Heap size 6312.
+
+ test_original_goto (tests.test_record_map_observation.RecordMapObservation.test_original_goto) ... ok
+test_original_switch (tests.test_record_map_observation.RecordMapObservation.test_original_switch) ... ok
+test_original_goto (tests.test_record_map_runtime.RecordMapRuntime.test_original_goto) ... ok
+test_original_switch (tests.test_record_map_runtime.RecordMapRuntime.test_original_switch) ... ok
+test_instrumented_private_vm (tests.test_record_array_vm.RecordArrayVm.test_instrumented_private_vm) ... ok
+test_linked_private_vm (tests.test_record_array_vm.RecordArrayVm.test_linked_private_vm) ... ok
+test_private_heap (tests.test_record_map_heap.RecordMapHeap.test_private_heap) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 63.333s
+
+OK
+
