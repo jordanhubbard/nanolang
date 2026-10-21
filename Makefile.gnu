@@ -5079,7 +5079,7 @@ test-managed-record-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_array_shapes.h $(NANOISA_DIR)/managed_record_shapes.h $(NANOISA_DIR)/managed_record_plan.h $(NANOISA_DIR)/ownership_contracts.h
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_execution.h $(NANOISA_DIR)/managed_record_array_execution.inc $(NANOISA_DIR)/record_array_snapshot_private.h
-$(OBJ_DIR)/nanovm/vm.o: $(NANOVM_DIR)/record_array_runtime_private.h $(NANOVM_DIR)/record_array_vm_prepare.inc $(NANOVM_DIR)/record_array_vm_run.inc
+$(OBJ_DIR)/nanovm/vm.o: $(NANOVM_DIR)/record_array_runtime_private.h $(NANOVM_DIR)/record_array_vm_prepare.inc $(NANOVM_DIR)/record_array_vm_run.inc $(NANOVM_DIR)/record_map_runtime_private.h $(NANOVM_DIR)/record_map_vm_prepare.inc
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_origins.h $(NANOISA_DIR)/record_array_origins.inc $(NANOISA_DIR)/record_array_structure_private.h
 $(OBJ_DIR)/nanoisa/verifier.o: $(NANOISA_DIR)/record_array_structure_private.h $(NANOISA_DIR)/record_array_structure.inc
 $(OBJ_DIR)/nanoisa/verifier_types.o: $(NANOISA_DIR)/record_array_structure_private.h
@@ -7062,3 +7062,10 @@ test-record-map-image: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_image
 
 test-units: test-record-map-image
+
+.PHONY: test-record-map-preparation
+# I qualify private map preparation only; no runtime entry is enabled.
+test-record-map-preparation: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	LSAN_OPTIONS= RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_preparation
+
+test-units: test-record-map-preparation

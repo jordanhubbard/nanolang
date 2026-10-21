@@ -6,6 +6,9 @@ typedef struct {
     uint64_t source_retained_bytes,preparation_bytes_reserved,preparation_work_reserved;
 } NvmRecordMapImageCost;
 NvmArrayEligibilityResult nvm_record_map_image_copy(const NvmRecordMapExecutionPlan *,NvmRecordMapImage **);
+NvmArrayEligibilityResult nvm_record_map_image_copy_reserved(const NvmRecordMapExecutionPlan *,
+    uint64_t extra_bytes,uint64_t extra_work,NvmRecordMapImage **);
+const NvmRecordMapExecutionPlan *nvm_record_map_image_plan(const NvmRecordMapImage *);
 void nvm_record_map_image_free(NvmRecordMapImage *);
 bool nvm_record_map_image_cost(const NvmRecordMapImage *,NvmRecordMapImageCost *);
 /* Private lifetime-bound borrow only; this grants no executable admission. */

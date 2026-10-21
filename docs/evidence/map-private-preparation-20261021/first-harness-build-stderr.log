@@ -1,0 +1,8 @@
+tests/nanoisa/test_record_map_preparation.c:49:5: error: unknown type name 'NvmRecordMapPreparation'; did you mean 'VmRecordMapPreparation'?
+   49 |     NvmRecordMapPreparation stats;CHECK(vm_record_map_private_preparation(p,&stats));
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+      |     VmRecordMapPreparation
+tests/nanoisa/../../src/nanovm/record_map_runtime_private.h:12:3: note: 'VmRecordMapPreparation' declared here
+   12 | } VmRecordMapPreparation;
+      |   ^
+1 error generated.

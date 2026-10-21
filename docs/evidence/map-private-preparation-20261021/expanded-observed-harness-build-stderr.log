@@ -1,0 +1,7 @@
+tests/nanoisa/test_record_map_preparation.c:61:40: error: no member named 'private_record_dag' in 'struct VmHeap'
+   61 |     CHECK(!p->vm.verified&&!p->vm.heap.private_record_dag&&!p->vm.frame_count&&!p->vm.stack_size);
+      |                             ~~~~~~~~~~ ^
+tests/nanoisa/test_record_array_origins.c:23:36: note: expanded from macro 'CHECK'
+   23 | #define CHECK(x) do {checks++;if(!(x)){fprintf(stderr,"I failed line %u: %s\n",__LINE__,#x);exit(1);}} while(0)
+      |                                    ^
+1 error generated.
