@@ -1,0 +1,12 @@
+{
+  "/private/tmp/nanolang-map-string-publication-20261022/nano_virt": "f2042aaff097ca94dbd13510f88fd5f8900ef12ed80f0090d1e5cd4cb10a3985",
+  "/private/tmp/nanolang-map-string-publication-20261022/c-shadow": "d434e105e986db90d553ade905fa3917098c39b520b30781c0a38cc03d05a6be",
+  "/private/tmp/nanolang-map-string-publication-20261022/canonical": "a07c7ad3f8d32fea8227ec20591bdc3495b87e36ed2c5ea6e5622ef28b8b791f",
+  "/private/tmp/nanolang-map-string-publication-20261022/raw": "55923145a08f46f92938d2e0b4290a6c82c0b46b5bd424596fee80cc820b82b8",
+  "bin/nano_virt": "149bdb09c814f0d4dc3d879e485442bec1649800383dadc5123337696350baa7",
+  "bin/nano_vm": "04d298b66904d549cd1693abadc757e328a7af9643c826dd8f22f9e807f04afa",
+  "bin/nanoisa": "7b6eb0544759a77354429057c9992fe0f3221aa78e90ff66781358e0234edc02",
+  "bin/nvm2c": "4fecc999c1ded9ab24b5f98411aa8dbf6aaf82a614587fc66a2db16031fa1935",
+  "obj/borrow_shadow_names": "0dd5a467fc6ebd6d4004e1acb7efe223a17241109cb3f7c0dbe0e76832ab172d",
+  "obj/test_map_publication": "321ab108ea6c3afe5e48d228b85c3e297377a3e796888d76e76ee4afcd28d612"
+}

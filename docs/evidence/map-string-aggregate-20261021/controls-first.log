@@ -1,0 +1,29 @@
+E.........................E
+======================================================================
+ERROR: test_ci_workflow (unittest.loader._FailedTest.test_ci_workflow)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_ci_workflow
+Traceback (most recent call last):
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/loader.py", line 141, in loadTestsFromName
+    module = __import__(module_name)
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_ci_workflow.py", line 4, in <module>
+    import yaml
+ModuleNotFoundError: No module named 'yaml'
+
+
+======================================================================
+ERROR: test_nanoisa_schema (unittest.loader._FailedTest.test_nanoisa_schema)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_nanoisa_schema
+Traceback (most recent call last):
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/loader.py", line 141, in loadTestsFromName
+    module = __import__(module_name)
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_nanoisa_schema.py", line 7, in <module>
+    import yaml
+ModuleNotFoundError: No module named 'yaml'
+
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.810s
+
+FAILED (errors=2)

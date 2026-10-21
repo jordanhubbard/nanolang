@@ -16822,3 +16822,7 @@ I own the next #1001 STRING-value paired publisher interface audit on consumer0d
 I am drafting the reviewed paired STRING-value publisher slice after designc5f30b542. I preserve uniform-pair omission, current independent query and raw/checked provenance, and will freeze paired source/helper shadows before the first unchanged Holder C gate. No compiler build is part of this source checkpoint.
 
 I completed the reviewed paired STRING-value publication slice: direct C SS152/SI130, fresh C-hosted canonical/raw products, paired10methods/72modules/144native runs, actual older operations2, publisher729/query515 allocation positions in both denial modes,13 exact old-byte comparisons and strict4. I retain failures, provider identities and the scoped aggregate handoff in docs/evidence/map-string-publication-20261022; fresh-stage/platform acceptance remains independent.
+
+### 2026-10-21: aggregate STRING map integration
+
+I integrated exact STRING map heap/consumer/publication ancestry through23fb20084, wired both permanent consumer targets into retirement qualification, and passed the scoped aggregate C publication, ten-method paired source, heap/copied consumer and68 control gates. Receipt: `docs/evidence/map-string-aggregate-20261021/README.md`. Fresh raw/platform acceptance and remaining required authority profiles remain open; no full-bootstrap claim.
