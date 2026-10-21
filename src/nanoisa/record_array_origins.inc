@@ -56,9 +56,17 @@ static int ra_prepare_records(Analysis *a) {
         if(element.tag==TAG_ARRAY) {
             NvmOrdinaryArrayType child;
             if(!nvm_ownership_declarations_type(a->structure->declarations,element.referent,&child) ||
-               (child.tag!=TAG_INT && child.tag!=TAG_STRING) || child.referent!=NVM_V2_NO_INDEX)
-                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact nested INT or STRING element authority.");
-            a->nested_arrays=true;
+               (child.tag<TAG_INT || child.tag>TAG_STRING) || child.referent!=NVM_V2_NO_INDEX)
+                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact nested primitive element authority.");
+            a->nested_arrays|=NESTED_PRESENT;
+            if(child.tag==TAG_U8 || child.tag==TAG_FLOAT || child.tag==TAG_BOOL) {
+                uint32_t field=a->layout_fields[binding.layout]+binding.field;
+                a->field_elements[field]=child.tag==TAG_U8?FIELD_NESTED_U8:
+                    child.tag==TAG_FLOAT?FIELD_NESTED_FLOAT:FIELD_NESTED_BOOL;
+                a->nested_arrays|=child.tag==TAG_U8?NESTED_U8:
+                    child.tag==TAG_FLOAT?NESTED_FLOAT:NESTED_BOOL;
+                continue;
+            }
             if(child.tag==TAG_STRING) {
                 if(!a->nested_string_fields) {
                     size_t bytes=(fields+7u)/8u;
@@ -92,6 +100,7 @@ static int ra_prepare_records(Analysis *a) {
 /* I impose nested child obligations over the final monotone flow summaries.
  * Every past write remains in all_writes, including removed/replaced aliases. */
 static int ra_check_constraints(Analysis *a) {
+    uint64_t converted_children=0;
     if(!analysis_work(a,ORIGINS*16u))return 0;
     if(a->nested_arrays && !analysis_work(a,ORIGINS*ORIGINS*4u))return 0;
     for(uint32_t i=0;i<a->report.origin_count;i++)if(a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY &&
@@ -101,14 +110,18 @@ static int ra_check_constraints(Analysis *a) {
            (content.tags && !content.origins))
             return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require proved nested array children.");
         uint16_t requirement=a->required_elements[i];
-        uint8_t leaf=requirement==NVM_RECORD_ARRAY_OF_STRING?TAG_STRING:
-                     requirement==NVM_RECORD_ARRAY_OF_INT?TAG_INT:TAG_VOID;
+        uint8_t leaf=nvm_record_array_requirement_leaf(requirement);
         for(uint32_t j=0;j<a->report.origin_count;j++)if(content.origins&(UINT64_C(1)<<j)) {
             uint8_t child=a->report.origins[j].declared_tag;
             if(a->origin_kind[j]!=NVM_HEAP_ORIGIN_ARRAY ||
-               (child!=TAG_INT && !(a->nested_string_fields && child==TAG_STRING)) ||
+               (child!=TAG_INT && !(a->nested_string_fields && child==TAG_STRING) &&
+                !(child==TAG_U8 && (a->nested_arrays&NESTED_U8)) &&
+                !(child==TAG_FLOAT && (a->nested_arrays&NESTED_FLOAT)) &&
+                !(child==TAG_BOOL && (a->nested_arrays&NESTED_BOOL))) ||
                (leaf!=TAG_VOID && child!=leaf))
-                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require each nested child to preserve its exact INT or STRING leaf.");
+                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require each nested child to preserve its exact primitive leaf.");
+            if(requirement==NVM_RECORD_ARRAY_OF_U8)
+                converted_children|=UINT64_C(1)<<j;
             leaf=child;a->required_elements[j]|=BIT(child);
         }
     }
@@ -121,8 +134,10 @@ static int ra_check_constraints(Analysis *a) {
            (writes.tags&~allowed) || (children.tags&~allowed) ||
            (a->report.origins[i].child_tags&~allowed))
             return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact flat or bounded depth-two array content.");
-        uint16_t expected=a->required_elements[i]==NVM_RECORD_ARRAY_OF_STRING?BIT(TAG_ARRAY):a->required_elements[i];
-        if(expected && (expected!=BIT(declared) || (writes.tags&~expected)))
+        uint16_t expected=nvm_record_array_requirement_leaf(a->required_elements[i])!=TAG_VOID?BIT(TAG_ARRAY):a->required_elements[i];
+        /* Exact packed children retain their leaf type after the existing INT conversion. */
+        uint16_t accepted_writes=expected | ((converted_children&(UINT64_C(1)<<i))?BIT(TAG_INT):0);
+        if(expected && (expected!=BIT(declared) || (writes.tags&~accepted_writes)))
             return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require every aliased array write to preserve its exact field element type.");
     }
     return 1;

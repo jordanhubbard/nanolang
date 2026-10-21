@@ -1,0 +1,7 @@
+{
+  "src/nanovirt/codegen.c": "d825de70b14323f46ba0da86c01873bfd734a6f770831801a02781e166b6033a",
+  "src/nanoisa/managed_array_shapes.c": "161bee007d87c465541e09c4ef95435448e883f3e277ecb803f255b0d43ad72e",
+  "src/nanoisa/ownership_contracts.c": "e43ca306645223097abe5852a709d97bb21f920f565c9a4c6c6fffdfb336f1b3",
+  "src/nanoisa/nvm2c.c": "27d4662df446c34bc07bf71ef9e4337bb8736288a9468f64f400f1530147f2cf",
+  "src/nanovm/vm.c": "680c3745657e704d4929d56f4347e8b91421bb28d2fa249af58fa23bfdbf6f59"
+}

@@ -1,4 +1,7 @@
-/* I qualify exact depth-two INT fields through actual public consumers. */
+/* I qualify exact depth-two primitive fields through actual public consumers. */
+#ifndef NESTED_TEST_LEAF
+#define NESTED_TEST_LEAF TAG_INT
+#endif
 #define main retained_origin_fixture_main
 #include "test_record_array_origins.c"
 #undef main
@@ -27,9 +30,30 @@ static void pack_nested(Input *c) {
 static void integer(Input *c,unsigned value) {
     scalar(c,TAG_INT);c->code[c->n-8]=(uint8_t)value;
 }
+static bool exact_float_bits;
+static uint64_t float_payload;
+static uint64_t leaf_bits(bool final) {
+    if(exact_float_bits)return float_payload;
+    if(NESTED_TEST_LEAF==TAG_FLOAT) {
+        double value=final?11.5:7.25;uint64_t bits;memcpy(&bits,&value,sizeof bits);return bits;
+    }
+    if(NESTED_TEST_LEAF==TAG_BOOL)return final?0:1;
+    return final?11:7;
+}
+static void leaf_value(Input *c,bool final) {
+    uint64_t bits=leaf_bits(final);
+    scalar(c,NESTED_TEST_LEAF);
+    if(NESTED_TEST_LEAF==TAG_INT || NESTED_TEST_LEAF==TAG_FLOAT) {
+        for(unsigned i=0;i<8;i++)c->code[c->n-8+i]=(uint8_t)(bits>>(8*i));
+    } else c->code[c->n-1]=(uint8_t)bits;
+}
+static void leaf_equal(Input *c) {
+    bool nan=exact_float_bits && (float_payload&UINT64_C(0x7ff0000000000000))==UINT64_C(0x7ff0000000000000) && (float_payload&UINT64_C(0x000fffffffffffff));
+    op(c,NESTED_TEST_LEAF==TAG_FLOAT?(nan?OP_F64_NE:OP_F64_EQ):OP_EQ);
+}
 static void fixture(Input *c,unsigned mode) {
-    init(c,TAG_INT,false);c->fn[0].local_count=4;
-    array(c,TAG_INT);integer(c,7);op(c,OP_ARR_PUSH);arg16(c,OP_STORE_LOCAL,1);
+    init(c,NESTED_TEST_LEAF,false);c->fn[0].local_count=4;
+    array(c,NESTED_TEST_LEAF);leaf_value(c,false);op(c,OP_ARR_PUSH);arg16(c,OP_STORE_LOCAL,1);
     array(c,TAG_ARRAY);if(mode>=5)arg32(c,OP_CALL,1);arg16(c,OP_STORE_LOCAL,0);
     arg16(c,OP_LOAD_LOCAL,0);pack_nested(c);arg32(c,OP_STORE_GLOBAL,0);
     /* I mutate the outer through its original alias after field construction. */
@@ -46,12 +70,12 @@ static void fixture(Input *c,unsigned mode) {
         /* I replace the canonical record field while retaining its old alias. */
         arg32(c,OP_LOAD_GLOBAL,0);array(c,TAG_ARRAY);op(c,OP_AGG_SET);b16(c->code,&c->n,0);op(c,OP_POP);
     }
-    arg16(c,OP_LOAD_LOCAL,1);integer(c,0);integer(c,11);op(c,OP_ARR_SET);op(c,OP_POP);
+    arg16(c,OP_LOAD_LOCAL,1);integer(c,0);leaf_value(c,true);op(c,OP_ARR_SET);op(c,OP_POP);
     arg16(c,OP_LOAD_LOCAL,0);integer(c,0);op(c,OP_ARR_GET);integer(c,0);op(c,OP_ARR_GET);
-    integer(c,11);op(c,OP_EQ);op(c,OP_ASSERT);
+    leaf_value(c,true);leaf_equal(c);op(c,OP_ASSERT);
     if(mode!=4) {
         arg32(c,OP_LOAD_GLOBAL,0);arg16(c,OP_AGG_GET,0);integer(c,0);op(c,OP_ARR_GET);
-        integer(c,0);op(c,OP_ARR_GET);integer(c,11);op(c,OP_EQ);op(c,OP_ASSERT);
+        integer(c,0);op(c,OP_ARR_GET);leaf_value(c,true);leaf_equal(c);op(c,OP_ASSERT);
     }
     integer(c,0);op(c,OP_RET);c->fn[0].code_length=(uint32_t)c->n;
     if(mode>=5) {
@@ -65,12 +89,20 @@ static void fixture(Input *c,unsigned mode) {
             c->fn[f].code_length=(uint32_t)c->n-c->fn[f].code_offset;
         }
     }
-    nested_authority(c);
+    nested_authority(c);c->ownership[c->o-36]=NESTED_TEST_LEAF;
 }
 static void execute(const NvmModule *m) {
     VmState vm;vm_init(&vm,m);VmResult result=vm_execute(&vm);
     if(result!=VM_OK)fprintf(stderr,"I failed nested VM: %s\n",vm.error_msg);
     CHECK(result==VM_OK && vm.frame_count==0 && vm.stack_size==1 && vm.stack[0].tag==TAG_INT && vm.stack[0].as.i64==0);
+    if(exact_float_bits) {
+        CHECK(vm.globals[0].tag==TAG_STRUCT);
+        VmArray *outer=vm.globals[0].as.sval->fields[0].as.array;
+        CHECK(outer->elem_type==TAG_ARRAY && outer->length==2);
+        VmArray *inner=outer->elements[0].as.array;uint64_t bits;
+        CHECK(inner->elem_type==TAG_FLOAT && inner->unboxed && inner->length==1);
+        memcpy(&bits,inner->packed,sizeof bits);CHECK(bits==float_payload);
+    }
     vm_destroy(&vm);CHECK(vm.heap.stats.num_objects==0);
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
     VmRecordArrayPrivate *private=NULL;
@@ -85,7 +117,7 @@ static void execute(const NvmModule *m) {
         if(outer.length) {
             uint32_t inner_path[]={0,0,0};VmRecordArrayObservation value;
             CHECK(vm_record_array_private_observe(private,VM_RA_GLOBAL,0,inner_path,3,&value));
-            CHECK(value.tag==TAG_INT && value.scalar_bits==11);
+            CHECK(value.tag==NESTED_TEST_LEAF && value.scalar_bits==leaf_bits(true));
         }
     }
     vm_record_array_private_destroy(private);
@@ -113,16 +145,25 @@ static void public_routes(Input *c,const char *directory,unsigned id) {
     /* I require the decoded transport consumer to rederive nested authority;
      * an already serialized container is not a reusable proof token. */
     uint8_t *retained=(uint8_t *)decoded.ownership_data;
-    size_t leaf=decoded.ownership_size-36;CHECK(retained[leaf]==TAG_INT);
+    size_t leaf=decoded.ownership_size-36;CHECK(retained[leaf]==NESTED_TEST_LEAF);
     retained[leaf]=TAG_STRING;copy=NULL;
     CHECK(nvm_v2_to_nvm_module(&decoded,&copy)!=NVM_V2_OK && !copy);
-    retained[leaf]=TAG_INT;
+    retained[leaf]=NESTED_TEST_LEAF;
     CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);execute(copy);
     nvm_module_free(copy);nvm_v2_module_free(&decoded);nvm_v2_module_free(&wire);free(bytes);
     char error[256];char *native=nvm2c_emit(&c->m,error,sizeof error);
     if(!native)fprintf(stderr,"I failed nested native emission: %s\n",error);
     CHECK(native);char path[1024];snprintf(path,sizeof path,"%s/nested-%u.c",directory,id);
-    FILE *file=fopen(path,"w");CHECK(file);CHECK(fputs("#define main fixture_main\n",file)>=0);CHECK(fputs(native,file)>=0);
+    FILE *file=fopen(path,"w");CHECK(file);CHECK(fputs("#define main fixture_main\n",file)>=0);
+    if(exact_float_bits) {
+        const char *cleanup=strstr(native,"    nrec_release_snapshots();");
+        CHECK(cleanup && !strstr(cleanup+1,"    nrec_release_snapshots();"));
+        CHECK(fputs("static void verify_bits(void);\n",file)>=0);
+        CHECK(fwrite(native,1,(size_t)(cleanup-native),file)==(size_t)(cleanup-native));
+        CHECK(fputs("    verify_bits();\n",file)>=0);CHECK(fputs(cleanup,file)>=0);
+        CHECK(fputs("\nstatic void verify_bits(void) { nrec_t record=nvalue_require_record(nglobal[0]); nmap_value outer={7,record.k[0],(char *)record.a[0]}; nmap_value value=nvalue_array_get(nvalue_array_get(outer,0),0); ",file)>=0);
+        CHECK(fprintf(file,"if(value.kind!=3 || (uint64_t)value.integer!=UINT64_C(0x%016llx)) abort(); }\n",(unsigned long long)float_payload)>0);
+    } else CHECK(fputs(native,file)>=0);
     CHECK(fputs("\n#undef main\nint main(void) { nmap_collection_budget=1; int result=fixture_main(); nglobal[0]=(nmap_value){0}; nmap_collect(); if(nrec_owned_head || narr_owners || nagg_live_bytes) abort(); return result; }\n",file)>=0);
     CHECK(!fclose(file));free(native);
 }
@@ -152,9 +193,10 @@ static void bounds_cleanup(void) {
         while(at<c.n) {
             DecodedInstruction in;uint32_t width=isa_decode(c.code+at,(uint32_t)c.n-at,&in);CHECK(width);
             if(in.opcode==OP_ARR_SET) {
-                CHECK(at>=18 && c.code[at-18]==OP_PUSH_I64);
-                memset(c.code+at-17,negative?0xff:0,8);
-                if(!negative)c.code[at-17]=1;
+                size_t value_width=(NESTED_TEST_LEAF==TAG_INT || NESTED_TEST_LEAF==TAG_FLOAT)?9:2;
+                CHECK(at>=value_width+9 && c.code[at-value_width-9]==OP_PUSH_I64);
+                memset(c.code+at-value_width-8,negative?0xff:0,8);
+                if(!negative)c.code[at-value_width-8]=1;
                 found=true;break;
             }
             at+=width;
@@ -288,6 +330,16 @@ int main(int argc,char **argv) {
             CHECK(nvm_record_array_admit(&c.m,&plan).status==NVM_ARRAY_UNRESOLVED && plan==(void *)(uintptr_t)1);
             CHECK(!nvm_verify(&c.m).ok);
         } else public_routes(&c,argv[1],mode);
+    }
+    if(NESTED_TEST_LEAF==TAG_FLOAT) {
+        const uint64_t bits[]={0,UINT64_C(0x8000000000000000),1,
+            UINT64_C(0x7fefffffffffffff),UINT64_C(0x7ff0000000000000),
+            UINT64_C(0xfff0000000000000),UINT64_C(0x7ff8000000001234)};
+        exact_float_bits=true;
+        for(unsigned i=0;i<sizeof bits/sizeof bits[0];i++) {
+            float_payload=bits[i];Input c;fixture(&c,1);public_routes(&c,argv[1],100+i);
+        }
+        exact_float_bits=false;
     }
     printf("PASS %u nested record-array public checks\n",checks);return 0;
 }

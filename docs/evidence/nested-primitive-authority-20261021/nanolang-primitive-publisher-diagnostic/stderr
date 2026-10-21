@@ -1,0 +1,4 @@
+DIAG supported=1 arrays=1 typesbytes=116 result=0
+DIAG admission=1 I require every aliased array write to preserve its exact field element type.
+DIAG supported=1 arrays=1 typesbytes=92 result=0
+DIAG admission=1 I require every aliased array write to preserve its exact field element type.

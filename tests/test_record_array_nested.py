@@ -17,7 +17,7 @@ class RecordArrayNested(unittest.TestCase):
     def test_private_nested_consumers(self):
         self.qualify(True)
 
-    def qualify(self, private):
+    def qualify(self, private, leaf=None):
         artifacts = Path(tempfile.mkdtemp(prefix='nano-record-array-nested-'))
         print(f'I retain nested qualification at {artifacts}', flush=True)
         def run(name, command, build=False):
@@ -30,6 +30,8 @@ class RecordArrayNested(unittest.TestCase):
         flags = [*shlex.split(os.environ.get('RECORD_ARRAY_NESTED_CFLAGS', '')), '-std=c11',
                  '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined',
                  '-fno-sanitize-recover=all', '-Isrc', '-Isrc/nanoisa']
+        if leaf is not None:
+            flags += ['-DNESTED_TEST_LEAF='+leaf]
         if private:
             flags += ['-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME']
         providers = list(dict.fromkeys([*PROVIDERS, 'src/nanoisa/nvm_v2_convert.c',
@@ -52,7 +54,7 @@ class RecordArrayNested(unittest.TestCase):
         run('public-nested', [str(exe), str(artifacts)])
         run('allocation-prefixes', [str(exe), 'allocations'])
         sources = sorted(artifacts.glob('nested-*.c'))
-        self.assertEqual(len(sources), 6)
+        self.assertEqual(len(sources), 13 if leaf=='TAG_FLOAT' else 6)
         for source in sources:
             for opt in ('-O0', '-O2'):
                 name = source.stem + opt[1:];native = artifacts / name

@@ -1,0 +1,3 @@
+struct Box {values:array<array<u8>>}
+fn main()->int {let box:Box=Box {values:[[300],[]]} assert (== (at (at box.values 0) 0) 44) return 0}
+shadow main {assert (== (main) 0)}

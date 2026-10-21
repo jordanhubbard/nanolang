@@ -55,9 +55,13 @@ complete proof; no previous eligibility result is an execution token.
 
 Private/public runtime checks retain the exact inner tag, valid packed storage,
 length/capacity and owner lifetime. U8/BOOL use existing byte storage and FLOAT
-uses existing double storage; no numeric coercion rule is added to admission.
-U8 contextual narrowing belongs to the existing producer semantics and must
-produce matching verified tags. FLOAT tests include signed zero, infinities and
+uses existing double storage. U8 contextual narrowing belongs to existing
+producer/runtime semantics: accepted `[[300], []]` emits an INT literal into a
+U8 array literal and reads back U8 44. A constraint-local origin bit permits
+historical INT writes only for children reached from exact nested U8 authority;
+the declared/required/read mask remains U8, all unknown/origin checks remain,
+and old flat U8 permissions do not change. FLOAT integer-literal narrowing is
+not added: the attempted source fixture is rejected by the existing checker. FLOAT tests include signed zero, infinities and
 NaN payload bit preservation through copy/slice/aliases where the existing
 operations promise bit-preserving storage. A numeric equality assertion alone
 does not qualify these values. Packed scalar leaves add no heap children or

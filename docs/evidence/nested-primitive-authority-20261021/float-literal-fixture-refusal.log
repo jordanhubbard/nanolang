@@ -1,0 +1,29 @@
+I retain producer build evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-producers-5drwf3t5
+test_nested_primitive_exact_leaves (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_primitive_exact_leaves) ... ok
+test_nested_five_leaves_coexist (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_five_leaves_coexist) ... ok
+test_nested_float_integer_literal_conversion (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_float_integer_literal_conversion) ... 
+  test_nested_float_integer_literal_conversion (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_float_integer_literal_conversion) (compiler='/private/tmp/nanolang-primitive-provider/nano_virt') ... FAIL
+
+======================================================================
+FAIL: test_nested_float_integer_literal_conversion (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_float_integer_literal_conversion) (compiler='/private/tmp/nanolang-primitive-provider/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_flat_array_source_publication.py", line 73, in exercise
+    self.run_command(compiler, program, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_flat_array_source_publication.py", line 60, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-0gaw06pl/source.nano
+I require elements matching the nested array annotation.
+
+2| fn main()->int { let box:Box=Box {values:[[7],[]]}
+                                             ^
+Hint: Use elements compatible with the declared array type.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 9.665s
+
+FAILED (failures=1)

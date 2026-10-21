@@ -31,12 +31,15 @@ class FlatArraySourcePublication(unittest.TestCase):
         run=run_captured([binary],cwd=ROOT,text=True,timeout=30)
         if run.returncode:
             raise AssertionError(run.stdout+run.stderr)
-        cls.query_library=ROOT/'bin/libnanoisa_query.so'
-        build=run_captured(['make','-j1','bin/libnanoisa_query.so'],cwd=ROOT,
-            text=True,timeout=180,build=True)
-        (cls.compiler_work/'query-library-build.log').write_text(build.stdout+build.stderr)
-        if build.returncode:
-            raise AssertionError(build.stdout+build.stderr)
+        cls.query_library=Path(os.environ.get('NANO_FLAT_ARRAY_QUERY_LIBRARY',str(ROOT/'bin/libnanoisa_query.so')))
+        if 'NANO_FLAT_ARRAY_QUERY_LIBRARY' not in os.environ:
+            build=run_captured(['make','-j1','bin/libnanoisa_query.so'],cwd=ROOT,
+                text=True,timeout=180,build=True)
+            (cls.compiler_work/'query-library-build.log').write_text(build.stdout+build.stderr)
+            if build.returncode:
+                raise AssertionError(build.stdout+build.stderr)
+        if not cls.query_library.is_file():
+            raise AssertionError('I require the actual query shared library')
         configured=os.environ.get('NANO_FLAT_ARRAY_COMPILERS')
         if configured:
             cls.compilers=configured.split(',')
@@ -93,30 +96,34 @@ class FlatArraySourcePublication(unittest.TestCase):
                         wire_rows.append((tag,ref))
                         if tag==7:
                             self.assertLess(ref,len(rows))
-                            self.assertIn(rows[ref],(1,5))
-                            rows.append(7 if rows[ref]==1 else 8)
+                            self.assertIn(rows[ref],(1,2,3,4,5))
+                            rows.append({1:7,5:8,2:9,3:10,4:11}[rows[ref]])
                         else:
                             self.assertEqual(ref,0xffffffff);rows.append(tag)
                     required=set(elements)
                     if 7 in required: required.add(1)
                     if 8 in required: required.add(5)
+                    for code in (9,10,11):
+                        if code in required: required.add(code-7)
                     ordered=sorted(required)
                     expected_rows=[(7,ordered.index(1)) if element==7 else
                                    (7,ordered.index(5)) if element==8 else
+                                   (7,ordered.index(element-7)) if element>=9 else
                                    (element,0xffffffff) for element in ordered]
                     self.assertEqual(wire_rows,expected_rows)
                     bindings=struct.unpack_from('<I',facts,at)[0];at+=4
                     actual=[]
                     for field in range(bindings):
                         layout,ordinal,reserved,element=struct.unpack_from('<IHHI',facts,at);at+=12
-                        self.assertEqual((layout,ordinal,reserved),(array_layout,field,0));actual.append(rows[element])
+                        expected_layout,expected_field=array_layout[field] if isinstance(array_layout,list) else (array_layout,field)
+                        self.assertEqual((layout,ordinal,reserved),(expected_layout,expected_field,0));actual.append(rows[element])
                     self.assertEqual(actual,elements);self.assertEqual(at,len(facts))
                     # I retain exact old flat/INT wire bytes, including reserved
                     # padding, while STRING adds its separate referent row.
                     expected_wire=struct.pack('<I',len(expected_rows))
                     expected_wire+=b''.join(struct.pack('<B3xI',tag,ref) for tag,ref in expected_rows)
                     expected_wire+=struct.pack('<I',len(elements))
-                    expected_wire+=b''.join(struct.pack('<IHHI',array_layout,field,0,ordered.index(element))
+                    expected_wire+=b''.join(struct.pack('<IHHI',*(array_layout[field] if isinstance(array_layout,list) else (array_layout,field)),0,ordered.index(element))
                                             for field,element in enumerate(elements))
                     self.assertEqual(facts[-len(expected_wire):],expected_wire)
                     library_path=self.query_library
@@ -296,9 +303,86 @@ shadow main { assert (== (main) 0) }
         finally:
             self.compilers=previous
 
+    def test_nested_primitive_exact_leaves(self):
+        for leaf,value,code in [('u8','300',9),('float','7.25',10),('bool','true',11)]:
+            expected='44' if leaf=='u8' else value
+            with self.subTest(leaf=leaf):
+                self.exercise(f"""struct Box {{ values:array<array<{leaf}>> }}
+fn main()->int {{ let box:Box=Box {{values:[[{value}],[]]}}
+ assert (== (at (at box.values 0) 0) {expected})
+ assert (== (array_length (at box.values 1)) 0) return 0 }}
+shadow main {{ assert (== (main) 0) }}
+""",[code])
+
+    def test_nested_primitive_aliases_and_generic_forwarder(self):
+        for leaf,first,second,code in [('u8','7','11',9),('float','7.25','11.5',10),('bool','true','false',11)]:
+            with self.subTest(leaf=leaf):
+                self.exercise(f"""struct Box {{values:array<array<{leaf}>>,empty:array<array<{leaf}>>}}
+fn identity(value:T)->T {{ return value }}
+shadow identity {{ assert (== (identity 7) 7) }}
+fn main()->int {{ let first:{leaf}={first} let second:{leaf}={second}
+ let child:array<{leaf}> = [first]
+ let outer:array<array<{leaf}>> = [child,child]
+ let box:Box=(identity Box {{values:outer,empty:[]}})
+ (array_set child 0 second)
+ assert (== (at (at box.values 0) 0) second)
+ assert (== (at (at box.values 1) 0) second)
+ let empty:array<{leaf}> = []
+ (array_set box.values 0 empty)
+ assert (== (array_length (at box.values 0)) 0)
+ assert (== (at (at box.values 1) 0) second)
+ assert (== (array_length box.empty) 0) return 0 }}
+shadow main {{ assert (== (main) 0) }}
+""",[code,code])
+
+    def test_nested_primitive_bound_imports(self):
+        previous=self.compilers
+        self.compilers=os.environ.get('NANO_FLAT_ARRAY_BOUND_COMPILERS',str(ROOT/'bin/nano_virt')).split(',')
+        try:
+            for leaf,value,expected,code in [('u8','300','44',9),('float','7.25','7.25',10),('bool','true','true',11)]:
+                with self.subTest(leaf=leaf):
+                    self.exercise(f"""module "types.nano" as types
+fn main()->int {{ let box:types.Box=types.Box {{values:[[{value}]]}}
+ assert (== (at (at box.values 0) 0) {expected}) return 0 }}
+shadow main {{ assert (== (main) 0) }}
+""",[code],modules={'types.nano':f'pub struct Box {{values:array<array<{leaf}>>}}\n'})
+        finally:
+            self.compilers=previous
+
+    def test_previously_unpublished_bool_source(self):
+        self.exercise("""struct Entries { values: array<array<bool>> }
+fn main() -> int { let entries: Entries = Entries { values: [[false, true]] }
+ assert (at (at entries.values 0) 1) return 0 }
+shadow main { assert (== (main) 0) }
+""",[11])
+
+    def test_unchanged_nested_float_contexts_publish(self):
+        self.exercise((ROOT/'tests/nanoisa/fixtures/nested_array_contexts.nano').read_text(),
+                      [10,7],layout_count=2,array_layout=[(0,0),(1,0)])
+
+    def test_nested_u8_contextual_wrap_boundaries(self):
+        self.exercise("""struct Box {values:array<array<u8>>}
+fn main()->int {let box:Box=Box {values:[[-1,256,300]]}
+ assert (== (at (at box.values 0) 0) 255)
+ assert (== (at (at box.values 0) 1) 0)
+ assert (== (at (at box.values 0) 2) 44) return 0}
+shadow main {assert (== (main) 0)}
+""",[9])
+
+    def test_nested_five_leaves_coexist(self):
+        self.exercise("""struct Box { ints:array<array<int>>, strings:array<array<string>>,
+ octets:array<array<u8>>, floats:array<array<float>>, flags:array<array<bool>> }
+fn main()->int { let box:Box=Box {ints:[[7]],strings:[["seven"]],octets:[[300]],floats:[[7.25]],flags:[[true]]}
+ assert (== (at (at box.ints 0) 0) 7)
+ assert (== (at (at box.strings 0) 0) "seven")
+ assert (== (at (at box.octets 0) 0) 44)
+ assert (== (at (at box.floats 0) 0) 7.25)
+ assert (at (at box.flags 0) 0) return 0 }
+shadow main { assert (== (main) 0) }
+""",[7,8,9,10,11])
+
     def test_unsupported_nested_descriptors_stay_optional(self):
-        for declared,value in [('array<array<bool>>','[[true]]'),
-                               ('array<array<array<int>>>','[[[7]]]')]:
+        for declared,value in [('array<array<array<int>>>','[[[7]]]')]:
             with self.subTest(declared=declared):
                 self.exercise('struct Box { values:'+declared+' }\nfn main()->int { let box:Box=Box { values:'+value+' } return 0 }\nshadow main { assert true }\n',None,run=False)
         self.exercise('extern fn get_argc()->int\nstruct Box { values:array<array<int>> }\nfn main()->int { let box:Box=Box { values:[[7]] } unsafe { return (get_argc) } }\nshadow main { assert true }\n',None,run=False)
