@@ -13,7 +13,8 @@ Kind5/revision1 and simultaneous extensions<=4 remain unchanged. All existing re
 The following are proposed private interfaces, not implemented exported APIs:
 
 ```c
-typedef struct NvmRecordMapContext NvmRecordMapContext;
+typedef struct NvmRecordMapAnalysisContext NvmRecordMapAnalysisContext;
+typedef struct NvmRecordMapFrozenContext NvmRecordMapFrozenContext;
 typedef struct NvmRecordMapOrigins NvmRecordMapOrigins;
 typedef struct NvmRecordMapExecutionPlan NvmRecordMapExecutionPlan;
 typedef struct NvmRecordMapImage NvmRecordMapImage;
@@ -31,7 +32,7 @@ VmResult vm_record_map_private_run(VmRecordMapPrivate *);
 
 Every owning type gets its matching free/destroy. Every constructor initializes caller output only on complete success. INVALID, UNRESOLVED, LIMIT and MEMORY remain distinct. Map-only wrappers own an unchanged base object and separately owned context, never place pointers in padding/reserved fields, and never consult a global registry. No caller-supplied declaration plan is trusted as proof.
 
-A context contains an owned declaration plan, per-origin exact key/value tags and historical key/value Value summaries, and per-field pair identifiers. These are explicit arrays allocated only on the map route. The unchanged Analysis/Value/Function/GlobalFlow/base-plan/image/private-runtime structures acquire no members. Internal map-aware variants of structure preparation, analysis, transfer, global_refine, record_value_matches, final_check and publication receive `NvmRecordMapContext *` explicitly; old entry points call them with NULL. Signature changes must reach every recursive helper/call site, not store context in a spare flag or recover it from a module address.
+A context contains an owned declaration plan, per-origin exact key/value tags and historical key/value Value summaries, and per-field pair identifiers. These are explicit arrays allocated only on the map route. The unchanged Analysis/Value/Function/GlobalFlow/base-plan/image/private-runtime structures acquire no members. Internal map-aware variants of structure preparation, analysis, transfer, global_refine, record_value_matches, final_check and publication receive `NvmRecordMapAnalysisContext *` explicitly; old entry points call them with NULL. Signature changes must reach every recursive helper/call site, not store context in a spare flag or recover it from a module address.
 
 Proposed immutable queries copy facts, not borrowed context addresses: map-origin(index)->{origin ordinal,key tag,value tag}; map-field(layout,field)->exact pair; historical-write(origin)->key/value tag sets plus unknown flags. Original origin ordinals index the same record/array/map namespace. The map result wrapper exposes its existing base record/array report only for its lifetime. A coarse HASHMAP tag without nonempty known map-origin bits is UNRESOLVED.
 
@@ -80,3 +81,47 @@ Canonical native `HM_NEW`/GET/SET currently uses `nmap_owned_new`, `nmap_owned_g
 5. Only after consumers are green propose paired publishers for exact STRING->INT, with full unchanged anchor and source/query pins. No publisher expectation changes occur in this contract checkpoint. DELETE, other pairs and full #1001 closure remain outside this phase.
 
 The principal review gates are explicit context threading without old-object growth; required public retain preflight; STRING key byte-domain/native agreement; and actual map-only budget fit. I make no implementation or execution claim from this design.
+
+
+## I separate mutable proof storage from frozen execution facts
+
+The earlier context terminology does not permit passing Analysis state to execution. I require two distinct opaque types and these exact internal ownership contracts before implementing the public route:
+
+```c
+/* Internal analysis only: context has mutable historical Value summaries. */
+NvmArrayEligibilityResult nvm_record_map_analysis_prepare(
+    const NvmModule *, NvmRecordArrayBudget *,
+    NvmRecordMapAnalysisContext **);
+void nvm_record_map_analysis_free(NvmRecordMapAnalysisContext *);
+/* Freeze is called only after successful whole-module fixed point/final check.
+ * The implementation is private to the proof TU, not callable by an importer. */
+static NvmArrayEligibilityResult map_freeze_checked(
+    const Analysis *, const NvmRecordMapAnalysisContext *,
+    NvmRecordArrayBudget *, NvmRecordMapFrozenContext **);
+void nvm_record_map_frozen_free(NvmRecordMapFrozenContext *);
+/* Borrow is valid only while this owning plan lives. */
+const NvmRecordMapFrozenContext *nvm_record_map_execution_context(
+    const NvmRecordMapExecutionPlan *);
+bool nvm_record_map_frozen_origin(const NvmRecordMapFrozenContext *,
+    uint32_t origin, uint8_t *key_tag, uint8_t *value_tag);
+bool nvm_record_map_frozen_field(const NvmRecordMapFrozenContext *,
+    uint32_t layout, uint16_t field, uint8_t *key_tag, uint8_t *value_tag);
+```
+
+`Analysis` and `Value` in the private freeze signature are existing TU-local types; no new header exports their layout. The mutable context is destroyed after publication. Frozen facts contain no Value, mutable summary, analysis pointer, borrowed module pointer, budget pointer or callback. They own copied declaration tables plus exact origin-to-pair and field-to-pair rows. Origin rows are explicitly `{uint32_t ordinal,pair}` (8 bytes, at most64); field rows retain declaration `{u32 layout,u16 field,u16 reserved,u32 pair}` (12 bytes, at most65536). Pair/scalar rows use the already bounded declaration schema. The frozen wrapper's actual sizeof and all copied row capacities are charged before allocation; fixed row sizes require compile-time assertions. Existing execution recipes/signatures/code/string snapshots stay in the owning base plan. No additional historical Value arrays are copied into runtime.
+
+The map execution wrapper owns base plan plus frozen context. The image owns independent copies of both; copying validates its own counts/referents and charges overlap, never merely copies a context pointer. Private runtime owns image and execution wrapper until destroy; a public invocation owns execution wrapper until initializer/entry finish and every error cleanup completes. Immutable getters copy outputs and preserve all output arguments on a miss. Field lookup costs20 precharged logical probes; origin lookup is bounded by64 with an explicitly charged worst case (or a direct64-slot index whose full allocation is charged). No hidden mutable query counter exists.
+
+The proposed internal shared-execution parameter is `const NvmRecordMapFrozenContext *map_context`, not `NvmRecordMapAnalysisContext *`. It is passed through the map-only scoped invocation, frame execution and preflight chain. Old callers pass NULL. The public entry verifies module/root identity, idle frames/stack, no active references/activation floor, no linked modules, no callbacks and no opcode trace, matching the existing selected-record restrictions. Any attempted callback, external reentry or linked dispatch on this route refuses; it cannot retain the borrowed context beyond the owning call or resume it after teardown. This does not add a field to VmState or a public user-supplied trust token.
+
+## I bound runtime validation at the right events
+
+I do not propose scanning every bucket on every opcode. Copied metadata and recipes receive a complete charged preparation scan. A newly created map starts with validated empty storage. A closed selected invocation accepts no host-injected maps; aliases only expose maps created and mutated through checked handlers. Each operation checks exact receiver/pair and operand tags plus constant-time capacity/count arithmetic; the actual existing lookup accounts for its bounded bucket probes. Rehash/growth traverses its old capacity, checks and charges that traversal before commitment, and reestablishes the storage invariant. Full entry/tag/state scans occur only for an independently supplied private observation/snapshot boundary or diagnostic corruption control, under that boundary's explicit work budget. Full scans must not hide unbounded per-op work or become an admission shortcut. If the implementation cannot distinguish trusted in-invocation storage from an imported physical object, it must scan/refuse at that import boundary rather than assume provenance.
+
+Headroom checks precede actual retain operations: HM_SET insertion may retain its STRING key; equal-key replacement retains no new stored key and must release its popped argument correctly. GET preserves tagged VOID and retains only an actual heap result (none for INT|VOID). Checked aliases/duplicate interned references and failure prefixes must qualify these exact paths, including cleanup, without a new runtime element cap.
+
+## I retain actual native byte-domain evidence
+
+The [original byte-domain probe](evidence/map-key-domain-20261021/README.md) establishes exact VM behavior for `a\x00x` and `a\x00y`, and existing native refusal at PUSH_STR before C emission. NUL-free otherwise identical input passes original VM and sanitized native execution, including absent GET TYPE_CHECK VOID. `nvm2c_map_runtime.inc` uses strlen to copy keys, NUL-terminated hashing and strcmp equality; `heap.c`/`value.c` use explicit-length/hash/memcmp string equality. `nmap_get` returns `(nmap_value){0}` when absent; `nmap_owned_get` preserves that zero kind.
+
+Disposition: preserve the existing nvm2c embedded-NUL target refusal and VM counted-byte semantics. Add no NUL-free authority field, silently truncated key, or new general selected-map restriction merely to restate that native boundary. The unchanged paired anchor obtains keys from NUL-free PUSH_STR literals passed through existing STRING parameters; collect/remember/forward introduce no string construction. That exact closure supports the first paired claim. Existing accepted string constructors (CAST_STRING, CONCAT, SUBSTR, TRIM, case conversion, REPLACE, numeric formatting and array reads) require an audited source closure or separate actual dynamic-NUL probe before a broader native-key claim. No assertion of arbitrary STRING equivalence follows from this literal anchor. Any accepted dynamic producer of embedded NUL is a separately retained native prerequisite, not permission to change the old refusal or weaken VM equality.

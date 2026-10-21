@@ -1,0 +1,5 @@
+# I retain the existing map key byte-domain boundary
+
+This is an unselected original-module probe using existing providers, not map authority or a product change. `receipt.json` contains exact commands and four unchanged provider hashes. `keys.nasm` has distinct three-byte keys `61 00 78` and `61 00 79`; canonical dump preserves both exact bytes. Assembly, original verification and VM execution pass independent length2/HAS/two GET values/absent GET VOID assertions. Existing nvm2c refuses with `PUSH_STR: embedded NUL is not in the nvm2c subset`, before native compilation. This is an explicit target boundary, not an observed silent native key collision.
+
+The otherwise identical NUL-free `missing.nasm` passes assembly, original verification, VM, translation, strict O1 ASan/UBSan native compile and execution. Missing GET remains tagged VOID, not INT0. The helpers use strlen/strcmp, so I make no general dynamic-string equivalence claim. No provider or admission source changed; no compiler bootstrap ran. Worker samples had 83/85% CPU idle and63% free memory; known disk warning remained46GiB free.

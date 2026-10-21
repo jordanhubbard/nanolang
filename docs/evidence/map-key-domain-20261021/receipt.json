@@ -1,0 +1,152 @@
+{
+  "before": {
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "c6eee3d64285c02af7e998a27f9853fc80b3f413539e74b3c9cca849a9094c64",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "368d6d663ea716f03af4f1808b80e46bb9f7575c3d924491d317fabba1b3a609",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "fb815b655ba956d87c9887cc61a9089c0f8a83c3774f9f6a6c6c5127705bd158",
+    "/opt/homebrew/opt/llvm/bin/clang": "5b3adae66bf3e36a0aa2e90db47e3456d31bf5f992124fd09ae9119b076e00be"
+  },
+  "commands": [
+    {
+      "name": "keys-asm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-key-domain-20261021/keys.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-key-domain-20261021/keys.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.004385915992315859
+    },
+    {
+      "name": "keys-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-key-domain-20261021/keys.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.004555874969810247
+    },
+    {
+      "name": "keys-vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-key-domain-20261021/keys.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.004502041032537818
+    },
+    {
+      "name": "keys-dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-key-domain-20261021/keys.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.0037244160193949938
+    },
+    {
+      "name": "keys-translate",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-map-key-domain-20261021/keys.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-key-domain-20261021/keys.c"
+      ],
+      "exit": 1,
+      "seconds": 0.003990333003457636
+    },
+    {
+      "name": "missing-asm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-key-domain-20261021/missing.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-key-domain-20261021/missing.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.0037910420214757323
+    },
+    {
+      "name": "missing-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-key-domain-20261021/missing.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.004053374985232949
+    },
+    {
+      "name": "missing-vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-key-domain-20261021/missing.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.0042728749685920775
+    },
+    {
+      "name": "missing-dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-key-domain-20261021/missing.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.003741458000149578
+    },
+    {
+      "name": "missing-translate",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-map-key-domain-20261021/missing.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-key-domain-20261021/missing.c"
+      ],
+      "exit": 0,
+      "seconds": 0.0038665829924866557
+    },
+    {
+      "name": "missing-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-key-domain-20261021/missing.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-key-domain-20261021/missing.native"
+      ],
+      "exit": 0,
+      "seconds": 0.20142429100815207
+    },
+    {
+      "name": "missing-native",
+      "argv": [
+        "/private/tmp/nanolang-map-key-domain-20261021/missing.native"
+      ],
+      "exit": 0,
+      "seconds": 0.44427512504626065
+    }
+  ],
+  "after": {
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "c6eee3d64285c02af7e998a27f9853fc80b3f413539e74b3c9cca849a9094c64",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "368d6d663ea716f03af4f1808b80e46bb9f7575c3d924491d317fabba1b3a609",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "fb815b655ba956d87c9887cc61a9089c0f8a83c3774f9f6a6c6c5127705bd158",
+    "/opt/homebrew/opt/llvm/bin/clang": "5b3adae66bf3e36a0aa2e90db47e3456d31bf5f992124fd09ae9119b076e00be"
+  },
+  "sources": {
+    "missing.nasm": "a2ca5cd892a44689d695c6c7a9deda89a7b8050e643089567524ce868081536b",
+    "keys.nasm": "0f204cd52991416578b4456280bb7c0dc1c0863511f1d619cc5a9ca46cb1c702"
+  }
+}
