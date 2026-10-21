@@ -1,0 +1,10 @@
+{
+  "/Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": "5922f5f7843fee699497c45cc98134b6686e0a5e2fa8a5866ab74c5482fa87a5",
+  "/Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as": "06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc",
+  "/opt/homebrew/Cellar/llvm/23.1.3_1/bin/clang-23": "efdad95de9f1ee4863117fd89a89bdb1a2389298a6d3c444e042aadf92d95448",
+  "/usr/bin/as": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+  "/Applications/Xcode_27.1_Release_Candidate.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": "06e3d64f541c65a93acd176690bdaae13a3d7db092c8b98b392d4c6d0d03f176",
+  "/Applications/Xcode_27.1_Release_Candidate.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as": "06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc",
+  "/Applications/Xcode_27.2_beta_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": "cb5fd7fc6cdf43f60a06a6038e49958d6364c73c6a5b05a507d45dbd36f2eef6",
+  "/Applications/Xcode_27.2_beta_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as": "06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc"
+}

@@ -43,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-14]
+        os: [ubuntu-latest, xcode-27]
         corpus: [retirement, compiler-contracts]
     env:
       CMD_TIMEOUT: '1800'
@@ -77,6 +77,10 @@ jobs:
           fi
           printf 'CC=%s/bin/clang\n' "$(brew --prefix llvm)" >> "$GITHUB_ENV"
           printf 'NANO_NATIVE_TEST_CC=%s/bin/clang\n' "$(brew --prefix llvm)" >> "$GITHUB_ENV"
+
+      - name: Select qualified Darwin capture tools
+        if: runner.os == 'macOS'
+        run: python3 scripts/ci_select_capture_clang.py
 
       - name: Install Python dependencies
         run: |

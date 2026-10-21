@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-14]
+        os: [xcode-27]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 35
     steps:
@@ -28,6 +28,48 @@ jobs:
           fi
       - name: Retain current selected compiler and assembler evidence
         run: python3 scripts/ci_source_capture_diagnostic.py
+      - name: Select only an installed Xcode with passing backend probes
+        if: runner.os == 'macOS'
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          root = Path('.test_output/source-capture-diagnostic').resolve()
+          commands = {r['label']: r for r in json.loads((root/'commands.json').read_text())}
+          candidates = []
+          for file in root.glob('*/compiler.json'):
+              data = json.loads(file.read_text())
+              if not data.get('developer_dir'):
+                  continue
+              number = file.parent.name
+              required = [number+'-'+name for name in ('external-assemble', 'external-fresh-shared', 'debug-expand', 'debug-replay')]
+              data['required_probes'] = {name: commands.get(name, {}).get('returncode') for name in required}
+              data['passed'] = all(data['required_probes'][name] == 0 for name in required)
+              candidates.append(data)
+          passing = [c for c in candidates if c['passed']]
+          passing.sort(key=lambda c: tuple(map(int, re.findall(r'\d+', c['developer_dir']))))
+          selected = passing[-1] if passing else None
+          (root/'capture-selection.json').write_text(json.dumps({'candidates': candidates, 'selected': selected}, indent=2)+'\n')
+          if selected is None:
+              raise SystemExit('I found no installed Xcode passing actual external assembly and debug-text replay; capture remains unqualified.')
+          tools = root/'selected-tools'; tools.mkdir()
+          import hashlib, sys
+          wrapper = '#!'+sys.executable+'\nimport os,sys\ncompiler='+repr(selected['resolved'])+'\nos.execv(compiler, [compiler, *sys.argv[1:]])\n'
+          wrapper_hashes = {}
+          for name in ('cc', 'clang'):
+              path = tools/name
+              path.write_text(wrapper); path.chmod(0o700)
+              wrapper_hashes[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+          (root/'capture-wrapper-hashes.json').write_text(json.dumps(wrapper_hashes, indent=2)+'\n')
+          with open(os.environ['GITHUB_ENV'], 'a') as f:
+              f.write('DEVELOPER_DIR='+selected['developer_dir']+'\n')
+              f.write('SDKROOT='+selected['sdk_root']+'\n')
+          with open(os.environ['GITHUB_PATH'], 'a') as f:
+              f.write(str(tools)+'\n')
+          PY
+      - name: Retain actual capture tool selection
+        run: |
+          { command -v cc; cc --version; command -v clang; clang --version; xcrun --find as; } > .test_output/source-capture-diagnostic/capture-selected-tools.log 2>&1
       - name: Build only the production capture probe
         shell: bash
         run: |
@@ -41,7 +83,7 @@ jobs:
           fi
           make -f Makefile.gnu -j2 obj/test_module_generation_probe CC=cc CFLAGS="$flags" LDFLAGS="$links" > .test_output/source-capture-diagnostic/probe-build.log 2>&1
       - name: Qualify exact report parsing and real integrated capture
-        timeout-minutes: 10
+        timeout-minutes: 15
         run: |
           python3 -m unittest -v \
             tests.test_source_snapshots.SourceSnapshots.test_selected_clang_assembler_report_boundaries \
@@ -50,6 +92,8 @@ jobs:
             tests.test_source_snapshots.SourceSnapshots.test_integrated_units_preserve_c_assembler_search \
             tests.test_source_snapshots.SourceSnapshots.test_integrated_native_unit_debug_identity \
             tests.test_source_snapshots.SourceSnapshots.test_integrated_instruction_and_location_provenance \
+            tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads \
+            tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery \
             > .test_output/source-capture-diagnostic/integrated-capture.log 2>&1
       - name: Upload diagnostic evidence
         if: always()

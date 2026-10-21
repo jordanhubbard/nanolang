@@ -13,13 +13,18 @@ import sys
 out = Path('.test_output/source-capture-diagnostic').resolve()
 out.mkdir(parents=True, exist_ok=True)
 records = []
+selected_environment = dict(os.environ)
+backend_hashes = {}
 
 
 def run(args, label):
     try:
-        result = subprocess.run(list(map(str, args)), capture_output=True, text=True, timeout=30)
+        result = subprocess.run(list(map(str, args)), capture_output=True, text=True, timeout=30,
+                                env=selected_environment)
         record = {'label': label, 'command': list(map(str, args)), 'returncode': result.returncode,
-                  'stdout': result.stdout, 'stderr': result.stderr}
+                  'stdout': result.stdout, 'stderr': result.stderr,
+                  'developer_dir': selected_environment.get('DEVELOPER_DIR'),
+                  'sdk_root': selected_environment.get('SDKROOT')}
     except subprocess.TimeoutExpired as error:
         record = {'label': label, 'command': list(map(str, args)), 'timeout': 30,
                   'stdout': repr(error.stdout), 'stderr': repr(error.stderr)}
@@ -43,19 +48,39 @@ if sys.platform == 'darwin':
     run(['xcrun', '--find', 'clang'], 'selected-clang')
     run(['xcrun', '--show-sdk-path'], 'selected-sdk')
 
-compilers = [shutil.which('cc'), shutil.which('clang')]
+compilers = [(shutil.which('cc'), None), (shutil.which('clang'), None)]
 if Path('/opt/homebrew/opt/llvm/bin/clang').is_file():
-    compilers.append('/opt/homebrew/opt/llvm/bin/clang')
+    compilers.append(('/opt/homebrew/opt/llvm/bin/clang', None))
+if sys.platform == 'darwin':
+    installed = []
+    for app in sorted(Path('/Applications').glob('Xcode*.app')):
+        developer = app/'Contents/Developer'
+        compiler = developer/'Toolchains/XcodeDefault.xctoolchain/usr/bin/clang'
+        if compiler.is_file():
+            installed.append({'application': str(app), 'developer_dir': str(developer),
+                              'compiler': str(compiler)})
+            compilers.append((str(compiler), str(developer)))
+    (out/'installed-xcodes.json').write_text(json.dumps(installed, indent=2)+'\n')
 seen = set()
-for number, compiler in enumerate(filter(None, compilers)):
-    if compiler in seen:
+for number, (compiler, developer) in enumerate(compilers):
+    if not compiler or (compiler, developer) in seen:
         continue
-    seen.add(compiler)
+    seen.add((compiler, developer))
+    selected_environment = dict(os.environ)
+    if developer:
+        selected_environment['DEVELOPER_DIR'] = developer
     work = out/str(number); work.mkdir(exist_ok=True)
     source = work/'answer.c'
     source.write_text('long long nano_build_answer(void) { return 42; }\n')
+    if sys.platform == 'darwin':
+        run(['xcrun', '--find', 'as'], f'{number}-selected-as')
+        sdk = run(['xcrun', '--show-sdk-path'], f'{number}-selected-sdk')
+        if sdk.get('returncode') == 0 and Path(sdk['stdout'].strip()).is_dir():
+            selected_environment['SDKROOT'] = sdk['stdout'].strip()
     resolved = Path(compiler).resolve()
     (work/'compiler.json').write_text(json.dumps({'selected': compiler, 'resolved': str(resolved),
+        'developer_dir': developer,
+        'sdk_root': selected_environment.get('SDKROOT'),
         'sha256': hashlib.sha256(resolved.read_bytes()).hexdigest()}, indent=2)+'\n')
     version = run([compiler, '--version'], f'{number}-compiler-version')
     run([compiler, '-print-prog-name=as'], f'{number}-assembler-path')
@@ -80,8 +105,28 @@ for number, compiler in enumerate(filter(None, compilers)):
                 continue
             args = shlex.split(line)
             if args and Path(args[0]).is_file():
+                backend = Path(args[0]).resolve()
+                if str(backend) not in backend_hashes:
+                    backend_hashes[str(backend)] = hashlib.sha256(backend.read_bytes()).hexdigest()
+                    (out/'backend-hashes.json').write_text(json.dumps(backend_hashes, indent=2)+'\n')
                 run(args, f'{number}-{mode}-direct-backend-{index}')
                 run([*args, '-###'], f'{number}-{mode}-backend-dry-run-{index}')
+    if 'clang' in version.get('stdout', ''):
+        debug = work/'debug.s'
+        expanded = work/'debug-expanded.s'
+        run([compiler, '-S', '-g', '-O0', source, '-o', debug], f'{number}-debug-assembly')
+        dry = run([compiler, '-fintegrated-as', '-c', '-x', 'assembler', debug,
+                   '-o', work/'debug.o', '-###'], f'{number}-debug-dry-run')
+        jobs = [shlex.split(line) for line in dry.get('stderr', '').splitlines()
+                if line.lstrip().startswith('"')]
+        if len(jobs) == 1 and len(jobs[0]) > 1 and jobs[0][1] == '-cc1as':
+            args = jobs[0]
+            if args.count('-filetype') == args.count('-o') == 1:
+                args[args.index('-filetype') + 1] = 'asm'
+                args[args.index('-o') + 1] = str(expanded)
+                run([*args, '-msave-temp-labels'], f'{number}-debug-expand')
+                run([compiler, '-fintegrated-as', '-c', '-x', 'assembler', expanded,
+                     '-o', work/'debug-replay.o'], f'{number}-debug-replay')
 manifest = {str(p.relative_to(out)): {'bytes': p.stat().st_size,
             'sha256': hashlib.sha256(p.read_bytes()).hexdigest()}
             for p in out.rglob('*') if p.is_file()}

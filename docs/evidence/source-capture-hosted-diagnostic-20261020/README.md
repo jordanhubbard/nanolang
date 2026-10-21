@@ -36,3 +36,33 @@ At `1f7460393903712d909528488363ae8f37a7dc34`, run `39544234552`, Linux job `119
 ## I integrate the narrow report compatibility
 
 At aggregate c56ef1131 I rebuild only the production capture probe and pass the same six parser/integrated capture methods on current Darwin in294.716s. This complements actual Ubuntu18 hosted89.790s evidence; it does not substitute for queued Apple15/Homebrew external qualification. The three nested-array GCC failures were separately fixed and qualified at302614d05. Exact-head retirement retries remain required.
+
+## I retain the macOS backend failures after report parsing
+
+Run `39544234552`, job `119038657893`, finishes with six methods in75.042s: the exact report control passes, but actual capture has22 failures and2 errors. Apple15 text expansion/replay now reaches empty symbol labels and non-local `.no_dead_strip` errors. I retain the complete log rather than call the integrated path qualified. Installed Homebrew23.1.0 (SHA256 `2562143125f133005a4505f7ffd463a2e52e9a24dbae58cc425374bcbb0ea44f`) still selects `/usr/bin/as -Q -arch arm64`; standalone assembly, fresh shared build and direct backend all fail through active Xcode15.4. A compiler installation or selector alone does not repair that backend.
+
+The next bounded diagnostic inventories installed Xcodes with explicit `DEVELOPER_DIR`, hashes each actual compiler, probes external assembly and exact debug text expansion/replay, and selects a capture tool only if those real probes pass. No product report list or assembler flags change in that diagnostic.
+
+## I inventory installed Xcodes before changing the hosted target
+
+Run `39552342366`, job `119064139683`, stops at the candidate-selection gate: no installed Xcode passes every required probe. Xcode16.1/16.2 actually accept unchanged external `-Q -arch arm64`, but their cc1as debug text still has empty symbol labels and cannot replay. Homebrew23 integrated replay passes. Direct Xcode16 shared linking additionally lacks explicit SDKROOT (`System` library not found); I correct that diagnostic environment separately rather than attributing it to capture. The retained representative original/expanded assembly makes the independent text loss concrete.
+
+I next run the same bounded probes/eight capture methods on the official `xcode-27` arm64 image with explicit SDKROOT and DEVELOPER_DIR. This is diagnostic evidence only, not a retirement-matrix change or a macOS14 success claim. I retain all old failures and unchanged flags. Official label source: https://github.com/actions/runner-images#available-images .
+
+## I isolate the Xcode 27 external alias failure
+
+Run39554417586/job119070724147 at8ffc01629 passes all six integrated/parser methods, but its two external methods fail twelve subcases (eight tests553.791s). Actual selected Apple21/Xcode27.2beta2 external assembler and debug expansion/replay probes pass. The retained capture-selection record pins compiler cb5fd7fc6cdf43f60a06a6038e49958d6364c73c6a5b05a507d45dbd36f2eef6 and the observed SDKROOT. This is not full capture qualification or a release matrix change.
+
+I reproduce the external failure locally: a direct cc symlink makes Clang emit the otherwise identical unused-fPIC warning with cc: instead of clang:. The strict report parser refuses that text. An executable selector that execs the resolved absolute Clang with unchanged arguments restores its genuine diagnostic name without widening parser acceptance. I retain the failing alias, successful capture and actual library result42. The first local selector probe omitted SDKROOT and reached a separate System-link failure; the corrected selector retains explicit SDKROOT. An extra evidence check initially treated the probe-returned relocatable object as a directory/shared library; I retain that failed check separately from successful libanswer_native.dylib execution.
+
+The corrected hosted diagnostic will retain executable wrapper hashes alongside the actual compiler hash and SDKROOT. Its eight-method step has15 minutes within the unchanged35-minute job: the preceding assertion-failure run already spent553.791s, and successful external cases add real work. Guest/tool budgets and all eight methods remain unchanged.
+
+The two unchanged actual external SourceSnapshots methods pass locally in58.048s with the corrected executable selector, explicit SDKROOT and current aggregate production probe. I retain command/env/pins and the complete terminal. Hosted eight-method retry remains pending.
+
+## I qualify the corrected executable selector on hosted Xcode 27
+
+Run39559923169/job119088433035 atf60241fec finishes SUCCESS: all eight unchanged capture methods pass593.318s, including actual external macro/incbin retained reads and failed-build recovery. The selected Apple clang21.0.0 (clang-2100.3.34.2), Xcode27.2_beta_2 developer directory, compiler/as hashes, observed CLT SDKROOT and both executable selector hashes are retained in xcode27-wrapper-pass/. The prior Apple15/16 backend/replay failures and Xcode27 alias failure remain. This eight-method success is not the full retirement corpus.
+
+I change only the retirement Darwin image from macos-14 to xcode-27 and add an exact qualified capture-tool selector; Homebrew build CC/native compiler settings, Linux, both corpora, all tests and existing deadlines remain. The selector fails closed if the qualified compiler/as bytes or banner change and requires an existing selected SDK. It records the tools and executable wrappers before exporting PATH, DEVELOPER_DIR and SDKROOT. Full exact-head retirement execution remains pending. Five selector/workflow controls pass0.423s, including changed compiler/backend refusal and unchanged argument/exit transport.
+
+Final selector review tightens SDK identity to the exact observed CLT path and27.0 version, matching successful cc1as -target-sdk-version reports. I record resolved SDK path/version but do not claim an original SDK-content hash, which that diagnostic did not collect. Six selector/workflow controls pass0.296s, including alternate existing SDK/version refusal.

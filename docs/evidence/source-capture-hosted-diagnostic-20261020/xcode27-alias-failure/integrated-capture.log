@@ -1,0 +1,169 @@
+test_selected_clang_assembler_report_boundaries (tests.test_source_snapshots.SourceSnapshots.test_selected_clang_assembler_report_boundaries) ... ok
+test_integrated_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_integrated_native_unit_post_capture_reads) ... ok
+test_integrated_native_unit_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_integrated_native_unit_failure_recovery) ... ok
+test_integrated_units_preserve_c_assembler_search (tests.test_source_snapshots.SourceSnapshots.test_integrated_units_preserve_c_assembler_search) ... ok
+test_integrated_native_unit_debug_identity (tests.test_source_snapshots.SourceSnapshots.test_integrated_native_unit_debug_identity) ... ok
+test_integrated_instruction_and_location_provenance (tests.test_source_snapshots.SourceSnapshots.test_integrated_instruction_and_location_provenance) ... ok
+test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) ... 
+  test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=False, shared_cache=False, suffix='.s') ... FAIL
+  test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=False, shared_cache=False, suffix='.S') ... FAIL
+  test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=False, shared_cache=True, suffix='.s') ... FAIL
+  test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=False, shared_cache=True, suffix='.S') ... FAIL
+  test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=True, shared_cache=False, suffix='.s') ... FAIL
+  test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=True, shared_cache=False, suffix='.S') ... FAIL
+  test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=True, shared_cache=True, suffix='.s') ... FAIL
+  test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=True, shared_cache=True, suffix='.S') ... FAIL
+test_apple_native_unit_capture_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery) ... 
+  test_apple_native_unit_capture_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery) (shared_unit=False, shared_cache=False) ... FAIL
+  test_apple_native_unit_capture_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery) (shared_unit=False, shared_cache=True) ... FAIL
+  test_apple_native_unit_capture_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery) (shared_unit=True, shared_cache=False) ... FAIL
+  test_apple_native_unit_capture_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery) (shared_unit=True, shared_cache=True) ... FAIL
+
+======================================================================
+FAIL: test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=False, shared_cache=False, suffix='.s')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_source_snapshots.py", line 751, in native_unit_post_capture_reads
+    self.support.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure\n'
+
+======================================================================
+FAIL: test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=False, shared_cache=False, suffix='.S')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_source_snapshots.py", line 751, in native_unit_post_capture_reads
+    self.support.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure\n'
+
+======================================================================
+FAIL: test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=False, shared_cache=True, suffix='.s')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_source_snapshots.py", line 751, in native_unit_post_capture_reads
+    self.support.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure\n'
+
+======================================================================
+FAIL: test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=False, shared_cache=True, suffix='.S')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_source_snapshots.py", line 751, in native_unit_post_capture_reads
+    self.support.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure\n'
+
+======================================================================
+FAIL: test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=True, shared_cache=False, suffix='.s')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_source_snapshots.py", line 751, in native_unit_post_capture_reads
+    self.support.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure\n'
+
+======================================================================
+FAIL: test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=True, shared_cache=False, suffix='.S')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_source_snapshots.py", line 751, in native_unit_post_capture_reads
+    self.support.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure\n'
+
+======================================================================
+FAIL: test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=True, shared_cache=True, suffix='.s')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_source_snapshots.py", line 751, in native_unit_post_capture_reads
+    self.support.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure\n'
+
+======================================================================
+FAIL: test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) (shared_unit=True, shared_cache=True, suffix='.S')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_source_snapshots.py", line 751, in native_unit_post_capture_reads
+    self.support.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure\n'
+
+======================================================================
+FAIL: test_apple_native_unit_capture_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery) (shared_unit=False, shared_cache=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_source_snapshots.py", line 890, in unit_alias_failed_build_retains_published_generation
+    self.support.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I checked build evidence: phase=tool-spawn-ms expected=1 observed=1 accepted=1\nI checked build evidence: phase=tool-first-output-ms expected=1 observed=42 accepted=1\nI checked build evidence: phase=tool-eof-ms expected=1 observed=44 accepted=1\nI checked build evidence: phase=tool-reaped-ms expected=1 observed=76 accepted=1\nI checked build evidence: phase=tool-query-ms expected=30000 observed=76 accepted=1\nI could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure\nI checked build evidence: phase=build-result expected=1 observed=0 accepted=0\n'
+
+======================================================================
+FAIL: test_apple_native_unit_capture_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery) (shared_unit=False, shared_cache=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_source_snapshots.py", line 890, in unit_alias_failed_build_retains_published_generation
+    self.support.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I checked build evidence: phase=tool-spawn-ms expected=1 observed=1 accepted=1\nI checked build evidence: phase=tool-first-output-ms expected=1 observed=47 accepted=1\nI checked build evidence: phase=tool-eof-ms expected=1 observed=49 accepted=1\nI checked build evidence: phase=tool-reaped-ms expected=1 observed=83 accepted=1\nI checked build evidence: phase=tool-query-ms expected=30000 observed=83 accepted=1\nI could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure\nI checked build evidence: phase=build-result expected=1 observed=0 accepted=0\n'
+
+======================================================================
+FAIL: test_apple_native_unit_capture_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery) (shared_unit=True, shared_cache=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_source_snapshots.py", line 890, in unit_alias_failed_build_retains_published_generation
+    self.support.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I checked build evidence: phase=tool-spawn-ms expected=1 observed=0 accepted=1\nI checked build evidence: phase=tool-first-output-ms expected=1 observed=41 accepted=1\nI checked build evidence: phase=tool-eof-ms expected=1 observed=44 accepted=1\nI checked build evidence: phase=tool-reaped-ms expected=1 observed=70 accepted=1\nI checked build evidence: phase=tool-query-ms expected=30000 observed=70 accepted=1\nI could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure\nI checked build evidence: phase=build-result expected=1 observed=0 accepted=0\n'
+
+======================================================================
+FAIL: test_apple_native_unit_capture_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery) (shared_unit=True, shared_cache=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_source_snapshots.py", line 890, in unit_alias_failed_build_retains_published_generation
+    self.support.probe_path("build", module, env, timeout=30)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I checked build evidence: phase=tool-spawn-ms expected=1 observed=0 accepted=1\nI checked build evidence: phase=tool-first-output-ms expected=1 observed=39 accepted=1\nI checked build evidence: phase=tool-eof-ms expected=1 observed=41 accepted=1\nI checked build evidence: phase=tool-reaped-ms expected=1 observed=73 accepted=1\nI checked build evidence: phase=tool-query-ms expected=30000 observed=73 accepted=1\nI could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure\nI checked build evidence: phase=build-result expected=1 observed=0 accepted=0\n'
+
+----------------------------------------------------------------------
+Ran 8 tests in 553.791s
+
+FAILED (failures=12)

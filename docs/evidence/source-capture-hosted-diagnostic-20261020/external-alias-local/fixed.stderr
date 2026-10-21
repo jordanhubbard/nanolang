@@ -1,0 +1,52 @@
+I checked build evidence: phase=tool-spawn-ms expected=1 observed=0 accepted=1
+I checked build evidence: phase=tool-first-output-ms expected=1 observed=30 accepted=1
+I checked build evidence: phase=tool-eof-ms expected=1 observed=34 accepted=1
+I checked build evidence: phase=tool-reaped-ms expected=1 observed=61 accepted=1
+I checked build evidence: phase=tool-query-ms expected=30000 observed=61 accepted=1
+I checked build evidence: phase=tool-spawn-ms expected=1 observed=0 accepted=1
+I checked build evidence: phase=tool-first-output-ms expected=1 observed=42 accepted=1
+I checked build evidence: phase=tool-eof-ms expected=1 observed=43 accepted=1
+I checked build evidence: phase=tool-reaped-ms expected=1 observed=69 accepted=1
+I checked build evidence: phase=tool-query-ms expected=29939 observed=69 accepted=1
+I checked build evidence: phase=tool-spawn-ms expected=1 observed=2 accepted=1
+I checked build evidence: phase=tool-first-output-ms expected=1 observed=0 accepted=0
+I checked build evidence: phase=tool-eof-ms expected=1 observed=7 accepted=1
+I checked build evidence: phase=tool-reaped-ms expected=1 observed=34 accepted=1
+I checked build evidence: phase=tool-run-ms expected=29706 observed=34 accepted=1
+I checked build evidence: phase=tool-spawn-ms expected=1 observed=0 accepted=1
+I checked build evidence: phase=tool-first-output-ms expected=1 observed=33 accepted=1
+I checked build evidence: phase=tool-eof-ms expected=1 observed=36 accepted=1
+I checked build evidence: phase=tool-reaped-ms expected=1 observed=63 accepted=1
+I checked build evidence: phase=tool-query-ms expected=30000 observed=63 accepted=1
+I checked build evidence: phase=tool-spawn-ms expected=1 observed=1 accepted=1
+I checked build evidence: phase=tool-first-output-ms expected=1 observed=13 accepted=1
+I checked build evidence: phase=tool-eof-ms expected=1 observed=15 accepted=1
+I checked build evidence: phase=tool-reaped-ms expected=1 observed=41 accepted=1
+I checked build evidence: phase=tool-query-ms expected=29937 observed=41 accepted=1
+I checked build evidence: phase=tool-spawn-ms expected=1 observed=0 accepted=1
+I checked build evidence: phase=tool-first-output-ms expected=1 observed=33 accepted=1
+I checked build evidence: phase=tool-eof-ms expected=1 observed=36 accepted=1
+I checked build evidence: phase=tool-reaped-ms expected=1 observed=63 accepted=1
+I checked build evidence: phase=tool-query-ms expected=29745 observed=63 accepted=1
+I checked build evidence: phase=tool-spawn-ms expected=1 observed=0 accepted=1
+I checked build evidence: phase=tool-first-output-ms expected=1 observed=12 accepted=1
+I checked build evidence: phase=tool-eof-ms expected=1 observed=13 accepted=1
+I checked build evidence: phase=tool-reaped-ms expected=1 observed=40 accepted=1
+I checked build evidence: phase=tool-query-ms expected=29682 observed=40 accepted=1
+I checked build evidence: phase=tool-spawn-ms expected=1 observed=1 accepted=1
+I checked build evidence: phase=tool-first-output-ms expected=1 observed=0 accepted=0
+I checked build evidence: phase=tool-eof-ms expected=1 observed=6 accepted=1
+I checked build evidence: phase=tool-reaped-ms expected=1 observed=33 accepted=1
+I checked build evidence: phase=tool-run-ms expected=29498 observed=33 accepted=1
+I checked build evidence: phase=tool-spawn-ms expected=1 observed=1 accepted=1
+I checked build evidence: phase=tool-first-output-ms expected=1 observed=0 accepted=0
+I checked build evidence: phase=tool-eof-ms expected=1 observed=5 accepted=1
+I checked build evidence: phase=tool-reaped-ms expected=1 observed=32 accepted=1
+I checked build evidence: phase=tool-run-ms expected=29465 observed=32 accepted=1
+clang: warning: argument unused during compilation: '-fPIC' [-Wunused-command-line-argument]
+ld: library 'System' not found
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+ld: library 'System' not found
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+I could not build the shared library for answer_native
+I checked build evidence: phase=build-result expected=1 observed=0 accepted=0

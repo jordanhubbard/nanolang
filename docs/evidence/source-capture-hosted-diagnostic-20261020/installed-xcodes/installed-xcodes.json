@@ -1,0 +1,77 @@
+[
+  {
+    "application": "/Applications/Xcode.app",
+    "developer_dir": "/Applications/Xcode.app/Contents/Developer",
+    "compiler": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_15.0.1.app",
+    "developer_dir": "/Applications/Xcode_15.0.1.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_15.0.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_15.0.app",
+    "developer_dir": "/Applications/Xcode_15.0.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_15.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_15.1.0.app",
+    "developer_dir": "/Applications/Xcode_15.1.0.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_15.1.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_15.1.app",
+    "developer_dir": "/Applications/Xcode_15.1.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_15.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_15.2.0.app",
+    "developer_dir": "/Applications/Xcode_15.2.0.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_15.2.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_15.2.app",
+    "developer_dir": "/Applications/Xcode_15.2.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_15.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_15.3.0.app",
+    "developer_dir": "/Applications/Xcode_15.3.0.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_15.3.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_15.3.app",
+    "developer_dir": "/Applications/Xcode_15.3.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_15.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_15.4.0.app",
+    "developer_dir": "/Applications/Xcode_15.4.0.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_15.4.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_15.4.app",
+    "developer_dir": "/Applications/Xcode_15.4.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_16.1.0.app",
+    "developer_dir": "/Applications/Xcode_16.1.0.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_16.1.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_16.1.app",
+    "developer_dir": "/Applications/Xcode_16.1.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_16.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_16.2.0.app",
+    "developer_dir": "/Applications/Xcode_16.2.0.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_16.2.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  },
+  {
+    "application": "/Applications/Xcode_16.2.app",
+    "developer_dir": "/Applications/Xcode_16.2.app/Contents/Developer",
+    "compiler": "/Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+  }
+]
