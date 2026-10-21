@@ -16460,3 +16460,9 @@ I refine the copied-image design with constructor-derived capacities: no decoded
 - [x] I own the reviewed retained-cost/image slice from `e63187eec`: exact owning-TU no-allocation cost helpers and a separately reproved copied image within unchanged preparation caps. I first qualify retained bytes against the independent live allocation oracle. Public/runtime/native/publisher admission remains refused; source checkpoint precedes compilation.
 
 I retain [private copied-image qualification](evidence/map-copied-image-20261021/README.md): exact live-payload cost oracles, independently reproved copies,61 failure positions with prior-image/source preservation, semantic reproof controls, unchanged six old budgets and old VM/recipe neighbors. Public/runtime/native/publisher admission and full #1001 remain open.
+
+### 2026-10-21: I integrate independently copied map images
+
+I integrate `75bf0ef55` preserving both roadmap histories and the sanitizer marker correction. I add the private image target to platform qualification and run its actual aggregate Make gate against four retained originals before pushing. Independent image construction grants no runtime/public/native admission.
+
+I completed aggregate independent-image qualification:2799/10743 checks,61 allocation prefixes,four retained originals and61 workflow/checkpoint/container/schema controls. Receipt:`docs/evidence/map-image-aggregate-20261021/`. Runtime/native/publisher integration and exact-current hosted gates remain open.
