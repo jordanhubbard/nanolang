@@ -16410,3 +16410,7 @@ I retain [declaration-only qualification](evidence/map-declarations-20261021/REA
 ### I qualify the combined declaration-only map checkpoint (2026-10-21)
 
 I integrate2810567e6 with map_removeabd5ef4e4, preserve both histories, and pass actual Make map declarations2.041s, old copied declarations2.003s,28 workflow controls0.480s and paired map_remove6.032s. I retain `docs/evidence/map-declarations-aggregate-20261021/`. Public map execution remains refused; origin/runtime/native/publisher work and exact hosted gates remain open.
+
+### I map selected map consumers before implementation (2026-10-21)
+
+- [x] I own the contract-only next #1001 phase from declaration `2810567e6` on `design/5.1-map-consumer-contract`. My [consumer interface proposal](NANOISA_MAP_CONSUMER_DESIGN.md) covers exact STRING→INT origins/history, calls/globals/results, copied and actual public execution lifetimes, key retention/absent GET, native identity, charged storage and fail-closed selection. I change no admission/runtime/publisher here; DELETE remains excluded. Explicit context threading, public retain preflight, key byte-domain agreement and measured budgets require review before production.
