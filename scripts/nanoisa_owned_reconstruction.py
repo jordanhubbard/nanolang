@@ -29,17 +29,41 @@ class OwnedAnalyze(Analyze):
         self.module = module
         require(module.get('profile') == 'owned-local-v1' and module['entry'] == 0 and
                 0 < len(module['functions']) <= 8, 'require bounded verified resource functions')
+        require(all(isinstance(fn.get('params'), list) and
+                    all(isinstance(pair, list) and len(pair) == 2 for pair in fn['params'])
+                    for fn in module['functions']), 'require exact parameter descriptor pairs')
         self.string_literals = literal_facts(module)
         self.borrowed = any(any(f.get('param_modes', [])) for f in module['functions'])
         self.fn = module['functions'][index]
         self.index = index
         self.layouts = module['layouts']
         require(0 < len(self.layouts) <= 16, 'require bounded resource layouts')
+        empty_layouts = [i for i, layout in enumerate(self.layouts) if not layout['fields']]
+        self.borrowed_empty_local = False
+        if self.borrowed and empty_layouts:
+            helper = module['functions'][1] if len(module['functions']) == 2 else {}
+            params = helper.get('params', [])
+            self.borrowed_empty_local = (type(module.get('ownership_version', 1)) is int and
+                module.get('ownership_version', 1) == 1 and len(self.layouts) == 2 and len(empty_layouts) == 1 and
+                helper.get('param_modes') == [2] and type(helper['param_modes'][0]) is int and
+                isinstance(params, list) and len(params) == 1 and isinstance(params[0], list) and len(params[0]) == 2 and
+                type(params[0][0]) is int and params[0][0] == 8 and type(params[0][1]) is int and
+                0 <= params[0][1] < len(self.layouts) and bool(self.layouts[params[0][1]]['fields']) and
+                helper.get('result_type') == [INT, 4294967295] and
+                all(type(tag) is int and tag in (INT, BOOL) for layout in self.layouts for tag in layout['fields']))
+            require(self.borrowed_empty_local, 'require the exact independent-empty single-exclusive profile')
+            require(all(type(value) is int for fn in module['functions']
+                        for pair in fn['params'] + fn['local_types'] + [fn['result_type']] for value in pair) and
+                    all(type(mode) is int for fn in module['functions'] for mode in fn.get('param_modes', [])) and
+                    all(type(layout['identity']) is int for layout in self.layouts),
+                    'require exact integer empty-local nominal and signature identities')
+            require(all(ins['op'] in OWNED_PRETEST | {'ADD', 'STORE_LOCAL', 'REF_GET', 'REF_SET', 'RET'}
+                        for ins in helper['code']), 'require the existing total straight-line nonempty helper')
         self.fields = []
         self.depths = []
         for i, layout in enumerate(self.layouts):
             require(layout['identity'] == i and layout['resource'] is True and
-                    (0 < len(layout['fields']) or not self.borrowed) and len(layout['fields']) <= 16 and
+                    (0 < len(layout['fields']) or not self.borrowed or self.borrowed_empty_local) and len(layout['fields']) <= 16 and
                     all(t in (INT, BOOL, 8) for t in layout['fields']),
                     'require exact resource identity and bounded fields')
             fields = layout.get('field_types', [[t, 4294967295] for t in layout['fields']])

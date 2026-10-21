@@ -110,9 +110,9 @@ class EmptyOwnedReconstruction(unittest.TestCase):
                     native = rebuilt.with_suffix('.c')
                     self.command([ROOT/'bin/nvm2c', rebuilt, '-o', native]); self.native(native, 7)
 
-    def test_borrowed_empty_original_is_not_admitted(self):
+    def test_borrowed_multiple_empty_layouts_remain_bounded(self):
         text = (ROOT/'tests/nanoisa/fixtures/source_borrow_exclusive.nano').read_text()
-        text = 'resource struct Empty {}\n'+text
+        text = 'resource struct Empty {}\nresource struct EmptyExtra {}\n'+text
         text = text.replace('fn main() -> int {', 'fn main() -> int {\n let empty: Empty = Empty {}\n let Empty {} = empty', 1)
         for compiler in self.compilers:
             module = self.module(compiler, text, 'borrowed-empty')

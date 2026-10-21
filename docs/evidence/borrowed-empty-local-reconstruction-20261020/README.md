@@ -1,0 +1,11 @@
+# I retain borrowed independent empty locals
+
+I qualify the exact accepted source retained in `../borrowed-empty-local-baseline-20261020/`: one independent empty owner beside one nonempty single-exclusive helper. I admit only ownership v1, two layouts (exactly one empty), two functions, and the existing straight-line INT-result helper with INT/BOOL fields. I preserve nominal identities, original owner transfers and the existing witness. I add no emitter, planner, runtime, verifier or wire format.
+
+My final six-method corpus passes in 37.189s (`qualified.log`), including original VM/native and regenerated seed/Stage1/Stage2 paths, strict ISO C11 with pedantic errors and ASan/UBSan at O0/O2, swapped layout order, independent original shadows, generated consistency shadows, canonical/advisory-strip equivalence, nominal/leak/double-move refusals and malformed direct-facts refusal. Actual ordinary output has 30/12 locals, original-shadow output 29/12, and separately generated consistency shadow 18/12. Actual 128-local output passes all three producers; estimated 129 refuses atomically with prior output preserved (`cap.log`, 1.621s).
+
+I retain the initial private malformed-parameter harness failures (None and incomplete pairs reached the preexisting STRING scan) in `focused.log`. I validate pair shape before that scan; the corrected new and old empty corpus passes all 12 methods in 59.915s (`final.log`). The old borrowed-empty negative now uses a valid additional empty layout outside this exact two-layout contract; its original two-layout source is the new positive.
+
+I retain 13 byte-identical prior comparisons in `old-bytes.json`, strict Clang/GCC syntax checks in `strict.json`, exact helper-link commands and compatible input hashes, and ten unchanged baseline provider/source pins. `final-source-pins.json` additionally records the precise prior source-test and fixture origin and the changed facts binary. No frontend/bootstrap rebuild was required. Command bundles retain every numbered command JSON byte-for-byte with SHA256, and hash all other retained artifacts; the original temporary artifacts remain in place.
+
+I require aggregate and exact hosted qualification separately. This bounded result does not close #999, expand arbitrary empty borrowed profiles, or prove pending macOS/sanitizer/coverage gates.

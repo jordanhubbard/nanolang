@@ -1,0 +1,22 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-awsk5yl4
+test_canonical_and_advisory_independence (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_canonical_and_advisory_independence) ... ok
+test_empty_nominal_leak_and_double_move_refuse (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_empty_nominal_leak_and_double_move_refuse) ... ok
+test_exact_profile_and_malformed_parameter_guards (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_exact_profile_and_malformed_parameter_guards) ... ok
+test_original_and_generated_shadows (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_original_and_generated_shadows) ... I retain empty-local selected-shadow counts [18, 12]
+I retain empty-local selected-shadow counts [18, 12]
+I retain empty-local selected-shadow counts [18, 12]
+ok
+test_unchanged_and_swapped_layout_order (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_unchanged_and_swapped_layout_order) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-2i0fm1fz
+test_borrowed_multiple_empty_layouts_remain_bounded (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_borrowed_multiple_empty_layouts_remain_bounded) ... ok
+test_distinct_empty_nominal_identities (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_distinct_empty_nominal_identities) ... ok
+test_nested_empty_child_and_consuming_result (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_nested_empty_child_and_consuming_result) ... ok
+test_nominal_transfer_and_consumption_fail_closed (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_nominal_transfer_and_consumption_fail_closed) ... ok
+test_transport_and_advisory_independence (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_transport_and_advisory_independence) ... ok
+test_unchanged_source_and_independent_shadow (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_unchanged_source_and_independent_shadow) ... ok
+test_zero_pack_preserves_operand_prefix (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_zero_pack_preserves_operand_prefix) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 59.915s
+
+OK

@@ -1,0 +1,102 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-2i407nvf
+test_canonical_and_advisory_independence (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_canonical_and_advisory_independence) ... ok
+test_empty_nominal_leak_and_double_move_refuse (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_empty_nominal_leak_and_double_move_refuse) ... ok
+test_exact_profile_and_malformed_parameter_guards (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_exact_profile_and_malformed_parameter_guards) ... 
+  test_exact_profile_and_malformed_parameter_guards (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_exact_profile_and_malformed_parameter_guards) (params=None) ... ERROR
+  test_exact_profile_and_malformed_parameter_guards (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_exact_profile_and_malformed_parameter_guards) (params=None) ... ERROR
+  test_exact_profile_and_malformed_parameter_guards (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_exact_profile_and_malformed_parameter_guards) (params=[[]]) ... ERROR
+  test_exact_profile_and_malformed_parameter_guards (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_exact_profile_and_malformed_parameter_guards) (params=[[]]) ... ERROR
+test_original_and_generated_shadows (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_original_and_generated_shadows) ... I retain empty-local selected-shadow counts [18, 12]
+I retain empty-local selected-shadow counts [18, 12]
+I retain empty-local selected-shadow counts [18, 12]
+ok
+test_unchanged_and_swapped_layout_order (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_unchanged_and_swapped_layout_order) ... ok
+
+======================================================================
+ERROR: test_exact_profile_and_malformed_parameter_guards (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_exact_profile_and_malformed_parameter_guards) (params=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_borrowed_empty_local_reconstruction.py", line 65, in test_exact_profile_and_malformed_parameter_guards
+    with self.subTest(params=params),self.assertRaises(Refusal):reconstruct_owned(bad,language)
+                                                                ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 1730, in reconstruct_owned
+    analyses = [OwnedAnalyze(module, i) for i in range(len(module['functions']))]
+                ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 32, in __init__
+    self.string_literals = literal_facts(module)
+                           ~~~~~~~~~~~~~^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_strings.py", line 12, in literal_facts
+    uses = any(pair[0] == STRING for fn in functions for pair in fn['params'])
+           ^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_strings.py", line 12, in <genexpr>
+    uses = any(pair[0] == STRING for fn in functions for pair in fn['params'])
+                                                                 ~~^^^^^^^^^^
+TypeError: 'NoneType' object is not iterable
+
+======================================================================
+ERROR: test_exact_profile_and_malformed_parameter_guards (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_exact_profile_and_malformed_parameter_guards) (params=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_borrowed_empty_local_reconstruction.py", line 65, in test_exact_profile_and_malformed_parameter_guards
+    with self.subTest(params=params),self.assertRaises(Refusal):reconstruct_owned(bad,language)
+                                                                ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 1730, in reconstruct_owned
+    analyses = [OwnedAnalyze(module, i) for i in range(len(module['functions']))]
+                ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 32, in __init__
+    self.string_literals = literal_facts(module)
+                           ~~~~~~~~~~~~~^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_strings.py", line 12, in literal_facts
+    uses = any(pair[0] == STRING for fn in functions for pair in fn['params'])
+           ^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_strings.py", line 12, in <genexpr>
+    uses = any(pair[0] == STRING for fn in functions for pair in fn['params'])
+                                                                 ~~^^^^^^^^^^
+TypeError: 'NoneType' object is not iterable
+
+======================================================================
+ERROR: test_exact_profile_and_malformed_parameter_guards (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_exact_profile_and_malformed_parameter_guards) (params=[[]])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_borrowed_empty_local_reconstruction.py", line 65, in test_exact_profile_and_malformed_parameter_guards
+    with self.subTest(params=params),self.assertRaises(Refusal):reconstruct_owned(bad,language)
+                                                                ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 1730, in reconstruct_owned
+    analyses = [OwnedAnalyze(module, i) for i in range(len(module['functions']))]
+                ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 32, in __init__
+    self.string_literals = literal_facts(module)
+                           ~~~~~~~~~~~~~^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_strings.py", line 12, in literal_facts
+    uses = any(pair[0] == STRING for fn in functions for pair in fn['params'])
+           ^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_strings.py", line 12, in <genexpr>
+    uses = any(pair[0] == STRING for fn in functions for pair in fn['params'])
+               ~~~~^^^
+IndexError: list index out of range
+
+======================================================================
+ERROR: test_exact_profile_and_malformed_parameter_guards (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_exact_profile_and_malformed_parameter_guards) (params=[[]])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_borrowed_empty_local_reconstruction.py", line 65, in test_exact_profile_and_malformed_parameter_guards
+    with self.subTest(params=params),self.assertRaises(Refusal):reconstruct_owned(bad,language)
+                                                                ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 1730, in reconstruct_owned
+    analyses = [OwnedAnalyze(module, i) for i in range(len(module['functions']))]
+                ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 32, in __init__
+    self.string_literals = literal_facts(module)
+                           ~~~~~~~~~~~~~^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_strings.py", line 12, in literal_facts
+    uses = any(pair[0] == STRING for fn in functions for pair in fn['params'])
+           ^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_strings.py", line 12, in <genexpr>
+    uses = any(pair[0] == STRING for fn in functions for pair in fn['params'])
+               ~~~~^^^
+IndexError: list index out of range
+
+----------------------------------------------------------------------
+Ran 5 tests in 29.034s
+
+FAILED (errors=4)
