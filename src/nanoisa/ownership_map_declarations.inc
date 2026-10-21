@@ -114,3 +114,13 @@ bool nvm_map_declarations_field(const NvmMapDeclarationPlan *p,uint32_t layout,u
     }
     return false;
 }
+/* Internal split transfers the already validated base, never clones a pointer.
+ * All public declaration constructors retain their existing ownership. */
+NvmMapDeclarationResult nvm_prepare_map_declarations_split(const NvmModule *m,
+        NvmMapDeclarationPlan **out,NvmOwnershipDeclarationPlan **base) {
+    if(!out || !base || (void *)out==(void *)base)return map_result(NVM_MAP_INVALID);
+    NvmMapDeclarationPlan *p=NULL;
+    NvmMapDeclarationResult r=nvm_prepare_map_declarations(m,&p);
+    if(r.status!=NVM_MAP_DESCRIBED)return r;
+    *base=p->base;p->base=NULL;*out=p;return r;
+}

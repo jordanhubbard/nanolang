@@ -5,7 +5,7 @@ struct NvmRecordArrayOrigins {
     NvmRecordArrayOriginCounts counts;
 };
 static int publish_records(Analysis *,NvmRecordEligibilityReport **);
-static int ra_prepare_records(Analysis *a) {
+static int ra_prepare_records(Analysis *a,NvmRecordMapAnalysisContext *maps) {
     NvmDeclarationCounts counts;
     if(!nvm_ownership_declarations_counts(a->structure->declarations,&counts) || counts.layouts>256)
         return stop(a,NVM_ARRAY_INVALID,0,0,"I require complete declaration counts.");
@@ -107,7 +107,7 @@ static int ra_prepare_records(Analysis *a) {
             if(tag==TAG_ARRAY) {
                 if(!record_field_element(a,a->layout_fields[i]+j))
                     return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require every array field binding.");
-            } else if(!(tag==TAG_INT || tag==TAG_U8 || tag==TAG_FLOAT || tag==TAG_BOOL || tag==TAG_STRING || tag==TAG_STRUCT))
+            } else if(!(tag==TAG_INT || tag==TAG_U8 || tag==TAG_FLOAT || tag==TAG_BOOL || tag==TAG_STRING || tag==TAG_STRUCT || (maps && tag==TAG_HASHMAP)))
                 return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require the bounded ordinary record field schema.");
         }
     }

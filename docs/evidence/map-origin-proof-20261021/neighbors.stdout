@@ -1,0 +1,23 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-p70sdlpv
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 4522 record-array origin checks; no runtime admission
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+I measured 41 allocation positions and 65034 peak payload bytes; every refusal recovered
+PASS 5050 record-array origin checks; no runtime admission
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-global-flow-5od20nsj
+I begin dominating and joined global stores
+I begin global calls and multiple contexts
+I begin initializer and repeated committed prefixes
+I begin stale copied global predicates
+I begin complete indices and copied results
+PASS 360 private global-flow checks; no runtime admission

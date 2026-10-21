@@ -1,0 +1,17 @@
+{
+  "/Users/jkh/Src/nanolang-51-platform-qualification/Makefile.gnu": "8bbe2f7bd9b3e89e08bfc8a813fd10fe6939f48686b50d6710b393113276126d",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/docs/NANOISA_MAP_CONSUMER_DESIGN.md": "6d09cd694c6c1553bd04d9ae5e5fa4a3786d3795d5a17fa2f7e4111bae082f7d",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/docs/ROADMAP.md": "c0308f095b2f76b0e4367af8f964bcf51aaec87b40a2b279db375a1bfc8e0487",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/managed_array_shapes.c": "c930b6548a88f0767255262fc5cf275b37a994096fae9ace27eb2516cb5989c1",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/managed_record_array_execution.inc": "7c81395e319f4df4ae12818616eadcdaf364e366854ed3c6bbb2573f8fa2272c",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/ownership_contracts.c": "3621f14605e32589cafbf1c68f579473050632022ec7a6d0084fa1e3f7236add",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/ownership_map_declarations.inc": "7a75e53d4888aea7b0b2a105694b4ebecd68c831cd8ef92c515c60dae8ff64f9",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/record_array_origins.inc": "13d5c4b0ecdc44e22c96c849b996c15237e096ee9eb75e1584c8ebbe44a8fb4d",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/record_array_structure.inc": "7ca042edb0f0d149d98bc0b5612301e2e1449f362a9cf2a8a69d5e6e846347bc",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/managed_record_map_origins.h": "be8e5e59b50a4a567f83a5bec93995e165d118a82db7104cf12ed253f81546a6",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/record_map_analysis.inc": "46fcb365c3cdec24b53b82d609b984a38d21b710a68ba22f166974896bf2f6db",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/record_map_frozen.inc": "0af167fd500ef8f104500b98f3af1a35c6f39e2becebda5e6e0fdc1901fecc0d",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/record_map_structure_private.h": "bfe3a686fbcb6ca39104b97c2671ed3638aa920e59954bae4dc881011e3a7b3f",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/test_record_map_origins.c": "ad3a7d332fa3cba67a43626600b5b4ec3e724dacdf3267beb458c035f01c344c",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_origins.py": "1c1b77594c69fd38600674869ba42cb78fd7e767211b73a2aac4dae541b9c6f1"
+}

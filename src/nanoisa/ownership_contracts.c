@@ -3,6 +3,7 @@
 #include "reference_places.h"
 #include "isa.h"
 #include "ownership_map_declarations.h"
+#include "record_map_structure_private.h"
 #include <stdlib.h>
 #include <string.h>
 
