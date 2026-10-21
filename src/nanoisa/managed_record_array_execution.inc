@@ -203,8 +203,8 @@ static int rae_recipe(uint8_t op,NvmRecordArrayExecutionInstruction *r) {
     }
     return 1;
 }
-static int rae_instructions_using(NvmRecordArrayExecutionPlan *p,
-        int (*recipe)(uint8_t,NvmRecordArrayExecutionInstruction *)) {
+static int rae_instructions_policy(NvmRecordArrayExecutionPlan *p,
+        int (*recipe)(uint8_t,NvmRecordArrayExecutionInstruction *),int halt_terminal) {
     const NvmModule *m=&p->snapshot;uint32_t total=0;
     for(uint32_t fi=0;fi<m->function_count;fi++) {
         const NvmFunctionEntry *f=&m->functions[fi];
@@ -265,7 +265,7 @@ static int rae_instructions_using(NvmRecordArrayExecutionPlan *p,
                 if(target<0 || (uint64_t)target>f->code_length){free(boundaries);return 0;}
                 r->successors[r->successor_count++]=(uint32_t)target;
             }
-            if(in.opcode!=OP_JMP && in.opcode!=OP_RET && in.opcode!=OP_TAIL_CALL)r->successors[r->successor_count++]=pc+size;
+            if(in.opcode!=OP_JMP && in.opcode!=OP_RET && in.opcode!=OP_TAIL_CALL && !(halt_terminal && in.opcode==OP_HALT))r->successors[r->successor_count++]=pc+size;
             if(in.opcode==OP_LOAD_GLOBAL || in.opcode==OP_STORE_GLOBAL) {
                 uint32_t count=in.operands[0].u32+1;
                 if(count>256){free(boundaries);return 0;}
@@ -283,6 +283,10 @@ static int rae_instructions_using(NvmRecordArrayExecutionPlan *p,
         free(boundaries); /* Reservation remains conservative across functions. */
     }
     return 1;
+}
+static int rae_instructions_using(NvmRecordArrayExecutionPlan *p,
+        int (*recipe)(uint8_t,NvmRecordArrayExecutionInstruction *)) {
+    return rae_instructions_policy(p,recipe,0);
 }
 static int rae_old_recipe(uint8_t op,NvmRecordArrayExecutionInstruction *r) {
     return nvm_record_array_opcode_supported(op) && rae_recipe(op,r);

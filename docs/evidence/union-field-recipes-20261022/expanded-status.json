@@ -1,0 +1,113 @@
+[
+  {
+    "name": "clang-managed_array_shapes",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-fsyntax-only",
+      "src/nanoisa/managed_array_shapes.c"
+    ],
+    "status": 0,
+    "seconds": 0.06279191700741649
+  },
+  {
+    "name": "clang-test_union_field_execution",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_execution.c"
+    ],
+    "status": 0,
+    "seconds": 0.048288291902281344
+  },
+  {
+    "name": "clang-test_union_field_execution-observed",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-DUFP_ALLOC",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_execution.c"
+    ],
+    "status": 0,
+    "seconds": 0.06341025000438094
+  },
+  {
+    "name": "gcc-16-managed_array_shapes",
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-fsyntax-only",
+      "src/nanoisa/managed_array_shapes.c"
+    ],
+    "status": 0,
+    "seconds": 0.10293158295098692
+  },
+  {
+    "name": "gcc-16-test_union_field_execution",
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_execution.c"
+    ],
+    "status": 0,
+    "seconds": 0.04362791695166379
+  },
+  {
+    "name": "gcc-16-test_union_field_execution-observed",
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-DUFP_ALLOC",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_execution.c"
+    ],
+    "status": 0,
+    "seconds": 0.060235874960199
+  },
+  {
+    "name": "expanded-recipes",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_union_field_execution"
+    ],
+    "status": 0,
+    "seconds": 8.467465791967697
+  }
+]

@@ -16852,3 +16852,7 @@ I integrated the descriptive union proof through16f90b823 as e51459cb9, preservi
 
 I passed the current aggregate proof target with all six retained originals (338/393 checks,5.069s) and68 workflow/checkpoint/capture/container/schema controls (2.003s). Receipt: `docs/evidence/union-field-proof-aggregate-20261021/README.md`. Public union execution and publication remain closed.
 I own the next #1001 union consumer interface audit after proof16f90b823 and aggregate mergee51459cb9. This is design-only: final instruction obligations, copied recipes/images, ordinary borrowed invocation and native nominal mapping. I preserve None-match/history precision limits and make no production edit, build or admission claim.
+
+I am implementing only reviewed checkpoint1 after design134f8c5ed rebased onto aggregate7c454307e: optional same-analysis site export and copied recipe constructor/getters. Both ROADMAP histories are preserved. No image/runtime/native/public/publisher enrollment or build precedes frozen-source review.
+
+I completed union recipe checkpoint1:842 linked/3234 allocation checks across six original modules,54 constructor and38 paired-output positions in both denial modes, explicit real constructor LIMIT/recovery, strict6, unchanged proof338/393 and old array/map recipe neighbors, plus six byte-identical legacy budgets. Receipt: `docs/evidence/union-field-recipes-20261022/README.md`. Images/runtime/native/public/publishers remain outside this component.

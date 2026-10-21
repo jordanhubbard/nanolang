@@ -376,7 +376,10 @@ static void proof_original(const char *path) {
     NvmUnionFieldOrigin row;CHECK(nvm_union_field_proof_origin(proof,0,&row));
     nvm_union_field_proof_free(proof);
 }
-int main(int argc,char **argv) {
+#ifndef UFP_MAIN
+#define UFP_MAIN main
+#endif
+int UFP_MAIN(int argc,char **argv) {
     CHECK(argc==1||argc==7);
 #ifdef UFP_ALLOC
     if(argc==1){proof_allocations();printf("PASS %u union proof allocation checks\n",checks);return 0;}

@@ -175,6 +175,93 @@ static int uf_summary(Analysis *a,Value v,uint32_t fi,uint32_t pc) {
 static NvmRecordValueOrigins uf_copy_value(Value v) {
     NvmRecordValueOrigins out={0};out.tags=v.tags;out.origins=v.origins;return out;
 }
+/* Dense optional output is private to this owning TU; never a trusted token. */
+typedef struct { NvmUnionFieldSite *rows;uint32_t count,reserved; } NvmUnionFieldSiteExport;
+static int uf_outputs_overlap(const void *a,size_t an,const void *b,size_t bn) {
+    uintptr_t x=(uintptr_t)a,y=(uintptr_t)b;
+    return x<=y?y-x<an:x-y<bn;
+}
+static int uf_sensitive(uint8_t op) { return record_operation(op) || op==OP_AGG_TAG || op==OP_HALT; }
+static uint8_t uf_site_operation(const DecodedInstruction *in) {
+    switch(in->opcode) {
+    case OP_STRUCT_NEW:return UFS_RECORD_NEW;
+    case OP_STRUCT_LITERAL:return UFS_RECORD_PACK;
+    case OP_AGG_PACK:return in->operands[0].u8==AGG_VARIANT?UFS_VARIANT_PACK:UFS_RECORD_PACK;
+    case OP_STRUCT_GET:return UFS_RECORD_GET;
+    case OP_STRUCT_SET:case OP_AGG_SET:return UFS_RECORD_SET;
+    case OP_AGG_TAG:return UFS_TAG;
+    case OP_HALT:return UFS_HALT;
+    default:return UFS_NONE;
+    }
+}
+static int uf_export_sites(Analysis *a,NvmUnionAnalysisContext *u,NvmUnionFieldSiteExport *out) {
+    uint32_t count=0;
+    if(!analysis_work(a,a->module->function_count))return 0;
+    for(uint32_t fi=0;fi<a->module->function_count;fi++) {
+        uint32_t n=a->functions[fi].decoded.instruction_count;
+        if(n>65536u-count)return stop(a,NVM_ARRAY_LIMIT,fi,0,"I reached the union site count bound.");
+        count+=n;
+    }
+    if(!analysis_work(a,(uint64_t)count*512u))return 0;
+    NvmUnionFieldSite *rows=count?analysis_alloc(a,count,sizeof *rows):NULL;
+    if(count && !rows)return stop(a,NVM_ARRAY_MEMORY,0,0,"I could not copy final union sites.");
+    uint32_t index=0;
+    for(uint32_t fi=0;fi<a->module->function_count;fi++) {
+        Function *f=&a->functions[fi];
+        for(uint32_t pc=0;pc<f->decoded.instruction_count;pc++,index++) {
+            VmDecodedInstruction *d=&f->decoded.instructions[pc];DecodedInstruction *in=&d->instruction;
+            NvmUnionFieldSite *r=&rows[index];r->function=fi;r->pc=d->byte_offset;
+            r->nominal=r->layout=UINT32_MAX;r->member=UINT16_MAX;r->variant=UINT8_MAX;
+            if(!uf_sensitive(in->opcode))continue;
+            r->state=UFS_NOT_ESTABLISHED;r->operation=uf_site_operation(in);
+            if(!f->seen[pc])continue; /* Never certifies unreachability or execution. */
+            r->state=UFS_PROVED;
+            if(in->opcode==OP_HALT)continue;
+            Value receiver={0},input={0},result={0};uint16_t depth=f->depths[pc];
+            Value *stack=f->states+(size_t)pc*f->stride+f->locals;
+            uint8_t nominal_tag=TAG_VOID;
+            if(in->opcode==OP_STRUCT_NEW || in->opcode==OP_STRUCT_LITERAL || in->opcode==OP_AGG_PACK) {
+                int32_t o=f->origins[pc];
+                if(o<0 || (uint32_t)o>=a->report.origin_count)goto invalid;
+                r->member=a->record_fields[o];r->nominal=a->record_ordinal[o];
+                nominal_tag=a->origin_kind[o]==NVM_UNION_FIELD_ORIGIN?TAG_UNION:TAG_STRUCT;
+                if(r->member>1 || depth<r->member)goto invalid;
+                if(r->member)input=stack[depth-r->member];
+                result=tag(nominal_tag);result.origins=UINT64_C(1)<<o;
+                if(nominal_tag==TAG_UNION)r->variant=u->variant[o];
+            } else if(in->opcode==OP_AGG_TAG) {
+                if(!depth)goto invalid;
+                receiver=stack[depth-1];result=tag(TAG_INT);nominal_tag=TAG_UNION;r->nominal=0;
+            } else {
+                int writing=in->opcode==OP_STRUCT_SET || in->opcode==OP_AGG_SET;
+                if(depth<(writing?2:1))goto invalid;
+                receiver=stack[depth-(writing?2:1)];if(writing)input=stack[depth-1];
+                if(uf_access(a,u,receiver,in->operands[0].u16,writing,input,fi,d->byte_offset,1,&result)!=1)goto fail;
+                r->member=in->operands[0].u16;r->nominal=0;
+                nominal_tag=receiver.tags==BIT(TAG_STRUCT)?TAG_STRUCT:TAG_UNION;
+                r->operation=writing?UFS_RECORD_SET:nominal_tag==TAG_STRUCT?UFS_RECORD_GET:UFS_PAYLOAD_GET;
+                if(nominal_tag==TAG_UNION) {
+                    for(uint32_t j=0;j<a->report.origin_count;j++)if(receiver.origins&(UINT64_C(1)<<j)) {
+                        if(r->variant!=UINT8_MAX && r->variant!=u->variant[j])goto invalid;
+                        r->variant=u->variant[j];
+                    }
+                }
+            }
+            /* Existing validation helpers retain their own explicit charges. */
+            if((receiver.tags && !uf_summary(a,receiver,fi,d->byte_offset)) ||
+               (input.tags && !uf_summary(a,input,fi,d->byte_offset)) ||
+               !uf_summary(a,result,fi,d->byte_offset))goto fail;
+            if(!analysis_work(a,4))goto fail;
+            if(!nvm_union_field_declarations_nominal(u->declarations,nominal_tag,r->nominal,&r->layout))goto invalid;
+            r->receiver=uf_copy_value(receiver);r->input=uf_copy_value(input);r->result=uf_copy_value(result);
+        }
+    }
+    *out=(NvmUnionFieldSiteExport){rows,count,0};return 1;
+invalid:
+    stop(a,NVM_ARRAY_INVALID,0,0,"I require exact final union site correspondence.");
+fail:
+    free(rows);return 0;
+}
 static int uf_freeze(Analysis *a,NvmUnionAnalysisContext *u,NvmUnionFieldProof **out) {
     uint32_t origins=a->report.origin_count,globals=a->global_count,functions=a->module->function_count;
     if(!analysis_work(a,origins+globals+functions))return 0;
