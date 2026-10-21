@@ -32,3 +32,7 @@ checkpoint. The next compatibility/toolchain choice requires scoped review.
 ## I qualify the narrow Linux report extension
 
 At `1f7460393903712d909528488363ae8f37a7dc34`, run `39544234552`, Linux job `119038657601` builds the production capture probe and passes all six selected report/integrated-capture methods in 89.790 seconds. I retain commands, current identity, build and test logs under `corrected-linux/`. The diagnostic manifest covers its diagnostic phase; subsequent build/test logs are retained separately. macOS remains queued at this checkpoint; no cross-platform or external-assembler success is inferred.
+
+## I integrate the narrow report compatibility
+
+At aggregate c56ef1131 I rebuild only the production capture probe and pass the same six parser/integrated capture methods on current Darwin in294.716s. This complements actual Ubuntu18 hosted89.790s evidence; it does not substitute for queued Apple15/Homebrew external qualification. The three nested-array GCC failures were separately fixed and qualified at302614d05. Exact-head retirement retries remain required.
