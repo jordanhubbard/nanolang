@@ -990,7 +990,9 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
     } while(a->changed);
     if(!final_check(a,maps))goto done;
     if(map_out) {
+        if(prepared_stacks && !analysis_work(a,256))goto done;
         if(!ra_check_constraints(a) || !map_final(a,maps) || !map_freeze(a,maps,map_out))goto done;
+        if(prepared_stacks)memcpy(prepared_stacks,a->structure->stacks,sizeof a->structure->stacks);
     } else if(mixed_out) {
         if(prepared_stacks && !analysis_work(a,256))goto done;
         if(!ra_check_constraints(a) || !ra_publish(a,mixed_out))goto done;
@@ -1099,6 +1101,7 @@ NvmArrayEligibilityResult nvm_select_managed_heap(const NvmModule *m,int mutable
 }
 
 #include "managed_record_array_execution.inc"
+#include "managed_record_map_execution.inc"
 #include "record_array_admission.inc"
 
 NvmArrayEligibilityResult nvm_select_portable_read_heap(const NvmModule *m,NvmManagedHeapPlan **out) {

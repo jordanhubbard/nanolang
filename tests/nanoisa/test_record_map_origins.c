@@ -192,11 +192,18 @@ static void map_original_module(const char *path) {
     memcpy(m->layout_data,c.layouts,c.l);memcpy(m->ownership_data,c.ownership,c.o);m->layout_size=(uint32_t)c.l;m->ownership_size=(uint32_t)c.o;
     NvmRecordMapFrozenContext *p=(void *)(uintptr_t)1;NvmArrayEligibilityResult result=nvm_analyze_record_map_origins(m,&p);
     if(result.status!=NVM_ARRAY_ELIGIBLE)fprintf(stderr,"I refused original private fixture: %s\n",result.message);
-    CHECK(result.status==NVM_ARRAY_ELIGIBLE);map_public_refused(m);nvm_module_free(m);
+    CHECK(result.status==NVM_ARRAY_ELIGIBLE);map_public_refused(m);
+#ifdef MAP_ORIGINAL_CHECK
+    MAP_ORIGINAL_CHECK(m);
+#endif
+    nvm_module_free(m);
     uint8_t key,value;CHECK(nvm_record_map_frozen_field(p,0,1,&key,&value)&&key==TAG_STRING&&value==TAG_INT);nvm_record_map_frozen_free(p);
     printf("I copied original fixture proof from %s; public admission remains refused.\n",path);
 }
-int main(int argc,char **argv) {
+#ifndef MAP_ORIGIN_MAIN
+#define MAP_ORIGIN_MAIN main
+#endif
+int MAP_ORIGIN_MAIN(int argc,char **argv) {
     setvbuf(stdout,NULL,_IONBF,0);map_copied();map_refusals();map_calls();map_global_join();map_origin_limits();map_branch_loop();map_absence_proof();map_allocations();
     for(int i=1;i<argc;i++)map_original_module(argv[i]);
     printf("PASS %u map origin checks; public admission remains refused\n",checks);return 0;

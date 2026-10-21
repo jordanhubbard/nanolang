@@ -1,0 +1,12 @@
+{
+  "/Users/jkh/Src/nanolang-51-platform-qualification/Makefile.gnu": "a45dfaa00b78ce54ecc5b94f35960906643b58a536db01f11a7a5e45b8e3ece7",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/docs/NANOISA_MAP_EXECUTION_RECIPE_DESIGN.md": "630c85ab68205b1a91ee3f2bc30bec25cb5f377f8ab3f662f31372b3016626d2",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/docs/ROADMAP.md": "de85ac8b2e306db00921b8602eafe84f3099b167dc9ceaafc8dc65c89815eba0",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/managed_array_shapes.c": "d167082924452190ef140fceff09ace675f9d9feb6062d0487d5a33b33e4bb75",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/managed_record_array_execution.inc": "38054843a0384625870d440f914128817e97e6c717988dbebdf72b3458109e93",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/test_record_map_origins.c": "fd6bb521182ab296c501e373d0123359d4580169ebf35ca79ed2aedfe57c8732",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/managed_record_map_execution.h": "e334e0c3c28e7a6e601e08e46a1ee3735ac9af65d8e3f2aa712116c55a98b28d",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/src/nanoisa/managed_record_map_execution.inc": "a17a1644727cb8976b9f86a67ff8661af343aad9a7661582e1996fbc49ed7fff",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/test_record_map_execution.c": "4861dfa6e77370713d9ebcf9ab327df10585bdc8298b0c2b8f0838470131e954",
+  "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_execution.py": "f524f33411b551cb7c4a9f76ffb167c99a877603ed24b2bc335f5a9230145c0b"
+}

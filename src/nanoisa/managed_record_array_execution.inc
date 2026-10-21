@@ -203,7 +203,8 @@ static int rae_recipe(uint8_t op,NvmRecordArrayExecutionInstruction *r) {
     }
     return 1;
 }
-static int rae_instructions(NvmRecordArrayExecutionPlan *p) {
+static int rae_instructions_using(NvmRecordArrayExecutionPlan *p,
+        int (*recipe)(uint8_t,NvmRecordArrayExecutionInstruction *)) {
     const NvmModule *m=&p->snapshot;uint32_t total=0;
     for(uint32_t fi=0;fi<m->function_count;fi++) {
         const NvmFunctionEntry *f=&m->functions[fi];
@@ -235,7 +236,7 @@ static int rae_instructions(NvmRecordArrayExecutionPlan *p) {
             if(!size){free(boundaries);return 0;}
             NvmRecordArrayExecutionInstruction *r=&p->instructions[index++];
             const InstructionInfo *info=isa_get_info(in.opcode);
-            if(!info || !nvm_record_array_opcode_supported(in.opcode) || !rae_recipe(in.opcode,r)) {
+            if(!info || !recipe(in.opcode,r)) {
                 free(boundaries);p->failure=NVM_ARRAY_UNRESOLVED;return 0;
             }
             boundaries[pc]=1;r->function=fi;r->pc=pc;r->next_pc=pc+size;r->opcode=in.opcode;r->callee=UINT32_MAX;
@@ -282,6 +283,12 @@ static int rae_instructions(NvmRecordArrayExecutionPlan *p) {
         free(boundaries); /* Reservation remains conservative across functions. */
     }
     return 1;
+}
+static int rae_old_recipe(uint8_t op,NvmRecordArrayExecutionInstruction *r) {
+    return nvm_record_array_opcode_supported(op) && rae_recipe(op,r);
+}
+static int rae_instructions(NvmRecordArrayExecutionPlan *p) {
+    return rae_instructions_using(p,rae_old_recipe);
 }
 NvmArrayEligibilityResult nvm_prepare_record_array_execution(const NvmModule *m,NvmRecordArrayExecutionPlan **out) {
     NvmArrayEligibilityResult r={.status=NVM_ARRAY_INVALID};
