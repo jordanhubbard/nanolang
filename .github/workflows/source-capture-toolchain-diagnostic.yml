@@ -1,0 +1,30 @@
+name: Source capture selected-tool diagnostics
+on:
+  push:
+    branches: [fix/5.1-platform-qualification]
+    paths:
+      - '.github/workflows/source-capture-toolchain-diagnostic.yml'
+      - 'scripts/ci_source_capture_diagnostic.py'
+permissions:
+  contents: read
+jobs:
+  selected-tools:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retain current selected compiler and assembler evidence
+        run: python3 scripts/ci_source_capture_diagnostic.py
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-capture-tools-${{ matrix.os }}
+          path: .test_output/source-capture-diagnostic/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
