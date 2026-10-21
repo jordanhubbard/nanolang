@@ -54,3 +54,11 @@ I reproduce the external failure locally: a direct cc symlink makes Clang emit t
 The corrected hosted diagnostic will retain executable wrapper hashes alongside the actual compiler hash and SDKROOT. Its eight-method step has15 minutes within the unchanged35-minute job: the preceding assertion-failure run already spent553.791s, and successful external cases add real work. Guest/tool budgets and all eight methods remain unchanged.
 
 The two unchanged actual external SourceSnapshots methods pass locally in58.048s with the corrected executable selector, explicit SDKROOT and current aggregate production probe. I retain command/env/pins and the complete terminal. Hosted eight-method retry remains pending.
+
+## I qualify the corrected executable selector on hosted Xcode 27
+
+Run39559923169/job119088433035 atf60241fec finishes SUCCESS: all eight unchanged capture methods pass593.318s, including actual external macro/incbin retained reads and failed-build recovery. The selected Apple clang21.0.0 (clang-2100.3.34.2), Xcode27.2_beta_2 developer directory, compiler/as hashes, observed CLT SDKROOT and both executable selector hashes are retained in xcode27-wrapper-pass/. The prior Apple15/16 backend/replay failures and Xcode27 alias failure remain. This eight-method success is not the full retirement corpus.
+
+I change only the retirement Darwin image from macos-14 to xcode-27 and add an exact qualified capture-tool selector; Homebrew build CC/native compiler settings, Linux, both corpora, all tests and existing deadlines remain. The selector fails closed if the qualified compiler/as bytes or banner change and requires an existing selected SDK. It records the tools and executable wrappers before exporting PATH, DEVELOPER_DIR and SDKROOT. Full exact-head retirement execution remains pending. Five selector/workflow controls pass0.423s, including changed compiler/backend refusal and unchanged argument/exit transport.
+
+Final selector review tightens SDK identity to the exact observed CLT path and27.0 version, matching successful cc1as -target-sdk-version reports. I record resolved SDK path/version but do not claim an original SDK-content hash, which that diagnostic did not collect. Six selector/workflow controls pass0.296s, including alternate existing SDK/version refusal.

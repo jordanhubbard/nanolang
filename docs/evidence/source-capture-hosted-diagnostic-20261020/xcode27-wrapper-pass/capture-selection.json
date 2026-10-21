@@ -1,0 +1,158 @@
+{
+  "candidates": [
+    {
+      "selected": "/Applications/Xcode_27.2.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_27.2_beta_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_27.2.0.app/Contents/Developer",
+      "sdk_root": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "sha256": "cb5fd7fc6cdf43f60a06a6038e49958d6364c73c6a5b05a507d45dbd36f2eef6",
+      "required_probes": {
+        "9-external-assemble": 0,
+        "9-external-fresh-shared": 0,
+        "9-debug-expand": 0,
+        "9-debug-replay": 0
+      },
+      "passed": true
+    },
+    {
+      "selected": "/Applications/Xcode_27.2_beta_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_27.2_beta_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_27.2_beta_2.app/Contents/Developer",
+      "sdk_root": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "sha256": "cb5fd7fc6cdf43f60a06a6038e49958d6364c73c6a5b05a507d45dbd36f2eef6",
+      "required_probes": {
+        "11-external-assemble": 0,
+        "11-external-fresh-shared": 0,
+        "11-debug-expand": 0,
+        "11-debug-replay": 0
+      },
+      "passed": true
+    },
+    {
+      "selected": "/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_27.1_Release_Candidate.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_27.1.app/Contents/Developer",
+      "sdk_root": "/Applications/Xcode_27.1.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "sha256": "06e3d64f541c65a93acd176690bdaae13a3d7db092c8b98b392d4c6d0d03f176",
+      "required_probes": {
+        "7-external-assemble": 0,
+        "7-external-fresh-shared": 0,
+        "7-debug-expand": 0,
+        "7-debug-replay": 0
+      },
+      "passed": true
+    },
+    {
+      "selected": "/Applications/Xcode_27.1.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_27.1_Release_Candidate.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_27.1.0.app/Contents/Developer",
+      "sdk_root": "/Applications/Xcode_27.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "sha256": "06e3d64f541c65a93acd176690bdaae13a3d7db092c8b98b392d4c6d0d03f176",
+      "required_probes": {
+        "6-external-assemble": 0,
+        "6-external-fresh-shared": 0,
+        "6-debug-expand": 0,
+        "6-debug-replay": 0
+      },
+      "passed": true
+    },
+    {
+      "selected": "/Applications/Xcode_27.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_27.2_beta_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_27.2.app/Contents/Developer",
+      "sdk_root": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "sha256": "cb5fd7fc6cdf43f60a06a6038e49958d6364c73c6a5b05a507d45dbd36f2eef6",
+      "required_probes": {
+        "10-external-assemble": 0,
+        "10-external-fresh-shared": 0,
+        "10-debug-expand": 0,
+        "10-debug-replay": 0
+      },
+      "passed": true
+    },
+    {
+      "selected": "/Applications/Xcode_27.1_Release_Candidate.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_27.1_Release_Candidate.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_27.1_Release_Candidate.app/Contents/Developer",
+      "sdk_root": "/Applications/Xcode_27.1_Release_Candidate.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "sha256": "06e3d64f541c65a93acd176690bdaae13a3d7db092c8b98b392d4c6d0d03f176",
+      "required_probes": {
+        "8-external-assemble": 0,
+        "8-external-fresh-shared": 0,
+        "8-debug-expand": 0,
+        "8-debug-replay": 0
+      },
+      "passed": true
+    },
+    {
+      "selected": "/Applications/Xcode_27.0.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_27.0.0.app/Contents/Developer",
+      "sdk_root": "/Applications/Xcode_27.0.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "sha256": "5922f5f7843fee699497c45cc98134b6686e0a5e2fa8a5866ab74c5482fa87a5",
+      "required_probes": {
+        "4-external-assemble": 0,
+        "4-external-fresh-shared": 0,
+        "4-debug-expand": 0,
+        "4-debug-replay": 0
+      },
+      "passed": true
+    },
+    {
+      "selected": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode.app/Contents/Developer",
+      "sdk_root": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "sha256": "5922f5f7843fee699497c45cc98134b6686e0a5e2fa8a5866ab74c5482fa87a5",
+      "required_probes": {
+        "3-external-assemble": 0,
+        "3-external-fresh-shared": 0,
+        "3-debug-expand": 0,
+        "3-debug-replay": 0
+      },
+      "passed": true
+    },
+    {
+      "selected": "/Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_27.app/Contents/Developer",
+      "sdk_root": "/Applications/Xcode_27.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "sha256": "5922f5f7843fee699497c45cc98134b6686e0a5e2fa8a5866ab74c5482fa87a5",
+      "required_probes": {
+        "12-external-assemble": 0,
+        "12-external-fresh-shared": 0,
+        "12-debug-expand": 0,
+        "12-debug-replay": 0
+      },
+      "passed": true
+    },
+    {
+      "selected": "/Applications/Xcode_27.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_27.0.app/Contents/Developer",
+      "sdk_root": "/Applications/Xcode_27.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "sha256": "5922f5f7843fee699497c45cc98134b6686e0a5e2fa8a5866ab74c5482fa87a5",
+      "required_probes": {
+        "5-external-assemble": 0,
+        "5-external-fresh-shared": 0,
+        "5-debug-expand": 0,
+        "5-debug-replay": 0
+      },
+      "passed": true
+    }
+  ],
+  "selected": {
+    "selected": "/Applications/Xcode_27.2_beta_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "resolved": "/Applications/Xcode_27.2_beta_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "developer_dir": "/Applications/Xcode_27.2_beta_2.app/Contents/Developer",
+    "sdk_root": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+    "sha256": "cb5fd7fc6cdf43f60a06a6038e49958d6364c73c6a5b05a507d45dbd36f2eef6",
+    "required_probes": {
+      "11-external-assemble": 0,
+      "11-external-fresh-shared": 0,
+      "11-debug-expand": 0,
+      "11-debug-replay": 0
+    },
+    "passed": true
+  }
+}

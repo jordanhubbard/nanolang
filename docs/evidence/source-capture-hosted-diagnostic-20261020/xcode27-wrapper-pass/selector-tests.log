@@ -1,0 +1,11 @@
+test_changed_compiler_or_backend_refuses_before_publication (tests.test_ci_capture_selection.CaptureSelection.test_changed_compiler_or_backend_refuses_before_publication) ... ok
+test_different_existing_sdk_or_version_refuses (tests.test_ci_capture_selection.CaptureSelection.test_different_existing_sdk_or_version_refuses) ... ok
+test_exact_selection_records_tools_and_environment (tests.test_ci_capture_selection.CaptureSelection.test_exact_selection_records_tools_and_environment) ... ok
+test_missing_sdk_or_wrong_report_refuses (tests.test_ci_capture_selection.CaptureSelection.test_missing_sdk_or_wrong_report_refuses) ... ok
+test_workflow_preserves_corpora_and_build_compiler (tests.test_ci_capture_selection.CaptureSelection.test_workflow_preserves_corpora_and_build_compiler) ... ok
+test_wrapper_preserves_arguments_and_exit (tests.test_ci_capture_selection.CaptureSelection.test_wrapper_preserves_arguments_and_exit) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.296s
+
+OK
