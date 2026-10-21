@@ -7143,6 +7143,13 @@ test-record-map-ordinary-heap:
 
 test-units: test-record-map-ordinary-heap
 
+.PHONY: test-record-map-string-heap
+# Fixed STRING-value ownership only; no selected VM enrollment.
+test-record-map-string-heap:
+	RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" python3 -m unittest -f -v tests.test_record_map_string_heap
+
+test-units: test-record-map-string-heap
+
 $(OBJ_DIR)/nanovm/vm.o: $(NANOVM_DIR)/record_map_borrowed_types.inc $(NANOVM_DIR)/record_map_borrowed_context.inc $(NANOVM_DIR)/record_map_borrowed_run.inc $(NANOVM_DIR)/record_map_borrowed_private.h
 
 .PHONY: test-record-map-borrowed

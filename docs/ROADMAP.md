@@ -16806,3 +16806,7 @@ I own this #1001 design-only checkpoint on `design/5.1-map-string-value-authorit
 - [ ] Qualify paired publication only after consumers, retaining mixed-pair atomic omission and old byte goldens. Fresh-stage/platform acceptance remains separate.
 
 I completed the design review and four unchanged original baselines: all public verifier/VM gates and eight sanitized native executions pass, authority remains absent, and exact independently validated declarations refuse only at the current STRING→INT proof boundary. Receipt: docs/evidence/map-string-value-baseline-20261022. The appended first heap-only source plan remains unimplemented pending review.
+
+I am implementing only the reviewed heap checkpoint: fixed STRING→STRING owned-GET adapters, charged physical topology validation and inline private teardown with direct tests. I keep all proof, recipe, import selection, VM dispatch, native and publisher enrollment closed; no compile precedes frozen-source review.
+
+I completed the isolated physical heap gate: 543 new SS assertions plus unchanged ordinary/private INT neighbors (4,445/10,318), explicit O1 ASan/UBSan and eight Clang/GCC16 syntax cases. I retain exact old heap bodies/layouts and the receipt in docs/evidence/map-string-heap-20261022. Consumer/dispatch/native/publication enrollment remains closed.

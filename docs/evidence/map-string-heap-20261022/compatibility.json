@@ -1,0 +1,11 @@
+{
+  "base": "35b0efc36f0900d9cb1e7d1832e98e46b5a4d9eb",
+  "old_heap_include_bytes": 16508,
+  "old_heap_include_sha256": "1c32b72ddf6b5328082a3b3cb5011e895fd3031486338fa1c55c02e59bcbe2a6",
+  "unchanged_prefix": true,
+  "heap_c_only_separate_ss_branch": true,
+  "unchanged_layout_headers": {
+    "src/nanovm/heap.h": true,
+    "src/nanovm/vm.h": true
+  }
+}
