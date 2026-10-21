@@ -16353,3 +16353,7 @@ I retained a final unchanged `nested_array_contexts.nano` failure: the Nano prod
 I integrate qualified nested primitive authority from d98eb849c after independent review: 26 final paired source methods, 100 native consumer products, exact old budgets, allocation prefixes and 20 neighbors. I preserve both appended ROADMAP histories and the qualified Xcode27 selector. Aggregate provider/build and exact hosted gates remain next; #1001 broader scope remains open.
 
 I pass the integrated primitive target at744612a95 (2methods105.437s), all26 paired source methods, and34 workflow/selector/checkpoint/container controls. Six provider hashes remain unchanged. Receipt `evidence/nested-primitive-aggregate-20261021/README.md`; fresh raw/platform qualification and remaining #1001 breadth stay open.
+
+### I map exact depth-three ordinary record arrays
+
+After integrated primitive0c31f5335 I retain the actual unchanged executable BOOL depth-three record fixture as the next #1001 baseline. Existing depth-three resource reconstruction is distinct. I will first pin all three original producers, verify/execute and translate native unchanged source, retaining absent authority; no publisher or consumer admission edit is authorized by that observation alone. Exact per-level leaf/origin, copied-plan, release-bound and old-budget representation review precedes implementation.
