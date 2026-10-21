@@ -3,7 +3,7 @@
  * schedule. The existing ISA maximum is stricter than that coarse bound. */
 _Static_assert(MAX_OPERANDS==4,"I budget four native target operands.");
 _Static_assert(ISA_MAX_INSTRUCTION_SIZE<=1+4*8,"I require a bounded native target instruction.");
-NvmRecordMapTargetResult nvm_record_map_native_target(const NvmRecordMapImage *image,uint64_t allowance) {
+NvmRecordMapTargetResult nvm_record_map_native_target_pair(const NvmRecordMapImage *image,uint64_t allowance,uint8_t *value_out) {
     NvmRecordMapTargetResult result={{NVM_ARRAY_INVALID,0,0,{0}},0};
     const char *unsupported=NULL;
 #define RMT_CHARGE(n) do {uint64_t amount=(uint64_t)(n); \
@@ -21,6 +21,10 @@ NvmRecordMapTargetResult nvm_record_map_native_target(const NvmRecordMapImage *i
         RMT_INVALID("I require a closed copied native map module.");
     if(m->function_count>NVM_RECORD_ARRAY_ADMISSION_FUNCTIONS || m->import_count)
         RMT_UNSUPPORTED("I require a closed copied native map module.");
+    /* Four immutable declaration probes are included in the 64-unit header
+     * allowance; no recipe row supplies its own expected pair identity. */
+    uint8_t value_tag=TAG_VOID;
+    if(!nvm_record_map_execution_uniform_pair(p,&value_tag))return result;
     const NvmFunctionEntry *entry=&m->functions[counts.carrier.entry];
     if(entry->arity || entry->upvalue_count || entry->result_count!=1 || entry->result_tag!=TAG_INT)
         RMT_UNSUPPORTED("I require a capture-free zero-argument INT native map entry.");
@@ -83,11 +87,12 @@ NvmRecordMapTargetResult nvm_record_map_native_target(const NvmRecordMapImage *i
                 in.opcode==OP_HM_LEN?NVM_RM_LEN:in.opcode==OP_HM_DELETE?NVM_RM_DELETE:NVM_RM_NONE;
             if(row.map_operation!=operation)return result;
             if(operation) {
-                uint16_t result_tags=operation==NVM_RM_GET?(1u<<TAG_INT)|(1u<<TAG_VOID):
+                uint16_t result_tags=operation==NVM_RM_GET?(1u<<value_tag)|(1u<<TAG_VOID):
                     operation==NVM_RM_HAS?(1u<<TAG_BOOL):operation==NVM_RM_LEN?(1u<<TAG_INT):(1u<<TAG_HASHMAP);
                 if(!operation || row.map_operation!=operation || row.base.recipe!=NVM_RM_INVALID_BASE_RECIPE ||
-                   row.key_tags!=(1u<<TAG_STRING) || row.value_tags!=(1u<<TAG_INT) || row.result_tags!=result_tags)return result;
+                   row.key_tags!=(1u<<TAG_STRING) || row.value_tags!=(1u<<value_tag) || row.result_tags!=result_tags)return result;
             } else if(row.base.recipe>NVM_RA_ROOT_TAIL)return result;
+            if(in.opcode==OP_HM_NEW && (in.operands[0].u8!=TAG_STRING || in.operands[1].u8!=value_tag))return result;
             if(in.opcode==OP_PUSH_STR) {
                 uint32_t at=in.operands[0].u32;
                 if(at>=m->string_count || !m->strings || !m->string_lengths || !m->strings[at])
@@ -110,9 +115,14 @@ NvmRecordMapTargetResult nvm_record_map_native_target(const NvmRecordMapImage *i
     }
     if(index!=counts.carrier.instructions)return result;
     result.eligibility.status=unsupported?NVM_ARRAY_UNRESOLVED:NVM_ARRAY_ELIGIBLE;
+    if(!unsupported && value_out)*value_out=value_tag;
     if(unsupported)snprintf(result.eligibility.message,sizeof result.eligibility.message,"%s",unsupported);
 #undef RMT_CHARGE
 #undef RMT_INVALID
 #undef RMT_UNSUPPORTED
     return result;
+}
+
+NvmRecordMapTargetResult nvm_record_map_native_target(const NvmRecordMapImage *image,uint64_t allowance) {
+    return nvm_record_map_native_target_pair(image,allowance,NULL);
 }

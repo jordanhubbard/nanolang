@@ -55,6 +55,7 @@ VmRmHeapStatus vm_rm_heap_import_validate(const VmHashMap *,VmRmObservationWork 
 #ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
 /* Full topology validation and byte probe occur in one read-only call. No
  * caller-provided flag can bypass validation; result is only INT or VOID. */
+VmRmHeapStatus vm_rm_heap_ss_observe_lookup(const VmHashMap *,const void *,uint32_t,VmRmObservationWork *,NanoValue *);
 VmRmHeapStatus vm_rm_heap_observe_lookup(const VmHashMap *,const void *,uint32_t,VmRmObservationWork *,NanoValue *);
 #endif
 /* Fixed STRING->STRING physical adapters only; no module admission. Receiver,

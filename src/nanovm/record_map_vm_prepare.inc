@@ -50,7 +50,7 @@ static void *vm_rm_zero(VmRecordMapPrivate *p,uint64_t n,size_t width) {
 }
 /* Independent physical declaration validation precedes the DAG heap policy.
  * I copy every global row, then validate every edge, including unused rows. */
-static bool vm_rm_layouts(VmRecordMapPrivate *p) {
+static bool vm_rm_layouts(VmRecordMapPrivate *p,uint8_t *value_out) {
     NvmDeclarationCounts count;
     if(!nvm_record_map_execution_declaration_counts(p->plan,&count) || count.layouts>256 ||
        p->counts.records>256)return false;
@@ -99,7 +99,7 @@ static bool vm_rm_layouts(VmRecordMapPrivate *p) {
         if(field->declaration.type_tag!=TAG_ARRAY || field->element)return false;
         field->element=element.tag;field->nested_leaf=nested_leaf;field->array_depth=depth;
     }
-    uint32_t records=0;
+    uint32_t records=0;uint8_t uniform=TAG_VOID;
     for(uint32_t i=0;i<count.layouts;i++) {
         VmRecordMapRuntimeLayout *layout=&p->layouts[i];
         if(layout->declaration.kind!=NVM_V2_LAYOUT_STRUCT)continue;
@@ -114,11 +114,13 @@ static bool vm_rm_layouts(VmRecordMapPrivate *p) {
             if(field->declaration.type_tag==TAG_HASHMAP) {
                 if(!vm_rm_charge(p,0,NVM_RECORD_MAP_FIELD_QUERY_WORK) ||
                    !nvm_record_map_execution_map_field(p->plan,i,j,&field->key,&field->value) ||
-                   field->key!=TAG_STRING || field->value!=TAG_INT)return false;
+                   field->key!=TAG_STRING || (field->value!=TAG_INT && field->value!=TAG_STRING) ||
+                   (uniform!=TAG_VOID && uniform!=field->value))return false;
+                uniform=field->value;
             }
         }
     }
-    if(records!=p->counts.records)return false;
+    if(uniform==TAG_VOID || records!=p->counts.records)return false;
     /* Explicit DFS: each nominal field edge is examined once. Rank decreases
      * along every physical record edge, so <=256 record nodes can be nested. */
     if(!vm_rm_charge(p,256u+256u*2u*sizeof(uint16_t),256u+256u*2u*sizeof(uint16_t)))return false;
@@ -146,12 +148,13 @@ static bool vm_rm_layouts(VmRecordMapPrivate *p) {
             }
         }
     }
+    *value_out=uniform;
     return true;
 }
 
 /* Complete defined-field agreement, including dead rows and every branch edge.
  * I run this before heap constants. This slice permits no invocation. */
-static bool vm_rm_coverage(VmRecordMapPrivate *p) {
+static bool vm_rm_coverage(VmRecordMapPrivate *p,uint8_t value_tag) {
     const NvmModule *m=nvm_record_map_image_borrow(p->image);
     const VmDecodedModule *dm=&p->vm.decoded_module;
     const VmDispatchModule *dispatch=&p->vm.dispatch_module;
@@ -207,14 +210,14 @@ static bool vm_rm_coverage(VmRecordMapPrivate *p) {
             case OP_HM_NEW:operation=NVM_RM_NEW;result=1u<<TAG_HASHMAP;break;
             case OP_HM_SET:operation=NVM_RM_SET;result=1u<<TAG_HASHMAP;break;
             case OP_HM_DELETE:operation=NVM_RM_DELETE;result=1u<<TAG_HASHMAP;break;
-            case OP_HM_GET:operation=NVM_RM_GET;result=(1u<<TAG_INT)|(1u<<TAG_VOID);break;
+            case OP_HM_GET:operation=NVM_RM_GET;result=(1u<<value_tag)|(1u<<TAG_VOID);break;
             case OP_HM_HAS:operation=NVM_RM_HAS;result=1u<<TAG_BOOL;break;
             case OP_HM_LEN:operation=NVM_RM_LEN;result=1u<<TAG_INT;break;
             default:break;
             }
             if(map->map_operation!=operation || map->result_tags!=result ||
                map->key_tags!=(operation?(1u<<TAG_STRING):0) ||
-               map->value_tags!=(operation?(1u<<TAG_INT):0))return false;
+               map->value_tags!=(operation?(1u<<value_tag):0))return false;
             uint32_t next=i+1<fn->instruction_count?i+1:VM_DISPATCH_NO_INDEX;
             if(row->next_index!=next)return false;
             int pops=info->pop_count,pushes=info->push_count;
@@ -361,7 +364,8 @@ static NvmArrayEligibilityResult vm_rm_create_reserved(const NvmRecordMapExecuti
     if(p->counts.instructions && !p->instructions)goto invalid;
     for(uint32_t i=0;i<p->counts.instructions;i++)
         if(!nvm_record_map_image_instruction(image,i,&p->instructions[i]))goto invalid;
-    if(!vm_rm_layouts(p))goto invalid;
+    uint8_t value_tag=TAG_VOID;
+    if(!vm_rm_layouts(p,&value_tag))goto invalid;
     char error[VM_DECODE_ERROR_SIZE];
     if(!vm_decode_module(m,&p->vm.decoded_module,error)){p->preparation_status=NVM_ARRAY_MEMORY;goto invalid;}
     p->vm.decoded_module_valid=true;p->vm.dispatch_profile=vm_dispatch_profile_none();
@@ -369,7 +373,7 @@ static NvmArrayEligibilityResult vm_rm_create_reserved(const NvmRecordMapExecuti
         p->preparation_status=NVM_ARRAY_MEMORY;goto invalid;
     }
     p->vm.dispatch_module_valid=true;
-    if(!vm_rm_coverage(p))goto invalid;
+    if(!vm_rm_coverage(p,value_tag))goto invalid;
     p->vm.stack=vm_rm_zero(p,VM_RM_ROOT_CAPACITY,sizeof *p->vm.stack);
     if(!p->vm.stack)goto invalid;
     p->vm.stack_capacity=VM_RM_ROOT_CAPACITY;

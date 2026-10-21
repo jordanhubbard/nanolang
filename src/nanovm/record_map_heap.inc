@@ -477,3 +477,17 @@ VmRmHeapStatus vm_rm_ordinary_ss_len(const VmHeap *heap,const VmHashMap *m,uint3
 VmRmHeapStatus vm_rm_heap_ss_import_validate(const VmHashMap *m,VmRmObservationWork *w) {
     return vm_rm_ss_validate_using(m,w,true);
 }
+
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+/* Borrowed result remains internal to one read-only query. No retain or trust
+ * flag escapes; the complete SS topology/byte validation always precedes probe. */
+VmRmHeapStatus vm_rm_heap_ss_observe_lookup(const VmHashMap *m,const void *bytes,uint32_t length,
+    VmRmObservationWork *w,NanoValue *out) {
+    if(!out || (length&&!bytes) || !w || w->used>w->limit || w->limit>VM_RM_OBSERVATION_WORK_MAX)
+        return VM_RM_HEAP_INVALID;
+    if(w->limited)return VM_RM_HEAP_LIMIT;
+    VmRmHeapStatus status=vm_rm_heap_ss_validate(m,w);
+    if(status!=VM_RM_HEAP_OK)return status;
+    return vm_rm_validated_byte_probe(m,bytes,length,w,out);
+}
+#endif

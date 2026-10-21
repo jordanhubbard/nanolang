@@ -1,0 +1,4 @@
+default 797776 96
+array 803992 6312
+combined 803992 6312
+PASS four old INT native outputs byte-identical and measured unchanged default/combined VM+heap sizes

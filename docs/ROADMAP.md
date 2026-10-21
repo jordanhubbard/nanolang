@@ -16812,3 +16812,7 @@ I am implementing only the reviewed heap checkpoint: fixed STRING→STRING owned
 I completed the isolated physical heap gate: 543 new SS assertions plus unchanged ordinary/private INT neighbors (4,445/10,318), explicit O1 ASan/UBSan and eight Clang/GCC16 syntax cases. I retain exact old heap bodies/layouts and the receipt in docs/evidence/map-string-heap-20261022. Consumer/dispatch/native/publication enrollment remains closed.
 
 I am auditing the second consumer phase only in the STRING-value design: stack-local uniform pair threading, owned GET transfer, charged import/observation and native optional STRING|VOID. Physical heap commit a33d1025a remains frozen; no consumer production edit or compiler run follows this design checkpoint.
+
+I am drafting the reviewed atomic SS consumer slice after contract921f54a03: local pair threading, owned GET transfer, copied import/observation and native optional-value correspondence. I hold all builds until frozen-source review and keep publisher source untouched.
+
+I completed the atomic STRING→STRING consumer gate without publisher changes: both VM dispatches pass 2,785 assertions each, four original native outputs pass 16 executions, synthetic native helper/tail/absence controls pass 12 outcomes, and 42 generated allocation positions per optimization pass both denial modes. I retain exact old sizes, six budget rows and four INT native output bytes, plus strict/neighbor evidence in docs/evidence/map-string-consumer-20261022. Source publication and fresh-stage/platform acceptance remain open.

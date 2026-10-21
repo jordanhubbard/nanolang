@@ -1,0 +1,154 @@
+[
+  {
+    "name": "seed-asm",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-map-string-value-baseline-20261022/seed-selected.nasm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-selected.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "seed-verify",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-selected.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "seed-vm",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nano_vm",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-selected.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "seed-native",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nvm2c",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed.c"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-asm",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical-selected.nasm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-selected.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-verify",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-selected.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-vm",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nano_vm",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-selected.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-native",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nvm2c",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical.c"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-asm",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow-selected.nasm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-selected.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-verify",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-selected.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-vm",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nano_vm",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-selected.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-native",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nvm2c",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow.c"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-asm",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow-selected.nasm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-selected.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-verify",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-selected.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-vm",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nano_vm",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-selected.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-native",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nvm2c",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow.c"
+    ],
+    "status": 0
+  }
+]

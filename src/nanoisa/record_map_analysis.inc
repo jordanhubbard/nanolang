@@ -1,10 +1,10 @@
 /* Included only in the origin proof TU. Mutable summaries never escape. */
-static int map_declarations_exact(Analysis *a,NvmRecordMapAnalysisContext *maps) {
+static int map_declarations_exact(Analysis *a,NvmRecordMapAnalysisContext *maps,uint8_t *value_out) {
     NvmMapDeclarationCounts counts;
     if(!analysis_work(a,NVM_MAP_SIMPLE_QUERY_WORK) ||
        !nvm_map_declarations_counts(maps->declarations,&counts))
         return stop(a,NVM_ARRAY_INVALID,0,0,"I require copied map counts.");
-    if(counts.pairs!=1)return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require one exact STRING-to-INT declaration pair.");
+    if(counts.pairs!=1)return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require one exact STRING-keyed declaration pair.");
     for(uint32_t i=0;i<counts.pairs;i++) {
         NvmMapDeclarationPair pair;uint8_t key,value;
         if(!analysis_work(a,3u*NVM_MAP_SIMPLE_QUERY_WORK))return 0;
@@ -12,8 +12,9 @@ static int map_declarations_exact(Analysis *a,NvmRecordMapAnalysisContext *maps)
            !nvm_map_declarations_scalar(maps->declarations,pair.key_type,&key) ||
            !nvm_map_declarations_scalar(maps->declarations,pair.value_type,&value))
             return stop(a,NVM_ARRAY_INVALID,0,0,"I require exact map pair referents.");
-        if(key!=TAG_STRING || value!=TAG_INT)
-            return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I prove only exact STRING-to-INT maps.");
+        if(key!=TAG_STRING || (value!=TAG_INT && value!=TAG_STRING))
+            return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I prove only exact STRING-to-INT or STRING-to-STRING maps.");
+        *value_out=value;
     }
     return 1;
 }
@@ -37,7 +38,7 @@ static int map_exact_scalar(Analysis *a,uint32_t fn,uint32_t pc,Value value,uint
     return 1;
 }
 static int map_operation(Analysis *a,NvmRecordMapAnalysisContext *maps,uint32_t fn,
-                         const VmDecodedInstruction *d,const Value *stack,uint16_t depth) {
+                         const VmDecodedInstruction *d,const Value *stack,uint16_t depth,uint8_t value_tag) {
     uint8_t op=d->instruction.opcode;
     if(op==OP_HM_NEW)return 1; /* Every encoded creation was checked, including dead code. */
     /* GET/HAS/DELETE consume receiver+key; DELETE preserves all history. */
@@ -46,17 +47,17 @@ static int map_operation(Analysis *a,NvmRecordMapAnalysisContext *maps,uint32_t 
     unsigned base=depth-pops;
     if(!map_receiver(a,maps,fn,d->byte_offset,stack[base]))return 0;
     if(op!=OP_HM_LEN && !map_exact_scalar(a,fn,d->byte_offset,stack[base+1],TAG_STRING))return 0;
-    if(op==OP_HM_SET && !map_exact_scalar(a,fn,d->byte_offset,stack[base+2],TAG_INT))return 0;
+    if(op==OP_HM_SET && !map_exact_scalar(a,fn,d->byte_offset,stack[base+2],value_tag))return 0;
     maps->checked++;return 1;
 }
-static int map_final(Analysis *a,NvmRecordMapAnalysisContext *maps) {
+static int map_final(Analysis *a,NvmRecordMapAnalysisContext *maps,uint8_t value_tag) {
     if(!analysis_work(a,ORIGINS*2u+a->global_count))return 0;
     for(uint32_t i=0;i<a->global_count;i++)if(a->globals[i].tags&BIT(TAG_HASHMAP))
         return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I keep standalone map globals outside this field profile.");
     for(uint32_t i=0;i<a->report.origin_count;i++)if(a->origin_kind[i]==NVM_RECORD_MAP_ORIGIN) {
         Value key=maps->keys[i],value=maps->values[i];
         if(key.unknown || value.unknown || key.origins || value.origins ||
-           (key.tags&~BIT(TAG_STRING)) || (value.tags&~BIT(TAG_INT)))
+           (key.tags&~BIT(TAG_STRING)) || (value.tags&~BIT(value_tag)))
             return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require every historical map write to preserve its exact pair.");
     }
     return 1;

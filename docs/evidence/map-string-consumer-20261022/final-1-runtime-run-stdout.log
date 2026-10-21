@@ -1,0 +1,3 @@
+I checked 10 private STRING-value run allocation positions in both denial modes.
+I checked 79 complete public STRING-value invocation allocation positions in both denial modes.
+I checked 2785 selected STRING-value consumer assertions.

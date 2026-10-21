@@ -1,0 +1,370 @@
+[
+  {
+    "name": "seed-raw-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-raw.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "seed-raw-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "seed-raw-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-raw.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "seed-raw-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "seed-forced-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "seed-forced-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "seed-forced-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-forced-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "seed-forced-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-forced-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-raw-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-raw.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-raw-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-raw-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-raw.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-raw-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-forced-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-forced-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-forced-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-forced-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-forced-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-forced-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-raw-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-raw.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-raw-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-raw-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-raw.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-raw-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-forced-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-forced-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-forced-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-forced-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-forced-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-forced-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-raw-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-raw.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-raw-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-raw-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-raw-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-raw.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-raw-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-raw-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-forced-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-forced-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-forced-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-forced-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-forced.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-forced-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-forced-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-forced-O2"
+    ],
+    "status": 0
+  }
+]

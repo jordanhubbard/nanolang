@@ -141,14 +141,14 @@ static void runtime_context_headroom(void) {
         v.root_base=1;CHECK(!vm_rmx_context(&v,vm));v.root_base=0;
         v.active=false;CHECK(!vm_rmx_context(&v,vm));v.active=true;
         vm->verified=true;CHECK(!vm_rmx_context(&v,vm));vm->verified=false;
-        VmTrap trap=vm_core_execute_context(vm,NULL,NULL,NULL,&v);CHECK(trap.type==TRAP_ASSERT);
+        VmTrap trap=vm_core_execute_pair(vm,NULL,NULL,NULL,&v,NULL,TAG_INT);CHECK(trap.type==TRAP_ASSERT);
         vm_release(&vm->heap,trap.data.assert_check.condition);
         NanoValue value=stack_peek(vm,0);CHECK(value.tag==(map_value?TAG_HASHMAP:TAG_STRUCT));
         VmHeapHeader *h=value.as.obj;uint32_t refs=h->ref_count,size=vm->stack_size;h->ref_count=UINT32_MAX;
-        trap=vm_core_execute_context(vm,NULL,NULL,NULL,&v);
+        trap=vm_core_execute_pair(vm,NULL,NULL,NULL,&v,NULL,TAG_INT);
         CHECK(trap.type==TRAP_ERROR&&trap.data.error.code==VM_ERR_MEMORY&&vm->stack_size==size&&h->ref_count==UINT32_MAX);
         h->ref_count=refs;vm->ip=(uint32_t)duplication;vm->last_error=VM_OK;
-        trap=vm_core_execute_context(vm,NULL,NULL,NULL,&v);CHECK(trap.type==TRAP_NONE);
+        trap=vm_core_execute_pair(vm,NULL,NULL,NULL,&v,NULL,TAG_INT);CHECK(trap.type==TRAP_NONE);
         vm_rmx_unwind(p);v.active=false;p->busy=false;
         CHECK(vm_record_map_private_run(p)==VM_OK);vm_record_map_private_destroy(p);CHECK(!ra_live&&!ra_bytes);
     }
@@ -214,12 +214,12 @@ static void runtime_tail_headroom(void) {
     f->module=vm->module;f->local_count=p->functions[0].signature.local_count;f->owned_callable=val_void();
     for(unsigned i=0;i<f->local_count;i++)vm->stack[vm->stack_size++]=val_void();
     vm->frame_count=1;
-    VmTrap trap=vm_core_execute_context(vm,NULL,NULL,NULL,&v);CHECK(trap.type==TRAP_ASSERT);vm_release(&vm->heap,trap.data.assert_check.condition);
+    VmTrap trap=vm_core_execute_pair(vm,NULL,NULL,NULL,&v,NULL,TAG_INT);CHECK(trap.type==TRAP_ASSERT);vm_release(&vm->heap,trap.data.assert_check.condition);
     NanoValue value=stack_peek(vm,0);CHECK(value.as.obj==stack_peek(vm,1).as.obj);VmHeapHeader *h=value.as.obj;
     uint32_t refs=h->ref_count,size=vm->stack_size;h->ref_count=UINT32_MAX-1;
-    trap=vm_core_execute_context(vm,NULL,NULL,NULL,&v);CHECK(trap.type==TRAP_ERROR&&trap.data.error.code==VM_ERR_MEMORY);
+    trap=vm_core_execute_pair(vm,NULL,NULL,NULL,&v,NULL,TAG_INT);CHECK(trap.type==TRAP_ERROR&&trap.data.error.code==VM_ERR_MEMORY);
     CHECK(v.active_root==0&&vm->current_fn==0&&vm->frame_count==1&&vm->stack_size==size&&h->ref_count==UINT32_MAX-1);
-    h->ref_count=refs;vm->ip=tail;vm->last_error=VM_OK;trap=vm_core_execute_context(vm,NULL,NULL,NULL,&v);
+    h->ref_count=refs;vm->ip=tail;vm->last_error=VM_OK;trap=vm_core_execute_pair(vm,NULL,NULL,NULL,&v,NULL,TAG_INT);
     CHECK(trap.type==TRAP_NONE&&v.active_root==1&&!vm->frame_count&&vm->stack_size==1&&vm->stack[0].as.i64==37);
     vm_rmx_unwind(p);v.active=false;p->busy=false;vm_record_map_private_destroy(p);CHECK(!ra_live&&!ra_bytes);
 }

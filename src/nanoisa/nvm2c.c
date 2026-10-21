@@ -968,18 +968,19 @@ static int shape_field_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
 }
 
 /* This opt-in shape is backed by the independently proved image, not a tag guess. */
-static int private_map_shape(Nvm2cBuf *b, NvmShapeId shape) {
+static int private_map_shape(Nvm2cBuf *b, NvmShapeId shape, uint8_t map_value_tag) {
     if (b->map_plan)
         return shape_type(b, shape, NVM_SHAPE_MAP) &&
                shape_type(b, shape_child(b, shape, 0), NVM_SHAPE_STRING) &&
-               shape_type(b, shape_child(b, shape, 1), NVM_SHAPE_INT);
+               (map_value_tag == TAG_INT || map_value_tag == TAG_STRING) &&
+               shape_type(b, shape_child(b, shape, 1), map_value_tag == TAG_STRING ? NVM_SHAPE_STRING : NVM_SHAPE_INT);
     return 1;
 }
 static int private_map_enabled(const Nvm2cBuf *b) {
     return b->map_plan != NULL;
 }
 static int private_map_pack_field(Nvm2cBuf *b, uint32_t ordinal,
-                                  uint16_t index, NvmShapeId shape) {
+                                  uint16_t index, NvmShapeId shape, uint8_t map_value_tag) {
     if (b->map_plan) {
         NvmRecordArrayExecutionDescriptor descriptor; NvmV2LayoutField field;
         if (!nvm_record_map_execution_descriptor(b->map_plan, ordinal, &descriptor) ||
@@ -990,10 +991,11 @@ static int private_map_pack_field(Nvm2cBuf *b, uint32_t ordinal,
         if (field.type_tag == TAG_HASHMAP) {
             uint8_t key, value;
             if (!nvm_record_map_execution_map_field(b->map_plan, descriptor.layout, index, &key, &value) ||
-                key != TAG_STRING || value != TAG_INT) {
-                nvm2c_fail(b, "I require the exact native STRING-to-INT field pair"); return 0;
+                key != TAG_STRING || value != map_value_tag) {
+                nvm2c_fail(b, map_value_tag == TAG_INT ? "I require the exact native STRING-to-INT field pair" :
+                    "I require the exact native STRING-to-STRING field pair"); return 0;
             }
-            return private_map_shape(b, shape);
+            return private_map_shape(b, shape, map_value_tag);
         }
     }
     return 1;
@@ -1609,7 +1611,7 @@ static int classify_direct_call(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
 static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                   uint8_t *local_kind, uint8_t *rec_fields,
                                   Nvm2cSimJoin *joins, const uint8_t *targets,
-                                  Nvm2cFacts *facts, Nvm2cSimSlot *stk) {
+                                  Nvm2cFacts *facts, Nvm2cSimSlot *stk, uint8_t map_value_tag) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     uint16_t nloc = fn->local_count;
     b->track_shapes = facts->final;
@@ -2230,7 +2232,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 NvmShapeId checked = 0;
                 map.shape = shape_variable(b, &checked);
             } else mark_origin(local_kind, nloc, map.origin, NVM2C_VK_MAP);
-            if (!shape_type(b, map.shape, NVM_SHAPE_MAP) || !private_map_shape(b, map.shape)) return 0;
+            if (!shape_type(b, map.shape, NVM_SHAPE_MAP) || !private_map_shape(b, map.shape, map_value_tag)) return 0;
             if (ins.opcode != OP_HM_LEN) {
                 if (key.kind != NVM2C_VK_STR && key.kind != NVM2C_VK_UNK && key.kind != NVM2C_VK_VALUE) {
                     nvm2c_fail(b, "I require a string hashmap key"); return 0;
@@ -2742,7 +2744,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 }
                 NvmShapeId field = shape_child(b, packed.shape, count - 1 - ai);
                 if (!private_map_pack_field(b, ins.operands[1].u32,
-                        (uint16_t)(count - 1 - ai), field)) return 0;
+                        (uint16_t)(count - 1 - ai), field, map_value_tag)) return 0;
                 if (aggregate_kind == AGG_VARIANT && (variant_scalar_kind(v.kind) || v.kind == NVM2C_VK_ARR)) {
                     packed.rec_k[count - 1 - ai] = variant_field_for(v.kind);
                     /* This constructor records an integer-array member. The
@@ -2796,7 +2798,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!valid) return 0;
                 }
             }
-            if (value.kind == NVM2C_VK_MAP && !private_map_shape(b, replacement)) return 0;
+            if (value.kind == NVM2C_VK_MAP && !private_map_shape(b, replacement, map_value_tag)) return 0;
             if (!shape_type(b, rec.shape, NVM_SHAPE_RECORD) ||
                 !shape_equal(b, shape_child(b, rec.shape, fi), replacement) ||
                 !shape_equal(b, shape_variable(b, b->shape_current), rec.shape)) return 0;
@@ -3135,7 +3137,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
 }
 
 static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
-                             uint8_t *local_kind, uint8_t *rec_fields, Nvm2cFacts *facts) {
+                             uint8_t *local_kind, uint8_t *rec_fields, Nvm2cFacts *facts, uint8_t map_value_tag) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     if (fn->local_count > NVM2C_MAX_LOCALS) {
         nvm2c_fail(b, "function %u: too many locals", idx);
@@ -3203,7 +3205,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         if (handler->function == idx &&
             !sim_join(b, idx, handler->target, &joins[handler->target], stack, 0, facts)) goto done;
     }
-    ok = classify_function_body(b, mod, idx, local_kind, rec_fields, joins, targets, facts, stack);
+    ok = classify_function_body(b, mod, idx, local_kind, rec_fields, joins, targets, facts, stack, map_value_tag);
     if (ok && facts->final) {
         for (size_t pc = 0; pc <= length; ++pc) {
             if (!joins[pc].set || !joins[pc].sp) continue;
@@ -7650,7 +7652,7 @@ static int prune_unemittable_callers(Nvm2cBuf *b, const NvmModule *mod) {
 #include "record_array_admission.h"
 
 static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
-                             , const NvmRecordMapExecutionPlan *map_plan
+                             , const NvmRecordMapExecutionPlan *map_plan, uint8_t map_value_tag
                              ) {
     bool private_maps = map_plan != NULL;
     if (err && err_len) err[0] = '\0';
@@ -7895,7 +7897,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
             for (uint32_t i = 0; i < mod->function_count; ++i) {
                 if (!classify_function(&b, mod, i, kinds + (size_t)i * b.local_width,
                                        rec_fields + (size_t)i * b.local_width * b.record_width,
-                                       &facts)) goto fail;
+                                       &facts, map_value_tag)) goto fail;
             }
             if (!facts.changed) break;
         }
@@ -7922,7 +7924,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
         for (uint32_t i = 0; i < mod->function_count; i++) {
             if (!classify_function(&b, mod, i, kinds + (size_t)i * b.local_width,
                                    rec_fields + (size_t)i * b.local_width * b.record_width,
-                                   &facts)) {
+                                   &facts, map_value_tag)) {
                 goto fail;
             }
         }
@@ -8851,6 +8853,6 @@ fail:
 char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     if(nvm_record_map_selected(nvm_record_map_route(mod)))return nvm2c_emit_record_map_source(mod,err,err_len,true);
     return nvm2c_emit_core(mod, err, err_len
-                           , NULL
+                           , NULL, TAG_VOID
                            );
 }
