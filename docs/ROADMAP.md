@@ -16862,3 +16862,7 @@ I completed union recipe checkpoint1:842 linked/3234 allocation checks across si
 I integrate private recipe checkpoint 568ac06c1 by ancestry, add its explicit retirement target, and qualify the aggregate against all six retained originals plus workflow controls before pushing. These copied recipes do not enable execution; image, VM, native and publisher qualification remain separate.
 
 I passed aggregate copied recipes842/3234 against six originals (5.472s) and68 workflow/checkpoint controls (2.068s). Receipt: `docs/evidence/union-field-recipes-aggregate-20261021/README.md`. No union execution admission follows.
+
+I own the next #1001 copied union image design after constructor568ac06c1. This is read-only accounting/interface work: exact retained source cost, independent destination proof and semantic recipe/site comparison. No image/runtime production edit or build is included.
+
+I implement only reviewed union retained-cost helpers and independent allocation oracles after aggregate51ad2e624. Image construction and positive reservation remain a separate checkpoint; source review precedes compilation.
