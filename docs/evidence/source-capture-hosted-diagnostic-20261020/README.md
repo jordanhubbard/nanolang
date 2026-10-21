@@ -32,3 +32,9 @@ checkpoint. The next compatibility/toolchain choice requires scoped review.
 ## I qualify the narrow Linux report extension
 
 At `1f7460393903712d909528488363ae8f37a7dc34`, run `39544234552`, Linux job `119038657601` builds the production capture probe and passes all six selected report/integrated-capture methods in 89.790 seconds. I retain commands, current identity, build and test logs under `corrected-linux/`. The diagnostic manifest covers its diagnostic phase; subsequent build/test logs are retained separately. macOS remains queued at this checkpoint; no cross-platform or external-assembler success is inferred.
+
+## I retain the macOS backend failures after report parsing
+
+Run `39544234552`, job `119038657893`, finishes with six methods in75.042s: the exact report control passes, but actual capture has22 failures and2 errors. Apple15 text expansion/replay now reaches empty symbol labels and non-local `.no_dead_strip` errors. I retain the complete log rather than call the integrated path qualified. Installed Homebrew23.1.0 (SHA256 `2562143125f133005a4505f7ffd463a2e52e9a24dbae58cc425374bcbb0ea44f`) still selects `/usr/bin/as -Q -arch arm64`; standalone assembly, fresh shared build and direct backend all fail through active Xcode15.4. A compiler installation or selector alone does not repair that backend.
+
+The next bounded diagnostic inventories installed Xcodes with explicit `DEVELOPER_DIR`, hashes each actual compiler, probes external assembly and exact debug text expansion/replay, and selects a capture tool only if those real probes pass. No product report list or assembler flags change in that diagnostic.
