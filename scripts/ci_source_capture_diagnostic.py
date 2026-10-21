@@ -23,7 +23,8 @@ def run(args, label):
                                 env=selected_environment)
         record = {'label': label, 'command': list(map(str, args)), 'returncode': result.returncode,
                   'stdout': result.stdout, 'stderr': result.stderr,
-                  'developer_dir': selected_environment.get('DEVELOPER_DIR')}
+                  'developer_dir': selected_environment.get('DEVELOPER_DIR'),
+                  'sdk_root': selected_environment.get('SDKROOT')}
     except subprocess.TimeoutExpired as error:
         record = {'label': label, 'command': list(map(str, args)), 'timeout': 30,
                   'stdout': repr(error.stdout), 'stderr': repr(error.stderr)}
@@ -71,15 +72,18 @@ for number, (compiler, developer) in enumerate(compilers):
     work = out/str(number); work.mkdir(exist_ok=True)
     source = work/'answer.c'
     source.write_text('long long nano_build_answer(void) { return 42; }\n')
+    if sys.platform == 'darwin':
+        run(['xcrun', '--find', 'as'], f'{number}-selected-as')
+        sdk = run(['xcrun', '--show-sdk-path'], f'{number}-selected-sdk')
+        if sdk.get('returncode') == 0 and Path(sdk['stdout'].strip()).is_dir():
+            selected_environment['SDKROOT'] = sdk['stdout'].strip()
     resolved = Path(compiler).resolve()
     (work/'compiler.json').write_text(json.dumps({'selected': compiler, 'resolved': str(resolved),
         'developer_dir': developer,
+        'sdk_root': selected_environment.get('SDKROOT'),
         'sha256': hashlib.sha256(resolved.read_bytes()).hexdigest()}, indent=2)+'\n')
     version = run([compiler, '--version'], f'{number}-compiler-version')
     run([compiler, '-print-prog-name=as'], f'{number}-assembler-path')
-    if developer:
-        run(['xcrun', '--find', 'as'], f'{number}-selected-as')
-        run(['xcrun', '--show-sdk-path'], f'{number}-selected-sdk')
     assembly = work/'answer.s'
     run([compiler, '-S', '-O0', source, '-o', assembly], f'{number}-emit-assembly')
     for integrated in (True, False):

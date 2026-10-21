@@ -1,0 +1,200 @@
+{
+  "candidates": [
+    {
+      "selected": "/Applications/Xcode_15.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_15.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_15.2.app/Contents/Developer",
+      "sha256": "86051fc5c41d7fb5f8998d0188a9730d0e5f6e1170aed3006fd719fc88f747f3",
+      "required_probes": {
+        "9-external-assemble": 1,
+        "9-external-fresh-shared": 1,
+        "9-debug-expand": 0,
+        "9-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_15.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_15.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_15.3.app/Contents/Developer",
+      "sha256": "693d5d0ba3e939d5bb32b62e253c443f8997c5bb118b9398844d0cbd47e890a4",
+      "required_probes": {
+        "11-external-assemble": 1,
+        "11-external-fresh-shared": 1,
+        "11-debug-expand": 0,
+        "11-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_15.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_15.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_15.1.app/Contents/Developer",
+      "sha256": "ede87df18e157cc8acb99abec4f7897d44f9718674b8d82f171639ef0381e3f1",
+      "required_probes": {
+        "7-external-assemble": 1,
+        "7-external-fresh-shared": 1,
+        "7-debug-expand": 0,
+        "7-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_16.2.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_16.2.0.app/Contents/Developer",
+      "sha256": "60468f3efd513d53f6ce581ec8d00595855ebf5a31a496d685b91c104aee1ca0",
+      "required_probes": {
+        "16-external-assemble": 0,
+        "16-external-fresh-shared": 1,
+        "16-debug-expand": 0,
+        "16-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_15.1.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_15.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_15.1.0.app/Contents/Developer",
+      "sha256": "ede87df18e157cc8acb99abec4f7897d44f9718674b8d82f171639ef0381e3f1",
+      "required_probes": {
+        "6-external-assemble": 1,
+        "6-external-fresh-shared": 1,
+        "6-debug-expand": 0,
+        "6-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_16.2.app/Contents/Developer",
+      "sha256": "60468f3efd513d53f6ce581ec8d00595855ebf5a31a496d685b91c104aee1ca0",
+      "required_probes": {
+        "17-external-assemble": 0,
+        "17-external-fresh-shared": 1,
+        "17-debug-expand": 0,
+        "17-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_15.3.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_15.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_15.3.0.app/Contents/Developer",
+      "sha256": "693d5d0ba3e939d5bb32b62e253c443f8997c5bb118b9398844d0cbd47e890a4",
+      "required_probes": {
+        "10-external-assemble": 1,
+        "10-external-fresh-shared": 1,
+        "10-debug-expand": 0,
+        "10-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_15.2.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_15.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_15.2.0.app/Contents/Developer",
+      "sha256": "86051fc5c41d7fb5f8998d0188a9730d0e5f6e1170aed3006fd719fc88f747f3",
+      "required_probes": {
+        "8-external-assemble": 1,
+        "8-external-fresh-shared": 1,
+        "8-debug-expand": 0,
+        "8-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_15.0.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_15.0.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_15.0.1.app/Contents/Developer",
+      "sha256": "72c39e01ce66d8e238cd28ea0b66da21c3535bd37beca0d59ac4d9986b7afbbe",
+      "required_probes": {
+        "4-external-assemble": 1,
+        "4-external-fresh-shared": 1,
+        "4-debug-expand": 0,
+        "4-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_16.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_16.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_16.1.app/Contents/Developer",
+      "sha256": "6efd40fe24312f94a254e1204ae016b2c8e771d6f02c1a9fe1e2062d2734ae50",
+      "required_probes": {
+        "15-external-assemble": 0,
+        "15-external-fresh-shared": 1,
+        "15-debug-expand": 0,
+        "15-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode.app/Contents/Developer",
+      "sha256": "784df96b97c9f606b92cedd700abde10bc5708e1d64d5761906e64f61a39fd86",
+      "required_probes": {
+        "3-external-assemble": 1,
+        "3-external-fresh-shared": 1,
+        "3-debug-expand": 0,
+        "3-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_15.4.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_15.4.0.app/Contents/Developer",
+      "sha256": "784df96b97c9f606b92cedd700abde10bc5708e1d64d5761906e64f61a39fd86",
+      "required_probes": {
+        "12-external-assemble": 1,
+        "12-external-fresh-shared": 1,
+        "12-debug-expand": 0,
+        "12-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_15.4.app/Contents/Developer",
+      "sha256": "784df96b97c9f606b92cedd700abde10bc5708e1d64d5761906e64f61a39fd86",
+      "required_probes": {
+        "13-external-assemble": 1,
+        "13-external-fresh-shared": 1,
+        "13-debug-expand": 0,
+        "13-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_15.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_15.0.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_15.0.app/Contents/Developer",
+      "sha256": "72c39e01ce66d8e238cd28ea0b66da21c3535bd37beca0d59ac4d9986b7afbbe",
+      "required_probes": {
+        "5-external-assemble": 1,
+        "5-external-fresh-shared": 1,
+        "5-debug-expand": 0,
+        "5-debug-replay": 1
+      },
+      "passed": false
+    },
+    {
+      "selected": "/Applications/Xcode_16.1.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "resolved": "/Applications/Xcode_16.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "developer_dir": "/Applications/Xcode_16.1.0.app/Contents/Developer",
+      "sha256": "6efd40fe24312f94a254e1204ae016b2c8e771d6f02c1a9fe1e2062d2734ae50",
+      "required_probes": {
+        "14-external-assemble": 0,
+        "14-external-fresh-shared": 1,
+        "14-debug-expand": 0,
+        "14-debug-replay": 1
+      },
+      "passed": false
+    }
+  ],
+  "selected": null
+}
