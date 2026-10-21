@@ -16810,3 +16810,5 @@ I completed the design review and four unchanged original baselines: all public 
 I am implementing only the reviewed heap checkpoint: fixed STRING→STRING owned-GET adapters, charged physical topology validation and inline private teardown with direct tests. I keep all proof, recipe, import selection, VM dispatch, native and publisher enrollment closed; no compile precedes frozen-source review.
 
 I completed the isolated physical heap gate: 543 new SS assertions plus unchanged ordinary/private INT neighbors (4,445/10,318), explicit O1 ASan/UBSan and eight Clang/GCC16 syntax cases. I retain exact old heap bodies/layouts and the receipt in docs/evidence/map-string-heap-20261022. Consumer/dispatch/native/publication enrollment remains closed.
+
+I am auditing the second consumer phase only in the STRING-value design: stack-local uniform pair threading, owned GET transfer, charged import/observation and native optional STRING|VOID. Physical heap commit a33d1025a remains frozen; no consumer production edit or compiler run follows this design checkpoint.
