@@ -28,3 +28,7 @@ that diagnostic mismatch is not the original capture failure. All commands,
 statuses, stderr/stdout and artifact hashes remain in the per-platform records.
 No runtime, capture admission or original test expectation changed in this
 checkpoint. The next compatibility/toolchain choice requires scoped review.
+
+## I qualify the narrow Linux report extension
+
+At `1f7460393903712d909528488363ae8f37a7dc34`, run `39544234552`, Linux job `119038657601` builds the production capture probe and passes all six selected report/integrated-capture methods in 89.790 seconds. I retain commands, current identity, build and test logs under `corrected-linux/`. The diagnostic manifest covers its diagnostic phase; subsequent build/test logs are retained separately. macOS remains queued at this checkpoint; no cross-platform or external-assembler success is inferred.
