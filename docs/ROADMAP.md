@@ -16277,3 +16277,6 @@ I complete the exact ownership-v2 [exclusive,exclusive,shared] two-region pretes
 ### I retain the loop-first witness boundary (2026-10-20)
 
 The existing unchanged first_only source verifies and executes through all three producers at37/3 while reconstruction still atomically refuses its literal-prefix witness. I retain the actual neighbor commands and facts before proposing the narrow eager-first-pretest witness path in `NANOISA_LOOP_FIRST_WITNESS_DESIGN.md`. No implementation or rendering admission is included in this checkpoint.
+
+
+I qualify the reviewed first-eager-pretest witness without planner/runtime/provider changes: unchanged actual123/31, selected shadow108/31, actual128/estimated129 atomic boundary, immutable pre-call snapshots and exact later-helper native assertion status. All eight new methods pass across retained terminals; old one/double-call outputs remain byte-identical. I preserve initial accidental test discovery and the diagnostic-only mismatch correction in `docs/evidence/loop-first-witness-reconstruction-20261020/README.md`. Aggregate/platform qualification remains open.

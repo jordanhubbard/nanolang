@@ -1,0 +1,11 @@
+# I qualify the first eager pretest witness
+
+I retain the original accepted/refused baseline in `../loop-first-witness-baseline-20261020/`. The new exact entry/v2/[exclusive,exclusive,shared] flag permits the private literal proof to inspect only the first eager while pretest up to its first complete call. It never enters the body, continues after that loop, executes arithmetic or simulates iterations. Existing typed owner snapshots and shared-BOOL truth proof remain unchanged. There is no new planner, scratch bank, verifier, runtime or compiler provider change.
+
+The first unchanged output gate publishes C/Nano and actually regenerates/verifies/executes123/31 locals. Independently selected generated consistency shadows execute at108/31 through all producers. Actual128 succeeds and estimated129 refuses before source publication; I do not claim a regenerated129 executable. Four prior top-level one-call/double-call C/Nano outputs remain byte-identical to243e936a7.
+
+All eight new methods and existing neighbors pass across the retained terminals. My first test import inadvertently enrolled seven double-call methods too: the combined13-method run took216.804s with twelve passes and one diagnostic-only test failure. The nonliteral tree correctly refused at `literal exact child snapshots`; the test incorrectly expected the word witness. I corrected only that case-specific expectation and removed accidental imported-test discovery. The corrected test plus false-initial-BOOL, exact unchanged original anchor and existing prefix-assert refusal pass19.406s.
+
+Coverage includes seed and both fresh stages, original/regenerated VM and O0/O2 ASan/UBSan native execution, before-first-call snapshots, zero/entered/final-false effects, no body/after-loop scanning, unknown/false witness refusal and a later helper assertion failure. Its helper-removal control succeeds; native failure checks exact SIGABRT for reconstructed C and exit1/empty stderr plus explicit assertion status for nvm2c, all with `-DNDEBUG`. I retain original failures and commands, and distinguish private corrupted-IR checks from verified module controls.
+
+Source/provider hashes are in `qualified-inputs.json`. These are local Darwin checks; final aggregate, raw/platform and release acceptance remain separate.
