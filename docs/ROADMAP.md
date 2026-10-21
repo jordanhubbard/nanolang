@@ -16522,3 +16522,5 @@ I passed aggregate10318 heap assertions under ASan/UBSan and68 workflow/schema c
 I integrate3ec90edcb preserving both roadmap histories and run its actual aggregate target against four original modules. I add private runtime qualification to platform checks; public/native/publisher/observation admission remains closed.
 
 I passed actual aggregate private runtime switch/goto gates (2 methods8.824s,2714 checks each) and68 workflow/schema controls. Receipt:`docs/evidence/map-runtime-aggregate-20261021/`. Exact hosted and public/native/publisher/observation work remain open.
+
+- #1001 owned_calls owns contract-only private observation checkpoint from aggregate48e1508ae: docs/NANOISA_MAP_PRIVATE_OBSERVATION_DESIGN.md proposes copied value metadata, charged exact paths/byte queries and internal two-path identity comparison without exposing addresses or allocating identity registries. No implementation/public/native/publisher changes. Review must settle explicit alias-comparison interface and logical charge schedule first.
