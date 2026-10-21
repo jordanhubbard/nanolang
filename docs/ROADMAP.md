@@ -16749,3 +16749,13 @@ I completed local paired publisher qualification: current C and C-hosted Nano or
 I integrated reviewed ancestry b622e9065 after ca00599d2, preserving the separate raw and checked producer boundaries. I am running the bounded current-provider scoped gate before publication of the aggregate receipt; the required default target is now wired beside the public query in retirement compiler contracts and remains a test-units prerequisite. Fresh Stage1/Stage2 and exact hosted qualification remain open; retained C-hosted selectors do not satisfy them.
 
 I completed that scoped aggregate gate:100 C checks,5 methods20.577s and68 workflow/schema controls2.043s, with unchanged selected provider hashes. The required target is wired for default fresh-stage hosted qualification. I also retained older884 sanitizer continuation evidence:all17 generation/verification steps passed and raw generations matched; schema-check then failed the obsolete instr.opcode marker already corrected by8bb872b97. Neither scoped publisher success nor the older bootstrap closes current-head hosted acceptance.
+
+### Exact STRING-to-INT map removal prerequisite (2026-10-21)
+
+I own contract-only reconciliation for [#1001](https://github.com/jordanhubbard/nanolang/issues/1001) on `design/5.1-map-delete-authority`, based on `d5bc83d23`. My files are this roadmap and `docs/NANOISA_MAP_DELETE_AUTHORITY_DESIGN.md`; no production changes or builds are authorized at this checkpoint.
+
+- [ ] Review explicit tombstone policy, unchanged exact source variant and all-history obligations before implementation.
+- [ ] Qualify checked heap adapters, import/observation/teardown, then immutable recipes and actual public/private/native execution before publisher admission.
+- [ ] Preserve old bytes/budgets and complete fresh-stage/platform qualification separately.
+
+The unchanged STRING-to-STRING Holder fixture still requires a separate value-owner contract as well as removal.
