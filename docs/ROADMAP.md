@@ -16590,3 +16590,12 @@ separate, and public execution selection remains closed.
 I merge the reviewed module-taking read-only validator, preserve both roadmap histories, and add its required gate to retirement qualification. I require the actual aggregate Make target with eight retained modules and 68 workflow controls before commit. Public execution selection remains closed.
 
 I passed the actual aggregate import target: 2 methods in 8.978s, 13,164 checks per dispatch, all eight retained inputs. All 68 workflow controls passed. Receipt: `docs/evidence/map-import-aggregate-20261021/README.md`. Public execution selection and exact hosted qualification remain open.
+
+### #1001 public map invocation interface ownership (design only)
+
+I map the next borrowed-VmState consumer from aggregate e5164fe74. The successful
+import query remains observation, not reusable execution authority. I own only
+the contract for one invocation-owned boundary plan/tables, fresh import checking,
+ordinary collector and record-ordinal semantics, complete stack reservation and
+selected-route cleanup. Public selectors, handlers, native, loaders and publishers
+remain unchanged pending interface/allocation review. No compiler job is required.
