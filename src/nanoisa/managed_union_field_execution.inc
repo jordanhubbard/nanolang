@@ -126,13 +126,17 @@ static int ufe_corresponds(const NvmRecordArrayExecutionInstruction *r,const Nvm
     }
 }
 #include "union_field_cost.inc"
-NvmArrayEligibilityResult nvm_prepare_union_field_execution(const NvmModule *m,NvmUnionFieldExecutionPlan **out) {
-    (void)ufe_plan_retained_cost; /* Retained-cost checkpoint; no image caller yet. */
+static NvmArrayEligibilityResult ufe_prepare_reserved(const NvmModule *m,NvmUnionFieldExecutionPlan **out,
+                                                     uint64_t extra_bytes,uint64_t extra_work) {
     NvmArrayEligibilityResult result={NVM_ARRAY_INVALID,0,0,"I require a module and copied union recipe output."};
     if(!m || !out)return result;
     uint64_t bytes=UINT64_C(64)*1024*1024+65536u+sizeof(NvmUnionFieldExecutionPlan)+sizeof(NvmRecordArrayExecutionPlan);
     uint64_t work=UINT64_C(16777216)+65536u+sizeof(NvmUnionFieldExecutionPlan)+sizeof(NvmRecordArrayExecutionPlan);
-    if(bytes>NVM_RECORD_ARRAY_EXECUTION_BYTES || work>NVM_RECORD_ARRAY_EXECUTION_STEPS) {result.status=NVM_ARRAY_LIMIT;return result;}
+    if(bytes>NVM_RECORD_ARRAY_EXECUTION_BYTES || work>NVM_RECORD_ARRAY_EXECUTION_STEPS ||
+       extra_bytes>NVM_RECORD_ARRAY_EXECUTION_BYTES-bytes || extra_work>NVM_RECORD_ARRAY_EXECUTION_STEPS-work) {
+        result.status=NVM_ARRAY_LIMIT;return result;
+    }
+    bytes+=extra_bytes;work+=extra_work;
     NvmUnionFieldExecutionPlan *p=calloc(1,sizeof *p);
     if(!p){result.status=NVM_ARRAY_MEMORY;return result;}
     p->carrier=calloc(1,sizeof *p->carrier);
@@ -211,6 +215,9 @@ fail:
     result.status=c->failure;
     snprintf(result.message,sizeof result.message,"I could not copy exact bounded union recipes.");
     nvm_union_field_execution_free(p);return result;
+}
+NvmArrayEligibilityResult nvm_prepare_union_field_execution(const NvmModule *m,NvmUnionFieldExecutionPlan **out) {
+    return ufe_prepare_reserved(m,out,0,0);
 }
 bool nvm_union_field_execution_counts(const NvmUnionFieldExecutionPlan *p,NvmRecordArrayExecutionCounts *out) {
     return p && nvm_record_array_execution_counts(p->carrier,out);

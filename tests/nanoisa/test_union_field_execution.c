@@ -328,6 +328,9 @@ static void execution_original(const char *path) {
     m->layout_data=NULL;m->layout_size=0;m->ownership_data=NULL;m->ownership_size=0;
     nvm_module_free(m);nvm_v2_module_free(&original_wire);free(bytes);memset(&v,0,sizeof v);
     NvmUnionFieldOrigin row;CHECK(nvm_union_field_execution_origin(proof,0,&row));
+#ifdef UFE_ORIGINAL_CHECK
+    UFE_ORIGINAL_CHECK(proof);
+#endif
     nvm_union_field_execution_free(proof);
 }
 static void execution_bad_name(void) {
@@ -355,7 +358,10 @@ static void execution_snapshot_limit(void) {
     v.c.module.strings=old_strings;v.c.module.string_lengths=old_lengths;v.c.module.string_count=6;free(large);
     out=execution_query(&v.c.module);nvm_union_field_execution_free(out);nvm_union_field_execution_free(prior);
 }
-int main(int argc,char **argv) {
+#ifndef UFE_MAIN
+#define UFE_MAIN main
+#endif
+int UFE_MAIN(int argc,char **argv) {
     CHECK(argc==1 || argc==7);
 #ifdef UFP_ALLOC
     execution_all_opcodes();execution_corruption();execution_setter_effects();execution_storage_edges();execution_allocations();execution_cost_oracles();
