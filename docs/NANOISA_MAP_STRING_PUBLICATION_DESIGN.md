@@ -1,6 +1,6 @@
 # Exact STRING-value paired publication
 
-I propose the next publisher-only slice after consumer `0de7b2181dfb554c6e5ef6f45e841d1f735775d0`, with the unchanged accepted `tests/unit/test_map_field_operations.nano` as the first source anchor. I retain its four-product original baseline and independently annotated consumer qualification. I have not yet changed publishers or built new compiler products. Fresh-stage/platform acceptance remains independently open.
+I propose the next publisher-only slice after consumer `0de7b2181dfb554c6e5ef6f45e841d1f735775d0`, with the unchanged accepted `tests/unit/test_map_field_operations.nano` as the first source anchor. I retain its four-product original baseline and independently annotated consumer qualification. I subsequently implemented and qualified this reviewed slice; exact products, first failures and gates are retained in [map-string-publication-20261022](evidence/map-string-publication-20261022/README.md). Fresh-stage/platform acceptance remains independently open.
 
 ## Declaration representation and uniformity
 
