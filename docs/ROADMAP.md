@@ -16702,3 +16702,12 @@ Exact concat native slice qualifies with productiondiff limited to opcode/recipe
 I integrated the reviewed concat component e3d1e019a by ancestry at 4a0b8bfa6. I am running the actual required `test-record-map-native` Make target with all four retained concat producer modules, followed by the 68 workflow/schema controls. The Make plan rebuilds only the native translator object; no frontend or bootstrap is requested. Publishers remain unchanged.
 
 I completed the actual aggregate native target: 2 methods in 46.454s, with all four concat producer modules and the full generated allocation sweeps. All 68 controls passed in 2.329s. I retained the exact Make plan, closure, module/source hashes and terminals in `docs/evidence/map-native-concat-aggregate-20261021/`. Publishers and exact-head hosted qualification remain pending.
+
+### #1001 complete-module map publication query contract (2026-10-22)
+
+I assign owned_calls contract-only ownership on `design/5.1-map-publication-query` from d67d11eba. I preserve the VM/native domain distinction and propose shared non-emitting native eligibility in the existing managed_array_shapes host closure; see [publication query contract](NANOISA_MAP_PUBLICATION_QUERY_DESIGN.md). No publisher or production code changes are authorized at this checkpoint.
+
+- [x] Map actual C/Nano host hooks, native restrictions and compiler-module link closure.
+- [ ] Review typed complete-module query, independent proof accounting and shared target scan.
+- [ ] Implement and qualify query/consumer extraction without publisher changes.
+- [ ] Separately review and qualify staged paired publisher integration; retain unsupported dynamic STRING/DELETE/pair gaps.
