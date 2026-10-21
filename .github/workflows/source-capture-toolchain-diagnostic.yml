@@ -5,6 +5,8 @@ on:
     paths:
       - '.github/workflows/source-capture-toolchain-diagnostic.yml'
       - 'scripts/ci_source_capture_diagnostic.py'
+      - 'src/module_builder.c'
+      - 'tests/test_source_snapshots.py'
 permissions:
   contents: read
 jobs:
@@ -14,11 +16,41 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-14]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
+      - name: Select the existing retirement Homebrew compiler
+        if: runner.os == 'macOS'
+        timeout-minutes: 20
+        run: |
+          if [[ ! -x /opt/homebrew/opt/llvm/bin/clang ]]; then
+            ./scripts/ci-brew-install.sh llvm
+          fi
       - name: Retain current selected compiler and assembler evidence
         run: python3 scripts/ci_source_capture_diagnostic.py
+      - name: Build only the production capture probe
+        shell: bash
+        run: |
+          flags="-Wall -Wextra -Werror -std=c99 -O2 -g -Isrc -D_GNU_SOURCE"
+          links="-lm -lcrypto"
+          if [[ "$RUNNER_OS" == macOS ]]; then
+            prefix="$(brew --prefix openssl@3)"
+            test -f "$prefix/include/openssl/sha.h"
+            flags="$flags -I$prefix/include"
+            links="$links -L$prefix/lib"
+          fi
+          make -f Makefile.gnu -j2 obj/test_module_generation_probe CC=cc CFLAGS="$flags" LDFLAGS="$links" > .test_output/source-capture-diagnostic/probe-build.log 2>&1
+      - name: Qualify exact report parsing and real integrated capture
+        timeout-minutes: 10
+        run: |
+          python3 -m unittest -v \
+            tests.test_source_snapshots.SourceSnapshots.test_selected_clang_assembler_report_boundaries \
+            tests.test_source_snapshots.SourceSnapshots.test_integrated_native_unit_post_capture_reads \
+            tests.test_source_snapshots.SourceSnapshots.test_integrated_native_unit_failure_recovery \
+            tests.test_source_snapshots.SourceSnapshots.test_integrated_units_preserve_c_assembler_search \
+            tests.test_source_snapshots.SourceSnapshots.test_integrated_native_unit_debug_identity \
+            tests.test_source_snapshots.SourceSnapshots.test_integrated_instruction_and_location_provenance \
+            > .test_output/source-capture-diagnostic/integrated-capture.log 2>&1
       - name: Upload diagnostic evidence
         if: always()
         uses: actions/upload-artifact@v4
