@@ -16719,3 +16719,9 @@ I am holding production implementation while review resolves conservative pre-im
 The conservative status refinement is reviewed: pre-image UNRESOLVED is not a validity certificate. I resume only query/target extraction, keeping publishers unchanged and testing unsupported-before-malformed as non-authoritative omission.
 
 I qualified the query-only slice: final linked/whitebox342/1509 checks on nine distinct ordinary/concat/shadow candidates,115allocation positions, exact scan LIMIT/recovery, actual42-provider module host closure without emitter objects, native2methods100.976s/14bytegoldens, oldimage/recipe2methods15.389s, strict12 and six exactlegacybudgets. I retained the first compiler/harness failures and all source/provider pins in [the receipt](evidence/map-publication-query-20261022/README.md). Publishers remain unchanged pending separate review.
+
+### #1001 map publication query aggregate gate (2026-10-21)
+
+I integrated d0d2079af by ancestry at 2f88c0c6d after query/interface and receipt review. I am adding its required target to retirement compiler contracts and running the actual Make target with all nine ordinary/original-shadow candidates, followed by the 68 workflow/schema controls. Publishers remain unchanged.
+
+I completed the aggregate query target with all nine inputs: 342 linked and 1,509 instrumented checks in 5.624s, including all 115 allocation positions in both failure modes. All 68 workflow/schema controls passed in 2.019s. Receipt: `docs/evidence/map-publication-query-aggregate-20261021/`. Publishers and hosted closure remain pending.
