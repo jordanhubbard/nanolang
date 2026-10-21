@@ -16624,3 +16624,17 @@ I am mapping the next private module-taking borrowed-state execution gate from
 reserved stack activation, exact shared-handler preflight and selected cleanup.
 Public selectors, native/load/publisher admission and all production source remain
 unchanged until the interface and implementation checkpoints are reviewed.
+
+### #1001 ordinary map adapter implementation ownership (2026-10-22)
+
+I am implementing only checkpoint1 of reviewed contract7abaf9f7f: separate
+ordinary-heap checked map adapters and direct tests. Ordinary collector metadata
+and private adapter policy remain intact. No core, activation, view, dispatch or
+public selector changes belong to this slice; source review precedes builds.
+
+Ordinary adapter qualification now passes3474 direct O1 ASan/UBSan checks and the
+old private10318-check neighbor; eight strict cases pass. Existing private source
+is exact and six retained legacy budget rows are unchanged (not rebuilt). The
+enum-spelling harness failure remains in
+[the adapter receipt](evidence/map-ordinary-heap-20261022/README.md).
+This checkpoint enables no activation, dispatch or public selection.

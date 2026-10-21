@@ -163,9 +163,9 @@ operand conventions:
 ```c
 VmRmHeapStatus vm_rm_ordinary_new(VmHeap *, VmHashMap **);
 VmRmHeapStatus vm_rm_ordinary_set(VmHeap *, VmHashMap *, NanoValue key, NanoValue value);
-VmRmHeapStatus vm_rm_ordinary_get(const VmHashMap *, NanoValue key, NanoValue *);
-VmRmHeapStatus vm_rm_ordinary_has(const VmHashMap *, NanoValue key, bool *);
-VmRmHeapStatus vm_rm_ordinary_len(const VmHashMap *, uint32_t *);
+VmRmHeapStatus vm_rm_ordinary_get(const VmHeap *, const VmHashMap *, NanoValue key, NanoValue *);
+VmRmHeapStatus vm_rm_ordinary_has(const VmHeap *, const VmHashMap *, NanoValue key, bool *);
+VmRmHeapStatus vm_rm_ordinary_len(const VmHeap *, const VmHashMap *, uint32_t *);
 ```
 
 These are heap implementation interfaces, not host execution authority. Fast
@@ -340,3 +340,8 @@ changes are proposed. No new frontend build/bootstrap is necessary for this slic
 Public selector/load/native/publisher integration remains a later explicit review,
 even if this private entry passes. This document authorizes no production change;
 implementation begins only after the interface and checkpoint scope are approved.
+
+The reviewed checkpoint1 refinement gives all five ordinary adapters a heap
+argument (const for reads), requiring !gc_running and !private_record_dag.
+Managed map/key ownership by that heap remains a C precondition, not a registry
+lookup. Existing private fast adapters retain their exact source and policy.

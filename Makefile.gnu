@@ -7126,3 +7126,10 @@ test-record-map-public-prepare: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OB
 	RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_public_prepare
 
 test-units: test-record-map-public-prepare
+
+.PHONY: test-record-map-ordinary-heap
+# Direct ordinary adapters only; no activation or public selection.
+test-record-map-ordinary-heap:
+	RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" python3 -m unittest -f -v tests.test_record_map_ordinary_heap
+
+test-units: test-record-map-ordinary-heap

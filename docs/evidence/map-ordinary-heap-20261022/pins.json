@@ -1,0 +1,10 @@
+{
+  "src/nanovm/record_map_heap.inc": "f78a3de45a2d19a07714d04f074b68a7f99efc11da9791dff932d2f53756644c",
+  "src/nanovm/record_map_heap_private.h": "2d56a791309da9a671cb6ab3208c1be04b0921f51cc4c23d5f6c15cfeeafe194",
+  "src/nanovm/heap.c": "2cd994d52ac9b5db33b83666d6a3db4d35aea5665b69a4ba6ce6417e8e974da4",
+  "src/nanovm/heap_cycles.c": "5fe9ba89e07a0907ac9d1ed6f403b13d227a0035af06337fb2db16b836ff710f",
+  "src/nanovm/value.c": "5d18b054b3e173162d5b5dff8e40aa5b6b032a5e110fd8c4f1dccfe2e6b94210",
+  "src/nanoisa/isa.c": "267e1fd0e56d72bb45450b4138a268cf78178cc5f2e5bddafa4e6d801cd6fdc7",
+  "tests/nanovm/test_record_map_ordinary_heap.c": "ff3a62884765e67214034ceeebf16f97f684b6af8cdb85b52888f2a2547d05ea",
+  "tests/test_record_map_ordinary_heap.py": "6df0e28363d5c796272971b6e231030583ab49812a344e4a251d9f0a4b8facac"
+}
