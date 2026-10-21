@@ -16696,3 +16696,9 @@ owned_calls owns contract-only native concat-key compatibility planning on desig
 Concat baseline on24feed248 passes all8 rawproducer cases/32sanitizednative runs and837 explicitannotatedpublic checks, retaining all4 selectednative concat refusals. Current source variant preserves every assertion; raw8provider/tool pins unchanged. Exact STR_CONCAT-only native target exception is now reviewed, with helper/local/return/tail/replacement lifetime and failure qualification required before completion. No publisher/runtime rewrite. Evidence under docs/evidence/map-native-concat-20261022.
 
 Exact concat native slice qualifies with productiondiff limited to opcode/recipe exception: existing required native2methods97.549s,645publicationchecks,56generatedexecutions and920allocationdenialprocesses+retry; public1032checks,8raw/4selected oldbytes,Clang/GCCstrict4. Existing test-record-map-native now permanently includes helperlocal→tail→return UTF8/empty keys and replacement/OOM. Allother STRING/NUL/STRUCT/ordinal native restrictions and publisher hold remain. Finalreceipt docs/evidence/map-native-concat-20261022; no frontend/runtime rewrite.
+
+### #1001 native concat aggregate qualification (2026-10-21)
+
+I integrated the reviewed concat component e3d1e019a by ancestry at 4a0b8bfa6. I am running the actual required `test-record-map-native` Make target with all four retained concat producer modules, followed by the 68 workflow/schema controls. The Make plan rebuilds only the native translator object; no frontend or bootstrap is requested. Publishers remain unchanged.
+
+I completed the actual aggregate native target: 2 methods in 46.454s, with all four concat producer modules and the full generated allocation sweeps. All 68 controls passed in 2.329s. I retained the exact Make plan, closure, module/source hashes and terminals in `docs/evidence/map-native-concat-aggregate-20261021/`. Publishers and exact-head hosted qualification remain pending.
