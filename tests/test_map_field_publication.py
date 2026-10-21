@@ -184,6 +184,28 @@ int main(void){(void)nmap_collection_budget;int r=fixture_main();nmap_collect();
         self.corpus('unchanged', source)
         self.corpus('concat', source.replace('(remember alias "second" 2)', '(remember alias (+ "sec" "ond") 2)'))
 
+    def test_map_only_multiple_fields_forward_record(self):
+        self.corpus('map-only-forward', '''struct Root { child: Leaf }
+struct Leaf { first: HashMap<string,int>, second: HashMap<string,int> }
+fn main() -> int {
+    let first: HashMap<string,int> = (map_new)
+    let second: HashMap<string,int> = (map_new)
+    let leaf: Leaf = Leaf { first: first, second: second }
+    let root: Root = Root { child: leaf }
+    let alias: Root = root
+    (map_put alias.child.first "first" 7)
+    (map_put alias.child.second "second" 9)
+    assert (== (map_get root.child.first "first") 7)
+    assert (== (map_get root.child.second "second") 9)
+    assert (== (map_length root.child.first) 1)
+    assert (== (map_length root.child.second) 1)
+    assert (not (map_has root.child.first "second"))
+    assert (not (map_has root.child.second "first"))
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
     def test_nested_u8(self):
         self.corpus('nested-u8', (ROOT/'tests/nanoisa/fixtures/map_nested_u8_borrowed.nano').read_text())
 
