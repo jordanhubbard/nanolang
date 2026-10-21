@@ -16616,3 +16616,11 @@ nonmutation. Old import13164 each and boundary754/1685 controls remain green;
 and neighbor selection failures separately in
 [the preparation receipt](evidence/map-public-preparation-20261022/README.md).
 No activation, stack allocation, handler, or public selector is enabled.
+
+### #1001 borrowed map activation contract ownership (2026-10-22)
+
+I am mapping the next private module-taking borrowed-state execution gate from
+84768a3ba. This is contract-only: ordinary map adapters, call-local context,
+reserved stack activation, exact shared-handler preflight and selected cleanup.
+Public selectors, native/load/publisher admission and all production source remain
+unchanged until the interface and implementation checkpoints are reviewed.
