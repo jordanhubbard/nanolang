@@ -1,0 +1,9 @@
+# I isolate my real dependency test from checkpoint providers
+
+I repair #976 on `fix/5.1-header-dependency-isolation` from0c31f5335. Coverage continuation119061472864 restored its exact checkpoint, then my header-dependency test deleted/rebuilt shared `obj/nanovm/value.o` twice. The retained log reports the test success at07:13:20, followed by `nano_virt`/`nano_vm` relinks at07:13:59 and a new bootstrap run at07:14. `test-quick` subsequently invokes `test-vm-examples`; its tool/compiler prerequisites correctly notice those changed objects and bootstrap inputs. The final resume guard correctly refuses the mutation.
+
+I keep the real Makefile recipe, generated indirect-header check, synthetic dependency, stale `make -q` status1, recompilation and final current query. All four make invocations now pass one temporary command-line `OBJ_DIR`. Dependency discovery and object rules follow that directory; cleanup removes only that test directory. I neither restore timestamps nor skip tests or weaken checkpoint checks.
+
+My actual local gate passes exit0 in1.583s. Because this isolated child has no installed full provider set, I execute the exact changed script with only its repo-root assignment redirected to the aggregate source tree; the full runner is retained in pins.json. Compile outputs remain in the temporary OBJ_DIR. The shared value object/dependency, six tools/stage providers and four bootstrap sentinels preserve exact SHA256, nanosecond mtime and size before/after. I retain command, runner, status and both snapshots in `pins.json`, and stdout in `actual.log`. `bash -n` and `git diff --check` pass. No full bootstrap runs.
+
+The hosted excerpt is from `nanolang-container-coverage-continuation-119061472864.log`, SHA256 `0fe2c4bdb8f28d80108379fc88b32b3102e519443d7f5bcb9da3b0d1b4c0bc5e`. Full hosted retry remains the aggregate workflow's gate; this local correction does not claim that terminal.

@@ -5,14 +5,16 @@ repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$repo_root"
 
 make_bin=${MAKE_BIN:-make}
-object=obj/nanovm/value.o
-dependency_file=obj/nanovm/value.d
+# I exercise the real recipe without invalidating restored bootstrap providers.
+workspace=$(mktemp -d "${TMPDIR:-/tmp}/nanolang-header-dependency.XXXXXX")
+trap 'rm -rf "$workspace"' EXIT
+isolated_obj="$workspace/obj"
+object="$isolated_obj/nanovm/value.o"
+dependency_file="$isolated_obj/nanovm/value.d"
 indirect_header=src/nanovm/../nanoisa/isa.h
-trigger=$(mktemp "${TMPDIR:-/tmp}/nanolang-header-dependency.XXXXXX")
-trap 'rm -f "$trigger"' EXIT
-
-rm -f "$object" "$dependency_file"
-"$make_bin" --no-print-directory "$object" >/dev/null
+trigger="$workspace/header.h"
+touch "$trigger"
+"$make_bin" --no-print-directory "OBJ_DIR=$isolated_obj" "$object" >/dev/null
 
 if [[ ! -s "$dependency_file" ]]; then
     echo "I did not generate $dependency_file" >&2
@@ -31,7 +33,7 @@ printf '%s: %s\n' "$object" "$trigger" >>"$dependency_file"
 # The system make on older macOS compares mtimes at one-second resolution.
 sleep 1
 touch "$trigger"
-if "$make_bin" --no-print-directory -q "$object"; then
+if "$make_bin" --no-print-directory "OBJ_DIR=$isolated_obj" -q "$object"; then
     echo "I trusted $object after one of its recorded headers changed" >&2
     exit 1
 else
@@ -42,8 +44,8 @@ else
     fi
 fi
 
-"$make_bin" --no-print-directory "$object" >/dev/null
-if ! "$make_bin" --no-print-directory -q "$object"; then
+"$make_bin" --no-print-directory "OBJ_DIR=$isolated_obj" "$object" >/dev/null
+if ! "$make_bin" --no-print-directory "OBJ_DIR=$isolated_obj" -q "$object"; then
     echo "I still consider $object stale after rebuilding it" >&2
     exit 1
 fi

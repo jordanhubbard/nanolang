@@ -1,0 +1,1 @@
+I rebuild C objects when their recorded headers change.
