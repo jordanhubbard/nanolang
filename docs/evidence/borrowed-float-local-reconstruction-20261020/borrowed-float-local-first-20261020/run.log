@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/private/tmp/borrowed-float-local-first-20261020/run.py", line 40, in <module>
+    run([sys.executable,work/'scripts/nvm2hl.py','--language',lang,module,'-o',target])
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/borrowed-float-local-first-20261020/run.py", line 19, in run
+    assert r.returncode==0,(argv,r.stderr[-3000:])
+           ^^^^^^^^^^^^^^^
+AssertionError: (['/Users/jkh/.local/bin/python3', PosixPath('/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nvm2hl.py'), '--language', 'nano', PosixPath('/private/tmp/borrowed-float-local-baseline-20261019/nano_virt.nvm'), '-o', PosixPath('/private/tmp/borrowed-float-local-first-20261020/nano_virt.nano')], 'I limit generated exclusive Nano functions to 128 local slots\nI did not publish reconstructed source\n')

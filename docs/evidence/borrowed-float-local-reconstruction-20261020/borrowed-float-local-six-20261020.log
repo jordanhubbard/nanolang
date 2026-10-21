@@ -1,0 +1,41 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-t0web4lx
+test_actual_local_cap_and_atomic_refusal (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_actual_local_cap_and_atomic_refusal) ... ok
+test_finite_negative_zero_equality (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_finite_negative_zero_equality) ... ok
+test_forbidden_float_operations_and_helper_locals (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_forbidden_float_operations_and_helper_locals) ... ok
+test_generated_consistency_shadow (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_generated_consistency_shadow) ... ERROR
+test_planner_preserves_float_order_and_prior_helper (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_planner_preserves_float_order_and_prior_helper) ... ok
+test_unchanged_ordinary_and_independent_shadow (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_unchanged_ordinary_and_independent_shadow) ... ok
+
+======================================================================
+ERROR: test_generated_consistency_shadow (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_generated_consistency_shadow)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_borrowed_float_local_reconstruction.py", line 79, in test_generated_consistency_shadow
+    self.qualify(self.module(compiler,selected,'borrowed-float-consistency'))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_nested_path_reconstruction.py", line 78, in qualify
+    functions=[OwnedAnalyze(facts,i).run() for i in range(2)]
+               ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 667, in run
+    body, _, _, _, returns = self.region(0, len(self.code), set(range(len(self.params))),
+                             ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                         self.live, self.used)
+                                         ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 529, in region
+    self.observation(i, end, stack, body)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 286, in observation
+    require(self.shared_root is None or self.shared_root == root,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            'require one exact root slot and layout for exclusive path calls' if self.single_exclusive_path else
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            'require one exact root slot and layout for shared path calls')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_reconstruction.py", line 12, in require
+    raise Refusal('I ' + message)
+nanoisa_reconstruction.Refusal: I require one exact root slot and layout for exclusive path calls
+
+----------------------------------------------------------------------
+Ran 6 tests in 51.100s
+
+FAILED (errors=1)

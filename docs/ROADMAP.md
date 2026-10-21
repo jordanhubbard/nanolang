@@ -16223,3 +16223,13 @@ I qualify candidate `1e2951ef8` with all seven aggregate methods in 219.085 seco
 ## I map the accepted borrowed FLOAT caller-local fixture (#999, 2026-10-19)
 
 I own design/5.1-borrowed-float-local from271c88986 for contract/baseline only. I reproduce test_source_borrow_emission.py:test_float_local_in_borrowed_control_flow exactly: source_borrow_control_flow.nano replaces every `set total (+ total 2)` with `let value: float = 2.0 assert (== value 2.0) set total (+ total 2)`. I retain three original producer results plus an independent original-shadow input, exact counts/F64 operations, verifier/VM behavior and current reconstruction refusal/sentinel. No admission edit, helper FLOAT, field/signature, frontend or runtime expansion is included.
+
+I begin the reviewed v2 single-exclusive caller-local FLOAT slice, preserving helper/field/signature and pretest rules. Body operations are limited to PUSH_F64, typed F64_NEG and F64_EQ plus existing scalar local transfers; NEG closes negative finite literal regeneration without admitting general borrowed FLOAT arithmetic. I reuse exact raw bits and finite rendering, then stop at first actual output/count failure before any planner expansion.
+
+### I retain borrowed FLOAT rendering refusal before caller planning
+
+The first exact unchanged ordinary/original-shadow gate admits facts but atomically refuses Nano output at 131/21 locals. I retain that failure and the existing caller-only planner diagnostic (98/21 estimate) before routing changes. I scope planning to actual approved FLOAT callers, preserve FLOAT expression order and helper code, and refuse overlapping helper-local/reassignment/exit profiles. No regenerated success is claimed yet.
+
+### I qualify the bounded borrowed FLOAT caller route
+
+The exact unchanged ordinary and independent original-shadow regenerate at 98/21 with caller-only finite planning. Six intended tests pass across retained terminals through seed and both stages, including native O0/O2, signed zero, 128/129 atomic boundary, immutable FLOAT order and forbidden operations/helper locals. The first generated-shadow test overreached into re-reconstruction of a two-root witness; I retain its refusal and separately qualify the actual selected witness execution. Eight prior outputs are byte-identical. [I retain commands, failures and pins](evidence/borrowed-float-local-reconstruction-20261020/README.md); aggregate/platform qualification remains open.
