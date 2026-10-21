@@ -16795,3 +16795,12 @@ The exact integer DELETE publisher qualification passed: fresh current C-hosted 
 I merged the qualified heap, atomic consumer and paired-publication ancestry through 1ea583ed9, preserving f83927078. I will qualify the actual aggregate C/public tools with the retained current C-hosted canonical/raw drivers, run both DELETE dispatch tests and workflow/checkpoint controls, and retain exact receipts before pushing. I add the DELETE target to explicit compiler-contract qualification; fresh raw generations and Linux/Darwin acceptance remain open.
 
 I completed the map DELETE aggregate gate: 100 C controls, eight paired publication methods (33.403s), both permanent DELETE dispatch methods (9.514s; 2,090 assertions each), and 68 workflow/checkpoint controls (1.990s). All 16 retained component pins still match. I retain the plan, terminals and provider pins in docs/evidence/map-delete-aggregate-20261021; no frontend/bootstrap claim or issue closure follows.
+
+### Exact STRING-valued map authority design (2026-10-22)
+
+I own this #1001 design-only checkpoint on `design/5.1-map-string-value-authority` from aggregate `200c4f850`. I preserve the complete DELETE ancestry and receipts. The unchanged `tests/unit/test_map_field_operations.nano` already executes through current producers but still omits authority; stored STRING ownership is the next exact prerequisite.
+
+- [ ] Review the exact single-pair STRING→STRING contract, checked owned-result heap interfaces and unchanged INT budgets before implementation.
+- [ ] Retain four unchanged ordinary/original-shadow baselines before admission changes.
+- [ ] Qualify checked heap ownership/topology/teardown independently, then atomic proof/recipes/import/VM/native consumers including missing GET STRING|VOID.
+- [ ] Qualify paired publication only after consumers, retaining mixed-pair atomic omission and old byte goldens. Fresh-stage/platform acceptance remains separate.
