@@ -16254,3 +16254,7 @@ My CA-corrected local image build completed, then archive verification exposed D
 I pass the bounded local ARM64 [container receipt](evidence/immutable-instrumented-container-20261020/README.md), including real instrumented execution and restored providers across differing outer runner labels. Full hosted amd64 qualification remains open. Private `/tmp` uses disk-backed per-invocation storage to preserve compiler RAM headroom.
 
 My expanded existing workflow regressions initially found four obsolete harness assumptions: per-job apt setup, SQLite in host commands, and selecting the first download rather than the exact checkpoint download. I retain that failed receipt and adapt the assertions to the pinned image dependency path while retaining checkpoint artifact IDs, continuation order and finite budgets. No production gate is removed.
+
+### I map the remaining eager double-call pretest boundary
+
+I retain the exact existing source(double=True) baseline through seed and both stages: original verifier/VM pass37/3, facts succeeds, both reconstruction outputs refuse the current one-call guard atomically. [The design](NANOISA_DOUBLE_CALL_PRETEST_DESIGN.md) proposes at most two sequential existing three-path regions, retaining ordered scalar snapshots and all reference/witness rules. No admission edit or rendering success is claimed.

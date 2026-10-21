@@ -1,0 +1,11 @@
+# I preserve two eager exclusive calls in an owned pretest
+
+I map the unchanged accepted source in tests/test_owned_call_pretest_reconstruction.py: source(double=True). [All three baseline producers](evidence/double-call-pretest-baseline-20261020/README.md) verify and execute at37/3 locals. Facts succeeds, while both reconstruction targets refuse the one-call pretest guard atomically. This is distinct from missing top-level first-witness acceptance.
+
+I propose only the existing ownership-v2 two-function three-path helper modes [EXCLUSIVE,EXCLUSIVE,SHARED], with at most two complete sequential CALL_REF regions per pretest. Every region must independently pass the current exact descriptor, nominal root/path, overlap and lifetime checks. No reference survives its REGION_END. The first call result stays a scalar snapshot while the second call runs; all side effects execute eagerly left-to-right, including the final false condition. No short-circuit rewrite, duplicate evaluation or call elimination is permitted.
+
+Existing while_observe IR already holds an ordered pretest statement list. I retain that representation and current renderer order: pretest statements execute before the condition on every iteration. Existing owner identity and zero-trip joins, branch structure, initialized-state checks, helper proof and original top-level literal witness remain unchanged. The helper may still fail its original assertion at runtime; a second-call failure must not be attributed to a later caller assertion.
+
+The first change must measure unchanged C/Nano output and actual regenerated local counts. The128 limit stays fixed. No planner, scratch bank, witness inference, new helper arity, third pretest call, single-exclusive extension or consuming/FLOAT exit route is included without a separate measured review.
+
+Acceptance requires original and regenerated all-three VM/native behavior, zero/entered/final-false side effects, noncommutative call order, isolated second-call assertion failure, full reference-region refusal controls, atomic output on malformed/cap failures, existing one-call byte stability, and independently selected consistency-shadow execution. Actual generated witnesses need not be recursively reconstructible. Exact hosted matrix remains separate.
