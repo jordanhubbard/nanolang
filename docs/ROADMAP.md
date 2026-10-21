@@ -16522,3 +16522,14 @@ I passed aggregate10318 heap assertions under ASan/UBSan and68 workflow/schema c
 I integrate3ec90edcb preserving both roadmap histories and run its actual aggregate target against four original modules. I add private runtime qualification to platform checks; public/native/publisher/observation admission remains closed.
 
 I passed actual aggregate private runtime switch/goto gates (2 methods8.824s,2714 checks each) and68 workflow/schema controls. Receipt:`docs/evidence/map-runtime-aggregate-20261021/`. Exact hosted and public/native/publisher/observation work remain open.
+
+- #1001 owned_calls owns contract-only private observation checkpoint from aggregate48e1508ae: docs/NANOISA_MAP_PRIVATE_OBSERVATION_DESIGN.md proposes copied value metadata, charged exact paths/byte queries and internal two-path identity comparison without exposing addresses or allocating identity registries. No implementation/public/native/publisher changes. Review must settle explicit alias-comparison interface and logical charge schedule first.
+
+- #1001 owned_calls begins reviewed observation source checkpoint afterad02d1538: allocation-free copied headers/bytes and internal two-path identity, charged selected-edge walk and heap-TU validation-plus-byte-probe wrapper with no trusted flag. Output commit prepaid; old owner/layouts unchanged. No public/native/publisher admission. Source review and tiny controls precede broad runtime qualification.
+
+- #1001 private copied observation checkpoint qualified: switch/goto 19208 checks each; final seven-method gate 63.333s including prior map/array/heap neighbors; all 14 strict cases and six exact legacy budgets pass. Four retained original result observations, selected depths/leaves, collision/NUL bytes, identity/epoch/failure aliases and output-preserving limits are covered. Valid measured path63, syntactic259 refusal; no258 constructibility claim. Dedicated test-record-map-observation and test-units wiring retained. Receipt: evidence/map-private-observation-20261021. Public/native/publisher admission remains closed.
+
+
+### 2026-10-21 — aggregate private map observation
+
+I integrate f4fbe9c55 after reviewed source and seven-method component qualification. The actual aggregate target passes both dispatches (19,208 checks each; 2 methods, 9.459s) using all four retained originals; 68 workflow/boundary controls pass in 1.985s. I add the target to retirement compiler-contracts. Evidence: docs/evidence/map-observation-aggregate-20261021/README.md. Public/native/publisher admission remains closed and hosted gates pending.

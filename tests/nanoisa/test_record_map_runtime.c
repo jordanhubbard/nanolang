@@ -223,7 +223,10 @@ static void runtime_tail_headroom(void) {
     CHECK(trap.type==TRAP_NONE&&v.active_root==1&&!vm->frame_count&&vm->stack_size==1&&vm->stack[0].as.i64==37);
     vm_rmx_unwind(p);v.active=false;p->busy=false;vm_record_map_private_destroy(p);CHECK(!ra_live&&!ra_bytes);
 }
-int main(int argc,char **argv) {
+#ifndef MAP_RUNTIME_MAIN
+#define MAP_RUNTIME_MAIN main
+#endif
+int MAP_RUNTIME_MAIN(int argc,char **argv) {
     runtime_initializer();runtime_missing_get();runtime_tail_prefixes();runtime_alias_failure();runtime_context_headroom();runtime_corruption();runtime_growth();runtime_tail_headroom();
     for(int i=1;i<argc;i++)map_original_module(argv[i]);
     /* Original modules and source plans have been destroyed by their loaders. */

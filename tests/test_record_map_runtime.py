@@ -10,6 +10,8 @@ from tests import test_record_array_vm
 
 class RecordMapRuntime(unittest.TestCase):
     command = test_file_cyclic.FileCyclic.command
+    harness_source = 'tests/nanoisa/test_record_map_runtime.c'
+    result_banner = b'actual private map runtime checks; public admission remains refused'
 
     def test_original_switch(self):
         self.runtime(False)
@@ -49,10 +51,10 @@ class RecordMapRuntime(unittest.TestCase):
                 '-include', 'tests/nanoisa/record_array_alloc.h', '-c', source, '-o', str(obj)])
             products.append(str(obj))
         exe = self.artifacts / 'runtime'
-        self.command('harness-build', [*cc, *flags, 'tests/nanoisa/test_record_map_runtime.c',
+        self.command('harness-build', [*cc, *flags, self.harness_source,
             'tests/nanoisa/record_array_alloc.c', *products, *objects, *ldflags, '-o', str(exe)])
         output = self.command('runtime-run', [str(exe), *modules])
-        self.assertIn(b'actual private map runtime checks; public admission remains refused', output)
+        self.assertIn(self.result_banner, output)
         print(output.decode(), flush=True)
 
 if __name__=='__main__':
