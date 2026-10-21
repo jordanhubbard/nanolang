@@ -16437,3 +16437,9 @@ I completed the aggregate map-proof gate with all four retained original modules
 - [x] I own the reviewed constructor/query-only slice from `4fc8c9db7`. I preserve sole frozen-origin ownership, old carrier sizes/budgets and atomic stack/plan outputs. I send source for review before compilation; public/runtime/native/image/publisher admission remains outside this work.
 
 I retain [copied map recipe qualification](evidence/map-execution-recipes-20261021/README.md): four original private inputs, complete recipe/query controls,60 constructor and45 stack/proof allocation prefixes, exact constructor byte/work limits with refusal/retry, old execution-plan neighbors and six unchanged budgets. Public execution, image/runtime/native/publisher admission and full #1001 remain open.
+
+### 2026-10-21: I integrate copied private map recipes
+
+I integrate `6940bd144` by ancestry while preserving both roadmap histories. I add `test-record-map-execution` to platform compiler-contract qualification and run the aggregate Make gate against all four retained original modules before pushing. This copies recipes and does not admit execution.
+
+I completed aggregate copied-map-recipe qualification: 1981/4106 checks, 60 recipe and 45 stack/proof allocation prefixes, four retained originals, and 28 workflow/checkpoint/container controls. Receipt: `docs/evidence/map-recipes-aggregate-20261021/`. Public execution remains refused; image/runtime/publishers and current hosted gates remain open.
