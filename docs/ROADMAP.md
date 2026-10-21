@@ -16708,6 +16708,8 @@ I completed the actual aggregate native target: 2 methods in 46.454s, with all f
 I assign owned_calls contract-only ownership on `design/5.1-map-publication-query` from d67d11eba. I preserve the VM/native domain distinction and propose shared non-emitting native eligibility in the existing managed_array_shapes host closure; see [publication query contract](NANOISA_MAP_PUBLICATION_QUERY_DESIGN.md). No publisher or production code changes are authorized at this checkpoint.
 
 - [x] Map actual C/Nano host hooks, native restrictions and compiler-module link closure.
-- [ ] Review typed complete-module query, independent proof accounting and shared target scan.
+- [x] Review typed complete-module query, independent proof accounting and shared target scan; route framing work is separately bounded, not included in proof counters.
 - [ ] Implement and qualify query/consumer extraction without publisher changes.
 - [ ] Separately review and qualify staged paired publisher integration; retain unsupported dynamic STRING/DELETE/pair gaps.
+
+I begin only the reviewed query/consumer extraction source slice on this branch after the accounting correction. I own the shared non-emitting target classifier, module-taking query and exact dependency/test changes; publishers remain held. I will present the source checkpoint before any bounded build.
