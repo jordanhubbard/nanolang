@@ -1,0 +1,27 @@
+{
+  "jobs": [
+    [
+      "consumers",
+      [
+        "make",
+        "-j1",
+        "test-record-array-nested-primitive"
+      ]
+    ],
+    [
+      "sources",
+      [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_flat_array_source_publication"
+      ]
+    ]
+  ],
+  "env": {
+    "NANO_FLAT_ARRAY_COMPILERS": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt,/private/tmp/nanolang-primitive-canonical",
+    "NANO_FLAT_ARRAY_BOUND_COMPILERS": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt,/private/tmp/nanolang-primitive-canonical",
+    "NANO_FLAT_ARRAY_QUERY_LIBRARY": "/Users/jkh/Src/nanolang-51-harness/bin/libnanoisa_query.so"
+  }
+}
