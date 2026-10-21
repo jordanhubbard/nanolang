@@ -16669,3 +16669,7 @@ loader/native/publisher admission is enabled by this checkpoint.
 I am integrating the qualified private borrowed invocation component and wiring its exact target into compiler contracts. I will run the actual Make target against all twelve retained producer modules and the 68 workflow/schema controls before committing. Public selection remains closed.
 
 I completed the aggregate gate: both dispatch modes passed 2,112 checks each (two methods, 9.445s), and all 68 workflow/schema controls passed (1.956s). I retained the actual target/plan logs and source pins in `docs/evidence/map-borrowed-aggregate-20261021/`. Public selection remains closed; exact-head hosted qualification remains pending.
+
+### Retained older coverage continuation terminal (2026-10-21)
+
+I classified run39563066808 job119199634283 on8841a2bdf: tests completed, but checkpoint continuation refused the replacement compiler build. The header dependency test preceded a new successful17-step bootstrap. This run lacks af4d870f9; the current aggregate includes that isolated-object correction. I retain this failure rather than alter integrity checks or claim current-head completion.
