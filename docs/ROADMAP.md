@@ -16834,3 +16834,10 @@ I own the next finite [#1001](https://github.com/jordanhubbard/nanolang/issues/1
 I continue #1001 on `design/5.1-ordinary-union-fields` with the reviewed declaration-only owner interface (`e67aad4c3`): source checkpoint before build, old projection unchanged, no execution/transport/publisher enrollment.
 
 I own the next #1001 proof-only union-field slice following `2025a38dd`: separate opt-in context and immutable copied proof, conservative variant-origin safety and explicit deferred-instruction completeness. Recipe/runtime/public/publisher enrollment remains closed; source review precedes builds.
+
+- [x] I implement the reviewed private typed union structure and opt-in historical proof with atomic copied outputs, leaving old analysis layouts and public admission unchanged.
+- [x] I review frozen source before bounded proof tests, including blocked reachable instructions, forward calls/tails, allocation failures and old budgets.
+
+I found the actual unchanged union match emits a terminal HALT failure arm. I retain the first proof refusal and model HALT only in the opt-in union proof, with no successor/result/global-return summary; old opcode predicates remain unchanged. Direct HALT-only blocked callees and normal-return/HALT branches are required proof controls, not execution qualification.
+
+I completed the proof-only union gate: 338 linked checks across six retained ordinary/shadow originals, 393 allocation checks covering 37 positions in both denial modes, exact remaining-analysis caps, old array/map neighbors, Clang/GCC strict checks and six byte-identical legacy resource rows. Receipt: `docs/evidence/union-field-proof-20261022/README.md`. Descriptive transport is preserved while public execution refuses; None-match and historical field-alias precision remain explicit conservative boundaries. No recipe/runtime/native/publisher enrollment follows.
