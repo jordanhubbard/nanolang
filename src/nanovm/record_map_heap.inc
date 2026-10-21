@@ -81,6 +81,74 @@ static bool vm_rm_import_header(const VmHashMap *m) {
         sizeof(VmHMEntry)<=SIZE_MAX/(size_t)m->bucket_count &&
         m->count<=m->bucket_count && !m->tombstone_count;
 }
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+/* Internal adapters for a closed ordinary invocation. Complete topology and
+ * collector membership must already have been validated for imported objects;
+ * these physical guards do not confer execution authority. */
+static bool vm_rm_ordinary_header(const VmHashMap *m) {
+    return vm_rm_import_header(m) &&
+        (m->header.colour==VM_GC_BLACK || m->header.colour==VM_GC_PURPLE) &&
+        (!m->header.buffered || m->header.colour==VM_GC_PURPLE);
+}
+static bool vm_rm_ordinary_string(NanoValue key) {
+    return vm_rm_string(key) && key.as.string->header.colour==VM_GC_BLACK;
+}
+VmRmHeapStatus vm_rm_ordinary_new(VmHeap *heap,VmHashMap **out) {
+    if(!heap || !out || heap->gc_running || heap->private_record_dag)return VM_RM_HEAP_INVALID;
+    VmHashMap *m=vm_hashmap_new(heap,TAG_STRING,TAG_INT);
+    if(!m)return VM_RM_HEAP_MEMORY;
+    *out=m;return VM_RM_HEAP_OK;
+}
+VmRmHeapStatus vm_rm_ordinary_set(VmHeap *heap,VmHashMap *m,NanoValue key,NanoValue value) {
+    if(!heap || heap->gc_running || heap->private_record_dag || !vm_rm_ordinary_header(m) || !vm_rm_ordinary_string(key) || value.tag!=TAG_INT)
+        return VM_RM_HEAP_INVALID;
+    uint32_t slot;bool found;
+    if(!hm_find_slot(m,key,&slot,&found))return VM_RM_HEAP_INVALID;
+    if(found) {
+        if(m->entries[slot].state!=1 || m->entries[slot].value.tag!=TAG_INT)return VM_RM_HEAP_INVALID;
+        /* Replacement borrows even a maximum-refcount key. Both values are
+         * scalars, so there is no retain/release or allocation to perform. */
+        m->entries[slot].value=value;return VM_RM_HEAP_OK;
+    }
+    if(key.as.string->header.ref_count==UINT32_MAX)return VM_RM_HEAP_RETAIN_OVERFLOW;
+    if(m->entries[slot].state!=0)return VM_RM_HEAP_INVALID;
+    uint64_t occupied=(uint64_t)m->count+1;
+    if((double)occupied/(double)m->bucket_count>HM_LOAD_FACTOR) {
+        if(m->bucket_count>UINT32_MAX/2 || !hm_resize(heap,m,m->bucket_count*2))return VM_RM_HEAP_MEMORY;
+        /* Rehash invalidates slot; topology induction guarantees a new empty
+         * slot. An impossible violation is not mislabeled allocator failure. */
+        if(!hm_find_slot(m,key,&slot,&found) || found || m->entries[slot].state!=0)
+            return VM_RM_HEAP_INVALID;
+    }
+    /* Nothing fallible follows this exact one-edge retain. */
+    vm_retain(heap,key);
+    m->entries[slot].key=key;m->entries[slot].value=value;
+    m->entries[slot].state=1;m->count++;
+    return VM_RM_HEAP_OK;
+}
+VmRmHeapStatus vm_rm_ordinary_get(const VmHeap *heap,const VmHashMap *m,NanoValue key,NanoValue *out) {
+    if(!heap || heap->gc_running || heap->private_record_dag || !out || !vm_rm_ordinary_header(m) || !vm_rm_ordinary_string(key))return VM_RM_HEAP_INVALID;
+    uint32_t slot;bool found;
+    if(!hm_find_slot(m,key,&slot,&found))return VM_RM_HEAP_INVALID;
+    NanoValue result=val_void();
+    if(found) {
+        if(m->entries[slot].state!=1 || m->entries[slot].value.tag!=TAG_INT)return VM_RM_HEAP_INVALID;
+        result=m->entries[slot].value;
+    }
+    *out=result;return VM_RM_HEAP_OK;
+}
+VmRmHeapStatus vm_rm_ordinary_has(const VmHeap *heap,const VmHashMap *m,NanoValue key,bool *out) {
+    if(!heap || heap->gc_running || heap->private_record_dag || !out || !vm_rm_ordinary_header(m) || !vm_rm_ordinary_string(key))return VM_RM_HEAP_INVALID;
+    uint32_t slot;bool found;
+    if(!hm_find_slot(m,key,&slot,&found))return VM_RM_HEAP_INVALID;
+    if(found && (m->entries[slot].state!=1 || m->entries[slot].value.tag!=TAG_INT))return VM_RM_HEAP_INVALID;
+    *out=found;return VM_RM_HEAP_OK;
+}
+VmRmHeapStatus vm_rm_ordinary_len(const VmHeap *heap,const VmHashMap *m,uint32_t *out) {
+    if(!heap || heap->gc_running || heap->private_record_dag || !out || !vm_rm_ordinary_header(m))return VM_RM_HEAP_INVALID;
+    *out=m->count;return VM_RM_HEAP_OK;
+}
+#endif
 static VmRmHeapStatus vm_rm_validate_using(const VmHashMap *m,VmRmObservationWork *w,bool ordinary) {
     if(!w || w->limit>VM_RM_OBSERVATION_WORK_MAX)return VM_RM_HEAP_INVALID;
     if(!vm_rm_observation_charge(w,16))return VM_RM_HEAP_LIMIT;

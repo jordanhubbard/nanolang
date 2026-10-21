@@ -1,0 +1,10 @@
+RECORD_ARRAY_VM_CC="/opt/homebrew/opt/llvm/bin/clang" RECORD_ARRAY_VM_CFLAGS="-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.0.3/include" python3 -m unittest -f -v tests.test_record_map_ordinary_heap
+test_ordinary_heap (tests.test_record_map_ordinary_heap.RecordMapOrdinaryHeap.test_ordinary_heap) ... I retain heap artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-ordinary-heap-cistwr9i
+I checked 3474 ordinary heap assertions; no VM dispatch or admission.
+
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.513s
+
+OK

@@ -23,6 +23,17 @@ VmRmHeapStatus vm_rm_heap_has(const VmHashMap *,NanoValue,bool *);
 VmRmHeapStatus vm_rm_heap_len(const VmHashMap *,uint32_t *);
 VmRmHeapStatus vm_rm_heap_validate(const VmHashMap *,VmRmObservationWork *);
 #ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+/* Ordinary adapters require fresh full topology/collector validation within
+ * an exclusive closed invocation, or a map created by this constructor. No
+ * callback/concurrent mutation is allowed. Every map/key must belong to the
+ * supplied managed heap; no heap identity registry is inferred. Buffered PURPLE containers retain
+ * their collector membership. Inputs are borrowed; outputs must be disjoint
+ * from all input graph/storage. These are not executable trust APIs. */
+VmRmHeapStatus vm_rm_ordinary_new(VmHeap *,VmHashMap **);
+VmRmHeapStatus vm_rm_ordinary_set(VmHeap *,VmHashMap *,NanoValue,NanoValue);
+VmRmHeapStatus vm_rm_ordinary_get(const VmHeap *,const VmHashMap *,NanoValue,NanoValue *);
+VmRmHeapStatus vm_rm_ordinary_has(const VmHeap *,const VmHashMap *,NanoValue,bool *);
+VmRmHeapStatus vm_rm_ordinary_len(const VmHeap *,const VmHashMap *,uint32_t *);
 /* Physical counted-byte topology only; no execution or GC membership authority.
  * The internal module-taking import query checks ordinary collector membership. */
 VmRmHeapStatus vm_rm_heap_import_validate(const VmHashMap *,VmRmObservationWork *);

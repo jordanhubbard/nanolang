@@ -16622,3 +16622,30 @@ No activation, stack allocation, handler, or public selector is enabled.
 I integrate the reviewed preparation-only owner and add its actual gate to retirement qualification. I require all eight retained modules and 68 workflow controls before committing. This allocates proof tables only; stack activation, shared dispatch and public selection remain closed.
 
 I passed actual aggregate preparation: 2 methods9.305s,12,495 checks per dispatch with all eight retained inputs, plus68 workflow controls. Receipt: `docs/evidence/map-public-preparation-aggregate-20261021/README.md`. Activation/dispatch/public selection and exact hosted qualification remain open.
+### #1001 borrowed map activation contract ownership (2026-10-22)
+
+I am mapping the next private module-taking borrowed-state execution gate from
+84768a3ba. This is contract-only: ordinary map adapters, call-local context,
+reserved stack activation, exact shared-handler preflight and selected cleanup.
+Public selectors, native/load/publisher admission and all production source remain
+unchanged until the interface and implementation checkpoints are reviewed.
+
+### #1001 ordinary map adapter implementation ownership (2026-10-22)
+
+I am implementing only checkpoint1 of reviewed contract7abaf9f7f: separate
+ordinary-heap checked map adapters and direct tests. Ordinary collector metadata
+and private adapter policy remain intact. No core, activation, view, dispatch or
+public selector changes belong to this slice; source review precedes builds.
+
+Ordinary adapter qualification now passes3474 direct O1 ASan/UBSan checks and the
+old private10318-check neighbor; eight strict cases pass. Existing private source
+is exact and six retained legacy budget rows are unchanged (not rebuilt). The
+enum-spelling harness failure remains in
+[the adapter receipt](evidence/map-ordinary-heap-20261022/README.md).
+This checkpoint enables no activation, dispatch or public selection.
+
+### I integrate ordinary map heap adapters (2026-10-21)
+
+I preserve both roadmap histories and add the direct ordinary-heap target to retirement qualification. I require the actual aggregate target with explicit ASan/UBSan and the 68 workflow controls before commit. Activation, shared dispatch and public selection remain disabled.
+
+I passed the actual aggregate ordinary heap gate: 3,474 explicit ASan/UBSan checks in1.513s and68 workflow controls in2.056s. Receipt: `docs/evidence/map-ordinary-heap-aggregate-20261021/README.md`. Activation and exact hosted qualification remain open.
