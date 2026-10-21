@@ -15,6 +15,7 @@
 
 #include "vm.h"
 #include "record_array_runtime_private.h"
+#include "record_map_runtime_private.h"
 #include "../binary64_bits.h"
 #include "../binary64_arithmetic.h"
 #include "vm_ffi.h"
@@ -1644,12 +1645,25 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
 #include "record_map_vm_prepare.inc"
 #endif
 
-static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof,
-                                      VmOrdinaryAdmission *ordinary,VmRecordArrayPrivate *record_array) {
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+#include "record_map_vm_context.inc"
+#endif
+static VmTrap vm_core_execute_context(VmState *vm, const VmOwnedInvocationProof *proof,
+                                      VmOrdinaryAdmission *ordinary,VmRecordArrayPrivate *record_array,
+                                      VmRecordMapInvocation *record_map) {
     VmOwnedInvocationProof resumed;
     bool admitted=false, required=false;
     bool reuse=vm_ordinary_admission_matches(vm,ordinary);
-    bool record_execution=false;
+    bool record_execution=false,map_execution=false;
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+    if(record_map) {
+        if(record_array || ordinary || proof || !vm_rmx_context(record_map,vm))
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require this exact closed private map invocation.");
+        map_execution=true;
+    }
+#else
+    if(record_map)return trap_error(vm,VM_ERR_TYPE_ERROR,"I have no private map runtime.");
+#endif
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
     if(record_array) {
         if(!vm_ra_context(record_array,vm))
@@ -1660,7 +1674,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
     (void)record_array;
 #endif
     if (ordinary) ordinary->valid=false;
-    if (!reuse && !record_execution) {
+    if (!reuse && !record_execution && !map_execution) {
         /* These service facts expire at the end of this classification block.
          * No host callback or bytecode dispatch occurs while they are live. */
         NvmServiceClassification service;
@@ -1725,7 +1739,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
     /* Only ordinary classification is reused. The owned frame/reference
      * checks above and all dispatch/stack checks below remain on every entry.
      * Ordinary CALL/RET/effect transitions do not change module declarations. */
-    if (ordinary && !record_execution && !admitted && !required && vm_ordinary_admission_eligible(vm)) {
+    if (ordinary && !record_execution && !map_execution && !admitted && !required && vm_ordinary_admission_eligible(vm)) {
         ordinary->vm=vm;
         ordinary->module=vm->module;
         ordinary->valid=true;
@@ -1990,6 +2004,12 @@ vm_dispatch_top:
         if(record_execution) {
             VmResult checked=vm_ra_preflight(record_array,decoded);
             if(checked!=VM_OK)return trap_error(vm,checked,"I require the complete private opcode root contract.");
+        }
+#endif
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+        if(map_execution) {
+            VmResult checked=vm_rmx_preflight(record_map,decoded);
+            if(checked!=VM_OK)return trap_error(vm,checked,"I require the complete private map opcode root contract.");
         }
 #endif
         /* I borrow this checked instruction only until this dispatch returns or advances. */
@@ -3181,6 +3201,10 @@ dynamic_div:
             if(record_execution && vm->frame_count>record_array->maximum_frames)
                 record_array->maximum_frames=vm->frame_count;
 #endif
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+            if(map_execution && vm->frame_count>record_map->owner->maximum_frames)
+                record_map->owner->maximum_frames=vm->frame_count;
+#endif
             new_frame->fn_idx = callee_idx;
             new_frame->return_ip = vm->ip;
             new_frame->instruction_ip = callee->code_offset;
@@ -3264,6 +3288,9 @@ dynamic_div:
                 frame->owned_callable = val_void();
             }
             frame->fn_idx = callee_idx;
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+            if(map_execution && vm->frame_count==1)record_map->active_root=callee_idx;
+#endif
             if(admitted && proof->ordinary_arrays && vm->frame_count==1)
                 *proof->ordinary_active_root=callee_idx;
             frame->instruction_ip = callee->code_offset;
@@ -4225,6 +4252,9 @@ vm_return_values: ;
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
             if(record_execution)def_idx=record_array->record_layouts[def_idx];
 #endif
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+            if(map_execution)def_idx=vm_rmx_record_layout(record_map,def_idx);
+#endif
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, 0);
             if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the struct.");
             stack_push(vm, val_struct(s));
@@ -4275,6 +4305,9 @@ vm_return_values: ;
             uint16_t field_count = instr->operands[1].u16;
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
             if(record_execution)def_idx=record_array->record_layouts[def_idx];
+#endif
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+            if(map_execution)def_idx=vm_rmx_record_layout(record_map,def_idx);
 #endif
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, field_count);
             if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the struct.");
@@ -4403,6 +4436,9 @@ vm_return_values: ;
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
                 if(record_execution)layout=record_array->record_layouts[layout];
 #endif
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+                if(map_execution)layout=vm_rmx_record_layout(record_map,layout);
+#endif
                 VmStruct *record = vm_struct_new(&vm->heap, layout, count);
                 if (!record) return trap_error(vm, VM_ERR_MEMORY,
                                                "AGG_PACK record allocation failed");
@@ -4500,6 +4536,13 @@ vm_return_values: ;
          * ============================================================ */
 
         VM_CASE(OP_HM_NEW) {
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+            if(map_execution) {
+                VmResult checked=vm_rmx_map_instruction(record_map,OP_HM_NEW);
+                if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked private map operation.");
+                VM_NEXT();
+            }
+#endif
             uint8_t key_type = instr->operands[0].u8;
             uint8_t val_type = instr->operands[1].u8;
             VmHashMap *m = vm_hashmap_new(&vm->heap, key_type, val_type);
@@ -4509,6 +4552,13 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_HM_GET) {
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+            if(map_execution) {
+                VmResult checked=vm_rmx_map_instruction(record_map,OP_HM_GET);
+                if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked private map operation.");
+                VM_NEXT();
+            }
+#endif
             NanoValue key = stack_pop(vm);
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {
@@ -4525,6 +4575,13 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_HM_SET) {
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+            if(map_execution) {
+                VmResult checked=vm_rmx_map_instruction(record_map,OP_HM_SET);
+                if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked private map operation.");
+                VM_NEXT();
+            }
+#endif
             NanoValue v = stack_pop(vm);
             NanoValue key = stack_pop(vm);
             NanoValue map = stack_pop(vm);
@@ -4554,6 +4611,13 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_HM_HAS) {
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+            if(map_execution) {
+                VmResult checked=vm_rmx_map_instruction(record_map,OP_HM_HAS);
+                if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked private map operation.");
+                VM_NEXT();
+            }
+#endif
             NanoValue key = stack_pop(vm);
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {
@@ -4609,6 +4673,13 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_HM_LEN) {
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+            if(map_execution) {
+                VmResult checked=vm_rmx_map_instruction(record_map,OP_HM_LEN);
+                if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked private map operation.");
+                VM_NEXT();
+            }
+#endif
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {
                 vm_release(&vm->heap, map);
@@ -4926,8 +4997,16 @@ vm_dispatch_done: ;
     return trap_none();
 }
 
+static VmTrap vm_core_execute_scoped(VmState *vm,const VmOwnedInvocationProof *proof,
+                                     VmOrdinaryAdmission *ordinary,VmRecordArrayPrivate *record_array) {
+    return vm_core_execute_context(vm,proof,ordinary,record_array,NULL);
+}
+
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
 #include "record_array_vm_run.inc"
+#endif
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+#include "record_map_vm_run.inc"
 #endif
 
 VmTrap vm_core_execute(VmState *vm) {
