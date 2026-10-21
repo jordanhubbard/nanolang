@@ -853,11 +853,25 @@ static void destroy(Analysis *a) {
     free(a);
 }
 #include "record_map_frozen.inc"
-static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityReport **out,
+typedef struct {
+    NvmRecordValueOrigins *rows;
+    uint32_t count;
+} NvmMapGlobalExport;
+static int map_boundary_value_valid(Value value,uint64_t arrays,uint64_t records) {
+    const uint16_t scalar=BIT(TAG_VOID)|BIT(TAG_INT)|BIT(TAG_FLOAT)|BIT(TAG_BOOL)|BIT(TAG_U8)|BIT(TAG_STRING);
+    const uint16_t heap=BIT(TAG_ARRAY)|BIT(TAG_STRUCT);
+    if(value.unknown || !value.tags || (value.tags&~(scalar|heap)))return 0;
+    uint64_t allowed=0;
+    if(value.tags&BIT(TAG_ARRAY)) {if(!(value.origins&arrays))return 0;allowed|=arrays;}
+    if(value.tags&BIT(TAG_STRUCT)) {if(!(value.origins&records))return 0;allowed|=records;}
+    return !(value.origins&~allowed);
+}
+/* Optional detached export; old callers retain the exact NULL path. */
+static NvmArrayEligibilityResult analyze_boundary(const NvmModule *m,NvmArrayEligibilityReport **out,
                                           NvmArrayGraphEligibilityReport **graph_out,
-                                          NvmRecordEligibilityReport **record_out,NvmRecordArrayOrigins **mixed_out,uint16_t *prepared_stacks, int portable_reads,NvmRecordMapFrozenContext **map_out) {
+                                          NvmRecordEligibilityReport **record_out,NvmRecordArrayOrigins **mixed_out,uint16_t *prepared_stacks, int portable_reads,NvmRecordMapFrozenContext **map_out,NvmMapGlobalExport *globals_out) {
     NvmArrayEligibilityResult early={NVM_ARRAY_INVALID,0,0,"I require a module and report output."};
-    if(!m || (!out && !graph_out && !record_out && !mixed_out && !map_out))return early;
+    if(!m || (!out && !graph_out && !record_out && !mixed_out && !map_out) || (globals_out && !map_out))return early;
     NvmRecordArrayBudget budget={0};NvmRecordArrayStructure *structure=NULL;
     NvmMapDeclarationPlan *map_declarations=NULL;
     if(mixed_out || map_out) {
@@ -871,6 +885,7 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
     Analysis *a=allocate(1,sizeof *a);
     if(!a){nvm_map_declarations_free(map_declarations);nvm_record_array_structure_free(structure);early.status=NVM_ARRAY_MEMORY;snprintf(early.message,sizeof early.message,"I could not allocate array analysis state.");return early;}
     NvmRecordMapAnalysisContext *maps=NULL;
+    NvmMapGlobalExport globals={0};
     a->module=m;a->structure=structure;a->budget=budget;a->portable_reads=portable_reads;
     if(map_out) {
         maps=analysis_alloc(a,1,sizeof *maps);
@@ -991,7 +1006,31 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
     if(!final_check(a,maps))goto done;
     if(map_out) {
         if(prepared_stacks && !analysis_work(a,256))goto done;
-        if(!ra_check_constraints(a) || !map_final(a,maps) || !map_freeze(a,maps,map_out))goto done;
+        if(!ra_check_constraints(a) || !map_final(a,maps))goto done;
+        if(globals_out) {
+            if(a->global_count>SLOTS || a->report.origin_count>ORIGINS ||
+               !analysis_work(a,128u+(uint64_t)a->global_count*8u))goto done;
+            uint64_t arrays=0,records=0;
+            for(uint32_t i=0;i<a->report.origin_count;i++) {
+                if(a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY)arrays|=UINT64_C(1)<<i;
+                else if(a->origin_kind[i]==NVM_HEAP_ORIGIN_RECORD)records|=UINT64_C(1)<<i;
+            }
+            if(a->global_count) {
+                globals.rows=analysis_alloc(a,a->global_count,sizeof *globals.rows);
+                if(!globals.rows){stop(a,NVM_ARRAY_MEMORY,0,0,"I could not copy historical global obligations.");goto done;}
+            }
+            globals.count=a->global_count;
+            for(uint32_t i=0;i<globals.count;i++) {
+                Value value=a->globals[i];
+                if(!map_boundary_value_valid(value,arrays,records)) {
+                    stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact historical global obligations.");goto done;
+                }
+                globals.rows[i].origins=value.origins;globals.rows[i].tags=value.tags;
+                /* calloc preserves zero unknown/padding; flow relations are not exported. */
+            }
+        }
+        if(!map_freeze(a,maps,map_out))goto done;
+        if(globals_out){*globals_out=globals;globals.rows=NULL;}
         if(prepared_stacks)memcpy(prepared_stacks,a->structure->stacks,sizeof a->structure->stacks);
     } else if(mixed_out) {
         if(prepared_stacks && !analysis_work(a,256))goto done;
@@ -1020,7 +1059,13 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
  done:;
     NvmArrayEligibilityResult result=a->result;
     if(maps){nvm_map_declarations_free(maps->declarations);free(maps);}
-    destroy(a);return result;
+    free(globals.rows);destroy(a);return result;
+}
+static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityReport **out,
+    NvmArrayGraphEligibilityReport **graph_out,NvmRecordEligibilityReport **record_out,
+    NvmRecordArrayOrigins **mixed_out,uint16_t *prepared_stacks,int portable_reads,
+    NvmRecordMapFrozenContext **map_out) {
+    return analyze_boundary(m,out,graph_out,record_out,mixed_out,prepared_stacks,portable_reads,map_out,NULL);
 }
 
 NvmArrayEligibilityResult nvm_analyze_managed_arrays(const NvmModule *m,NvmArrayEligibilityReport **out) {

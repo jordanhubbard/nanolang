@@ -1,0 +1,7 @@
+test_complete_origin_and_allocation_controls (tests.test_record_map_execution.RecordMapExecution.test_complete_origin_and_allocation_controls) ... ok
+test_complete_origin_and_allocation_controls (tests.test_record_map_image.RecordMapImage.test_complete_origin_and_allocation_controls) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 6.590s
+
+OK

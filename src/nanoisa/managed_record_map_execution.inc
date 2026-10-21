@@ -31,8 +31,8 @@ static void rme_tags(NvmRecordMapExecutionInstruction *r) {
     }
 }
 /* Conservative positive pre-reservation is internal, never a refund or authority token. */
-static NvmArrayEligibilityResult rme_prepare_reserved(const NvmModule *m,NvmRecordMapExecutionPlan **out,
-                                                     uint64_t extra_bytes,uint64_t extra_work) {
+static NvmArrayEligibilityResult rme_prepare_boundary(const NvmModule *m,NvmRecordMapExecutionPlan **out,
+    uint64_t extra_bytes,uint64_t extra_work,NvmMapGlobalExport *globals_out) {
     NvmArrayEligibilityResult result={NVM_ARRAY_INVALID,0,0,"I require an original module and copied map plan output."};
     if(!m || !out)return result;
     uint64_t bytes=UINT64_C(64)*1024*1024+65536u+sizeof(NvmRecordMapExecutionPlan)+sizeof(NvmRecordArrayExecutionPlan);
@@ -46,6 +46,7 @@ static NvmArrayEligibilityResult rme_prepare_reserved(const NvmModule *m,NvmReco
     if(!p){result.status=NVM_ARRAY_MEMORY;return result;}
     p->carrier=calloc(1,sizeof *p->carrier);
     if(!p->carrier){result.status=NVM_ARRAY_MEMORY;nvm_record_map_execution_free(p);return result;}
+    NvmMapGlobalExport globals={0};
     NvmRecordArrayExecutionPlan *c=p->carrier;
     c->bytes=bytes;c->work=work;c->failure=NVM_ARRAY_INVALID;c->counts.initializer=UINT32_MAX;
     if(!rae_snapshot(c,m))goto fail;
@@ -57,8 +58,14 @@ static NvmArrayEligibilityResult rme_prepare_reserved(const NvmModule *m,NvmReco
         if(memchr(c->snapshot.strings[name],0,length)){c->failure=NVM_ARRAY_UNRESOLVED;goto fail;}
     }
     /* One analysis publishes facts and stacks only after complete success. */
-    result=analyze(&c->snapshot,NULL,NULL,NULL,NULL,c->maximum_stacks,0,&p->facts);
-    if(result.status!=NVM_ARRAY_ELIGIBLE){nvm_record_map_execution_free(p);return result;}
+    result=globals_out?
+        analyze_boundary(&c->snapshot,NULL,NULL,NULL,NULL,c->maximum_stacks,0,&p->facts,&globals):
+        analyze(&c->snapshot,NULL,NULL,NULL,NULL,c->maximum_stacks,0,&p->facts);
+    if(result.status!=NVM_ARRAY_ELIGIBLE){free(globals.rows);nvm_record_map_execution_free(p);return result;}
+    /* Analysis allocations fit the unchanged 64 MiB proof reserve. These rows
+     * survive analysis, so also reserve their live overlap without refunding it. */
+    if(globals_out && !rae_charge(c,(uint64_t)globals.count*sizeof *globals.rows,
+                                 (uint64_t)globals.count*(sizeof *globals.rows+8u)))goto fail;
     if(!rae_charge(c,0,256))goto fail;
     for(uint32_t op=0;op<256;op++) {
         NvmRecordArrayExecutionInstruction row={0};
@@ -83,18 +90,23 @@ static NvmArrayEligibilityResult rme_prepare_reserved(const NvmModule *m,NvmReco
     for(uint32_t i=0;i<c->counts.instructions;i++) {
         p->instructions[i].base=c->instructions[i];rme_tags(&p->instructions[i]);
     }
-    if(!rae_same(c,m))goto fail;
+    if(!rae_same(c,m) || (globals_out && globals.count!=c->counts.globals))goto fail;
     c->counts.strings=c->snapshot.string_count;c->counts.sections=c->snapshot.section_count;
     c->counts.metadata=c->snapshot.metadata_count;c->counts.debug=c->snapshot.debug_count;
     c->counts.functions=c->snapshot.function_count;c->counts.entry=c->snapshot.header.entry_point;
     c->counts.frame_limit=NVM_RECORD_ARRAY_EXECUTION_FRAMES;
     c->counts.peak_bytes_reserved=c->bytes;c->counts.work_reserved=c->work;
+    if(globals_out){*globals_out=globals;globals.rows=NULL;}
     *out=p;result.status=NVM_ARRAY_ELIGIBLE;
     snprintf(result.message,sizeof result.message,"I copied exact map execution recipes without executable admission.");return result;
 fail:
     result.status=c->failure;
     snprintf(result.message,sizeof result.message,"I could not copy bounded exact map execution recipes.");
-    nvm_record_map_execution_free(p);return result;
+    free(globals.rows);nvm_record_map_execution_free(p);return result;
+}
+static NvmArrayEligibilityResult rme_prepare_reserved(const NvmModule *m,NvmRecordMapExecutionPlan **out,
+    uint64_t extra_bytes,uint64_t extra_work) {
+    return rme_prepare_boundary(m,out,extra_bytes,extra_work,NULL);
 }
 NvmArrayEligibilityResult nvm_prepare_record_map_execution(const NvmModule *m,NvmRecordMapExecutionPlan **out) {
     return rme_prepare_reserved(m,out,0,0);
@@ -172,3 +184,5 @@ bool nvm_record_map_execution_binding(const NvmRecordMapExecutionPlan *p,uint32_
 bool nvm_record_map_execution_variant(const NvmRecordMapExecutionPlan *p,uint32_t i,uint16_t variant,NvmUnionVariantFact *out) {
     return p && nvm_record_array_declaration_variant(p->facts->base,i,variant,out);
 }
+
+#include "managed_record_map_boundary.inc"

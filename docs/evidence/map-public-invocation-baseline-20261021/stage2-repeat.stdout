@@ -1,0 +1,6 @@
+alias first=0 stack=1 frames=0 globals=1
+alias second=8 stack=3 frames=1 globals=1 identity=1
+/private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm run0 result0 globals1
+/private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm run1 result0 globals1
+initializer replaced root; retained prior alias survives
+PASS 53 ordinary lifecycle checks

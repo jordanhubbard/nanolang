@@ -7099,3 +7099,12 @@ test-record-map-native: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $
 	LSAN_OPTIONS= RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_native
 
 test-units: test-record-map-native
+
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_map_boundary.h $(NANOISA_DIR)/managed_record_map_boundary.inc
+
+.PHONY: test-record-map-boundary
+# Optional historical-global data only; no public execution admission.
+test-record-map-boundary: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_boundary
+
+test-units: test-record-map-boundary

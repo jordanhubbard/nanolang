@@ -1,0 +1,94 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsyntax-only",
+      "src/nanoisa/managed_array_shapes.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsyntax-only",
+      "tests/nanoisa/test_record_map_boundary.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsyntax-only",
+      "-DRA_WHITEBOX",
+      "tests/nanoisa/test_record_map_boundary.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsyntax-only",
+      "src/nanoisa/managed_array_shapes.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsyntax-only",
+      "tests/nanoisa/test_record_map_boundary.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsyntax-only",
+      "-DRA_WHITEBOX",
+      "tests/nanoisa/test_record_map_boundary.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]
