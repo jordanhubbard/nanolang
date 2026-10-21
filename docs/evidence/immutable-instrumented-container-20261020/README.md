@@ -19,3 +19,6 @@ I integrate both component commits at aggregate `2152a0380` and pass all 33 work
 ## I retain the hosted coverage producer milestone
 
 Component run39544892945/job119042711803 succeeds inside the exact verified linux/amd64 image. Both raw generations are byte-identical, native/install checks complete, and the complete checkpoint packages/uploads as artifact12323204442 (1,879,084,924bytes, upload zip SHA256 afa226ef5b914bf636baec7d084d3190fe8d5bfc8068bdbed2f499bc94735853). `hosted-amd64-coverage-producer.log` retains the actual image/archive identities and commands. This is component-head evidence, not final aggregate acceptance. Coverage continuation119061472864 remains queued at this checkpoint; sanitizer Stage1 remains in progress.
+
+
+Coverage continuation119061472864 successfully validates/restores the exact checkpoint at06:03:36UTC (restore duration641s), then enters actual tests. `hosted-coverage-restore-milestone.json` retains the Jobs API terminal success for that step. This crosses the prior identity failure boundary without weakening source/image/tool checks; complete coverage tests and final aggregate qualification remain pending.

@@ -16281,3 +16281,6 @@ The existing unchanged first_only source verifies and executes through all three
 
 
 I qualify the reviewed first-eager-pretest witness without planner/runtime/provider changes: unchanged actual123/31, selected shadow108/31, actual128/estimated129 atomic boundary, immutable pre-call snapshots and exact later-helper native assertion status. All eight new methods pass across retained terminals; old one/double-call outputs remain byte-identical. I preserve initial accidental test discovery and the diagnostic-only mismatch correction in `docs/evidence/loop-first-witness-reconstruction-20261020/README.md`. Aggregate/platform qualification remains open.
+
+
+I integrate loop-first witness reconstruction atebc430c70 and pass all eight aggregate methods in117.399s through seven unchanged providers; [receipt](evidence/loop-first-witness-aggregate-20261020/README.md). No new planner/runtime/provider change is required. Component hosted coverage now passes exact checkpoint validation/restoration and runs its tests; final platform and full release scope remain open.

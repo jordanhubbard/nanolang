@@ -1,0 +1,14 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-kjsaxj6z
+test_actual128_and_estimated129_atomic_refusal (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_actual128_and_estimated129_atomic_refusal) ... ok
+test_actual_zero_entered_final_false (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_actual_zero_entered_final_false) ... ok
+test_false_initial_shared_bool_refuses_atomically (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_false_initial_shared_bool_refuses_atomically) ... ok
+test_immutable_before_call_and_selected_shadow (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_immutable_before_call_and_selected_shadow) ... ok
+test_later_body_helper_assertion_stays_runtime_failure (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_later_body_helper_assertion_stays_runtime_failure) ... ok
+test_no_body_or_after_loop_or_prefix_assertion_witness (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_no_body_or_after_loop_or_prefix_assertion_witness) ... ok
+test_no_call_in_first_pretest_cannot_reach_later_call (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_no_call_in_first_pretest_cannot_reach_later_call) ... ok
+test_unchanged_original_anchor (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_unchanged_original_anchor) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 117.399s
+
+OK
