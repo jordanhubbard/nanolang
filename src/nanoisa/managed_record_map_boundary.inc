@@ -1,4 +1,4 @@
-#include "managed_record_map_boundary.h"
+#include "record_map_boundary_private.h"
 struct NvmRecordMapBoundaryPlan {
     NvmRecordMapExecutionPlan *execution;
     NvmRecordValueOrigins *globals;
@@ -30,6 +30,10 @@ static NvmArrayEligibilityResult rmb_prepare_reserved(const NvmModule *m,NvmReco
     p->execution=execution;p->globals=globals.rows;p->count=globals.count;
     p->bytes=execution->carrier->bytes;p->work=execution->carrier->work;
     *out=p;return r;
+}
+NvmArrayEligibilityResult nvm_prepare_record_map_boundary_reserved_private(
+    const NvmModule *m,NvmRecordMapBoundaryPlan **out,uint64_t bytes,uint64_t work) {
+    return rmb_prepare_reserved(m,out,bytes,work);
 }
 NvmArrayEligibilityResult nvm_prepare_record_map_boundary(const NvmModule *m,NvmRecordMapBoundaryPlan **out) {
     return rmb_prepare_reserved(m,out,0,0);

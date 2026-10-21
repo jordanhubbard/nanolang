@@ -16590,3 +16590,35 @@ separate, and public execution selection remains closed.
 I merge the reviewed module-taking read-only validator, preserve both roadmap histories, and add its required gate to retirement qualification. I require the actual aggregate Make target with eight retained modules and 68 workflow controls before commit. Public execution selection remains closed.
 
 I passed the actual aggregate import target: 2 methods in 8.978s, 13,164 checks per dispatch, all eight retained inputs. All 68 workflow controls passed. Receipt: `docs/evidence/map-import-aggregate-20261021/README.md`. Public execution selection and exact hosted qualification remain open.
+
+### #1001 public map invocation interface ownership (design only)
+
+I map the next borrowed-VmState consumer from aggregate e5164fe74. The successful
+import query remains observation, not reusable execution authority. I own only
+the contract for one invocation-owned boundary plan/tables, fresh import checking,
+ordinary collector and record-ordinal semantics, complete stack reservation and
+selected-route cleanup. Public selectors, handlers, native, loaders and publishers
+remain unchanged pending interface/allocation review. No compiler job is required.
+
+### #1001 borrowed map preparation implementation ownership (2026-10-22)
+
+I am implementing only the reviewed private preparation owner from contract
+3e9a51aca: same boundary proof and import validation, immutable copied tables,
+cache/constant correspondence, and positive reservation. Stack allocation, runtime
+activation, dispatch, and public selection remain outside this slice. I will
+freeze source for review before a narrow build; no frontend/bootstrap is needed.
+
+Preparation-only qualification is complete: final switch/goto12495 checks each,
+all eight retained originals before/after ordinary baseline execution,69 allocation
+positions with transient/persistent denial+retry, exact budget boundaries and
+nonmutation. Old import13164 each and boundary754/1685 controls remain green;
+12 strict cases and all six old budget rows pass unchanged. I retain the harness
+and neighbor selection failures separately in
+[the preparation receipt](evidence/map-public-preparation-20261022/README.md).
+No activation, stack allocation, handler, or public selector is enabled.
+
+### I integrate borrowed-state map preparation (2026-10-21)
+
+I integrate the reviewed preparation-only owner and add its actual gate to retirement qualification. I require all eight retained modules and 68 workflow controls before committing. This allocates proof tables only; stack activation, shared dispatch and public selection remain closed.
+
+I passed actual aggregate preparation: 2 methods9.305s,12,495 checks per dispatch with all eight retained inputs, plus68 workflow controls. Receipt: `docs/evidence/map-public-preparation-aggregate-20261021/README.md`. Activation/dispatch/public selection and exact hosted qualification remain open.

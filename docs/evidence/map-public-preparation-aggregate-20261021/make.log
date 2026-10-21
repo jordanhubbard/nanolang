@@ -1,0 +1,100 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o
+RECORD_ARRAY_VM_CC="cc" RECORD_ARRAY_VM_CFLAGS="-Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.0.3/include" RECORD_ARRAY_VM_OBJECTS="lib/libnano_compiler_inputs.a obj/bcp47.o obj/bench.o obj/bench_native.o obj/builtins_registry.o obj/cJSON.o obj/c_backend.o obj/catalog.o obj/channel.o obj/checked_borrow_facts.o obj/coroutine.o obj/cps_pass.o obj/dce_pass.o obj/diag_id.o obj/docgen.o obj/docgen_md.o obj/dwarf_info.o obj/effects.o obj/emit_typed_ast.o obj/env.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_io.o obj/eval/eval_math.o obj/eval/eval_string.o obj/fmt.o obj/fold_constants.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/lexer.o obj/locale.o obj/module.o obj/module_builder.o obj/module_metadata.o obj/nanocore_export.o obj/nanocore_subset.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/file_flow.o obj/nanoisa/frontend.o obj/nanoisa/isa.o obj/nanoisa/local_bindings.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/nanoisa_facade.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/ownership_contracts.o obj/nanoisa/passive.o obj/nanoisa/reference_places.o obj/nanoisa/retained_layouts.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/verifier.o obj/nanoisa/verifier_types.o obj/nanovm/cop_protocol.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/value.o obj/nanovm/vm.o obj/nanovm/vm_builtins.o obj/nanovm/vm_callback.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nanovm/vm_ffi.o obj/nanovm/vm_ffi_arrays.o obj/nominal_types.o obj/opencl_backend.o obj/par_let_pass.o obj/parser.o obj/pgo_pass.o obj/ptx_backend.o obj/reflection.o obj/resource_flow.o obj/resource_tracking.o obj/riscv_backend.o obj/runtime/callback_runtime.o obj/runtime/cli.o obj/runtime/dyn_array.o obj/runtime/effect_runtime.o obj/runtime/ffi_loader.o obj/runtime/gc.o obj/runtime/gc_struct.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTString.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTWhile.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_LexerToken.o obj/runtime/list_bool.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_token.o obj/runtime/module_build_dir.o obj/runtime/nl_string.o obj/runtime/regex.o obj/runtime/token_helpers.o obj/service_bodies.o obj/service_namespace.o obj/service_ownership.o obj/stdlib_runtime.o obj/tco_pass.o obj/toon_output.o obj/transpiler.o obj/type_infer.o obj/typechecker.o obj/utf8.o" RECORD_ARRAY_VM_LDFLAGS="-lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.0.3/lib" python3 -m unittest -f -v tests.test_record_map_public_prepare
+test_original_goto (tests.test_record_map_public_prepare.RecordMapPublicPrepare.test_original_goto) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-oddsa0b6
+I prepared 23 instructions at 84057329 bytes / 16956480 work without executing.
+I prepared 23 instructions at 84057585 bytes / 16956756 work without executing.
+I prepared 23 instructions at 84057585 bytes / 16956776 work without executing.
+I prepared 23 instructions at 84057329 bytes / 16956504 work without executing.
+I prepared 23 instructions at 67214577 bytes / 16890904 work without executing.
+I prepared 8 instructions at 84053825 bytes / 16949532 work without executing.
+I prepared 8 instructions at 84053825 bytes / 16949532 work without executing.
+I prepared 8 instructions at 83988289 bytes / 16883996 work without executing.
+I measured preparation live peak 85653 bytes beyond caller/prior 169453 against reservation 84065265.
+I denied 69 preparation allocations transiently/persistently and recovered, exact caps from 84065265/16965758.
+I prepared 64 instructions at 84068462 bytes / 16980536 work without executing.
+I prepared 64 instructions at 84068718 bytes / 16980822 work without executing.
+I prepared 64 instructions at 84068718 bytes / 16980852 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I prepared 64 instructions at 84068161 bytes / 16979892 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980178 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980208 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I prepared 64 instructions at 84068161 bytes / 16979892 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980178 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980210 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I prepared 64 instructions at 84068161 bytes / 16979892 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980178 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980208 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+I prepared 27 instructions at 84058690 bytes / 16959922 work without executing.
+I prepared 27 instructions at 84058946 bytes / 16960620 work without executing.
+I prepared 27 instructions at 84058946 bytes / 16960644 work without executing.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/seed.nvm.
+I prepared 27 instructions at 84058518 bytes / 16959431 work without executing.
+I prepared 27 instructions at 84058774 bytes / 16960129 work without executing.
+I prepared 27 instructions at 84058774 bytes / 16960157 work without executing.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/c-hosted-nano.nvm.
+I prepared 27 instructions at 84058518 bytes / 16959431 work without executing.
+I prepared 27 instructions at 84058774 bytes / 16960129 work without executing.
+I prepared 27 instructions at 84058774 bytes / 16960149 work without executing.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage1.nvm.
+I prepared 27 instructions at 84058518 bytes / 16959431 work without executing.
+I prepared 27 instructions at 84058774 bytes / 16960129 work without executing.
+I prepared 27 instructions at 84058774 bytes / 16960149 work without executing.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm.
+I passed 12495 borrowed-state preparation checks; execution remains refused.
+
+ok
+test_original_switch (tests.test_record_map_public_prepare.RecordMapPublicPrepare.test_original_switch) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-lu6gchsf
+I prepared 23 instructions at 84057329 bytes / 16956480 work without executing.
+I prepared 23 instructions at 84057585 bytes / 16956756 work without executing.
+I prepared 23 instructions at 84057585 bytes / 16956776 work without executing.
+I prepared 23 instructions at 84057329 bytes / 16956504 work without executing.
+I prepared 23 instructions at 67214577 bytes / 16890904 work without executing.
+I prepared 8 instructions at 84053825 bytes / 16949532 work without executing.
+I prepared 8 instructions at 84053825 bytes / 16949532 work without executing.
+I prepared 8 instructions at 83988289 bytes / 16883996 work without executing.
+I measured preparation live peak 85653 bytes beyond caller/prior 169453 against reservation 84065265.
+I denied 69 preparation allocations transiently/persistently and recovered, exact caps from 84065265/16965740.
+I prepared 64 instructions at 84068462 bytes / 16980536 work without executing.
+I prepared 64 instructions at 84068718 bytes / 16980822 work without executing.
+I prepared 64 instructions at 84068718 bytes / 16980852 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I prepared 64 instructions at 84068161 bytes / 16979892 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980178 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980208 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I prepared 64 instructions at 84068161 bytes / 16979892 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980180 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980210 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I prepared 64 instructions at 84068161 bytes / 16979892 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980180 work without executing.
+I prepared 64 instructions at 84068417 bytes / 16980210 work without executing.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+I prepared 27 instructions at 84058690 bytes / 16959922 work without executing.
+I prepared 27 instructions at 84058946 bytes / 16960620 work without executing.
+I prepared 27 instructions at 84058946 bytes / 16960640 work without executing.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/seed.nvm.
+I prepared 27 instructions at 84058518 bytes / 16959431 work without executing.
+I prepared 27 instructions at 84058774 bytes / 16960129 work without executing.
+I prepared 27 instructions at 84058774 bytes / 16960149 work without executing.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/c-hosted-nano.nvm.
+I prepared 27 instructions at 84058518 bytes / 16959431 work without executing.
+I prepared 27 instructions at 84058774 bytes / 16960129 work without executing.
+I prepared 27 instructions at 84058774 bytes / 16960149 work without executing.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage1.nvm.
+I prepared 27 instructions at 84058518 bytes / 16959431 work without executing.
+I prepared 27 instructions at 84058774 bytes / 16960129 work without executing.
+I prepared 27 instructions at 84058774 bytes / 16960149 work without executing.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm.
+I passed 12495 borrowed-state preparation checks; execution remains refused.
+
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 9.305s
+
+OK
