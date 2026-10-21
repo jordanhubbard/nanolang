@@ -16380,3 +16380,8 @@ I completed local depth-three qualification: 31 paired source methods (38.735s),
 ### I qualify singleton self-tail ordinary array authority (2026-10-21)
 
 I retained the unchanged ordinary/all-three-producer and independent original-shadow baseline before changing only the complete graph gate. Singleton self TAIL_CALL components now proceed through existing origin/global/result proof; ordinary self CALL and mutual/mixed SCCs remain refused. The three-method consumer corpus passed45.651s, final runtime failure controls passed26.847s, and five paired rebuilt-seed/current C-hosted Nano publication methods passed24.520s. I retain distinct-object swaps, all-five leaves/depth1–3,4096-iteration allocation/history, constant frames, duplicate retain headroom, allocation recovery, exact new-work boundary, false assertion/bounds ordering and unchanged old budgets. The receipt is `docs/evidence/record-array-self-tail-20261021/README.md`. Fresh installed-stage/platform qualification and complete #1001 scope remain open; I claim no arbitrary recursive termination.
+
+### I qualify the combined singleton self-tail aggregate (2026-10-21)
+
+- [x] I integrated the reviewed singleton graph exception, wired its explicit retirement target, and passed the required three-method Make gate (37.783s), all 31 paired source-publication methods (35.773s), and 28 workflow controls. I retain `docs/evidence/record-array-self-tail-aggregate-20261021/`.
+- [ ] I still require exact combined fresh generations and Linux/Darwin qualification before #1001 closure.
