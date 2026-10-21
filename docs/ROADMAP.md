@@ -16272,3 +16272,8 @@ The double-call guard-only first gate preserves the first132/31 Nano cap refusal
 ### I qualify ordered double-call pretests (2026-10-20)
 
 I complete the exact ownership-v2 [exclusive,exclusive,shared] two-region pretest slice after retaining the unchanged baseline and132/31 output refusal. Existing caller-only finite rendering gives actual85/31, with selected consistency shadow108/31; original pretest order, result snapshots and helper remain unchanged. All seven new methods and seven old neighbors pass across retained runs, including exact native second-call assertion causality, actual128/estimated129 boundary and old one-call byte identity. I preserve the corrected tuple-test error. Receipt: `docs/evidence/double-call-pretest-reconstruction-20261020/README.md`. Loop-first witness and other profiles remain outside this change; final aggregate/platform gates remain open.
+
+
+### I retain the loop-first witness boundary (2026-10-20)
+
+The existing unchanged first_only source verifies and executes through all three producers at37/3 while reconstruction still atomically refuses its literal-prefix witness. I retain the actual neighbor commands and facts before proposing the narrow eager-first-pretest witness path in `NANOISA_LOOP_FIRST_WITNESS_DESIGN.md`. No implementation or rendering admission is included in this checkpoint.
