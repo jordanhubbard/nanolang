@@ -1,0 +1,8 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-95urvzoc
+test_isolated_second_call_assertion_failure (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_isolated_second_call_assertion_failure) ... ok
+test_actual_local_limit (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_actual_local_limit) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 9.151s
+
+OK

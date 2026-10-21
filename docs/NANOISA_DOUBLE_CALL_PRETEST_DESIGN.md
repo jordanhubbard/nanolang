@@ -9,3 +9,7 @@ Existing while_observe IR already holds an ordered pretest statement list. I ret
 The first change must measure unchanged C/Nano output and actual regenerated local counts. The128 limit stays fixed. No planner, scratch bank, witness inference, new helper arity, third pretest call, single-exclusive extension or consuming/FLOAT exit route is included without a separate measured review.
 
 Acceptance requires original and regenerated all-three VM/native behavior, zero/entered/final-false side effects, noncommutative call order, isolated second-call assertion failure, full reference-region refusal controls, atomic output on malformed/cap failures, existing one-call byte stability, and independently selected consistency-shadow execution. Actual generated witnesses need not be recursively reconstructible. Exact hosted matrix remains separate.
+
+## I retain the first cap refusal before rendering enrollment
+
+The guard-only first output proves/analyses the unchanged source and publishes C, but Nano refuses at132/31 with its sentinel preserved. Existing caller-only planning estimates85/31 with99/99 statement coverage and an exactly unchanged pretest statement list. I enroll only an actual two-call pretest after original proofs/witness selection; helper remains prior-rendered and unplanned, no scratch bank/new patterns. I refuse overlap with helper-local, FLOAT caller, reassignment and exit-aware rendering. Old one-call bytes and actual regenerated counts remain required.

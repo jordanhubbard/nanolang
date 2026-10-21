@@ -24,7 +24,7 @@ class OwnedCallPretestReconstruction(unittest.TestCase):
         for value,name in ((13,'left'),(27,'right'),(10,'left'),(30,'right')):
             main=main.replace(f' assert (== root.branch.{name}.value {value})\n','')
         old=' assert (== '+second+' 20)'
-        # Both occurrences remain eagerly evaluated in the negative source.
+        # Both occurrences remain eagerly evaluated in the two-call source.
         condition=f'(< {second} {20+6*iterations})'
         if double: condition=f'(== (+ {second} {second}) 0)'
         replacement=f' while {condition} {{ assert true }}'
@@ -87,10 +87,9 @@ class OwnedCallPretestReconstruction(unittest.TestCase):
         self.command([ROOT/'bin/nano_vm',inverted])
         self.qualify(inverted)
 
-    def test_second_call_and_missing_top_level_witness_refuse_atomically(self):
+    def test_missing_top_level_witness_refuses_atomically(self):
         for name,options,message in (
-            ('two-calls',{'double':True},'one exact three-path reference call'),
-            ('loop-first',{'first_only':True},'literal')):
+            ('loop-first',{'first_only':True},'literal'),):
             for compiler in self.compilers:
                 module=self.module(compiler,self.source(**options),name)
                 for language in ('c','nano'):

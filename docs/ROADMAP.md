@@ -16258,3 +16258,10 @@ My expanded existing workflow regressions initially found four obsolete harness 
 ### I map the remaining eager double-call pretest boundary
 
 I retain the exact existing source(double=True) baseline through seed and both stages: original verifier/VM pass37/3, facts succeeds, both reconstruction outputs refuse the current one-call guard atomically. [The design](NANOISA_DOUBLE_CALL_PRETEST_DESIGN.md) proposes at most two sequential existing three-path regions, retaining ordered scalar snapshots and all reference/witness rules. No admission edit or rendering success is claimed.
+
+The double-call guard-only first gate preserves the first132/31 Nano cap refusal. Existing caller planning estimates85/31 with99/99coverage and exact pretest-list equality; I now scope that reviewed existing rendering to actual double-call callers only, without helper planning/scratch or new patterns. Actual regenerated count remains unproved until the next gate.
+
+
+### I qualify ordered double-call pretests (2026-10-20)
+
+I complete the exact ownership-v2 [exclusive,exclusive,shared] two-region pretest slice after retaining the unchanged baseline and132/31 output refusal. Existing caller-only finite rendering gives actual85/31, with selected consistency shadow108/31; original pretest order, result snapshots and helper remain unchanged. All seven new methods and seven old neighbors pass across retained runs, including exact native second-call assertion causality, actual128/estimated129 boundary and old one-call byte identity. I preserve the corrected tuple-test error. Receipt: `docs/evidence/double-call-pretest-reconstruction-20261020/README.md`. Loop-first witness and other profiles remain outside this change; final aggregate/platform gates remain open.
