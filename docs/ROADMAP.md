@@ -16759,3 +16759,5 @@ I own contract-only reconciliation for [#1001](https://github.com/jordanhubbard/
 - [ ] Preserve old bytes/budgets and complete fresh-stage/platform qualification separately.
 
 The unchanged STRING-to-STRING Holder fixture still requires a separate value-owner contract as well as removal.
+
+I retained the exact four-original DELETE baseline in [map-delete-baseline](evidence/map-delete-baseline-20261022/README.md): ordinary seed/C-hosted and independent C/raw Nano shadows verify/VM pass; annotated selected modules refuse with prior output preserved. Nonexecuted schema controls are separate. The first proposed patch is heap-only; proof/recipe/public enrollment remains closed pending review.
