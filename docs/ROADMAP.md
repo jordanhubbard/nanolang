@@ -16422,3 +16422,7 @@ I refine that design into separate mutable analysis and immutable copied executi
 - [x] I own the first reviewed consumer slice from `05caaa0f5`: map-aware private structure/origin proof and immutable copied context/query controls only. I preserve public VM/native/transport/publisher refusal, old object sizes and old budgets, the shared64-origin namespace, and charged declaration overlap. I send a source checkpoint before narrow compilation. Runtime work-budget semantics and admission remain outside this slice.
 
 I retain [private map proof qualification](evidence/map-origin-proof-20261021/README.md): final linked569/instrumented1164 checks,45 allocation prefixes, four unchanged original modules privately annotated, and explicit public verifier/native/serialization refusal. Old origin/global neighbors, both strict compilers and all six old budget receipts pass unchanged. Runtime execution, publishers and full #1001 remain open.
+
+### I design copied map recipes after private proof (2026-10-21)
+
+- [x] I own the contract-only next #1001 checkpoint above `854037151`: [copied map execution recipes](NANOISA_MAP_EXECUTION_RECIPE_DESIGN.md). I make the unchanged carrier's origins NULL and let the frozen context solely own its base report, charge proof/snapshot overlap, preserve complete opcode coverage and GET INT|VOID. Runtime/public/native/publisher admission remains refused; no execution implementation is authorized by this design.
