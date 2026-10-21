@@ -1,0 +1,11 @@
+Undefined symbols for architecture arm64:
+  "_g_argc", referenced from:
+      _eval_call_impl in eval.o
+      _eval_call_impl in eval.o
+      _get_argc in cli.o
+      _get_argv in cli.o
+  "_g_argv", referenced from:
+      _eval_call_impl in eval.o
+      _get_argv in cli.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)

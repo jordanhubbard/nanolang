@@ -1640,6 +1640,9 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
 #include "record_array_vm_prepare.inc"
 #endif
+#ifdef NANO_RECORD_MAP_PRIVATE_PREPARATION
+#include "record_map_vm_prepare.inc"
+#endif
 
 static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof,
                                       VmOrdinaryAdmission *ordinary,VmRecordArrayPrivate *record_array) {

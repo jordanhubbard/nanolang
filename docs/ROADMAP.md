@@ -16482,3 +16482,19 @@ I retain [generic record-field context qualification](evidence/generic-record-fi
 I integrate generic record-field repair `6f3d44135` with the exact SDK selection repair, preserving both evidence histories. I rerun the full32 source/native methods against the merged source and pinned corrected compiler before pushing; installed stages and exact hosted retries remain pending.
 
 I passed all32 merged generic-record/affine methods. The aggregate receipt preserves initial invocation mistakes and the corrected terminal; fresh stages and hosted results remain pending.
+
+### I audit closed map runtime integration (2026-10-21)
+
+- [x] I own the contract-only next #1001 checkpoint above `75bf0ef55`: [runtime integration design](NANOISA_MAP_RUNTIME_INTEGRATION_DESIGN.md). I distinguish private image ownership from call-local public context lifetime, exact probe topology and insertion headroom from tag checks, and a concrete private DAG map teardown prerequisite. Runtime/admission/native/publisher changes remain unapproved; numeric runtime preparation accounting must precede implementation.
+
+- #1001 map runtime design refinement: owned_calls retains contract-only ownership; explicit chained-intern rehash charges, old decoder schedule reuse, separate context/layout/frame accessors and actual map/record retain edges recorded. Original grow/release accounting prerequisite retained; runtime/public/native/publisher admission remains held for review.
+
+- #1001 owned_calls owns the approved private map constructor/preparation slice above042cd098a: separate owner, independent image, reserved copied tables/constants; no run/dispatch/public/native/publisher admission, no old VM/heap size or stats change. Source checkpoint precedes any build.
+
+- #1001 private map preparation qualified: distinct constructor/query owner only; actual2methods15.907s/all4 retained originals,873 transient+persistent allocation positions, exact caps and independent9269153-byte retained oracle. Old5neighbors52.509s, six old budgets exact and10strict cases green. Receipt docs/evidence/map-private-preparation-20261021; public/runtime/native/publisher gates remain closed.
+
+### 2026-10-21: I integrate private map preparation
+
+I integrate34d080e06 preserving both roadmap histories, add its constructor gate to platform qualification and run the aggregate target against four retained originals. This enables preparation only, with no run API or public admission.
+
+I passed the actual aggregate private preparation target (2 methods,9.300s) against all four retained originals and68 capture/workflow/checkpoint/container/schema controls. Receipt:`docs/evidence/map-preparation-aggregate-20261021/`. Execution and exact hosted qualification remain pending.

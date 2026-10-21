@@ -120,3 +120,11 @@ bool nvm_record_map_image_field(const NvmRecordMapImage *p,uint32_t i,uint16_t f
 bool nvm_record_map_image_origin(const NvmRecordMapImage *p,uint32_t i,uint8_t *key,uint8_t *value) {
     return p && nvm_record_map_execution_map_origin(p->plan,i,key,value);
 }
+
+NvmArrayEligibilityResult nvm_record_map_image_copy_reserved(const NvmRecordMapExecutionPlan *p,
+        uint64_t bytes,uint64_t work,NvmRecordMapImage **out) {
+    return rme_image_copy_reserved(p,out,bytes,work);
+}
+const NvmRecordMapExecutionPlan *nvm_record_map_image_plan(const NvmRecordMapImage *p) {
+    return p?p->plan:NULL;
+}

@@ -1,0 +1,26 @@
+test_instrumented_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_instrumented_preparation) ... FAIL
+test_linked_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_linked_preparation) ... ok
+
+======================================================================
+FAIL: test_instrumented_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_instrumented_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_preparation.py", line 54, in test_instrumented_preparation
+    self.qualify(True)
+    ~~~~~~~~~~~~^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_preparation.py", line 43, in qualify
+    self.command(mode + '-harness-build', [*self.cc, *self.flags, *(['-DVM_RM_WHITEBOX'] if observed else []),
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'tests/nanoisa/test_record_map_preparation.c', 'tests/nanoisa/record_array_alloc.c',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *products, *self.objects, *self.ldflags, '-o', str(exe)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 2 tests in 11.666s
+
+FAILED (failures=1)

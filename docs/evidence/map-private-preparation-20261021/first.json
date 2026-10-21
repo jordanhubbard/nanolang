@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/Users/jkh/.local/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_record_map_preparation.RecordMapPreparation"
+  ],
+  "exit": 1,
+  "seconds": 6.073386457981542
+}

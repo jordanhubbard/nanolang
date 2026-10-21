@@ -1,0 +1,13 @@
+{
+  "Makefile.gnu": "14decf78a15e799a5f3e1bee516a8e550adcc40a549416e07ab616776573c7b1",
+  "src/nanoisa/record_map_snapshot.inc": "f9d78e1a322cbe1e31a344fd6fc00394bded607b4efb4829233714c2f08cd8f0",
+  "src/nanoisa/record_map_snapshot_private.h": "a291d9d545f5b0cf5da27c95e05c4567adacdda10665d323f0d6216adca64d6d",
+  "src/nanovm/record_map_runtime_private.h": "ffbe6a1934f1038dfe69a52167da72c67a9e176d252a014eda9981aa1595117d",
+  "src/nanovm/record_map_vm_prepare.inc": "506edb9a001bfffff0f8ec5993060b7f47e9e68d65c605c407a7de061bf70034",
+  "src/nanovm/vm.c": "18a9fefa14314bb74b4716231ebec38a082692affc6ae9f13204f44445513463",
+  "src/nanovm/heap.c": "88cca4f8368277d5a08b3e9795b0b8541e5aac96ab9dc3e21d1ed39cb03cf392",
+  "src/nanovm/heap.h": "e5e6455d7419fdba18abdc5689ce7f827c231afe9ee3f5ab3f2c1edba1021f5e",
+  "src/nanovm/vm.h": "b4e9e35218f10d70fda94a11cb7aef0b4d48e73decffa63c6033d5cdc1a29192",
+  "tests/nanoisa/test_record_map_preparation.c": "bcf1c60b08d8e3d05ee0b1f12fb39452e395b81b0f9c6ee991c03dfbc3d04025",
+  "tests/test_record_map_preparation.py": "dc6245c45da181c0cc77df4c2d82aa2968d7cc6734a3fb16e4259f4f0533e927"
+}
