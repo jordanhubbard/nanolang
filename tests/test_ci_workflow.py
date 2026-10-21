@@ -62,7 +62,7 @@ class CIWorkflowTests(unittest.TestCase):
         self.assertIn("needs.sanitizers-stage1.result", commands[0])
         self.assertEqual(first["env"], final["env"])
         upload = next(s for s in first["steps"] if s.get("id") == "stage1-checkpoint")
-        download = next(s for s in steps if "actions/download-artifact@" in s.get("uses", ""))
+        download = next(s for s in steps if "actions/download-artifact@" in s.get("uses", "") and "checkpoint-artifact" in s.get("with", {}).get("artifact-ids", ""))
         self.assertEqual(upload["with"]["if-no-files-found"], "error")
         self.assertIn("needs.sanitizers-stage1.outputs.checkpoint-artifact", download["with"]["artifact-ids"])
 
@@ -101,24 +101,34 @@ class CIWorkflowTests(unittest.TestCase):
         )
         self.assertIn("libsqlite3-dev", build_commands)
         self.assertIn("sqlite", build_commands)
-        for job_name in ("sanitizers", "coverage"):
-            commands = "\n".join(
-                str(step.get("run", "")) for step in self.jobs[job_name]["steps"]
-            )
-            self.assertIn("libsqlite3-dev", commands, job_name)
+        recipe = (ROOT / ".github/containers/instrumented/Dockerfile").read_text()
+        self.assertIn("libsqlite3-dev", recipe)
+        self.assertIn("python3-yaml", recipe)
+        for job_name in ("sanitizers-stage1", "sanitizers", "coverage-bootstrap", "coverage"):
+            job = self.jobs[job_name]
+            self.assertIn("instrumented-image", job["needs"])
+            self.assertEqual(job["defaults"]["run"]["shell"], "python3 scripts/ci_container.py shell {0}")
+            download = next(s for s in job["steps"] if "actions/download-artifact@" in s.get("uses", "") and "image-artifact" in s.get("with", {}).get("artifact-ids", ""))
+            self.assertEqual(download["with"]["artifact-ids"], "${{ needs.instrumented-image.outputs.image-artifact }}")
 
-    def test_coverage_dependency_retries_fit_setup_budget(self):
-        job = self.jobs["coverage"]
-        setup = next(step for step in job["steps"] if step["name"] == "Install dependencies")
-        env = setup["env"]
-        attempts = int(env["CI_APT_ATTEMPTS"])
-        timeout = int(env["CI_APT_TIMEOUT_SECS"])
-        backoff = int(env["CI_APT_BACKOFF_SECS"])
-        retry_budget = attempts * timeout + backoff * attempts * (attempts - 1) // 2
-        self.assertGreaterEqual(attempts, 2)
-        self.assertGreater(timeout, 180)
-        self.assertLess(retry_budget, setup["timeout-minutes"] * 60)
-        self.assertGreaterEqual(job["timeout-minutes"] - setup["timeout-minutes"], 35)
+    def test_coverage_dependency_setup_is_pinned_and_separately_bounded(self):
+        image = self.jobs["instrumented-image"]
+        self.assertGreaterEqual(image["timeout-minutes"], 30)
+        self.assertLessEqual(image["timeout-minutes"], 35)
+        recipe = (ROOT / ".github/containers/instrumented/Dockerfile").read_text()
+        sources = (ROOT / ".github/containers/instrumented/ubuntu.sources").read_text()
+        self.assertRegex(recipe, r"FROM ubuntu:24\.04@sha256:[0-9a-f]{64}")
+        self.assertIn("Acquire::Retries=2", recipe)
+        self.assertIn("APT::Update::Error-Mode=any", recipe)
+        self.assertIn("https://snapshot.ubuntu.com/ubuntu/20261019T000000Z", sources)
+        self.assertIn("Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg", sources)
+        for name in ("coverage-bootstrap", "coverage", "sanitizers-stage1", "sanitizers"):
+            commands = "\n".join(s.get("run", "") for s in self.jobs[name]["steps"])
+            self.assertNotIn("apt-get", commands)
+            self.assertNotIn("pip install", commands)
+            self.assertIn("ci_container.py load", commands)
+            for key, output in (("NANO_CI_IMAGE_ID", "image-id"), ("NANO_CI_ARCHIVE_SHA256", "archive-sha256"), ("NANO_CI_IMAGE_PLATFORM", "platform")):
+                self.assertEqual(self.jobs[name]["env"][key], "${{ needs.instrumented-image.outputs." + output + " }}")
 
     def test_coverage_report_matches_the_recorded_report_only_policy(self):
         report = next(s for s in self.jobs["coverage"]["steps"] if s["name"] == "Report coverage (informational, not a gate)")
@@ -142,7 +152,7 @@ class CIWorkflowTests(unittest.TestCase):
         commands = [s.get("run", "") for s in consumer["steps"]]
         restore = next(i for i,c in enumerate(commands) if "ci_bootstrap_checkpoint.py restore" in c)
         self.assertLess(restore, next(i for i,c in enumerate(commands) if "make test-quick " in c))
-        download = next(s for s in consumer["steps"] if "actions/download-artifact@" in s.get("uses", ""))
+        download = next(s for s in consumer["steps"] if "actions/download-artifact@" in s.get("uses", "") and "checkpoint-artifact" in s.get("with", {}).get("artifact-ids", ""))
         self.assertIn("needs.coverage-bootstrap.outputs.checkpoint-artifact", download["with"]["artifact-ids"])
 
 

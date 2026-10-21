@@ -220,6 +220,23 @@ def restore_files(path, root, manifest):
             'exact restored contents, modes, links and modification times')
 
 
+def execution_image(identity_path=Path('/etc/nanolang-ci-container.json'), dockerenv=Path('/.dockerenv')):
+    # The host wrapper checks the Docker config/platform before create and the
+    # created container's actual Image before execution, then mounts this receipt
+    # read-only. I do not accept an environment variable naming an unproved image.
+    require(dockerenv.is_file() and identity_path.is_file(), 'the verified CI container execution receipt')
+    value = json.loads(identity_path.read_text())
+    require(set(value) == {'version', 'image_id', 'config_id', 'platform', 'archive_sha256'} and
+            value['version'] == 1 and
+            re.fullmatch(r'sha256:[0-9a-f]{64}', value['image_id']) and
+            re.fullmatch(r'sha256:[0-9a-f]{64}', value['config_id']) and
+            re.fullmatch(r'[0-9a-f]{64}', value['archive_sha256']) and
+            value['platform'] in ('linux/amd64', 'linux/arm64'), 'a complete verified container identity')
+    architecture = {'x86_64': 'amd64', 'aarch64': 'arm64'}.get(platform.machine())
+    require(value['platform'] == 'linux/' + str(architecture), 'the actual container architecture')
+    return value
+
+
 def environment(receipt):
     tools = {}
     for name in ('cc', 'make', 'as', 'ld', sys.executable):
@@ -244,7 +261,8 @@ def environment(receipt):
                 if not path.is_relative_to(ROOT): dependencies[str(path)] = sha(path.read_bytes())
     return dict(flags={name: os.environ.get(name) for name in FLAGS}, tools=tools,
                 dependencies=dependencies, machine=platform.machine(), python=sys.version,
-                image={name: os.environ.get(name) for name in ('ImageOS', 'ImageVersion')},
+                image=execution_image(),
+                packages=sha(Path('/etc/nanolang-ci-packages').read_bytes()),
                 os_release=Path('/etc/os-release').read_text())
 
 
@@ -337,7 +355,7 @@ def main():
                 # before executing any restored compiler or make recipe.
                 restore_files(args.archive, ROOT, manifest)
                 require(environment(manifest['receipt']) == manifest['environment'],
-                        'unchanged flags, toolchain, runtime dependencies and runner image')
+                        'unchanged flags, toolchain, runtime dependencies and verified container image')
                 require(checkpoint(manifest['phase']) == manifest['receipt'], 'the exact completed checkpoint identity')
                 plan = command(['make', '-f', 'Makefile.gnu', '-n', 'bootstrap3',
                                 'CFLAGS=' + os.environ['CFLAGS'], 'LDFLAGS=' + os.environ['LDFLAGS']])
