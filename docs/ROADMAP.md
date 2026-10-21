@@ -16392,3 +16392,5 @@ I retained the unchanged ordinary/all-three-producer and independent original-sh
 - [ ] I propose an exact key/value representation and bounded origin/lifetime interface separately for review. Existing one-referent ARRAY descriptors do not encode a map pair. I change no admission, encoding, executable fixture, compiler generation or installed provider during this baseline.
 
 I retain the completed [map baseline](evidence/record-map-baseline-20261021/README.md): STRING→INT passes all four producers without authority; unchanged STRING→STRING passes the seed and refuses `map_remove` in all three Nano producers. I keep that frontend boundary separate. My [representation alternatives](NANOISA_RECORD_MAP_AUTHORITY_DESIGN.md) remain design-only pending review.
+
+I propose the [exact MAP_FIELDS declaration phase](NANOISA_MAP_FIELDS_DECLARATION_DESIGN.md) separately: kind 5/revision 1, simultaneous count at most four, explicit scalar/pair/field tables, owned queries and map-only accounting. This remains under review; I grant no encoding or executable admission from the proposal.
