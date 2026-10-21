@@ -16298,3 +16298,9 @@ My first consuming-exit output gate publishes both targets; actual seed-regenera
 I pass all seven consuming FLOAT-exit methods plus six earlier FLOAT methods in41.083s, with unchanged provider pins and eight old output-byte comparisons. Exact parameter/call origins precede rendering; actual unchanged counts12/6/10/55, no planner/scratch/resource witness. I retain the first scalar-shadow test assumption and numeric BOOL assembly fixture corrections in `evidence/consuming-float-exits-reconstruction-20261020/README.md`. Required target now includes the new seven-method module; aggregate/platform gates remain open.
 
 I integrate consuming FLOAT exits atc572bfd62 and pass all seven aggregate methods in28.551s through eight unchanged providers; receipt `evidence/consuming-float-exits-aggregate-20261020/README.md`. My finite map has no new demonstrated failure among the historical mandatory anchors, but borrowed-plus-empty composition remains an explicit accepted-source reconstruction refusal and wrapper original all-producer/shadow evidence remains limited. I do not infer full #999 closure or exact hosted qualification.
+
+### I retain a borrowed program's independent empty local (2026-10-20)
+
+- [x] I reproduce the existing accepted borrowed-plus-Empty source through all three producers (8/1) and independent original shadow (6/1), with verifier/VM success, actual facts refusal and atomic reconstruction output preservation. Evidence: `evidence/borrowed-empty-local-baseline-20261020/`.
+- [ ] I review and implement only the exact v1/two-layout/single-exclusive scalar-leaf profile in `NANOISA_BORROWED_EMPTY_LOCAL_RECONSTRUCTION.md`; unused Empty shadow declarations remain distinct nominal types.
+- [ ] I measure actual output and qualify strict ISO/native/all-three/shadow, identity/consumption/refusal/transport/old-byte controls, then aggregate and hosted gates.
