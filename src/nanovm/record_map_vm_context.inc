@@ -66,33 +66,9 @@ static bool vm_rmx_field_accepts(const VmRecordMapPrivate *p,uint32_t layout,uin
     }
     return true;
 }
-static VmResult vm_rmx_retain_check(NanoValue value) {
-    if(val_is_heap_obj(value) && (!value.as.obj || ((VmHeapHeader *)value.as.obj)->ref_count==UINT32_MAX))return VM_ERR_MEMORY;
-    return VM_OK;
-}
 /* These actual scalar handlers reject after popping and do not release a
  * wrong-tag heap operand. I reject while every operand remains a stack root.
  * I do not replace polymorphic truthiness/comparison or string fallback rules. */
-static VmResult vm_rmx_scalar_inputs(VmState *vm,uint8_t opcode) {
-    uint8_t tag=TAG_VOID;uint16_t count=0;
-    switch(opcode) {
-    case OP_I64_ADD:case OP_I64_SUB:case OP_I64_MUL:case OP_I64_DIV_S:case OP_I64_REM_S:
-    case OP_I64_EQ:case OP_I64_NE:case OP_I64_LT_S:case OP_I64_LE_S:case OP_I64_GT_S:case OP_I64_GE_S:
-        tag=TAG_INT;count=2;break;
-    case OP_I64_NEG:case OP_F64_FROM_BITS:tag=TAG_INT;count=1;break;
-    case OP_F64_ADD:case OP_F64_SUB:case OP_F64_MUL:case OP_F64_DIV:
-    case OP_F64_EQ:case OP_F64_NE:case OP_F64_LT:case OP_F64_LE:case OP_F64_GT:case OP_F64_GE:
-        tag=TAG_FLOAT;count=2;break;
-    case OP_F64_NEG:case OP_F64_TO_BITS:tag=TAG_FLOAT;count=1;break;
-    case OP_BOOL_AND:case OP_BOOL_OR:tag=TAG_BOOL;count=2;break;
-    case OP_BOOL_NOT:tag=TAG_BOOL;count=1;break;
-    case OP_CAST_U8:
-        return stack_peek(vm,0).tag==TAG_INT || stack_peek(vm,0).tag==TAG_U8?VM_OK:VM_ERR_TYPE_ERROR;
-    default:return VM_OK;
-    }
-    for(uint16_t i=0;i<count;i++)if(stack_peek(vm,i).tag!=tag)return VM_ERR_TYPE_ERROR;
-    return VM_OK;
-}
 static bool vm_rmx_context(const VmRecordMapInvocation *v,const VmState *vm) {
     if(!v || !v->active || !v->owner)return false;
     const VmRecordMapPrivate *p=v->owner;
@@ -321,11 +297,6 @@ static uint32_t vm_rmx_record_layout(const VmRecordMapInvocation *v,uint32_t ord
     /* The complete opcode preflight checked this ordinal before any pop. */
     assert(v && v->owner && ordinal<v->owner->counts.records);
     return v->owner->record_layouts[ordinal];
-}
-static VmResult vm_rmx_heap_status(VmRmHeapStatus status) {
-    if(status==VM_RM_HEAP_OK)return VM_OK;
-    if(status==VM_RM_HEAP_MEMORY || status==VM_RM_HEAP_RETAIN_OVERFLOW)return VM_ERR_MEMORY;
-    return VM_ERR_TYPE_ERROR;
 }
 static VmResult vm_rmx_map_instruction(VmRecordMapInvocation *v,uint8_t opcode) {
     VmState *vm=v->vm;

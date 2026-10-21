@@ -96,10 +96,11 @@ static char *nvm2c_map_image_emit(const NvmRecordMapImage *image,char *error,siz
     }
     return nvm2c_emit_core(nvm_record_map_image_borrow(image),error,size,nvm_record_map_image_plan(image));
 }
-char *nvm2c_emit_record_map_private(const NvmModule *source,char *error,size_t size) {
+static char *nvm2c_emit_record_map_source(const NvmModule *source,char *error,size_t size,bool public_root) {
     if(error && size)error[0]=0;
     NvmRecordMapExecutionPlan *plan=NULL;NvmRecordMapImage *image=NULL;
-    NvmArrayEligibilityResult result=nvm_prepare_record_map_execution(source,&plan);
+    NvmArrayEligibilityResult result=public_root?nvm_record_map_admit(source,&plan):
+        nvm_prepare_record_map_execution(source,&plan);
     if(result.status!=NVM_ARRAY_ELIGIBLE) {
         nvm2c_map_target_error(error,size,result.message);return NULL;
     }
@@ -112,3 +113,9 @@ char *nvm2c_emit_record_map_private(const NvmModule *source,char *error,size_t s
     nvm_record_map_image_free(image);
     return output;
 }
+
+#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
+char *nvm2c_emit_record_map_private(const NvmModule *source,char *error,size_t size) {
+    return nvm2c_emit_record_map_source(source,error,size,false);
+}
+#endif

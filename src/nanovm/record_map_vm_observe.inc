@@ -1,15 +1,4 @@
 /* Read-only copies; no guest callbacks, allocations, retains or identity IDs. */
-static bool vm_rmo_range(const void *p,size_t size,uintptr_t *begin,uintptr_t *end) {
-    if(size&&!p)return false;
-    uintptr_t start=(uintptr_t)p;
-    if(size>UINTPTR_MAX-start)return false;
-    *begin=start;*end=start+size;return true;
-}
-static bool vm_rmo_disjoint(const void *a,size_t an,const void *b,size_t bn) {
-    uintptr_t ab,ae,bb,be;
-    if(!vm_rmo_range(a,an,&ab,&ae)||!vm_rmo_range(b,bn,&bb,&be))return false;
-    return !an||!bn||ae<=bb||be<=ab;
-}
 static VmRecordMapObservationStatus vm_rmo_arguments(const VmRecordMapPrivate *p,
     const uint32_t *left,uint16_t ln,const uint32_t *right,uint16_t rn,
     const void *bytes,size_t bytes_n,VmRmObservationWork *work,void *out,size_t out_n) {

@@ -7142,3 +7142,17 @@ test-record-map-borrowed: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS)
 	RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_borrowed
 
 test-units: test-record-map-borrowed
+
+# Public map consumer selection; source publishers remain unchanged.
+$(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/record_map_admission.h $(NANOISA_DIR)/record_map_route.inc
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/record_map_admission.h $(NANOISA_DIR)/record_map_admission.inc
+$(OBJ_DIR)/nanoisa/verifier.o $(OBJ_DIR)/nanoisa/nvm_v2_convert.o $(OBJ_DIR)/nanoisa/nvm_v2_module.o: $(NANOISA_DIR)/record_map_admission.h
+$(OBJ_DIR)/nanovm/vm.o: $(NANOISA_DIR)/record_map_admission.h $(NANOVM_DIR)/record_map_common.inc
+$(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/record_map_admission.h
+
+.PHONY: test-record-map-public
+# Actual exported transport/VM/native entrypoints; no source publication change.
+test-record-map-public: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_public
+
+test-units: test-record-map-public

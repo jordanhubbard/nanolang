@@ -53,7 +53,7 @@ static __attribute__((noinline)) void import_original(const NvmModule *m) {
         }
     }
     vm_release(&vm.heap,retained);import_check(&vm,VM_RM_IMPORT_OK);
-    CHECK(!vm.heap.private_record_dag);vm_destroy(&vm);CHECK(!vm.heap.stats.num_objects);map_public_refused(m);
+    CHECK(!vm.heap.private_record_dag);vm_destroy(&vm);CHECK(!vm.heap.stats.num_objects);map_public_transport(m,true);
 }
 static __attribute__((noinline)) void import_capacity(void) {
     Input c;map_basic(&c);VmState vm;vm_init(&vm,&c.m);CHECK(vm_ensure_globals(&vm,8));
@@ -298,5 +298,5 @@ int main(int argc,char **argv) {
     import_capacity();import_buffered();import_aliases();import_nominal();import_topology();import_prefixes();import_arrays_cycles();import_headers_limits();
     for(int i=1;i<argc&&i<=4;i++)map_original_module(argv[i]);
     for(int i=5;i<argc;i++)import_source_global(argv[i]);
-    CHECK(!ra_live&&!ra_bytes);printf("PASS %u ordinary import query checks; public admission remains refused\n",checks);return 0;
+    CHECK(!ra_live&&!ra_bytes);printf("PASS %u ordinary import query checks; public boundaries checked\n",checks);return 0;
 }

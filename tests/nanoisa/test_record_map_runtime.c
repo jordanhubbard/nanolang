@@ -24,7 +24,7 @@ static void runtime_original(const NvmModule *m,const NvmRecordMapExecutionPlan 
     VmRecordMapPreparation cost;CHECK(vm_record_map_private_preparation(p,&cost));
     CHECK(cost.runtime_bytes>=sizeof *p+sizeof(VmRecordMapInvocation));
     CHECK(!p->vm.verified&&!p->vm.stack_size&&!p->vm.frame_count&&!p->vm.heap.private_record_dag);
-    map_public_refused(m);CHECK(original_count<8);originals[original_count++]=p;
+    map_public_transport(m,true);CHECK(original_count<8);originals[original_count++]=p;
     printf("I reserved actual runtime owner%zu/view%zu, %llu bytes/%llu work (overlap %llu/%llu).\n",
         sizeof *p,sizeof(VmRecordMapInvocation),(unsigned long long)cost.runtime_bytes,
         (unsigned long long)cost.runtime_work,(unsigned long long)cost.image_overlap_bytes,
@@ -242,6 +242,6 @@ int MAP_RUNTIME_MAIN(int argc,char **argv) {
         vm_record_map_private_destroy(p);
     }
     CHECK(!ra_live&&!ra_bytes);
-    printf("PASS %u actual private map runtime checks; public admission remains refused.\n",checks);
+    printf("PASS %u actual private map runtime checks; public boundaries checked.\n",checks);
     return 0;
 }

@@ -1,4 +1,5 @@
 #include "../nanoisa/record_array_admission.h"
+#include "../nanoisa/record_map_admission.h"
 #include "vm_ffi_private.h"
 #include "../nanoisa/service_bindings_module.h"
 #include "../nanoisa/service_classification_private.h"
@@ -215,6 +216,7 @@ static bool vm_module_ownership_required(const NvmModule *module, bool *required
                                           const NvmServiceClassification *facts) {
     if (required) *required=false;
     if (!module || !required || nvm_service_pending_classified(module,facts)) return false;
+    if(nvm_record_map_selected(nvm_record_map_route(module)))return false;
     if(nvm_owned_array_route_classified(module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED){*required=true;return true;}
     if(nvm_mixed_samples_candidate_classified(module,facts)){*required=true;return true;}
     if(nvm_record_array_candidate(module)) {
@@ -233,6 +235,7 @@ static bool vm_module_ownership_required(const NvmModule *module, bool *required
 static bool vm_module_ownership_supported(const NvmModule *module, bool standalone,
                                            const NvmServiceClassification *facts) {
     if (nvm_service_pending_classified(module,facts)) return false;
+    if(nvm_record_map_selected(nvm_record_map_route(module)))return false;
     if(nvm_owned_array_route_classified(module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
         if(!standalone)return false;
         NvmOwnedArrayPlan *plan=NULL;
@@ -1641,6 +1644,7 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
 #include "record_array_vm_prepare.inc"
 #endif
+#include "record_map_common.inc"
 #ifdef NANO_RECORD_MAP_PRIVATE_PREPARATION
 #include "record_map_vm_prepare.inc"
 #endif
@@ -1648,9 +1652,9 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
 typedef struct VmRecordMapBorrowedInvocation VmRecordMapBorrowedInvocation;
 #ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
 #include "record_map_vm_context.inc"
+#endif
 #include "record_map_borrowed_types.inc"
 #include "record_map_borrowed_context.inc"
-#endif
 static VmTrap vm_core_execute_views(VmState *vm, const VmOwnedInvocationProof *proof,
                                       VmOrdinaryAdmission *ordinary,VmRecordArrayPrivate *record_array,
                                       VmRecordMapInvocation *record_map,VmRecordMapBorrowedInvocation *borrowed_map) {
@@ -1658,19 +1662,18 @@ static VmTrap vm_core_execute_views(VmState *vm, const VmOwnedInvocationProof *p
     bool admitted=false, required=false;
     bool reuse=vm_ordinary_admission_matches(vm,ordinary);
     bool record_execution=false,map_execution=false,borrowed_map_execution=false;
-#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
     if(borrowed_map) {
         if(record_map || record_array || ordinary || proof || !vm_rmb_context(borrowed_map,vm))
             return trap_error(vm,VM_ERR_TYPE_ERROR,"I require this exact borrowed map invocation.");
         borrowed_map_execution=true;
     }
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
     if(record_map) {
         if(record_array || ordinary || proof || !vm_rmx_context(record_map,vm))
             return trap_error(vm,VM_ERR_TYPE_ERROR,"I require this exact closed private map invocation.");
         map_execution=true;
     }
 #else
-    if(borrowed_map)return trap_error(vm,VM_ERR_TYPE_ERROR,"I have no borrowed map runtime.");
     if(record_map)return trap_error(vm,VM_ERR_TYPE_ERROR,"I have no private map runtime.");
 #endif
 #ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
@@ -1981,10 +1984,8 @@ vm_dispatch_top:
 #else
     while (vm->ip < code_end) {
 #endif
-#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
         if(borrowed_map_execution && !vm_rmb_context(borrowed_map,vm))
             return trap_error(vm,VM_ERR_TYPE_ERROR,"I require bounded borrowed frames before dispatch lookup.");
-#endif
         if (vm->callbacks && --callback_budget == 0) {
             VmTrap yielded = {.type = TRAP_YIELD};
             return yielded;
@@ -2019,11 +2020,11 @@ vm_dispatch_top:
             if(checked!=VM_OK)return trap_error(vm,checked,"I require the complete private opcode root contract.");
         }
 #endif
-#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
         if(borrowed_map_execution) {
             VmResult checked=vm_rmb_preflight(borrowed_map,decoded);
             if(checked!=VM_OK)return trap_error(vm,checked,"I require the complete borrowed map opcode contract.");
         }
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
         if(map_execution) {
             VmResult checked=vm_rmx_preflight(record_map,decoded);
             if(checked!=VM_OK)return trap_error(vm,checked,"I require the complete private map opcode root contract.");
@@ -3307,8 +3308,8 @@ dynamic_div:
             frame->fn_idx = callee_idx;
 #ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
             if(map_execution && vm->frame_count==1)record_map->active_root=callee_idx;
-            if(borrowed_map_execution && vm->frame_count==1)borrowed_map->active_root=callee_idx;
 #endif
+            if(borrowed_map_execution && vm->frame_count==1)borrowed_map->active_root=callee_idx;
             if(admitted && proof->ordinary_arrays && vm->frame_count==1)
                 *proof->ordinary_active_root=callee_idx;
             frame->instruction_ip = callee->code_offset;
@@ -4554,12 +4555,12 @@ vm_return_values: ;
          * ============================================================ */
 
         VM_CASE(OP_HM_NEW) {
-#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
             if(borrowed_map_execution) {
                 VmResult checked=vm_rmb_map_instruction(borrowed_map,OP_HM_NEW);
                 if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked ordinary map operation.");
                 VM_NEXT();
             }
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
             if(map_execution) {
                 VmResult checked=vm_rmx_map_instruction(record_map,OP_HM_NEW);
                 if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked private map operation.");
@@ -4575,12 +4576,12 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_HM_GET) {
-#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
             if(borrowed_map_execution) {
                 VmResult checked=vm_rmb_map_instruction(borrowed_map,OP_HM_GET);
                 if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked ordinary map operation.");
                 VM_NEXT();
             }
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
             if(map_execution) {
                 VmResult checked=vm_rmx_map_instruction(record_map,OP_HM_GET);
                 if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked private map operation.");
@@ -4603,12 +4604,12 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_HM_SET) {
-#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
             if(borrowed_map_execution) {
                 VmResult checked=vm_rmb_map_instruction(borrowed_map,OP_HM_SET);
                 if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked ordinary map operation.");
                 VM_NEXT();
             }
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
             if(map_execution) {
                 VmResult checked=vm_rmx_map_instruction(record_map,OP_HM_SET);
                 if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked private map operation.");
@@ -4644,12 +4645,12 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_HM_HAS) {
-#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
             if(borrowed_map_execution) {
                 VmResult checked=vm_rmb_map_instruction(borrowed_map,OP_HM_HAS);
                 if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked ordinary map operation.");
                 VM_NEXT();
             }
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
             if(map_execution) {
                 VmResult checked=vm_rmx_map_instruction(record_map,OP_HM_HAS);
                 if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked private map operation.");
@@ -4711,12 +4712,12 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_HM_LEN) {
-#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
             if(borrowed_map_execution) {
                 VmResult checked=vm_rmb_map_instruction(borrowed_map,OP_HM_LEN);
                 if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked ordinary map operation.");
                 VM_NEXT();
             }
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
             if(map_execution) {
                 VmResult checked=vm_rmx_map_instruction(record_map,OP_HM_LEN);
                 if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked private map operation.");
@@ -5057,12 +5058,14 @@ static VmTrap vm_core_execute_scoped(VmState *vm,const VmOwnedInvocationProof *p
 #ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
 #include "record_map_vm_run.inc"
 #include "record_map_vm_observe.inc"
+#endif
 #include "record_map_import.inc"
 #include "record_map_public_prepare.inc"
 #include "record_map_borrowed_run.inc"
-#endif
 
 VmTrap vm_core_execute(VmState *vm) {
+    if(vm && nvm_record_map_selected(nvm_record_map_route(vm->module)))
+        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a complete synchronous map invocation.");
     if(vm && (nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED || nvm_record_array_candidate(vm->module))) {
         VmTrap refused={.type=TRAP_ERROR};
         refused.data.error.code=vm_error(vm,VM_ERR_TYPE_ERROR,
@@ -5399,6 +5402,8 @@ static void vm_owned_globals_clear(VmState *vm) {
 
 static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue *args,
                                          uint16_t arg_count, VmOwnedInvocationProof *proof) {
+    if(nvm_record_map_selected(nvm_record_map_route(vm->module)))
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a complete synchronous map invocation.");
     if(nvm_record_array_candidate(vm->module) &&
        (!vm_owned_proof_matches(vm,proof) || !proof->ordinary_arrays || fn_idx!=proof->ordinary_root))
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a complete record-array root invocation.");
@@ -5496,6 +5501,8 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
     const NvmModule *target;
     uint32_t function_index;
     if (!vm) return VM_ERR_UNDEFINED_FUNCTION;
+    if(nvm_record_map_selected(nvm_record_map_route(vm->module)))
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a complete synchronous map invocation.");
     if(nvm_record_array_candidate(vm->module))
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a complete record-array root invocation.");
     VmOwnedInvocationProof proof={0};
@@ -5508,6 +5515,8 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a callable in my standalone reference activation");
     if (!vm_callable_target(vm, callable, &target, &function_index))
         return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "I need a callable with a live module identity.");
+    if(nvm_record_map_selected(nvm_record_map_route(target)))
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse record-map callable entry.");
     if(nvm_record_array_candidate(target))
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse record-array callable entry.");
     if (proof.global_count) {
@@ -5589,6 +5598,8 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
 VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
                    uint16_t arg_count, NanoValue *out_result) {
     if (!vm || !vm->module) return VM_ERR_UNDEFINED_FUNCTION;
+    if(nvm_record_map_selected(nvm_record_map_route(vm->module)))
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a complete synchronous map invocation.");
     if(nvm_record_array_candidate(vm->module))
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a complete record-array root invocation.");
     if ((nvm_uses_owned_transfers(vm->module) || nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED || nvm_mixed_samples_candidate(vm->module)) && fn_idx!=0)
@@ -5712,6 +5723,8 @@ static VmResult vm_execute_record_arrays(VmState *vm) {
 }
 
 VmResult vm_execute(VmState *vm) {
+    if(vm && nvm_record_map_selected(nvm_record_map_route(vm->module)))
+        return vm_execute_record_maps(vm->module,vm);
     if(vm && nvm_record_array_candidate(vm->module))return vm_execute_record_arrays(vm);
     if (!(vm->module->header.flags & NVM_FLAG_HAS_MAIN)) {
         return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "No entry point defined");

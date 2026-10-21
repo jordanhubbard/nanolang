@@ -211,5 +211,5 @@ int main(int argc,char **argv) {
     observation_basics();observation_selected_tree();observation_failed_epoch();observation_empty_root();
     for(int i=1;i<argc;i++)map_original_module(argv[i]);
     for(unsigned i=0;i<original_count;i++){VmRecordMapPrivate *p=originals[i];CHECK(vm_record_map_private_run(p)==VM_OK);VmRmObservationWork w=observation_work();VmRecordMapObservation out;CHECK(vm_record_map_private_observe(p,VM_RM_RESULT,0,NULL,0,&w,&out)==VM_RM_OBS_OK&&out.tag==TAG_INT&&out.scalar_bits==0);vm_record_map_private_destroy(p);}
-    CHECK(!ra_live&&!ra_bytes);printf("PASS %u private copied map observation checks; public admission remains refused.\n",checks);return 0;
+    CHECK(!ra_live&&!ra_bytes);printf("PASS %u private copied map observation checks; public boundaries checked.\n",checks);return 0;
 }

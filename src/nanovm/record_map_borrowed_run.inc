@@ -38,7 +38,7 @@ static void vm_rmb_unwind(VmState *vm) {
     vm->frame_count=0;vm->activation_floor=0;
     vm_clear_reference_activations(vm);effect_prune(vm,0);
 }
-VmResult vm_record_map_borrowed_execute_private(const NvmModule *module,VmState *vm) {
+static VmResult vm_execute_record_maps(const NvmModule *module,VmState *vm) {
     if(!vm || !module || module!=vm->module || module!=vm->root_module)return VM_ERR_TYPE_ERROR;
     VmRecordMapPublicPreparation *p=NULL;
     NvmArrayEligibilityResult prepared=vm_record_map_public_prepare(vm,&p);
@@ -59,7 +59,7 @@ VmResult vm_record_map_borrowed_execute_private(const NvmModule *module,VmState 
        vm->stack_capacity!=p->original_stack_capacity || vm->stack_size || vm->frame_count ||
        vm->activation_floor || vm->callbacks || vm->linked_module_count || vm->handler_count ||
        vm->references.active || vm->callee_references.active || vm->reference_generation || vm->opcode_trace ||
-       vm->heap.gc_running || vm->heap.private_record_dag ||
+       vm->heap.gc_running || vm_rm_private_dag(&vm->heap) ||
        !pthread_equal(vm->owner_thread,pthread_self()) || !vm->decoded_module_valid || !vm->dispatch_module_valid)
         goto done;
     status=stack_reserve(vm,VM_RM_ROOT_CAPACITY);
@@ -80,3 +80,9 @@ VmResult vm_record_map_borrowed_execute_private(const NvmModule *module,VmState 
 done:
     vm_record_map_public_preparation_free(p);return status;
 }
+
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+VmResult vm_record_map_borrowed_execute_private(const NvmModule *module,VmState *vm) {
+    return vm_execute_record_maps(module,vm);
+}
+#endif

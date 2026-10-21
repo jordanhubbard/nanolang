@@ -226,7 +226,7 @@ static VmRmImportStatus vm_rmi_check_reserved(const NvmRecordMapBoundaryPlan *bo
     if(!nvm_record_map_execution_origin_counts(plan,&origins) || origins.origins>64)return VM_RM_IMPORT_INVALID;
     if(!pthread_equal(vm->owner_thread,pthread_self()) || vm->frame_count || vm->stack_size ||
        vm->activation_floor || vm->references.active || vm->callee_references.active || vm->handler_count ||
-       vm->heap.gc_running || vm->heap.private_record_dag || vm->global_count>vm->global_capacity ||
+       vm->heap.gc_running || vm_rm_private_dag(&vm->heap) || vm->global_count>vm->global_capacity ||
        vm->global_capacity>VM_MAX_GLOBALS || (!!vm->global_capacity!=!!vm->globals) ||
        (uint64_t)vm->global_capacity*sizeof *vm->globals>SIZE_MAX)return VM_RM_IMPORT_INVALID;
     if(!vm_rmo_disjoint(report,sizeof *report,vm->globals,(size_t)vm->global_capacity*sizeof *vm->globals))
@@ -248,6 +248,7 @@ static VmRmImportStatus vm_rmi_check_reserved(const NvmRecordMapBoundaryPlan *bo
     *report=(VmRmImportReport){state->bytes,state->work,state->objects,state->collectors,state->edges};
     return VM_RM_IMPORT_OK;
 }
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
 VmRmImportStatus vm_record_map_import_check(const NvmModule *module,const VmState *vm,VmRmImportReport *out) {
     if(!module || !vm || !out || vm->module!=module || vm->root_module!=module ||
        !vm_rmo_disjoint(out,sizeof *out,vm,sizeof *vm) ||
@@ -263,3 +264,5 @@ VmRmImportStatus vm_record_map_import_check(const NvmModule *module,const VmStat
     VmRmImportStatus status=vm_rmi_check_reserved(boundary,vm,&state,out,0,0);
     free(state.table);nvm_record_map_boundary_free(boundary);return status;
 }
+
+#endif

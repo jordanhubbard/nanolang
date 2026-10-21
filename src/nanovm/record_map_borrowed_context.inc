@@ -55,7 +55,7 @@ static bool vm_rmb_context(const VmRecordMapBorrowedInvocation *v,const VmState 
     if(!v || !v->active || !v->preparation || v->vm!=vm || !vm)return false;
     const VmRecordMapPublicPreparation *p=v->preparation;
     if(v->module!=p->module || vm->module!=v->module || vm->root_module!=v->module ||
-       !pthread_equal(vm->owner_thread,pthread_self()) || vm->heap.private_record_dag || vm->heap.gc_running ||
+       !pthread_equal(vm->owner_thread,pthread_self()) || vm_rm_private_dag(&vm->heap) || vm->heap.gc_running ||
        vm->callbacks || vm->linked_module_count || vm->opcode_trace || vm->handler_count || vm->activation_floor ||
        vm->references.active || vm->callee_references.active || vm->reference_generation ||
        !vm->decoded_module_valid || !vm->dispatch_module_valid || vm->dispatch_profile.fuse_load_local_field ||

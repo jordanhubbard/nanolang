@@ -95,13 +95,13 @@ static void image_compare(const NvmModule *m,const NvmRecordMapExecutionPlan *p,
         NvmRecordMapExecutionInstruction x,y;
         CHECK(nvm_record_map_execution_instruction(p,i,&x)&&nvm_record_map_image_instruction(image,i,&y));CHECK(!memcmp(&x,&y,sizeof x));
     }
-    map_public_refused(copy);
+    map_public_transport(copy,true);
 }
 static void image_lifetimes(void) {
     Input c;map_basic(&c);NvmRecordMapExecutionPlan *source=execution_prepare(&c.m);NvmRecordMapImage *image=NULL;
     CHECK(nvm_record_map_image_copy(source,&image).status==NVM_ARRAY_ELIGIBLE);image_compare(&c.m,source,image);
     nvm_record_map_execution_free(source);memset(&c,0,sizeof c);
-    const NvmModule *m=nvm_record_map_image_borrow(image);CHECK(m&&m->function_count==1);map_public_refused(m);
+    const NvmModule *m=nvm_record_map_image_borrow(image);CHECK(m&&m->function_count==1);map_public_transport(m,true);
     uint8_t key=99,value=98;CHECK(nvm_record_map_image_field(image,0,0,&key,&value)&&key==TAG_STRING&&value==TAG_INT);
     CHECK(nvm_record_map_image_origin(image,0,&key,&value)&&key==TAG_STRING&&value==TAG_INT);
     CHECK(!nvm_record_map_image_field(image,0,0,&key,&key)&&key==TAG_STRING);
@@ -170,5 +170,5 @@ static void image_failure_controls(void) {
 }
 int main(int argc,char **argv) {
     old_map_execution_main(argc,argv);image_cost_cases();image_lifetimes();image_failure_controls();
-    printf("PASS %u retained map image cost checks; public admission remains refused\n",checks);return 0;
+    printf("PASS %u retained map image cost checks; public boundaries checked\n",checks);return 0;
 }

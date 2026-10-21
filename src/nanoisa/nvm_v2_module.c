@@ -18,6 +18,7 @@
 #include "nvm_v2_sections.h"
 #include "retained_layouts.h"
 #include "record_array_admission.h"
+#include "record_map_admission.h"
 #include "ownership_layouts_private.h"
 #include "service_bindings_module.h"
 #include "service_codec_internal.h"
@@ -97,7 +98,7 @@ static size_t build_plan(const NvmV2Module *m, SectionPlan *plan) {
 
 static NvmV2Result validate_cross_section(const NvmV2Module *m, uint32_t declared_features,const NvmPrivateServiceCodec *codec);
 
-NvmV2Result nvm_private_serialize(const NvmV2Module *m,
+static NvmV2Result nvm_serialize_core(const NvmV2Module *m,
                                     uint8_t *out, size_t capacity,
                                     size_t *out_size,const NvmPrivateServiceCodec *codec) {
     if (!m) return NVM_V2_ERR_INDEX_RANGE;
@@ -334,7 +335,7 @@ static NvmV2Result validate_cross_section(const NvmV2Module *m,
     return NVM_V2_OK;
 }
 
-NvmV2Result nvm_private_deserialize(const uint8_t *data, size_t size,
+static NvmV2Result nvm_deserialize_core(const uint8_t *data, size_t size,
                                       NvmV2Module *out,const NvmPrivateServiceCodec *codec) {
     memset(out, 0, sizeof *out);
 
@@ -363,6 +364,10 @@ NvmV2Result nvm_private_deserialize(const uint8_t *data, size_t size,
         if(e.type==NVM_V2_SECTION_SERVICE_BINDINGS){candidate.service_data=(uint8_t *)(data+e.offset);candidate.service_size=(uint32_t)e.size;}
     }
     bool record_arrays=nvm_record_array_candidate(&candidate);
+    bool record_maps=false;
+    NvmRecordMapRoute route=nvm_record_map_route(&candidate);
+    if(route==NVM_RECORD_MAP_INVALID || route==NVM_RECORD_MAP_LIMIT){r=NVM_V2_ERR_INDEX_RANGE;goto fail;}
+    record_maps=route==NVM_RECORD_MAP_PRESENT;
 
     for (uint32_t i = 0; i < h.section_count; i++) {
         NvmV2SectionEntry e;
@@ -375,7 +380,7 @@ NvmV2Result nvm_private_deserialize(const uint8_t *data, size_t size,
         case NVM_V2_SECTION_METADATA:   r = nvm_v2_metadata_decode(p, z, &out->metadata); break;
         case NVM_V2_SECTION_CONSTANTS:  r = nvm_v2_constants_decode(p, z, &out->constants); break;
         case NVM_V2_SECTION_SIGNATURES: r = nvm_v2_signatures_decode(p, z, &out->signatures); break;
-        case NVM_V2_SECTION_LAYOUTS:    r = record_arrays ? nvm_ownership_layouts_private_decode(p,z,&out->layouts) : nvm_v2_layouts_decode(p,z,&out->layouts); break;
+        case NVM_V2_SECTION_LAYOUTS:    r = record_maps ? nvm_ownership_map_layouts_private_decode_detailed(p,z,&out->layouts,NULL) : record_arrays ? nvm_ownership_layouts_private_decode(p,z,&out->layouts) : nvm_v2_layouts_decode(p,z,&out->layouts); break;
         case NVM_V2_SECTION_FUNCTIONS:  r = nvm_v2_functions_decode(p, z, &out->functions); break;
         case NVM_V2_SECTION_CODE:       out->code = z ? p : NULL; out->code_size = e.size; break;
         case NVM_V2_SECTION_GLOBALS:    r = nvm_v2_globals_decode(p, z, &out->globals); break;
@@ -448,6 +453,52 @@ void nvm_v2_module_free(NvmV2Module *m) {
     m->passive_data = NULL;
     m->passive_size = 0;
     m->has_debug = false;
+}
+
+/* Borrowed section views choose staging only. The decoder and reverse
+ * conversion independently validate the entire file before publishing. */
+static bool map_bytes_selected(const uint8_t *data,size_t size) {
+    NvmV2Header h;
+    if(nvm_v2_read_header(data,size,&h)!=NVM_V2_OK)return false;
+    /* Each span is examined independently. Once identity is observed return
+     * staging immediately: the full decoder still rejects every later error,
+     * duplicate or overwritten section, without touching caller output. */
+    for(uint32_t i=0;i<h.section_count;i++) {
+        NvmV2SectionEntry e;NvmModule candidate={0};
+        if(nvm_v2_read_section(data,size,&h,i,&e)!=NVM_V2_OK)return false;
+        if(e.offset>size || e.size>size-e.offset)continue;
+        if(e.size>UINT32_MAX)continue;
+        if(e.type==NVM_V2_SECTION_LAYOUTS){candidate.layout_data=(uint8_t *)(data+e.offset);candidate.layout_size=(uint32_t)e.size;}
+        if(e.type==NVM_V2_SECTION_OWNERSHIP){candidate.ownership_data=(uint8_t *)(data+e.offset);candidate.ownership_size=(uint32_t)e.size;}
+        if(nvm_record_map_selected(nvm_record_map_route(&candidate)))return true;
+    }
+    return false;
+}
+NvmV2Result nvm_private_serialize(const NvmV2Module *m,uint8_t *out,size_t capacity,
+        size_t *size,const NvmPrivateServiceCodec *codec) {
+    if(nvm_record_map_wire_selected(m)) {
+        size_t bytes=0;NvmV2Result r=nvm_serialize_core(m,NULL,0,&bytes,codec);
+        if(r!=NVM_V2_OK)return r;
+        if(!out){if(size)*size=bytes;return NVM_V2_OK;}
+        if(capacity<bytes)return NVM_V2_ERR_TRUNCATED;
+        uint8_t *staged=malloc(bytes?bytes:1);
+        if(!staged)return NVM_V2_ERR_TRUNCATED;
+        r=nvm_serialize_core(m,staged,bytes,NULL,codec);
+        if(r==NVM_V2_OK){memcpy(out,staged,bytes);if(size)*size=bytes;}
+        free(staged);return r;
+    }
+    return nvm_serialize_core(m,out,capacity,size,codec);
+}
+NvmV2Result nvm_private_deserialize(const uint8_t *data,size_t size,NvmV2Module *out,
+        const NvmPrivateServiceCodec *codec) {
+    if(map_bytes_selected(data,size)) {
+        if(!out)return NVM_V2_ERR_INDEX_RANGE;
+        NvmV2Module staged={0};NvmV2Result r=nvm_deserialize_core(data,size,&staged,codec);
+        if(r==NVM_V2_OK)*out=staged;
+        else nvm_v2_module_free(&staged);
+        return r;
+    }
+    return nvm_deserialize_core(data,size,out,codec);
 }
 
 NvmV2Result nvm_v2_module_serialize(const NvmV2Module *m,uint8_t *out,size_t capacity,size_t *size) {return nvm_private_serialize(m,out,capacity,size,NULL);}

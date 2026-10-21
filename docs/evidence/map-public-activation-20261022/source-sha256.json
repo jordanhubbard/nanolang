@@ -1,0 +1,198 @@
+[
+  {
+    "path": "Makefile.gnu",
+    "sha256": "b9db21a61bd5eea81a002fc164b9cc6bc56c10c6671773f2b780428fc70315d3"
+  },
+  {
+    "path": "docs/NANOISA_MAP_PUBLIC_ACTIVATION_DESIGN.md",
+    "sha256": "7f26a25e728639e48d66bb41daefbf3a20163fb22c13995d41bb1fff7820a54b"
+  },
+  {
+    "path": "docs/ROADMAP.md",
+    "sha256": "dff704a05f31cc9c3a48d2d4f1e9cebac4044bc4052f4351b1abe0c2455bcc1b"
+  },
+  {
+    "path": "src/nanoisa/managed_array_shapes.c",
+    "sha256": "07ce731a5cc3db517ecd7a9087cdded89ee00cfd22c8ffa2b21164a214d36839"
+  },
+  {
+    "path": "src/nanoisa/nvm2c.c",
+    "sha256": "963a4aad539ca96459503cc31cdcee5aa4e47ae99bc348638d3da8baa2be9fdc"
+  },
+  {
+    "path": "src/nanoisa/nvm2c_map_private.inc",
+    "sha256": "aee1f5b44da666a9bf21326df30a300011422a26ac8e84324f2db32d8d4e8d0f"
+  },
+  {
+    "path": "src/nanoisa/nvm_v2_convert.c",
+    "sha256": "63bfe88251d3db5cbc59d769a121c395619a105488f023b3742be02f51e3557e"
+  },
+  {
+    "path": "src/nanoisa/nvm_v2_module.c",
+    "sha256": "a01a1bee91590cea4719db09257732777d9b8958d0f144d7eb4ac4448c5d4c5b"
+  },
+  {
+    "path": "src/nanoisa/ownership_contracts.c",
+    "sha256": "c9fb425b00f6427ef8d91db79d5d13dfac9d88a69c7ce9feb71df98f92b49d61"
+  },
+  {
+    "path": "src/nanoisa/record_map_admission.h",
+    "sha256": "eb15ab38f60f6dd41fe7a9172b44f9d7fb511ea8368d2fb18d39f404c2e556e9"
+  },
+  {
+    "path": "src/nanoisa/record_map_admission.inc",
+    "sha256": "65ce1454190622554f4b0817435cc89c1f6e0e15edeaf9fa090397dbea0de22f"
+  },
+  {
+    "path": "src/nanoisa/record_map_route.inc",
+    "sha256": "aca4b88219f72c135cdee7514edaf55b9cd8e8ad7771c3051d69a96b9f7e280b"
+  },
+  {
+    "path": "src/nanoisa/verifier.c",
+    "sha256": "3fca1acccaa9de48f3b15bb8a64d2028cbec8ba791fafba6aa81e635360def35"
+  },
+  {
+    "path": "src/nanovm/heap.c",
+    "sha256": "b8d4b77d6293ebc746550b3de4e5fb14a2f72c4ecabaf46af7bc537de6ee3570"
+  },
+  {
+    "path": "src/nanovm/record_map_borrowed_context.inc",
+    "sha256": "df4ca0afcdacc26fe5d8218bced2d41b6531fec8c57c7f4de2370a06deb02aa4"
+  },
+  {
+    "path": "src/nanovm/record_map_borrowed_run.inc",
+    "sha256": "f075f6ab04146c70567839b27a00f1b28d041217b2fd12a9faa62f9af090bbb1"
+  },
+  {
+    "path": "src/nanovm/record_map_common.inc",
+    "sha256": "2e64d15dfee4e31a430058815ecda42ae3bfbdef048fe0eaf69595de8044c03b"
+  },
+  {
+    "path": "src/nanovm/record_map_heap.inc",
+    "sha256": "61fbdb34c7cb27c7972a82145b9946923dfbbd25dfb75fdd4f563be7c3bfb8e1"
+  },
+  {
+    "path": "src/nanovm/record_map_heap_private.h",
+    "sha256": "55e94534a0ba560dc92d5e97fa2296bd25f48bb7325cd9e41f21b3fb24298548"
+  },
+  {
+    "path": "src/nanovm/record_map_import.inc",
+    "sha256": "e9c479c7a4847006198ad3e8cbd8b65ca8b730032def24603277f367d8a3fbcf"
+  },
+  {
+    "path": "src/nanovm/record_map_import_private.h",
+    "sha256": "27d68563ca0bb90243e5ca5626fbc5b57fba7cdfdaf111a0dc6be02da561cdea"
+  },
+  {
+    "path": "src/nanovm/record_map_public_prepare.inc",
+    "sha256": "0ce117fb7293ed4672b6564714f84b8c7e302e78cbb6f77127a1997034ff9e9e"
+  },
+  {
+    "path": "src/nanovm/record_map_public_prepare_private.h",
+    "sha256": "8ba3dc3c95bb1a529cd6bbc32962ec82c964b37a5df55b1dec7b6c6dc886504c"
+  },
+  {
+    "path": "src/nanovm/record_map_vm_context.inc",
+    "sha256": "aaf9723dba578d3264bf0af7d017e9367d0cb1a8c59c455c3af646525f7c3336"
+  },
+  {
+    "path": "src/nanovm/record_map_vm_observe.inc",
+    "sha256": "889a3a4885a1e6eeae4ccb6e2b79bd8bd95842551aac64f6e9e1b50a2ec2257f"
+  },
+  {
+    "path": "src/nanovm/record_map_vm_prepare.inc",
+    "sha256": "7452a8b095318c592141469a0d1fbe093ad678a7a1adc2930d8807b97ba63bf8"
+  },
+  {
+    "path": "src/nanovm/vm.c",
+    "sha256": "1edcf786b3b5731c67579d9cebc5ea1f90510737b2aea4271630a844c1fa8d1e"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_borrowed.c",
+    "sha256": "20b890706e46219ea5225362594266148fd6467d9e6c0720930b74d643b14601"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_boundary.c",
+    "sha256": "8d82b5b30625120050422991a6c059f7c73bc92101063dcc7cda26f5a3629ded"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_execution.c",
+    "sha256": "cab91dc6e7a539d9da5353eafedf68b23ee8fd0e3c35bcd169a7bb542632bda3"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_image.c",
+    "sha256": "ad2df251e16d3f9a4eb8251d384b6a73295d0f4d59819e44b5349deb909f817e"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_import.c",
+    "sha256": "e17b5006865a5bbf62febea2a6ec5367c3030de91f1c744d7c4ad24ccd0ef198"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_native.c",
+    "sha256": "44dcf16b39fadd9afa464d37710fef1844dd8ea82401e18e8db79fe6e6ebaa7c"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_observation.c",
+    "sha256": "7bfc0853e5c11bc054aaa0782b8b3c3a4e4da1d1bc051465d0f70dd8195e2fcf"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_origins.c",
+    "sha256": "d3fe53401350c1d842fea8ef08df0a2616d5341d03ccd2aa3384244b1ef90f3f"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_preparation.c",
+    "sha256": "724e27b34af82127a49cb9b4fe25369717f64b2702adbb361834f8f41f76086e"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_public.c",
+    "sha256": "1b2e8d20fc724514a45c38a95e3d1e6e835b4609bc74319c9edb7cbaebe49460"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_public_alloc.c",
+    "sha256": "dc317836f912de5d0705ba18fd0352fb88765aa5a04af75ff26929de6b5b3313"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_public_prepare.c",
+    "sha256": "81a06560610fd0e16252e644481eba001aa3cd119bc0d333642934ba8c0e0e86"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_runtime.c",
+    "sha256": "43f70698836e0c4ca74cc0f99bd051c247f7947f78093706558716965216d2d4"
+  },
+  {
+    "path": "tests/test_record_map_borrowed.py",
+    "sha256": "47cc07738a31dc116e950c0ec95f9eacce11596850f529b1c222ea2595523326"
+  },
+  {
+    "path": "tests/test_record_map_boundary.py",
+    "sha256": "904e5fe17aeb7176c7e4e60513473e96eb792a965a16a6ad74cb913a96eb2ec6"
+  },
+  {
+    "path": "tests/test_record_map_execution.py",
+    "sha256": "83bbbde92552645ecc7ad58409d013b5c41b9a200ae278660322cb4ffa71814b"
+  },
+  {
+    "path": "tests/test_record_map_image.py",
+    "sha256": "e76aceb30bac92790a5aa1f2c6b50654dac90f73a8a8cc29a6cd72877bcc4293"
+  },
+  {
+    "path": "tests/test_record_map_import.py",
+    "sha256": "a72a1746ee59ce68f8ea78b2e429a0d0822eb46a08097fff40ef0ccc3ef90abe"
+  },
+  {
+    "path": "tests/test_record_map_observation.py",
+    "sha256": "e5865de66bee6d3dc8f0b28730b36c4cbb0c6de3949016d2ca9a2562d7a3e32c"
+  },
+  {
+    "path": "tests/test_record_map_origins.py",
+    "sha256": "e87de8a0538f4533ee4397abe715e96e440b958e234618e7349b8bfed04fb5f5"
+  },
+  {
+    "path": "tests/test_record_map_public.py",
+    "sha256": "52df4ab13ef7b311f182a2351830cfb0c8d1e2b1beef3767ce6a3bf5e1469584"
+  },
+  {
+    "path": "tests/test_record_map_runtime.py",
+    "sha256": "f900df2968381411ba3212982075434a0bbeb4d2ed72a6802c344bca2cd94215"
+  }
+]
