@@ -16872,3 +16872,9 @@ I qualified union retained-cost helpers with842/3504 constructor checks, six ind
 I implement the reviewed union image source checkpoint after helper309f42d13: positive source-overlap reservation, independent snapshot reproof and strict semantic correspondence, with copied queries only. Source review precedes image compilation; no executor/native/public/publisher enrollment.
 
 I qualified independent union images with2032/6384 checks,55 allocation positions in both denial modes, actual source-overlap accounting, real image LIMIT/recovery, separate exact positive-constructor caps, strict8+4 and unchanged constructor/proof/array/map neighbors plus six exact legacy budget rows. Receipt: `docs/evidence/union-field-image-20261022/README.md`. Public/native execution and publisher enrollment remain separate.
+
+### 2026-10-21: independent union image aggregate qualification
+
+I integrate independently re-proved image checkpoint75f811f68, add the explicit retirement image target and qualify the aggregate on six retained originals and workflow controls before pushing. These private images do not enable VM/native/public/publisher execution.
+
+I passed aggregate independent images2032/6384 on six originals (6.081s) and68 workflow/checkpoint controls (2.255s). Receipt: `docs/evidence/union-field-image-aggregate-20261021/README.md`. Runtime/native/public/publisher enrollment remains closed.
