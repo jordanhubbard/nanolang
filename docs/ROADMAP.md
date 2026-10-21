@@ -16800,7 +16800,9 @@ I completed the map DELETE aggregate gate: 100 C controls, eight paired publicat
 
 I own this #1001 design-only checkpoint on `design/5.1-map-string-value-authority` from aggregate `200c4f850`. I preserve the complete DELETE ancestry and receipts. The unchanged `tests/unit/test_map_field_operations.nano` already executes through current producers but still omits authority; stored STRING ownership is the next exact prerequisite.
 
-- [ ] Review the exact single-pair STRING→STRING contract, checked owned-result heap interfaces and unchanged INT budgets before implementation.
-- [ ] Retain four unchanged ordinary/original-shadow baselines before admission changes.
+- [x] Review the exact single-pair STRING→STRING contract, checked owned-result heap interfaces and unchanged INT budgets before implementation.
+- [x] Retain four unchanged ordinary/original-shadow baselines before admission changes.
 - [ ] Qualify checked heap ownership/topology/teardown independently, then atomic proof/recipes/import/VM/native consumers including missing GET STRING|VOID.
 - [ ] Qualify paired publication only after consumers, retaining mixed-pair atomic omission and old byte goldens. Fresh-stage/platform acceptance remains separate.
+
+I completed the design review and four unchanged original baselines: all public verifier/VM gates and eight sanitized native executions pass, authority remains absent, and exact independently validated declarations refuse only at the current STRING→INT proof boundary. Receipt: docs/evidence/map-string-value-baseline-20261022. The appended first heap-only source plan remains unimplemented pending review.
