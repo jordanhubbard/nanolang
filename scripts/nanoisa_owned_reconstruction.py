@@ -131,6 +131,7 @@ class OwnedAnalyze(Analyze):
                     module['functions'][1].get('param_modes') == [2],
                     'require the exact v1 single-exclusive scalar-leaf loop-exit profile')
         self.shared_root = None
+        self.double_call_pretest = False
         self.multi = self.borrowed and len(module['functions'][1].get('param_modes', [])) > 1
         self.exclusive = self.borrowed and 2 in module['functions'][1].get('param_modes', [])
         self.helper = self.borrowed and index == 1
@@ -389,12 +390,13 @@ class OwnedAnalyze(Analyze):
                         length = self.reference_region_length(n)
                         is_call = any(ins['op'] == 'CALL_REF' for ins in self.code[n:n + length])
                         if is_call:
-                            require(self.index == 0 and pretest_calls == 0 and
+                            require(self.index == 0 and
                                     ((self.paths and not self.shared_paths and length == 6 and
+                                      self.module.get('ownership_version') == 2 and pretest_calls < 2 and
                                       self.module['functions'][1]['param_modes'] == [2, 2, 1]) or
-                                     (self.single_exclusive_path and length == 4)),
+                                     (self.single_exclusive_path and length == 4 and pretest_calls == 0)),
                                     'require one exact exclusive path call per owned pretest' if self.single_exclusive_path else
-                                    'require one exact three-path reference call per owned pretest')
+                                    'require at most two exact three-path reference calls per owned pretest')
                             pretest_calls += 1
                         self.observation(n, branch, condition_stack, condition_statements, allow_call=is_call)
                         n += length
@@ -413,6 +415,7 @@ class OwnedAnalyze(Analyze):
                     require(all(value.tag in (INT, BOOL) for value in condition_stack),
                             'require exact scalar owned pretest values')
                     n += 1
+                self.double_call_pretest |= pretest_calls == 2
                 condition = self.pop(condition_stack, BOOL)
                 require(not condition_stack, 'require one owned loop condition')
                 if self.code[branch]['op'] == 'JMP_TRUE':
@@ -672,6 +675,7 @@ class OwnedAnalyze(Analyze):
                     'require an actual single-shared-path caller region')
         require(len(self.seen) == len(self.code), 'require complete owned instruction coverage')
         function = Function(self.fn['name'], self.params, self.result, self.types, self.fn['names'], parameters + body)
+        function.double_call_pretest = self.double_call_pretest
         function.helper_owners = self.helper_owners
         function.helper_local_single = self.helper_local_single
         function.borrowed_float_caller = self.borrowed_float_caller and any(
@@ -710,6 +714,10 @@ class OwnedEmit(Emit):
         self.borrowed_float_caller = bool(getattr(functions[0], 'borrowed_float_caller', False))
         require(not self.borrowed_float_caller or not (self.helper_local_single or self.reassigned or self.loop_exits),
                 'refuse overlapping borrowed FLOAT caller rendering profiles')
+        self.double_call_pretest = bool(getattr(functions[0], 'double_call_pretest', False))
+        require(not self.double_call_pretest or not (self.helper_local_single or self.helper_owners or
+                self.reassigned or self.loop_exits or self.borrowed_float_caller),
+                'refuse overlapping double-call pretest rendering profiles')
         self.shared_paths = modes == [1, 1]
         self.single_shared_path = modes == [1] and any(
             stmt[0] == 'path_borrow_call' for stmt in self.walk_statements(functions[0].body))
@@ -792,6 +800,11 @@ class OwnedEmit(Emit):
         if self.borrowed_float_caller and language == 'nano':
             from nanoisa_owned_rendering import plan_reassignment_nano
             lowered, self.borrowed_float_plan = plan_reassignment_nano(self.functions[0])
+            self.functions = [lowered, self.functions[1]]
+        self.double_call_plan = None
+        if self.double_call_pretest and language == 'nano':
+            from nanoisa_owned_rendering import plan_reassignment_nano
+            lowered, self.double_call_plan = plan_reassignment_nano(self.functions[0])
             self.functions = [lowered, self.functions[1]]
         if (self.reassigned or self.loop_exits) and language == 'nano':
             from nanoisa_owned_rendering import plan_reassignment_nano

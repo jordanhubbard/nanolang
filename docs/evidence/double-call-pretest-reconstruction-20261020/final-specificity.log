@@ -1,0 +1,10 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-ag7pde5n
+test_isolated_second_call_assertion_failure (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_isolated_second_call_assertion_failure) ... ok
+test_actual_local_limit (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_actual_local_limit) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x
+test_missing_top_level_witness_refuses_atomically (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_missing_top_level_witness_refuses_atomically) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 32.666s
+
+OK
