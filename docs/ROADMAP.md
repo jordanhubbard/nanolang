@@ -16756,3 +16756,10 @@ I completed that scoped aggregate gate:100 C checks,5 methods20.577s and68 workf
 I found that the completed corpus did not execute the contract's map-only/multiple-map-field/forward-record combination; parsed helper shadows alone do not satisfy it. I am adding one complete aliasing source case and running the real current aggregate C and pinned current C-hosted checked/raw producer paths, with no production change or fresh-stage claim.
 
 The missing complete publisher case passed in 4.052s through all five producer paths, with five VM/transport checks and ten sanitized native executions. I preserved the original coverage gap and retained the new exact command/provider hashes separately; no production change was needed.
+
+
+### Explicit raw ordinary map publication gate (2026-10-21)
+
+I found that the prior raw test driver exercised only selected shadows, while the publisher contract separately requires raw ordinary-program publication. I am adding a test-owned dual-path parser driver and qualifying both raw APIs with the existing current C seed/host closure. This requires one bounded driver build, not a compiler bootstrap, and preserves raw parsed provenance rather than asserting checker completion.
+
+The explicit raw ordinary gate passed: dual test-driver build79.451s, full six-method corpus27.485s/36 modules/72 sanitized native executions, plus actual declaration-mismatch refusal0.090s. Both raw APIs emit no authority on that mismatch; checked producers preserve prior output. The old shared shadow driver and all production sources remain unchanged.

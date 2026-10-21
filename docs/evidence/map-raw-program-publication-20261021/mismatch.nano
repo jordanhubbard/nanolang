@@ -1,0 +1,8 @@
+struct Box { values: HashMap<string,int> }
+fn main() -> int {
+    let values: HashMap<string,string> = (map_new)
+    (map_put values "key" "value")
+    let box: Box = Box { values: values }
+    return 0
+}
+shadow main { assert (== (main) 0) }
