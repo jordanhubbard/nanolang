@@ -44,7 +44,7 @@ static void preparation_original(const NvmModule *m,const NvmRecordMapExecutionP
         (unsigned long long)stats.field_size,(unsigned long long)stats.layout_size,
         (unsigned long long)stats.runtime_bytes,(unsigned long long)stats.runtime_work,
         (unsigned long long)stats.image_overlap_bytes,(unsigned long long)stats.image_overlap_work);
-    map_public_refused(m);
+    map_public_transport(m,true);
     CHECK(retained_count<8);retained_originals[retained_count]=p;
     CHECK(vm_record_map_private_instruction(p,0,&retained_first[retained_count]));retained_count++;
 }

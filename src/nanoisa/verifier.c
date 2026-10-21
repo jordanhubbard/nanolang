@@ -15,6 +15,7 @@
 #include "record_array_structure_private.h"
 #include "managed_record_shapes.h"
 #include "record_array_admission.h"
+#include "record_map_admission.h"
 #include "passive.h"
 #include "retained_layouts.h"
 #include "ownership_contracts.h"
@@ -917,12 +918,41 @@ static NvmVerifyResult verify_record_arrays(const NvmModule *mod,uint32_t functi
     return result;
 }
 
+/* Map structure uses verifier-internal body checks, never this dispatcher. */
+static NvmVerifyResult verify_record_maps(const NvmModule *m,uint32_t function,
+        uint16_t *out_depth,const uint16_t *declared) {
+    NvmRecordMapExecutionPlan *p=NULL;
+    NvmArrayEligibilityResult admitted=nvm_record_map_admit(m,&p);
+    if(admitted.status!=NVM_ARRAY_ELIGIBLE)return fail("I refuse record-map admission: %s",admitted.message);
+    NvmRecordMapExecutionCounts c;uint16_t depth=0;NvmVerifyResult result=ok_result();
+    if(!nvm_record_map_execution_counts(p,&c) ||
+       (function!=UINT32_MAX && function>=c.carrier.functions))result=fail("I require an existing record-map function.");
+    else for(uint32_t i=0;i<c.carrier.functions;i++) {
+        NvmRecordArrayExecutionFunction f;
+        if(!nvm_record_map_execution_function(p,i,&f)){result=fail("I require complete record-map function facts.");break;}
+        if(declared && declared[i] && declared[i]<f.maximum_stack) {
+            result=fail("function %u declares max_stack %u but reaches %u",i,declared[i],f.maximum_stack);break;
+        }
+        if(i==function)depth=f.maximum_stack;
+    }
+    nvm_record_map_execution_free(p);
+    if(result.ok && out_depth)*out_depth=depth;
+    return result;
+}
+
 static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_idx,
                                            const NvmModule *const *linked_modules,
                                            uint32_t linked_count,
                                            uint16_t *out_max_stack) {
     if(nvm_service_execution_pending(mod))
         return fail("I refuse service contracts before mixed execution selection");
+    for(uint32_t i=0;i<linked_count;i++)
+        if(!linked_modules || nvm_record_map_selected(nvm_record_map_route(linked_modules[i])))
+            return fail("I refuse record-map authority in linked verification.");
+    if(nvm_record_map_selected(nvm_record_map_route(mod))) {
+        if(linked_count)return fail("I refuse linked record-map execution contracts.");
+        return verify_record_maps(mod,fn_idx,out_max_stack,NULL);
+    }
     if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
         if(linked_count)return fail("I refuse linked owner ARRAY execution contracts");
         return verify_owned_arrays(mod,fn_idx,out_max_stack);
@@ -1176,6 +1206,7 @@ NvmVerifyResult nvm_verify_declared_max_stacks(const NvmModule *mod,
     for (uint32_t i = 0; i < count; ++i) selected |= declared_depths[i] != 0;
     /* A zero declaration retains the loader's existing absence of a depth
      * obligation. Execution still requires the independent full verifier. */
+    if(nvm_record_map_selected(nvm_record_map_route(mod)))return verify_record_maps(mod,UINT32_MAX,NULL,declared_depths);
     if (!selected) return ok_result();
     if (nvm_service_execution_pending(mod))
         return fail("I refuse service contracts before mixed execution selection");
@@ -1200,6 +1231,7 @@ NvmVerifyResult nvm_verify_declared_max_stacks(const NvmModule *mod,
 NvmVerifyResult nvm_verify(const NvmModule *mod) {
     if(nvm_service_execution_pending(mod))
         return fail("I refuse service contracts before mixed execution selection");
+    if(nvm_record_map_selected(nvm_record_map_route(mod)))return verify_record_maps(mod,UINT32_MAX,NULL,NULL);
     if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return verify_owned_arrays(mod,0,NULL);
     if(nvm_mixed_samples_candidate(mod))return verify_mixed_samples(mod,0,NULL);
     if(nvm_record_array_candidate(mod))return verify_record_arrays(mod,UINT32_MAX,NULL,NULL);
@@ -1217,6 +1249,13 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
             return fail("I refuse linked service contracts before reviewed dispatch admission");
     if(nvm_service_execution_pending(mod))
         return fail("I refuse service contracts before mixed execution selection");
+    for(uint32_t i=0;i<linked_count;i++)
+        if(nvm_record_map_selected(nvm_record_map_route(linked_modules[i])))
+            return fail("I refuse record-map authority in linked verification.");
+    if(nvm_record_map_selected(nvm_record_map_route(mod))) {
+        if(linked_count)return fail("I refuse linked record-map execution contracts.");
+        return verify_record_maps(mod,UINT32_MAX,NULL,NULL);
+    }
     for(uint32_t i=0;i<linked_count;i++)
         if(nvm_owned_array_route(linked_modules[i])!=NVM_OWNER_ARRAY_NOT_SELECTED)
             return fail("I refuse an owner ARRAY candidate or invalid descriptor in a linked graph");
@@ -1282,6 +1321,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
     if (!verified.ok || profile == NVM_PROFILE_GENERAL) return verified;
     if(nvm_owned_array_route(m)!=NVM_OWNER_ARRAY_NOT_SELECTED)return fail("I keep owner ARRAY candidates outside closed backend profiles");
     if(nvm_mixed_samples_candidate(m))return fail("I keep mixed ownership outside closed backend profiles");
+    if(nvm_record_map_selected(nvm_record_map_route(m)))return fail("I keep record-map authority outside unqualified backend profiles.");
     if(nvm_record_array_candidate(m))return fail("I keep record-array authority outside unqualified backend profiles.");
     const bool portable_bytes = profile == NVM_PROFILE_PORTABLE_FILE_READ;
     const bool portable_read = profile == NVM_PROFILE_PORTABLE_READ_TEXT || portable_bytes;

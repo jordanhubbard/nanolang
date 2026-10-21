@@ -952,9 +952,7 @@ static bool hm_resize(VmHeap *heap, VmHashMap *m, uint32_t new_count) {
     return true;
 }
 
-#ifdef NANO_RECORD_MAP_PRIVATE_HEAP
 #include "record_map_heap.inc"
-#endif
 
 NanoValue vm_hashmap_get(VmHashMap *m, NanoValue key) {
     uint32_t slot;

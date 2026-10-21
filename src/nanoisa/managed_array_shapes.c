@@ -1175,3 +1175,5 @@ NvmArrayEligibilityResult nvm_analyze_record_map_origins(const NvmModule *m,NvmR
     if(!out)return (NvmArrayEligibilityResult){NVM_ARRAY_INVALID,0,0,"I require a map proof output."};
     return analyze(m,NULL,NULL,NULL,NULL,NULL,0,out);
 }
+
+#include "record_map_admission.inc"

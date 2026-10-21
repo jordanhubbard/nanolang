@@ -15,7 +15,7 @@ static NvmRecordMapBoundaryPlan *boundary_prepare(const NvmModule *m) {
 static void boundary_original(const NvmModule *m) {
     NvmRecordMapBoundaryPlan *p=boundary_prepare(m);NvmRecordMapBoundaryCounts count;
     CHECK(nvm_record_map_boundary_counts(p,&count));CHECK(count.globals==0);
-    CHECK(nvm_record_map_boundary_execution(p));map_public_refused(m);
+    CHECK(nvm_record_map_boundary_execution(p));map_public_transport(m,true);
     original_boundary=p;
 }
 static void boundary_input(Input *c,unsigned slot) {
@@ -28,7 +28,7 @@ static void boundary_input(Input *c,unsigned slot) {
 }
 static void boundary_rows(unsigned slot) {
     Input c;boundary_input(&c,slot);
-    NvmRecordMapBoundaryPlan *p=boundary_prepare(&c.m);map_public_refused(&c.m);
+    NvmRecordMapBoundaryPlan *p=boundary_prepare(&c.m);map_public_transport(&c.m,true);
     NvmRecordMapBoundaryCounts count;CHECK(nvm_record_map_boundary_counts(p,&count));CHECK(count.globals==slot+1);
     NvmRecordValueOrigins row,saved;memset(&row,0x5a,sizeof row);saved=row;
     CHECK(!nvm_record_map_boundary_global(p,slot+1,&row));CHECK(!memcmp(&row,&saved,sizeof row));
@@ -126,5 +126,5 @@ int main(int argc,char **argv) {
         NvmRecordMapExecutionCounts counts;CHECK(nvm_record_map_execution_counts(nvm_record_map_boundary_execution(original_boundary),&counts));
         CHECK(counts.carrier.functions>0);nvm_record_map_boundary_free(original_boundary);original_boundary=NULL;
     }
-    printf("PASS %u copied global boundary checks; public admission remains refused\n",checks);return 0;
+    printf("PASS %u copied global boundary checks; public boundaries checked\n",checks);return 0;
 }

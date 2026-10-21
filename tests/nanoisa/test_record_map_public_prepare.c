@@ -96,7 +96,7 @@ static __attribute__((noinline)) void prepare_original(const NvmModule *m) {
         CHECK(value.tag==TAG_INT&&value.as.i64==0);prepare_check(&vm,NVM_ARRAY_INVALID);
         vm.stack_size--;vm_release(&vm.heap,value);prepare_check(&vm,NVM_ARRAY_ELIGIBLE);
     }
-    vm_destroy(&vm);CHECK(!vm.heap.stats.num_objects);map_public_refused(m);
+    vm_destroy(&vm);CHECK(!vm.heap.stats.num_objects);map_public_transport(m,true);
 }
 static __attribute__((noinline)) void prepare_source_global(const char *path) {
     FILE *f=fopen(path,"rb");CHECK(f);CHECK(!fseek(f,0,SEEK_END));long size=ftell(f);CHECK(size>0&&size<1048576);rewind(f);

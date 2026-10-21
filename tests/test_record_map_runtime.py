@@ -11,7 +11,7 @@ from tests import test_record_array_vm
 class RecordMapRuntime(unittest.TestCase):
     command = test_file_cyclic.FileCyclic.command
     harness_source = 'tests/nanoisa/test_record_map_runtime.c'
-    result_banner = b'actual private map runtime checks; public admission remains refused'
+    result_banner = b'actual private map runtime checks; public boundaries checked'
 
     def test_original_switch(self):
         self.runtime(False)

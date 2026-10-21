@@ -42,7 +42,7 @@ static __attribute__((noinline)) void borrowed_original(const NvmModule *m) {
     CHECK(legacy==VM_OK);CHECK(vm.stack_size==1&&vm_get_result(&vm).tag==TAG_INT&&vm_get_result(&vm).as.i64==0);
     vm.stack_size--;vm_release(&vm.heap,vm.stack[0]);
     vm_destroy(&vm);CHECK(!vm.heap.stats.num_objects);
-    map_public_refused(m);
+    map_public_transport(m,true);
 }
 static __attribute__((noinline)) void borrowed_source_global(const char *path) {
     FILE *f=fopen(path,"rb");CHECK(f);CHECK(!fseek(f,0,SEEK_END));long size=ftell(f);CHECK(size>0&&size<1048576);rewind(f);
@@ -316,6 +316,6 @@ int main(int argc,char **argv) {
     for(int i=5;i<argc&&i<=8;i++)borrowed_source_global(argv[i]);
     for(int i=9;i<argc;i++)borrowed_u8_source(argv[i]);
     CHECK(!ra_live&&!ra_bytes);
-    printf("I checked %u borrowed map execution assertions; public admission remains refused.\n",checks);
+    printf("I checked %u borrowed map execution assertions; public boundaries checked.\n",checks);
     return 0;
 }

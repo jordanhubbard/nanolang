@@ -39,7 +39,7 @@ static void execution_rows(const NvmModule *m,NvmRecordMapExecutionPlan *p) {
     CHECK(visited==counts.carrier.instructions&&maps>0);
     NvmRecordMapExecutionInstruction bad,saved;memset(&bad,0x5a,sizeof bad);saved=bad;
     CHECK(!nvm_record_map_execution_instruction(p,counts.carrier.instructions,&bad));CHECK(!memcmp(&bad,&saved,sizeof bad));
-    map_public_refused(m);
+    map_public_transport(m,true);
 }
 static void execution_original(const NvmModule *m) {
 #ifdef MAP_EXECUTION_ORIGINAL_CHECK
@@ -133,5 +133,5 @@ static void execution_allocations(void) {
 #endif
 int MAP_EXECUTION_MAIN(int argc,char **argv) {
     old_map_origin_main(argc,argv);execution_copied();execution_failures();execution_allocations();
-    printf("PASS %u copied map recipe checks; public admission remains refused\n",checks);return 0;
+    printf("PASS %u copied map recipe checks; public boundaries checked\n",checks);return 0;
 }

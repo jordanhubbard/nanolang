@@ -56,7 +56,7 @@ class RecordMapExecution(unittest.TestCase):
                 'tests/nanoisa/record_array_alloc.c', *products, *self.objects,
                 *self.ldflags, '-o', str(exe)])
             output = self.command(mode + '-run', [str(exe), *shlex.split(os.environ.get('RECORD_MAP_MODULES', ''))])
-            self.assertIn(b'copied map recipe checks; public admission remains refused', output)
+            self.assertIn(b'copied map recipe checks; public boundaries checked', output)
             if observed:
                 self.assertIn(b'recipe allocation prefixes', output)
             print(output.decode().strip(), flush=True)

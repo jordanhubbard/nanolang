@@ -9,10 +9,9 @@
 #include "service_bindings_module.h"
 #include "owned_array_admission.h"
 #include "nvm2c.h"
-#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
+#include "record_map_admission.h"
 #include "nvm2c_map_private.h"
 #include "record_map_snapshot_private.h"
-#endif
 #include "../binary64_bits.h"
 #include "../binary64_format.h"
 #include "../binary64_arithmetic_source.h"
@@ -233,9 +232,7 @@ typedef struct {
     int has_owned_strings;
     int has_owned_aggregates;
     bool canonical_records;
-#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
     const NvmRecordMapExecutionPlan *map_plan;
-#endif
     size_t global_count;
     size_t local_width;
     uint8_t *array_results;
@@ -972,26 +969,17 @@ static int shape_field_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
 
 /* This opt-in shape is backed by the independently proved image, not a tag guess. */
 static int private_map_shape(Nvm2cBuf *b, NvmShapeId shape) {
-#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
     if (b->map_plan)
         return shape_type(b, shape, NVM_SHAPE_MAP) &&
                shape_type(b, shape_child(b, shape, 0), NVM_SHAPE_STRING) &&
                shape_type(b, shape_child(b, shape, 1), NVM_SHAPE_INT);
-#else
-    (void)b; (void)shape;
-#endif
     return 1;
 }
 static int private_map_enabled(const Nvm2cBuf *b) {
-#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
     return b->map_plan != NULL;
-#else
-    (void)b; return 0;
-#endif
 }
 static int private_map_pack_field(Nvm2cBuf *b, uint32_t ordinal,
                                   uint16_t index, NvmShapeId shape) {
-#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
     if (b->map_plan) {
         NvmRecordArrayExecutionDescriptor descriptor; NvmV2LayoutField field;
         if (!nvm_record_map_execution_descriptor(b->map_plan, ordinal, &descriptor) ||
@@ -1008,9 +996,6 @@ static int private_map_pack_field(Nvm2cBuf *b, uint32_t ordinal,
             return private_map_shape(b, shape);
         }
     }
-#else
-    (void)b; (void)ordinal; (void)index; (void)shape;
-#endif
     return 1;
 }
 
@@ -7665,15 +7650,9 @@ static int prune_unemittable_callers(Nvm2cBuf *b, const NvmModule *mod) {
 #include "record_array_admission.h"
 
 static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
-#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
                              , const NvmRecordMapExecutionPlan *map_plan
-#endif
                              ) {
-#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
     bool private_maps = map_plan != NULL;
-#else
-    bool private_maps = false;
-#endif
     if (err && err_len) err[0] = '\0';
     if (!mod) {
         if (err && err_len) snprintf(err, err_len, "module is null");
@@ -7728,9 +7707,7 @@ static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
     b.err = err;
     b.err_len = err_len;
     b.canonical_records = record_arrays || private_maps;
-#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
     b.map_plan = map_plan;
-#endif
     if (record_arrays || private_maps) b.has_maps = 1;
     b.record_width = 1;
     b.local_width = 1;
@@ -8869,14 +8846,11 @@ fail:
     return NULL;
 }
 
-/* Public routing retains the original admission and output behavior. */
+#include "nvm2c_map_private.inc"
+/* Absent routing retains the original admission and output behavior. */
 char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
+    if(nvm_record_map_selected(nvm_record_map_route(mod)))return nvm2c_emit_record_map_source(mod,err,err_len,true);
     return nvm2c_emit_core(mod, err, err_len
-#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
                            , NULL
-#endif
                            );
 }
-#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
-#include "nvm2c_map_private.inc"
-#endif

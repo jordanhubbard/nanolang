@@ -21,7 +21,7 @@ static void *vm_rmp_zero(VmRecordMapPublicPreparation *p,NvmArrayEligibilityStat
     if(!out)*status=NVM_ARRAY_MEMORY;
     return out;
 }
-void vm_record_map_public_preparation_free(VmRecordMapPublicPreparation *p) {
+VM_RMP_API void vm_record_map_public_preparation_free(VmRecordMapPublicPreparation *p) {
     if(!p)return;
     free(p->instructions);free(p->fields);nvm_record_map_boundary_free(p->boundary);free(p);
 }
@@ -286,7 +286,7 @@ static NvmArrayEligibilityResult vm_rmp_prepare_reserved(const VmState *vm,VmRec
        !pthread_equal(vm->owner_thread,pthread_self()) || vm->stack_size || vm->frame_count ||
        vm->activation_floor || vm->references.active || vm->callee_references.active || vm->handler_count ||
        vm->linked_module_count || vm->callbacks || vm->opcode_trace || vm->heap.gc_running ||
-       vm->heap.private_record_dag || !vm->decoded_module_valid || !vm->dispatch_module_valid ||
+       vm_rm_private_dag(&vm->heap) || !vm->decoded_module_valid || !vm->dispatch_module_valid ||
        (vm->stack_capacity && !vm->stack) || (uint64_t)vm->stack_capacity*sizeof(NanoValue)>SIZE_MAX)return result;
     if((uint64_t)vm->global_capacity*sizeof(NanoValue)>SIZE_MAX ||
        (uint64_t)vm->module_constants.count*sizeof(VmString *)>SIZE_MAX ||
@@ -359,6 +359,6 @@ failed:
     snprintf(result.message,sizeof result.message,"I could not prepare exact borrowed-state map tables and imports.");return result;
 }
 
-NvmArrayEligibilityResult vm_record_map_public_prepare(const VmState *vm,VmRecordMapPublicPreparation **out) {
+VM_RMP_API NvmArrayEligibilityResult vm_record_map_public_prepare(const VmState *vm,VmRecordMapPublicPreparation **out) {
     return vm_rmp_prepare_reserved(vm,out,0,0);
 }

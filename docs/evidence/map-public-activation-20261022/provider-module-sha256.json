@@ -1,0 +1,1522 @@
+[
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/lib/libnano_compiler_inputs.a",
+    "bytes": 944200,
+    "sha256": "4a9721464350d9fb205061d9dd7da6dc2a8a9346331307ed12b8e3e96813ff88"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bcp47.o",
+    "bytes": 12056,
+    "sha256": "b9f3ea95a9a1cba2220b39b112e16cd54dee863e788328a397b54e5f5c9c67d2"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bench.o",
+    "bytes": 38376,
+    "sha256": "e9a1c0dfbc08e93c8d66d80d8966a5ede0089139564b8a53deab791be6b8cd06"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bench_native.o",
+    "bytes": 22840,
+    "sha256": "f5be53631f3660101167df116eb74676a2e37689dae863d5aceb14600c532a1b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/builtins_registry.o",
+    "bytes": 33600,
+    "sha256": "c06808c10c5a522012a96948a790ee553925080115f691c83b546c11a2f1dd3b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/cJSON.o",
+    "bytes": 93440,
+    "sha256": "5f2377982383a9b28e1575d15974701a2872cce9578d297e910e3929d11c7d56"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/c_backend.o",
+    "bytes": 231568,
+    "sha256": "10a760e8f01ec03a3892d081cb28e5e45f8438cb5909c6572f77b8dae7759375"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/catalog.o",
+    "bytes": 26896,
+    "sha256": "3e4a263b8ea184625786547ed16d29904f6ebd78ced50181581f2c323e38651c"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/channel.o",
+    "bytes": 12360,
+    "sha256": "091dfb1f07b374df62a742ad1a21130f26f4c8d0dc518e5f764a35a816eab4d1"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/checked_borrow_facts.o",
+    "bytes": 53328,
+    "sha256": "5a4ac7c49f8c0518f37fb5e9c735f3050568410b87b3acf6007f5c765a143553"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/coroutine.o",
+    "bytes": 21672,
+    "sha256": "2abf44fbd2d68592100e678d28cd8c2a96ddf2d16e16227e8585e59afad0ff19"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/cps_pass.o",
+    "bytes": 21888,
+    "sha256": "229ee308ed27b5cb66750b7dfaf664ef4c5dd4e893445c1c0e8d8f92aef1a4ee"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/dce_pass.o",
+    "bytes": 29328,
+    "sha256": "8ba3797261a0a8ca4398677e02f95e8ebc581343e88e967b5f96a39a24ec50c0"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/diag_id.o",
+    "bytes": 11672,
+    "sha256": "58b544071c863ada2135f581b84b68258a3d02e45aa6fdbb4a92a40618009f37"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/docgen.o",
+    "bytes": 70000,
+    "sha256": "82cb1c69f0abbbd5721d6982e64d0cee535e87c17dd37e6526d68a8bd8ec4350"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/docgen_md.o",
+    "bytes": 45488,
+    "sha256": "fe19b22e7b020caaee12028b01b42f3fd09a1aeaf23807ee36a55d36cb3aa6e2"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/dwarf_info.o",
+    "bytes": 13904,
+    "sha256": "f0234d37f54fc474ffe5049f8eae7a36659cd468058aed7f940b4d79074dc483"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/effects.o",
+    "bytes": 63640,
+    "sha256": "c8139d0fa5a7e96e15b67462b2f500ba77f2f14d80b4aeaa5f3af34848418bb7"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/emit_typed_ast.o",
+    "bytes": 62456,
+    "sha256": "b9ddbaaa0b4ce5c5867f330246585042a0ab58b207a3e67be2acb019381cbded"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/env.o",
+    "bytes": 171840,
+    "sha256": "59f2d7eb8320282b8159103a3586de316a877b4a809f632ba8567a79b4a292ee"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/eval.o",
+    "bytes": 430072,
+    "sha256": "34523512f03a1104969cab261a578dc0056e6b89fba0d4784068962201a4d1a2"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/eval/eval_hashmap.o",
+    "bytes": 18376,
+    "sha256": "bf57294a88bff3180be4f529294d55671306898ce67888fc3bff4c973ab49986"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/eval/eval_io.o",
+    "bytes": 78712,
+    "sha256": "4a2ecf4d2ef0e562a16dfc6638541b5113dd9e6be4ed8f15bc3aaafcb98107dd"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/eval/eval_math.o",
+    "bytes": 14848,
+    "sha256": "712ad9569f897db07496c03a7711c5f97acd2c274d8d83644a3ce428875b7f30"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/eval/eval_string.o",
+    "bytes": 26808,
+    "sha256": "2486110e4a911a4475ee4a5685c4f0dfb8919596f2cc60e330a59fbf94a90059"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/fmt.o",
+    "bytes": 25656,
+    "sha256": "88dd4144f128874373940d716c6a7c4177da8c3d317c4dbfaef204b798dcedc4"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/fold_constants.o",
+    "bytes": 28480,
+    "sha256": "0b97bb782d8e661f6436adacb8c8a05cac8361261177bfb3721b6398144f8d4e"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/interpreter_ffi.o",
+    "bytes": 46088,
+    "sha256": "675c3aa8649d71e0ab9b4add708490f23fbd47002e8a965d0193612d91e7b378"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/json_diagnostics.o",
+    "bytes": 18312,
+    "sha256": "fa57492811e9a87b6b98f5a36fe7396451a3d8788e4e53f623febbcb9eb5cdce"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/lexer.o",
+    "bytes": 47080,
+    "sha256": "5849ff3cdda77a8d4ccca8ac6879f4a07ea50d57987c86d1de5ba9adc523a0eb"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/locale.o",
+    "bytes": 11104,
+    "sha256": "7eec2ed0ed0e0e294ed030dc086c30053941b492bc368b9dda35d3ae7d97a561"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/module.o",
+    "bytes": 175776,
+    "sha256": "e487e2997880f71f7785f790dac57a46cbe5994603a31e9202034c47a87150d7"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/module_builder.o",
+    "bytes": 539416,
+    "sha256": "a2434190b743428ba039da535eb5a6b150bb0c9e6b9d4e0d35de1f2907116ffc"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/module_metadata.o",
+    "bytes": 99008,
+    "sha256": "af9b437a748f4a6e0cfd4a273351b795327d6a6d8358d16cdb0ad0daa81a4ef8"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanocore_export.o",
+    "bytes": 80456,
+    "sha256": "390019b67d1f339ac2948e9e3e2044e77759be8e3ffc682d7f2d462f11b41792"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanocore_subset.o",
+    "bytes": 41816,
+    "sha256": "bd9058632c41256716eb77310ce4a828b831f290eb3c97e5b04406e1ef753803"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nanoisa_facade.o",
+    "bytes": 52272,
+    "sha256": "491a1c43fe56847a5c2bb72ce936b94da86daf1248d7ca4b4683bb2562f6ccd6"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/cop_protocol.o",
+    "bytes": 62408,
+    "sha256": "324b80d94ff41544ae467e6b89ac9b006884e4939d58370108c200a146ab08a3"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/heap.o",
+    "bytes": 51392,
+    "sha256": "4ef385f3a8e709f0c2b78e6c064763243a778f3bf12cacec3efffa569749209f"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/heap_cycles.o",
+    "bytes": 28080,
+    "sha256": "7825e1de0505759c46699eadcfd634c8a96a55152771f695d41582b41d4b3b1a"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/value.o",
+    "bytes": 20880,
+    "sha256": "691cd1e75f2428a9d5da8b013d0e1fc74cd18a9045b1de58bb90c31cb4f77ad3"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/vm.o",
+    "bytes": 373072,
+    "sha256": "ee0b524274dafebd50d4461cff8aeaa09020362460429b54f358099d64c9f5a3"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/vm_builtins.o",
+    "bytes": 43536,
+    "sha256": "efc543e77bcbbb6fd1079b1b2053a9c612a8e95f68d7a6004f9d6d9194370a72"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/vm_callback.o",
+    "bytes": 26336,
+    "sha256": "f6ed8fc458f9c377d3f44c79d8143133673bb941039948c6c63a0cb376dd27f8"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/vm_decode.o",
+    "bytes": 21232,
+    "sha256": "e91db0e53e7eacdeff3ebc764f7a3ac8f6771dcbc3d72d30f8a383626a6202d0"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/vm_dispatch.o",
+    "bytes": 24032,
+    "sha256": "2efd5fd71619f07b54a839ad8a6a3a927d23de78053651932c2d88d6b351b54c"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/vm_ffi.o",
+    "bytes": 190160,
+    "sha256": "7d510757389650ae9e5f2fa553135a62adb91100496a01bd88aa8bf3ff4201f7"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/vm_ffi_arrays.o",
+    "bytes": 20512,
+    "sha256": "718916ff03e85885629e4964e38e0c5ee3cefca752a04ad1769814e877b06b36"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/nominal_types.o",
+    "bytes": 59496,
+    "sha256": "56ec5572b20e8d5551383f1f45b780230d8dcb0f0d93b14787b38d73034f8cc0"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/opencl_backend.o",
+    "bytes": 56264,
+    "sha256": "c250dc38cc92a576f62785bad7953326115cacbcc74f28322103f0cc183d5284"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/par_let_pass.o",
+    "bytes": 20536,
+    "sha256": "86aeeffc3da5b874299a087beec072a5cf12763476eda4f409a2270b61804cf8"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/parser.o",
+    "bytes": 363480,
+    "sha256": "fcac36052a207c4c6936de1f81f47c2587b16073fb4d6e47a9b0a98b1a60e412"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/pgo_pass.o",
+    "bytes": 37928,
+    "sha256": "2c0ad928a2b075771b5ddd78beb0bee89a1918070c9977d98b29fb9d41b198c8"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/ptx_backend.o",
+    "bytes": 57816,
+    "sha256": "c93e0186c88024c5fb9f6d58eebd2460c671bd150d19d097d0db5f3f09851484"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/reflection.o",
+    "bytes": 43616,
+    "sha256": "c7050934ab7fdb4b8b210cbc9d18315437faa07d1e3664f3124242c397abd25c"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/resource_flow.o",
+    "bytes": 131440,
+    "sha256": "a2aa3084af00d410b6eb94b719b3b1dfb5ecbf86d98cff027082c18ecb1dbdd6"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/resource_tracking.o",
+    "bytes": 44368,
+    "sha256": "3a394d48bd844524207385013e1481c192e957a333bea47449e7c733cc202636"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/riscv_backend.o",
+    "bytes": 48576,
+    "sha256": "85f454818e1676b2b054550f7c9122541bafaa35fd208dac67ba03a059310688"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/callback_runtime.o",
+    "bytes": 23216,
+    "sha256": "dc1e007ca7ab0da042e6c65461c81615c187c941cf851b2a847afa3a799f64a7"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/cli.o",
+    "bytes": 4624,
+    "sha256": "88fa746f64ce9bff7f7d62b54e88f0c4e56163770df68d1725274803891d86aa"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/dyn_array.o",
+    "bytes": 60232,
+    "sha256": "266348bce93d5daf6098fcce4386003544566df23ac1c8f8781690d14cf331be"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/effect_runtime.o",
+    "bytes": 3328,
+    "sha256": "6f7dbe926ac45993b8579c2db806f83734a68b3fac0a69078bbafc2e1c3064e9"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/ffi_loader.o",
+    "bytes": 28776,
+    "sha256": "6a81d89b0d5c9ca9452d3b71ae9e17bf0e86d83750e4c6a0c7460908fdf0ce8f"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/gc.o",
+    "bytes": 8410672,
+    "sha256": "dbdabafca89375a7959cc396a9e84e8643a01014a0a2023d538f2c8b9916e958"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/gc_struct.o",
+    "bytes": 16656,
+    "sha256": "14c75e9466db02a5b0239f8bd73f25ed0590879246e28ebf804579b7f4db2ef1"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTArrayLiteral.o",
+    "bytes": 14824,
+    "sha256": "858be28c13b28ac857062668503071943a003f81020aa7615dc9f4662c21f72d"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTAssert.o",
+    "bytes": 14504,
+    "sha256": "1cc7357ccb689da9d2dac0d031c03769daf3345d428dd41a4b7ce0a75b37611e"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTBinaryOp.o",
+    "bytes": 14696,
+    "sha256": "a9851ab44050d6338353b140327146618ce7379d821d2a8a5d6c4400ee9bed21"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTBlock.o",
+    "bytes": 14488,
+    "sha256": "194f1154e8a1dcf799e3b7c5cbb854463fa6f33bc7d84b2f70b2d955c780e45d"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTBool.o",
+    "bytes": 14312,
+    "sha256": "e94fcdc09bd173573e311813bbc392caa077daf0770c5af7eec47bb162702110"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTCall.o",
+    "bytes": 14392,
+    "sha256": "2f11514f24f90db2b91881b8bff3c29e13d84f434070006f507ac9b9ed3d2a4a"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTEnum.o",
+    "bytes": 15352,
+    "sha256": "0a31daa085cd4d46f0d2478135e18f89a679afb6a66a34c369790c3e2f0e2804"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTFieldAccess.o",
+    "bytes": 14760,
+    "sha256": "93dca525a9a39318303b573d6414eef871e5a280ad778d56f307b3e3c88a2d28"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTFloat.o",
+    "bytes": 14416,
+    "sha256": "cdc47a7f777f24619229ab3522cfb17589ec1c1895d6941b090e8997aa2f039d"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTFor.o",
+    "bytes": 14400,
+    "sha256": "53d0767da80cb983ff898fe24e8b972f590cbb65c99978e6350890996d5fdd14"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTFunction.o",
+    "bytes": 15784,
+    "sha256": "1cc5ec6e76a8a8948922ea947256ee8597cfdf5b513414db648bdcaec8f6fd08"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTIdentifier.o",
+    "bytes": 15704,
+    "sha256": "a6db06878a050294878338f16a409d89e7e49c119ca554dfeea71959298725e9"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTIf.o",
+    "bytes": 14320,
+    "sha256": "d7e59756e91521e181b80085d4d1b9c86f1b7b4cb595b628accc1cad250b6a5d"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTImport.o",
+    "bytes": 15584,
+    "sha256": "5086cf76a6a3f233426fe1ed3ace002e5532234ff56571a82923c9b0ac4de69e"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTLet.o",
+    "bytes": 15488,
+    "sha256": "df1f5ff898212337fd93b2ce5f2ee68d8a6e7d239e6ec63fb7c569fa540b6ba6"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTMatch.o",
+    "bytes": 15616,
+    "sha256": "062454a5a419235f12328afe56d48c921cdc732006b52a8fc5ded07a26517dbb"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTModuleQualifiedCall.o",
+    "bytes": 15320,
+    "sha256": "e41dda4de27e8ab9a75e0206ebd60f0a224608ed72da66e9bbc62a85b6d41a79"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTNumber.o",
+    "bytes": 14472,
+    "sha256": "63e2cc645f5ee10675af5b7a9f2143f745b47b96a4d6937ff13e3c66e3db75d0"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTOpaqueType.o",
+    "bytes": 14720,
+    "sha256": "b56bc96c23f424633c357b4dc40e0468e306b494967c711884de424181190d80"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTPrint.o",
+    "bytes": 14424,
+    "sha256": "f14eb6836b148ca23adedd23779814a8bbede3eab572cbb343ed2769c8205ebf"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTReturn.o",
+    "bytes": 14480,
+    "sha256": "fd70ef7f5d10ff2af162d8f8c87c7a15dd7e99a2a7caf0c3d00c6a257a60820e"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTServiceDecl.o",
+    "bytes": 14928,
+    "sha256": "7ca654f3ca2e2dc61b31499466c2e735f51c7c3d25e076ffd9b21fdecbacb887"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTSet.o",
+    "bytes": 14384,
+    "sha256": "e8e8624e350e1e1d3a991b89b67eda3f5c01a6d527b290240fccadb73787e9f5"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTShadow.o",
+    "bytes": 14448,
+    "sha256": "3287053d6efb1cb521a973fe675bfed7a809fd0ce584f668b41e9fb25343b091"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTStmtRef.o",
+    "bytes": 14384,
+    "sha256": "a78021750a79e5bcd6f94ab4711288778c0bbdbd0a2b42cc25b687bb0dce5252"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTString.o",
+    "bytes": 14472,
+    "sha256": "c01ebb3eef6f8eafabbeecbf6c9a2dee0bc64159384746a38a264598c5bf800e"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTStruct.o",
+    "bytes": 15592,
+    "sha256": "725c08a1652a5a72f20796463de1227deb2c5689b3b827b44e8bcc9303e9014a"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTStructLiteral.o",
+    "bytes": 15952,
+    "sha256": "3c291de041c00429569d78452584dc314b04924eb7ed24cf03bf5a06e806abbd"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTTupleIndex.o",
+    "bytes": 14728,
+    "sha256": "6fcf5eb1cb9b2d7bede2f1e2dde0946e0dbbe4d552d744bbc0ba6a99e3894df7"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTTupleLiteral.o",
+    "bytes": 15768,
+    "sha256": "6f4c828245749e7b83025f26a9d2da3841c5e11f37d5a1fb6511dd521cb55ec7"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTUnion.o",
+    "bytes": 15600,
+    "sha256": "7d9eaf32df332842479511e7d77d78075d6b1e2a6fe121d2d536930ea6b81bad"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTUnionConstruct.o",
+    "bytes": 15960,
+    "sha256": "b640527a1b1dda162e1ddc2df8fb5592878ed61022d44f56452e2186e9dda113"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTUnsafeBlock.o",
+    "bytes": 14832,
+    "sha256": "226aec37e7f846812ee627c5d3a378720a77d1f992459cbc85b11a8e49bc5346"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_ASTWhile.o",
+    "bytes": 14456,
+    "sha256": "00d7107420936656e7d2e8aa70e84a2ac585a9902ee3ccdb0e5889007a26c357"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_CompilerDiagnostic.o",
+    "bytes": 15232,
+    "sha256": "6ee84d27a5af81edf58f689f7813835c437cc40ad2563f023e5218978607d482"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_CompilerSourceLocation.o",
+    "bytes": 15176,
+    "sha256": "d0b4d13d5aa49c91758e38f47117c0741aad05d1d54b561524ae4d8b4d0e38be"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_LexerToken.o",
+    "bytes": 14808,
+    "sha256": "72afe86fc3cca4e9ace4db3bd94c8b7fe681a03d4c6e8d54235e97f3d32d26ba"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_bool.o",
+    "bytes": 14008,
+    "sha256": "acfa705a24e6481265781f0bfbf8686097602c7ce2ba24b113a24a90ae14555c"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_int.o",
+    "bytes": 13936,
+    "sha256": "994523acf4eae9e96c3dd584187baa4b21e22c4746c713b8eca67459075af72b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_string.o",
+    "bytes": 16280,
+    "sha256": "e42d6bb41e9d463b1e579e72c04375dfd0f346abd237f9bd0f91deb42babca7a"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/list_token.o",
+    "bytes": 14400,
+    "sha256": "c032e544f941dd67c6892f62e9bca0b7509125224b4605c606cfd11f67fd063b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/module_build_dir.o",
+    "bytes": 10784,
+    "sha256": "73278be2dffe65ce581cd98d59ef095c471ec8beb18354bdcd09b0406804f338"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/nl_string.o",
+    "bytes": 21904,
+    "sha256": "fe6c0559e18969682214627e1bcb49da77ba9d31539274eed0b27b01e15252e3"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/regex.o",
+    "bytes": 14408,
+    "sha256": "f899c81c7acb9353ec3d0ed74620707f7ed63f5fe6282e8b8df841888714092c"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/runtime/token_helpers.o",
+    "bytes": 4408,
+    "sha256": "3a23104348bc4744e0e421da07eb0ace7c55c82de098d922555ef3014bb38465"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/service_bodies.o",
+    "bytes": 73992,
+    "sha256": "0169a257c757026fdd4560adce9fda5812773791dab2a3e6da7de7099c774342"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/service_namespace.o",
+    "bytes": 55568,
+    "sha256": "d1f527cbf40ac2ca916feadb4b351c7fa1b23bd957ce80dbaf0f854c5d32c20a"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/service_ownership.o",
+    "bytes": 52528,
+    "sha256": "909472c9ec0c444d643aa1b68675bf9133041a14ca1f75bf3868d351523a02ee"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/stdlib_runtime.o",
+    "bytes": 288448,
+    "sha256": "1140d03d271a8b2732bc7e81fca8960d763d2f622e167a1803a09ff7c6188816"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/tco_pass.o",
+    "bytes": 55784,
+    "sha256": "b76a0590332fabc479f7f95e1b8133a4308b3a2c87cbee6d38b42a8d3057b8b4"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/toon_output.o",
+    "bytes": 13704,
+    "sha256": "da2a1604e2ac4e20298a18bd3201801fe85329e1ccd8dee0bf8b5aba905cfbed"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/transpiler.o",
+    "bytes": 819992,
+    "sha256": "4370c9500432e0325ff8e2867431ff3feaed0d4a2c859d99906aec158a244db9"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/type_infer.o",
+    "bytes": 120544,
+    "sha256": "b131293823fd25b51fe98bc0bcc75b572a6e5a696c2b8a3a176c78a4ae17f3d8"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/typechecker.o",
+    "bytes": 569160,
+    "sha256": "6c26cdf56e79cbd5f6d6828b206656e12ff6b6d47bf20bf8dc1e0d297918be39"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/utf8.o",
+    "bytes": 13344,
+    "sha256": "a3453aac52d93d402c12c188e9f83ea15dbdbac050aeed34bbfe0b5eb000d0dd"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm",
+    "bytes": 1444,
+    "sha256": "c9ffdf8c5f2958c3239c13b9fd0811d0811ae92841a3349c86a385810c043ed7"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm",
+    "bytes": 1828,
+    "sha256": "190286a5dd0d6b51211eb2dd9679c588f0f7085870b65e43d1e90085d9ee043f"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm",
+    "bytes": 1444,
+    "sha256": "02ed5c4219ba9d05b9a953683d6e98bc3a41f3313b623adef0b6ceb3d39d6c08"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm",
+    "bytes": 1444,
+    "sha256": "02ed5c4219ba9d05b9a953683d6e98bc3a41f3313b623adef0b6ceb3d39d6c08"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-borrowed-20261022/u8-c-hosted.nvm",
+    "bytes": 828,
+    "sha256": "99abd02ff9f6a755cf7519745b0345532aef7d010bce6e3456b4de59250723a8"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-borrowed-20261022/u8-seed.nvm",
+    "bytes": 1140,
+    "sha256": "0e742f4b6325eca4bc0132ca13daac358e655152ffc143b35276772b6ee63fa7"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-borrowed-20261022/u8-stage1.nvm",
+    "bytes": 828,
+    "sha256": "99abd02ff9f6a755cf7519745b0345532aef7d010bce6e3456b4de59250723a8"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-borrowed-20261022/u8-stage2.nvm",
+    "bytes": 828,
+    "sha256": "99abd02ff9f6a755cf7519745b0345532aef7d010bce6e3456b4de59250723a8"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-native-final-checks/current",
+    "bytes": 12298264,
+    "sha256": "4f9b8066ad6bb036525921c8855b9334ad65b7e18d7fd617b4ed60c386eed7f4"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/affine_bytecode.o",
+    "bytes": 353360,
+    "sha256": "e450e668a925b6c4018e8ebbf273ca307e10b64c725235f8583ef626cc5b98bd"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/affine_state.o",
+    "bytes": 685240,
+    "sha256": "28a98707be83ce109917bf3cfca5c57f502ab1129885ac867c98ff34eb05a9c0"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/assembler.o",
+    "bytes": 297488,
+    "sha256": "a093ad35397af5bf0b49d1ccf07aa45c2556d34e745ae9891c773f0fe0bf012e"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/disassembler.o",
+    "bytes": 80160,
+    "sha256": "8c77d548f50d71d454023b474354ca9c4ddea79fbad072dfa08003f04796be9d"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/file_flow.o",
+    "bytes": 823416,
+    "sha256": "40218cebb4eaf8b42ff7bc28ee1c79144c4870546e3ce167172bc932609c9de6"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/frontend.o",
+    "bytes": 67288,
+    "sha256": "2ce4aafe8de8e72ca6a07c0ad439f6b39150c3de8b15014b502c4167f5277992"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/isa.o",
+    "bytes": 128080,
+    "sha256": "21871ece571487577bf135006f5d71657963fcf39d295d9b9f928f3ce689edb6"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/local_bindings.o",
+    "bytes": 42808,
+    "sha256": "fb88de7c63633bef6918e2aa192d07f38a6bf2aaf55ddb79d20d29cbf4340b61"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/managed_array_shapes.o",
+    "bytes": 776312,
+    "sha256": "efddbb79ea5fccc14086a715a172bb69a634b19304bf38c9d55db0790dcbbda4"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/mixed_float_proof.o",
+    "bytes": 218656,
+    "sha256": "6c968cb4f624163965bdcc86c880263e79a403d4fe6f14ea27ef91446a896813"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm2c.o",
+    "bytes": 2019360,
+    "sha256": "d01bd30d47a6ba4474075088a92dc81d9abff4ba8315f20f42c60eeb1185d4e2"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm2c_callables.o",
+    "bytes": 170920,
+    "sha256": "a9be0a6b06f7d1b2de2bf4af2184cbcab23e0cfb94e6793303d4735065a6e72c"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm2c_shape.o",
+    "bytes": 115824,
+    "sha256": "bf7ce1f5b317c98f01338c972f167479c5f389b01779ff37ffa908591e033f41"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm_format.o",
+    "bytes": 360648,
+    "sha256": "512cb7683cbcc75d5571efe2b8d9749ed7c2d60cc237521c9c69de9cbc71fe36"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm_format_v2.o",
+    "bytes": 43416,
+    "sha256": "923680808fb060ff42b5cc6fbc4feb9636be033d310c5c86334b6e759acde9b2"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm_v2_constants.o",
+    "bytes": 17232,
+    "sha256": "88c0ca7279bcffdee6f457aed2967f3920ca022dd180e0509529c073f4b5e140"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm_v2_convert.o",
+    "bytes": 115872,
+    "sha256": "c5c8e3ef5df36b09b462b28fb672bbd278bb0a9df4bc8336029ea2f1d452a081"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm_v2_cursor.o",
+    "bytes": 17792,
+    "sha256": "27ea5e348fd8bbc7d779ae76766c3649037cc644023d0c3c2a4aa783ab3e52a2"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm_v2_functions.o",
+    "bytes": 30832,
+    "sha256": "1ab018f7d8201e185bd57a2fbaac909ccd98db721bfda6d210b1f1e9f9468bb6"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm_v2_imports.o",
+    "bytes": 67880,
+    "sha256": "caa300a386378ee3f61ffb810db943bdc14d13073886f72a88fdbf878cd4cae0"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm_v2_layouts.o",
+    "bytes": 40864,
+    "sha256": "bedf2a56d93464d23b6d6fe701da61dc7bc5ec701af3bd71c3d0c3360cdd84e1"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm_v2_module.o",
+    "bytes": 69224,
+    "sha256": "e1f19ffe8690d2d51616d9ab8c992aadbb684f77068862d4c076900dd64e14e7"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/nvm_v2_signatures.o",
+    "bytes": 22032,
+    "sha256": "784dd9ef28440bc79135e29c925daf0c42fdfe859986af0a0c1fd7742f1a73da"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/ownership_contracts.o",
+    "bytes": 282848,
+    "sha256": "145382a0bab6114919470d55e865c9df203178b7232064fbfef3259e0e2573d5"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/passive.o",
+    "bytes": 94888,
+    "sha256": "577d96438b35c5315c6821ad33a9086d00d563917b8218851ba7d804e638c87d"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/reference_places.o",
+    "bytes": 25352,
+    "sha256": "51f4fdbc9117843bcb68d348bcc05c18707b1def50cd7f1501f71b412b136866"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/retained_layouts.o",
+    "bytes": 430280,
+    "sha256": "989e86fae0915c7c2d88d1b04d724094311c9fe2c49e6a960b36567c4fa72221"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/service_bindings.o",
+    "bytes": 16464,
+    "sha256": "0f36bc1e4a7cb352af494b4a7192abd35ec43607105b1c2da5222bdff3c9dbbb"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/service_bindings_module.o",
+    "bytes": 80200,
+    "sha256": "356ccbcfb94d54fca46f3c9a95ebbbcaadea8af64e27ea83b5379eab25594390"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/service_file_nominal.o",
+    "bytes": 20368,
+    "sha256": "1f72955cf0a7211fae7372780e4fc82e61bfe791fa1c8ee8851150b4a0c2e288"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/service_file_nominal_plan.o",
+    "bytes": 57040,
+    "sha256": "5ed55e3e71b498425fc5244009beff62b3ca58eca70c2c79e9a2bf282106ea1c"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/verifier.o",
+    "bytes": 395896,
+    "sha256": "8666e742bb64830c07a18a34d79eb9c61706a7edb7bd8916e75bfab3e2aa3930"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-activation-20261022/current-query/verifier_types.o",
+    "bytes": 49144,
+    "sha256": "9ebfb5f897626da2be2e2b727f91ed970b9fd35a76166d9a11ec8d6a65d5aa09"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-baseline-20261021/c-hosted-nano.nvm",
+    "bytes": 712,
+    "sha256": "dbe99db8c98550de8d303a230c308d58ea0ee42599ece45db365b29119206d35"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-baseline-20261021/seed.nvm",
+    "bytes": 924,
+    "sha256": "1e888805ddd797cdc9ce808acaeee938f1bf57ae5e58ab0774215459197ee42b"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-baseline-20261021/stage1.nvm",
+    "bytes": 712,
+    "sha256": "dec0f5e7cc4e513efe6c4777149109267c48364ed8d87375f862035a0b4ee581"
+  },
+  {
+    "path": "/private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm",
+    "bytes": 712,
+    "sha256": "dec0f5e7cc4e513efe6c4777149109267c48364ed8d87375f862035a0b4ee581"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-affine_bytecode.o",
+    "bytes": 354048,
+    "sha256": "f634b3f21579d96dcc369a7b48c118f851a3e180ad00ee7b6752ae2bb6e6dff6"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-affine_state.o",
+    "bytes": 695504,
+    "sha256": "24d7ec1937ebda507736aaac4d67cde6f512bb7c295970fee1090b98893ab504"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-assembler.o",
+    "bytes": 297648,
+    "sha256": "14c626b78de739f226ff98e0ac1833c3bdf590e4b3ef1c0c091fa2791879d2a2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-callback_runtime.o",
+    "bytes": 36176,
+    "sha256": "d8a7d91b3bcaa630a91089bbedd9ad52e8ece9585a933275369f64a82abeae93"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-cop_protocol.o",
+    "bytes": 124856,
+    "sha256": "de26e3f4d9958e4ae42f5c826285708a676e2d56efe8b679371cd7ddb538fd0c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-disassembler.o",
+    "bytes": 80136,
+    "sha256": "6b5e8c59c296a3ecf76573bf67774ec49a30210e2686c45ee7db016e41cde957"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-file_flow.o",
+    "bytes": 826624,
+    "sha256": "b0bd9d0c49ca632ce19f89fa63ff87cc82daec80a1584a66eb1d09f0c162137e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-frontend.o",
+    "bytes": 67280,
+    "sha256": "f6a3492f194b9c29def7f1efd2214855de3e6c0c728579e93abc31a8dae6148b"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-heap.o",
+    "bytes": 161088,
+    "sha256": "6fb3bc584eb31fb676a4d6c0dcc9ff16d601f7bb359a1a7b673c107331ef1342"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-heap_cycles.o",
+    "bytes": 66184,
+    "sha256": "781e56838672a1f318fd12cbabc16df15ab4d4143e73825dbbb48614162a474d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-isa.o",
+    "bytes": 128168,
+    "sha256": "b4ee1a4634efecbcb095d1d123859cfee0ae106807239bac2f19a88e455cae14"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-local_bindings.o",
+    "bytes": 43040,
+    "sha256": "9532490dd8e3a12a4c6620d20169ffb28be0de0abde282c2d0af5221c4e0cbaf"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-managed_array_shapes.o",
+    "bytes": 777528,
+    "sha256": "142b354d0de1606c73582f4c671e883777012b88f3956ed2886d75fe855dd299"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-mixed_float_proof.o",
+    "bytes": 219448,
+    "sha256": "c63b952b1164a31dc7c936cc4f375ba7c273fbde128b5a4257accd7bd359dd1a"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm2c.o",
+    "bytes": 2020304,
+    "sha256": "fa1323211f42bbe95ad20f9f066b6f01607ea2a63c63c8cd115639c855b87d51"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm2c_callables.o",
+    "bytes": 172464,
+    "sha256": "dcab75c96fd40d3582fb695762f46e216f4809a7120bf83a023513511b015b2b"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm2c_shape.o",
+    "bytes": 116384,
+    "sha256": "04d4b357abcfae10b92e507270138ff5811aa78127f6bd714f5aa3203dea0dfe"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm_format.o",
+    "bytes": 363464,
+    "sha256": "e3a86e9c77ae59cf1b54ffa378c4c84fa10ae7fbd174827287f9dacd19676539"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm_format_v2.o",
+    "bytes": 43592,
+    "sha256": "8cc5c65094e761a647fb123034243d21f89a488c53bcbe6e2428a7dc445195d7"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm_v2_constants.o",
+    "bytes": 17224,
+    "sha256": "625651d171c0c51c7c3da7fbfadb7057fd4d1f4927082c878b9c639c55a9cd6a"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm_v2_convert.o",
+    "bytes": 116600,
+    "sha256": "332a7b92f9549be82d1703d32dfeb09cbde5fbed86059f54963687302d36fbb8"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm_v2_cursor.o",
+    "bytes": 17960,
+    "sha256": "a60abcab64fabcb77f0d328e80838e1048d09c75079b32fd3722fd4addeda533"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm_v2_functions.o",
+    "bytes": 30768,
+    "sha256": "46f3f203bdb41a782ae4eeb37fdf4b10a5ef972a598004176c3bb2a55bebe62f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm_v2_imports.o",
+    "bytes": 67904,
+    "sha256": "1a54fa1d52d571bf2e1608aab7398f531a6787d59c6f80df844a42b5deeb536f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm_v2_layouts.o",
+    "bytes": 40864,
+    "sha256": "a8cbb27dfe2129ba9ce46d72a08adf7103217abc3f0983f3d36cd8c23d8a06ae"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm_v2_module.o",
+    "bytes": 69208,
+    "sha256": "c3718d7f9548db3dbd86b073f66cdb77f8472f0643582cc7d0d170d950c0c110"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-nvm_v2_signatures.o",
+    "bytes": 22016,
+    "sha256": "c85bde90437c296fe79eac976eb0d7b520b4569709a0025fc78b1ff79273cb92"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-ownership_contracts.o",
+    "bytes": 283496,
+    "sha256": "d11a5fee2a7725186f6cd09529c9e860ff14129bfc5d1d2d339a7b215e206fec"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-passive.o",
+    "bytes": 95280,
+    "sha256": "c686a124946686a87fed119962fac79a270a43e4611b4adeaedec86657be9859"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-reference_places.o",
+    "bytes": 26584,
+    "sha256": "bcf382511ac79a5d10e653a7c984711194b69f8c5b9375d7e44fdd95dd52aa6d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-retained_layouts.o",
+    "bytes": 431552,
+    "sha256": "d0687a81b0e21b20085b976417835b5426ea5268222612afb9f640373b0e6da3"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-service_bindings.o",
+    "bytes": 16632,
+    "sha256": "d87299098145da9ef3ebb547ce3d47317ac40354fee898a1a12e7f569dd19fe2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-service_bindings_module.o",
+    "bytes": 81264,
+    "sha256": "11e234910ca6618674de00498aecca3ecb598c8ac86d1b7962709b0c1c6d9b46"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-service_file_nominal.o",
+    "bytes": 20536,
+    "sha256": "b076ddea372994018d285881293d4efc499dc2b21566b53da8d4dc158ded0343"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-service_file_nominal_plan.o",
+    "bytes": 57248,
+    "sha256": "d95fdd715e8d2aa53b6adb43cc0b1da6b9a2cd58d0d7b57f7ae346e741028de0"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-tracker.o",
+    "bytes": 18840,
+    "sha256": "696779ae284a56e945f44463b3af2c763da50735361f256ff4ade99e87300c01"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-value.o",
+    "bytes": 36744,
+    "sha256": "5437ff57286bae60c57f7904388438867468950b2f9836cf30cc10372e82d960"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-verifier.o",
+    "bytes": 395528,
+    "sha256": "dd657c6c6ed0563348fd1c89d11e714cf99a2808957a63e50e38938322a167f4"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-verifier_types.o",
+    "bytes": 49936,
+    "sha256": "20579248ef08816bca67775cb4c87fa19dccb2bcb85c36deb2d3ba6057a921dd"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-vm.o",
+    "bytes": 1064384,
+    "sha256": "e288148110acb6b12e1620e461ac08d2b380ec8b12a210e29fa4cae5248be2da"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-vm_builtins.o",
+    "bytes": 75064,
+    "sha256": "5e68d7704138ffb8cec58a5f4f572e7cd2ffc4389e42feaa67479950b606f375"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-vm_callback.o",
+    "bytes": 41912,
+    "sha256": "d5bb2adb5d592d6c1f23a879873f95f5d2bca8871f72ed3fbac25cd182be8d41"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-vm_decode.o",
+    "bytes": 38640,
+    "sha256": "a460d099db166d2b4f2a951b9857478c8d6750cdf18f22ded2c680fef5406b76"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-vm_dispatch.o",
+    "bytes": 47040,
+    "sha256": "40920719e17a12d8e9bda4c2205b3a7b41cb28185ed53009da3eea86557da9ec"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-vm_ffi.o",
+    "bytes": 633472,
+    "sha256": "3826a307c5fced794c410490d7d1dcb704505c4fda19978ca68c792642e51789"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/alloc-switch-vm_ffi_arrays.o",
+    "bytes": 44768,
+    "sha256": "c0e66061cf8c9b54e804967faaa8a90dfc23eda33f141a9f8646a3872b98fc74"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-affine_bytecode.o",
+    "bytes": 353360,
+    "sha256": "e450e668a925b6c4018e8ebbf273ca307e10b64c725235f8583ef626cc5b98bd"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-affine_state.o",
+    "bytes": 685240,
+    "sha256": "28a98707be83ce109917bf3cfca5c57f502ab1129885ac867c98ff34eb05a9c0"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-assembler.o",
+    "bytes": 297488,
+    "sha256": "a093ad35397af5bf0b49d1ccf07aa45c2556d34e745ae9891c773f0fe0bf012e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-callback_runtime.o",
+    "bytes": 36184,
+    "sha256": "eb8f732d227b52c018a7362deb339e4f7ca4f07c1fae4d584511e7b1e93520d5"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-cop_protocol.o",
+    "bytes": 124656,
+    "sha256": "146660d7aac040bcf9597d87f50fbcf8f35b72b402292ccad5e5c074a6b0e813"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-disassembler.o",
+    "bytes": 80160,
+    "sha256": "8c77d548f50d71d454023b474354ca9c4ddea79fbad072dfa08003f04796be9d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-file_flow.o",
+    "bytes": 823416,
+    "sha256": "40218cebb4eaf8b42ff7bc28ee1c79144c4870546e3ce167172bc932609c9de6"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-frontend.o",
+    "bytes": 67288,
+    "sha256": "2ce4aafe8de8e72ca6a07c0ad439f6b39150c3de8b15014b502c4167f5277992"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-heap.o",
+    "bytes": 160408,
+    "sha256": "f43e3f9ef13c696e410e03df3bdd7c8cd0055b23ddcce316d334e3c0e8255eb3"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-heap_cycles.o",
+    "bytes": 66192,
+    "sha256": "55fec08b0096acc6946e1e32b8b7a72aef56fbc5c12986b666157cff9a5d2a89"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-isa.o",
+    "bytes": 128080,
+    "sha256": "21871ece571487577bf135006f5d71657963fcf39d295d9b9f928f3ce689edb6"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-local_bindings.o",
+    "bytes": 42808,
+    "sha256": "fb88de7c63633bef6918e2aa192d07f38a6bf2aaf55ddb79d20d29cbf4340b61"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-managed_array_shapes.o",
+    "bytes": 776312,
+    "sha256": "efddbb79ea5fccc14086a715a172bb69a634b19304bf38c9d55db0790dcbbda4"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-mixed_float_proof.o",
+    "bytes": 218656,
+    "sha256": "6c968cb4f624163965bdcc86c880263e79a403d4fe6f14ea27ef91446a896813"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm2c.o",
+    "bytes": 2019360,
+    "sha256": "d01bd30d47a6ba4474075088a92dc81d9abff4ba8315f20f42c60eeb1185d4e2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm2c_callables.o",
+    "bytes": 170920,
+    "sha256": "a9be0a6b06f7d1b2de2bf4af2184cbcab23e0cfb94e6793303d4735065a6e72c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm2c_shape.o",
+    "bytes": 115824,
+    "sha256": "bf7ce1f5b317c98f01338c972f167479c5f389b01779ff37ffa908591e033f41"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm_format.o",
+    "bytes": 360648,
+    "sha256": "512cb7683cbcc75d5571efe2b8d9749ed7c2d60cc237521c9c69de9cbc71fe36"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm_format_v2.o",
+    "bytes": 43416,
+    "sha256": "923680808fb060ff42b5cc6fbc4feb9636be033d310c5c86334b6e759acde9b2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm_v2_constants.o",
+    "bytes": 17232,
+    "sha256": "88c0ca7279bcffdee6f457aed2967f3920ca022dd180e0509529c073f4b5e140"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm_v2_convert.o",
+    "bytes": 115872,
+    "sha256": "c5c8e3ef5df36b09b462b28fb672bbd278bb0a9df4bc8336029ea2f1d452a081"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm_v2_cursor.o",
+    "bytes": 17792,
+    "sha256": "27ea5e348fd8bbc7d779ae76766c3649037cc644023d0c3c2a4aa783ab3e52a2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm_v2_functions.o",
+    "bytes": 30832,
+    "sha256": "1ab018f7d8201e185bd57a2fbaac909ccd98db721bfda6d210b1f1e9f9468bb6"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm_v2_imports.o",
+    "bytes": 67880,
+    "sha256": "caa300a386378ee3f61ffb810db943bdc14d13073886f72a88fdbf878cd4cae0"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm_v2_layouts.o",
+    "bytes": 40864,
+    "sha256": "bedf2a56d93464d23b6d6fe701da61dc7bc5ec701af3bd71c3d0c3360cdd84e1"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm_v2_module.o",
+    "bytes": 69224,
+    "sha256": "e1f19ffe8690d2d51616d9ab8c992aadbb684f77068862d4c076900dd64e14e7"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-nvm_v2_signatures.o",
+    "bytes": 22032,
+    "sha256": "784dd9ef28440bc79135e29c925daf0c42fdfe859986af0a0c1fd7742f1a73da"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-ownership_contracts.o",
+    "bytes": 282848,
+    "sha256": "145382a0bab6114919470d55e865c9df203178b7232064fbfef3259e0e2573d5"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-passive.o",
+    "bytes": 94888,
+    "sha256": "577d96438b35c5315c6821ad33a9086d00d563917b8218851ba7d804e638c87d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-reference_places.o",
+    "bytes": 25352,
+    "sha256": "51f4fdbc9117843bcb68d348bcc05c18707b1def50cd7f1501f71b412b136866"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-retained_layouts.o",
+    "bytes": 430280,
+    "sha256": "989e86fae0915c7c2d88d1b04d724094311c9fe2c49e6a960b36567c4fa72221"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-service_bindings.o",
+    "bytes": 16464,
+    "sha256": "0f36bc1e4a7cb352af494b4a7192abd35ec43607105b1c2da5222bdff3c9dbbb"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-service_bindings_module.o",
+    "bytes": 80200,
+    "sha256": "356ccbcfb94d54fca46f3c9a95ebbbcaadea8af64e27ea83b5379eab25594390"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-service_file_nominal.o",
+    "bytes": 20368,
+    "sha256": "1f72955cf0a7211fae7372780e4fc82e61bfe791fa1c8ee8851150b4a0c2e288"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-service_file_nominal_plan.o",
+    "bytes": 57040,
+    "sha256": "5ed55e3e71b498425fc5244009beff62b3ca58eca70c2c79e9a2bf282106ea1c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-tracker.o",
+    "bytes": 18840,
+    "sha256": "696779ae284a56e945f44463b3af2c763da50735361f256ff4ade99e87300c01"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-value.o",
+    "bytes": 36768,
+    "sha256": "4f37f554acf99b75def3083916b5d41818159c8c9b775139f752328a41187b3e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-verifier.o",
+    "bytes": 395896,
+    "sha256": "8666e742bb64830c07a18a34d79eb9c61706a7edb7bd8916e75bfab3e2aa3930"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-verifier_types.o",
+    "bytes": 49144,
+    "sha256": "9ebfb5f897626da2be2e2b727f91ed970b9fd35a76166d9a11ec8d6a65d5aa09"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-vm.o",
+    "bytes": 1110616,
+    "sha256": "c29341eeef08c3bd268252da16bc0e6ffa0c3616c04547aff720a5c0c6e148ad"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-vm_builtins.o",
+    "bytes": 75080,
+    "sha256": "037cc4adeabb0aab94b3b6c8fa14f042d3ac61e085662bf3ad75f33249e9c8ed"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-vm_callback.o",
+    "bytes": 41952,
+    "sha256": "01af10205ecf0f8bdf3a2c388a94e40d741fbc45b775c1f0221dbc4872bcee15"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-vm_decode.o",
+    "bytes": 38184,
+    "sha256": "fdcd92df1829a0ed2079dcfca12cabec57ceb198644f4a19f2c393fc89a88007"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-vm_dispatch.o",
+    "bytes": 46648,
+    "sha256": "c1f45282fc5e18e41d492e9ebe87f61778c4e8665259c809e2c6e988e1e1e83d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-vm_ffi.o",
+    "bytes": 633648,
+    "sha256": "aaad86314d66bbefbd31fe15f8134ad62d1ce8826f2a259174e391bba124a280"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-goto-vm_ffi_arrays.o",
+    "bytes": 44672,
+    "sha256": "a6aaaec211c92b9314e6e6f07c376dd0ead8067ffa8b7b766061bee981a18081"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-affine_bytecode.o",
+    "bytes": 353360,
+    "sha256": "e450e668a925b6c4018e8ebbf273ca307e10b64c725235f8583ef626cc5b98bd"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-affine_state.o",
+    "bytes": 685240,
+    "sha256": "28a98707be83ce109917bf3cfca5c57f502ab1129885ac867c98ff34eb05a9c0"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-assembler.o",
+    "bytes": 297488,
+    "sha256": "a093ad35397af5bf0b49d1ccf07aa45c2556d34e745ae9891c773f0fe0bf012e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-callback_runtime.o",
+    "bytes": 36184,
+    "sha256": "eb8f732d227b52c018a7362deb339e4f7ca4f07c1fae4d584511e7b1e93520d5"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-cop_protocol.o",
+    "bytes": 124656,
+    "sha256": "146660d7aac040bcf9597d87f50fbcf8f35b72b402292ccad5e5c074a6b0e813"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-disassembler.o",
+    "bytes": 80160,
+    "sha256": "8c77d548f50d71d454023b474354ca9c4ddea79fbad072dfa08003f04796be9d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-file_flow.o",
+    "bytes": 823416,
+    "sha256": "40218cebb4eaf8b42ff7bc28ee1c79144c4870546e3ce167172bc932609c9de6"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-frontend.o",
+    "bytes": 67288,
+    "sha256": "2ce4aafe8de8e72ca6a07c0ad439f6b39150c3de8b15014b502c4167f5277992"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-heap.o",
+    "bytes": 160408,
+    "sha256": "f43e3f9ef13c696e410e03df3bdd7c8cd0055b23ddcce316d334e3c0e8255eb3"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-heap_cycles.o",
+    "bytes": 66192,
+    "sha256": "55fec08b0096acc6946e1e32b8b7a72aef56fbc5c12986b666157cff9a5d2a89"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-isa.o",
+    "bytes": 128080,
+    "sha256": "21871ece571487577bf135006f5d71657963fcf39d295d9b9f928f3ce689edb6"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-local_bindings.o",
+    "bytes": 42808,
+    "sha256": "fb88de7c63633bef6918e2aa192d07f38a6bf2aaf55ddb79d20d29cbf4340b61"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-managed_array_shapes.o",
+    "bytes": 776312,
+    "sha256": "efddbb79ea5fccc14086a715a172bb69a634b19304bf38c9d55db0790dcbbda4"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-mixed_float_proof.o",
+    "bytes": 218656,
+    "sha256": "6c968cb4f624163965bdcc86c880263e79a403d4fe6f14ea27ef91446a896813"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm2c.o",
+    "bytes": 2019360,
+    "sha256": "d01bd30d47a6ba4474075088a92dc81d9abff4ba8315f20f42c60eeb1185d4e2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm2c_callables.o",
+    "bytes": 170920,
+    "sha256": "a9be0a6b06f7d1b2de2bf4af2184cbcab23e0cfb94e6793303d4735065a6e72c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm2c_shape.o",
+    "bytes": 115824,
+    "sha256": "bf7ce1f5b317c98f01338c972f167479c5f389b01779ff37ffa908591e033f41"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm_format.o",
+    "bytes": 360648,
+    "sha256": "512cb7683cbcc75d5571efe2b8d9749ed7c2d60cc237521c9c69de9cbc71fe36"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm_format_v2.o",
+    "bytes": 43416,
+    "sha256": "923680808fb060ff42b5cc6fbc4feb9636be033d310c5c86334b6e759acde9b2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm_v2_constants.o",
+    "bytes": 17232,
+    "sha256": "88c0ca7279bcffdee6f457aed2967f3920ca022dd180e0509529c073f4b5e140"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm_v2_convert.o",
+    "bytes": 115872,
+    "sha256": "c5c8e3ef5df36b09b462b28fb672bbd278bb0a9df4bc8336029ea2f1d452a081"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm_v2_cursor.o",
+    "bytes": 17792,
+    "sha256": "27ea5e348fd8bbc7d779ae76766c3649037cc644023d0c3c2a4aa783ab3e52a2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm_v2_functions.o",
+    "bytes": 30832,
+    "sha256": "1ab018f7d8201e185bd57a2fbaac909ccd98db721bfda6d210b1f1e9f9468bb6"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm_v2_imports.o",
+    "bytes": 67880,
+    "sha256": "caa300a386378ee3f61ffb810db943bdc14d13073886f72a88fdbf878cd4cae0"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm_v2_layouts.o",
+    "bytes": 40864,
+    "sha256": "bedf2a56d93464d23b6d6fe701da61dc7bc5ec701af3bd71c3d0c3360cdd84e1"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm_v2_module.o",
+    "bytes": 69224,
+    "sha256": "e1f19ffe8690d2d51616d9ab8c992aadbb684f77068862d4c076900dd64e14e7"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-nvm_v2_signatures.o",
+    "bytes": 22032,
+    "sha256": "784dd9ef28440bc79135e29c925daf0c42fdfe859986af0a0c1fd7742f1a73da"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-ownership_contracts.o",
+    "bytes": 282848,
+    "sha256": "145382a0bab6114919470d55e865c9df203178b7232064fbfef3259e0e2573d5"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-passive.o",
+    "bytes": 94888,
+    "sha256": "577d96438b35c5315c6821ad33a9086d00d563917b8218851ba7d804e638c87d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-reference_places.o",
+    "bytes": 25352,
+    "sha256": "51f4fdbc9117843bcb68d348bcc05c18707b1def50cd7f1501f71b412b136866"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-retained_layouts.o",
+    "bytes": 430280,
+    "sha256": "989e86fae0915c7c2d88d1b04d724094311c9fe2c49e6a960b36567c4fa72221"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-service_bindings.o",
+    "bytes": 16464,
+    "sha256": "0f36bc1e4a7cb352af494b4a7192abd35ec43607105b1c2da5222bdff3c9dbbb"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-service_bindings_module.o",
+    "bytes": 80200,
+    "sha256": "356ccbcfb94d54fca46f3c9a95ebbbcaadea8af64e27ea83b5379eab25594390"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-service_file_nominal.o",
+    "bytes": 20368,
+    "sha256": "1f72955cf0a7211fae7372780e4fc82e61bfe791fa1c8ee8851150b4a0c2e288"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-service_file_nominal_plan.o",
+    "bytes": 57040,
+    "sha256": "5ed55e3e71b498425fc5244009beff62b3ca58eca70c2c79e9a2bf282106ea1c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-tracker.o",
+    "bytes": 18840,
+    "sha256": "696779ae284a56e945f44463b3af2c763da50735361f256ff4ade99e87300c01"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-value.o",
+    "bytes": 36768,
+    "sha256": "4f37f554acf99b75def3083916b5d41818159c8c9b775139f752328a41187b3e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-verifier.o",
+    "bytes": 395896,
+    "sha256": "8666e742bb64830c07a18a34d79eb9c61706a7edb7bd8916e75bfab3e2aa3930"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-verifier_types.o",
+    "bytes": 49144,
+    "sha256": "9ebfb5f897626da2be2e2b727f91ed970b9fd35a76166d9a11ec8d6a65d5aa09"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-vm.o",
+    "bytes": 1064408,
+    "sha256": "183d96098cb9d81c9d62c2977ad553b55841de75a1d9c0a10efef2a5f278e6ec"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-vm_builtins.o",
+    "bytes": 75080,
+    "sha256": "037cc4adeabb0aab94b3b6c8fa14f042d3ac61e085662bf3ad75f33249e9c8ed"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-vm_callback.o",
+    "bytes": 41952,
+    "sha256": "01af10205ecf0f8bdf3a2c388a94e40d741fbc45b775c1f0221dbc4872bcee15"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-vm_decode.o",
+    "bytes": 38184,
+    "sha256": "fdcd92df1829a0ed2079dcfca12cabec57ceb198644f4a19f2c393fc89a88007"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-vm_dispatch.o",
+    "bytes": 46648,
+    "sha256": "c1f45282fc5e18e41d492e9ebe87f61778c4e8665259c809e2c6e988e1e1e83d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-vm_ffi.o",
+    "bytes": 633648,
+    "sha256": "aaad86314d66bbefbd31fe15f8134ad62d1ce8826f2a259174e391bba124a280"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43/public-switch-vm_ffi_arrays.o",
+    "bytes": 44672,
+    "sha256": "a6aaaec211c92b9314e6e6f07c376dd0ead8067ffa8b7b766061bee981a18081"
+  }
+]

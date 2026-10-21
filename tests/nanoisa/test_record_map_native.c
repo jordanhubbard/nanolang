@@ -29,7 +29,7 @@ int g_argc;char **g_argv;
 static void native_original(const NvmModule *m) {
     char error[512]={0};char *source=nvm2c_emit_record_map_private(m,error,sizeof error);
     if(!source)fprintf(stderr,"private native original %u: %s\n",native_outputs,error);
-    CHECK(source);
+    CHECK(source);char *public_source=nvm2c_emit(m,error,sizeof error);CHECK(public_source&&!strcmp(public_source,source));free(public_source);
     NvmRecordMapExecutionPlan *plan=NULL;
     CHECK(nvm_prepare_record_map_execution(m,&plan).status==NVM_ARRAY_ELIGIBLE);
     CHECK(nvm_record_map_image_copy(plan,&native_images[native_outputs]).status==NVM_ARRAY_ELIGIBLE);
@@ -58,10 +58,10 @@ static void native_fixture(Input *c,const char *name,VmResult expected) {
     CHECK(proof.status==NVM_ARRAY_ELIGIBLE);
     CHECK(vm_record_map_private_create(plan,&vm).status==NVM_ARRAY_ELIGIBLE);
     nvm_record_map_execution_free(plan);CHECK(vm_record_map_private_run(vm)==expected);
-    vm_record_map_private_destroy(vm);map_public_refused(&c->m);
+    vm_record_map_private_destroy(vm);map_public_transport(&c->m,true);
     char error[512]={0};char *text=nvm2c_emit_record_map_private(&c->m,error,sizeof error);
     if(!text)fprintf(stderr,"native fixture %s output: %s\n",name,error);
-    CHECK(text);char path[4096];CHECK(snprintf(path,sizeof path,"%s/%s.c",native_output_directory,name)>0);
+    CHECK(text);char *public_text=nvm2c_emit(&c->m,error,sizeof error);CHECK(public_text&&!strcmp(public_text,text));free(public_text);char path[4096];CHECK(snprintf(path,sizeof path,"%s/%s.c",native_output_directory,name)>0);
     FILE *f=fopen(path,"wb");CHECK(f);size_t bytes=strlen(text);CHECK(fwrite(text,1,bytes,f)==bytes);CHECK(!fclose(f));free(text);
 }
 static void native_semantics(void) {
@@ -133,24 +133,25 @@ static void native_growth(void) {
     native_record(&c,0);arg16(&c,OP_AGG_GET,0);op(&c,OP_HM_LEN);native_expect(&c,20);map_finish(&c);
     native_fixture(&c,"growth",VM_OK);
 }
-static void native_target_refusal(Input *c,const char *diagnostic) {
+static void native_target_refusal(Input *c,const char *diagnostic,bool public_eligible) {
     NvmRecordMapExecutionPlan *plan=NULL;VmRecordMapPrivate *vm=NULL;
     CHECK(nvm_prepare_record_map_execution(&c->m,&plan).status==NVM_ARRAY_ELIGIBLE);
     CHECK(vm_record_map_private_create(plan,&vm).status==NVM_ARRAY_ELIGIBLE);nvm_record_map_execution_free(plan);
     CHECK(vm_record_map_private_run(vm)==VM_OK);vm_record_map_private_destroy(vm);
-    char error[512]={0};CHECK(!nvm2c_emit_record_map_private(&c->m,error,sizeof error));CHECK(strstr(error,diagnostic));map_public_refused(&c->m);
+    char error[512]={0};CHECK(!nvm2c_emit_record_map_private(&c->m,error,sizeof error));CHECK(strstr(error,diagnostic));map_public_transport(&c->m,public_eligible);
+    CHECK(!nvm2c_emit(&c->m,error,sizeof error));CHECK(strstr(error,public_eligible?diagnostic:"zero-argument INT"));
 }
 static void native_target_negatives(void) {
     Input c;init(&c,TAG_INT,false);native_integer(&c,12);op(&c,OP_CAST_STRING);op(&c,OP_POP);map_finish(&c);
-    native_target_refusal(&c,"string producer");
+    native_target_refusal(&c,"string producer",true);
     init(&c,TAG_INT,false);c.strings[1]="x\0a";c.lengths[1]=3;native_map_value(&c,7);native_record(&c,0);op(&c,OP_POP);map_finish(&c);
-    native_target_refusal(&c,"NUL-free");
+    native_target_refusal(&c,"NUL-free",true);
     init(&c,TAG_INT,false);map_new(&c,TAG_STRING,TAG_INT);native_record(&c,0);op(&c,OP_RET);c.fn[0].code_length=(uint32_t)c.n;c.fn[0].result_tag=TAG_STRUCT;map_authority(&c);
-    native_target_refusal(&c,"INT native map entry");
+    native_target_refusal(&c,"INT native map entry",false);
     init(&c,TAG_INT,false);map_finish(&c);c.m.function_count=2;c.fn[1].name_idx=3;c.fn[1].code_offset=(uint32_t)c.n;
     c.fn[1].result_count=1;c.fn[1].result_tag=TAG_STRUCT;map_new(&c,TAG_STRING,TAG_INT);native_record(&c,0);op(&c,OP_RET);
-    c.fn[1].code_length=(uint32_t)c.n-c.fn[1].code_offset;map_authority(&c);native_target_refusal(&c,"VOID/INT native map initializer");
-    map_basic(&c);native_target_refusal(&c,"STRUCT transport");
+    c.fn[1].code_length=(uint32_t)c.n-c.fn[1].code_offset;map_authority(&c);native_target_refusal(&c,"VOID/INT native map initializer",false);
+    map_basic(&c);native_target_refusal(&c,"STRUCT transport",true);
     init(&c,TAG_INT,false);map_new(&c,TAG_STRING,TAG_INT);scalar(&c,TAG_STRING);op(&c,OP_HM_DELETE);op(&c,OP_POP);map_finish(&c);
     NvmRecordMapExecutionPlan *sentinel=(void *)(uintptr_t)1;
     CHECK(nvm_prepare_record_map_execution(&c.m,&sentinel).status!=NVM_ARRAY_ELIGIBLE);CHECK(sentinel==(void *)(uintptr_t)1);
@@ -173,5 +174,5 @@ int MAP_NATIVE_MAIN(int argc,char **argv) {
 #endif
         nvm_record_map_image_free(native_images[i]);free(native_texts[i]);
     }
-    native_semantics();native_nonzero_layout();native_growth();native_target_negatives();printf("PASS %u private native publication checks; public admission remains refused.\n",checks);return 0;
+    native_semantics();native_nonzero_layout();native_growth();native_target_negatives();printf("PASS %u private native publication checks; public boundaries checked.\n",checks);return 0;
 }
