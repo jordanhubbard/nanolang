@@ -16472,3 +16472,13 @@ I completed aggregate independent-image qualification:2799/10743 checks,61 alloc
 Retained qualification jobs119125624147/119125624408 fail before compilation because generic `xcrun --sdk macosx` selects the Xcode SDK while the qualified capture receipt names the CommandLineTools SDK. I reproduced that lookup mismatch locally. I will select the exact qualified absolute SDK, verify its path and own settings version, retain its settings hash, and keep compiler/backend identities unchanged. The actual hosted capture corpus must still pass; no alternative SDK fallback is authorized.
 
 I completed seven selector controls, including actual local xcrun selection, and68 combined workflow/checkpoint/container/schema tests. I retain the hosted failures and local catalog probe in `docs/evidence/capture-sdk-selection-20261021/`. Exact hosted capture/platform qualification remains pending.
+
+### I diagnose hosted generic record-field lowering (2026-10-21)
+
+- [x] I own the bounded #976 regression from compiler-contract run39571228525/job119125624327: twenty fresh Stage1/Stage2 cases refuse declared generic record-field types while seed cases pass. I first retain exact current producer/source baselines and trace Nano lowering metadata; I do not broaden type/admission checks or rebuild bootstrap. Map runtime work remains design-only on8343bc88c.
+
+I retain [generic record-field context qualification](evidence/generic-record-field-context-20261021/README.md): unchanged failure reproduced through both installed stages/current C-hosted compiler, narrow contextual union lowering, fresh isolated compiler132.907s and32 actual source/native methods green. Fresh-stage and exact hosted retries remain integration gates.
+
+I integrate generic record-field repair `6f3d44135` with the exact SDK selection repair, preserving both evidence histories. I rerun the full32 source/native methods against the merged source and pinned corrected compiler before pushing; installed stages and exact hosted retries remain pending.
+
+I passed all32 merged generic-record/affine methods. The aggregate receipt preserves initial invocation mistakes and the corrected terminal; fresh stages and hosted results remain pending.

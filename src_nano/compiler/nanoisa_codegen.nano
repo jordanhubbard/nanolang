@@ -4914,7 +4914,9 @@ fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
                     let contextual_map: bool = (and (!= (nisa_map_value_type expected) "")
                         (nisa_is_map_constructor parser vid vty))
                     let contextual_function: bool = (nisa_function_type_ok parser expected)
-                    if (and (not (or contextual_function (or contextual_array contextual_map))) (not (nisa_value_type_matches parser (nisa_expr_type parser vid vty) expected))) {
+                    let contextual_union: bool = (and (== vty ParseNodeType.PNODE_UNION_CONSTRUCT)
+                        (nisa_union_supported parser expected))
+                    if (and (not (or contextual_union (or contextual_function (or contextual_array contextual_map)))) (not (nisa_value_type_matches parser (nisa_expr_type parser vid vty) expected))) {
                         return (nisa_fail (+ "I require the declared type for record field " fname))
                     }
                     set out (+ out (nisa_emit_expected_expr parser vid vty expected))
@@ -4961,6 +4963,19 @@ shadow nisa_emit_struct_literal {
     assert (str_contains text2 "PUSH_STR")
     assert (str_contains text2 "AGG_PACK 0 0 0 2")
     let _2: int = (nisa_reset)
+    let src3: string = "union Box<T> { Some { value: T }, None {} } struct Outer { boxed: Box<int> } fn main() -> int { let outer: Outer = Outer { boxed: Box.Some { value: 42 } } return 0 }"
+    let toks3: List<LexerToken> = (tokenize_string src3 "generic-field.nano" diags)
+    let p3: Parser = (parse_program toks3 (list_LexerToken_length toks3) "generic-field.nano")
+    assert (not p3.has_error)
+    let func3: ASTFunction = (parser_get_function p3 0)
+    let block3: ASTBlock = (parser_get_block p3 func3.body)
+    let stmt3: ASTStmtRef = (list_ASTStmtRef_get block3.statements 0)
+    let l3: ASTLet = (parser_get_let p3 stmt3.node_id)
+    let text3: string = (nisa_emit_struct_literal p3 l3.value)
+    assert nisa_ok
+    assert (str_contains text3 "AGG_PACK 1 0 0 1")
+    assert (str_contains text3 "AGG_PACK 0 0 0 1")
+    let _3: int = (nisa_reset)
 }
 
 fn nisa_qualified_global(parser: Parser, access: ASTFieldAccess) -> int {
