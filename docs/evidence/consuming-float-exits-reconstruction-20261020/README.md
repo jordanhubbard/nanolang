@@ -13,3 +13,5 @@ Eight previous consuming FLOAT and borrowed-loop C/Nano outputs remain byte-iden
 The command/status receipts retain process-group cleanup and terminal statuses. Artifact hashes identify larger native/source files retained at the recorded local paths. `pins.json` identifies exact final implementation and execution providers.
 
 My final independent review strengthens the VM failure check to exact exit1 and the actual assertion diagnostic for original and all three regenerated modules. This focused final-source method passes5.254s; native status/sanitizer/causality controls remain unchanged. The final test hash includes this strengthening; production sources are unchanged from the combined13-method run.
+
+I consolidate command records into one JSON array per retained working directory to avoid thousands of small checkpoint members. Each record preserves its original filename, exact UTF-8 or base64 bytes and SHA256; a byte-for-byte roundtrip check precedes removal of the redundant individual copies. Original local artifacts remain untouched.

@@ -1,3 +1,0 @@
-Warning at line 18, column 5: Unused variable 'nlr_t64_0'
-Warning at line 33, column 5: Unused variable 'nlr_t24_0'
-Warning: Function 'nlr_f1_owned_1' is missing a shadow test
