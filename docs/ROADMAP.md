@@ -16219,3 +16219,15 @@ I tighten the eight-shared later-failure test after review: final caller field e
 ### 2026-10-19: integrated eight-shared reconstruction qualification
 
 I qualify candidate `1e2951ef8` with all seven aggregate methods in 219.085 seconds through the current seed and fresh 3446 stages after a facts-only rebuild. All nine pre-run provider hashes match at terminal. The [receipt](evidence/eight-shared-aggregate-20261019/README.md) retains actual 92/103 ordinary and 98/103 consistency-shadow locals, signed arithmetic, isolated later-helper failure, exact local/proof bounds and native/VM execution. No new raw-generation claim is made; exact hosted platforms and finite remaining #999 acceptance stay open.
+
+### Instrumented worker identity across checkpoint jobs (#976)
+
+- [x] I replace mutable per-job apt/pip setup with one digest-pinned image build using a signed timestamped package archive. I transfer the exact image archive and config identity to sanitizer and coverage producers/consumers without registry write permissions.
+- [x] I bind checkpoint identity to the actual verified container and retain source, flags, tool/runtime hashes, artifact bytes and timestamp continuation checks. Outer hosted runner image changes remain diagnostic.
+- [ ] I test archive/config/platform and environment mismatch refusals and actual container compilation/transport, then retain complete exact-head hosted sanitizer and coverage qualification. Run 39330564550 remains a failed continuation receipt after successful Stage 1 because the outer Ubuntu image changed from 20261012.334.1 to 20261018.339.1.
+
+My first local image build failed before package installation because the minimal pinned Ubuntu base has no CA bundle and the snapshot service redirects HTTP to HTTPS. I retain `/private/tmp/nanolang-instrumented-image-build.log`; I must bootstrap CA trust from an independently checksum-pinned archive before apt, without disabling TLS or package signature verification. Apt update must fail on any missing index.
+
+My CA-corrected local image build completed, then archive verification exposed Docker 29's containerd image store: its image ID identifies the OCI manifest, while the config blob has its own digest. I retain the failed verification log and must validate the manifest-to-config chain as well as the legacy config-ID archive form; I must not assume those hashes are interchangeable. I also provision the existing tests' clang/process-inspection tools explicitly rather than relying on the hosted runner's preinstalled tools.
+
+I pass the bounded local ARM64 [container receipt](evidence/immutable-instrumented-container-20261020/README.md), including real instrumented execution and restored providers across differing outer runner labels. Full hosted amd64 qualification remains open. Private `/tmp` uses disk-backed per-invocation storage to preserve compiler RAM headroom.

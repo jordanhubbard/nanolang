@@ -467,11 +467,54 @@ jobs:
           path: docs/api/
           retention-days: 30
 
-  sanitizers-stage1:
-    name: Memory Sanitizers Stage 1
+  # I build the complete toolchain once and transfer its exact bytes to all four
+  # jobs. Fork PRs need only artifact permissions, never registry publication.
+  instrumented-image:
+    name: Immutable instrumented toolchain
     needs: fast-gate
     if: needs.fast-gate.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    outputs:
+      image-artifact: ${{ steps.image-upload.outputs.artifact-id }}
+      image-id: ${{ steps.image-build.outputs.image-id }}
+      archive-sha256: ${{ steps.image-build.outputs.archive-sha256 }}
+      platform: ${{ steps.image-build.outputs.platform }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build and inspect the pinned image
+        id: image-build
+        run: python3 scripts/ci_container.py build "$RUNNER_TEMP/instrumented-image.tar"
+      - name: Qualify image transport and checkpoint identity
+        env:
+          NANO_CI_IMAGE_ID: ${{ steps.image-build.outputs.image-id }}
+          NANO_CI_ARCHIVE_SHA256: ${{ steps.image-build.outputs.archive-sha256 }}
+          NANO_CI_IMAGE_PLATFORM: ${{ steps.image-build.outputs.platform }}
+        run: python3 scripts/ci_container_smoke.py "$RUNNER_TEMP/instrumented-image.tar"
+      - name: Retain the exact image archive
+        id: image-upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrumented-image-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/instrumented-image.tar
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  sanitizers-stage1:
+    name: Memory Sanitizers Stage 1
+    needs: [fast-gate, instrumented-image]
+    if: needs.fast-gate.outputs.code == 'true'
+    defaults:
+      run:
+        shell: python3 scripts/ci_container.py shell {0}
     env:
+      NANO_CI_IMAGE_ID: ${{ needs.instrumented-image.outputs.image-id }}
+      NANO_CI_ARCHIVE_SHA256: ${{ needs.instrumented-image.outputs.archive-sha256 }}
+      NANO_CI_IMAGE_PLATFORM: ${{ needs.instrumented-image.outputs.platform }}
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
       # I retain a three-hour instrumented generation budget after the hosted
       # raw compiler exceeded 7200 seconds; shadow deadlines remain separate.
@@ -492,31 +535,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Python dependencies
-        shell: bash
-        run: |
-          # Already satisfied on some images; skip rather than fight the
-          # environment. Where pip refuses under PEP 668
-          # (externally-managed-environment, seen on the arm64 runners), retry
-          # with --break-system-packages: this is a throwaway CI environment,
-          # not a system Python worth protecting.
-          python3 -c 'import yaml' 2>/dev/null && exit 0
-          python3 -m pip install --user --upgrade pyyaml \
-            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
-          python3 -c 'import yaml'
+      - name: Download the exact instrumented image
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.instrumented-image.outputs.image-artifact }}
+          path: ${{ runner.temp }}/instrumented-image
+          merge-multiple: true
 
-      - name: Install dependencies
-        timeout-minutes: 10
-        run: |
-          ./scripts/ci-apt-install.sh \
-            build-essential \
-            pkg-config \
-            libssl-dev libffi-dev libsqlite3-dev \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libutf8proc-dev
+      - name: Verify and load the immutable instrumented image
+        shell: bash
+        run: python3 scripts/ci_container.py load "$RUNNER_TEMP/instrumented-image/instrumented-image.tar"
 
       - name: Build with AddressSanitizer
         run: |
@@ -562,7 +590,6 @@ jobs:
 
       - name: Show sanitizer error logs on failure
         if: failure()
-        shell: bash
         run: |
           echo "=== Showing first 3 failed test logs ==="
           for log in .test_output/*.compile.log; do
@@ -575,9 +602,15 @@ jobs:
 
   sanitizers:
     name: Memory Sanitizers
-    needs: [fast-gate, sanitizers-stage1]
+    needs: [fast-gate, instrumented-image, sanitizers-stage1]
     if: always() && needs.fast-gate.outputs.code == 'true'
+    defaults:
+      run:
+        shell: python3 scripts/ci_container.py shell {0}
     env:
+      NANO_CI_IMAGE_ID: ${{ needs.instrumented-image.outputs.image-id }}
+      NANO_CI_ARCHIVE_SHA256: ${{ needs.instrumented-image.outputs.archive-sha256 }}
+      NANO_CI_IMAGE_PLATFORM: ${{ needs.instrumented-image.outputs.platform }}
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
       # I match the Stage 1 environment for exact checkpoint validation.
       BOOTSTRAP_NANOISA_TIMEOUT: "10800"
@@ -592,36 +625,22 @@ jobs:
 
     steps:
       - name: Require successful instrumented Stage 1
+        shell: bash
         run: test '${{ needs.sanitizers-stage1.result }}' = success
 
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Python dependencies
-        shell: bash
-        run: |
-          # Already satisfied on some images; skip rather than fight the
-          # environment. Where pip refuses under PEP 668
-          # (externally-managed-environment, seen on the arm64 runners), retry
-          # with --break-system-packages: this is a throwaway CI environment,
-          # not a system Python worth protecting.
-          python3 -c 'import yaml' 2>/dev/null && exit 0
-          python3 -m pip install --user --upgrade pyyaml \
-            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
-          python3 -c 'import yaml'
+      - name: Download the exact instrumented image
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.instrumented-image.outputs.image-artifact }}
+          path: ${{ runner.temp }}/instrumented-image
+          merge-multiple: true
 
-      - name: Install dependencies
-        timeout-minutes: 10
-        run: |
-          ./scripts/ci-apt-install.sh \
-            build-essential \
-            pkg-config \
-            libssl-dev libffi-dev libsqlite3-dev \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libutf8proc-dev
+      - name: Verify and load the immutable instrumented image
+        shell: bash
+        run: python3 scripts/ci_container.py load "$RUNNER_TEMP/instrumented-image/instrumented-image.tar"
 
       - name: Download the exact Stage 1 artifact
         uses: actions/download-artifact@v4
@@ -678,7 +697,6 @@ jobs:
 
       - name: Show sanitizer error logs on failure
         if: failure()
-        shell: bash
         run: |
           echo "=== Showing first 3 failed test logs ==="
           for log in .test_output/*.compile.log; do
@@ -691,9 +709,15 @@ jobs:
 
   coverage-bootstrap:
     name: Coverage compiler generations
-    needs: fast-gate
+    needs: [fast-gate, instrumented-image]
     if: needs.fast-gate.outputs.code == 'true'
+    defaults:
+      run:
+        shell: python3 scripts/ci_container.py shell {0}
     env:
+      NANO_CI_IMAGE_ID: ${{ needs.instrumented-image.outputs.image-id }}
+      NANO_CI_ARCHIVE_SHA256: ${{ needs.instrumented-image.outputs.archive-sha256 }}
+      NANO_CI_IMAGE_PLATFORM: ${{ needs.instrumented-image.outputs.platform }}
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
       BOOTSTRAP_NANOISA_TIMEOUT: "5400"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
@@ -710,42 +734,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Python dependencies
-        shell: bash
-        run: |
-          # Already satisfied on some images; skip rather than fight the
-          # environment. Where pip refuses under PEP 668
-          # (externally-managed-environment, seen on the arm64 runners), retry
-          # with --break-system-packages: this is a throwaway CI environment,
-          # not a system Python worth protecting.
-          python3 -c 'import yaml' 2>/dev/null && exit 0
-          python3 -m pip install --user --upgrade pyyaml \
-            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
-          python3 -c 'import yaml'
+      - name: Download the exact instrumented image
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.instrumented-image.outputs.image-artifact }}
+          path: ${{ runner.temp }}/instrumented-image
+          merge-multiple: true
 
-      - name: Install dependencies
-        timeout-minutes: 15
-        env:
-          # I allow slow downloads to finish within a bounded setup budget.
-          CI_APT_ATTEMPTS: "2"
-          CI_APT_TIMEOUT_SECS: "420"
-          CI_APT_BACKOFF_SECS: "5"
-        run: |
-          ./scripts/ci-apt-install.sh \
-            build-essential \
-            lcov \
-            bc \
-            pkg-config \
-            libssl-dev libffi-dev libsqlite3-dev \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libutf8proc-dev \
-            libncurses-dev libreadline-dev \
-            libevent-dev libuv1-dev libbullet-dev \
-            libglfw3-dev libglew-dev freeglut3-dev \
-            gforth
+      - name: Verify and load the immutable instrumented image
+        shell: bash
+        run: python3 scripts/ci_container.py load "$RUNNER_TEMP/instrumented-image/instrumented-image.tar"
 
       - name: Build with coverage
         run: make coverage CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
@@ -781,9 +779,15 @@ jobs:
 
   coverage:
     name: Code Coverage
-    needs: [fast-gate, coverage-bootstrap]
+    needs: [fast-gate, instrumented-image, coverage-bootstrap]
     if: always() && needs.fast-gate.outputs.code == 'true'
+    defaults:
+      run:
+        shell: python3 scripts/ci_container.py shell {0}
     env:
+      NANO_CI_IMAGE_ID: ${{ needs.instrumented-image.outputs.image-id }}
+      NANO_CI_ARCHIVE_SHA256: ${{ needs.instrumented-image.outputs.archive-sha256 }}
+      NANO_CI_IMAGE_PLATFORM: ${{ needs.instrumented-image.outputs.platform }}
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
       BOOTSTRAP_NANOISA_TIMEOUT: "5400"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
@@ -796,47 +800,22 @@ jobs:
 
     steps:
       - name: Require the successful coverage checkpoint
+        shell: bash
         run: test '${{ needs.coverage-bootstrap.result }}' = success
 
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Python dependencies
-        shell: bash
-        run: |
-          # Already satisfied on some images; skip rather than fight the
-          # environment. Where pip refuses under PEP 668
-          # (externally-managed-environment, seen on the arm64 runners), retry
-          # with --break-system-packages: this is a throwaway CI environment,
-          # not a system Python worth protecting.
-          python3 -c 'import yaml' 2>/dev/null && exit 0
-          python3 -m pip install --user --upgrade pyyaml \
-            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
-          python3 -c 'import yaml'
+      - name: Download the exact instrumented image
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.instrumented-image.outputs.image-artifact }}
+          path: ${{ runner.temp }}/instrumented-image
+          merge-multiple: true
 
-      - name: Install dependencies
-        timeout-minutes: 15
-        env:
-          # I allow slow downloads to finish within a bounded setup budget.
-          CI_APT_ATTEMPTS: "2"
-          CI_APT_TIMEOUT_SECS: "420"
-          CI_APT_BACKOFF_SECS: "5"
-        run: |
-          ./scripts/ci-apt-install.sh \
-            build-essential \
-            lcov \
-            bc \
-            pkg-config \
-            libssl-dev libffi-dev libsqlite3-dev \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libutf8proc-dev \
-            libncurses-dev libreadline-dev \
-            libevent-dev libuv1-dev libbullet-dev \
-            libglfw3-dev libglew-dev freeglut3-dev \
-            gforth
+      - name: Verify and load the immutable instrumented image
+        shell: bash
+        run: python3 scripts/ci_container.py load "$RUNNER_TEMP/instrumented-image/instrumented-image.tar"
 
       - name: Download the exact coverage checkpoint
         uses: actions/download-artifact@v4
@@ -882,7 +861,6 @@ jobs:
 
       - name: Show error logs on failure
         if: failure()
-        shell: bash
         run: |
           echo "=== Showing first failed test logs ==="
           for log in .test_output/*.compile.log; do
