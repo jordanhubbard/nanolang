@@ -1,0 +1,26 @@
+[
+  {
+    "path": "docs/NANOISA_MAP_NATIVE_CONCAT_DESIGN.md",
+    "sha256": "331ea8800739f1412abb0b902bc99584346cabad32c5c1eb3a852b6a6aa2383f"
+  },
+  {
+    "path": "docs/ROADMAP.md",
+    "sha256": "0a66e8575fef99cb07738c10304bdc17f5a5e85c75501af16d44fc83432c888d"
+  },
+  {
+    "path": "src/nanoisa/nvm2c_map_private.inc",
+    "sha256": "b6e92c59bd9706eaaf86024dcf977890ae2af3a3cae34d06ac58a568c24f3254"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_native.c",
+    "sha256": "b69d6434a30a7298127801c2323986ccb6ae3042040266b3c90c4fe73b071557"
+  },
+  {
+    "path": "tests/nanoisa/test_record_map_public.c",
+    "sha256": "bfadac51e30f8488869ebe329a9ee7a99881122b1c31d53ec390b96bf07b56ec"
+  },
+  {
+    "path": "tests/test_record_map_native.py",
+    "sha256": "c47d15028a4f21e1109d3804898be57c801d024229bd400efc20b3d6372b9e86"
+  }
+]

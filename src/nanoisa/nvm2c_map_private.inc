@@ -54,7 +54,10 @@ static int nvm2c_map_target(const NvmRecordMapImage *image,char *error,size_t si
                 offset+=bytes;
             }
             if(offset!=width)return 0;
-            if(row.base.recipe==NVM_RA_ROOT_STRING || in.opcode==OP_CAST_STRING ||
+            if(in.opcode==OP_STR_CONCAT && row.base.recipe!=NVM_RA_ROOT_STRING)return 0;
+            /* NUL-free literal leaves and closed immutable transport make
+             * concatenation byte-preserving. Other producers remain unqualified. */
+            if((row.base.recipe==NVM_RA_ROOT_STRING && in.opcode!=OP_STR_CONCAT) || in.opcode==OP_CAST_STRING ||
                in.opcode==OP_STRUCT_NEW || in.opcode==OP_STRUCT_LITERAL ||
                in.opcode==OP_STRUCT_GET || in.opcode==OP_STRUCT_SET)
                 return nvm2c_map_target_error(error,size,"I have not qualified this native map string producer or STRUCT transport.");

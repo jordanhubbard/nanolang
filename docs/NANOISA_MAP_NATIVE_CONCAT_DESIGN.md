@@ -16,7 +16,7 @@ Use only retained seed, current C-hosted Nano emitter and installed Stage1/Stage
 
 Initial baseline uses unchanged and variant ordinary inputs. Original-shadow selection, if needed for the later permanent qualification, is separately produced using the retained existing driver; it is not inferred from main-module metadata.
 
-## Smallest candidate target change, still unapproved
+## Reviewed exact target change
 
 Keep the current closed-module, root/initializer, exact pair, ordinal/layout and STRUCT boundaries. Keep the executable PUSH_STR embedded-NUL rejection. Audit STR_CONCAT as the sole newly admitted dynamic producer; every other ROOT_STRING producer remains refused. Do not permit the whole recipe category: it includes CAST_STRING, substring, trim, case conversion, replace, numeric conversions and split.
 
@@ -39,3 +39,9 @@ No target edit before actual raw-source baseline and this lifetime audit are rev
 All8 unchanged/concat inputs from seed, retained generic-field C-hosted canonical and installed stages compile, verify and execute raw VM/native.32 native runs (O0/O2, ordinary/forcedGC, ASan/UBSan) pass exact0/empty stderr. Every concat module contains exactly1 STR_CONCAT and no STRUCT opcodes; authority remains absent. Separate explicit annotations pass837 public verification/transport/VM checks and preserve the expected native concat refusal for all4 variants. Eight raw tool/compiler pins and current aggregate consumer object pins remain unchanged. This demonstrates the metadata-selected native regression boundary; it does not assert general dynamic STRING compatibility.
 
 Independent lifetime read confirms emit_map_roots enumerates all non-scalar locals and operand roots before CALL/TAIL_CALL collection and argument consumption. Self-tail restarts also collect only after those roots are published. RET assigns the result then reaches L_return; frame unlink/destruction performs no collection, so the returned string transfer has no intervening collector. STR_CONCAT and nmap_set allocate/copy without collection; map insertion owns an independent key copy, while replacement retains its original key. Actual helper-return/tail/local/replacement forced-GC controls remain required after the reviewed exact STR_CONCAT-only target exception. No runtime redesign is authorized.
+
+## Qualified slice and remaining limits
+
+After the baseline/lifetime review, the only production change is an exact STR_CONCAT/ROOT_STRING correspondence check plus exemption of that opcode alone from the native ROOT_STRING refusal. All other STRING producers, executable NUL literals, STRUCT transport and nonidentity ordinal/layout checks remain. Public consumer1032checks and both existing required native test methods pass. The required test-record-map-native suite now includes UTF8 and empty concatenated keys carried through helper locals, tail calls and STRING return, with equal-content replacement and generated allocator sweeps. No optional-only test registration or publisher changes.
+
+Final evidence includes56 generated executions,920 measured generated-allocation denial processes plus independent retries,195 compiler-allocation positions in both failure modes,8 exact raw output byte goldens,4 prior selected byte goldens and Clang/GCC strict4. The32 raw baseline executions precede this selected-target exception and remain distinct evidence. See docs/evidence/map-native-concat-20261022/README.md. Broader STRING source closure and paired publisher readiness remain open.
