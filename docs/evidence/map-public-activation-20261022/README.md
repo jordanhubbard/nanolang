@@ -76,3 +76,5 @@ complete #1001, hosted-platform qualification or publisher completion is made.
 
 Full local artifacts remain under the paths in retained-artifacts.json and the
 permanent status files. Compact receipts retain hashes rather than binary bundles.
+
+Aggregate integration initially stopped before runtime because the exact Make query/common closure listed lib/libnano_compiler_inputs.a twice (positions1/57), producing a linker warning that the strict driver correctly rejected despite linker status0. The driver now removes only earlier identical compiler-input archive pathnames, keeping the last occurrence and every other input in order. It does not deduplicate arbitrary static libraries, whose repetition may be intentional. Re-linking the retained failing command with exactly that one removal passed with empty stderr; aggregate actual Make rerun remains the final integration check.

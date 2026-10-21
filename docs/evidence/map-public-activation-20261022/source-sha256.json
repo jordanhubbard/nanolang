@@ -9,7 +9,7 @@
   },
   {
     "path": "docs/ROADMAP.md",
-    "sha256": "dff704a05f31cc9c3a48d2d4f1e9cebac4044bc4052f4351b1abe0c2455bcc1b"
+    "sha256": "e968df1818fc47bab352afe0a04357116e2d8752e5560c1fa168f85e70e109c3"
   },
   {
     "path": "src/nanoisa/managed_array_shapes.c",
@@ -189,7 +189,7 @@
   },
   {
     "path": "tests/test_record_map_public.py",
-    "sha256": "52df4ab13ef7b311f182a2351830cfb0c8d1e2b1beef3767ce6a3bf5e1469584"
+    "sha256": "09b456daa153a44a8590283ca8350f3ff79d07609022159dc156fbb799d491bc"
   },
   {
     "path": "tests/test_record_map_runtime.py",

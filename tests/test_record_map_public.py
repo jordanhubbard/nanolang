@@ -36,6 +36,12 @@ class RecordMapPublic(unittest.TestCase):
         cls.sources = list(dict.fromkeys(cls.sources))
         names = {Path(source).stem for source in cls.sources}
         cls.objects = [obj for obj in cls.objects if Path(obj).stem not in names]
+        # Make's query/common closures can share an archive. Keep its final
+        # occurrence so preceding consumer objects retain static link order.
+        final_archive = {obj: i for i, obj in enumerate(cls.objects)
+                         if Path(obj).name == 'libnano_compiler_inputs.a'}
+        cls.objects = [obj for i, obj in enumerate(cls.objects)
+                       if obj not in final_archive or final_archive[obj] == i]
         cls.products = {}
         cls.statuses = []
         (cls.work/'selection.json').write_text(json.dumps(dict(cc=cls.cc, flags=cls.flags,
