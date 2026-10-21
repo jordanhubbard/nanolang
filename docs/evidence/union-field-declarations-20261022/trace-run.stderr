@@ -1,0 +1,10 @@
+0   trace-map                           0x00000001008959e8 oaa_test_free + 308
+1   trace-map                           0x000000010089578c nvm_v2_layouts_free + 164
+2   trace-map                           0x00000001008f7970 nvm_record_plan_free + 24
+3   trace-map                           0x00000001008d8e04 analyze_boundary_pair + 4608
+4   trace-map                           0x00000001008e20a4 rme_prepare_boundary + 476
+5   trace-map                           0x00000001008d6c98 nvm_record_map_admit + 216
+6   trace-map                           0x000000010091bc58 verify_record_maps + 92
+7   trace-map                           0x00000001008ad000 main + 7480
+8   dyld                                0x000000019093be80 start + 6688
+I failed line21: i<live

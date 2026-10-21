@@ -1,0 +1,17 @@
+{
+  "old_files_byte_identical_to_f53539b9c": [
+    "src/nanoisa/ordinary_array_authority.inc",
+    "src/nanoisa/ownership_declaration_projection.inc",
+    "src/nanoisa/ownership_array_fields.inc",
+    "src/nanoisa/managed_array_shapes.c",
+    "src/nanoisa/nvm_v2_layouts.c"
+  ],
+  "six_budget_rows_byte_identical": true,
+  "new_owner": 56,
+  "layout_row": 16,
+  "field_row": 12,
+  "retained_bytes": 112,
+  "peak_bytes": 112,
+  "allocations": 4,
+  "reserved_work": 1152
+}

@@ -24,6 +24,6 @@ class MapDeclarations(unittest.TestCase):
             if not observed:sources+=['src/nanoisa/ownership_contracts.c','src/nanoisa/nvm_v2_layouts.c']
             self.command(mode+'-build',[*self.cc,*self.flags,*(['-DOAA_INSTRUMENT'] if observed else []),*sources,*self.objects,*self.ldflags,'-o',str(exe)])
             output=self.command(mode+'-run',[str(exe)])
-            self.assertIn(b'exact map declaration checks; public admission stays refused',output)
+            self.assertIn(b'exact map declaration checks; linked public boundary and isolated declaration allocation controls',output)
             print(output.decode().strip(),flush=True)
 if __name__=='__main__':unittest.main()
