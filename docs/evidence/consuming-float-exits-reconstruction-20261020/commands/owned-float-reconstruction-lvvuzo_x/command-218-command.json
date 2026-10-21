@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Users/jkh/.local/bin/python3",
+    "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nvm2hl.py",
+    "--language",
+    "nano",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-lvvuzo_x/nonfinite-7ff8000000000042.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-lvvuzo_x/nonfinite-7ff8000000000042.nano"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-owned-float-design",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "timeout_seconds": 180
+}

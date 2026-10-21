@@ -124,7 +124,14 @@ class OwnedAnalyze(Analyze):
         self.exclusive_control = self.borrowed and module['functions'][1].get('param_modes') == [2] and (
             self.paths or any(ins['op'] in ('JMP', 'JMP_TRUE', 'JMP_FALSE')
                               for ins in module['functions'][1]['code']))
-        from nanoisa_owned_exits import needs_loop_exits
+        from nanoisa_owned_exits import needs_loop_exits, has_structured_exits
+        self.consuming_exits = not self.borrowed and has_structured_exits(module)
+        if self.consuming_exits:
+            require(all(tag in (INT, BOOL) for fields in self.fields for tag in fields) and
+                    all(fn['result_type'] == [INT, 4294967295] and
+                        all(pair[0] in (INT, BOOL, 8) for pair in fn['params'])
+                        for fn in module['functions']),
+                    'require scalar-result consuming exits with scalar-leaf owners')
         self.loop_exits = needs_loop_exits(module)
         if self.loop_exits:
             require(not self.paths and self.borrowed and len(self.layouts) == 1 and self.fields[0] == [INT, BOOL] and
@@ -204,7 +211,7 @@ class OwnedAnalyze(Analyze):
                 target = self.positions[ins['target']]
                 require(target not in interiors, 'require branches outside ephemeral read interiors')
                 if target <= n:
-                    require(ins['op'] == 'JMP' and (self.loop_exits or target not in self.backedges),
+                    require(ins['op'] == 'JMP' and (self.loop_exits or self.consuming_exits or target not in self.backedges),
                             'require one unconditional backedge per owned loop header')
                     self.backedges[target] = n
         if self.helper and self.single_shared_path:
@@ -663,7 +670,7 @@ class OwnedAnalyze(Analyze):
         return i + 1
 
     def run(self):
-        if self.loop_exits:
+        if self.loop_exits or self.consuming_exits:
             from nanoisa_owned_exits import ExitRegions
             return ExitRegions(self).run()
         parameters = [('own_parameter', i, layout) for i, layout in self.live.items()]
@@ -700,6 +707,14 @@ class OwnedEmit(Emit):
             from nanoisa_owned_origins import prove_owner_reassignment
             for function in functions:
                 prove_owner_reassignment(function, single_helper_locals=True)
+        self.consuming_exits = any(getattr(fn, 'consuming_exits', False) for fn in functions)
+        if self.consuming_exits:
+            require(all(getattr(fn, 'consuming_exits', False) and fn.result == INT and
+                        all(t in (INT, BOOL) or isinstance(t, tuple) and t[0] == 'owner' for t in fn.params)
+                        for fn in functions), 'require a complete consuming-exit graph')
+            from nanoisa_owned_exits import prove_exit_origins
+            for function in functions:
+                prove_exit_origins(function, functions, layouts)
         self.loop_exits = any(getattr(fn, 'loop_exits', False) for fn in functions)
         if self.loop_exits:
             require(len(functions) == 2 and modes == [2] and all(getattr(fn, 'loop_exits', False) for fn in functions),
@@ -1455,7 +1470,7 @@ class OwnedEmit(Emit):
                 else:
                     self.line(f'({"println" if stmt[2] else "print"} {value})', indent)
             elif kind in ('break', 'continue'):
-                require(self.loop_exits, 'require an exit-aware structured transfer')
+                require(self.loop_exits or self.consuming_exits, 'require an exit-aware structured transfer')
                 self.line(kind + (';' if c else ''), indent)
             elif kind == 'let' and self.inline_div and stmt[2].kind == 'arithmetic' and stmt[2].value == 'div':
                 self.inline_div_statement(stmt[1], stmt[2], indent)
@@ -1622,7 +1637,7 @@ class OwnedEmit(Emit):
         c = self.language == 'c'
         string_literals = literals_in(self.functions)
         self.has_strings = bool(string_literals) or any(STRING in fn.params for fn in self.functions)
-        if self.inline_add or self.has_strings and not c:
+        if self.inline_add or (self.has_strings or self.consuming_exits) and not c:
             require(all(self.nano_local_cost(fn) <= 128 for fn in self.functions),
                     'limit generated exclusive Nano functions to 128 local slots')
         declarations = ['#include <stdint.h>\n#include <stdbool.h>\n#include <stdio.h>\n#include <stdlib.h>'] if c else []

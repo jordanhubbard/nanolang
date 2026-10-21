@@ -1,0 +1,8 @@
+I retain FLOAT evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-wc9obujp
+test_later_assertion_is_not_elided (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_later_assertion_is_not_elided) ... ok
+test_actual128_estimated129_atomic_boundary (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_actual128_estimated129_atomic_boundary) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 8.189s
+
+OK

@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-lvvuzo_x/generated-270.O0.exe"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-owned-float-design",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "timeout_seconds": 180
+}

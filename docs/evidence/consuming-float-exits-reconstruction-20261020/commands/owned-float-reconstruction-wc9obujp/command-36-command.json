@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-DNDEBUG",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-wc9obujp/later-failure.nanoc_stage2.c",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-wc9obujp/later-failure.nanoc_stage2.O2.exe"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-owned-float-design",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "timeout_seconds": 180
+}
