@@ -6,6 +6,7 @@
 #include "record_map_structure_private.h"
 #include "record_union_structure_private.h"
 #include "managed_union_field_proof_private.h"
+#include "managed_union_field_execution_private.h"
 #include "managed_record_map_origins.h"
 #include "managed_record_plan.h"
 #include "ownership_contracts.h"
@@ -924,12 +925,14 @@ static int map_boundary_value_valid(Value value,uint64_t arrays,uint64_t records
     return !(value.origins&~allowed);
 }
 /* Optional detached export; old callers retain the exact NULL path. */
-static NvmArrayEligibilityResult analyze_context(const NvmModule *m,NvmArrayEligibilityReport **out,
+static NvmArrayEligibilityResult analyze_context_sites(const NvmModule *m,NvmArrayEligibilityReport **out,
                                           NvmArrayGraphEligibilityReport **graph_out,
-                                          NvmRecordEligibilityReport **record_out,NvmRecordArrayOrigins **mixed_out,uint16_t *prepared_stacks, int portable_reads,NvmRecordMapFrozenContext **map_out,NvmMapGlobalExport *globals_out,uint8_t *map_value_out,NvmUnionFieldProof **union_out) {
+                                          NvmRecordEligibilityReport **record_out,NvmRecordArrayOrigins **mixed_out,uint16_t *prepared_stacks, int portable_reads,NvmRecordMapFrozenContext **map_out,NvmMapGlobalExport *globals_out,uint8_t *map_value_out,NvmUnionFieldProof **union_out,NvmUnionFieldSiteExport *sites_out) {
     NvmArrayEligibilityResult early={NVM_ARRAY_INVALID,0,0,"I require a module and report output."};
     if(!m || (!out && !graph_out && !record_out && !mixed_out && !map_out && !union_out) || (globals_out && !map_out) ||
        (union_out && (out || graph_out || record_out || mixed_out || map_out || prepared_stacks || portable_reads || globals_out || map_value_out)))return early;
+    if(sites_out && (!union_out || uf_outputs_overlap(union_out,sizeof *union_out,sites_out,sizeof *sites_out)))return early;
+    NvmUnionFieldSiteExport sites={0};NvmUnionFieldProof *pending_union=NULL;
     NvmRecordArrayBudget budget={0};NvmRecordArrayStructure *structure=NULL;
     NvmMapDeclarationPlan *map_declarations=NULL;NvmRecordUnionStructure *union_structure=NULL;
     if(mixed_out || map_out || union_out) {
@@ -1073,7 +1076,11 @@ static NvmArrayEligibilityResult analyze_context(const NvmModule *m,NvmArrayElig
     } while(a->changed);
     if(!(unions?final_check_context(a,NULL,TAG_VOID,unions):final_check(a,maps,value_tag)))goto done;
     if(union_out) {
-        if(!uf_freeze(a,unions,union_out))goto done;
+        if(sites_out) {
+            if(!uf_export_sites(a,unions,&sites) || !uf_freeze(a,unions,&pending_union))goto done;
+            *union_out=pending_union;pending_union=NULL;
+            *sites_out=sites;sites.rows=NULL;
+        } else if(!uf_freeze(a,unions,union_out))goto done;
     } else if(map_out) {
         if(prepared_stacks && !analysis_work(a,256))goto done;
         if(!ra_check_constraints(a) || !map_final(a,maps,value_tag))goto done;
@@ -1133,7 +1140,21 @@ static NvmArrayEligibilityResult analyze_context(const NvmModule *m,NvmArrayElig
     if(maps){nvm_map_declarations_free(maps->declarations);free(maps);}
     if(unions){nvm_union_field_declarations_free(unions->declarations);free(unions);}
     nvm_record_union_structure_free(union_structure);
+    free(sites.rows);nvm_union_field_proof_free(pending_union);
     free(globals.rows);destroy(a);return result;
+}
+/* Old callers retain the exact NULL site route and its allocation schedule. */
+static NvmArrayEligibilityResult analyze_context(const NvmModule *m,NvmArrayEligibilityReport **out,
+    NvmArrayGraphEligibilityReport **graph_out,NvmRecordEligibilityReport **record_out,
+    NvmRecordArrayOrigins **mixed_out,uint16_t *prepared_stacks,int portable_reads,
+    NvmRecordMapFrozenContext **map_out,NvmMapGlobalExport *globals_out,uint8_t *map_value_out,NvmUnionFieldProof **union_out) {
+    return analyze_context_sites(m,out,graph_out,record_out,mixed_out,prepared_stacks,portable_reads,
+                                 map_out,globals_out,map_value_out,union_out,NULL);
+}
+static NvmArrayEligibilityResult analyze_union_sites(const NvmModule *m,NvmUnionFieldProof **proof,
+                                                    NvmUnionFieldSiteExport *sites) {
+    if(!proof || !sites)return (NvmArrayEligibilityResult){NVM_ARRAY_INVALID,0,0,"I require disjoint union proof and site outputs."};
+    return analyze_context_sites(m,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,proof,sites);
 }
 static NvmArrayEligibilityResult analyze_boundary_pair(const NvmModule *m,NvmArrayEligibilityReport **out,
     NvmArrayGraphEligibilityReport **graph_out,NvmRecordEligibilityReport **record_out,
@@ -1235,6 +1256,7 @@ NvmArrayEligibilityResult nvm_select_managed_heap(const NvmModule *m,int mutable
 }
 
 #include "managed_record_array_execution.inc"
+#include "managed_union_field_execution.inc"
 #include "managed_record_map_execution.inc"
 #include "record_map_snapshot.inc"
 #include "record_array_admission.inc"
