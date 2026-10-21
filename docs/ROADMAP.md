@@ -16832,3 +16832,7 @@ I own the next finite [#1001](https://github.com/jordanhubbard/nanolang/issues/1
 - [ ] I document exact nominal/variant identity, historical payload/field constraints, copied recipes/lifetime/native eligibility and old-budget preservation before any consumer implementation.
 
 I continue #1001 on `design/5.1-ordinary-union-fields` with the reviewed declaration-only owner interface (`e67aad4c3`): source checkpoint before build, old projection unchanged, no execution/transport/publisher enrollment.
+
+### 2026-10-21: copied union declaration aggregate checkpoint
+
+I integrated2025a38dd plus the separately reproduced stale map-boundary test correction, added the permanent declaration retirement target, and passed current aggregate union/map declaration and68 control checks. Receipt: `docs/evidence/union-field-declarations-aggregate-20261021/README.md`. This is descriptive metadata only; union execution/publication and exact platform acceptance remain open.
