@@ -16426,3 +16426,9 @@ I retain [private map proof qualification](evidence/map-origin-proof-20261021/RE
 ### I design copied map recipes after private proof (2026-10-21)
 
 - [x] I own the contract-only next #1001 checkpoint above `854037151`: [copied map execution recipes](NANOISA_MAP_EXECUTION_RECIPE_DESIGN.md). I make the unchanged carrier's origins NULL and let the frozen context solely own its base report, charge proof/snapshot overlap, preserve complete opcode coverage and GET INT|VOID. Runtime/public/native/publisher admission remains refused; no execution implementation is authorized by this design.
+
+### I implement private map execution recipes (2026-10-21)
+
+- [x] I own the reviewed constructor/query-only slice from `4fc8c9db7`. I preserve sole frozen-origin ownership, old carrier sizes/budgets and atomic stack/plan outputs. I send source for review before compilation; public/runtime/native/image/publisher admission remains outside this work.
+
+I retain [copied map recipe qualification](evidence/map-execution-recipes-20261021/README.md): four original private inputs, complete recipe/query controls,60 constructor and45 stack/proof allocation prefixes, exact constructor byte/work limits with refusal/retry, old execution-plan neighbors and six unchanged budgets. Public execution, image/runtime/native/publisher admission and full #1001 remain open.
