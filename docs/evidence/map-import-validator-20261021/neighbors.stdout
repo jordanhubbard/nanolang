@@ -1,0 +1,68 @@
+I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-x19i1rao
+I checked 5 tail/map execution allocation positions in both failure modes.
+I checked 6 growth execution positions in both modes with distinct counted-NUL keys.
+I reserved actual runtime owner818512/view48, 9243573 bytes/9269707 work (overlap 76474578/26145831).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266740 work (overlap 76473835/26142410).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+I executed original0 with result0, maximum_frames2, heap objects29.
+I executed original1 with result0, maximum_frames2, heap objects27.
+I executed original2 with result0, maximum_frames2, heap objects27.
+I executed original3 with result0, maximum_frames2, heap objects27.
+PASS 2714 actual private map runtime checks; public admission remains refused.
+
+I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-otzk6b8a
+I checked 5 tail/map execution allocation positions in both failure modes.
+I checked 6 growth execution positions in both modes with distinct counted-NUL keys.
+I reserved actual runtime owner818512/view48, 9243573 bytes/9269707 work (overlap 76474578/26145831).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266740 work (overlap 76473835/26142410).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+I executed original0 with result0, maximum_frames2, heap objects29.
+I executed original1 with result0, maximum_frames2, heap objects27.
+I executed original2 with result0, maximum_frames2, heap objects27.
+I executed original3 with result0, maximum_frames2, heap objects27.
+PASS 2714 actual private map runtime checks; public admission remains refused.
+
+I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-l_fd04jz
+I copied observations32/identity16 with owner818512 unchanged; lookup work229.
+I measured exact observe33/string36/empty-string34/identity430 logical work.
+I bounded64 colliding keys at34950 lookup work and retained exact counted-NUL keys.
+I observed actual64-origin tree scalar path63; path259 refused without traversal.
+I reserved actual runtime owner818512/view48, 9243573 bytes/9269707 work (overlap 76474578/26145831).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266740 work (overlap 76473835/26142410).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+PASS 19208 private copied map observation checks; public admission remains refused.
+
+I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-7tv4nvqf
+I copied observations32/identity16 with owner818512 unchanged; lookup work229.
+I measured exact observe33/string36/empty-string34/identity430 logical work.
+I bounded64 colliding keys at34950 lookup work and retained exact counted-NUL keys.
+I observed actual64-origin tree scalar path63; path259 refused without traversal.
+I reserved actual runtime owner818512/view48, 9243573 bytes/9269707 work (overlap 76474578/26145831).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266740 work (overlap 76473835/26142410).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I reserved actual runtime owner818512/view48, 9243432 bytes/9266634 work (overlap 76473835/26142304).
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+PASS 19208 private copied map observation checks; public admission remains refused.
+
+I retain heap artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-heap-d2tjp_k6
+I checked 32 partial record/map construction prefixes with independent retry.
+I measured corrected legacy growth allocated=7126; freed=7126, objects=0.
+I checked 10318 private heap assertions; no VM dispatch or admission. Heap size 6312.

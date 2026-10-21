@@ -23,6 +23,9 @@ VmRmHeapStatus vm_rm_heap_has(const VmHashMap *,NanoValue,bool *);
 VmRmHeapStatus vm_rm_heap_len(const VmHashMap *,uint32_t *);
 VmRmHeapStatus vm_rm_heap_validate(const VmHashMap *,VmRmObservationWork *);
 #ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+/* Physical counted-byte topology only; no execution or GC membership authority.
+ * The internal module-taking import query checks ordinary collector membership. */
+VmRmHeapStatus vm_rm_heap_import_validate(const VmHashMap *,VmRmObservationWork *);
 /* Full topology validation and byte probe occur in one read-only call. No
  * caller-provided flag can bypass validation; result is only INT or VOID. */
 VmRmHeapStatus vm_rm_heap_observe_lookup(const VmHashMap *,const void *,uint32_t,VmRmObservationWork *,NanoValue *);

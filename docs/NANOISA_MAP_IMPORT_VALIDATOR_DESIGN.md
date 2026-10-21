@@ -119,8 +119,10 @@ Collector membership does not turn an unsupported object into an admitted global
 
 ## Singleton historical obligations
 
-Every global occurrence must match its copied historical tag set. Slots above the
-copied global count must be VOID; missing runtime slots are logically VOID and
+Every allocated global slot through global_capacity must match its copied
+historical tag set, regardless of global_count: LOAD_GLOBAL can read reserved
+capacity. Slots above the copied global count must be VOID; only slots beyond
+actual global_capacity are logically VOID and
 must be allowed by their row. Unknown historical rows already refuse the module
 proof. Direct-map globals remain unsupported. Scalar/string occurrences get no
 static origin assignment. For ARRAY/STRUCT and nested HASHMAP occurrences, filter
@@ -230,3 +232,49 @@ output or caller mutation. These are preparation bounds, never guest fuel.
    allocation live/peak accounting; caller-owned payload is reported separately.
 7. Old private observation/runtime/heap neighbors and six legacy budget rows remain
    exact. No VM/native/publisher selection or handler runs through this query.
+
+## Source checkpoint charge precision
+
+The draft state has the proposed4200-byte fixed payload,16-byte buckets/frames
+and40-byte report (compile-time assertions and actual ordinary-query qualification). The
+prepaid copied-row scratch conservatively includes three simultaneous origin
+rows (walker, selected origin, filter candidate), two value-origin rows and two
+NanoValues, plus layout/field/descriptor, boundary counts, origin counts and map
+work-header copies. This is a logical payload reserve, not a claim about compiler
+ABI stack-frame padding; helper depth is fixed and graph depth uses the259-frame
+array. Actual sizeof values are qualified; the final receipt records allocation and old-budget comparisons.
+
+Packed arrays have no boxed child summary in the existing proof. Their imported
+physical values use the exact proved declared scalar kind after existing packed
+conversion; boxed arrays retain the full historical tags/origins. No raw scalar
+write set is misrepresented as the tag of an already converted stored value.
+The ordinary map wrapper shares the complete charged topology loop with the
+private validator through a static implementation parameter. No exported boolean
+can skip validation or assert header trust; old private wrappers still select
+the original !buffered header and preserve their prior schedule.
+
+## Qualified implementation boundaries
+
+I measured the ordinary owner layouts unchanged: VmState803992 and VmHeap6312.
+The test harness keeps functions with these large automatic owners uninlined;
+the initial O1 sanitizer binary reserved0x671160 bytes in main alone and overflowed
+when calling another owner-sized snapshot. Provider optimization and sanitizers
+remain unchanged. This is a harness frame correction, not a runtime stack change.
+
+The global scan covers actual allocated global_capacity, including readable slots
+above global_count. Missing allocated values are never synthesized as VOID. A
+real LOAD_GLOBAL assertion reads17 from slot0 while count is0; a non-VOID value
+outside the copied historical summary refuses. The earlier count-based draft was
+corrected during source review before any build.
+
+The static positive-only reservation helper initializes the full boundary reserve,
+then adds checked byte/work reservations before scratch or graph traversal. Normal
+module-taking queries pass0/0. Whitebox exact-cap tests preserve the same graph
+and pointer/hash inputs; +1 refuses without output publication. UINT64_MAX refuses
+before validator-table allocation, with an already-created boundary plan. I do
+not claim the module-taking query is allocation-free on every LIMIT result.
+
+I qualify a constructible63-frame record/array path with64 origins. The259-frame
+scratch reserve remains a conservative maximum; I do not infer a258-frame
+positive case from that bound. Ordinary record ordinal0 mapping to layout1 is
+qualified with an interleaved union declaration, without relabeling the object.

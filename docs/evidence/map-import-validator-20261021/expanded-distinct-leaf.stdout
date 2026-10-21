@@ -1,0 +1,12 @@
+I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-by81k3ic
+I reserve import state4200/table row16/report40 without changing VmState803992 or VmHeap6312.
+I denied all 67 import allocations transiently and persistently, including identity growth.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/seed.nvm.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/c-hosted-nano.nvm.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage1.nvm.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm.
+PASS 12982 ordinary import query checks; public admission remains refused
