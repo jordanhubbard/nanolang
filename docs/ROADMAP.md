@@ -16878,3 +16878,7 @@ I qualified independent union images with2032/6384 checks,55 allocation position
 I integrate independently re-proved image checkpoint75f811f68, add the explicit retirement image target and qualify the aggregate on six retained originals and workflow controls before pushing. These private images do not enable VM/native/public/publisher execution.
 
 I passed aggregate independent images2032/6384 on six originals (6.081s) and68 workflow/checkpoint controls (2.255s). Receipt: `docs/evidence/union-field-image-aggregate-20261021/README.md`. Runtime/native/public/publisher enrollment remains closed.
+
+### 2026-10-21: exact Darwin linker capture diagnosis
+
+I retain the 24 response-file capture failures from retirement job119190000524 at208258291 and qualify the exact pinned Xcode toolchain in an isolated diagnostic lane. Local matching capture passes; hosted linker identity remains unmeasured. I record selected linker reports and run actual response grammar and affected assembly capture cases before changing any production identity policy. I preserve cache refusal and all existing assertions.

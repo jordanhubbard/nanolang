@@ -1,0 +1,43 @@
+name: Exact Darwin linker capture diagnostic
+on:
+  push:
+    branches: [fix/5.1-darwin-link-query]
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: xcode-27
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Provision probe dependencies
+        run: ./scripts/ci-brew-install.sh openssl@3 pkg-config
+      - name: Select exact retirement compiler
+        run: python3 scripts/ci_select_capture_clang.py
+      - name: Build production capture probe
+        run: |
+          mkdir -p .test_output/darwin-link-query
+          prefix="$(brew --prefix openssl@3)"
+          make -f Makefile.gnu -j2 obj/test_module_generation_probe CC=cc \
+            CFLAGS="-Wall -Wextra -Werror -std=c99 -O2 -g -Isrc -D_GNU_SOURCE -I$prefix/include" \
+            LDFLAGS="-lm -lcrypto -L$prefix/lib" \
+            > .test_output/darwin-link-query/probe-build.log 2>&1
+      - name: Record actual selected linker and production query
+        run: python3 scripts/ci_darwin_link_query_diagnostic.py
+      - name: Qualify response grammar and transport
+        run: |
+          python3 -m unittest -v tests.test_link_response_query tests.test_link_response_graph tests.test_link_argument_transport \
+            > .test_output/darwin-link-query/response-tests.log 2>&1
+      - name: Reproduce affected source capture cases
+        if: ${{ !cancelled() }}
+        run: |
+          python3 scripts/ci_darwin_link_query_diagnostic.py capture \
+            > .test_output/darwin-link-query/capture-tests.log 2>&1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exact-darwin-link-query
+          path: .test_output/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
