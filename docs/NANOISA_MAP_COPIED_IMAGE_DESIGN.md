@@ -63,3 +63,40 @@ Before any runtime proposal: exercise all four retained actual original anchor m
 Instrument every image-copy allocation prefix with prior-image preservation, source query survival, zero leaks and independent retry. Measure retained totals against tracked live payload before copy, and peak image operation against the combined reservation. Qualify exact byte/work boundary and one-unit-over refusal using the same explicit positive pre-reservation principle. Include maximum bounded tables/strings and arithmetic overflow before allocation. Preserve all six old proof budgets and old array execution/image neighbors unchanged.
 
 Physical hashmap validation and execution remain subsequent review: tags/counts/capacity alone do not establish uniqueness/reachability under the actual hash probe sequence. Later import/observation validation must establish lookup topology, because hm_resize assumes no duplicate equal keys. Key retain headroom, resize failure/alias semantics, absent GET, closed invocation lifetime and native key byte closure are not discharged by a copied image.
+
+## I fix the retained-size helpers and logical charge schedule
+
+The constructor audit confirms exact allocation capacities, not just wire counts. `layouts_decode_profile` allocates `count` layout rows and exactly `field_count` field rows, skipping both zero cases. Its forward-graph colors/stack are freed before return. Ordinary ARRAY type/binding allocations and union rows skip zero counts and have no retained spare capacity. Map scalar/pair/binding counts are nonzero and exact; starts always allocates257 uint32 entries, even when fewer layouts exist. Frozen map rows and report fields skip zero counts. Every wrapper/report uses exactly one sizeof allocation.
+
+`rae_copy` and `rae_zero` skip zero byte counts. Snapshot strings allocate each counted length+1, including empty strings. The optional parameter-pointer table allocates exactly function_count pointers when present; each present zero-arity row uniquely allocates one byte. An absent row allocates nothing. The carrier's function/stack/descriptor fixed arrays and the report's64 origins/required masks are inline and must not be charged a second time. Both instruction arrays allocate exact total instruction count, with no growth capacity. Every mutable VmDecodedFunction instruction capacity (minimum16, doubling), byte-index array, decoder boundary buffer, Value/state queue and proof structure is destroyed before plan publication; none is retained in this ledger. Proof reservation continues to cover their earlier peak.
+
+I propose a new private header shared only by the owning TUs:
+
+```c
+typedef struct {
+    uint64_t used, limit; /* logical work only; no owned storage */
+    bool limited;
+} NvmMapCopyWork;
+typedef enum { NVM_MAP_COST_OK, NVM_MAP_COST_INVALID,
+               NVM_MAP_COST_LIMIT } NvmMapCostStatus;
+NvmMapCostStatus nvm_ownership_declarations_retained_cost(
+    const NvmOwnershipDeclarationPlan *, NvmMapCopyWork *, uint64_t *bytes);
+NvmMapCostStatus nvm_map_declarations_retained_cost(
+    const NvmMapDeclarationPlan *, NvmMapCopyWork *, uint64_t *bytes);
+```
+
+These two helpers are defined in `ownership_contracts.c` through its existing owning includes, where the real private types and constructor rules are visible. The second requires detached `base==NULL`. Static helpers `rme_frozen_retained_cost` and `rme_plan_retained_cost` live in the analysis/execution TU; no old public type gains a cost field. `bytes` outputs are published once at success. Failure may consume work already spent and set the caller's limited flag; it never modifies the plan or bytes output. The work object and output must be nonoverlapping objects. These are private call-local accounting arguments, not stored contexts or trusted admission tokens.
+
+The schedule is defined in logical probes, not CPU operations:
+
+- Every helper entry first charges16 before reading any owning object. It checks pointer presence, fixed count ceilings, detached ownership where applicable, and top-level scalar relationships.
+- Every allocation term charges4 before inspecting its pointer/count and performing checked multiplication plus accumulation. It is charged even for an absent/zero allocation; that term contributes zero bytes. Count/pointer consistency follows the audited constructor rule. A byte-sum overflow yields LIMIT, malformed count/pointer relationships INVALID.
+- Each visited layout, function or string row charges8 before dereferencing that row. Its allocation term then charges4 separately. No field contents, instruction rows, scalar/pair/binding contents or string bytes are scanned merely to measure storage; their complete semantics are independently re-proved by the destination constructor. Layout field_count is read once and its aggregate total remains≤65536. Function local/arity counts retain≤256; snapshot strings retain≤4096 and lengths use checked +1.
+
+Successful declaration cost is `40 + 12*L`: entry16, six allocation terms (ownership wrapper, ordinary wrapper, layout rows, union rows, ARRAY types, ARRAY bindings), and L layout-row visits plus their field-array terms. Detached map declaration cost is36: entry16 and five terms (sidecar, scalars, pairs, bindings, fixed starts). Frozen cost is `112 + 12*L`: entry16, five terms (frozen wrapper, map-origin rows, base wrapper, fixed report, report fields), then both declaration helpers. The report field allocation uses its actual field_value_count with existing FIELD_CELLS≤65536, not the declaration-field count; repeated record origins can own distinct field summary slices.
+
+Plan cost is `180 + 12*(L + F + S)`: entry16, thirteen terms (map wrapper, carrier, two instruction arrays, snapshot function/code/layout/ownership/metadata/debug/string-length/string-pointer/parameter-pointer allocations), F function-row visits plus each optional parameter-row term, S string-row visits plus each terminated-string term, then frozen cost. The fixed header/sections and all carrier inline arrays are already included in carrier sizeof. No decoded capacity, source module capacity field, allocator overhead or old peak reservation is substituted for retained payload. Counts are checked before using them as loop limits, and every row is charged before access. The implementation must retain these exact schedules or return for review if an additional traversal becomes necessary.
+
+The image constructor initializes this call-local work allowance to the unchanged33554432 preparation limit, calls the retained-cost helper before allocating an image, and passes the actual consumed work plus image-wrapper initialization to positive pre-reservation. The new constructor reserves/proves/copies as already specified. There is no uncharged preliminary loop to calculate the cost of the cost walk. Work exhaustion inside any helper leaves byte output unchanged. The resulting image cost records this actual schedule plus constructor reservations; source construction's prior historical work is not repeated in the accounting.
+
+The independent payload oracle uses existing `record_array_alloc.c` tracking: immediately after successful plan publication and all temporaries are gone, `ra_bytes` must equal reported retained bytes exactly, and the helper call must not increase ra_calls/ra_live. Fixtures must cover absent/present parameter tables, a present zero-arity one-byte row, empty strings, absent optional rows, zero-field unrelated layouts, actual map rows and full array/declaration combinations. The tracker records requested payload bytes, excluding allocator bookkeeping; a separate allocator-minimum or alignment guess would be incorrect. Image tests compare the source's still-live payload plus destination actual peak to the combined reservation, then free the source and compare destination retained payload independently. All allocation-prefix tests preserve prior output, source queries, exact cleanup and retry.
