@@ -1,0 +1,35 @@
+I retain private VM artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-vm-z6ut7mea
+test_linked_private_vm (tests.test_record_array_vm.RecordArrayVm.test_linked_private_vm) ... I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I passed 2390 private mixed VM checks; no public or generated consumer admission.
+I begin direct_tail_frame
+I begin graph_aliases_and_independent_copies
+I begin wrong_tag_cleanup
+I begin retained_result_and_globals
+I begin heap_result_alias_and_call
+I begin initializer_prefix
+I begin scalar_handlers
+I begin frame_boundaries
+I begin string_handlers
+I begin mutation_handlers
+I begin zero_field_constructor
+I begin nominal_dag_and_release
+I begin entry_result_controls
+I passed 2390 private mixed VM checks; no public or generated consumer admission.
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 15.809s
+
+OK

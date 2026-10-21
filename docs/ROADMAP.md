@@ -16638,3 +16638,18 @@ is exact and six retained legacy budget rows are unchanged (not rebuilt). The
 enum-spelling harness failure remains in
 [the adapter receipt](evidence/map-ordinary-heap-20261022/README.md).
 This checkpoint enables no activation, dispatch or public selection.
+
+### #1001 borrowed activation checkpoint2 implementation ownership (2026-10-22)
+
+I am drafting only the reviewed private module-taking borrowed invocation: typed
+context, reserved stack activation, ordinary preflight and checked map handlers.
+Public selectors/loaders/native/publishers remain closed. Source review precedes
+any build or first unchanged-anchor execution; no frontend/bootstrap is needed.
+
+Checkpoint2 qualification is complete: private borrowed execution2112 checks per
+dispatch, all12 raw inputs, real source U8 conversion, selected failure/unwind,
+96 allocation positions and actual old NULL-route execution. Old private map,
+preparation and array neighbors pass;16 strict cases and rebuilt six budgets pass.
+[The receipt](evidence/map-borrowed-invocation-20261022/README.md) distinguishes
+synthetic/source evidence and pointer-dependent import work. No public selector,
+loader/native/publisher admission is enabled by this checkpoint.

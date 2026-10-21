@@ -1,0 +1,21 @@
+test_original_switch (tests.test_record_map_borrowed.RecordMapBorrowed.test_original_switch) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-dgh56cw3
+I measured borrowed reservation 84068462 bytes / 16980536 work; view 40, owner 14512.
+I measured borrowed reservation 67225966 bytes / 16915222 work; view 40, owner 14512.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+I checked 142 borrowed map execution assertions; public admission remains refused.
+
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 8.222s
+
+OK
