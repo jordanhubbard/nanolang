@@ -1,0 +1,14 @@
+In file included from src/nanoisa/managed_array_shapes.c:1181:
+src/nanoisa/record_map_native_target.inc:21:21: error: expected identifier
+   21 |         RMT_INVALID("I require a closed copied native map module.");
+      |                     ^
+src/nanoisa/record_map_native_target.inc:21:21: error: expected identifier
+src/nanoisa/record_map_native_target.inc:43:25: error: expected identifier
+   43 |             RMT_INVALID("I require identical native record ordinal and layout identities.");
+      |                         ^
+src/nanoisa/record_map_native_target.inc:43:25: error: expected identifier
+src/nanoisa/record_map_native_target.inc:94:33: error: expected identifier
+   94 |                     RMT_INVALID("I require NUL-free executable native map string literals.");
+      |                                 ^
+src/nanoisa/record_map_native_target.inc:94:33: error: expected identifier
+6 errors generated.
