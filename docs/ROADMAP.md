@@ -16688,3 +16688,7 @@ Aggregate public-map first link exposed duplicate compiler-input archive from qu
 I am integrating a78ac369b after source/interface review and the retained consumer qualification. I will wire the actual public target into retirement contracts and run it against all twelve original producer modules plus the 68 workflow/schema controls. Publishers remain unchanged and native target restrictions remain explicit.
 
 I completed the actual aggregate public target:3methods41.869s,1,604checks perdispatch,48nativeexecutions, allallocationprefixes. All68controls passed2.137s. The first Make closure duplicated the compiler-input archive and produced an Apple linker warning before runtime; d75bcbe49 keeps only its final identical occurrence without suppressing diagnostics. I retained both terminals in `docs/evidence/map-public-aggregate-20261021/`. Publishers and hosted closure remain pending.
+
+### #1001 native concat-key prerequisite ownership (2026-10-22)
+
+owned_calls owns contract-only native concat-key compatibility planning on design/5.1-map-native-concat, following public consumer activation a78ac369b and test-closure correction d75bcbe49. Baseline compilation waits for aggregate slot release. No native target or publisher edit is authorized; see [concat contract](NANOISA_MAP_NATIVE_CONCAT_DESIGN.md).
