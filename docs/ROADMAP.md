@@ -16394,3 +16394,9 @@ I retained the unchanged ordinary/all-three-producer and independent original-sh
 I retain the completed [map baseline](evidence/record-map-baseline-20261021/README.md): STRING→INT passes all four producers without authority; unchanged STRING→STRING passes the seed and refuses `map_remove` in all three Nano producers. I keep that frontend boundary separate. My [representation alternatives](NANOISA_RECORD_MAP_AUTHORITY_DESIGN.md) remain design-only pending review.
 
 I propose the [exact MAP_FIELDS declaration phase](NANOISA_MAP_FIELDS_DECLARATION_DESIGN.md) separately: kind 5/revision 1, simultaneous count at most four, explicit scalar/pair/field tables, owned queries and map-only accounting. This remains under review; I grant no encoding or executable admission from the proposal.
+
+### I implement only reviewed map declarations (2026-10-21)
+
+- [x] I own the declaration-only implementation of #1001 on `design/5.1-record-map-authority`, following reviewed `030f1afa9`: kind 5/revision 1, exact owned pair/field tables and bounded queries. I preserve old NULL paths, object sizes and budgets; public map execution stays refused. I send a source checkpoint before narrow compilation and retain allocator, malformed-data and atomic-output failures.
+
+I retain [declaration-only qualification](evidence/map-declarations-20261021/README.md): exact map queries and failures, old declarations/layouts/contracts, both strict compilers, and unchanged six old budget profiles pass. Public execution remains refused. The old nested ARRAY/ref1 neighbor expectation was independently stale at HEAD and is corrected to exact PREPARED getters; its failure and baseline reproduction remain retained. Map origin/runtime/native/publisher work and full #1001 remain open.
