@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_borrowed_empty_local_reconstruction"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-harness",
+  "NANOLANG_OWNED_RECONSTRUCTION_COMPILERS": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1 /Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2"
+}
