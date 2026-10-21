@@ -1,0 +1,38 @@
+# I qualify singleton self-tail record-array transfer
+
+I own this design-only #1001 checkpoint on `design/5.1-record-array-self-tail` from241bb60be. My unchanged anchor is `FlatArraySourcePublication.test_recursive_tail_calls_keep_optional_array_authority_absent`: `Box { values: array<int> }`, `repeat(value, remaining)` returning the same Box at zero and tail-calling itself with remaining minus one otherwise. Main passes3 and asserts the retained second element11. The current depth-three aggregate source receipt retains successful original execution and absent authority in `docs/evidence/depth-three-array-aggregate-20261021/nanolang-depth-three-aggregate-source.log`. This is prior evidence, not a new baseline or termination proof.
+
+## I bound the newly admitted graph
+
+Today `tail_prepare` in `src/nanoisa/managed_array_shapes.c` refuses a self edge with `I require an acyclic direct tail edge.` Both publishers stage optional facts through the independent whole-module query and omit them on UNRESOLVED. My proposed exception is a singleton strongly connected component whose recursive edges are direct self TAIL_CALL only. A newly admitted self-tail function must have no ordinary self CALL and no other function mutually reachable through any combination of CALL/TAIL_CALL. Unreachable instructions remain subject to the same structural graph checks. Existing acyclic tails and CALL-only recursion outside this exception keep their current behavior.
+
+I retain all current exact ordinary layouts, array element/depth bindings, signature and stack restrictions. I add no type, opcode, wire format, foreign or indirect-call authority, general mutual recursion, or new schema. A module containing a self-tail function still needs the complete existing proof; a coarse STRUCT parameter is not nominal identity evidence. I make no claim that arbitrary self-tail programs terminate or have bounded execution time.
+
+## I preserve the finite proof and every historical write
+
+The existing transfer seeds the callee entry with actual argument origins and current global state. For a self tail it must merge these facts monotonically into the same function, never overwrite an earlier activation's possible origins. A tail instruction has exactly its arguments on the operand stack, no successor, and cannot fabricate a normal return. Existing explicit RET paths establish result/global-exit facts. The tail transfer waits for returned facts, merges actual terminal result origins, invalidates written global refinements and incorporates the proved global exits. A recursion edge alone must not manufacture a known return or authorize unknown global/record receivers. Missing or unknown result/global facts continue to refuse where the selected proof requires exact origins.
+
+`global_prepare` retains closure over CALL and TAIL_CALL writes. `children`, record fields and `all_writes` retain all iterations, including detached/replaced aliases. Final nominal, depth, exact leaf and historical-write checks run after convergence. No source-name, counter spelling or sampled iteration grants authority.
+
+I reuse the finite origin/tag state, charged fixed-point transfers, function/slot/instruction/cell bounds, graph allocation and existing work/byte budgets. Existing modules must preserve measured allocation/work boundaries. Any additional graph traversal is charged explicitly; exhaustion is LIMIT, allocation failure MEMORY, malformed signatures/targets INVALID, and unsupported shape/origin UNRESOLVED. No new fixed-point storage or enlarged limit is presumed necessary. Qualification must detect nonconvergence or unknown summaries without interpreting the source program.
+
+## I qualify the actual execution paths independently
+
+The existing copied tail recipe retains exact callee, argument pops, zero local pushes and no successors. Public save/load/assembly, copied plan admission and private image/recipe validation must independently retain it and reverify original executable bytes.
+
+The public VM handler stages and retains all arguments before releasing the old frame, reserves replacement capacity at the same stack base, preserves the return continuation and resets nonparameter locals. Sixteen arguments use inline storage; more use an allocation. Duplicate heap arguments require cumulative retain headroom before mutation. Private preflight independently checks signatures, exact operand depth, frame capacity and duplicate retain counts. A self tail must not grow frame count. Entry or initializer tail chains must retain immutable requested-root authorization, the active-root identity and assertion-resume behavior; failure must restore the supervisor's borrowed state.
+
+`nvm2c.c:emit_self_tail_restart` already snapshots arguments from operand storage before parallel parameter assignments, clears nonparameters and jumps to its function restart label. I must qualify that actual canonical-record path: argument swaps and aliases, retained record/array identities, roots at the pre-tail collection and restart collection, stale temporary removal, and bounded native stack. Existing legacy native success does not establish selected canonical-owner behavior. I introduce no recursive C call or hidden interpreter fallback.
+
+## I require evidence before changing publication expectations
+
+- I first preserve the unchanged ordinary anchor and separately selected original shadows through all claimed producers, original verifier/VM and native execution; retain current omission before any admission edit.
+- I qualify zero, one and many self-tail iterations; exact returned Box identity; shared/swapped arguments; newly allocated records/arrays per iteration; detached historical aliases; globals mutated before the next activation; and entry/initializer assertion resumption. All currently admitted primitive leaves and composed depth profiles require representative coverage or an explicit narrower reviewed boundary.
+- I check current public transport, disassembly/reassembly, metadata/name independence and independent private recipes. I compare original VM with forced-GC O0/O2 sanitized native products, verify constant VM frames and actual native self-restart without frame growth, and retain exact failure statuses/prefixes.
+- I qualify16/17-argument staging, cumulative retain saturation, transient/persistent allocation failure, stack capacity, assertion and bounds failures, first-error preservation, drained roots/frames, zero owned heap after destruction, previous published-result retention where promised, and independent successful recovery.
+- I refuse mutual and mixed SCCs, ordinary self CALL in the new SCC, invalid targets/results/argument counts, extra operands, wrong nominal/leaf/depth origins, unknown global/result use, and unproved historical writes. I retain existing CALL-only recursion behavior and old acyclic tail outputs/budget tests.
+- Only after those consumers pass do paired publication tests expect authority for the unchanged anchor. No publisher special-case may bypass the query. Fresh source generations and exact Linux/macOS gates remain separate.
+
+Likely implementation ownership begins with `managed_array_shapes.c` and focused tail origin/runtime tests. `managed_record_array_execution.inc`, `record_array_vm_prepare.inc`, `vm.c` and `nvm2c.c` are audit/qualification interfaces, not authorized edits by this document. Source publication should need no new encoding. I must retain any newly demonstrated runtime/native defect before proposing its repair.
+
+This checkpoint changes documentation only. Full #1001 union/tuple/map/callable/recursive nominal obligations remain open; a singleton call-graph exception does not satisfy those distinct representations.
