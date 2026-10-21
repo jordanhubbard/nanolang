@@ -16856,3 +16856,9 @@ I own the next #1001 union consumer interface audit after proof16f90b823 and agg
 I am implementing only reviewed checkpoint1 after design134f8c5ed rebased onto aggregate7c454307e: optional same-analysis site export and copied recipe constructor/getters. Both ROADMAP histories are preserved. No image/runtime/native/public/publisher enrollment or build precedes frozen-source review.
 
 I completed union recipe checkpoint1:842 linked/3234 allocation checks across six original modules,54 constructor and38 paired-output positions in both denial modes, explicit real constructor LIMIT/recovery, strict6, unchanged proof338/393 and old array/map recipe neighbors, plus six byte-identical legacy budgets. Receipt: `docs/evidence/union-field-recipes-20261022/README.md`. Images/runtime/native/public/publishers remain outside this component.
+
+### 2026-10-21: copied union recipe aggregate qualification
+
+I integrate private recipe checkpoint 568ac06c1 by ancestry, add its explicit retirement target, and qualify the aggregate against all six retained originals plus workflow controls before pushing. These copied recipes do not enable execution; image, VM, native and publisher qualification remain separate.
+
+I passed aggregate copied recipes842/3234 against six originals (5.472s) and68 workflow/checkpoint controls (2.068s). Receipt: `docs/evidence/union-field-recipes-aggregate-20261021/README.md`. No union execution admission follows.
