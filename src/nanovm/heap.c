@@ -178,10 +178,15 @@ static void vm_private_dag_release(VmHeap *heap,NanoValue value) {
                     /* Exact STRING->INT maps add no parent frame. Each stored
                      * key edge is retired inline, never via recursive release. */
                     VmHashMap *m=value.as.hashmap;
-                    assert(m->key_type==TAG_STRING && m->val_type==TAG_INT && !m->tombstone_count);
+                    assert(m->key_type==TAG_STRING && m->val_type==TAG_INT &&
+                           m->count<=m->bucket_count && m->tombstone_count<=m->bucket_count-m->count);
                     for(uint32_t i=0;i<m->bucket_count;i++) {
                         VmHMEntry *entry=&m->entries[i];
                         if(!entry->state)continue;
+                        if(entry->state==2) {
+                            assert(entry->key.tag==TAG_VOID && entry->value.tag==TAG_VOID);
+                            continue;
+                        }
                         assert(entry->state==1 && entry->key.tag==TAG_STRING && entry->value.tag==TAG_INT);
                         VmString *key=entry->key.as.string;
                         assert(key && key->header.obj_type==TAG_STRING && key->header.ref_count && !key->header.buffered);

@@ -16761,3 +16761,7 @@ I own contract-only reconciliation for [#1001](https://github.com/jordanhubbard/
 The unchanged STRING-to-STRING Holder fixture still requires a separate value-owner contract as well as removal.
 
 I retained the exact four-original DELETE baseline in [map-delete-baseline](evidence/map-delete-baseline-20261022/README.md): ordinary seed/C-hosted and independent C/raw Nano shadows verify/VM pass; annotated selected modules refuse with prior output preserved. Nonexecuted schema controls are separate. The first proposed patch is heap-only; proof/recipe/public enrollment remains closed pending review.
+
+I now own the approved first heap-only source checkpoint: explicit tombstone representation, checked private/ordinary deletion, import/observation/teardown and direct controls. Proof/opcode/recipe/public/native enrollment stays closed. Full-live absent deletion must be a no-op; zero-tombstone charges remain unchanged.
+
+I qualified the heap-only DELETE checkpoint: final4445direct+10318oldprivate assertions in2.774s with explicitO1ASan/UBSan, strict8Clang/GCC16, measured exact topology/observation bounds and unchanged zero-tombstone scan bytes. [Receipt](evidence/map-delete-heap-20261022/README.md). Selected proof/opcode/native/public admission remains closed.

@@ -4,12 +4,26 @@ static bool vm_rm_map_header(const VmHashMap *m) {
         m->key_type==TAG_STRING && m->val_type==TAG_INT && m->entries &&
         m->bucket_count>=HM_INITIAL_BUCKETS && !(m->bucket_count&(m->bucket_count-1)) &&
         sizeof(VmHMEntry)<=SIZE_MAX/(size_t)m->bucket_count &&
-        m->count<=m->bucket_count && !m->tombstone_count;
+        m->count<=m->bucket_count && m->tombstone_count<=m->bucket_count-m->count;
 }
 static bool vm_rm_string(NanoValue key) {
     return key.tag==TAG_STRING && key.as.string && key.as.string->header.obj_type==TAG_STRING &&
         key.as.string->header.ref_count && !key.as.string->header.buffered &&
         (uint64_t)key.as.string->length+sizeof(VmString)+1<=SIZE_MAX;
+}
+/* Borrowed rooted inputs and established topology are mandatory. A full live
+ * table has no insertion slot; an absent DELETE is nevertheless a no-op. */
+static VmRmHeapStatus vm_rm_delete_validated(VmHeap *heap,VmHashMap *m,NanoValue key) {
+    uint32_t slot;bool found;
+    if(!hm_find_slot(m,key,&slot,&found) || !found)return VM_RM_HEAP_OK;
+    VmHMEntry *entry=&m->entries[slot];
+    if(entry->state!=1 || !vm_rm_string(entry->key) || entry->value.tag!=TAG_INT || !m->count)
+        return VM_RM_HEAP_INVALID;
+    NanoValue stored=entry->key;
+    entry->key=val_void();entry->value=val_void();entry->state=2;
+    m->count--;m->tombstone_count++;
+    /* No key reads follow release. Caller still owns the query key edge. */
+    vm_release(heap,stored);return VM_RM_HEAP_OK;
 }
 #ifdef NANO_RECORD_MAP_PRIVATE_HEAP
 VmRmHeapStatus vm_rm_heap_new(VmHeap *heap,VmHashMap **out) {
@@ -30,8 +44,10 @@ VmRmHeapStatus vm_rm_heap_set(VmHeap *heap,VmHashMap *m,NanoValue key,NanoValue 
         m->entries[slot].value=value;return VM_RM_HEAP_OK;
     }
     if(key.as.string->header.ref_count==UINT32_MAX)return VM_RM_HEAP_RETAIN_OVERFLOW;
-    if(m->entries[slot].state!=0)return VM_RM_HEAP_INVALID;
-    uint64_t occupied=(uint64_t)m->count+1;
+    if(m->entries[slot].state!=0 &&
+       (m->entries[slot].state!=2 || !m->tombstone_count ||
+        m->entries[slot].key.tag!=TAG_VOID || m->entries[slot].value.tag!=TAG_VOID))return VM_RM_HEAP_INVALID;
+    uint64_t occupied=(uint64_t)m->count+m->tombstone_count+1;
     if((double)occupied/(double)m->bucket_count>HM_LOAD_FACTOR) {
         if(m->bucket_count>UINT32_MAX/2 || !hm_resize(heap,m,m->bucket_count*2))return VM_RM_HEAP_MEMORY;
         /* Rehash invalidates slot; topology induction guarantees a new empty
@@ -41,9 +57,14 @@ VmRmHeapStatus vm_rm_heap_set(VmHeap *heap,VmHashMap *m,NanoValue key,NanoValue 
     }
     /* Nothing fallible follows this exact one-edge retain. */
     vm_retain(heap,key);
+    if(m->entries[slot].state==2)m->tombstone_count--;
     m->entries[slot].key=key;m->entries[slot].value=value;
     m->entries[slot].state=1;m->count++;
     return VM_RM_HEAP_OK;
+}
+VmRmHeapStatus vm_rm_heap_delete(VmHeap *heap,VmHashMap *m,NanoValue key) {
+    if(!heap || heap->gc_running || !vm_rm_map_header(m) || !vm_rm_string(key))return VM_RM_HEAP_INVALID;
+    return vm_rm_delete_validated(heap,m,key);
 }
 VmRmHeapStatus vm_rm_heap_get(const VmHashMap *m,NanoValue key,NanoValue *out) {
     if(!out || !vm_rm_map_header(m) || !vm_rm_string(key))return VM_RM_HEAP_INVALID;
@@ -81,7 +102,7 @@ static bool vm_rm_import_header(const VmHashMap *m) {
         m->key_type==TAG_STRING && m->val_type==TAG_INT && m->entries &&
         m->bucket_count>=HM_INITIAL_BUCKETS && !(m->bucket_count&(m->bucket_count-1)) &&
         sizeof(VmHMEntry)<=SIZE_MAX/(size_t)m->bucket_count &&
-        m->count<=m->bucket_count && !m->tombstone_count;
+        m->count<=m->bucket_count && m->tombstone_count<=m->bucket_count-m->count;
 }
 /* Internal adapters for a closed ordinary invocation. Complete topology and
  * collector membership must already have been validated for imported objects;
@@ -112,8 +133,10 @@ VmRmHeapStatus vm_rm_ordinary_set(VmHeap *heap,VmHashMap *m,NanoValue key,NanoVa
         m->entries[slot].value=value;return VM_RM_HEAP_OK;
     }
     if(key.as.string->header.ref_count==UINT32_MAX)return VM_RM_HEAP_RETAIN_OVERFLOW;
-    if(m->entries[slot].state!=0)return VM_RM_HEAP_INVALID;
-    uint64_t occupied=(uint64_t)m->count+1;
+    if(m->entries[slot].state!=0 &&
+       (m->entries[slot].state!=2 || !m->tombstone_count ||
+        m->entries[slot].key.tag!=TAG_VOID || m->entries[slot].value.tag!=TAG_VOID))return VM_RM_HEAP_INVALID;
+    uint64_t occupied=(uint64_t)m->count+m->tombstone_count+1;
     if((double)occupied/(double)m->bucket_count>HM_LOAD_FACTOR) {
         if(m->bucket_count>UINT32_MAX/2 || !hm_resize(heap,m,m->bucket_count*2))return VM_RM_HEAP_MEMORY;
         /* Rehash invalidates slot; topology induction guarantees a new empty
@@ -123,9 +146,15 @@ VmRmHeapStatus vm_rm_ordinary_set(VmHeap *heap,VmHashMap *m,NanoValue key,NanoVa
     }
     /* Nothing fallible follows this exact one-edge retain. */
     vm_retain(heap,key);
+    if(m->entries[slot].state==2)m->tombstone_count--;
     m->entries[slot].key=key;m->entries[slot].value=value;
     m->entries[slot].state=1;m->count++;
     return VM_RM_HEAP_OK;
+}
+VmRmHeapStatus vm_rm_ordinary_delete(VmHeap *heap,VmHashMap *m,NanoValue key) {
+    if(!heap || heap->gc_running || vm_rm_private_dag(heap) ||
+       !vm_rm_ordinary_header(m) || !vm_rm_ordinary_string(key))return VM_RM_HEAP_INVALID;
+    return vm_rm_delete_validated(heap,m,key);
 }
 VmRmHeapStatus vm_rm_ordinary_get(const VmHeap *heap,const VmHashMap *m,NanoValue key,NanoValue *out) {
     if(!heap || heap->gc_running || vm_rm_private_dag(heap) || !out || !vm_rm_ordinary_header(m) || !vm_rm_ordinary_string(key))return VM_RM_HEAP_INVALID;
@@ -149,10 +178,51 @@ VmRmHeapStatus vm_rm_ordinary_len(const VmHeap *heap,const VmHashMap *m,uint32_t
     if(!heap || heap->gc_running || vm_rm_private_dag(heap) || !out || !vm_rm_ordinary_header(m))return VM_RM_HEAP_INVALID;
     *out=m->count;return VM_RM_HEAP_OK;
 }
+/* Header charge/check already completed. Only nonzero tombstone_count uses
+ * this bounded scan; zero-tombstone validation keeps its old work schedule. */
+static VmRmHeapStatus vm_rm_validate_tombstones(const VmHashMap *m,VmRmObservationWork *w,bool ordinary) {
+    uint32_t count=0,tombstones=0;
+    for(uint32_t i=0;i<m->bucket_count;i++) {
+        if(!vm_rm_observation_charge(w,8))return VM_RM_HEAP_LIMIT;
+        const VmHMEntry *entry=&m->entries[i];
+        if(!entry->state)continue;
+        if(entry->state==2) {
+            if(entry->key.tag!=TAG_VOID || entry->value.tag!=TAG_VOID)return VM_RM_HEAP_INVALID;
+            tombstones++;continue;
+        }
+        if(entry->state!=1 || !vm_rm_string(entry->key) || entry->value.tag!=TAG_INT)return VM_RM_HEAP_INVALID;
+        count++;
+        const VmString *key=entry->key.as.string;
+        if(!vm_rm_observation_charge(w,(uint64_t)key->length+1))return VM_RM_HEAP_LIMIT;
+        if(ordinary && (key->header.colour!=VM_GC_BLACK || key->data[key->length]!=0))return VM_RM_HEAP_INVALID;
+        if(fnv1a(key->data,key->length)!=key->hash)return VM_RM_HEAP_INVALID;
+        uint32_t index=key->hash%m->bucket_count;bool located=false;
+        for(uint32_t probes=0;probes<m->bucket_count;probes++) {
+            if(!vm_rm_observation_charge(w,4))return VM_RM_HEAP_LIMIT;
+            const VmHMEntry *candidate=&m->entries[index];
+            if(candidate->state==0)return VM_RM_HEAP_INVALID;
+            if(candidate->state==2) {
+                if(candidate->key.tag!=TAG_VOID || candidate->value.tag!=TAG_VOID)return VM_RM_HEAP_INVALID;
+                index=(index+1)%m->bucket_count;continue;
+            }
+            if(candidate->state!=1 || !vm_rm_string(candidate->key))return VM_RM_HEAP_INVALID;
+            uint64_t comparison=candidate->key.as.string->length==key->length?(uint64_t)key->length+1:1;
+            if(!vm_rm_observation_charge(w,comparison))return VM_RM_HEAP_LIMIT;
+            if(val_equal(candidate->key,entry->key)) {
+                if(index!=i)return VM_RM_HEAP_INVALID;
+                located=true;break;
+            }
+            index=(index+1)%m->bucket_count;
+        }
+        if(!located)return VM_RM_HEAP_INVALID;
+    }
+    return count==m->count && tombstones==m->tombstone_count?VM_RM_HEAP_OK:VM_RM_HEAP_INVALID;
+}
 static VmRmHeapStatus vm_rm_validate_using(const VmHashMap *m,VmRmObservationWork *w,bool ordinary) {
     if(!w || w->limit>VM_RM_OBSERVATION_WORK_MAX)return VM_RM_HEAP_INVALID;
     if(!vm_rm_observation_charge(w,16))return VM_RM_HEAP_LIMIT;
     if(!(ordinary?vm_rm_import_header(m):vm_rm_map_header(m)))return VM_RM_HEAP_INVALID;
+    if(m->tombstone_count!=0)return vm_rm_validate_tombstones(m,w,ordinary);
     uint32_t count=0;
     for(uint32_t i=0;i<m->bucket_count;i++) {
         if(!vm_rm_observation_charge(w,8))return VM_RM_HEAP_LIMIT;
@@ -202,6 +272,7 @@ static VmRmHeapStatus vm_rm_validated_byte_probe(const VmHashMap *m,const void *
         if(!vm_rm_observation_charge(w,4))return VM_RM_HEAP_LIMIT;
         const VmHMEntry *entry=&m->entries[index];
         if(!entry->state){*out=val_void();return VM_RM_HEAP_OK;}
+        if(entry->state==2){index=(index+1)%m->bucket_count;continue;}
         const VmString *key=entry->key.as.string;
         if(!vm_rm_observation_charge(w,key->length==length?(uint64_t)length+1:1))return VM_RM_HEAP_LIMIT;
         if(key->length==length && (!length || !memcmp(key->data,bytes,length))) {

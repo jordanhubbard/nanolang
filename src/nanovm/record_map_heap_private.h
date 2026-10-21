@@ -18,6 +18,10 @@ typedef struct { uint64_t used,limit;bool limited; } VmRmObservationWork;
  * not overlap the input graph. No guest fuel budget is introduced. */
 #ifdef NANO_RECORD_MAP_PRIVATE_HEAP
 VmRmHeapStatus vm_rm_heap_new(VmHeap *,VmHashMap **);
+/* DELETE borrows rooted receiver/key in the same owning heap; full topology
+ * must be validated in this query or preserved by closed construction. It
+ * grants no execution authority, allocates nothing, and transfers no edges. */
+VmRmHeapStatus vm_rm_heap_delete(VmHeap *,VmHashMap *,NanoValue);
 VmRmHeapStatus vm_rm_heap_set(VmHeap *,VmHashMap *,NanoValue,NanoValue);
 VmRmHeapStatus vm_rm_heap_get(const VmHashMap *,NanoValue,NanoValue *);
 VmRmHeapStatus vm_rm_heap_has(const VmHashMap *,NanoValue,bool *);
@@ -38,6 +42,9 @@ static inline bool vm_rm_private_dag(const VmHeap *heap) {
  * their collector membership. Inputs are borrowed; outputs must be disjoint
  * from all input graph/storage. These are not executable trust APIs. */
 VmRmHeapStatus vm_rm_ordinary_new(VmHeap *,VmHashMap **);
+/* Same rooted-input/topology preconditions as private DELETE, with ordinary
+ * collector membership preserved. No execution authority is returned. */
+VmRmHeapStatus vm_rm_ordinary_delete(VmHeap *,VmHashMap *,NanoValue);
 VmRmHeapStatus vm_rm_ordinary_set(VmHeap *,VmHashMap *,NanoValue,NanoValue);
 VmRmHeapStatus vm_rm_ordinary_get(const VmHeap *,const VmHashMap *,NanoValue,NanoValue *);
 VmRmHeapStatus vm_rm_ordinary_has(const VmHeap *,const VmHashMap *,NanoValue,bool *);

@@ -1,0 +1,136 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-fsyntax-only",
+      "src/nanovm/heap.c"
+    ],
+    "status": 0,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanovm/heap.c"
+    ],
+    "status": 0,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanovm/heap.c"
+    ],
+    "status": 0,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "tests/nanovm/test_record_map_ordinary_heap.c"
+    ],
+    "status": 0,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-fsyntax-only",
+      "src/nanovm/heap.c"
+    ],
+    "status": 0,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanovm/heap.c"
+    ],
+    "status": 0,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanovm/heap.c"
+    ],
+    "status": 0,
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "tests/nanovm/test_record_map_ordinary_heap.c"
+    ],
+    "status": 0,
+    "stderr": ""
+  }
+]
