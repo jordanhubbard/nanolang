@@ -110,13 +110,19 @@ static void initializer_tail(Input *c,uint8_t element) {
     array(c,element);pack(c);arg32(c,OP_STORE_GLOBAL,0);arg32(c,OP_TAIL_CALL,1);
     c->fn[2].code_length=(uint32_t)c->n-c->fn[2].code_offset;authority(c);
 }
+#ifndef RA_TAIL_GLOBAL_COUNT
+#define RA_TAIL_GLOBAL_COUNT 1
+#endif
+#ifndef RA_TAIL_CLEAR_EXTRA_GLOBALS
+#define RA_TAIL_CLEAR_EXTRA_GLOBALS ""
+#endif
 static void execute(const NvmModule *m) {
     VmState vm;vm_init(&vm,m);VmResult status=vm_execute(&vm);
     if(status!=VM_OK)fprintf(stderr,"I failed tail VM: %s\n",vm.error_msg);
     CHECK(status==VM_OK && vm.frame_count==0);
     CHECK(vm.stack_size==m->functions[0].result_count);
     if(vm.stack_size)CHECK(vm.stack[0].tag==m->functions[0].result_tag);
-    CHECK(vm.global_count==1 && vm.globals[0].tag==TAG_STRUCT);
+    CHECK(vm.global_count==RA_TAIL_GLOBAL_COUNT && vm.globals[0].tag==TAG_STRUCT);
     NanoValue leaf=vm.globals[0];
     for(unsigned depth=0;depth<2 && leaf.tag==TAG_STRUCT;depth++)leaf=leaf.as.sval->fields[0];
     CHECK(leaf.tag==TAG_ARRAY && leaf.as.array->length==2);
@@ -155,7 +161,7 @@ static void public_routes(Input *c,const char *directory,unsigned id) {
     if(!native)fprintf(stderr,"I failed tail native emission: %s\n",error);
     CHECK(native);char path[1024];snprintf(path,sizeof path,"%s/tail-%u.c",directory,id);
     FILE *file=fopen(path,"w");CHECK(file);CHECK(fputs("#define main fixture_main\n",file)>=0);CHECK(fputs(native,file)>=0);
-    CHECK(fprintf(file,"\n#undef main\nint main(void) { nmap_collection_budget=1; int result=fixture_main(); nglobal[0]=(nmap_value){0}; nmap_collect(); if(nrec_owned_head || %s || nagg_live_bytes) abort(); return result; }\n",c->element==TAG_STRING?"nsarr_owners":"narr_owners")>=0);
+    CHECK(fprintf(file,"\n#undef main\nint main(void) { nmap_collection_budget=1; int result=fixture_main(); nglobal[0]=(nmap_value){0}; " RA_TAIL_CLEAR_EXTRA_GLOBALS "nmap_collect(); if(nrec_owned_head || %s || nagg_live_bytes) abort(); return result; }\n",c->element==TAG_STRING?"nsarr_owners":"narr_owners")>=0);
     CHECK(!fclose(file));free(native);
 }
 static void refusal(Input *c,NvmArrayEligibilityStatus expected) {
@@ -200,7 +206,10 @@ static void allocation_prefixes(void) {
     printf("I checked %zu tail allocation positions in transient and persistent modes with independent recovery.\n",total);
 }
 #endif
-int main(int argc,char **argv) {
+#ifndef RA_TAIL_MAIN
+#define RA_TAIL_MAIN main
+#endif
+int RA_TAIL_MAIN(int argc,char **argv) {
 #ifdef RA_TAIL_ALLOCATIONS
     if(argc==2 && !strcmp(argv[1],"allocations")){allocation_prefixes();return 0;}
 #endif

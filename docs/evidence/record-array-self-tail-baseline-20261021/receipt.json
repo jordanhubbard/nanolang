@@ -1,0 +1,370 @@
+{
+  "before": {
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "b5bfa17b60788463e79d95bb83f98a5206126be77f867abbbc3ffbce0956b482",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "0092addfecb674ac6e04863b9c9775194a89293bc577a6be0b734d27cfa9fe01",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "341139c6bb1abfb7559a59162d2306a862aed59ba1151b364a7527094f0f7174",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "03f1674436a620f9565ce0a0a5e28d49646325d40e8d6a77432cdb3955a92cfb",
+    "/private/tmp/owned-string-baseline-20261019/shadow_driver": "c23774c828833a8213e51c7cf16185d55902fe1706f383e6b4084570b15db571",
+    "/opt/homebrew/opt/llvm/bin/clang": "5b3adae66bf3e36a0aa2e90db47e3456d31bf5f992124fd09ae9119b076e00be"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/source.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/seed.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.04689508298179135,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/seed.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.02083333401242271,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/seed.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.01608687499538064,
+      "stdout": ".string \"repeat\"\n.string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\"\n.string \"/private/tmp/nanolang-self-tail-baseline-20261021/source.nano\"\n.string \"nano.local.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x001\\x00\\x00\\x00V\\x00\\x00\\x00box\"\n.string \"\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00+\\x00\\x00\\x00remaining\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00+\\x00\\x00\\x00value\"\n.string \"nano.source_file\"\n\n.metadata 2 3\n.metadata 4 3\n.metadata 5 6\n.metadata 2 7\n.metadata 4 7\n.metadata 5 8\n.metadata 10 11\n.metadata 10 12\n.metadata 10 13\n.metadata 14 9\n\n.types 1 0 0\n\n.flag debug_info\n\n.debug 0 3 2\n.debug 18 3 22\n.debug 18 3 24\n.debug 22 4 2\n.debug 43 11 2\n.debug 92 12 2\n.debug 119 13 2\n\n.entry 1\n\n.function repeat 2 2 0 struct 1\n  LOAD_LOCAL 1\n  PUSH_I64 0\n  I64_LE_S\n  JMP_FALSE L0\n  LOAD_LOCAL 0\n  RET\nL0:\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  PUSH_I64 1\n  I64_SUB\n  TAIL_CALL 0\n.end\n\n.parameters 0 struct int\n\n.function main 0 1 0 int 1\n  PUSH_I64 7\n  PUSH_I64 11\n  ARR_LITERAL 1 2\n  AGG_PACK 0 0 0 1\n  PUSH_I64 3\n  CALL 0\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 1\n  ARR_GET\n  PUSH_I64 11\n  I64_EQ\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/seed.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.0043109580292366445,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/seed.nvm",
+        "-o",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/seed.c"
+      ],
+      "exit": 0,
+      "seconds": 0.014505291997920722,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/seed.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/seed.native"
+      ],
+      "exit": 0,
+      "seconds": 0.5026866660336964,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/nanolang-self-tail-baseline-20261021/seed.native"
+      ],
+      "exit": 0,
+      "seconds": 0.33910954202292487,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/source.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage1.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.08728737500496209,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage1.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.004379500052891672,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage1.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.0034497500164434314,
+      "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x001\\x00\\x00\\x00V\\x00\\x00\\x00box\"\n.string \"repeat\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00+\\x00\\x00\\x00value\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00+\\x00\\x00\\x00remaining\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 5\n.metadata 6 7\n.metadata 1 9\n.metadata 3 9\n.metadata 4 10\n.metadata 6 11\n.metadata 6 12\n\n.types 1 0 0\n\n.entry 0\n\n.function main 0 1 0 int 1\n  PUSH_I64 7\n  PUSH_I64 11\n  ARR_LITERAL 1 2\n  AGG_PACK 0 0 0 1\n  PUSH_I64 3\n  CALL 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 1\n  ARR_GET\n  PUSH_I64 11\n  I64_EQ\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n.function repeat 2 2 0 struct 1\n  LOAD_LOCAL 1\n  PUSH_I64 0\n  I64_LE_S\n  JMP_FALSE L0\n  LOAD_LOCAL 0\n  RET\nL0:\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  PUSH_I64 1\n  I64_SUB\n  TAIL_CALL 1\n.end\n\n.parameters 1 void void\n\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage1.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.00397058401722461,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage1.nvm",
+        "-o",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage1.c"
+      ],
+      "exit": 0,
+      "seconds": 0.003906791971530765,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage1.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage1.native"
+      ],
+      "exit": 0,
+      "seconds": 0.2028466670308262,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage1.native"
+      ],
+      "exit": 0,
+      "seconds": 0.17015183297917247,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/source.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage2.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.07189845899119973,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage2.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.004176040994934738,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage2.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.003623999946285039,
+      "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x001\\x00\\x00\\x00V\\x00\\x00\\x00box\"\n.string \"repeat\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00+\\x00\\x00\\x00value\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00+\\x00\\x00\\x00remaining\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 5\n.metadata 6 7\n.metadata 1 9\n.metadata 3 9\n.metadata 4 10\n.metadata 6 11\n.metadata 6 12\n\n.types 1 0 0\n\n.entry 0\n\n.function main 0 1 0 int 1\n  PUSH_I64 7\n  PUSH_I64 11\n  ARR_LITERAL 1 2\n  AGG_PACK 0 0 0 1\n  PUSH_I64 3\n  CALL 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 1\n  ARR_GET\n  PUSH_I64 11\n  I64_EQ\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n.function repeat 2 2 0 struct 1\n  LOAD_LOCAL 1\n  PUSH_I64 0\n  I64_LE_S\n  JMP_FALSE L0\n  LOAD_LOCAL 0\n  RET\nL0:\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  PUSH_I64 1\n  I64_SUB\n  TAIL_CALL 1\n.end\n\n.parameters 1 void void\n\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage2.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.003936749999411404,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage2.nvm",
+        "-o",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage2.c"
+      ],
+      "exit": 0,
+      "seconds": 0.0038978749653324485,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage2.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage2.native"
+      ],
+      "exit": 0,
+      "seconds": 0.19997033302206546,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/nanolang-self-tail-baseline-20261021/stage2.native"
+      ],
+      "exit": 0,
+      "seconds": 0.1648069160291925,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/owned-string-baseline-20261019/shadow_driver",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/source.nano",
+        "0",
+        "raw"
+      ],
+      "exit": 0,
+      "seconds": 0.037693333986680955,
+      "stdout": ".types 1 0 0\n.entry 2\n\n.function __nanoisa_shadow_0 0 1 0 void 0\n.function_purity 0\n.function_affine 0\n.function_effects 8\n  PUSH_I64 7\n  ARR_LITERAL 1 1\n  AGG_PACK 0 0 0 1\n  PUSH_I64 2\n  CALL repeat\n  STORE_LOCAL 0\n.local_begin 0 \"box\"\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 7\n  I64_EQ\n  ASSERT\n.local_end 0\n  RET\n.end\n.function __nanoisa_shadow_1 0 0 0 void 0\n.function_purity 0\n.function_affine 0\n.function_effects 8\n  CALL main\n  PUSH_I64 0\n  I64_EQ\n  ASSERT\n  RET\n.end\n.function __nanoisa_shadow_entry 0 0 0 int 1\n  .shadow \"repeat\"\n  CALL __nanoisa_shadow_0\n  .shadow \"main\"\n  CALL __nanoisa_shadow_1\n  PUSH_I64 0\n  RET\n.end\n.function repeat 2 2 0 struct 1\n.function_purity 0\n.function_affine 0\n.function_effects 2\n.local_begin 0 \"value\"\n.local_begin 1 \"remaining\"\n  LOAD_LOCAL 1\n  PUSH_I64 0\n  I64_LE_S\n  JMP_FALSE L0\n  LOAD_LOCAL 0\n  RET\nL0:\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  PUSH_I64 1\n  I64_SUB\n  TAIL_CALL repeat\n.end\n.function main 0 1 0 int 1\n.function_purity 0\n.function_affine 0\n.function_effects 2\n  PUSH_I64 7\n  PUSH_I64 11\n  ARR_LITERAL 1 2\n  AGG_PACK 0 0 0 1\n  PUSH_I64 3\n  CALL repeat\n  STORE_LOCAL 0\n.local_begin 0 \"box\"\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 1\n  ARR_GET\n  PUSH_I64 11\n  I64_EQ\n  ASSERT\n  PUSH_I64 0\n  RET\n.local_end 0\n.end\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/original-shadow.nasm",
+        "-o",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/original-shadow.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.003990333992987871,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/original-shadow.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.003908916027285159,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/original-shadow.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.003379125031642616,
+      "stdout": ".string \"__nanoisa_shadow_0\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x08\\x00\\x00\\x00\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00(\\x00\\x00\\x00C\\x00\\x00\\x00box\"\n.string \"__nanoisa_shadow_1\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x08\\x00\\x00\\x00\"\n.string \"__nanoisa_shadow_entry\"\n.string \"nanolang.shadow.offset.85\"\n.string \"repeat\"\n.string \"nanolang.shadow.offset.91\"\n.string \"main\"\n.string \"\\x03\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"\\x03\\x00\\x00\\x00\\x02\\x00\\x00\\x00\"\n.string \"\\x03\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00+\\x00\\x00\\x00value\"\n.string \"\\x03\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00+\\x00\\x00\\x00remaining\"\n.string \"\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"\\x04\\x00\\x00\\x00\\x02\\x00\\x00\\x00\"\n.string \"\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x001\\x00\\x00\\x00V\\x00\\x00\\x00box\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 5\n.metadata 6 7\n.metadata 1 9\n.metadata 3 9\n.metadata 4 10\n.metadata 12 13\n.metadata 14 15\n.metadata 1 16\n.metadata 3 16\n.metadata 4 17\n.metadata 6 18\n.metadata 6 19\n.metadata 1 20\n.metadata 3 20\n.metadata 4 21\n.metadata 6 22\n\n.types 1 0 0\n\n.entry 2\n\n.function __nanoisa_shadow_0 0 1 0 void 0\n  PUSH_I64 7\n  ARR_LITERAL 1 1\n  AGG_PACK 0 0 0 1\n  PUSH_I64 2\n  CALL 3\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 7\n  I64_EQ\n  ASSERT\n  RET\n.end\n\n.function __nanoisa_shadow_1 0 0 0 void 0\n  CALL 4\n  PUSH_I64 0\n  I64_EQ\n  ASSERT\n  RET\n.end\n\n.function __nanoisa_shadow_entry 0 0 0 int 1\n  NOP\n  CALL 0\n  NOP\n  CALL 1\n  PUSH_I64 0\n  RET\n.end\n\n.function repeat 2 2 0 struct 1\n  LOAD_LOCAL 1\n  PUSH_I64 0\n  I64_LE_S\n  JMP_FALSE L0\n  LOAD_LOCAL 0\n  RET\nL0:\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  PUSH_I64 1\n  I64_SUB\n  TAIL_CALL 3\n.end\n\n.parameters 3 void void\n\n.function main 0 1 0 int 1\n  PUSH_I64 7\n  PUSH_I64 11\n  ARR_LITERAL 1 2\n  AGG_PACK 0 0 0 1\n  PUSH_I64 3\n  CALL 3\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 1\n  ARR_GET\n  PUSH_I64 11\n  I64_EQ\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/original-shadow.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.003940334019716829,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/original-shadow.nvm",
+        "-o",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/original-shadow.c"
+      ],
+      "exit": 0,
+      "seconds": 0.003785082953982055,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O1",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/original-shadow.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-self-tail-baseline-20261021/original-shadow.native"
+      ],
+      "exit": 0,
+      "seconds": 0.20767829101532698,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/private/tmp/nanolang-self-tail-baseline-20261021/original-shadow.native"
+      ],
+      "exit": 0,
+      "seconds": 0.17581654200330377,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "after": {
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "b5bfa17b60788463e79d95bb83f98a5206126be77f867abbbc3ffbce0956b482",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "0092addfecb674ac6e04863b9c9775194a89293bc577a6be0b734d27cfa9fe01",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "341139c6bb1abfb7559a59162d2306a862aed59ba1151b364a7527094f0f7174",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "03f1674436a620f9565ce0a0a5e28d49646325d40e8d6a77432cdb3955a92cfb",
+    "/private/tmp/owned-string-baseline-20261019/shadow_driver": "c23774c828833a8213e51c7cf16185d55902fe1706f383e6b4084570b15db571",
+    "/opt/homebrew/opt/llvm/bin/clang": "5b3adae66bf3e36a0aa2e90db47e3456d31bf5f992124fd09ae9119b076e00be"
+  },
+  "source_sha256": "5c4f8c6858d6a39abe5f321f697ce1af314061eb950cb3f015a032b6ee42039b",
+  "status": "PASS"
+}

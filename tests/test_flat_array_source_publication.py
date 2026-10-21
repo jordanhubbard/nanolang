@@ -504,7 +504,7 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''',[1],expected_opcode='TAIL_CALL')
 
-    def test_recursive_tail_calls_keep_optional_array_authority_absent(self):
+    def test_self_tail_calls_publish_proved_array_authority(self):
         self.exercise('''struct Box { values: array<int> }
 fn repeat(value: Box, remaining: int) -> Box {
  if (<= remaining 0) { return value }
@@ -520,7 +520,7 @@ fn main() -> int {
  return 0
 }
 shadow main { assert (== (main) 0) }
-''',None,expected_opcode='TAIL_CALL')
+''',[1],expected_opcode='TAIL_CALL')
 
 if __name__=='__main__':
     unittest.main()

@@ -1,0 +1,8 @@
+test_actual_source_all_leaves_depths (tests.test_record_array_self_tail.RecordArraySelfTail.test_actual_source_all_leaves_depths) ... ok
+test_instrumented_runtime (tests.test_record_array_self_tail.RecordArraySelfTail.test_instrumented_runtime) ... ok
+test_new_allocations_and_detached_global_history (tests.test_record_array_self_tail.RecordArraySelfTail.test_new_allocations_and_detached_global_history) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 45.651s
+
+OK

@@ -133,8 +133,8 @@ static int global_invalidates(Analysis *a,Function *f,Value *state,uint32_t slot
 /* I preflight all global indices before allocating a function state. The
  * retained structural decoder remains owned until its ordinary transfer below. */
 /* I add no graph allocation to modules without tails. A tail edge is
- * admitted only outside cycles of the complete direct CALL/TAIL_CALL graph;
- * unrelated preexisting CALL recursion remains unchanged. */
+ * admitted outside cycles, or in a singleton self-tail component with no
+ * ordinary self CALL. Unrelated preexisting CALL recursion stays unchanged. */
 static int tail_prepare(Analysis *a) {
     if(!a->structure)return 1;
     uint32_t count=a->module->function_count;
@@ -164,7 +164,26 @@ static int tail_prepare(Analysis *a) {
             const DecodedInstruction *in=&f->instructions[i].instruction;
             if(in->opcode!=OP_TAIL_CALL)continue;
             uint32_t target=in->operands[0].u32;
-            if(target==fi || (reach[target][fi/64]&(UINT64_C(1)<<(fi%64)))) {
+            if(target==fi) {
+                /* Only newly admitted self tails pay for these scans. I use
+                 * the complete graph, including unreachable instructions. */
+                for(uint32_t other=0;other<count;other++) {
+                    if(!analysis_work(a,1))goto done;
+                    if(other!=fi && (reach[fi][other/64]&(UINT64_C(1)<<(other%64))) &&
+                       (reach[other][fi/64]&(UINT64_C(1)<<(fi%64)))) {
+                        stop(a,NVM_ARRAY_UNRESOLVED,fi,f->instructions[i].byte_offset,
+                             "I require a singleton self-tail component.");goto done;
+                    }
+                }
+                for(uint32_t j=0;j<f->instruction_count;j++) {
+                    if(!analysis_work(a,1))goto done;
+                    const DecodedInstruction *call=&f->instructions[j].instruction;
+                    if(call->opcode==OP_CALL && call->operands[0].u32==fi) {
+                        stop(a,NVM_ARRAY_UNRESOLVED,fi,f->instructions[j].byte_offset,
+                             "I refuse ordinary self CALL in a self-tail component.");goto done;
+                    }
+                }
+            } else if(reach[target][fi/64]&(UINT64_C(1)<<(fi%64))) {
                 stop(a,NVM_ARRAY_UNRESOLVED,fi,f->instructions[i].byte_offset,
                      "I require an acyclic direct tail edge.");goto done;
             }
