@@ -16238,3 +16238,5 @@ The first exact unchanged ordinary/original-shadow gate admits facts but atomica
 ### I qualify the bounded borrowed FLOAT caller route
 
 The exact unchanged ordinary and independent original-shadow regenerate at 98/21 with caller-only finite planning. Six intended tests pass across retained terminals through seed and both stages, including native O0/O2, signed zero, 128/129 atomic boundary, immutable FLOAT order and forbidden operations/helper locals. The first generated-shadow test overreached into re-reconstruction of a two-root witness; I retain its refusal and separately qualify the actual selected witness execution. Eight prior outputs are byte-identical. [I retain commands, failures and pins](evidence/borrowed-float-local-reconstruction-20261020/README.md); aggregate/platform qualification remains open.
+
+I integrate borrowed FLOAT caller reconstruction at `36bfcb594` and pass all six aggregate methods in 54.124 seconds, with seven unchanged provider hashes and a facts-only rebuild. [I retain the aggregate receipt](evidence/borrowed-float-local-aggregate-20261020/README.md); exact hosted platforms and remaining finite scope stay open.
