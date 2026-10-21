@@ -87,11 +87,11 @@ class OwnedCallPretestReconstruction(unittest.TestCase):
         self.command([ROOT/'bin/nano_vm',inverted])
         self.qualify(inverted)
 
-    def test_missing_top_level_witness_refuses_atomically(self):
+    def test_assertion_before_loop_first_witness_refuses_atomically(self):
         for name,options,message in (
-            ('loop-first',{'first_only':True},'literal'),):
+            ('prefix-assert',{'first_only':True},'literal'),):
             for compiler in self.compilers:
-                module=self.module(compiler,self.source(**options),name)
+                module=self.module(compiler,self.source(**options).replace('\n while ','\n assert true\n while ',1),name)
                 for language in ('c','nano'):
                     target=module.with_suffix('.'+language);target.write_text('prior checked source')
                     result=self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',target],None)

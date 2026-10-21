@@ -1,0 +1,29 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-yfeqb3oj
+test_actual_local_limit (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_actual_local_limit) ... ok
+test_independently_selected_consistency_shadow (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_independently_selected_consistency_shadow) ... ok
+test_isolated_second_call_assertion_failure (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_isolated_second_call_assertion_failure) ... ok
+test_order_and_first_result_snapshot (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_order_and_first_result_snapshot) ... ok
+test_pretest_ir_and_unchanged_one_call_route (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_pretest_ir_and_unchanged_one_call_route) ... ok
+test_third_call_and_split_region_refuse (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_third_call_and_split_region_refuse) ... ok
+test_zero_entered_and_final_false_effects (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_zero_entered_and_final_false_effects) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-2h3c2vo9
+test_actual128_and_estimated129_atomic_refusal (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_actual128_and_estimated129_atomic_refusal) ... ok
+test_actual_zero_entered_final_false (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_actual_zero_entered_final_false) ... ok
+test_immutable_before_call_and_selected_shadow (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_immutable_before_call_and_selected_shadow) ... ok
+test_later_body_helper_assertion_stays_runtime_failure (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_later_body_helper_assertion_stays_runtime_failure) ... ok
+test_no_body_or_after_loop_or_prefix_assertion_witness (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_no_body_or_after_loop_or_prefix_assertion_witness) ... FAIL
+test_no_call_in_first_pretest_cannot_reach_later_call (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_no_call_in_first_pretest_cannot_reach_later_call) ... ok
+
+======================================================================
+FAIL: test_no_body_or_after_loop_or_prefix_assertion_witness (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_no_body_or_after_loop_or_prefix_assertion_witness)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_loop_first_witness_reconstruction.py", line 61, in test_no_body_or_after_loop_or_prefix_assertion_witness
+    module=self.module(compiler,head+'fn main()'+body,name)
+                                                 ^^^^^^^^^^
+AssertionError: 'witness' not found in 'I require literal exact child snapshots\nI did not publish reconstructed source\n'
+
+----------------------------------------------------------------------
+Ran 13 tests in 216.804s
+
+FAILED (failures=1)

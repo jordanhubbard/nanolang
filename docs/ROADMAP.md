@@ -16275,3 +16275,9 @@ I complete the exact ownership-v2 [exclusive,exclusive,shared] two-region pretes
 
 
 I integrate the double-call pretest component at1f8286c92 and pass all seven aggregate methods in123.219s through unchanged seed/stages/providers. The [aggregate receipt](evidence/double-call-pretest-aggregate-20261020/README.md) retains exact local limits, selected-shadow execution, eager call order and native failure specificity. Current hosted platform and finite remaining scope stay open.
+### I retain the loop-first witness boundary (2026-10-20)
+
+The existing unchanged first_only source verifies and executes through all three producers at37/3 while reconstruction still atomically refuses its literal-prefix witness. I retain the actual neighbor commands and facts before proposing the narrow eager-first-pretest witness path in `NANOISA_LOOP_FIRST_WITNESS_DESIGN.md`. No implementation or rendering admission is included in this checkpoint.
+
+
+I qualify the reviewed first-eager-pretest witness without planner/runtime/provider changes: unchanged actual123/31, selected shadow108/31, actual128/estimated129 atomic boundary, immutable pre-call snapshots and exact later-helper native assertion status. All eight new methods pass across retained terminals; old one/double-call outputs remain byte-identical. I preserve initial accidental test discovery and the diagnostic-only mismatch correction in `docs/evidence/loop-first-witness-reconstruction-20261020/README.md`. Aggregate/platform qualification remains open.

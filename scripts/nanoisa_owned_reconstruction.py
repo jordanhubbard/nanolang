@@ -676,6 +676,9 @@ class OwnedAnalyze(Analyze):
         require(len(self.seen) == len(self.code), 'require complete owned instruction coverage')
         function = Function(self.fn['name'], self.params, self.result, self.types, self.fn['names'], parameters + body)
         function.double_call_pretest = self.double_call_pretest
+        function.loop_first_witness = (self.index == 0 and self.paths and
+            self.module.get('ownership_version') == 2 and
+            self.module['functions'][1].get('param_modes') == [2, 2, 1])
         function.helper_owners = self.helper_owners
         function.helper_local_single = self.helper_local_single
         function.borrowed_float_caller = self.borrowed_float_caller and any(
@@ -739,7 +742,8 @@ class OwnedEmit(Emit):
                         self.helper_owner_witness(functions) if self.helper_owners else
                         self.exclusive_control_tree(functions, layouts) if self.exclusive_control else
                         self.total_shared_tree(functions, layouts) if self.single_shared_path else
-                        self.path_witness(functions, layouts) if self.paths else
+                        self.path_witness(functions, layouts, allow_eager_pretest=(modes == [2, 2, 1] and
+                            getattr(functions[0], 'loop_first_witness', False))) if self.paths else
                         self.multi_witness(functions) if self.multi else None)
         if (self.paths or self.exclusive_control) and language == 'nano':
             from copy import deepcopy
@@ -1041,13 +1045,24 @@ class OwnedEmit(Emit):
         return witness
 
     @staticmethod
-    def path_witness(functions, layouts):
+    def path_witness(functions, layouts, *, allow_eager_pretest=False):
         values, owners = {}, {}
         def literal(expr):
             return expr if expr.kind == 'constant' and expr.tag in (INT, BOOL) else values.get(expr)
         witness = None
-        for stmt in functions[0].body:
+        prefix = iter(functions[0].body)
+        entered_pretest = False
+        while True:
+            stmt = next(prefix, None)
+            if stmt is None:
+                break
             kind = stmt[0]
+            if kind == 'while_observe' and allow_eager_pretest and not entered_pretest:
+                # I inspect only the eager first pretest, never its body or a later
+                # statement. Its first call runs even when the body is zero-trip.
+                prefix = iter(stmt[2])
+                entered_pretest = True
+                continue
             if kind == 'let':
                 values[stmt[1]] = literal(stmt[2])
             elif kind == 'store':
