@@ -27,6 +27,25 @@ def wrapper_source(compiler):
             '\nos.execv(compiler, [compiler, *sys.argv[1:]])\n')
 
 
+def select_sdk(qualified_sdk, environment):
+    # A generic --sdk macosx lookup follows DEVELOPER_DIR and can select a
+    # different SDK from the one whose capture/replay was qualified.
+    if not qualified_sdk.is_dir():
+        raise ValueError('I require the exact qualified macOS SDK directory.')
+    sdk = subprocess.check_output(['xcrun', '--sdk', str(qualified_sdk), '--show-sdk-path'],
+                                  env=environment, text=True, timeout=30).strip()
+    if sdk != str(qualified_sdk):
+        raise ValueError('I require the exact qualified macOS SDK path: '+repr(sdk))
+    # Xcode's SDK catalog need not contain the separately installed CLT SDK.
+    # Read the version from the exact selected SDK, not that other catalog.
+    settings = qualified_sdk/'SDKSettings.json'
+    data = json.loads(settings.read_text())
+    if data.get('Version') != SDK_VERSION:
+        raise ValueError('I require the qualified macOS SDK version.')
+    return {'path': sdk, 'resolved': str(qualified_sdk.resolve()),
+            'version': data['Version'], 'settings_sha256': digest(settings)}
+
+
 def select(output, developer=DEVELOPER, pins=PINS, qualified_sdk=SDK):
     output.mkdir(parents=True, exist_ok=True)
     environment = dict(os.environ, DEVELOPER_DIR=str(developer))
@@ -38,15 +57,9 @@ def select(output, developer=DEVELOPER, pins=PINS, qualified_sdk=SDK):
         if actual != expected:
             raise ValueError('I require the qualified capture '+name+' identity; requalify changed tools.')
         identities[name] = {'path': str(path), 'sha256': actual}
-    sdk = subprocess.check_output(['xcrun', '--sdk', 'macosx', '--show-sdk-path'],
-                                  env=environment, text=True, timeout=30).strip()
-    if sdk != str(qualified_sdk) or not Path(sdk).is_dir():
-        raise ValueError('I require the exact qualified macOS SDK path.')
+    sdk_record = select_sdk(qualified_sdk, environment)
+    sdk, sdk_version = sdk_record['path'], sdk_record['version']
     environment['SDKROOT'] = sdk
-    sdk_version = subprocess.check_output(['xcrun', '--sdk', 'macosx', '--show-sdk-version'],
-                                         env=environment, text=True, timeout=30).strip()
-    if sdk_version != SDK_VERSION:
-        raise ValueError('I require the qualified macOS SDK version.')
     compiler = Path(identities['clang']['path'])
     version = subprocess.check_output([compiler, '--version'], env=environment,
                                      text=True, timeout=30)
@@ -60,7 +73,7 @@ def select(output, developer=DEVELOPER, pins=PINS, qualified_sdk=SDK):
         path.write_text(wrapper_source(compiler)); path.chmod(0o700)
         wrappers[name] = {'path': str(path), 'sha256': digest(path)}
     record = {'developer_dir': str(developer), 'sdk_root': sdk, 'sdk_version': sdk_version,
-              'sdk_resolved': str(Path(sdk).resolve()),
+              'sdk_resolved': sdk_record['resolved'], 'sdk_settings_sha256': sdk_record['settings_sha256'],
               'tools': identities, 'wrappers': wrappers, 'version': version}
     (output/'capture-toolchain.json').write_text(json.dumps(record, indent=2)+'\n')
     with open(os.environ['GITHUB_ENV'], 'a') as stream:

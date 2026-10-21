@@ -17,6 +17,7 @@ class CaptureSelection(unittest.TestCase):
         for name in ('clang', 'as'):
             (tools/name).write_text(name)
         sdk = root/'SDK'; sdk.mkdir()
+        (sdk/'SDKSettings.json').write_text(json.dumps({'Version': '27.0'}))
         pins = {name: selection.digest(tools/name) for name in ('clang', 'as')}
         return developer, tools, sdk, pins
 
@@ -24,10 +25,13 @@ class CaptureSelection(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); developer, tools, sdk, pins = self.fixture(root)
             with patch.dict(os.environ, GITHUB_ENV=str(root/'env'), GITHUB_PATH=str(root/'path')):
-                with patch.object(selection.subprocess, 'check_output', side_effect=[str(sdk)+'\n', '27.0\n',
+                with patch.object(selection.subprocess, 'check_output', side_effect=[str(sdk)+'\n',
                         'Apple clang version 21.0.0 (clang-2100.3.34.2)\n']) as query:
                     record = selection.select(root/'out', developer, pins, sdk)
-            self.assertEqual(query.call_count, 3)
+            self.assertEqual(query.call_count, 2)
+            self.assertEqual(query.call_args_list[0].args[0],
+                             ['xcrun', '--sdk', str(sdk), '--show-sdk-path'])
+            self.assertEqual(record['sdk_settings_sha256'], selection.digest(sdk/'SDKSettings.json'))
             self.assertEqual(record['tools']['clang']['sha256'], pins['clang'])
             self.assertIn('SDKROOT='+str(sdk), (root/'env').read_text())
             self.assertEqual((root/'path').read_text(), str(root/'out/selected-tools')+'\n')
@@ -47,7 +51,7 @@ class CaptureSelection(unittest.TestCase):
         for sdk_valid in (False, True):
             with tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp); developer, tools, sdk, pins = self.fixture(root)
-                responses = [str(sdk if sdk_valid else root/'missing'), '27.0\n', 'unqualified clang\n']
+                responses = [str(sdk if sdk_valid else root/'missing'), 'unqualified clang\n']
                 with patch.object(selection.subprocess, 'check_output', side_effect=responses):
                     with self.assertRaises(ValueError):selection.select(root/'out', developer, pins, sdk)
                 self.assertFalse((root/'out/selected-tools').exists())
@@ -56,10 +60,21 @@ class CaptureSelection(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); developer, tools, sdk, pins = self.fixture(root)
             other = root/'other-sdk'; other.mkdir()
-            for responses in ([str(other)], [str(sdk), '28.0\n']):
+            for responses, version in (([str(other)], '27.0'), ([str(sdk)], '28.0')):
+                (sdk/'SDKSettings.json').write_text(json.dumps({'Version': version}))
                 with patch.object(selection.subprocess, 'check_output', side_effect=responses):
                     with self.assertRaises(ValueError):selection.select(root/'out', developer, pins, sdk)
                 self.assertFalse((root/'out/selected-tools').exists())
+
+    @unittest.skipUnless(selection.sys.platform == 'darwin', 'I require actual xcrun on Darwin.')
+    def test_actual_qualified_sdk_path_and_settings(self):
+        if not selection.SDK.is_dir():
+            self.skipTest('The qualified CommandLineTools SDK is not installed.')
+        record = selection.select_sdk(selection.SDK, dict(os.environ))
+        self.assertEqual(record['path'], str(selection.SDK))
+        self.assertEqual(record['version'], selection.SDK_VERSION)
+        self.assertEqual(record['settings_sha256'],
+                         selection.digest(selection.SDK/'SDKSettings.json'))
 
     def test_wrapper_preserves_arguments_and_exit(self):
         with tempfile.TemporaryDirectory() as tmp:

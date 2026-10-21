@@ -16466,3 +16466,9 @@ I retain [private copied-image qualification](evidence/map-copied-image-20261021
 I integrate `75bf0ef55` preserving both roadmap histories and the sanitizer marker correction. I add the private image target to platform qualification and run its actual aggregate Make gate against four retained originals before pushing. Independent image construction grants no runtime/public/native admission.
 
 I completed aggregate independent-image qualification:2799/10743 checks,61 allocation prefixes,four retained originals and61 workflow/checkpoint/container/schema controls. Receipt:`docs/evidence/map-image-aggregate-20261021/`. Runtime/native/publisher integration and exact-current hosted gates remain open.
+
+### 2026-10-21: I select the already-qualified capture SDK explicitly
+
+Retained qualification jobs119125624147/119125624408 fail before compilation because generic `xcrun --sdk macosx` selects the Xcode SDK while the qualified capture receipt names the CommandLineTools SDK. I reproduced that lookup mismatch locally. I will select the exact qualified absolute SDK, verify its path and own settings version, retain its settings hash, and keep compiler/backend identities unchanged. The actual hosted capture corpus must still pass; no alternative SDK fallback is authorized.
+
+I completed seven selector controls, including actual local xcrun selection, and68 combined workflow/checkpoint/container/schema tests. I retain the hosted failures and local catalog probe in `docs/evidence/capture-sdk-selection-20261021/`. Exact hosted capture/platform qualification remains pending.
