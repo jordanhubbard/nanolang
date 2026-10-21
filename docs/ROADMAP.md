@@ -16557,3 +16557,36 @@ I completed this integration gate: actual Make target with four originals passed
 I merge the reviewed optional boundary-summary owner and wire its required target beside private native qualification. I require the actual aggregate Make target with four originals and the existing 68 workflow/capture/checkpoint/container/schema controls before commit. This exports immutable data only; public execution, heap import validation and publisher admission remain closed.
 
 I completed the aggregate boundary gate: 754 linked/1685 instrumented checks in 5.601s, plus 68 workflow/capture/checkpoint/container/schema controls in 2.019s. I retain `docs/evidence/map-boundary-aggregate-20261021/README.md`; no public admission follows from this copied data interface.
+- #1001 owned_calls owns the next contract-only ordinary-heap import validator after0d8232c1f: docs/NANOISA_MAP_IMPORT_VALIDATOR_DESIGN.md separates module-taking copied-boundary proof from read-only ordinary heap/GC membership and conservative singleton obligations. I retain valid buffered aliases and unbuffered PURPLE after suspect-buffer allocation failure. No source implementation, selector, dispatch, native or publisher admission is authorized by this checkpoint.
+
+- #1001 owned_calls begins reviewed standalone import-query implementation after7643a1032: module-taking copied-boundary owner, ordinary collector membership and conservative singleton graph traversal only. I preserve ordinary def_idx ordinal identity and map it through copied descriptors, never relabel objects. Source/cost review precedes any build; public selectors/handlers and all admission remain unchanged.
+
+- Import source review caught an unbuilt capacity/high-water mismatch: LOAD_GLOBAL can read every allocated slot, so I changed the proposed scan from global_count to global_capacity and retain an explicit reserved-slot non-VOID refusal/actual-read control. No built or admitted implementation used the earlier scan.
+
+### #1001 ordinary import-validator qualification checkpoint
+
+I retained the first header-order harness compile failure, O1 ASan main-frame
+overflow (actual0x671160-byte frame), wrong array-set fixture signature, same-BOOL
+negative and minimum-global-capacity test assumption. Test-only corrections retain
+provider O1 ASan/UBSan and every original assertion. Both dispatch modes pass
+13,163 checks with all four unchanged inputs and four source-global inputs;
+67 allocation positions run transient/persistent refusal plus retry. The ordinary
+ordinal/layout distinction, buffered and unbuffered collector states, all five
+leaf kinds at depths1–3, conflicting/ambiguous identities and actual cycles with
+ordinary GC cleanup are exercised. Exact cap/+1 and63-frame/64-origin evidence is
+distinct from the conservative259-frame storage bound. Final old-path budget and
+strict qualification follows; no public selector or executable trust API is added.
+
+Final import-validator component qualification passes two required dispatch methods
+in15.426s with13,164 checks each; independent query peak81,729 bytes excludes
+125,812 live caller bytes. Five old-private neighbors pass32.649s, six old budgets
+remain byte-identical and GCC16/Clang strict checks pass. Receipt:
+`docs/evidence/map-import-validator-20261021/README.md`. The dedicated required
+Make target is wired into test-units; aggregate Make/platform integration remains
+separate, and public execution selection remains closed.
+
+### I integrate ordinary map import validation (2026-10-21)
+
+I merge the reviewed module-taking read-only validator, preserve both roadmap histories, and add its required gate to retirement qualification. I require the actual aggregate Make target with eight retained modules and 68 workflow controls before commit. Public execution selection remains closed.
+
+I passed the actual aggregate import target: 2 methods in 8.978s, 13,164 checks per dispatch, all eight retained inputs. All 68 workflow controls passed. Receipt: `docs/evidence/map-import-aggregate-20261021/README.md`. Public execution selection and exact hosted qualification remain open.

@@ -1,0 +1,10 @@
+test_original_goto (tests.test_record_map_runtime.RecordMapRuntime.test_original_goto) ... ok
+test_original_switch (tests.test_record_map_runtime.RecordMapRuntime.test_original_switch) ... ok
+test_original_goto (tests.test_record_map_observation.RecordMapObservation.test_original_goto) ... ok
+test_original_switch (tests.test_record_map_observation.RecordMapObservation.test_original_switch) ... ok
+test_private_heap (tests.test_record_map_heap.RecordMapHeap.test_private_heap) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 32.649s
+
+OK

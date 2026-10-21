@@ -72,10 +72,19 @@ static bool vm_rm_observation_charge(VmRmObservationWork *w,uint64_t amount) {
     }
     w->used+=amount;return true;
 }
-VmRmHeapStatus vm_rm_heap_validate(const VmHashMap *m,VmRmObservationWork *w) {
+/* Internal ordinary header variant is physical validation, not imported-object
+ * authority. The module-taking import query separately checks GC membership. */
+static bool vm_rm_import_header(const VmHashMap *m) {
+    return m && m->header.obj_type==TAG_HASHMAP && m->header.ref_count && m->header.buffered<=1 &&
+        m->key_type==TAG_STRING && m->val_type==TAG_INT && m->entries &&
+        m->bucket_count>=HM_INITIAL_BUCKETS && !(m->bucket_count&(m->bucket_count-1)) &&
+        sizeof(VmHMEntry)<=SIZE_MAX/(size_t)m->bucket_count &&
+        m->count<=m->bucket_count && !m->tombstone_count;
+}
+static VmRmHeapStatus vm_rm_validate_using(const VmHashMap *m,VmRmObservationWork *w,bool ordinary) {
     if(!w || w->limit>VM_RM_OBSERVATION_WORK_MAX)return VM_RM_HEAP_INVALID;
     if(!vm_rm_observation_charge(w,16))return VM_RM_HEAP_LIMIT;
-    if(!vm_rm_map_header(m))return VM_RM_HEAP_INVALID;
+    if(!(ordinary?vm_rm_import_header(m):vm_rm_map_header(m)))return VM_RM_HEAP_INVALID;
     uint32_t count=0;
     for(uint32_t i=0;i<m->bucket_count;i++) {
         if(!vm_rm_observation_charge(w,8))return VM_RM_HEAP_LIMIT;
@@ -85,6 +94,7 @@ VmRmHeapStatus vm_rm_heap_validate(const VmHashMap *m,VmRmObservationWork *w) {
         count++;
         const VmString *key=entry->key.as.string;
         if(!vm_rm_observation_charge(w,(uint64_t)key->length+1))return VM_RM_HEAP_LIMIT;
+        if(ordinary && (key->header.colour!=VM_GC_BLACK || key->data[key->length]!=0))return VM_RM_HEAP_INVALID;
         if(fnv1a(key->data,key->length)!=key->hash)return VM_RM_HEAP_INVALID;
         uint32_t index=key->hash%m->bucket_count;bool located=false;
         /* This is the charged read-only equivalent of hm_find_slot for the
@@ -107,7 +117,13 @@ VmRmHeapStatus vm_rm_heap_validate(const VmHashMap *m,VmRmObservationWork *w) {
     return count==m->count?VM_RM_HEAP_OK:VM_RM_HEAP_INVALID;
 }
 
+VmRmHeapStatus vm_rm_heap_validate(const VmHashMap *m,VmRmObservationWork *w) {
+    return vm_rm_validate_using(m,w,false);
+}
 #ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+VmRmHeapStatus vm_rm_heap_import_validate(const VmHashMap *m,VmRmObservationWork *w) {
+    return vm_rm_validate_using(m,w,true);
+}
 static VmRmHeapStatus vm_rm_validated_byte_probe(const VmHashMap *m,const void *bytes,uint32_t length,
                                                 VmRmObservationWork *w,NanoValue *out) {
     if(!vm_rm_observation_charge(w,(uint64_t)length+1))return VM_RM_HEAP_LIMIT;

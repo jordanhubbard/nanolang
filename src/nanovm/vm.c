@@ -5008,6 +5008,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm,const VmOwnedInvocationProof *p
 #ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
 #include "record_map_vm_run.inc"
 #include "record_map_vm_observe.inc"
+#include "record_map_import.inc"
 #endif
 
 VmTrap vm_core_execute(VmState *vm) {
