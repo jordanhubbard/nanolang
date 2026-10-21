@@ -16830,3 +16830,5 @@ I integrated exact STRING map heap/consumer/publication ancestry through23fb2008
 I own the next finite [#1001](https://github.com/jordanhubbard/nanolang/issues/1001) ordinary union-field baseline/design on aggregate f53539b9c, branch design/5.1-ordinary-union-fields. I preserve the qualified STRING-map products/cache and make no admission or publisher edits in this phase.
 - [x] I measure the unchanged retained Outer.boxed:Box<int> source through current C ordinary/original-shadow and qualified C-hosted checked/raw producers, retaining exact source/provider pins, authority/query boundaries, verifier/VM and native results.
 - [ ] I document exact nominal/variant identity, historical payload/field constraints, copied recipes/lifetime/native eligibility and old-budget preservation before any consumer implementation.
+
+I continue #1001 on `design/5.1-ordinary-union-fields` with the reviewed declaration-only owner interface (`e67aad4c3`): source checkpoint before build, old projection unchanged, no execution/transport/publisher enrollment.

@@ -7200,3 +7200,11 @@ test-map-field-publication: bootstrap nano_virt nano_vm nanoisa_dump nvm2c
 	$(OBJ_DIR)/test_map_publication tests/nanoisa/fixtures/map_record_fields.nano
 	$(OBJ_DIR)/test_map_publication tests/unit/test_map_field_operations.nano --string
 	MAP_PUBLICATION_CC="$(CC)" python3 -m unittest -f -v tests.test_map_field_publication
+
+$(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ownership_union_fields_private.h $(NANOISA_DIR)/ownership_union_fields_private.inc
+
+.PHONY: test-union-field-declarations
+test-union-field-declarations: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	DECLARATION_CC="$(CC)" DECLARATION_CFLAGS="$(CFLAGS)" DECLARATION_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" DECLARATION_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_union_field_declarations
+
+test-units: test-union-field-declarations

@@ -706,3 +706,5 @@ NvmV2Result nvm_ownership_layout_authorities(const NvmModule *module, uint32_t c
 
 #include "ownership_map_declarations.inc"
 #include "record_map_route.inc"
+
+#include "ownership_union_fields_private.inc"
