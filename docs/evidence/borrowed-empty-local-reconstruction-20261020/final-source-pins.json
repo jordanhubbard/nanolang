@@ -1,0 +1,10 @@
+{
+  "/Users/jkh/Src/nanolang-51-owned-float-design/src/nanoisa/hl_owned_facts.inc": "adbc1193babaae06a63549b679fd8339617b69b6034d40e5885f3bea8b25dd05",
+  "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py": "99e2b793739372392a35ea34d4c8058d5e8f7e3d5459137b450dcb3a09a777bd",
+  "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_borrowed_empty_local_reconstruction.py": "4b735a766accf3dc3af4d8be3055a14c88f768cdc91b5dba335384fc824365fa",
+  "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_empty_owned_reconstruction.py": "7ae4a7d3f39f045cdadf1598826416a147649d718ee2a985ccef132940cc79d1",
+  "/Users/jkh/Src/nanolang-51-owned-float-design/Makefile.gnu": "78d7e45ca9b7e0f7ab742f5f14908940d70f7a071d1272e981a8ad93b1f6580e",
+  "/private/tmp/borrowed-empty-local-first-20261020/facts": "32a3a096ada9e35dd5386e8fe2203674e0abb2fcf4a8e1247a44bc61f3acb419",
+  "/Users/jkh/Src/nanolang-51-harness/tests/test_empty_owned_reconstruction.py": "a6b3c449d6d6e3e75d12a80622ff876b3266cdfca73fd497de33e2ba49683a7f",
+  "/Users/jkh/Src/nanolang-51-harness/tests/nanoisa/fixtures/source_borrow_exclusive.nano": "557193a62357d1d1898942cf7d29e08fae0ffa49abd92d36c5811c178fe5c031"
+}

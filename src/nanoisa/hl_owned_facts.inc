@@ -39,8 +39,25 @@ static int owned_facts(const NvmModule *m) {
         }
     }
     bool borrowed=!nvm_affine_value_call_graph(m);
-    if(has_empty && borrowed)goto done;
     bool paths=m->ownership_data[0]==NVM_OWNERSHIP_PATH_VERSION;
+    if(has_empty && borrowed) {
+        if(paths || layouts.count!=2 || m->function_count!=2 || m->functions[1].arity!=1 ||
+           m->functions[1].local_count>128 || m->functions[1].result_count!=1 ||
+           m->functions[1].result_tag!=TAG_INT ||
+           ((layouts.items[0].field_count==0)+(layouts.items[1].field_count==0))!=1)goto done;
+        for(uint32_t i=0;i<layouts.count;i++)
+            for(uint16_t f=0;f<layouts.items[i].field_count;f++)
+                if(layouts.items[i].fields[f].type_tag!=TAG_INT &&
+                   layouts.items[i].fields[f].type_tag!=TAG_BOOL)goto done;
+        NvmAffineState *signature=nvm_affine_state_create(m,1,m->functions[1].local_count);
+        NvmAffineType parameter;NvmReferenceMode mode;
+        if(!signature)goto done;
+        bool valid=nvm_affine_parameter_at(signature,0,&parameter,&mode) &&
+            mode==NVM_REFERENCE_EXCLUSIVE && parameter.tag==TAG_STRUCT &&
+            parameter.layout<layouts.count && layouts.items[parameter.layout].field_count>0;
+        nvm_affine_state_free(signature);
+        if(!valid)goto done;
+    }
     if(paths && (!borrowed || m->function_count!=2 || (m->functions[1].arity!=1 && m->functions[1].arity!=2 && m->functions[1].arity!=3)))goto done;
     bool eight_shared=borrowed && !paths && m->function_count==2 && m->functions[1].arity==8;
     if(borrowed && !eight_shared && (m->function_count!=2 || (m->functions[1].arity!=1 && m->functions[1].arity!=3 && !(paths && m->functions[1].arity==2))))goto done;

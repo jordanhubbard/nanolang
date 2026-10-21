@@ -1,0 +1,12 @@
+{
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "18a870082df7f6f1522b3706e82a794db4b1c12410fc1a415303b3b51898a2cc",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "420014efed1644e6ce93661d661d828b1981861012654e64deec93596b66ef9b",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "2387eaacf67eec87c7f049addf7e88c75add5764e9b11b3600477da40d7222b6",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts": "442e99a747d3dd7e9e8fd9549fbb9383f25b6f89ae5de7868ecbaf3e3e9b96f0",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c",
+  "/private/tmp/owned-string-baseline-20261019/shadow_driver": "c23774c828833a8213e51c7cf16185d55902fe1706f383e6b4084570b15db571",
+  "/Users/jkh/Src/nanolang-51-harness/tests/test_source_borrow_emission.py": "e228fed45d0b494397578f82c52052030c1627ee7d1f4894972f281649ed0437",
+  "/Users/jkh/Src/nanolang-51-harness/tests/test_owned_record_patterns.py": "1207ce20ffe4c7790ba9803baab5ada918b560eb035ebb1d682c7d41ce3dd9d4"
+}
