@@ -2971,19 +2971,21 @@ fn nisa_map_opcode(name: string) -> string {
     if (== name "map_get") { return "HM_GET" }
     if (or (== name "map_put") (== name "map_set")) { return "HM_SET" }
     if (== name "map_has") { return "HM_HAS" }
+    if (== name "map_remove") { return "HM_DELETE" }
     if (or (== name "map_size") (== name "map_length")) { return "HM_LEN" }
     return ""
 }
 shadow nisa_map_opcode {
     assert (== (nisa_map_opcode "map_put") "HM_SET")
     assert (== (nisa_map_opcode "map_new") "HM_NEW")
+    assert (== (nisa_map_opcode "map_remove") "HM_DELETE")
     assert (== (nisa_map_opcode "map_keys") "")
 }
 
 fn nisa_map_result(name: string) -> string {
     let opcode: string = (nisa_map_opcode name)
     if (== opcode "HM_NEW") { return "HashMap<string,int>" }
-    if (== opcode "HM_SET") { return "void" }
+    if (or (== opcode "HM_SET") (== opcode "HM_DELETE")) { return "void" }
     if (== opcode "HM_HAS") { return "bool" }
     if (or (== opcode "HM_GET") (== opcode "HM_LEN")) { return "int" }
     return ""
@@ -2991,6 +2993,7 @@ fn nisa_map_result(name: string) -> string {
 shadow nisa_map_result {
     assert (== (nisa_map_result "map_new") "HashMap<string,int>")
     assert (== (nisa_map_result "map_put") "void")
+    assert (== (nisa_map_result "map_remove") "void")
     assert (== (nisa_map_result "map_has") "bool")
     assert (== (nisa_map_result "map_get") "int")
     assert (== (nisa_map_result "unknown") "")
@@ -3019,7 +3022,7 @@ fn nisa_emit_map_call(parser: Parser, call: ASTCall, name: string) -> string {
         set i (+ i 1)
     }
     let mut output: string = (+ (nisa_emit_call_args parser call) (nisa_line opcode))
-    if (== opcode "HM_SET") { set output (+ output (nisa_line "POP")) }
+    if (or (== opcode "HM_SET") (== opcode "HM_DELETE")) { set output (+ output (nisa_line "POP")) }
     return output
 }
 shadow nisa_emit_map_call {
@@ -6780,7 +6783,7 @@ fn nisa_call_has_result(parser: Parser, call: ASTCall) -> bool {
     let name: string = (nisa_call_name parser call)
     if (nisa_is_print_builtin name) { return false }
     if (nisa_is_set_call name) { return false }
-    if (== (nisa_map_opcode name) "HM_SET") { return false }
+    if (or (== (nisa_map_opcode name) "HM_SET") (== (nisa_map_opcode name) "HM_DELETE")) { return false }
     let index: int = (nisa_call_index parser call)
     if (and (< index 0) (> (nisa_list_removal name) 0)) { return (!= (nisa_list_removal_result parser call name) "void") }
     if (< index 0) { return (not (or (nisa_is_list_insert name) (nisa_is_list_free name))) }
@@ -6796,6 +6799,10 @@ shadow nisa_call_has_result {
     assert (not (nisa_call_has_result parser (parser_get_call parser 0)))
     assert (not (nisa_call_has_result parser (parser_get_call parser 1)))
     assert (nisa_call_has_result parser (parser_get_call parser 2))
+    let remove_source: string = (+ "f" "n drop(values: HashMap<string,int>) -> void { (map_remove values \"key\") }")
+    let remove_tokens: List<LexerToken> = (tokenize_string remove_source "t.nano" diags)
+    let remove_parser: Parser = (parse_program remove_tokens (list_LexerToken_length remove_tokens) "t.nano")
+    assert (not (nisa_call_has_result remove_parser (parser_get_call remove_parser 0)))
 }
 
 fn nisa_par_scalar(t: string) -> bool {

@@ -16385,3 +16385,9 @@ I retained the unchanged ordinary/all-three-producer and independent original-sh
 
 - [x] I integrated the reviewed singleton graph exception, wired its explicit retirement target, and passed the required three-method Make gate (37.783s), all 31 paired source-publication methods (35.773s), and 28 workflow controls. I retain `docs/evidence/record-array-self-tail-aggregate-20261021/`.
 - [ ] I still require exact combined fresh generations and Linux/Darwin qualification before #1001 closure.
+
+### I preserve map_remove through Nano lowering (2026-10-21)
+
+- [x] I retained the unchanged Holder STRING-to-STRING baseline: seed/VM/native succeed, all three Nano producers refuse undefined map_remove. I traced missing HM_DELETE mapping and VOID stack handling in nanoisa_codegen. Ownership: #1001 comment6313013192.
+- [x] I match existing seed HM_DELETE/POP semantics, exact receiver/key checks and once-only argument evaluation. Fresh C-hosted build157.475s, paired2methods7.442s and full5method corpus18.886s pass with VM/nativeO0/O2 and ten workflow controls. I retain `docs/evidence/map-remove-lowering-20261021/` and wire the existing three-producer retirement selector.
+- [ ] I still require fresh raw generations and exact Linux/Darwin qualification; selected map authority remains unchanged.

@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "bin/nanoc_c",
+    "src_nano/nanoc_v06.nano",
+    "-o",
+    "/private/tmp/nanolang-map-remove-20261021/canonical"
+  ],
+  "exit": 0,
+  "seconds": 157.47527333302423
+}
