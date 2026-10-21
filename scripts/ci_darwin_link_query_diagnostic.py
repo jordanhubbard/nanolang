@@ -45,13 +45,17 @@ def capture_cases():
     class SelectedResponseCapture(SourceSnapshots):
         pass
     names = []
-    for label, suffix, shared in (('embedded', None, False), ('raw', '.s', False),
-                                  ('preprocessed', '.S', False), ('shared_raw', '.s', True),
-                                  ('shared_preprocessed', '.S', True)):
-        def case(self, suffix=suffix, shared=shared):
+    for label, style, suffix, shared in (
+            ('embedded_joined', 'xassembler', None, False),
+            ('embedded_split', 'xassembler-split', None, False),
+            ('raw', 'xassembler-split', '.s', False),
+            ('preprocessed', 'xassembler-split', '.S', False),
+            ('shared_raw', 'xassembler-split', '.s', True),
+            ('shared_preprocessed', 'xassembler-split', '.S', True)):
+        def case(self, style=style, suffix=suffix, shared=shared):
             self.assembler_search_order_phases_and_recovery(
-                ('xassembler-split',), suffix=suffix, shared_unit=shared,
-                cases=tuple(('xassembler-split', 'common', external, cache)
+                (style,), suffix=suffix, shared_unit=shared,
+                cases=tuple((style, 'common', external, cache)
                             for external in (False, True) for cache in (False, True)))
         name = 'test_selected_' + label
         setattr(SelectedResponseCapture, name, case)
