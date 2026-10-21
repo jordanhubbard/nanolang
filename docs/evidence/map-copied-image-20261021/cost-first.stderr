@@ -1,0 +1,17 @@
+test_complete_origin_and_allocation_controls (tests.test_record_map_image.RecordMapImage.test_complete_origin_and_allocation_controls) ... FAIL
+
+======================================================================
+FAIL: test_complete_origin_and_allocation_controls (tests.test_record_map_image.RecordMapImage.test_complete_origin_and_allocation_controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_image.py", line 58, in test_complete_origin_and_allocation_controls
+    output = self.command(mode + '-run', [str(exe), *shlex.split(os.environ.get('RECORD_MAP_MODULES', ''))])
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 7.858s
+
+FAILED (failures=1)

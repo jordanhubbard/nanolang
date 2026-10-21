@@ -1102,6 +1102,7 @@ NvmArrayEligibilityResult nvm_select_managed_heap(const NvmModule *m,int mutable
 
 #include "managed_record_array_execution.inc"
 #include "managed_record_map_execution.inc"
+#include "record_map_snapshot.inc"
 #include "record_array_admission.inc"
 
 NvmArrayEligibilityResult nvm_select_portable_read_heap(const NvmModule *m,NvmManagedHeapPlan **out) {

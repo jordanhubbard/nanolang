@@ -7053,3 +7053,12 @@ test-record-map-execution: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_execution
 
 test-units: test-record-map-execution
+
+$(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/record_map_cost_private.h
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/record_map_cost_private.h $(NANOISA_DIR)/record_map_snapshot_private.h $(NANOISA_DIR)/record_map_snapshot.inc
+
+.PHONY: test-record-map-image
+test-record-map-image: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_image
+
+test-units: test-record-map-image

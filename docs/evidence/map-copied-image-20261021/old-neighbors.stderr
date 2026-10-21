@@ -1,0 +1,17 @@
+test_complete_plan_and_allocation_controls (tests.test_record_array_execution.RecordArrayExecution.test_complete_plan_and_allocation_controls) ... ok
+setUpClass (tests.test_record_array_vm.RecordArrayVm) ... ERROR
+
+======================================================================
+ERROR: setUpClass (tests.test_record_array_vm.RecordArrayVm)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_array_vm.py", line 33, in setUpClass
+    cls.objects = [obj for obj in shlex.split(os.environ['RECORD_ARRAY_VM_OBJECTS'])
+                                              ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'RECORD_ARRAY_VM_OBJECTS'
+
+----------------------------------------------------------------------
+Ran 1 test in 7.166s
+
+FAILED (errors=1)

@@ -124,3 +124,17 @@ NvmMapDeclarationResult nvm_prepare_map_declarations_split(const NvmModule *m,
     if(r.status!=NVM_MAP_DESCRIBED)return r;
     *base=p->base;p->base=NULL;*out=p;return r;
 }
+
+NvmMapCostStatus nvm_map_declarations_retained_cost(const NvmMapDeclarationPlan *p,
+                                                 NvmMapCopyWork *w,uint64_t *out) {
+    if(!nvm_map_copy_charge(w,16))return NVM_MAP_COST_LIMIT;
+    if(!p || !out || p->base || !p->counts.scalars || p->counts.scalars>5 ||
+       !p->counts.pairs || p->counts.pairs>25 || !p->counts.bindings ||
+       p->counts.bindings>65536 || p->layouts>256)return NVM_MAP_COST_INVALID;
+    uint64_t bytes=0;NvmMapCostStatus status;
+#define MDC_TERM(ptr,count) do {status=nvm_map_copy_term(w,(ptr),(count),sizeof *(ptr),&bytes);if(status!=NVM_MAP_COST_OK)return status;}while(0)
+    MDC_TERM(p,1);MDC_TERM(p->scalars,p->counts.scalars);MDC_TERM(p->pairs,p->counts.pairs);
+    MDC_TERM(p->bindings,p->counts.bindings);MDC_TERM(p->starts,257);
+#undef MDC_TERM
+    *out=bytes;return NVM_MAP_COST_OK;
+}

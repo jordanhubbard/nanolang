@@ -1,0 +1,15 @@
+{
+  "src/nanoisa/record_map_cost_private.h": "95a75ed22ba7c109a8ba5061280d5e23d576d6d68494d2f9e8ddb6613a2e0d67",
+  "src/nanoisa/record_map_snapshot.inc": "f94c60cc907a915bf209e01755f387cbe5e5ca556ece5094ae5418762d829263",
+  "src/nanoisa/record_map_snapshot_private.h": "48d5238ce356b21b91e88e64d4d5c6d5b154f32f7150c3aed8752a9934375762",
+  "tests/nanoisa/test_record_map_image.c": "6e42251bc8b584bb11c5b0810d28461149a1b6794582021cd1e76ffd7b199405",
+  "tests/test_record_map_image.py": "9c4bb23e7511ab33cc3185073f92bd735580889a0658819d543dd2ada591b8d7",
+  "Makefile.gnu": "c82d08163dd2e46792c9839563307824a566452bb2d60195524e4b1652e9a604",
+  "docs/NANOISA_MAP_COPIED_IMAGE_DESIGN.md": "6762b1ae04e58b2681aee9795b64c2a3da7552521055ff3c135b80edc2309408",
+  "docs/ROADMAP.md": "7e3ae87e5e871d7a84753bb5ec65f84822528cf3345060e75da782b599808e03",
+  "src/nanoisa/managed_array_shapes.c": "05acbc15402c81dcfbb7b6f9a0b4477251d837cc641da36b02a4f253184d52dd",
+  "src/nanoisa/ownership_contracts.c": "51d44da12fbbb87577db43271cfdf19d35e53f5dee2471337e96d734cfd8facf",
+  "src/nanoisa/ownership_declaration_projection.inc": "4aac76ad63402506822f91c51768f2ce99d956b979303560ec181dea2cc22d9f",
+  "src/nanoisa/ownership_map_declarations.inc": "9b1adf443224bdeef4e751349f446a442a9ac55d2814fd7e3d4e03367d93e85a",
+  "tests/nanoisa/test_record_map_execution.c": "f1085eb2652fec01ec773f4179d3f92c978364f9d46ff0f884a11b9209f7a330"
+}

@@ -42,7 +42,14 @@ static void execution_rows(const NvmModule *m,NvmRecordMapExecutionPlan *p) {
     map_public_refused(m);
 }
 static void execution_original(const NvmModule *m) {
-    NvmRecordMapExecutionPlan *p=execution_prepare(m);execution_rows(m,p);nvm_record_map_execution_free(p);
+#ifdef MAP_EXECUTION_ORIGINAL_CHECK
+    size_t retained_before=ra_bytes;
+#endif
+    NvmRecordMapExecutionPlan *p=execution_prepare(m);execution_rows(m,p);
+#ifdef MAP_EXECUTION_ORIGINAL_CHECK
+    MAP_EXECUTION_ORIGINAL_CHECK(m,p,retained_before);
+#endif
+    nvm_record_map_execution_free(p);
 }
 static void execution_copied(void) {
     Input c;map_basic(&c);NvmRecordMapExecutionPlan *p=execution_prepare(&c.m);execution_rows(&c.m,p);
@@ -121,7 +128,10 @@ static void execution_allocations(void) {
     printf("I retained %zu recipe allocation prefixes; reserved %llu bytes/%llu work.\n",count,(unsigned long long)costs.carrier.peak_bytes_reserved,(unsigned long long)costs.carrier.work_reserved);
 #endif
 }
-int main(int argc,char **argv) {
+#ifndef MAP_EXECUTION_MAIN
+#define MAP_EXECUTION_MAIN main
+#endif
+int MAP_EXECUTION_MAIN(int argc,char **argv) {
     old_map_origin_main(argc,argv);execution_copied();execution_failures();execution_allocations();
     printf("PASS %u copied map recipe checks; public admission remains refused\n",checks);return 0;
 }

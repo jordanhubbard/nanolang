@@ -84,3 +84,24 @@ bool nvm_ownership_declarations_variant(const NvmOwnershipDeclarationPlan *p,uin
     if(!p||!out||ordinal>=p->unions||variant>=p->variants[ordinal])return false;
     *out=p->rows[p->starts[ordinal]+variant];return true;
 }
+
+NvmMapCostStatus nvm_ownership_declarations_retained_cost(const NvmOwnershipDeclarationPlan *p,
+                                                       NvmMapCopyWork *w,uint64_t *out) {
+    if(!nvm_map_copy_charge(w,16))return NVM_MAP_COST_LIMIT;
+    if(!p || !out || !p->ordinary || p->unions>256 || p->count>65536)return NVM_MAP_COST_INVALID;
+    const NvmOrdinaryArrayAuthority *a=p->ordinary;
+    if(a->layouts.count>256 || a->type_count>4096 || a->binding_count>65536)return NVM_MAP_COST_INVALID;
+    uint64_t bytes=0;NvmMapCostStatus status;
+#define MDC_TERM(ptr,count) do {status=nvm_map_copy_term(w,(ptr),(count),sizeof *(ptr),&bytes);if(status!=NVM_MAP_COST_OK)return status;}while(0)
+    MDC_TERM(p,1);MDC_TERM(a,1);MDC_TERM(a->layouts.items,a->layouts.count);
+    MDC_TERM(p->rows,p->count);MDC_TERM(a->types,a->type_count);MDC_TERM(a->bindings,a->binding_count);
+    uint32_t fields=0;
+    for(uint32_t i=0;i<a->layouts.count;i++) {
+        if(!nvm_map_copy_charge(w,8))return NVM_MAP_COST_LIMIT;
+        const NvmV2Layout *row=&a->layouts.items[i];
+        if(row->field_count>65536u-fields)return NVM_MAP_COST_INVALID;
+        fields+=row->field_count;MDC_TERM(row->fields,row->field_count);
+    }
+#undef MDC_TERM
+    *out=bytes;return NVM_MAP_COST_OK;
+}
