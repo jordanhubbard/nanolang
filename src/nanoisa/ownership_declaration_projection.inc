@@ -18,11 +18,11 @@ void nvm_ownership_declarations_free(NvmOwnershipDeclarationPlan *p) {
     if(!p)return;
     nvm_ordinary_array_authority_free(p->ordinary);free(p->rows);free(p);
 }
-NvmDeclarationResult nvm_prepare_ownership_declarations(
-        const NvmModule *m,NvmOwnershipDeclarationPlan **out) {
+static NvmDeclarationResult prepare_ownership_declarations_map(
+        const NvmModule *m,NvmOwnershipDeclarationPlan **out,NvmMapDeclarationPlan *map) {
     if(!out)return declaration_result(NVM_DECL_INVALID);
     OwnershipProjection projection={0};NvmOrdinaryArrayAuthority *ordinary=NULL;
-    NvmOrdinaryArrayResult prepared=oaa_prepare(m,&ordinary,&projection);
+    NvmOrdinaryArrayResult prepared=oaa_prepare_map(m,&ordinary,&projection,map);
     if(prepared.status!=NVM_OAA_DESCRIBED) {
         NvmDeclarationStatus status=prepared.status==NVM_OAA_UNKNOWN?NVM_DECL_UNKNOWN:
             prepared.status==NVM_OAA_LIMIT?NVM_DECL_LIMIT:
@@ -56,6 +56,9 @@ NvmDeclarationResult nvm_prepare_ownership_declarations(
         }
     }
     *out=p;return declaration_result(NVM_DECL_PREPARED);
+}
+NvmDeclarationResult nvm_prepare_ownership_declarations(const NvmModule *m,NvmOwnershipDeclarationPlan **out) {
+    return prepare_ownership_declarations_map(m,out,NULL);
 }
 bool nvm_ownership_declarations_counts(const NvmOwnershipDeclarationPlan *p,NvmDeclarationCounts *out) {
     if(!p||!out)return false;

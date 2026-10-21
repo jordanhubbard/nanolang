@@ -7029,3 +7029,10 @@ test-checked-borrow-metadata: bootstrap3 nano_virt nano_vm nanoisa_dump nvm2c na
 	python3 -m unittest -v tests.test_checked_borrow_metadata tests.test_source_borrow_emission.AffineComparisonIsolation
 
 test-units: test-checked-borrow-metadata
+
+# I qualify copied map declarations without executable admission.
+$(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ownership_map_declarations.h $(NANOISA_DIR)/ownership_map_fields.inc $(NANOISA_DIR)/ownership_map_declarations.inc
+.PHONY: test-map-declarations
+test-map-declarations: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	DECLARATION_CC="$(CC)" DECLARATION_CFLAGS="$(CFLAGS)" DECLARATION_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" DECLARATION_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_map_declarations
+test-units: test-map-declarations

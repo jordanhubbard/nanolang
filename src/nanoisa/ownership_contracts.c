@@ -2,6 +2,7 @@
 #include "retained_layouts.h"
 #include "reference_places.h"
 #include "isa.h"
+#include "ownership_map_declarations.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -16,7 +17,7 @@ static bool ownership_version(uint32_t version) {
 }
 
 static NvmV2Result check_layouts(const NvmV2Layouts *layouts, const uint8_t *flags,
-                                bool *needs, bool array_fields, bool union_fields) {
+                                bool *needs, bool array_fields, bool union_fields, bool map_fields) {
     bool resource_table = false;
     for (uint32_t i = 0; i < layouts->count; i++)
         if (flags[i] & NVM_LAYOUT_RESOURCE) resource_table = true;
@@ -43,6 +44,9 @@ static NvmV2Result check_layouts(const NvmV2Layouts *layouts, const uint8_t *fla
             if (scalar(field->type_tag) || field->type_tag == TAG_STRING) {
                 if (field->nested_idx != NVM_V2_NO_INDEX) return NVM_V2_ERR_SECTION_TYPE;
             } else if (array_fields && field->type_tag == TAG_ARRAY && !(flag & NVM_LAYOUT_RESOURCE)) {
+                if (field->nested_idx != NVM_V2_NO_INDEX) return NVM_V2_ERR_SECTION_TYPE;
+            } else if (map_fields && field->type_tag == TAG_HASHMAP &&
+                       layout->kind == NVM_V2_LAYOUT_STRUCT && flag == NVM_LAYOUT_COMPLETE) {
                 if (field->nested_idx != NVM_V2_NO_INDEX) return NVM_V2_ERR_SECTION_TYPE;
             } else if ((field->type_tag == TAG_STRUCT ||
                         (union_fields && field->type_tag == TAG_UNION)) &&
@@ -164,7 +168,8 @@ typedef struct {
 
 /* I frame all version-3 extensions before a feature query may inspect one.
  * Kinds are mandatory-understanding, ordered and unique. */
-static NvmV2Result extensions_read(NvmV2Cursor *cursor,NvmOwnershipExtensions *out) {
+static NvmV2Result extensions_read_map(NvmV2Cursor *cursor,NvmOwnershipExtensions *out,
+                                         NvmOwnershipExtensionView *map) {
     uint32_t count;NvmV2Result result;
     NvmOwnershipExtensions found={0};uint16_t prior=0;
     if ((result=nvm_v2_u32(cursor,&count))!=NVM_V2_OK) return result;
@@ -190,6 +195,8 @@ static NvmV2Result extensions_read(NvmV2Cursor *cursor,NvmOwnershipExtensions *o
             found.globals=view;
         else if (kind==NVM_OWNERSHIP_EXTENSION_EFFECTS)
             found.effects=view;
+        else if (kind==NVM_OWNERSHIP_EXTENSION_MAP_FIELDS && map)
+            *map=view;
         else return NVM_V2_ERR_FORMAT_VERSION;
         prior=kind;
     }
@@ -200,9 +207,10 @@ static NvmV2Result extensions_read(NvmV2Cursor *cursor,NvmOwnershipExtensions *o
 
 /* Version 3 bounds the byte-identical version-2 path suffix before its shared
  * extension records. The path subcursor, not the outer payload, is terminal. */
-static NvmV2Result extension_suffix_read(NvmV2Cursor *cursor,uint32_t wanted,
+static NvmV2Result extension_suffix_read_map(NvmV2Cursor *cursor,uint32_t wanted,
                                          uint16_t *fields,uint16_t capacity,
-                                         uint16_t *length,NvmOwnershipExtensions *extensions) {
+                                         uint16_t *length,NvmOwnershipExtensions *extensions,
+                                         NvmOwnershipExtensionView *map) {
     uint32_t bytes;const uint8_t *data;NvmV2Result result;
     if ((result=nvm_v2_u32(cursor,&bytes))!=NVM_V2_OK) return result;
     if (bytes<4 || bytes%4) return NVM_V2_ERR_SECTION_RANGE;
@@ -210,7 +218,12 @@ static NvmV2Result extension_suffix_read(NvmV2Cursor *cursor,uint32_t wanted,
     NvmV2Cursor paths;nvm_v2_cursor_init(&paths,data,bytes);
     if ((result=paths_read(&paths,wanted,fields,capacity,length,true))!=NVM_V2_OK)
         return result;
-    return extensions_read(cursor,extensions);
+    return extensions_read_map(cursor,extensions,map);
+}
+
+static NvmV2Result extension_suffix_read(NvmV2Cursor *cursor,uint32_t wanted,
+        uint16_t *fields,uint16_t capacity,uint16_t *length,NvmOwnershipExtensions *extensions) {
+    return extension_suffix_read_map(cursor,wanted,fields,capacity,length,extensions,NULL);
 }
 
 NvmV2Result nvm_ownership_path(const NvmModule *module,uint32_t index,
@@ -376,9 +389,11 @@ static NvmV2Result globals_read(NvmOwnershipExtensionView view,
 
 #include "ownership_effects.inc"
 #include "ownership_array_fields.inc"
+#include "ownership_map_fields.inc"
 static NvmV2Result ownership_validate_owned(const NvmModule *module,
         const NvmV2Layouts *layouts,bool *requires_verifier,
-        NvmOrdinaryArrayAuthority *private_plan, OwnershipProjection *projection) {
+        NvmOrdinaryArrayAuthority *private_plan, OwnershipProjection *projection,
+        NvmMapDeclarationPlan *map) {
     NvmV2Result result;
     bool ambiguous=false;
     EffectArrayReferences arrays={0};uint32_t effect_type_count=0;
@@ -394,7 +409,7 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
     if ((result = nvm_v2_take(&cursor, count, &flags)) != NVM_V2_OK ||
         (result = nvm_v2_align4(&cursor)) != NVM_V2_OK ||
         (result = check_layouts(layouts, flags, &needs, private_plan!=NULL,
-                                version==NVM_OWNERSHIP_EXTENSION_VERSION && !private_plan)) != NVM_V2_OK ||
+                                version==NVM_OWNERSHIP_EXTENSION_VERSION && !private_plan,map!=NULL)) != NVM_V2_OK ||
         (result = nvm_v2_u32(&cursor, &count)) != NVM_V2_OK) goto done;
     if (private_plan) for (uint32_t i=0;i<layouts->count;i++) private_plan->flags[i]=flags[i];
     if (count != module->function_count || (count && !module->functions)) {
@@ -408,6 +423,7 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
         if (locals != function->local_count || params != function->arity || params > locals ||
             function->result_count > 1) { result = NVM_V2_ERR_INDEX_RANGE; goto done; }
         int return_tag = function->result_count ? function->result_tag : TAG_VOID;
+        if(map && return_tag==TAG_HASHMAP) { result=NVM_V2_ERR_SECTION_TYPE;goto done; }
         ambiguous=false;
         result=descriptor(&cursor,layouts,flags,version,false,return_tag,&needs,private_plan?&ambiguous:NULL,private_plan?NULL:&arrays);
         if (result!=NVM_V2_OK) {
@@ -418,6 +434,7 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
             int tag = -1;
             if (local < params) tag = module->function_param_types &&
                 module->function_param_types[i] ? module->function_param_types[i][local] : TAG_VOID;
+            if(map && local<params && tag==TAG_HASHMAP) { result=NVM_V2_ERR_SECTION_TYPE;goto done; }
             ambiguous=false;
             result=descriptor(&cursor,layouts,flags,version,local<params,tag,&needs,private_plan?&ambiguous:NULL,private_plan?NULL:&arrays);
             if (result!=NVM_V2_OK) {
@@ -426,13 +443,13 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
             }
         }
     }
-    NvmOwnershipExtensions extensions={0};
+    NvmOwnershipExtensions extensions={0};NvmOwnershipExtensionView map_view={0};
     if (version==NVM_OWNERSHIP_PATH_VERSION) {
         if ((result=paths_read(&cursor,NVM_V2_NO_INDEX,NULL,0,NULL,true))!=NVM_V2_OK)
             goto done;
     } else if (version==NVM_OWNERSHIP_EXTENSION_VERSION) {
-        if ((result=extension_suffix_read(&cursor,NVM_V2_NO_INDEX,NULL,0,NULL,
-                                          &extensions))!=NVM_V2_OK) goto done;
+        if ((result=extension_suffix_read_map(&cursor,NVM_V2_NO_INDEX,NULL,0,NULL,
+                                          &extensions,map?&map_view:NULL))!=NVM_V2_OK) goto done;
         if (!!extensions.union_variants.data != !!module->union_count) {
             result=NVM_V2_ERR_SECTION_TYPE;goto done;
         }
@@ -464,6 +481,9 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
             if ((result=oaa_array_fields(extensions.array_fields,private_plan))!=NVM_V2_OK) goto done;
         }
     }
+    if (map && (!map_view.data || !map_payload(map,map_view,layouts,flags))) {
+        result=NVM_V2_ERR_SECTION_TYPE;goto done;
+    }
     if (arrays.required>effect_type_count) { result=NVM_V2_ERR_INDEX_RANGE;goto done; }
     if (effect_type_count && arrays.untyped) { result=NVM_V2_ERR_SECTION_TYPE;goto done; }
     if (cursor.pos != cursor.size) { result = NVM_V2_ERR_SECTION_RANGE; goto done; }
@@ -485,7 +505,7 @@ NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
     NvmV2Result result = nvm_v2_layouts_decode(module->layout_data,
                                              module->layout_size, &layouts);
     if (result != NVM_V2_OK) return result;
-    result=ownership_validate_owned(module,&layouts,requires_verifier,NULL,NULL);
+    result=ownership_validate_owned(module,&layouts,requires_verifier,NULL,NULL,NULL);
     nvm_v2_layouts_free(&layouts);
     return result;
 }
@@ -681,3 +701,5 @@ NvmV2Result nvm_ownership_layout_authorities(const NvmModule *module, uint32_t c
 #include "ordinary_array_authority.inc"
 
 #include "ownership_declaration_projection.inc"
+
+#include "ownership_map_declarations.inc"

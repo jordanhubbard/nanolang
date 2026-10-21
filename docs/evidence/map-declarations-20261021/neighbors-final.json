@@ -1,0 +1,191 @@
+[
+  {
+    "name": "declaration-neighbors-final",
+    "argv": [
+      "/Users/jkh/.local/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_ownership_declaration_projection",
+      "tests.test_ownership_layouts_private"
+    ],
+    "exit": 0,
+    "seconds": 3.5304579999647103
+  },
+  {
+    "name": "old-contract-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "tests/nanoisa/test_ownership_contracts.c",
+      "src/nanoisa/ownership_contracts.c",
+      "src/nanoisa/nvm_v2_layouts.c",
+      "/Users/jkh/Src/nanolang-51-harness/lib/libnano_compiler_inputs.a",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/affine_bytecode.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/affine_state.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/assembler.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/disassembler.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/file_flow.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/frontend.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/isa.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/local_bindings.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/managed_array_shapes.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/mixed_float_proof.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nanoisa_facade.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nvm2c.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nvm2c_callables.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nvm2c_shape.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nvm_format.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nvm_format_v2.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nvm_v2_constants.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nvm_v2_convert.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nvm_v2_cursor.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nvm_v2_functions.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nvm_v2_imports.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nvm_v2_module.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/nvm_v2_signatures.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/passive.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/reference_places.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/retained_layouts.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/service_bindings.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/service_bindings_module.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/service_file_nominal.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/service_file_nominal_plan.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/verifier.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanoisa/verifier_types.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/vm_decode.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/nanovm/vm_dispatch.o",
+      "/Users/jkh/Src/nanolang-51-harness/obj/utf8.o",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@4/4.0.3/lib",
+      "-o",
+      "/private/tmp/nanolang-map-declaration-20261021/old-contract"
+    ],
+    "exit": 0,
+    "seconds": 1.1471735420054756
+  },
+  {
+    "name": "old-contract",
+    "argv": [
+      "/private/tmp/nanolang-map-declaration-20261021/old-contract",
+      "/private/tmp/nanolang-map-declaration-20261021/old-ordinary.nvm",
+      "/private/tmp/nanolang-map-declaration-20261021/old-borrowed.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.2066940419608727
+  },
+  {
+    "name": "clang-ownership_contracts-syntax",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "src/nanoisa/ownership_contracts.c"
+    ],
+    "exit": 0,
+    "seconds": 0.0482564169797115
+  },
+  {
+    "name": "clang-nvm_v2_layouts-syntax",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "src/nanoisa/nvm_v2_layouts.c"
+    ],
+    "exit": 0,
+    "seconds": 0.041331499989610165
+  },
+  {
+    "name": "clang-test_map_declarations-syntax",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "tests/nanoisa/test_map_declarations.c"
+    ],
+    "exit": 0,
+    "seconds": 0.0451620839885436
+  },
+  {
+    "name": "gcc-16-ownership_contracts-syntax",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "src/nanoisa/ownership_contracts.c"
+    ],
+    "exit": 0,
+    "seconds": 0.15570087498053908
+  },
+  {
+    "name": "gcc-16-nvm_v2_layouts-syntax",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "src/nanoisa/nvm_v2_layouts.c"
+    ],
+    "exit": 0,
+    "seconds": 0.034605749999172986
+  },
+  {
+    "name": "gcc-16-test_map_declarations-syntax",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "tests/nanoisa/test_map_declarations.c"
+    ],
+    "exit": 0,
+    "seconds": 0.040422124962788075
+  }
+]
