@@ -20,3 +20,5 @@ This is constructor/query-only qualification above approved design042cd098a. No 
 3. Cap+1 test incorrectly required no allocation calls. Existing independent proof can discover the final cap after reversible allocations; LIMIT, output/source preservation and balance all remain required. UINT64_MAX retains the no-allocation assertion.
 
 Commands/environments, source/provider hashes and representative exact first stderr logs are retained. Required target is `test-record-map-preparation`, also in test-units. For the actual four originals, export RECORD_MAP_MODULES to the four paths in environment.json. No frontend build/bootstrap was run.
+
+Raw stdout trailing blank lines are retained in matching .raw.gz files; readable copies omit trailing blank lines for diff whitespace checks. No command result or diagnostic text changed.

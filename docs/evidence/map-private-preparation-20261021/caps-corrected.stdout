@@ -11,4 +11,3 @@ PASS 2605 map origin checks; public admission remains refused
 PASS 2793 copied map recipe checks; public admission remains refused
 I checked 873 preparation allocation prefixes in both modes, including intern growth, retained 9269153 bytes.
 I checked private map preparation and independence; execution remains refused.
-
