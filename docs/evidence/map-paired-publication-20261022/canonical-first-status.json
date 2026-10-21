@@ -1,0 +1,127 @@
+[
+  {
+    "name": "canonical-ordinary-source",
+    "args": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical",
+      "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/fixtures/map_record_fields.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-ordinary.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-ordinary-dump",
+    "args": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-ordinary.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-ordinary-verify",
+    "args": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-ordinary.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-ordinary-vm",
+    "args": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm",
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-ordinary.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-ordinary-native",
+    "args": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/nvm2c",
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-ordinary.nvm",
+      "-o",
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-ordinary.c"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-ordinary-native-build",
+    "args": [
+      "cc",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-ordinary.c",
+      "-o",
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-ordinary"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-ordinary-native-execute",
+    "args": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-ordinary"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-shadow-dump",
+    "args": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-map-paired-publication-20261022/ordinary-checked-shadow.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-shadow-verify",
+    "args": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-map-paired-publication-20261022/ordinary-checked-shadow.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-shadow-vm",
+    "args": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm",
+      "/private/tmp/nanolang-map-paired-publication-20261022/ordinary-checked-shadow.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-shadow-native",
+    "args": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/nvm2c",
+      "/private/tmp/nanolang-map-paired-publication-20261022/ordinary-checked-shadow.nvm",
+      "-o",
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-shadow.c"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-shadow-native-build",
+    "args": [
+      "cc",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-shadow.c",
+      "-o",
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-shadow"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-shadow-native-execute",
+    "args": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical-shadow"
+    ],
+    "status": 0
+  }
+]

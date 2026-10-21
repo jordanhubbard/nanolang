@@ -1,0 +1,6 @@
+test_malformed_wire_preserves_output (tests.test_map_field_publication.MapFieldPublication.test_malformed_wire_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.163s
+
+OK

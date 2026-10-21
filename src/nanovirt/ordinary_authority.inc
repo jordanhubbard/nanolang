@@ -2,6 +2,7 @@
 #include "../nanoisa/ownership_contracts.h"
 #include "../nanoisa/retained_layouts.h"
 #include "../nanoisa/record_array_admission.h"
+#include "../nanoisa/record_map_publication.h"
 #include "../nanoisa/verifier.h"
 static void ordinary_word(uint8_t *out,uint32_t value,unsigned width) {
     for(unsigned i=0;i<width;i++)out[i]=(uint8_t)(value>>(i*8));
@@ -63,12 +64,44 @@ static bool ordinary_declarations(CG *cg, ASTNode *program, ModuleList *modules,
     return true;
 }
 
+/* I recognize exact declaration structure, never an executable map opcode. */
+static bool ordinary_map_plain(const TypeInfo *t) {
+    return t && !t->service_declaration && !t->service_module && !t->service_ordinal &&
+        !t->service_category && !t->element_type && !t->tuple_types && !t->tuple_elements &&
+        !t->tuple_type_names && !t->tuple_element_count && !t->opaque_type_name && !t->fn_sig &&
+        !t->is_open_row && !t->row_var_name && !t->row_field_names && !t->row_field_types &&
+        !t->row_field_type_info && !t->row_field_type_names && !t->row_field_count &&
+        !t->type_var_names && !t->type_var_count;
+}
+static bool ordinary_map_pair(const TypeInfo *t) {
+    if(!ordinary_map_plain(t) || t->base_type!=TYPE_HASHMAP || !t->generic_name ||
+       strcmp(t->generic_name,"HashMap") || t->type_param_count!=2 || !t->type_params)return false;
+    for(unsigned i=0;i<2;i++) {
+        const TypeInfo *leaf=t->type_params[i];
+        if(!ordinary_map_plain(leaf) || leaf->base_type!=(i?TYPE_INT:TYPE_STRING) ||
+           leaf->generic_name || leaf->type_params || leaf->type_param_count)return false;
+    }
+    return true;
+}
+
 static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modules) {
     NvmModule *module=cg->module;
     if(!cg->struct_count || cg->enum_count || cg->union_count || cg->extern_count || cg->passive ||
        module->layout_size || module->ownership_size)return;
     ASTNode *records[MAX_STRUCT_DEFS]={0};unsigned count=cg->struct_count;
     if(!ordinary_declarations(cg,program,modules,records))return;
+    /* I bound new map staging before allocating, without changing old allocations. */
+    bool has_map=false,bad_fields=false;uint64_t total_fields=0;
+    for(unsigned i=0;i<count;i++) {
+        int fields=records[i]->as.struct_def.field_count;
+        if(fields<0 || fields>UINT16_MAX){bad_fields=true;continue;}
+        total_fields+=(unsigned)fields;
+        for(int j=0;j<fields;j++) {
+            TypeInfo *info=records[i]->as.struct_def.field_type_info?records[i]->as.struct_def.field_type_info[j]:NULL;
+            if(records[i]->as.struct_def.field_types[j]==TYPE_HASHMAP || (info && info->base_type==TYPE_HASHMAP))has_map=true;
+        }
+    }
+    if(has_map && (bad_fields || count>256 || total_fields>65536))return;
     size_t size=8+((count+3u)&~3u)+4;
     for(uint32_t f=0;f<module->function_count;f++) {
         NvmFunctionEntry *fn=&module->functions[f];
@@ -82,7 +115,7 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
     if(!data || !items){free(data);free(items);cg_error(cg,0,"I cannot allocate ordinary declaration facts");return;}
     NvmV2Layouts layouts={items,count};
     bool supported=true;
-    uint32_t arrays=0;uint8_t elements[16]={0};
+    uint32_t arrays=0,maps=0;uint8_t elements[16]={0};
     for(unsigned i=0;i<count && supported;i++) {
         ASTNode *node=records[i];int fields=node->as.struct_def.field_count;
         if(fields<0 || fields>UINT16_MAX){supported=false;break;}
@@ -91,9 +124,14 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
         if(fields && !items[i].fields){cg_error(cg,0,"I cannot allocate ordinary record fields");supported=false;break;}
         for(int j=0;j<fields;j++) {
             TypeInfo *info=node->as.struct_def.field_type_info?node->as.struct_def.field_type_info[j]:NULL;
-            if(info && (info->type_param_count || (info->element_type && info->base_type!=TYPE_ARRAY))){supported=false;break;}
+            if(node->as.struct_def.field_types[j]==TYPE_HASHMAP && (!info || info->base_type!=TYPE_HASHMAP)){supported=false;break;}
+            if(info && info->base_type!=TYPE_HASHMAP && (info->type_param_count || (info->element_type && info->base_type!=TYPE_ARRAY))){supported=false;break;}
             Type declared=info?info->base_type:node->as.struct_def.field_types[j];
             uint8_t tag=ordinary_slot_tag(declared);uint32_t child=NVM_V2_NO_INDEX;
+            if(tag==TAG_HASHMAP) {
+                if(node->as.struct_def.field_types[j]!=TYPE_HASHMAP || !ordinary_map_pair(info)) {supported=false;break;}
+                maps++;
+            }
             if(tag==TAG_ARRAY) {
                 TypeInfo *element=info?info->element_type:NULL;
                 uint8_t elem=element?ordinary_slot_tag(element->base_type):TAG_COUNT;
@@ -145,14 +183,15 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
                 if(!module->function_param_types || !module->function_param_types[f] ||
                    module->function_param_types[f][local]!=tag)conflict=true;
             }
-            if(conflict || tag==TAG_COUNT || (tag==TAG_ARRAY && !arrays)){supported=false;break;}
+            if(conflict || tag==TAG_COUNT || (tag==TAG_ARRAY && !arrays) || (tag==TAG_HASHMAP && !maps)){supported=false;break;}
             data[at]=tag;ordinary_word(data+at+4,NVM_V2_NO_INDEX,4);at+=8;
         }
     }
-    if(supported && arrays) {
+    if(supported && (arrays || maps)) {
         uint32_t types=0,index[16]={0};
         for(unsigned i=0;i<16;i++)if(elements[i])index[i]=types++;
-        size_t extra=28u+(size_t)types*8u+(size_t)arrays*12u;
+        size_t extra=12u+(arrays?16u+(size_t)types*8u+(size_t)arrays*12u:0u)+
+            (maps?44u+(size_t)maps*12u:0u);
         if(extra>UINT32_MAX-size){supported=false;}
         else {
             uint8_t *grown=realloc(data,size+extra);
@@ -160,7 +199,8 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
             else {
                 data=grown;memset(data+size,0,extra);ordinary_word(data,3,4);at=size;
                 ordinary_word(data+at,4,4);at+=8; /* Empty bounded path table. */
-                ordinary_word(data+at,1,4);at+=4;
+                ordinary_word(data+at,(arrays?1u:0u)+(maps?1u:0u),4);at+=4;
+                if(arrays) {
                 ordinary_word(data+at,2,2);ordinary_word(data+at+2,1,2);
                 ordinary_word(data+at+4,(uint32_t)(8u+types*8u+arrays*12u),4);at+=8;
                 ordinary_word(data+at,types,4);at+=4;
@@ -184,7 +224,23 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
                         ordinary_word(data+at,i,4);ordinary_word(data+at+4,j,2);
                         ordinary_word(data+at+8,index[elem-1],4);at+=12;
                     }
+                }
+                if(maps) {
+                    ordinary_word(data+at,5,2);ordinary_word(data+at+2,1,2);
+                    ordinary_word(data+at+4,36u+maps*12u,4);at+=8;
+                    ordinary_word(data+at,2,4);at+=4;
+                    data[at]=TAG_INT;ordinary_word(data+at+4,NVM_V2_NO_INDEX,4);at+=8;
+                    data[at]=TAG_STRING;ordinary_word(data+at+4,NVM_V2_NO_INDEX,4);at+=8;
+                    ordinary_word(data+at,1,4);at+=4;
+                    ordinary_word(data+at,1,4);at+=8; /* STRING row1 -> INT row0. */
+                    ordinary_word(data+at,maps,4);at+=4;
+                    for(unsigned i=0;i<count;i++)for(unsigned j=0;j<items[i].field_count;j++)
+                        if(items[i].fields[j].type_tag==TAG_HASHMAP) {
+                            ordinary_word(data+at,i,4);ordinary_word(data+at+4,j,2);at+=12;
+                        }
+                }
                 size+=extra;
+                if(at!=size){cg_error(cg,0,"I cannot size ordinary declaration facts");supported=false;}
             }
         }
     }
@@ -193,7 +249,7 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
         NvmModule staged=*module;staged.layout_data=NULL;staged.layout_size=0;
         staged.ownership_data=data;staged.ownership_size=(uint32_t)size;
         NvmV2Result result=NVM_V2_OK;bool needs=false;
-        if(arrays) {
+        if(arrays || maps) {
             /* My legacy retained decoder excludes mixed forward array DAGs.
              * These private bytes acquire authority only after the selected proof. */
             size_t layout_bytes=nvm_v2_layouts_encoded_size(&layouts);
@@ -208,7 +264,11 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
             }
         } else result=nvm_retain_layouts(&staged,&layouts);
         bool eligible=false,omitted=false;
-        if(result==NVM_V2_OK && arrays) {
+        if(result==NVM_V2_OK && maps) {
+            NvmArrayEligibilityResult admission=nvm_record_map_publication(&staged);
+            omitted=admission.status==NVM_ARRAY_UNRESOLVED || admission.status==NVM_ARRAY_LIMIT;
+            if(admission.status==NVM_ARRAY_ELIGIBLE)eligible=nvm_verify(&staged).ok;
+        } else if(result==NVM_V2_OK && arrays) {
             NvmRecordArrayExecutionPlan *plan=NULL;
             NvmArrayEligibilityResult admission=nvm_record_array_admit(&staged,&plan);
             nvm_record_array_execution_free(plan);

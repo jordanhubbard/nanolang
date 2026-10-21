@@ -1,0 +1,33 @@
+I retain paired map publisher evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-6yn_2be5
+ test_unchanged_and_concat (tests.test_map_field_publication.MapFieldPublication.test_unchanged_and_concat) ... FAIL
+
+======================================================================
+FAIL: test_unchanged_and_concat (tests.test_map_field_publication.MapFieldPublication.test_unchanged_and_concat)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_map_field_publication.py", line 170, in test_unchanged_and_concat
+    self.corpus('unchanged', source)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_map_field_publication.py", line 154, in corpus
+    wires.append(self.qualify(label+'-seed', seed, ordinary))
+                 ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_map_field_publication.py", line 144, in qualify
+    self.command(name+'-build-O'+opt, [*self.cc, '-std=c11', '-O'+opt, '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 '-fsanitize=address,undefined', '-fno-sanitize-recover=all', c, '-lm', '-o', exe], build=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_map_field_publication.py", line 66, in command
+    raise AssertionError(f'{name}: {p.returncode}\n{p.stdout.decode(errors="replace")}\n{p.stderr.decode(errors="replace")}')
+AssertionError: unchanged-seed-build-O0: 1
+
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-6yn_2be5/unchanged-seed.c:598:15: error: variable 'nmap_collection_budget' set but not used [-Werror,-Wunused-but-set-global]
+  598 | static size_t nmap_collection_budget = 65536;
+      |               ^
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.410s
+
+FAILED (failures=1)
+

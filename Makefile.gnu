@@ -512,7 +512,7 @@ $(NANOISA_DIR)/managed_native_source.h: scripts/embed_managed_native.py $(NANOIS
 	python3 scripts/embed_managed_native.py
 
 $(NANOISA_FACADE_OBJECT): $(NANOISA_MODULE_DIR)/nanoisa.c $(NANOISA_MODULE_DIR)/nanoisa.h \
-		$(NANOISA_DIR)/assembler.h $(NANOISA_DIR)/disassembler.h | $(OBJ_DIR)/nanoisa
+		$(NANOISA_DIR)/assembler.h $(NANOISA_DIR)/disassembler.h $(NANOISA_DIR)/record_map_admission.h $(NANOISA_DIR)/record_map_publication.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
 
 $(OBJ_DIR)/nanoisa:
@@ -1148,6 +1148,8 @@ test-daemon: nano_vm nano_virt nano_vmd
 NANOVIRT_DIR = $(SRC_DIR)/nanovirt
 NANOVIRT_SOURCES = $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/wrapper_gen.c $(NANOVIRT_DIR)/shadow_runner.c
 NANOVIRT_OBJECTS = $(patsubst $(NANOVIRT_DIR)/%.c,$(OBJ_DIR)/nanovirt/%.o,$(NANOVIRT_SOURCES))
+
+$(OBJ_DIR)/nanovirt/codegen.o: $(NANOVIRT_DIR)/ordinary_authority.inc $(NANOISA_DIR)/record_map_publication.h
 
 $(OBJ_DIR)/nanovirt/%.o: $(NANOVIRT_DIR)/%.c $(NANOVIRT_DIR)/codegen.h $(NANOVIRT_DIR)/wrapper_gen.h | $(OBJ_DIR)/nanovirt
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -7165,3 +7167,14 @@ test-record-map-publication: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_publication
 
 test-units: test-record-map-publication
+
+# I require actual checked stage producers and separately built raw shadow producers.
+# I normalize only the known repeated compiler-input archive, keeping it last.
+MAP_FIELD_TEST_OBJECTS = $(filter-out $(COMPILER_INPUT_ARCHIVE),$(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a) $(COMPILER_INPUT_ARCHIVE)
+.PHONY: test-map-field-publication
+test-units: test-map-field-publication
+test-map-field-publication: bootstrap nano_virt nano_vm nanoisa_dump nvm2c
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(MAP_FIELD_TEST_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_map_publication tests/nanovirt/test_map_publication.c $(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(MAP_FIELD_TEST_OBJECTS)) $(LDFLAGS)
+	$(OBJ_DIR)/test_map_publication tests/nanoisa/fixtures/map_record_fields.nano
+	MAP_PUBLICATION_CC="$(CC)" python3 -m unittest -f -v tests.test_map_field_publication

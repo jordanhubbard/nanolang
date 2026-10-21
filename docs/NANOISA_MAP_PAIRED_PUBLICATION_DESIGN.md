@@ -1,6 +1,6 @@
 # Paired STRING→INT map-field publication
 
-I base this contract on integrated ca00599d2 and the qualified [complete-module query](NANOISA_MAP_PUBLICATION_QUERY_DESIGN.md). This checkpoint changes documentation only. I have not changed a publisher or rebuilt a frontend.
+I base this contract on integrated ca00599d2 and the qualified [complete-module query](NANOISA_MAP_PUBLICATION_QUERY_DESIGN.md). I first recorded this as a documentation-only checkpoint. The subsequent reviewed implementation and local producer qualification are retained in [the paired publisher receipt](evidence/map-paired-publication-20261022/README.md); fresh Stage1/Stage2 and hosted qualification remain separate.
 
 ## My exact first source slice
 

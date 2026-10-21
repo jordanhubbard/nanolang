@@ -1,0 +1,9 @@
+test_unchanged_and_concat (tests.test_map_field_publication.MapFieldPublication.test_unchanged_and_concat) ... ok
+test_nested_u8 (tests.test_map_field_publication.MapFieldPublication.test_nested_u8) ... ok
+test_independent_shadow_omission (tests.test_map_field_publication.MapFieldPublication.test_independent_shadow_omission) ... ok
+test_mixed_omission (tests.test_map_field_publication.MapFieldPublication.test_mixed_omission) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 23.295s
+
+OK

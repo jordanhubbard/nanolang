@@ -1,6 +1,8 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "../../src/nanoisa/record_array_admission.h"
+#include "../../src/nanoisa/record_map_admission.h"
+#include "../../src/nanoisa/record_map_publication.h"
 
 #include "../../src/nanoisa/service_bindings_module.h"
 #include "nanoisa.h"
@@ -569,6 +571,14 @@ int64_t nl_nanoisa_array_publication(const char *source) {
     AsmResult assembly={0};
     NvmModule *module=asm_assemble_unverified(source,&assembly);
     if(!module)return -1;
+    NvmRecordMapRoute route=nvm_record_map_route(module);
+    if(nvm_record_map_selected(route)) {
+        NvmArrayEligibilityResult result=nvm_record_map_publication(module);
+        int64_t answer=-1;
+        if(result.status==NVM_ARRAY_UNRESOLVED || result.status==NVM_ARRAY_LIMIT)answer=0;
+        else if(result.status==NVM_ARRAY_ELIGIBLE && nvm_verify(module).ok)answer=1;
+        nvm_module_free(module);return answer;
+    }
     if(!nvm_record_array_candidate(module)) {
         int64_t answer=nvm_verify(module).ok?0:-1;
         nvm_module_free(module);return answer;
