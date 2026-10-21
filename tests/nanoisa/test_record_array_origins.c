@@ -99,7 +99,7 @@ static void nested_authority(Input *c) {
     c->m.ownership_size=(uint32_t)c->o;
 }
 static void nested_origins(void) {
-    for(unsigned leaf=TAG_INT;leaf<=TAG_STRING;leaf+=TAG_STRING-TAG_INT)
+    for(unsigned leaf=TAG_INT;leaf<=TAG_STRING;leaf++)
     for(unsigned variant=0;variant<5;variant++) {
         Input c;init(&c,(uint8_t)leaf,false);
         array(&c,TAG_ARRAY);arg16(&c,OP_STORE_LOCAL,0);
@@ -109,17 +109,63 @@ static void nested_origins(void) {
             arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_LOAD_LOCAL,1);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
             if(variant>=3) {
                 arg16(&c,OP_LOAD_LOCAL,0);op(&c,OP_ARR_POP);op(&c,OP_POP);
-                arg16(&c,OP_LOAD_LOCAL,1);scalar(&c,variant==4?TAG_U8:(uint8_t)leaf);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+                arg16(&c,OP_LOAD_LOCAL,1);scalar(&c,variant==4?(leaf==TAG_U8?TAG_BOOL:TAG_U8):(uint8_t)leaf);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
             }
         }
         finish(&c);nested_authority(&c);c.ownership[c.o-36]=(uint8_t)leaf;
         if(variant==2 || variant==4)query(&c,NVM_ARRAY_UNRESOLVED);
         else {
             NvmRecordArrayOrigins *p=query(&c,NVM_ARRAY_ELIGIBLE);uint16_t requirement;
-            CHECK(nvm_record_array_required_elements(p,0,&requirement)&&requirement==(leaf==TAG_INT?NVM_RECORD_ARRAY_OF_INT:NVM_RECORD_ARRAY_OF_STRING));
+            const uint16_t expected[]={0,NVM_RECORD_ARRAY_OF_INT,NVM_RECORD_ARRAY_OF_U8,
+                NVM_RECORD_ARRAY_OF_FLOAT,NVM_RECORD_ARRAY_OF_BOOL,NVM_RECORD_ARRAY_OF_STRING};
+            CHECK(nvm_record_array_required_elements(p,0,&requirement)&&requirement==expected[leaf]);
             if(variant)CHECK(nvm_record_array_required_elements(p,1,&requirement)&&requirement==MASK(leaf));
             nvm_record_array_origins_free(p);
         }
+    }
+}
+static void nested_packed_conversions(void) {
+    const uint8_t leaves[]={TAG_U8};
+    for(unsigned i=0;i<sizeof leaves;i++) {
+        Input c;uint8_t leaf=leaves[i];init(&c,leaf,false);
+        array(&c,TAG_ARRAY);array(&c,leaf);scalar(&c,TAG_INT);op(&c,OP_ARR_PUSH);
+        op(&c,OP_ARR_PUSH);record(&c,0);op(&c,OP_POP);finish(&c);
+        nested_authority(&c);c.ownership[c.o-36]=leaf;positive(&c);
+        /* The old flat field contract does not acquire this new permission. */
+        init(&c,leaf,false);array(&c,leaf);scalar(&c,TAG_INT);op(&c,OP_ARR_PUSH);
+        record(&c,0);op(&c,OP_POP);finish(&c);query(&c,NVM_ARRAY_UNRESOLVED);
+    }
+}
+/* Distinct exact leaves may coexist, but never share an outer or inner origin. */
+static void mixed_nested_origins(void) {
+    for(uint8_t left=TAG_INT;left<=TAG_STRING;left++)
+    for(uint8_t right=TAG_INT;right<=TAG_STRING;right++)
+    for(unsigned alias=0;alias<3;alias++) {
+        Input c;init(&c,left,false);
+        array(&c,TAG_ARRAY);arg16(&c,OP_STORE_LOCAL,0);
+        array(&c,left);arg16(&c,OP_STORE_LOCAL,1);
+        arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_LOAD_LOCAL,1);op(&c,OP_ARR_PUSH);record(&c,0);op(&c,OP_POP);
+        if(alias==1)arg16(&c,OP_LOAD_LOCAL,0);
+        else {
+            array(&c,TAG_ARRAY);
+            if(alias==2)arg16(&c,OP_LOAD_LOCAL,1);else array(&c,right);
+            op(&c,OP_ARR_PUSH);
+        }
+        record(&c,1);op(&c,OP_POP);finish(&c);
+        c.o-=48; /* Replace only the existing array extension. */
+        b16(c.ownership,&c.o,2);b16(c.ownership,&c.o,1);b32(c.ownership,&c.o,64);
+        b32(c.ownership,&c.o,4);
+        for(unsigned i=0;i<4;i++) {
+            uint8_t tag=i%2?(i==1?left:right):TAG_ARRAY;
+            b8(c.ownership,&c.o,tag);b8(c.ownership,&c.o,0);b16(c.ownership,&c.o,0);
+            b32(c.ownership,&c.o,i%2?NO:i+1);
+        }
+        b32(c.ownership,&c.o,2);
+        for(unsigned i=0;i<2;i++) {
+            b32(c.ownership,&c.o,i);b16(c.ownership,&c.o,0);b16(c.ownership,&c.o,0);b32(c.ownership,&c.o,2*i);
+        }
+        c.m.ownership_size=(uint32_t)c.o;
+        if(alias && left!=right)query(&c,NVM_ARRAY_UNRESOLVED);else positive(&c);
     }
 }
 static void copied_facts(void){
@@ -276,4 +322,4 @@ static void boundaries(void){
     printf("I measured %zu allocation positions and %zu peak payload bytes; every refusal recovered\n",measured,actual_peak);
 #endif
 }
-int main(void){setvbuf(stdout,NULL,_IONBF,0);puts("I begin copied facts");copied_facts();nested_origins();puts("I begin alias/copy facts");aliases_and_copies();puts("I begin refusal boundaries");refusals();puts("I begin call/global/join facts");field_call_global_join();forward_record_identity();puts("I begin old-mode compatibility");old_mode();puts("I begin bounded accounting and recovery");boundaries();printf("PASS %u record-array origin checks; no runtime admission\n",checks);return 0;}
+int main(void){setvbuf(stdout,NULL,_IONBF,0);puts("I begin copied facts");copied_facts();nested_origins();nested_packed_conversions();mixed_nested_origins();puts("I begin alias/copy facts");aliases_and_copies();puts("I begin refusal boundaries");refusals();puts("I begin call/global/join facts");field_call_global_join();forward_record_identity();puts("I begin old-mode compatibility");old_mode();puts("I begin bounded accounting and recovery");boundaries();printf("PASS %u record-array origin checks; no runtime admission\n",checks);return 0;}

@@ -1,0 +1,30 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-7uuswkey
+test_complete_origin_and_allocation_controls (tests.test_record_array_origins.RecordArrayOrigins.test_complete_origin_and_allocation_controls) ... I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 2659 record-array origin checks; no runtime admission
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+I measured 41 allocation positions and 65034 peak payload bytes; every refusal recovered
+PASS 3177 record-array origin checks; no runtime admission
+ok
+test_private_primitive_consumers (tests.test_record_array_nested_primitive.RecordArrayNestedPrimitive.test_private_primitive_consumers) ... I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-1rox8irr
+I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-2jkvov30
+I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-d_7s9cwg
+ok
+test_public_primitive_consumers (tests.test_record_array_nested_primitive.RecordArrayNestedPrimitive.test_public_primitive_consumers) ... I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-78t7mjzq
+I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-l33sr752
+I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-xsi5wxyo
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 109.054s
+
+OK

@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-nested-primitive-current-baseline.py", line 27, in <module>
+    r=run([root/'bin'/compiler,source,'--emit-nvm','-o',module]);row['compile']=r.returncode
+  File "/private/tmp/nanolang-nested-primitive-current-baseline.py", line 21, in run
+    r=run_captured(list(map(str,a)),cwd=root,capture_output=True,text=True,timeout=180)
+  File "/Users/jkh/Src/nanolang-51-harness/tests/native_process.py", line 28, in run_captured
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                               start_new_session=True, **kwargs)
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Popen.__init__() got an unexpected keyword argument 'capture_output'

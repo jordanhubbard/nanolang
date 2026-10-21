@@ -98,7 +98,7 @@ static bool vm_ra_layouts(VmRecordArrayPrivate *p) {
         if(element.tag==TAG_ARRAY) {
             NvmOrdinaryArrayType child;
             if(!nvm_record_array_execution_type(p->plan,element.referent,&child) ||
-               (child.tag!=TAG_INT && child.tag!=TAG_STRING) || child.referent!=NVM_V2_NO_INDEX)return false;
+               !vm_ra_leaf(child.tag) || child.referent!=NVM_V2_NO_INDEX)return false;
             nested_leaf=child.tag;
         } else if(!vm_ra_leaf(element.tag) || element.referent!=NVM_V2_NO_INDEX)return false;
         VmRecordArrayField *field=&p->fields[p->layouts[binding.layout].field_start+binding.field];
@@ -509,7 +509,7 @@ static bool vm_ra_array_valid(VmArray *a,uint8_t expected_leaf) {
     for(uint32_t i=0;i<a->length;i++) {
         NanoValue child=a->elements[i];
         if(child.tag!=TAG_ARRAY || !child.as.array ||
-           (child.as.array->elem_type!=TAG_INT && child.as.array->elem_type!=TAG_STRING) ||
+           !vm_ra_leaf(child.as.array->elem_type) ||
            !vm_ra_array_valid(child.as.array,child.as.array->elem_type))return false;
     }
     return true;
@@ -619,13 +619,13 @@ static VmResult vm_ra_preflight(VmRecordArrayPrivate *p,const VmDispatchInstruct
             for(uint16_t i=0;i<fact->pops;i++) {
                 NanoValue child=stack_peek(vm,i);
                 if(child.tag!=in->operands[0].u8 ||
-                   (child.tag==TAG_ARRAY && (!child.as.array || (child.as.array->elem_type!=TAG_INT && child.as.array->elem_type!=TAG_STRING) || !vm_ra_array_valid(child.as.array,child.as.array->elem_type))))return VM_ERR_TYPE_ERROR;
+                   (child.tag==TAG_ARRAY && (!child.as.array || !vm_ra_leaf(child.as.array->elem_type) || !vm_ra_array_valid(child.as.array,child.as.array->elem_type))))return VM_ERR_TYPE_ERROR;
             }
         break;
     case OP_ARR_PUSH:case OP_ARR_SET: {
         NanoValue receiver=stack_peek(vm,in->opcode==OP_ARR_PUSH?1:2),value=stack_peek(vm,0);
         if(receiver.tag!=TAG_ARRAY || value.tag!=receiver.as.array->elem_type ||
-           (value.tag==TAG_ARRAY && (!value.as.array || (value.as.array->elem_type!=TAG_INT && value.as.array->elem_type!=TAG_STRING) || !vm_ra_array_valid(value.as.array,value.as.array->elem_type))))return VM_ERR_TYPE_ERROR;
+           (value.tag==TAG_ARRAY && (!value.as.array || !vm_ra_leaf(value.as.array->elem_type) || !vm_ra_array_valid(value.as.array,value.as.array->elem_type))))return VM_ERR_TYPE_ERROR;
         if(in->opcode==OP_ARR_PUSH)retained=value;
         break;
     }
