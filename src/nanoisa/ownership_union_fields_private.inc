@@ -157,3 +157,31 @@ bool nvm_union_field_declarations_nominal(const NvmUnionFieldDeclarations *p,uin
     if(!p||!out||ordinal||(tag!=TAG_STRUCT&&tag!=TAG_UNION))return false;
     *out=tag==TAG_STRUCT?p->record_layout:p->union_layout;return true;
 }
+
+#include "union_field_cost_private.h"
+NvmMapCostStatus nvm_union_declarations_retained_cost(const NvmUnionFieldDeclarations *p,
+                                                    NvmMapCopyWork *w,uint64_t *out) {
+    if(!ufc_outputs_disjoint(w,out))return NVM_MAP_COST_INVALID;
+    if(!nvm_map_copy_charge(w,32))return NVM_MAP_COST_LIMIT;
+    if(!p || p->layouts.count!=2 || !p->layouts.items || p->record_layout!=1 || p->union_layout ||
+       p->payload_variant>1 || p->empty_variant!=(uint16_t)(1-p->payload_variant) ||
+       p->flags[0]!=NVM_LAYOUT_COMPLETE || p->flags[1]!=NVM_LAYOUT_COMPLETE ||
+       p->variants[p->payload_variant].field_count!=1 || p->variants[p->empty_variant].field_count ||
+       p->variants[0].layout || p->variants[1].layout || p->variants[0].field_offset ||
+       p->variants[1].field_offset!=p->variants[0].field_count)
+        return NVM_MAP_COST_INVALID;
+    uint64_t bytes=0;NvmMapCostStatus status;
+#define UFC_TERM(ptr,count) do {status=nvm_map_copy_term(w,(ptr),(count),sizeof *(ptr),&bytes);if(status!=NVM_MAP_COST_OK)return status;}while(0)
+    UFC_TERM(p,1);UFC_TERM(p->layouts.items,2);
+    for(uint32_t i=0;i<2;i++) {
+        if(!nvm_map_copy_charge(w,8))return NVM_MAP_COST_LIMIT;
+        const NvmV2Layout *l=&p->layouts.items[i];
+        if(l->kind!=(i?NVM_V2_LAYOUT_STRUCT:NVM_V2_LAYOUT_UNION) || l->field_count!=1)
+            return NVM_MAP_COST_INVALID;
+        UFC_TERM(l->fields,1);
+        if(l->fields[0].type_tag!=(i?TAG_UNION:TAG_INT) ||
+           l->fields[0].nested_idx!=(i?0:NVM_V2_NO_INDEX))return NVM_MAP_COST_INVALID;
+    }
+#undef UFC_TERM
+    *out=bytes;return NVM_MAP_COST_OK;
+}

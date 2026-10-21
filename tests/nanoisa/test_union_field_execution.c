@@ -219,6 +219,80 @@ static void execution_allocations(void) {
         sizeof(NvmUnionFieldExecutionPlan),sizeof(NvmUnionFieldSite),sizeof(NvmRecordArrayExecutionPlan),sizeof(UfeOrigins),retained,peak,
         (unsigned long long)c.peak_bytes_reserved,(unsigned long long)c.work_reserved,positions);
 }
+static void execution_cost_oracles(void) {
+    for(unsigned variant=0;variant<6;variant++) {
+        UnionCase v;uint8_t code[128];execution_case(&v,code);
+        char *strings[7];uint32_t lengths[7];
+        for(unsigned i=0;i<6;i++){strings[i]=v.c.module.strings[i];lengths[i]=v.c.module.string_lengths[i];}
+        strings[6]="";lengths[6]=0;uint8_t zero=0;uint8_t *parameters[1]={NULL};
+        NvmMetadataEntry metadata={0,0};NvmDebugEntry debug={0};
+        if(variant>=1)v.c.module.function_param_types=parameters;
+        if(variant>=2)parameters[0]=&zero;
+        if(variant>=3){v.c.module.strings=strings;v.c.module.string_lengths=lengths;v.c.module.string_count=7;}
+        if(variant>=4){v.c.module.metadata=&metadata;v.c.module.metadata_count=1;}
+        if(variant>=5){v.c.module.debug_entries=&debug;v.c.module.debug_count=1;}
+        CHECK(!ra_live&&!ra_bytes);ra_peak=0;
+        NvmUnionFieldExecutionPlan *p=execution_query(&v.c.module);
+        size_t retained=ra_bytes,peak=ra_peak,calls=ra_calls,live=ra_live;
+        NvmMapCopyWork work={0,UINT64_MAX,false};uint64_t bytes=99;
+        CHECK(ufe_plan_retained_cost(p,&work,&bytes)==NVM_MAP_COST_OK&&bytes==retained);
+        uint64_t needed=184+20*(uint64_t)v.c.module.function_count+12*(uint64_t)v.c.module.string_count;
+        CHECK(work.used==needed&&ra_calls==calls&&ra_bytes==retained&&ra_live==live&&ra_peak==peak);
+        work=(NvmMapCopyWork){0,needed,false};bytes=99;
+        CHECK(ufe_plan_retained_cost(p,&work,&bytes)==NVM_MAP_COST_OK&&bytes==retained&&work.used==needed);
+        work=(NvmMapCopyWork){0,needed-1,false};bytes=99;
+        CHECK(ufe_plan_retained_cost(p,&work,&bytes)==NVM_MAP_COST_LIMIT&&bytes==99&&work.limited);
+        work=(NvmMapCopyWork){0,UINT64_MAX,true};bytes=99;
+        CHECK(ufe_plan_retained_cost(p,&work,&bytes)==NVM_MAP_COST_LIMIT&&bytes==99);
+        work=(NvmMapCopyWork){0,UINT64_MAX,false};NvmMapCopyWork saved_work=work;
+        CHECK(ufe_plan_retained_cost(p,&work,&work.used)==NVM_MAP_COST_INVALID&&!memcmp(&work,&saved_work,sizeof work));
+        /* Full independent constructors make the sub-owner oracles measurable. */
+        NvmUnionFieldProof *proof=NULL;
+        CHECK(nvm_union_field_proof_prepare(&v.c.module,&proof).status==NVM_ARRAY_ELIGIBLE);
+        size_t proof_bytes=ra_bytes-retained;calls=ra_calls;
+        work=(NvmMapCopyWork){0,100,false};bytes=99;
+        CHECK(ufe_proof_retained_cost(proof,&work,&bytes)==NVM_MAP_COST_OK&&bytes==proof_bytes&&work.used==100&&ra_calls==calls);
+        work=(NvmMapCopyWork){0,99,false};bytes=99;
+        CHECK(ufe_proof_retained_cost(proof,&work,&bytes)==NVM_MAP_COST_LIMIT&&bytes==99);
+        nvm_union_field_proof_free(proof);CHECK(ra_bytes==retained);
+        NvmUnionFieldDeclarations *decl=NULL;
+        CHECK(nvm_union_field_declarations_prepare(&v.c.module,&decl).status==NVM_UFD_PREPARED);
+        size_t declaration_bytes=ra_bytes-retained;calls=ra_calls;
+        work=(NvmMapCopyWork){0,64,false};bytes=99;
+        CHECK(nvm_union_declarations_retained_cost(decl,&work,&bytes)==NVM_MAP_COST_OK&&bytes==declaration_bytes&&work.used==64&&ra_calls==calls);
+        work=(NvmMapCopyWork){0,63,false};bytes=99;
+        CHECK(nvm_union_declarations_retained_cost(decl,&work,&bytes)==NVM_MAP_COST_LIMIT&&bytes==99);
+        nvm_union_field_declarations_free(decl);CHECK(ra_bytes==retained);
+#define UFC_BAD(field,value) do {uint64_t saved=(field);(field)=(value);work=(NvmMapCopyWork){0,UINT64_MAX,false};bytes=99;CHECK(ufe_plan_retained_cost(p,&work,&bytes)==NVM_MAP_COST_INVALID&&bytes==99);(field)=saved;}while(0)
+        UFC_BAD(p->carrier->snapshot.function_count,257);UFC_BAD(p->carrier->snapshot.string_count,NVM_MAX_STRINGS+1);
+        UFC_BAD(p->carrier->counts.instructions,65537);UFC_BAD(p->site_count,p->site_count+1);
+        UFC_BAD(p->carrier->counts.metadata,p->carrier->counts.metadata+1);
+        UFC_BAD(p->carrier->counts.debug,p->carrier->counts.debug+1);
+        UFC_BAD(p->carrier->counts.sections,p->carrier->counts.sections+1);
+        UFC_BAD(p->carrier->functions[0].signature.arity,1);
+        UFC_BAD(p->carrier->functions[0].signature.local_count,255);
+        UFC_BAD(p->carrier->functions[0].instruction_start,1);
+        UFC_BAD(p->carrier->functions[0].instruction_count,0);
+        UFC_BAD(p->carrier->functions[0].parameter_tags_present,!p->carrier->functions[0].parameter_tags_present);
+        UFC_BAD(p->proof->counts.origins,65);UFC_BAD(p->proof->counts.globals,257);
+        UFC_BAD(p->proof->counts.functions,257);UFC_BAD(p->reserved,1);
+#undef UFC_BAD
+#define UFC_NULL(field) do {void *saved=(field);(field)=NULL;work=(NvmMapCopyWork){0,UINT64_MAX,false};bytes=99;CHECK(ufe_plan_retained_cost(p,&work,&bytes)==NVM_MAP_COST_INVALID&&bytes==99);(field)=saved;}while(0)
+        UFC_NULL(p->sites);UFC_NULL(p->carrier->instructions);UFC_NULL(p->carrier->snapshot.functions);
+        UFC_NULL(p->carrier->snapshot.strings);UFC_NULL(p->carrier->snapshot.string_lengths);
+        UFC_NULL(p->carrier->snapshot.strings[0]);UFC_NULL(p->proof->origins);UFC_NULL(p->proof->results);UFC_NULL(p->proof->stacks);
+#undef UFC_NULL
+        /* A pointer for a zero count cannot become an uncharged allocation. */
+        CHECK(!p->proof->counts.globals&&!p->proof->globals);
+        p->proof->globals=p->proof->results;work=(NvmMapCopyWork){0,UINT64_MAX,false};bytes=99;
+        CHECK(ufe_plan_retained_cost(p,&work,&bytes)==NVM_MAP_COST_INVALID&&bytes==99);p->proof->globals=NULL;
+        work=(NvmMapCopyWork){0,needed,false};bytes=99;calls=ra_calls;
+        CHECK(ufe_plan_retained_cost(p,&work,&bytes)==NVM_MAP_COST_OK&&bytes==retained&&ra_calls==calls);
+        printf("union retained oracle case=%u bytes=%zu peak=%zu cost_work=%llu\n",variant,retained,peak,(unsigned long long)needed);
+        nvm_union_field_execution_free(p);CHECK(!ra_live&&!ra_bytes);
+    }
+}
+
 #endif
 static void execution_original(const char *path) {
     FILE *file=fopen(path,"rb");CHECK(file);CHECK(!fseek(file,0,SEEK_END));
@@ -284,7 +358,7 @@ static void execution_snapshot_limit(void) {
 int main(int argc,char **argv) {
     CHECK(argc==1 || argc==7);
 #ifdef UFP_ALLOC
-    execution_all_opcodes();execution_corruption();execution_setter_effects();execution_storage_edges();execution_allocations();
+    execution_all_opcodes();execution_corruption();execution_setter_effects();execution_storage_edges();execution_allocations();execution_cost_oracles();
     printf("PASS %u union recipe allocation checks\n",checks);return 0;
 #endif
     execution_basic();execution_empty_halt();execution_bad_name();execution_snapshot_limit();

@@ -7224,3 +7224,6 @@ $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_union_field_ex
 test-units: test-union-field-execution
 test-union-field-execution: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_union_field_execution
+
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o $(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/union_field_cost_private.h
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/union_field_cost.inc

@@ -16866,3 +16866,5 @@ I passed aggregate copied recipes842/3234 against six originals (5.472s) and68 w
 I own the next #1001 copied union image design after constructor568ac06c1. This is read-only accounting/interface work: exact retained source cost, independent destination proof and semantic recipe/site comparison. No image/runtime production edit or build is included.
 
 I implement only reviewed union retained-cost helpers and independent allocation oracles after aggregate51ad2e624. Image construction and positive reservation remain a separate checkpoint; source review precedes compilation.
+
+I qualified union retained-cost helpers with842/3504 constructor checks, six independent allocation oracles, strict8, unchanged proof338/393 and six exact legacy budget rows. Receipt: `docs/evidence/union-field-cost-20261022/README.md`. Image construction remains the next separately reviewed checkpoint.

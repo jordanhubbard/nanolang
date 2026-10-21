@@ -125,7 +125,9 @@ static int ufe_corresponds(const NvmRecordArrayExecutionInstruction *r,const Nvm
     default:return 0;
     }
 }
+#include "union_field_cost.inc"
 NvmArrayEligibilityResult nvm_prepare_union_field_execution(const NvmModule *m,NvmUnionFieldExecutionPlan **out) {
+    (void)ufe_plan_retained_cost; /* Retained-cost checkpoint; no image caller yet. */
     NvmArrayEligibilityResult result={NVM_ARRAY_INVALID,0,0,"I require a module and copied union recipe output."};
     if(!m || !out)return result;
     uint64_t bytes=UINT64_C(64)*1024*1024+65536u+sizeof(NvmUnionFieldExecutionPlan)+sizeof(NvmRecordArrayExecutionPlan);
