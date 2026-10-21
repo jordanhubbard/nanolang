@@ -1,0 +1,7 @@
+seed verified VM/native O0/O2; metadata absent; query0
+c-shadow verified VM/native O0/O2; metadata absent; query0
+canonical verified VM/native O0/O2; metadata absent; query0
+canonical-shadow verified VM/native O0/O2; metadata absent; query0
+raw-program verified VM/native O0/O2; metadata absent; query0
+raw-shadow verified VM/native O0/O2; metadata absent; query0
+PASS unchanged union-field baseline six independently produced ordinary/shadow modules

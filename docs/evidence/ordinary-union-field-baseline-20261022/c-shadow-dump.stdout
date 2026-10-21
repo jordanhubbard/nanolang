@@ -1,0 +1,101 @@
+.string "main"
+.string "nano.purity.v1"
+.string "\x00\x00\x00\x00\x00\x00\x00\x00"
+.string "nano.affine.v1"
+.string "nano.effects.v1"
+.string "\x00\x00\x00\x00\x08\x00\x00\x00"
+.string "nano.match.v1"
+.string "\x00\x00\x00\x00\x04\x00\x00\x00\x02\x00\x00\x00\x02\x01\x00\x00I\x00\x00\x00/private/tmp/nanolang-union-field-baseline-20261022/unchanged-direct.nano"
+.string "$shadow_0_main"
+.string "\x01\x00\x00\x00\x00\x00\x00\x00"
+.string "\x01\x00\x00\x00\x08\x00\x00\x00"
+.string "$shadow_entry"
+.string "/private/tmp/nanolang-union-field-baseline-20261022/unchanged-direct.nano"
+.string "nano.local.v1"
+.string "\x00\x00\x00\x00\x03\x00\x00\x00n\x00\x00\x00z\x00\x00\x00n"
+.string "\x00\x00\x00\x00\x02\x00\x00\x00A\x00\x00\x00T\x00\x00\x00p"
+.string "\x00\x00\x00\x00\x01\x00\x00\x00&\x00\x00\x00\x85\x00\x00\x00outer"
+
+.metadata 1 2
+.metadata 3 2
+.metadata 4 5
+.metadata 6 7
+.metadata 1 9
+.metadata 3 9
+.metadata 4 10
+.metadata 13 14
+.metadata 13 15
+.metadata 13 16
+
+.types 1 0 1
+
+.flag debug_info
+
+.debug 0 3 20
+.debug 38 4 2
+.debug 66 4 35
+.debug 111 4 72
+.debug 133 6 15
+
+.entry 2
+
+.function main 0 4 0 int 1
+  PUSH_I64 42
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  AGG_PACK 1 0 0 1
+  AGG_PACK 0 0 0 1
+  STORE_LOCAL 1
+  LOAD_LOCAL 1
+  AGG_GET 0
+  DUP
+  AGG_TAG
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L0
+  DUP
+  STORE_LOCAL 2
+  POP
+  LOAD_LOCAL 2
+  AGG_GET 0
+  PUSH_I64 42
+  I64_SUB
+  RET
+  PUSH_VOID
+  JMP L1
+L0:
+  DUP
+  AGG_TAG
+  PUSH_I64 1
+  EQ
+  JMP_FALSE L2
+  DUP
+  STORE_LOCAL 3
+  POP
+  PUSH_I64 1
+  RET
+  PUSH_VOID
+  JMP L1
+L2:
+  POP
+  PUSH_BOOL 0
+  ASSERT
+  HALT
+L1:
+  POP
+.end
+
+.function $shadow_0_main 0 0 0 void 0
+  CALL 0
+  PUSH_I64 0
+  I64_EQ
+  ASSERT
+  RET
+.end
+
+.function $shadow_entry 0 0 0 int 1
+  CALL 1
+  PUSH_I64 0
+  RET
+.end
+

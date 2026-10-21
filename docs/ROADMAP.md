@@ -16826,3 +16826,7 @@ I completed the reviewed paired STRING-value publication slice: direct C SS152/S
 ### 2026-10-21: aggregate STRING map integration
 
 I integrated exact STRING map heap/consumer/publication ancestry through23fb20084, wired both permanent consumer targets into retirement qualification, and passed the scoped aggregate C publication, ten-method paired source, heap/copied consumer and68 control gates. Receipt: `docs/evidence/map-string-aggregate-20261021/README.md`. Fresh raw/platform acceptance and remaining required authority profiles remain open; no full-bootstrap claim.
+
+I own the next finite [#1001](https://github.com/jordanhubbard/nanolang/issues/1001) ordinary union-field baseline/design on aggregate f53539b9c, branch design/5.1-ordinary-union-fields. I preserve the qualified STRING-map products/cache and make no admission or publisher edits in this phase.
+- [x] I measure the unchanged retained Outer.boxed:Box<int> source through current C ordinary/original-shadow and qualified C-hosted checked/raw producers, retaining exact source/provider pins, authority/query boundaries, verifier/VM and native results.
+- [ ] I document exact nominal/variant identity, historical payload/field constraints, copied recipes/lifetime/native eligibility and old-budget preservation before any consumer implementation.

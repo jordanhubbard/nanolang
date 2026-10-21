@@ -1,0 +1,7 @@
+#!/Users/jkh/.local/bin/python3
+import os,sys,json,hashlib
+from pathlib import Path
+args=sys.argv[1:];assert len(args)==2 and args[0]=='--check-shadows'
+out=Path(os.environ['CAPTURE_MODULE']);assert not out.exists()
+data=Path(args[1]).read_bytes();out.write_bytes(data);out.with_suffix('.capture.json').write_text(json.dumps(dict(argv=args,sha256=hashlib.sha256(data).hexdigest(),vm=os.environ['REAL_VM'])))
+os.execv(os.environ['REAL_VM'],[os.environ['REAL_VM'],*args])
