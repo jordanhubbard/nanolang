@@ -16448,3 +16448,5 @@ I retain [private copied-image qualification](evidence/map-copied-image-20261021
 ### I audit closed map runtime integration (2026-10-21)
 
 - [x] I own the contract-only next #1001 checkpoint above `75bf0ef55`: [runtime integration design](NANOISA_MAP_RUNTIME_INTEGRATION_DESIGN.md). I distinguish private image ownership from call-local public context lifetime, exact probe topology and insertion headroom from tag checks, and a concrete private DAG map teardown prerequisite. Runtime/admission/native/publisher changes remain unapproved; numeric runtime preparation accounting must precede implementation.
+
+- #1001 map runtime design refinement: owned_calls retains contract-only ownership; explicit chained-intern rehash charges, old decoder schedule reuse, separate context/layout/frame accessors and actual map/record retain edges recorded. Original grow/release accounting prerequisite retained; runtime/public/native/publisher admission remains held for review.
