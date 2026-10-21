@@ -16422,3 +16422,9 @@ I refine that design into separate mutable analysis and immutable copied executi
 - [x] I own the first reviewed consumer slice from `05caaa0f5`: map-aware private structure/origin proof and immutable copied context/query controls only. I preserve public VM/native/transport/publisher refusal, old object sizes and old budgets, the shared64-origin namespace, and charged declaration overlap. I send a source checkpoint before narrow compilation. Runtime work-budget semantics and admission remain outside this slice.
 
 I retain [private map proof qualification](evidence/map-origin-proof-20261021/README.md): final linked569/instrumented1164 checks,45 allocation prefixes, four unchanged original modules privately annotated, and explicit public verifier/native/serialization refusal. Old origin/global neighbors, both strict compilers and all six old budget receipts pass unchanged. Runtime execution, publishers and full #1001 remain open.
+
+### 2026-10-21: I integrate private map-origin proof
+
+I integrate 854037151 by ancestry and wire `test-record-map-origins` beside declaration qualification in the platform matrix. I will run the actual aggregate Make target and workflow controls before pushing. Public verification, native emission and serialization still refuse this profile; execution-plan/runtime/publisher work remains separate.
+
+I completed the aggregate map-proof gate with all four retained original modules (569/1164 checks, 45 allocation prefixes, 4.948 seconds) and 28 workflow/checkpoint/container controls. I retain the integration receipt in `docs/evidence/map-origin-aggregate-20261021/`. Public execution remains refused; current-head hosted qualification is pending.
