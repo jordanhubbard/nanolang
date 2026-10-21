@@ -7208,3 +7208,12 @@ test-union-field-declarations: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	DECLARATION_CC="$(CC)" DECLARATION_CFLAGS="$(CFLAGS)" DECLARATION_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" DECLARATION_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_union_field_declarations
 
 test-units: test-union-field-declarations
+
+# Private descriptive union proof; no public execution enrollment.
+$(OBJ_DIR)/nanoisa/verifier.o: $(NANOISA_DIR)/record_union_structure_private.h $(NANOISA_DIR)/record_union_structure.inc $(NANOISA_DIR)/ownership_union_fields_private.h
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/record_union_structure_private.h $(NANOISA_DIR)/managed_union_field_proof_private.h $(NANOISA_DIR)/union_field_analysis.inc $(NANOISA_DIR)/ownership_union_fields_private.h
+
+.PHONY: test-union-field-proof
+test-units: test-union-field-proof
+test-union-field-proof: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_union_field_proof

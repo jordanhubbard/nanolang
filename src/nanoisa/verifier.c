@@ -983,6 +983,7 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
 }
 
 #include "record_array_structure.inc"
+#include "record_union_structure.inc"
 
 NvmVerifyResult nvm_verify_affine_function(const NvmModule *mod, uint32_t fn_idx) {
     NvmVerifyResult structure=verify_structure(mod,true,NULL);

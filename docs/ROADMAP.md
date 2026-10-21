@@ -16836,3 +16836,12 @@ I continue #1001 on `design/5.1-ordinary-union-fields` with the reviewed declara
 ### 2026-10-21: copied union declaration aggregate checkpoint
 
 I integrated2025a38dd plus the separately reproduced stale map-boundary test correction, added the permanent declaration retirement target, and passed current aggregate union/map declaration and68 control checks. Receipt: `docs/evidence/union-field-declarations-aggregate-20261021/README.md`. This is descriptive metadata only; union execution/publication and exact platform acceptance remain open.
+
+I own the next #1001 proof-only union-field slice following `2025a38dd`: separate opt-in context and immutable copied proof, conservative variant-origin safety and explicit deferred-instruction completeness. Recipe/runtime/public/publisher enrollment remains closed; source review precedes builds.
+
+- [x] I implement the reviewed private typed union structure and opt-in historical proof with atomic copied outputs, leaving old analysis layouts and public admission unchanged.
+- [x] I review frozen source before bounded proof tests, including blocked reachable instructions, forward calls/tails, allocation failures and old budgets.
+
+I found the actual unchanged union match emits a terminal HALT failure arm. I retain the first proof refusal and model HALT only in the opt-in union proof, with no successor/result/global-return summary; old opcode predicates remain unchanged. Direct HALT-only blocked callees and normal-return/HALT branches are required proof controls, not execution qualification.
+
+I completed the proof-only union gate: 338 linked checks across six retained ordinary/shadow originals, 393 allocation checks covering 37 positions in both denial modes, exact remaining-analysis caps, old array/map neighbors, Clang/GCC strict checks and six byte-identical legacy resource rows. Receipt: `docs/evidence/union-field-proof-20261022/README.md`. Descriptive transport is preserved while public execution refuses; None-match and historical field-alias precision remain explicit conservative boundaries. No recipe/runtime/native/publisher enrollment follows.
