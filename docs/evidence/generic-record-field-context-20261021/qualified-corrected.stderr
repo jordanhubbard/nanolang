@@ -1,0 +1,21 @@
+test_direct_field_match_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_executes) ... ok
+test_direct_field_match_expression_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_expression_executes) ... ok
+test_distinct_instances_execute (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_distinct_instances_execute) ... ok
+test_empty_inline_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_empty_inline_field_executes) ... ok
+test_field_only_instance_is_defined (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_field_only_instance_is_defined) ... ok
+test_forward_union_declaration_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_forward_union_declaration_executes) ... ok
+test_global_resource_collection_remains_rejected (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_global_resource_collection_remains_rejected) ... ok
+test_global_resource_field_remains_rejected (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_global_resource_field_remains_rejected) ... ok
+test_imported_field_layout_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_imported_field_layout_executes) ... ok
+test_nested_generic_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_generic_field_executes) ... ok
+test_nested_record_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_record_executes) ... ok
+test_nonempty_field_payload_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nonempty_field_payload_executes) ... ok
+test_two_argument_result_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_two_argument_result_field_executes) ... ok
+test_wrong_concrete_field_argument_rejected (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_wrong_concrete_field_argument_rejected) ... ok
+test_wrong_record_constructor_context_rejected (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_wrong_record_constructor_context_rejected) ... ok
+test_wrong_union_field_declaration_rejected (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_wrong_union_field_declaration_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 14.789s
+
+OK

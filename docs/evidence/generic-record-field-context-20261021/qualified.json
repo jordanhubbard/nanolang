@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/Users/jkh/.local/bin/python3",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_native_generic_record_fields"
+  ],
+  "exit": 1,
+  "seconds": 16.581385375000536,
+  "environment": {
+    "NANOLANG_AFFINE_COMPILER_ROOT": "/Users/jkh/Src/nanolang-51-platform-qualification/bin",
+    "NANOLANG_AFFINE_COMPILERS": "nanoc_c,nanoc_generic_record_qualified",
+    "NANOLANG_ROOT": "/Users/jkh/Src/nanolang-51-harness"
+  }
+}

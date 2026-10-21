@@ -16466,3 +16466,9 @@ I retain [private copied-image qualification](evidence/map-copied-image-20261021
 I integrate `75bf0ef55` preserving both roadmap histories and the sanitizer marker correction. I add the private image target to platform qualification and run its actual aggregate Make gate against four retained originals before pushing. Independent image construction grants no runtime/public/native admission.
 
 I completed aggregate independent-image qualification:2799/10743 checks,61 allocation prefixes,four retained originals and61 workflow/checkpoint/container/schema controls. Receipt:`docs/evidence/map-image-aggregate-20261021/`. Runtime/native/publisher integration and exact-current hosted gates remain open.
+
+### I diagnose hosted generic record-field lowering (2026-10-21)
+
+- [x] I own the bounded #976 regression from compiler-contract run39571228525/job119125624327: twenty fresh Stage1/Stage2 cases refuse declared generic record-field types while seed cases pass. I first retain exact current producer/source baselines and trace Nano lowering metadata; I do not broaden type/admission checks or rebuild bootstrap. Map runtime work remains design-only on8343bc88c.
+
+I retain [generic record-field context qualification](evidence/generic-record-field-context-20261021/README.md): unchanged failure reproduced through both installed stages/current C-hosted compiler, narrow contextual union lowering, fresh isolated compiler132.907s and32 actual source/native methods green. Fresh-stage and exact hosted retries remain integration gates.
