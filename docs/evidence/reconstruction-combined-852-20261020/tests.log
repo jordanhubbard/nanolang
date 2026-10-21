@@ -1,0 +1,80 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-37pey632
+test_actual_local_limit (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_actual_local_limit) ... ok
+test_independently_selected_consistency_shadow (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_independently_selected_consistency_shadow) ... ok
+test_isolated_second_call_assertion_failure (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_isolated_second_call_assertion_failure) ... ok
+test_order_and_first_result_snapshot (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_order_and_first_result_snapshot) ... ok
+test_pretest_ir_and_unchanged_one_call_route (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_pretest_ir_and_unchanged_one_call_route) ... ok
+test_third_call_and_split_region_refuse (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_third_call_and_split_region_refuse) ... ok
+test_zero_entered_and_final_false_effects (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_zero_entered_and_final_false_effects) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-jwq3cvdp
+test_actual128_and_estimated129_atomic_refusal (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_actual128_and_estimated129_atomic_refusal) ... ok
+test_actual_zero_entered_final_false (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_actual_zero_entered_final_false) ... ok
+test_false_initial_shared_bool_refuses_atomically (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_false_initial_shared_bool_refuses_atomically) ... ok
+test_immutable_before_call_and_selected_shadow (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_immutable_before_call_and_selected_shadow) ... ok
+test_later_body_helper_assertion_stays_runtime_failure (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_later_body_helper_assertion_stays_runtime_failure) ... ok
+test_no_body_or_after_loop_or_prefix_assertion_witness (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_no_body_or_after_loop_or_prefix_assertion_witness) ... ok
+test_no_call_in_first_pretest_cannot_reach_later_call (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_no_call_in_first_pretest_cannot_reach_later_call) ... ok
+test_unchanged_original_anchor (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_unchanged_original_anchor) ... ok
+I retain FLOAT evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-b60p5na5
+test_actual128_estimated129_atomic_boundary (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_actual128_estimated129_atomic_boundary) ... ok
+test_cached_side_entry_and_zero_trip_initialization_refuse (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_cached_side_entry_and_zero_trip_initialization_refuse) ... ok
+test_consuming_call_origin_defensive_refusals (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_consuming_call_origin_defensive_refusals) ... ok
+test_immutable_origins_and_no_borrowed_witness (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_immutable_origins_and_no_borrowed_witness) ... ok
+test_later_assertion_is_not_elided (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_later_assertion_is_not_elided) ... ok
+test_parameter_origin_survives_every_break_and_backedge (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_parameter_origin_survives_every_break_and_backedge) ... ok
+test_unchanged_original_and_independent_shadow (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_unchanged_original_and_independent_shadow) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5jdwn86q
+test_actual128_estimated129_preserves_prior_output (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_actual128_estimated129_preserves_prior_output) ... ok
+test_canonical_and_advisory_independence (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_canonical_and_advisory_independence) ... ok
+test_empty_nominal_leak_and_double_move_refuse (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_empty_nominal_leak_and_double_move_refuse) ... ok
+test_exact_profile_and_malformed_parameter_guards (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_exact_profile_and_malformed_parameter_guards) ... ok
+test_original_and_generated_shadows (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_original_and_generated_shadows) ... I retain empty-local selected-shadow counts [18, 12]
+I retain empty-local selected-shadow counts [18, 12]
+I retain empty-local selected-shadow counts [18, 12]
+ok
+test_unchanged_and_swapped_layout_order (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_unchanged_and_swapped_layout_order) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-qgbl_d9h
+test_nested_owner_results (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_nested_owner_results) ... I retain wrapper counts {"original": "nested_owner_result_source.nano_virt.nvm", "producer": "nano_virt", "original_locals": [3, 2, 9, 1, 13], "estimated_original_locals": [18, 4, 30, 3, 49], "actual_locals": [12, 6, 4, 30, 3, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "nested_owner_result_source.nano_virt.nvm", "producer": "nanoc_stage1", "original_locals": [3, 2, 9, 1, 13], "estimated_original_locals": [18, 4, 30, 3, 49], "actual_locals": [12, 6, 4, 30, 3, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "nested_owner_result_source.nano_virt.nvm", "producer": "nanoc_stage2", "original_locals": [3, 2, 9, 1, 13], "estimated_original_locals": [18, 4, 30, 3, 49], "actual_locals": [12, 6, 4, 30, 3, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "nested_owner_result_source.nanoc_stage1.nvm", "producer": "nano_virt", "original_locals": [3, 2, 9, 1, 13], "estimated_original_locals": [18, 4, 30, 3, 49], "actual_locals": [12, 6, 4, 30, 3, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "nested_owner_result_source.nanoc_stage1.nvm", "producer": "nanoc_stage1", "original_locals": [3, 2, 9, 1, 13], "estimated_original_locals": [18, 4, 30, 3, 49], "actual_locals": [12, 6, 4, 30, 3, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "nested_owner_result_source.nanoc_stage1.nvm", "producer": "nanoc_stage2", "original_locals": [3, 2, 9, 1, 13], "estimated_original_locals": [18, 4, 30, 3, 49], "actual_locals": [12, 6, 4, 30, 3, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "nested_owner_result_source.nanoc_stage2.nvm", "producer": "nano_virt", "original_locals": [3, 2, 9, 1, 13], "estimated_original_locals": [18, 4, 30, 3, 49], "actual_locals": [12, 6, 4, 30, 3, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "nested_owner_result_source.nanoc_stage2.nvm", "producer": "nanoc_stage1", "original_locals": [3, 2, 9, 1, 13], "estimated_original_locals": [18, 4, 30, 3, 49], "actual_locals": [12, 6, 4, 30, 3, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "nested_owner_result_source.nanoc_stage2.nvm", "producer": "nanoc_stage2", "original_locals": [3, 2, 9, 1, 13], "estimated_original_locals": [18, 4, 30, 3, 49], "actual_locals": [12, 6, 4, 30, 3, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "nested_owner_result_source.original-shadow.nvm", "producer": "nano_virt", "original_locals": [0, 2, 9, 1, 13, 3], "estimated_original_locals": [2, 4, 30, 3, 49, 18], "actual_locals": [2, 6, 4, 30, 3, 43, 12], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "nested_owner_result_source.original-shadow.nvm", "producer": "nanoc_stage1", "original_locals": [0, 2, 9, 1, 13, 3], "estimated_original_locals": [2, 4, 30, 3, 49, 18], "actual_locals": [2, 6, 4, 30, 3, 43, 12], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "nested_owner_result_source.original-shadow.nvm", "producer": "nanoc_stage2", "original_locals": [0, 2, 9, 1, 13, 3], "estimated_original_locals": [2, 4, 30, 3, 49, 18], "actual_locals": [2, 6, 4, 30, 3, 43, 12], "expected_stdout": "ABAB"}
+ok
+test_temporary_arguments (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_temporary_arguments) ... I retain wrapper counts {"original": "temporary_owner_fixture.nano_virt.nvm", "producer": "nano_virt", "original_locals": [3, 2, 3, 1, 8], "estimated_original_locals": [20, 4, 8, 3, 33], "actual_locals": [14, 6, 4, 8, 3, 27], "expected_stdout": "ABCABCABC"}
+I retain wrapper counts {"original": "temporary_owner_fixture.nano_virt.nvm", "producer": "nanoc_stage1", "original_locals": [3, 2, 3, 1, 8], "estimated_original_locals": [20, 4, 8, 3, 33], "actual_locals": [14, 6, 4, 8, 3, 27], "expected_stdout": "ABCABCABC"}
+I retain wrapper counts {"original": "temporary_owner_fixture.nano_virt.nvm", "producer": "nanoc_stage2", "original_locals": [3, 2, 3, 1, 8], "estimated_original_locals": [20, 4, 8, 3, 33], "actual_locals": [14, 6, 4, 8, 3, 27], "expected_stdout": "ABCABCABC"}
+I retain wrapper counts {"original": "temporary_owner_fixture.nanoc_stage1.nvm", "producer": "nano_virt", "original_locals": [3, 2, 3, 1, 8], "estimated_original_locals": [20, 4, 8, 3, 33], "actual_locals": [14, 6, 4, 8, 3, 27], "expected_stdout": "ABCABCABC"}
+I retain wrapper counts {"original": "temporary_owner_fixture.nanoc_stage1.nvm", "producer": "nanoc_stage1", "original_locals": [3, 2, 3, 1, 8], "estimated_original_locals": [20, 4, 8, 3, 33], "actual_locals": [14, 6, 4, 8, 3, 27], "expected_stdout": "ABCABCABC"}
+I retain wrapper counts {"original": "temporary_owner_fixture.nanoc_stage1.nvm", "producer": "nanoc_stage2", "original_locals": [3, 2, 3, 1, 8], "estimated_original_locals": [20, 4, 8, 3, 33], "actual_locals": [14, 6, 4, 8, 3, 27], "expected_stdout": "ABCABCABC"}
+I retain wrapper counts {"original": "temporary_owner_fixture.nanoc_stage2.nvm", "producer": "nano_virt", "original_locals": [3, 2, 3, 1, 8], "estimated_original_locals": [20, 4, 8, 3, 33], "actual_locals": [14, 6, 4, 8, 3, 27], "expected_stdout": "ABCABCABC"}
+I retain wrapper counts {"original": "temporary_owner_fixture.nanoc_stage2.nvm", "producer": "nanoc_stage1", "original_locals": [3, 2, 3, 1, 8], "estimated_original_locals": [20, 4, 8, 3, 33], "actual_locals": [14, 6, 4, 8, 3, 27], "expected_stdout": "ABCABCABC"}
+I retain wrapper counts {"original": "temporary_owner_fixture.nanoc_stage2.nvm", "producer": "nanoc_stage2", "original_locals": [3, 2, 3, 1, 8], "estimated_original_locals": [20, 4, 8, 3, 33], "actual_locals": [14, 6, 4, 8, 3, 27], "expected_stdout": "ABCABCABC"}
+I retain wrapper counts {"original": "temporary_owner_fixture.original-shadow.nvm", "producer": "nano_virt", "original_locals": [0, 2, 3, 1, 8, 3], "estimated_original_locals": [2, 4, 8, 3, 33, 20], "actual_locals": [2, 6, 4, 8, 3, 27, 14], "expected_stdout": "ABCABCABC"}
+I retain wrapper counts {"original": "temporary_owner_fixture.original-shadow.nvm", "producer": "nanoc_stage1", "original_locals": [0, 2, 3, 1, 8, 3], "estimated_original_locals": [2, 4, 8, 3, 33, 20], "actual_locals": [2, 6, 4, 8, 3, 27, 14], "expected_stdout": "ABCABCABC"}
+I retain wrapper counts {"original": "temporary_owner_fixture.original-shadow.nvm", "producer": "nanoc_stage2", "original_locals": [0, 2, 3, 1, 8, 3], "estimated_original_locals": [2, 4, 8, 3, 33, 20], "actual_locals": [2, 6, 4, 8, 3, 27, 14], "expected_stdout": "ABCABCABC"}
+ok
+test_transitive_wrappers (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_transitive_wrappers) ... I retain wrapper counts {"original": "transitive_wrapper_fixture.nano_virt.nvm", "producer": "nano_virt", "original_locals": [17, 2, 13], "estimated_original_locals": [64, 4, 49], "actual_locals": [58, 6, 4, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "transitive_wrapper_fixture.nano_virt.nvm", "producer": "nanoc_stage1", "original_locals": [17, 2, 13], "estimated_original_locals": [64, 4, 49], "actual_locals": [58, 6, 4, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "transitive_wrapper_fixture.nano_virt.nvm", "producer": "nanoc_stage2", "original_locals": [17, 2, 13], "estimated_original_locals": [64, 4, 49], "actual_locals": [58, 6, 4, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "transitive_wrapper_fixture.nanoc_stage1.nvm", "producer": "nano_virt", "original_locals": [17, 2, 13], "estimated_original_locals": [64, 4, 49], "actual_locals": [58, 6, 4, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "transitive_wrapper_fixture.nanoc_stage1.nvm", "producer": "nanoc_stage1", "original_locals": [17, 2, 13], "estimated_original_locals": [64, 4, 49], "actual_locals": [58, 6, 4, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "transitive_wrapper_fixture.nanoc_stage1.nvm", "producer": "nanoc_stage2", "original_locals": [17, 2, 13], "estimated_original_locals": [64, 4, 49], "actual_locals": [58, 6, 4, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "transitive_wrapper_fixture.nanoc_stage2.nvm", "producer": "nano_virt", "original_locals": [17, 2, 13], "estimated_original_locals": [64, 4, 49], "actual_locals": [58, 6, 4, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "transitive_wrapper_fixture.nanoc_stage2.nvm", "producer": "nanoc_stage1", "original_locals": [17, 2, 13], "estimated_original_locals": [64, 4, 49], "actual_locals": [58, 6, 4, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "transitive_wrapper_fixture.nanoc_stage2.nvm", "producer": "nanoc_stage2", "original_locals": [17, 2, 13], "estimated_original_locals": [64, 4, 49], "actual_locals": [58, 6, 4, 43], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "transitive_wrapper_fixture.original-shadow.nvm", "producer": "nano_virt", "original_locals": [0, 2, 13, 17], "estimated_original_locals": [2, 4, 49, 64], "actual_locals": [2, 6, 4, 43, 58], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "transitive_wrapper_fixture.original-shadow.nvm", "producer": "nanoc_stage1", "original_locals": [0, 2, 13, 17], "estimated_original_locals": [2, 4, 49, 64], "actual_locals": [2, 6, 4, 43, 58], "expected_stdout": "ABAB"}
+I retain wrapper counts {"original": "transitive_wrapper_fixture.original-shadow.nvm", "producer": "nanoc_stage2", "original_locals": [0, 2, 13, 17], "estimated_original_locals": [2, 4, 49, 64], "actual_locals": [2, 6, 4, 43, 58], "expected_stdout": "ABAB"}
+ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 371.344s
+
+OK
