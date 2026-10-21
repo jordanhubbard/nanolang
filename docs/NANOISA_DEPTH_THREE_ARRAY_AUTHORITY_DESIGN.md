@@ -25,3 +25,9 @@ Both publishers must emit exact existing wire ARRAY rows with prior referents. N
 Acceptance includes unchanged BOOL source through seed/fresh stages, exact three-level leaf cases and mixed separate graphs, shared middle/leaf aliases, replacement/pop/slice with detached aliases, empty levels, calls/results/globals/acyclic tails, U8 conversion and exact FLOAT/STRING lifetime cases. Negative controls include wrong/deeper/cyclic referents, mixed leaf/depth writes, forged copied/decoded descriptors, retain saturation, and exact charged work/byte/OOM refusal with unchanged outputs and independent recovery. Forced-GC native O0/O2 sanitizer products and the actual maximum release chain are required.
 
 I preserve all original failures and distinguish C-hosted source evidence from fresh raw generations. Full #1001 breadth and exact Linux/macOS qualification remain open. This document does not authorize admission by itself; the representation and interface checkpoint precedes production edits.
+
+## I retain independent review refinements
+
+Bit6 is physical TAG_BSTRING, but required_elements is a separate normalized namespace; existing normalized bits8–11 already overlap physical tags. I must never merge these requirements into Value.tags. Both physical ARRAY conversions use exact depth-aware decoding, and malformed combined masks refuse explicitly. Unconstrained origins also need bounded acyclic shape validation; an absent field requirement cannot conceal cycles or heterogeneous depths.
+
+The private observation API retains its258-selection cap. A full256-record plus3-array path needs259 selections; the maximum release-chain test must check teardown without claiming that the observation API admits that path. I preserve the observation limit and test its refusal independently. No limit increase follows from release-stack capacity.
