@@ -1,0 +1,13 @@
+{
+  "Makefile.gnu": "e2dc3491d7fc64f7b1e9bb1b4fb93ed9d7b458954b662abe8564e2ff9da64907",
+  "src/nanoisa/managed_array_shapes.c": "bcf946505e790f0463f96db14c8e17febd606add23197651f4839f30d6f50607",
+  "src/nanoisa/managed_union_field_execution.inc": "761700d59a8bbda547cece308232214ed95a138ecfdf2e40b2c13e5b23667d2b",
+  "src/nanoisa/union_field_snapshot.inc": "ff5ea53314bce6a8c72df6a463410b6e056d5c00eeb047f2ec2bd624d1222ceb",
+  "src/nanoisa/union_field_snapshot_private.h": "b68dba43cb6375df1d089db3550b076f69679a5eb29aef2fcc860c76bca44740",
+  "src/nanoisa/union_field_cost.inc": "5c4772e89777e6d6a01491b050ea96edd151209729eb3de5fe112f2719b99787",
+  "src/nanoisa/union_field_cost_private.h": "387a1ec7e29ffe7aa63e5302639b6f5aab937a1838d59c97ae499f36203599a8",
+  "src/nanoisa/ownership_union_fields_private.inc": "34378f6b2480e893d1c3b88f2643d786e4faa703b9188b2f3a860b5ad916990d",
+  "tests/nanoisa/test_union_field_execution.c": "caeedae524fc098dd8b98690838dce5b6136842e31becfac055d443c088cd4cf",
+  "tests/nanoisa/test_union_field_image.c": "1ca82787d40d11ca99b7d60e0f40d557d1ea4eee3178f53377fb485eddc3fe39",
+  "tests/test_union_field_image.py": "10cca3760a90f6b270497bbe22bdc9140a96d5d98230733c9732825d1c7e06df"
+}

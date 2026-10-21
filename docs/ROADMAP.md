@@ -16862,3 +16862,13 @@ I completed union recipe checkpoint1:842 linked/3234 allocation checks across si
 I integrate private recipe checkpoint 568ac06c1 by ancestry, add its explicit retirement target, and qualify the aggregate against all six retained originals plus workflow controls before pushing. These copied recipes do not enable execution; image, VM, native and publisher qualification remain separate.
 
 I passed aggregate copied recipes842/3234 against six originals (5.472s) and68 workflow/checkpoint controls (2.068s). Receipt: `docs/evidence/union-field-recipes-aggregate-20261021/README.md`. No union execution admission follows.
+
+I own the next #1001 copied union image design after constructor568ac06c1. This is read-only accounting/interface work: exact retained source cost, independent destination proof and semantic recipe/site comparison. No image/runtime production edit or build is included.
+
+I implement only reviewed union retained-cost helpers and independent allocation oracles after aggregate51ad2e624. Image construction and positive reservation remain a separate checkpoint; source review precedes compilation.
+
+I qualified union retained-cost helpers with842/3504 constructor checks, six independent allocation oracles, strict8, unchanged proof338/393 and six exact legacy budget rows. Receipt: `docs/evidence/union-field-cost-20261022/README.md`. Image construction remains the next separately reviewed checkpoint.
+
+I implement the reviewed union image source checkpoint after helper309f42d13: positive source-overlap reservation, independent snapshot reproof and strict semantic correspondence, with copied queries only. Source review precedes image compilation; no executor/native/public/publisher enrollment.
+
+I qualified independent union images with2032/6384 checks,55 allocation positions in both denial modes, actual source-overlap accounting, real image LIMIT/recovery, separate exact positive-constructor caps, strict8+4 and unchanged constructor/proof/array/map neighbors plus six exact legacy budget rows. Receipt: `docs/evidence/union-field-image-20261022/README.md`. Public/native execution and publisher enrollment remain separate.

@@ -1,0 +1,4 @@
+tests/nanoisa/test_union_field_image.c:98:26: error: unused parameter 'argv' [-Werror,-Wunused-parameter]
+   98 | int main(int argc,char **argv) {
+      |                          ^
+1 error generated.
