@@ -16692,3 +16692,5 @@ I completed the actual aggregate public target:3methods41.869s,1,604checks perdi
 ### #1001 native concat-key prerequisite ownership (2026-10-22)
 
 owned_calls owns contract-only native concat-key compatibility planning on design/5.1-map-native-concat, following public consumer activation a78ac369b and test-closure correction d75bcbe49. Baseline compilation waits for aggregate slot release. No native target or publisher edit is authorized; see [concat contract](NANOISA_MAP_NATIVE_CONCAT_DESIGN.md).
+
+Concat baseline on24feed248 passes all8 rawproducer cases/32sanitizednative runs and837 explicitannotatedpublic checks, retaining all4 selectednative concat refusals. Current source variant preserves every assertion; raw8provider/tool pins unchanged. Exact STR_CONCAT-only native target exception is now reviewed, with helper/local/return/tail/replacement lifetime and failure qualification required before completion. No publisher/runtime rewrite. Evidence under docs/evidence/map-native-concat-20261022.
