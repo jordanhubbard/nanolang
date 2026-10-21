@@ -14,3 +14,8 @@ I retain the actual [image build](image-build.log), [container smoke](container-
 I also pass all 33 existing CI workflow/change/shadow/checkpoint/container methods after adapting four obsolete workflow assumptions. The [initial failure](workflow-initial-failure.log) retained host-package and first-download assumptions; the [corrected gate](workflow-controls.log) asserts pinned image dependencies and exact checkpoint artifact selection without weakening continuation order or budgets.
 
 I integrate both component commits at aggregate `2152a0380` and pass all 33 workflow, changed-file, timeout, checkpoint and container controls together. I preserve the exact checkpoint download selectors and image dependency assertions. Full hosted amd64 sanitizer/coverage continuation remains pending; local ARM64 smoke is not substituted for it.
+
+
+## I retain the hosted coverage producer milestone
+
+Component run39544892945/job119042711803 succeeds inside the exact verified linux/amd64 image. Both raw generations are byte-identical, native/install checks complete, and the complete checkpoint packages/uploads as artifact12323204442 (1,879,084,924bytes, upload zip SHA256 afa226ef5b914bf636baec7d084d3190fe8d5bfc8068bdbed2f499bc94735853). `hosted-amd64-coverage-producer.log` retains the actual image/archive identities and commands. This is component-head evidence, not final aggregate acceptance. Coverage continuation119061472864 remains queued at this checkpoint; sanitizer Stage1 remains in progress.

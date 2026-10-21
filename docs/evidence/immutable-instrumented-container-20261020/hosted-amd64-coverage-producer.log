@@ -1,0 +1,1001 @@
+﻿2026-10-21T04:57:42.3914922Z Current runner version: '2.338.0'
+2026-10-21T04:57:42.3930932Z ##[group]Runner Image Provisioner
+2026-10-21T04:57:42.3931600Z Hosted Compute Agent
+2026-10-21T04:57:42.3932051Z Version: 20261015.610
+2026-10-21T04:57:42.3932852Z Commit: 267fdb4e8bbec4ab5ea31367f3a00d5c480c7656
+2026-10-21T04:57:42.3933414Z Build Date: 2026-10-14T17:06:54Z
+2026-10-21T04:57:42.3933879Z Worker ID: {6ba038ae-1de9-4544-874f-d49e13b6d2d6}
+2026-10-21T04:57:42.3934451Z Region: centralus
+2026-10-21T04:57:42.3934877Z Cloud: Azure
+2026-10-21T04:57:42.3935235Z ##[endgroup]
+2026-10-21T04:57:42.3936245Z ##[group]Operating System
+2026-10-21T04:57:42.3936659Z Ubuntu
+2026-10-21T04:57:42.3937022Z 24.04.5
+2026-10-21T04:57:42.3937385Z LTS
+2026-10-21T04:57:42.3937742Z ##[endgroup]
+2026-10-21T04:57:42.3938169Z ##[group]Runner Image
+2026-10-21T04:57:42.3938572Z Image: ubuntu-24.04
+2026-10-21T04:57:42.3939243Z Version: 20261018.339.1
+2026-10-21T04:57:42.3940186Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261018.339/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-21T04:57:42.3941267Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261018.339
+2026-10-21T04:57:42.3941913Z ##[endgroup]
+2026-10-21T04:57:42.3942718Z ##[group]GITHUB_TOKEN Permissions
+2026-10-21T04:57:42.3944249Z Contents: read
+2026-10-21T04:57:42.3944663Z Metadata: read
+2026-10-21T04:57:42.3945059Z ##[endgroup]
+2026-10-21T04:57:42.3946789Z Secret source: Actions
+2026-10-21T04:57:42.3947453Z Cache mode: write
+2026-10-21T04:57:42.3947934Z Prepare workflow directory
+2026-10-21T04:57:42.4340321Z Prepare all required actions
+2026-10-21T04:57:42.4376378Z Getting action download info
+2026-10-21T04:57:42.6792212Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-21T04:57:42.8135082Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-10-21T04:57:43.2922948Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-21T04:57:43.5625582Z Complete job name: Coverage compiler generations
+2026-10-21T04:57:43.6123453Z ##[group]Run actions/checkout@v4
+2026-10-21T04:57:43.6124102Z with:
+2026-10-21T04:57:43.6124596Z   repository: jordanhubbard/nanolang
+2026-10-21T04:57:43.6127869Z   token: ***
+2026-10-21T04:57:43.6128287Z   ssh-strict: true
+2026-10-21T04:57:43.6128893Z   ssh-user: git
+2026-10-21T04:57:43.6129331Z   persist-credentials: true
+2026-10-21T04:57:43.6129783Z   clean: true
+2026-10-21T04:57:43.6130220Z   sparse-checkout-cone-mode: true
+2026-10-21T04:57:43.6130701Z   fetch-depth: 1
+2026-10-21T04:57:43.6131101Z   fetch-tags: false
+2026-10-21T04:57:43.6131550Z   show-progress: true
+2026-10-21T04:57:43.6131983Z   lfs: false
+2026-10-21T04:57:43.6132391Z   submodules: false
+2026-10-21T04:57:43.6132809Z   set-safe-directory: true
+2026-10-21T04:57:43.6133293Z   allow-unsafe-pr-checkout: false
+2026-10-21T04:57:43.6133897Z env:
+2026-10-21T04:57:43.6134364Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T04:57:43.6135019Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T04:57:43.6135552Z   NANO_SHADOW_TRACE: 1
+2026-10-21T04:57:43.6136232Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T04:57:43.6137133Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T04:57:43.6137873Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T04:57:43.6138378Z   BOOTSTRAP_NANOISA_TIMEOUT: 5400
+2026-10-21T04:57:43.6139237Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage
+2026-10-21T04:57:43.6140037Z   LDFLAGS: -lm -lcrypto -fprofile-arcs -ftest-coverage
+2026-10-21T04:57:43.6140575Z ##[endgroup]
+2026-10-21T04:57:43.6872324Z Syncing repository: jordanhubbard/nanolang
+2026-10-21T04:57:43.6874062Z ##[group]Getting Git version info
+2026-10-21T04:57:43.6874891Z Working directory is '/home/runner/work/nanolang/nanolang'
+2026-10-21T04:57:43.6875923Z [command]/usr/bin/git version
+2026-10-21T04:57:43.8145975Z git version 2.55.0
+2026-10-21T04:57:43.8167396Z ##[endgroup]
+2026-10-21T04:57:43.8174693Z Temporarily overriding HOME='/home/runner/work/_temp/403b5db7-ab27-4a62-9a20-08aba62cce17' before making global git config changes
+2026-10-21T04:57:43.8175968Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-21T04:57:43.8180040Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/nanolang/nanolang
+2026-10-21T04:57:43.8572426Z Deleting the contents of '/home/runner/work/nanolang/nanolang'
+2026-10-21T04:57:43.8575785Z ##[group]Initializing the repository
+2026-10-21T04:57:43.8578868Z [command]/usr/bin/git init /home/runner/work/nanolang/nanolang
+2026-10-21T04:57:43.9177610Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-21T04:57:43.9178957Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-21T04:57:43.9179974Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-21T04:57:43.9180669Z hint: call:
+2026-10-21T04:57:43.9181036Z hint:
+2026-10-21T04:57:43.9181584Z hint: 	git config --global init.defaultBranch <name>
+2026-10-21T04:57:43.9182237Z hint:
+2026-10-21T04:57:43.9183053Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-21T04:57:43.9183943Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-21T04:57:43.9184529Z hint:
+2026-10-21T04:57:43.9184878Z hint: 	git branch -m <name>
+2026-10-21T04:57:43.9185271Z hint:
+2026-10-21T04:57:43.9185765Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-21T04:57:43.9186497Z Initialized empty Git repository in /home/runner/work/nanolang/nanolang/.git/
+2026-10-21T04:57:43.9190601Z [command]/usr/bin/git remote add origin https://github.com/jordanhubbard/nanolang
+2026-10-21T04:57:43.9487362Z ##[endgroup]
+2026-10-21T04:57:43.9488310Z ##[group]Disabling automatic garbage collection
+2026-10-21T04:57:43.9491106Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-21T04:57:43.9524437Z ##[endgroup]
+2026-10-21T04:57:43.9525182Z ##[group]Setting up auth
+2026-10-21T04:57:43.9531263Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-21T04:57:43.9558006Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-21T04:57:44.1695431Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-21T04:57:44.1721853Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-21T04:57:44.1873269Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-21T04:57:44.1899484Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-21T04:57:44.2049470Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-21T04:57:44.2089669Z ##[endgroup]
+2026-10-21T04:57:44.2091528Z ##[group]Fetching the repository
+2026-10-21T04:57:44.2098933Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +c7913f310a84d3a4e8c1617aa7c5d820645d489b:refs/remotes/origin/fix/5.1-immutable-sanitizer-container
+2026-10-21T04:57:51.5685545Z From https://github.com/jordanhubbard/nanolang
+2026-10-21T04:57:51.5686791Z  * [new ref]           c7913f310a84d3a4e8c1617aa7c5d820645d489b -> origin/fix/5.1-immutable-sanitizer-container
+2026-10-21T04:57:51.5690000Z ##[endgroup]
+2026-10-21T04:57:51.5690876Z ##[group]Determining the checkout info
+2026-10-21T04:57:51.5692353Z ##[endgroup]
+2026-10-21T04:57:51.5699863Z [command]/usr/bin/git sparse-checkout disable
+2026-10-21T04:57:51.5935731Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-21T04:57:51.5963360Z ##[group]Checking out the ref
+2026-10-21T04:57:51.5976634Z [command]/usr/bin/git checkout --progress --force -B fix/5.1-immutable-sanitizer-container refs/remotes/origin/fix/5.1-immutable-sanitizer-container
+2026-10-21T04:57:52.6535510Z Updating files:   8% (7694/86162)
+2026-10-21T04:57:52.7202645Z Updating files:   9% (7755/86162)
+2026-10-21T04:57:52.7619858Z Updating files:  10% (8617/86162)
+2026-10-21T04:57:52.8004985Z Updating files:  11% (9478/86162)
+2026-10-21T04:57:53.0767476Z Updating files:  12% (10340/86162)
+2026-10-21T04:57:53.3044168Z Updating files:  13% (11202/86162)
+2026-10-21T04:57:53.6475589Z Updating files:  14% (12063/86162)
+2026-10-21T04:57:53.7014033Z Updating files:  14% (12717/86162)
+2026-10-21T04:57:53.8317711Z Updating files:  15% (12925/86162)
+2026-10-21T04:57:54.6573700Z Updating files:  16% (13786/86162)
+2026-10-21T04:57:55.6494057Z Updating files:  16% (14138/86162)
+2026-10-21T04:57:55.7292773Z Updating files:  16% (14597/86162)
+2026-10-21T04:57:56.1025381Z Updating files:  17% (14648/86162)
+2026-10-21T04:57:56.4134365Z Updating files:  18% (15510/86162)
+2026-10-21T04:57:56.6512665Z Updating files:  19% (16371/86162)
+2026-10-21T04:57:57.6160826Z Updating files:  19% (16523/86162)
+2026-10-21T04:57:57.6513309Z Updating files:  20% (17233/86162)
+2026-10-21T04:57:58.3888404Z Updating files:  20% (17277/86162)
+2026-10-21T04:57:58.4482982Z Updating files:  21% (18095/86162)
+2026-10-21T04:57:58.5453654Z Updating files:  22% (18956/86162)
+2026-10-21T04:57:58.6488798Z Updating files:  23% (19818/86162)
+2026-10-21T04:57:58.6987292Z Updating files:  23% (20541/86162)
+2026-10-21T04:57:58.7598156Z Updating files:  24% (20679/86162)
+2026-10-21T04:57:58.8080497Z Updating files:  25% (21541/86162)
+2026-10-21T04:57:58.8734871Z Updating files:  26% (22403/86162)
+2026-10-21T04:57:58.9401168Z Updating files:  27% (23264/86162)
+2026-10-21T04:57:59.0313489Z Updating files:  28% (24126/86162)
+2026-10-21T04:57:59.0952350Z Updating files:  29% (24987/86162)
+2026-10-21T04:57:59.2687127Z Updating files:  30% (25849/86162)
+2026-10-21T04:57:59.3786161Z Updating files:  31% (26711/86162)
+2026-10-21T04:57:59.4293559Z Updating files:  32% (27572/86162)
+2026-10-21T04:57:59.4845356Z Updating files:  33% (28434/86162)
+2026-10-21T04:57:59.5556436Z Updating files:  34% (29296/86162)
+2026-10-21T04:57:59.6097957Z Updating files:  35% (30157/86162)
+2026-10-21T04:57:59.6590680Z Updating files:  36% (31019/86162)
+2026-10-21T04:57:59.6606439Z Updating files:  36% (31761/86162)
+2026-10-21T04:57:59.6927625Z Updating files:  37% (31880/86162)
+2026-10-21T04:57:59.7815526Z Updating files:  38% (32742/86162)
+2026-10-21T04:57:59.8546299Z Updating files:  39% (33604/86162)
+2026-10-21T04:58:00.0043381Z Updating files:  40% (34465/86162)
+2026-10-21T04:58:00.0558471Z Updating files:  41% (35327/86162)
+2026-10-21T04:58:00.1231459Z Updating files:  42% (36189/86162)
+2026-10-21T04:58:00.1744059Z Updating files:  43% (37050/86162)
+2026-10-21T04:58:00.2400513Z Updating files:  44% (37912/86162)
+2026-10-21T04:58:00.2901593Z Updating files:  45% (38773/86162)
+2026-10-21T04:58:00.3402973Z Updating files:  46% (39635/86162)
+2026-10-21T04:58:00.4981859Z Updating files:  47% (40497/86162)
+2026-10-21T04:58:00.6571064Z Updating files:  48% (41358/86162)
+2026-10-21T04:58:00.8946739Z Updating files:  48% (41685/86162)
+2026-10-21T04:58:01.2237238Z Updating files:  49% (42220/86162)
+2026-10-21T04:58:01.5771143Z Updating files:  50% (43081/86162)
+2026-10-21T04:58:01.6492833Z Updating files:  51% (43943/86162)
+2026-10-21T04:58:01.9282078Z Updating files:  51% (43991/86162)
+2026-10-21T04:58:02.0324369Z Updating files:  52% (44805/86162)
+2026-10-21T04:58:02.2297523Z Updating files:  53% (45666/86162)
+2026-10-21T04:58:02.3419191Z Updating files:  54% (46528/86162)
+2026-10-21T04:58:02.6502724Z Updating files:  55% (47390/86162)
+2026-10-21T04:58:02.6785914Z Updating files:  55% (48207/86162)
+2026-10-21T04:58:02.8894682Z Updating files:  56% (48251/86162)
+2026-10-21T04:58:02.9196320Z Updating files:  57% (49113/86162)
+2026-10-21T04:58:02.9468209Z Updating files:  58% (49974/86162)
+2026-10-21T04:58:03.6751188Z Updating files:  59% (50836/86162)
+2026-10-21T04:58:04.1764463Z Updating files:  59% (51371/86162)
+2026-10-21T04:58:04.6469285Z Updating files:  60% (51698/86162)
+2026-10-21T04:58:04.7059923Z Updating files:  60% (52289/86162)
+2026-10-21T04:58:05.0333420Z Updating files:  61% (52559/86162)
+2026-10-21T04:58:05.1915272Z Updating files:  62% (53421/86162)
+2026-10-21T04:58:05.5163697Z Updating files:  63% (54283/86162)
+2026-10-21T04:58:05.5254455Z Updating files:  64% (55144/86162)
+2026-10-21T04:58:05.5423028Z Updating files:  65% (56006/86162)
+2026-10-21T04:58:05.7598031Z Updating files:  66% (56867/86162)
+2026-10-21T04:58:05.7854286Z Updating files:  66% (57066/86162)
+2026-10-21T04:58:05.7943163Z Updating files:  67% (57729/86162)
+2026-10-21T04:58:06.6654973Z Updating files:  68% (58591/86162)
+2026-10-21T04:58:06.8494762Z Updating files:  68% (59423/86162)
+2026-10-21T04:58:07.6682765Z Updating files:  69% (59452/86162)
+2026-10-21T04:58:07.8744897Z Updating files:  69% (60256/86162)
+2026-10-21T04:58:08.6532445Z Updating files:  70% (60314/86162)
+2026-10-21T04:58:09.6493916Z Updating files:  70% (60514/86162)
+2026-10-21T04:58:10.4192509Z Updating files:  70% (60799/86162)
+2026-10-21T04:58:10.6486030Z Updating files:  71% (61176/86162)
+2026-10-21T04:58:10.6727110Z Updating files:  71% (61920/86162)
+2026-10-21T04:58:10.9711514Z Updating files:  72% (62037/86162)
+2026-10-21T04:58:11.3610640Z Updating files:  73% (62899/86162)
+2026-10-21T04:58:11.6510865Z Updating files:  74% (63760/86162)
+2026-10-21T04:58:11.6988979Z Updating files:  74% (64469/86162)
+2026-10-21T04:58:12.1046958Z Updating files:  75% (64622/86162)
+2026-10-21T04:58:12.5365649Z Updating files:  76% (65484/86162)
+2026-10-21T04:58:12.6481361Z Updating files:  77% (66345/86162)
+2026-10-21T04:58:12.9763943Z Updating files:  77% (66570/86162)
+2026-10-21T04:58:13.1822626Z Updating files:  78% (67207/86162)
+2026-10-21T04:58:13.4117587Z Updating files:  79% (68068/86162)
+2026-10-21T04:58:13.4410161Z Updating files:  80% (68930/86162)
+2026-10-21T04:58:13.4510134Z Updating files:  81% (69792/86162)
+2026-10-21T04:58:13.6565308Z Updating files:  82% (70653/86162)
+2026-10-21T04:58:13.7242169Z Updating files:  82% (71234/86162)
+2026-10-21T04:58:13.7399430Z Updating files:  83% (71515/86162)
+2026-10-21T04:58:13.7575076Z Updating files:  84% (72377/86162)
+2026-10-21T04:58:13.7666024Z Updating files:  85% (73238/86162)
+2026-10-21T04:58:13.7754074Z Updating files:  86% (74100/86162)
+2026-10-21T04:58:13.7921220Z Updating files:  87% (74961/86162)
+2026-10-21T04:58:14.6515610Z Updating files:  88% (75823/86162)
+2026-10-21T04:58:15.2666852Z Updating files:  88% (76421/86162)
+2026-10-21T04:58:15.6476052Z Updating files:  89% (76685/86162)
+2026-10-21T04:58:15.9900224Z Updating files:  89% (76985/86162)
+2026-10-21T04:58:16.1082244Z Updating files:  90% (77546/86162)
+2026-10-21T04:58:16.1376788Z Updating files:  91% (78408/86162)
+2026-10-21T04:58:16.6565291Z Updating files:  92% (79270/86162)
+2026-10-21T04:58:17.1433595Z Updating files:  92% (79719/86162)
+2026-10-21T04:58:17.6642836Z Updating files:  93% (80131/86162)
+2026-10-21T04:58:17.9639212Z Updating files:  93% (80588/86162)
+2026-10-21T04:58:18.4521817Z Updating files:  94% (80993/86162)
+2026-10-21T04:58:18.5528008Z Updating files:  95% (81854/86162)
+2026-10-21T04:58:18.6080001Z Updating files:  96% (82716/86162)
+2026-10-21T04:58:18.6552015Z Updating files:  97% (83578/86162)
+2026-10-21T04:58:18.6625181Z Updating files:  97% (84149/86162)
+2026-10-21T04:58:18.7098381Z Updating files:  98% (84439/86162)
+2026-10-21T04:58:18.7634140Z Updating files:  99% (85301/86162)
+2026-10-21T04:58:18.8695071Z Updating files: 100% (86162/86162)
+2026-10-21T04:58:18.8695425Z Updating files: 100% (86162/86162), done.
+2026-10-21T04:58:18.8695805Z Switched to a new branch 'fix/5.1-immutable-sanitizer-container'
+2026-10-21T04:58:18.8698617Z branch 'fix/5.1-immutable-sanitizer-container' set up to track 'origin/fix/5.1-immutable-sanitizer-container'.
+2026-10-21T04:58:18.8759786Z ##[endgroup]
+2026-10-21T04:58:18.8859667Z [command]/usr/bin/git log -1 --format=%H
+2026-10-21T04:58:18.8877319Z c7913f310a84d3a4e8c1617aa7c5d820645d489b
+2026-10-21T04:58:18.9414882Z ##[group]Run actions/download-artifact@v4
+2026-10-21T04:58:18.9415169Z with:
+2026-10-21T04:58:18.9415396Z   artifact-ids: 12321337785
+2026-10-21T04:58:18.9415672Z   path: /home/runner/work/_temp/instrumented-image
+2026-10-21T04:58:18.9415971Z   merge-multiple: true
+2026-10-21T04:58:18.9416232Z   repository: jordanhubbard/nanolang
+2026-10-21T04:58:18.9416473Z   run-id: 39544892945
+2026-10-21T04:58:18.9416708Z env:
+2026-10-21T04:58:18.9416958Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T04:58:18.9417301Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T04:58:18.9417563Z   NANO_SHADOW_TRACE: 1
+2026-10-21T04:58:18.9417890Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T04:58:18.9418409Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T04:58:18.9419034Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T04:58:18.9419335Z   BOOTSTRAP_NANOISA_TIMEOUT: 5400
+2026-10-21T04:58:18.9419843Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage
+2026-10-21T04:58:18.9420253Z   LDFLAGS: -lm -lcrypto -fprofile-arcs -ftest-coverage
+2026-10-21T04:58:18.9420547Z ##[endgroup]
+2026-10-21T04:58:19.0493840Z Downloading artifacts by ID
+2026-10-21T04:58:19.0597494Z (node:2109) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-21T04:58:19.0598218Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-21T04:58:19.2168353Z Found 3 artifact(s)
+2026-10-21T04:58:19.2169452Z Preparing to download the following artifacts:
+2026-10-21T04:58:19.2170306Z - instrumented-image-39544892945-1 (ID: 12321337785, Size: 1176369822, Expected Digest: sha256:2810a186e1698a2c9518e7a07e50f5dadebc6d2ba4fa55a3d83f43e76aac6b2c)
+2026-10-21T04:58:19.3718994Z Redirecting to blob download url: https://productionresultssa8.blob.core.windows.net/actions-results/7be8d396-9da1-4efc-9bbd-eaa1a3b8e404/workflow-job-run-daf58673-afa3-534d-9573-f78a3ef3cec2/artifacts/0a6f0266c015d5a8b83820c14c89cd5b59d672a142d953b7e535f2a8b7535562.zip
+2026-10-21T04:58:19.3720553Z Starting download of artifact to: /home/runner/work/_temp/instrumented-image
+2026-10-21T04:58:19.5637081Z (node:2109) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-10-21T04:58:48.7138414Z SHA256 digest of downloaded artifact is 2810a186e1698a2c9518e7a07e50f5dadebc6d2ba4fa55a3d83f43e76aac6b2c
+2026-10-21T04:58:48.7140383Z Artifact download completed successfully.
+2026-10-21T04:58:48.7140774Z Total of 1 artifact(s) downloaded
+2026-10-21T04:58:48.7144557Z Download artifact has finished successfully
+2026-10-21T04:58:48.7270899Z ##[group]Run python3 scripts/ci_container.py load "$RUNNER_TEMP/instrumented-image/instrumented-image.tar"
+2026-10-21T04:58:48.7271580Z [36;1mpython3 scripts/ci_container.py load "$RUNNER_TEMP/instrumented-image/instrumented-image.tar"[0m
+2026-10-21T04:58:48.7392746Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-21T04:58:48.7393125Z env:
+2026-10-21T04:58:48.7393479Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T04:58:48.7393797Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T04:58:48.7394099Z   NANO_SHADOW_TRACE: 1
+2026-10-21T04:58:48.7394460Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T04:58:48.7394933Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T04:58:48.7395334Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T04:58:48.7395617Z   BOOTSTRAP_NANOISA_TIMEOUT: 5400
+2026-10-21T04:58:48.7396271Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage
+2026-10-21T04:58:48.7396678Z   LDFLAGS: -lm -lcrypto -fprofile-arcs -ftest-coverage
+2026-10-21T04:58:48.7396978Z ##[endgroup]
+2026-10-21T04:59:15.1719656Z Loaded image ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T04:59:15.3671275Z I loaded the exact transported instrumented image.
+2026-10-21T04:59:15.3766690Z ##[group]Run make coverage CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+2026-10-21T04:59:15.3767112Z [36;1mmake coverage CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"[0m
+2026-10-21T04:59:15.3898084Z shell: /usr/bin/python3 scripts/ci_container.py shell {0}
+2026-10-21T04:59:15.3898462Z env:
+2026-10-21T04:59:15.3898904Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T04:59:15.3899257Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T04:59:15.3899565Z   NANO_SHADOW_TRACE: 1
+2026-10-21T04:59:15.3899910Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T04:59:15.3900398Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T04:59:15.3900769Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T04:59:15.3901066Z   BOOTSTRAP_NANOISA_TIMEOUT: 5400
+2026-10-21T04:59:15.3901469Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage
+2026-10-21T04:59:15.3901984Z   LDFLAGS: -lm -lcrypto -fprofile-arcs -ftest-coverage
+2026-10-21T04:59:15.3902284Z ##[endgroup]
+2026-10-21T04:59:15.4821503Z {"container": {"archive_sha256": "cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5", "config_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "image_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "platform": "linux/amd64", "version": 1}, "outer_runner": {"ImageOS": "ubuntu24", "ImageVersion": "20261018.339.1"}}
+2026-10-21T04:59:16.1148307Z rm -f "lib/libnano_file_runtime.a"
+2026-10-21T04:59:16.1211078Z I clean compiler artifacts and retain module runtime caches.
+2026-10-21T04:59:16.1211829Z python3 scripts/clean_build_trees.py --root "obj" --root "obj/build_bootstrap" \
+2026-10-21T04:59:16.1212387Z 	--root "coverage" --root "bin" \
+2026-10-21T04:59:16.1213473Z 	--cache "obj/module_cache" --cache "/workspace/obj/module_cache" \
+2026-10-21T04:59:16.1214380Z 	--file ".stage1.built" --file ".stage2.built" --file ".stage3.built" --file ".bootstrap0.built" --file ".bootstrap1.built" --file ".bootstrap2.built" --file ".bootstrap3.built" \
+2026-10-21T04:59:16.1215065Z 	--file "obj/build_bootstrap/schema.stamp" --file coverage.info --file test.nano \
+2026-10-21T04:59:16.1215523Z 	--file test_output.c --file test_program --root .test_output \
+2026-10-21T04:59:16.1215892Z 	--glob '*.out' --glob '*.out.c' --glob 'tests/**/*.out' --glob 'tests/**/*.out.c' \
+2026-10-21T04:59:16.1216263Z 	--glob '*.gcda' --glob '*.gcno' --glob '*.gcov' \
+2026-10-21T04:59:16.1216577Z 	--glob 'formal/*.vo' --glob 'formal/*.vok' --glob 'formal/*.vos' \
+2026-10-21T04:59:16.1216874Z 	--glob 'formal/*.glob' --glob 'formal/.*.aux'
+2026-10-21T04:59:16.1527039Z ✅ Clean complete - ready for fresh build
+2026-10-21T04:59:16.1533208Z mkdir -p obj/build_bootstrap
+2026-10-21T04:59:16.1631668Z [schema] Generating compiler schema artifacts...
+2026-10-21T04:59:16.1642501Z [schema] Using Python version (bootstrap)...
+2026-10-21T04:59:16.1935811Z [tool] Building module index generator (C)...
+2026-10-21T04:59:17.5605812Z [modules] Generating module index from manifests...
+2026-10-21T04:59:17.5666185Z Generating module index...
+2026-10-21T04:59:17.5666612Z Found 47 module manifests
+2026-10-21T04:59:17.5667195Z   ✓ glut
+2026-10-21T04:59:17.5667480Z   ✓ http_server
+2026-10-21T04:59:17.5667788Z   ✓ sdl
+2026-10-21T04:59:17.5668055Z   ✓ github
+2026-10-21T04:59:17.5668322Z   ✓ bullet
+2026-10-21T04:59:17.5668616Z   ✓ ncurses
+2026-10-21T04:59:17.5668978Z   ✓ pt2_state
+2026-10-21T04:59:17.5669226Z   ✓ audio_viz
+2026-10-21T04:59:17.5669679Z   ✓ nano_highlight
+2026-10-21T04:59:17.5669927Z   ✓ proptest
+2026-10-21T04:59:17.5670183Z   ✓ sdl_ttf
+2026-10-21T04:59:17.5670405Z   ✓ openai
+2026-10-21T04:59:17.5670607Z   ✓ std
+2026-10-21T04:59:17.5670795Z   ✓ vector2d
+2026-10-21T04:59:17.5671040Z   ✓ curl
+2026-10-21T04:59:17.5671239Z   ✓ sqlite
+2026-10-21T04:59:17.5671466Z   ✓ glew
+2026-10-21T04:59:17.5671658Z   ✓ unicode
+2026-10-21T04:59:17.5671878Z   ✓ stdio
+2026-10-21T04:59:17.5672200Z   ✓ sdl_mixer
+2026-10-21T04:59:17.5672412Z   ✓ forth_see
+2026-10-21T04:59:17.5672632Z   ✓ tools
+2026-10-21T04:59:17.5672822Z   ✓ pybridge
+2026-10-21T04:59:17.5673045Z   ✓ nanoisa
+2026-10-21T04:59:17.5673246Z   ✓ stdlib
+2026-10-21T04:59:17.5673458Z   ✓ pt2_audio
+2026-10-21T04:59:17.5673673Z   ✓ sdl_image
+2026-10-21T04:59:17.5673894Z   ✓ nano_tools
+2026-10-21T04:59:17.5674099Z   ✓ preferences
+2026-10-21T04:59:17.5674309Z   ✓ opengl
+2026-10-21T04:59:17.5674567Z   ✓ sdl_term
+2026-10-21T04:59:17.5674955Z   ✓ filesystem
+2026-10-21T04:59:17.5675178Z   ✓ sdl_helpers
+2026-10-21T04:59:17.5675382Z   ✓ mujoco
+2026-10-21T04:59:17.5675585Z   ✓ nano_eval
+2026-10-21T04:59:17.5675861Z   ✓ pt2_module
+2026-10-21T04:59:17.5676097Z   ✓ glfw
+2026-10-21T04:59:17.5676307Z   ✓ audio_helpers
+2026-10-21T04:59:17.5676526Z   ✓ pybridge_warp
+2026-10-21T04:59:17.5676761Z   ✓ readline
+2026-10-21T04:59:17.5676970Z   ✓ math_ext
+2026-10-21T04:59:17.5677209Z   ✓ pybridge_matplotlib
+2026-10-21T04:59:17.5677430Z   ✓ event
+2026-10-21T04:59:17.5677669Z   ✓ uv
+2026-10-21T04:59:17.5677883Z   ✓ pty
+2026-10-21T04:59:17.5678098Z   ✓ ui_widgets
+2026-10-21T04:59:17.5678319Z   ✓ log
+2026-10-21T04:59:17.5678440Z 
+2026-10-21T04:59:17.5678575Z ✓ Generated modules/index.json
+2026-10-21T04:59:17.5678988Z   47 modules indexed
+2026-10-21T04:59:17.5684636Z mkdir -p obj/runtime
+2026-10-21T04:59:17.5741589Z mkdir -p obj/eval
+2026-10-21T04:59:17.5814878Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/bcp47.c -o obj/bcp47.o
+2026-10-21T04:59:17.6844508Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/bench.c -o obj/bench.o
+2026-10-21T04:59:17.8008083Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/bench_native.c -o obj/bench_native.o
+2026-10-21T04:59:17.8372222Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/builtins_registry.c -o obj/builtins_registry.o
+2026-10-21T04:59:17.8777464Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/cJSON.c -o obj/cJSON.o
+2026-10-21T04:59:18.5587805Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/c_backend.c -o obj/c_backend.o
+2026-10-21T04:59:19.9846066Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/catalog.c -o obj/catalog.o
+2026-10-21T04:59:20.1716358Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/channel.c -o obj/channel.o
+2026-10-21T04:59:20.2475364Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/checked_borrow_facts.c -o obj/checked_borrow_facts.o
+2026-10-21T04:59:20.5416044Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/coroutine.c -o obj/coroutine.o
+2026-10-21T04:59:20.6622422Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/cps_pass.c -o obj/cps_pass.o
+2026-10-21T04:59:20.7327616Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/dce_pass.c -o obj/dce_pass.o
+2026-10-21T04:59:20.8695118Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/diag_id.c -o obj/diag_id.o
+2026-10-21T04:59:20.8913595Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/docgen.c -o obj/docgen.o
+2026-10-21T04:59:21.1482995Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/docgen_md.c -o obj/docgen_md.o
+2026-10-21T04:59:21.3767797Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/dwarf_info.c -o obj/dwarf_info.o
+2026-10-21T04:59:21.4374899Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/effects.c -o obj/effects.o
+2026-10-21T04:59:21.6906431Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/emit_typed_ast.c -o obj/emit_typed_ast.o
+2026-10-21T04:59:21.8674978Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/env.c -o obj/env.o
+2026-10-21T04:59:23.0374314Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -ffp-contract=off -fno-fast-math -c src/eval.c -o obj/eval.o
+2026-10-21T04:59:25.9574328Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/eval/eval_hashmap.c -o obj/eval/eval_hashmap.o
+2026-10-21T04:59:26.0680221Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/eval/eval_io.c -o obj/eval/eval_io.o
+2026-10-21T04:59:26.3610178Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/eval/eval_math.c -o obj/eval/eval_math.o
+2026-10-21T04:59:26.4499391Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/eval/eval_string.c -o obj/eval/eval_string.o
+2026-10-21T04:59:26.5740507Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/fmt.c -o obj/fmt.o
+2026-10-21T04:59:26.7329860Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/fold_constants.c -o obj/fold_constants.o
+2026-10-21T04:59:26.8959277Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/interpreter_ffi.c -o obj/interpreter_ffi.o
+2026-10-21T04:59:27.0275470Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/json_diagnostics.c -o obj/json_diagnostics.o
+2026-10-21T04:59:27.1103586Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/lexer.c -o obj/lexer.o
+2026-10-21T04:59:27.4427558Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/locale.c -o obj/locale.o
+2026-10-21T04:59:27.5263388Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/main.c -o obj/main.o
+2026-10-21T04:59:28.2845505Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/module.c -o obj/module.o
+2026-10-21T04:59:29.4732823Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/module_builder.c -o obj/module_builder.o
+2026-10-21T04:59:33.5793418Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/module_metadata.c -o obj/module_metadata.o
+2026-10-21T04:59:34.5153627Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanocore_export.c -o obj/nanocore_export.o
+2026-10-21T04:59:34.7264397Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanocore_subset.c -o obj/nanocore_subset.o
+2026-10-21T04:59:34.8660483Z mkdir -p obj/nanoisa
+2026-10-21T04:59:34.8750551Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+2026-10-21T04:59:35.7542846Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+2026-10-21T04:59:37.5478624Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/assembler.c -o obj/nanoisa/assembler.o
+2026-10-21T04:59:38.3859653Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/disassembler.c -o obj/nanoisa/disassembler.o
+2026-10-21T04:59:38.5902535Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o
+2026-10-21T04:59:41.8536604Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/frontend.c -o obj/nanoisa/frontend.o
+2026-10-21T04:59:41.9527908Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/isa.c -o obj/nanoisa/isa.o
+2026-10-21T04:59:42.0482103Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/local_bindings.c -o obj/nanoisa/local_bindings.o
+2026-10-21T04:59:42.1702804Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o
+2026-10-21T04:59:43.8220708Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/mixed_float_proof.c -o obj/nanoisa/mixed_float_proof.o
+2026-10-21T04:59:44.2998420Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/nanoisa.c -o obj/nanoisa/nanoisa_facade.o
+2026-10-21T04:59:44.4989015Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o
+2026-10-21T04:59:50.3098311Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_callables.c -o obj/nanoisa/nvm2c_callables.o
+2026-10-21T04:59:50.8614698Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o obj/nanoisa/nvm2c_shape.o
+2026-10-21T04:59:51.2798619Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format.c -o obj/nanoisa/nvm_format.o
+2026-10-21T04:59:52.1018196Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format_v2.c -o obj/nanoisa/nvm_format_v2.o
+2026-10-21T04:59:52.2001470Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_constants.c -o obj/nanoisa/nvm_v2_constants.o
+2026-10-21T04:59:52.2629869Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o obj/nanoisa/nvm_v2_convert.o
+2026-10-21T04:59:52.6086908Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_cursor.c -o obj/nanoisa/nvm_v2_cursor.o
+2026-10-21T04:59:52.6483110Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_functions.c -o obj/nanoisa/nvm_v2_functions.o
+2026-10-21T04:59:52.7272383Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_imports.c -o obj/nanoisa/nvm_v2_imports.o
+2026-10-21T04:59:52.8596086Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_layouts.c -o obj/nanoisa/nvm_v2_layouts.o
+2026-10-21T04:59:53.0160508Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_module.c -o obj/nanoisa/nvm_v2_module.o
+2026-10-21T04:59:53.2501958Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_signatures.c -o obj/nanoisa/nvm_v2_signatures.o
+2026-10-21T04:59:53.3177593Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o
+2026-10-21T04:59:54.1296125Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/passive.c -o obj/nanoisa/passive.o
+2026-10-21T04:59:54.6461123Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/reference_places.c -o obj/nanoisa/reference_places.o
+2026-10-21T04:59:54.7355613Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o
+2026-10-21T04:59:55.9112044Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings.c -o obj/nanoisa/service_bindings.o
+2026-10-21T04:59:55.9673283Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings_module.c -o obj/nanoisa/service_bindings_module.o
+2026-10-21T04:59:56.1951588Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal.c -o obj/nanoisa/service_file_nominal.o
+2026-10-21T04:59:56.2588935Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal_plan.c -o obj/nanoisa/service_file_nominal_plan.o
+2026-10-21T04:59:56.4395131Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o obj/nanoisa/verifier.o
+2026-10-21T04:59:57.4987120Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier_types.c -o obj/nanoisa/verifier_types.o
+2026-10-21T04:59:57.6872582Z mkdir -p obj/nanovirt
+2026-10-21T04:59:57.6946719Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+2026-10-21T05:00:04.1718893Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovirt/shadow_runner.c -o obj/nanovirt/shadow_runner.o
+2026-10-21T05:00:04.3686865Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP  -DNANO_WRAPPER_INSTRUMENT_FLAGS='"-fprofile-arcs -ftest-coverage"' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+2026-10-21T05:00:04.6314325Z mkdir -p obj/nanovm
+2026-10-21T05:00:04.6387276Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/cop_protocol.c -o obj/nanovm/cop_protocol.o
+2026-10-21T05:00:05.0165306Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/heap.c -o obj/nanovm/heap.o
+2026-10-21T05:00:05.3582846Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/heap_cycles.c -o obj/nanovm/heap_cycles.o
+2026-10-21T05:00:05.4935005Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/value.c -o obj/nanovm/value.o
+2026-10-21T05:00:05.5913808Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o
+2026-10-21T05:00:11.6841178Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/vm_builtins.c -o obj/nanovm/vm_builtins.o
+2026-10-21T05:00:11.9135139Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/vm_callback.c -o obj/nanovm/vm_callback.o
+2026-10-21T05:00:11.9920599Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/vm_decode.c -o obj/nanovm/vm_decode.o
+2026-10-21T05:00:12.1004376Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/vm_dispatch.c -o obj/nanovm/vm_dispatch.o
+2026-10-21T05:00:12.2177371Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/vm_ffi.c -o obj/nanovm/vm_ffi.o
+2026-10-21T05:00:13.1134222Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/vm_ffi_arrays.c -o obj/nanovm/vm_ffi_arrays.o
+2026-10-21T05:00:13.2332094Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nominal_types.c -o obj/nominal_types.o
+2026-10-21T05:00:13.5864746Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/opencl_backend.c -o obj/opencl_backend.o
+2026-10-21T05:00:13.7768089Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/par_let_pass.c -o obj/par_let_pass.o
+2026-10-21T05:00:13.8484247Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/parser.c -o obj/parser.o
+2026-10-21T05:00:16.1089036Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/pgo_pass.c -o obj/pgo_pass.o
+2026-10-21T05:00:16.2913649Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/ptx_backend.c -o obj/ptx_backend.o
+2026-10-21T05:00:16.4784275Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/reflection.c -o obj/reflection.o
+2026-10-21T05:00:16.5993793Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/resource_flow.c -o obj/resource_flow.o
+2026-10-21T05:00:17.6970108Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/resource_tracking.c -o obj/resource_tracking.o
+2026-10-21T05:00:18.0028871Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/riscv_backend.c -o obj/riscv_backend.o
+2026-10-21T05:00:18.1541854Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/callback_runtime.c -o obj/runtime/callback_runtime.o
+2026-10-21T05:00:18.2676308Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/cli.c -o obj/runtime/cli.o
+2026-10-21T05:00:18.2966707Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/dyn_array.c -o obj/runtime/dyn_array.o
+2026-10-21T05:00:18.5205090Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/effect_runtime.c -o obj/runtime/effect_runtime.o
+2026-10-21T05:00:18.5427381Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/ffi_loader.c -o obj/runtime/ffi_loader.o
+2026-10-21T05:00:18.6946277Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/gc.c -o obj/runtime/gc.o
+2026-10-21T05:00:18.8089808Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/gc_struct.c -o obj/runtime/gc_struct.o
+2026-10-21T05:00:18.8855307Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTArrayLiteral.c -o obj/runtime/list_ASTArrayLiteral.o
+2026-10-21T05:00:18.9673507Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTAssert.c -o obj/runtime/list_ASTAssert.o
+2026-10-21T05:00:19.0542521Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTBinaryOp.c -o obj/runtime/list_ASTBinaryOp.o
+2026-10-21T05:00:19.1382299Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTBlock.c -o obj/runtime/list_ASTBlock.o
+2026-10-21T05:00:19.2209512Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTBool.c -o obj/runtime/list_ASTBool.o
+2026-10-21T05:00:19.3022910Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTCall.c -o obj/runtime/list_ASTCall.o
+2026-10-21T05:00:19.3847478Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTEnum.c -o obj/runtime/list_ASTEnum.o
+2026-10-21T05:00:19.4682388Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTFieldAccess.c -o obj/runtime/list_ASTFieldAccess.o
+2026-10-21T05:00:19.5496322Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTFloat.c -o obj/runtime/list_ASTFloat.o
+2026-10-21T05:00:19.6323127Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTFor.c -o obj/runtime/list_ASTFor.o
+2026-10-21T05:00:19.7155982Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTFunction.c -o obj/runtime/list_ASTFunction.o
+2026-10-21T05:00:19.8017880Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTIdentifier.c -o obj/runtime/list_ASTIdentifier.o
+2026-10-21T05:00:19.8854623Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTIf.c -o obj/runtime/list_ASTIf.o
+2026-10-21T05:00:19.9679254Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTImport.c -o obj/runtime/list_ASTImport.o
+2026-10-21T05:00:20.0523242Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTLet.c -o obj/runtime/list_ASTLet.o
+2026-10-21T05:00:20.1372359Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTMatch.c -o obj/runtime/list_ASTMatch.o
+2026-10-21T05:00:20.2223083Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTModuleQualifiedCall.c -o obj/runtime/list_ASTModuleQualifiedCall.o
+2026-10-21T05:00:20.3059767Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTNumber.c -o obj/runtime/list_ASTNumber.o
+2026-10-21T05:00:20.3871712Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTOpaqueType.c -o obj/runtime/list_ASTOpaqueType.o
+2026-10-21T05:00:20.4679861Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTPrint.c -o obj/runtime/list_ASTPrint.o
+2026-10-21T05:00:20.5502506Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTReturn.c -o obj/runtime/list_ASTReturn.o
+2026-10-21T05:00:20.6318942Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTServiceDecl.c -o obj/runtime/list_ASTServiceDecl.o
+2026-10-21T05:00:20.7172579Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTSet.c -o obj/runtime/list_ASTSet.o
+2026-10-21T05:00:20.8004994Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTShadow.c -o obj/runtime/list_ASTShadow.o
+2026-10-21T05:00:20.8814000Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTStmtRef.c -o obj/runtime/list_ASTStmtRef.o
+2026-10-21T05:00:20.9607651Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTString.c -o obj/runtime/list_ASTString.o
+2026-10-21T05:00:21.0425047Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTStruct.c -o obj/runtime/list_ASTStruct.o
+2026-10-21T05:00:21.1272347Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTStructLiteral.c -o obj/runtime/list_ASTStructLiteral.o
+2026-10-21T05:00:21.2110600Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTTupleIndex.c -o obj/runtime/list_ASTTupleIndex.o
+2026-10-21T05:00:21.2924325Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTTupleLiteral.c -o obj/runtime/list_ASTTupleLiteral.o
+2026-10-21T05:00:21.3762447Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTUnion.c -o obj/runtime/list_ASTUnion.o
+2026-10-21T05:00:21.4603606Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTUnionConstruct.c -o obj/runtime/list_ASTUnionConstruct.o
+2026-10-21T05:00:21.5428562Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTUnsafeBlock.c -o obj/runtime/list_ASTUnsafeBlock.o
+2026-10-21T05:00:21.6194997Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_ASTWhile.c -o obj/runtime/list_ASTWhile.o
+2026-10-21T05:00:21.6903183Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_CompilerDiagnostic.c -o obj/runtime/list_CompilerDiagnostic.o
+2026-10-21T05:00:21.7617571Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_CompilerSourceLocation.c -o obj/runtime/list_CompilerSourceLocation.o
+2026-10-21T05:00:21.8311009Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_LexerToken.c -o obj/runtime/list_LexerToken.o
+2026-10-21T05:00:21.9013524Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_bool.c -o obj/runtime/list_bool.o
+2026-10-21T05:00:21.9686314Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_int.c -o obj/runtime/list_int.o
+2026-10-21T05:00:22.0365065Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_string.c -o obj/runtime/list_string.o
+2026-10-21T05:00:22.1138409Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/list_token.c -o obj/runtime/list_token.o
+2026-10-21T05:00:22.1851604Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/module_build_dir.c -o obj/runtime/module_build_dir.o
+2026-10-21T05:00:22.2887472Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/nl_string.c -o obj/runtime/nl_string.o
+2026-10-21T05:00:22.4373205Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/regex.c -o obj/runtime/regex.o
+2026-10-21T05:00:22.5118764Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/token_helpers.c -o obj/runtime/token_helpers.o
+2026-10-21T05:00:22.6013777Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/service_bodies.c -o obj/service_bodies.o
+2026-10-21T05:00:23.0450028Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/service_namespace.c -o obj/service_namespace.o
+2026-10-21T05:00:23.3090501Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/service_ownership.c -o obj/service_ownership.o
+2026-10-21T05:00:23.5469617Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/stdlib_runtime.c -o obj/stdlib_runtime.o
+2026-10-21T05:00:23.9575993Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/tco_pass.c -o obj/tco_pass.o
+2026-10-21T05:00:24.2262427Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/toon_output.c -o obj/toon_output.o
+2026-10-21T05:00:24.2888259Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/transpiler.c -o obj/transpiler.o
+2026-10-21T05:00:28.6635035Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/type_infer.c -o obj/type_infer.o
+2026-10-21T05:00:29.2087456Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/typechecker.c -o obj/typechecker.o
+2026-10-21T05:00:33.5706493Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/utf8.c -o obj/utf8.o
+2026-10-21T05:00:33.6635523Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_flow.c -o obj/nanoisa/websocket_flow.o
+2026-10-21T05:00:36.9290072Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_codec.c -o obj/nanoisa/websocket_codec.o
+2026-10-21T05:00:36.9592665Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_websocket_nominal.c -o obj/nanoisa/service_websocket_nominal.o
+2026-10-21T05:00:37.0199251Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_websocket_nominal_plan.c -o obj/nanoisa/service_websocket_nominal_plan.o
+2026-10-21T05:00:37.1972890Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_websocket_binding.c -o obj/nsi_websocket_binding.o
+2026-10-21T05:00:37.4261218Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_websocket_plan.c -o obj/nsi_websocket_plan.o
+2026-10-21T05:00:37.5162402Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_multi_nominal.c -o obj/nanoisa/service_multi_nominal.o
+2026-10-21T05:00:37.6210606Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_multi_nominal_plan.c -o obj/nanoisa/service_multi_nominal_plan.o
+2026-10-21T05:00:37.8133217Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_socket_nominal.c -o obj/nanoisa/service_socket_nominal.o
+2026-10-21T05:00:37.8763113Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_socket_nominal_plan.c -o obj/nanoisa/service_socket_nominal_plan.o
+2026-10-21T05:00:38.0546478Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_socket_binding.c -o obj/nsi_socket_binding.o
+2026-10-21T05:00:38.2850732Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_socket_plan.c -o obj/nsi_socket_plan.o
+2026-10-21T05:00:38.3662675Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_snapshot.c -o obj/nanoisa/file_source_snapshot.o
+2026-10-21T05:00:38.4596453Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_plan.c -o obj/nanoisa/file_source_plan.o
+2026-10-21T05:00:38.6370363Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_catalog.c -o obj/nanoisa/file_source_catalog.o
+2026-10-21T05:00:38.8901123Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_file_binding.c -o obj/nsi_file_binding.o
+2026-10-21T05:00:39.1267316Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi.c -o obj/nsi.o
+2026-10-21T05:00:39.6079953Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_file_plan.c -o obj/nsi_file_plan.o
+2026-10-21T05:00:39.6933380Z ar rcs lib/libnano_compiler_inputs.a obj/nanoisa/websocket_flow.o obj/nanoisa/websocket_codec.o obj/nanoisa/service_websocket_nominal.o obj/nanoisa/service_websocket_nominal_plan.o obj/nsi_websocket_binding.o obj/nsi_websocket_plan.o obj/nanoisa/service_multi_nominal.o obj/nanoisa/service_multi_nominal_plan.o obj/nanoisa/service_socket_nominal.o obj/nanoisa/service_socket_nominal_plan.o obj/nsi_socket_binding.o obj/nsi_socket_plan.o obj/nanoisa/file_source_snapshot.o obj/nanoisa/file_source_plan.o obj/nanoisa/file_source_catalog.o obj/nsi_file_binding.o obj/nsi.o obj/nsi_file_plan.o
+2026-10-21T05:00:39.7112381Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/service_driver.c -o obj/service_driver.o
+2026-10-21T05:00:39.7988587Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/service_lowering.c -o obj/service_lowering.o
+2026-10-21T05:00:40.7830584Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/service_product.c -o obj/runtime/service_product.o
+2026-10-21T05:00:41.0174347Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/service_shadows.c -o obj/runtime/service_shadows.o
+2026-10-21T05:00:41.1928414Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_flow.c -o obj/nanoisa/socket_flow.o
+2026-10-21T05:00:44.4705709Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_flow.c -o obj/nanoisa/services_flow.o
+2026-10-21T05:00:47.9621893Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_nominal.c -o obj/nanoisa/services_nominal.o
+2026-10-21T05:00:48.0306069Z cc  -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -std=c11 -c src/nanoisa/file_host_grant.c -o obj/nanoisa/file_host_grant.o
+2026-10-21T05:00:48.0790683Z cc  -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -DNVM_FILE_PUBLIC_ENGINE -c src/nanoisa/file_runtime.c -o obj/nanoisa/file_runtime_public.o
+2026-10-21T05:00:49.6503978Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_public_native.c -o obj/nanoisa/file_public_native.o
+2026-10-21T05:00:49.9069516Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/file_public_vm.c -o obj/nanovm/file_public_vm.o
+2026-10-21T05:00:50.1083315Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_cyclic_public_native.c -o obj/nanoisa/file_cyclic_public_native.o
+2026-10-21T05:00:50.4349460Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/file_cyclic_public_vm.c -o obj/nanovm/file_cyclic_public_vm.o
+2026-10-21T05:00:50.6777709Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_cyclic_public_abi.c -o obj/nanoisa/file_cyclic_public_abi.o
+2026-10-21T05:00:50.7030218Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_indirect_public_native.c -o obj/nanoisa/file_indirect_public_native.o
+2026-10-21T05:00:51.1090166Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/file_indirect_public_vm.c -o obj/nanovm/file_indirect_public_vm.o
+2026-10-21T05:00:51.4072556Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_indirect_public_abi.c -o obj/nanoisa/file_indirect_public_abi.o
+2026-10-21T05:00:51.4320578Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_cap.c -o obj/nsi_cap.o
+2026-10-21T05:00:51.7787785Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_file.c -o obj/nsi_file.o
+2026-10-21T05:00:51.9213881Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_file_values.c -o obj/nsi_file_values.o
+2026-10-21T05:00:52.1617133Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_runtime.c -o obj/nanoisa/socket_runtime.o
+2026-10-21T05:00:53.6159928Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_host_grant.c -o obj/nanoisa/socket_host_grant.o
+2026-10-21T05:00:53.6649825Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_indirect_public_native.c -o obj/nanoisa/socket_indirect_public_native.o
+2026-10-21T05:00:54.0358145Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_indirect_public_abi.c -o obj/nanoisa/socket_indirect_public_abi.o
+2026-10-21T05:00:54.0602256Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/socket_indirect_public_vm.c -o obj/nanovm/socket_indirect_public_vm.o
+2026-10-21T05:00:54.3317838Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_socket.c -o obj/nsi_socket.o
+2026-10-21T05:00:54.7248858Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_socket_values.c -o obj/nsi_socket_values.o
+2026-10-21T05:00:54.9875344Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/runtime/service_policy.c -o obj/runtime/service_policy.o
+2026-10-21T05:00:55.0494172Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_runtime.c -o obj/nanoisa/services_runtime.o
+2026-10-21T05:00:56.7342039Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_host_grant.c -o obj/nanoisa/services_host_grant.o
+2026-10-21T05:00:56.8435371Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_indirect_public_native.c -o obj/nanoisa/services_indirect_public_native.o
+2026-10-21T05:00:57.2494610Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_indirect_public_abi.c -o obj/nanoisa/services_indirect_public_abi.o
+2026-10-21T05:00:57.2749719Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/services_indirect_public_vm.c -o obj/nanovm/services_indirect_public_vm.o
+2026-10-21T05:00:57.5696570Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_services_values.c -o obj/nsi_services_values.o
+2026-10-21T05:00:57.8056420Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_websocket_values.c -o obj/nsi_websocket_values.o
+2026-10-21T05:00:58.0210974Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_websocket_transport.c -o obj/nsi_websocket_transport.o
+2026-10-21T05:00:58.3410946Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_websocket_protocol.c -o obj/nsi_websocket_protocol.o
+2026-10-21T05:00:58.6763703Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nsi_socket_resolver.c -o obj/nsi_socket_resolver.o
+2026-10-21T05:00:58.8761903Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_runtime.c -o obj/nanoisa/websocket_runtime.o
+2026-10-21T05:01:00.4168831Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_host_grant.c -o obj/nanoisa/websocket_host_grant.o
+2026-10-21T05:01:00.4732501Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_indirect_public_native.c -o obj/nanoisa/websocket_indirect_public_native.o
+2026-10-21T05:01:00.8456047Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -Isrc/nanoisa -c src/nanoisa/websocket_indirect_public_abi.c -o obj/nanoisa/websocket_indirect_public_abi.o
+2026-10-21T05:01:00.8732341Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovm/websocket_indirect_public_vm.c -o obj/nanovm/websocket_indirect_public_vm.o
+2026-10-21T05:01:01.1924956Z cc  -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage -fprofile-arcs -ftest-coverage -fPIC -shared -o bin/nano_as_capture.so src/runtime/assembler_capture.c -lm -lcrypto -fprofile-arcs -ftest-coverage -lcrypto -lffi -rdynamic -fprofile-arcs -ftest-coverage -ldl
+2026-10-21T05:01:01.4309388Z Stage 1: Building C reference compiler...
+2026-10-21T05:01:01.4452172Z   (Coverage instrumentation detected in objects - linking with coverage flags)
+2026-10-21T05:01:01.6183856Z ✓ C Compiler: bin/nanoc_c
+2026-10-21T05:01:01.6242978Z ✓ Compiler: bin/nanoc -> bin/nanoc_c (C reference)
+2026-10-21T05:01:01.6264722Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/ffi_bindgen.c -o obj/ffi_bindgen.o
+2026-10-21T05:01:01.8121222Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -o bin/nanoc-ffi obj/ffi_bindgen.o obj/utf8.o -lm -lcrypto -fprofile-arcs -ftest-coverage -lcrypto -lffi  -rdynamic -fprofile-arcs -ftest-coverage
+2026-10-21T05:01:01.8423130Z ✓ Stage 1 complete (C reference binaries)
+2026-10-21T05:01:01.9098366Z 
+2026-10-21T05:01:01.9110298Z ==========================================
+2026-10-21T05:01:01.9121586Z Stage 2: Building Self-Hosted Components
+2026-10-21T05:01:01.9132933Z ==========================================
+2026-10-21T05:01:01.9144251Z Compiling components with bin/nanoc...
+2026-10-21T05:01:01.9155680Z 
+2026-10-21T05:01:01.9312314Z   Building parser...
+2026-10-21T05:01:10.9083997Z     ✓ parser compiled successfully
+2026-10-21T05:01:10.9084302Z 
+2026-10-21T05:01:10.9084526Z   Building typecheck...
+2026-10-21T05:01:35.7628532Z     ✓ typecheck compiled successfully
+2026-10-21T05:01:35.7629084Z 
+2026-10-21T05:01:35.7629215Z   Building nanoisa_emitter...
+2026-10-21T05:02:19.2439356Z     ✓ nanoisa_emitter compiled successfully
+2026-10-21T05:02:19.2439708Z 
+2026-10-21T05:02:19.2440310Z ✓ Stage 2: 3/3 components built successfully
+2026-10-21T05:02:19.2499294Z 
+2026-10-21T05:02:19.2508567Z ==========================================
+2026-10-21T05:02:19.2521627Z Stage 3: Bootstrap Validation
+2026-10-21T05:02:19.2532752Z ==========================================
+2026-10-21T05:02:19.2545809Z Validating self-hosted components...
+2026-10-21T05:02:19.2556416Z 
+2026-10-21T05:02:19.2596490Z   Checking parser entry assertions...
+2026-10-21T05:02:19.2833944Z     ✓ parser entry assertions passed
+2026-10-21T05:02:19.2834351Z   Checking typecheck entry assertions...
+2026-10-21T05:02:19.3165369Z     ✓ typecheck entry assertions passed
+2026-10-21T05:02:19.3165800Z   Checking nanoisa_emitter entry assertions...
+2026-10-21T05:02:19.3252087Z     ✓ nanoisa_emitter entry assertions passed
+2026-10-21T05:02:19.3252970Z 
+2026-10-21T05:02:19.3253350Z ✓ Stage 3: 3/3 component entry checks passed; imported shadows are separate
+2026-10-21T05:02:19.3283446Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nano_main.c -o obj/nano_main.o
+2026-10-21T05:02:19.4224341Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -MMD -MP -c src/proptest.c -o obj/proptest.o
+2026-10-21T05:02:19.6332212Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -o bin/nano obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/checked_borrow_facts.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nano_main.o obj/proptest.o -lm -lcrypto -fprofile-arcs -ftest-coverage -lcrypto -lffi  -rdynamic -fprofile-arcs -ftest-coverage
+2026-10-21T05:02:19.8899762Z ✓ Interpreter: bin/nano
+2026-10-21T05:02:19.8997700Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -fprofile-arcs -ftest-coverage -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror src/nsi_socket_resolver_main.c src/nsi_socket.c src/nsi_cap.c -o bin/nano-resolver -lm -lcrypto -fprofile-arcs -ftest-coverage -lcrypto -lffi  -rdynamic -fprofile-arcs -ftest-coverage
+2026-10-21T05:02:20.6998255Z 
+2026-10-21T05:02:20.7009279Z ==========================================
+2026-10-21T05:02:20.7021466Z ✅ Build Complete (3-Stage Bootstrap)
+2026-10-21T05:02:20.7033023Z ==========================================
+2026-10-21T05:02:20.7055291Z make[1]: Entering directory '/workspace'
+2026-10-21T05:02:20.8661576Z Build Status:
+2026-10-21T05:02:20.8672032Z 
+2026-10-21T05:02:20.8683979Z   ✅ Stage 1: C reference compiler (bin/nanoc)
+2026-10-21T05:02:20.8695507Z   ✅ Stage 2: Self-hosted components compiled
+2026-10-21T05:02:20.8695910Z     • parser
+2026-10-21T05:02:20.8696245Z     • typecheck
+2026-10-21T05:02:20.8696556Z     • nanoisa_emitter
+2026-10-21T05:02:20.8707510Z   ✅ Stage 3: Bootstrap validated
+2026-10-21T05:02:20.8718093Z 
+2026-10-21T05:02:20.8719289Z make[1]: Leaving directory '/workspace'
+2026-10-21T05:02:20.8735964Z 
+2026-10-21T05:02:21.1951043Z ##[group]Run make bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+2026-10-21T05:02:21.1951533Z [36;1mmake bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"[0m
+2026-10-21T05:02:21.2032416Z shell: /usr/bin/python3 scripts/ci_container.py shell {0}
+2026-10-21T05:02:21.2032767Z env:
+2026-10-21T05:02:21.2033123Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T05:02:21.2033476Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T05:02:21.2033755Z   NANO_SHADOW_TRACE: 1
+2026-10-21T05:02:21.2034124Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T05:02:21.2034601Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T05:02:21.2035017Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T05:02:21.2035285Z   BOOTSTRAP_NANOISA_TIMEOUT: 5400
+2026-10-21T05:02:21.2035687Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage
+2026-10-21T05:02:21.2036192Z   LDFLAGS: -lm -lcrypto -fprofile-arcs -ftest-coverage
+2026-10-21T05:02:21.2036543Z ##[endgroup]
+2026-10-21T05:02:21.2968175Z {"container": {"archive_sha256": "cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5", "config_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "image_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "platform": "linux/amd64", "version": 1}, "outer_runner": {"ImageOS": "ubuntu24", "ImageVersion": "20261018.339.1"}}
+2026-10-21T05:02:21.5411488Z ✓ Bootstrap Stage 0: C reference compiler ready
+2026-10-21T05:02:21.6470754Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -MMD -MP -c src/nanovirt/main.c -o obj/nanovirt/main.o
+2026-10-21T05:02:21.8343104Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -o bin/nano_virt obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a \
+2026-10-21T05:02:21.8354205Z 	obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/checked_borrow_facts.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nanovirt/main.o obj/service_driver.o obj/service_lowering.o obj/runtime/service_product.o obj/runtime/service_shadows.o lib/libnano_file_runtime.a lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a -lm -lcrypto -fprofile-arcs -ftest-coverage -lcrypto -lffi  -rdynamic
+2026-10-21T05:02:22.1040038Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -MMD -MP -c src/nanovm/vmd_protocol.c -o obj/nanovm/vmd_protocol.o
+2026-10-21T05:02:22.1756884Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -MMD -MP -c src/nanovm/vmd_client.c -o obj/nanovm/vmd_client.o
+2026-10-21T05:02:22.2585614Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -MMD -MP -c src/nanovm/main.c -o obj/nanovm/main.o
+2026-10-21T05:02:22.5083414Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_cli.c -o obj/nanoisa/file_cli.o
+2026-10-21T05:02:22.5812536Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/checked_borrow_facts.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+2026-10-21T05:02:22.5821147Z 	obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+2026-10-21T05:02:22.5821872Z 	obj/nanovm/main.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a -lm -lcrypto -fprofile-arcs -ftest-coverage -lcrypto -lffi  -rdynamic -rdynamic
+2026-10-21T05:02:22.7620254Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/dump_main.c -o obj/nanoisa/dump_main.o
+2026-10-21T05:02:22.8166818Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -o bin/nanoisa obj/nanoisa/dump_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o -lm -lcrypto -fprofile-arcs -ftest-coverage -lcrypto -lffi  -rdynamic
+2026-10-21T05:02:22.8685386Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c src/nanoisa/nvm2c_main.c -o obj/nanoisa/nvm2c_main.o
+2026-10-21T05:02:22.9481798Z cc -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage  -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a -lm -lcrypto -fprofile-arcs -ftest-coverage -lcrypto -lffi  -rdynamic
+2026-10-21T05:02:23.0151871Z cc -r -nostdlib -o bin/nano_aot_runtime.o obj/runtime/dyn_array.o obj/runtime/gc.o obj/runtime/gc_struct.o
+2026-10-21T05:02:23.0285237Z python3 scripts/embed_binary64_parser.py --check
+2026-10-21T05:02:23.2479499Z I run seed; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/00-seed.log.
+2026-10-21T05:03:43.1564304Z I run seed-verify; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/01-seed-verify.log.
+2026-10-21T05:03:45.8612263Z I run stage1; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/02-stage1.log.
+2026-10-21T05:19:12.1534100Z I run stage1-verify; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/03-stage1-verify.log.
+2026-10-21T05:19:14.4134556Z I run stage1-translate; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/04-stage1-translate.log.
+2026-10-21T05:20:06.3238548Z I run stage1-native; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/05-stage1-native.log.
+2026-10-21T05:21:56.3107704Z I run stage1-hello-compile; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/06-stage1-hello-compile.log.
+2026-10-21T05:21:56.4774920Z I run stage1-hello-execute; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/07-stage1-hello-execute.log.
+2026-10-21T05:21:57.0580166Z I run stage2; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/08-stage2.log.
+2026-10-21T05:37:25.4058558Z I run stage2-verify; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/09-stage2-verify.log.
+2026-10-21T05:37:27.4427371Z I run stage2-translate; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/10-stage2-translate.log.
+2026-10-21T05:38:20.5754781Z I run stage2-native; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/11-stage2-native.log.
+2026-10-21T05:40:13.4073167Z I run stage2-hello-compile; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/12-stage2-hello-compile.log.
+2026-10-21T05:40:13.5740333Z I run stage2-hello-execute; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/13-stage2-hello-execute.log.
+2026-10-21T05:40:13.9833244Z I run seed-final-verify; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/14-seed-final-verify.log.
+2026-10-21T05:40:16.1951350Z I run stage1-final-verify; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/15-stage1-final-verify.log.
+2026-10-21T05:40:18.1056701Z I run stage2-final-verify; I retain its log at /workspace/obj/bootstrap-nanoisa/run-poag00ei/16-stage2-final-verify.log.
+2026-10-21T05:40:19.9997405Z I compared raw Stage 1 and Stage 2 modules: they are byte-identical in this build.
+2026-10-21T05:40:19.9998629Z I have not established reproducibility across clean environments or proved compiler semantic correctness.
+2026-10-21T05:40:20.0103534Z I installed bin/nanoc from the verified Stage 2 module.
+2026-10-21T05:40:20.0331757Z I am testing shadow main
+2026-10-21T05:40:20.0332123Z Hello from NanoLang!
+2026-10-21T05:40:20.1231341Z 🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+2026-10-21T05:40:20.1443758Z I am testing shadow main
+2026-10-21T05:40:20.1444107Z Hello from NanoLang!
+2026-10-21T05:40:20.2290311Z ✅ bin/nanoc succeeded with bin/nanoc_c removed
+2026-10-21T05:40:20.4914316Z ##[group]Run python3 scripts/ci_bootstrap_checkpoint.py pack "$RUNNER_TEMP/coverage-bootstrap.tar.gz" --phase stage2
+2026-10-21T05:40:20.4914991Z [36;1mpython3 scripts/ci_bootstrap_checkpoint.py pack "$RUNNER_TEMP/coverage-bootstrap.tar.gz" --phase stage2[0m
+2026-10-21T05:40:20.4944614Z shell: /usr/bin/python3 scripts/ci_container.py shell {0}
+2026-10-21T05:40:20.4945015Z env:
+2026-10-21T05:40:20.4945340Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T05:40:20.5068406Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T05:40:20.5068917Z   NANO_SHADOW_TRACE: 1
+2026-10-21T05:40:20.5069352Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T05:40:20.5069843Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T05:40:20.5070217Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T05:40:20.5070466Z   BOOTSTRAP_NANOISA_TIMEOUT: 5400
+2026-10-21T05:40:20.5070870Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage
+2026-10-21T05:40:20.5071463Z   LDFLAGS: -lm -lcrypto -fprofile-arcs -ftest-coverage
+2026-10-21T05:40:20.5071690Z ##[endgroup]
+2026-10-21T05:40:20.7006765Z {"container": {"archive_sha256": "cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5", "config_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "image_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "platform": "linux/amd64", "version": 1}, "outer_runner": {"ImageOS": "ubuntu24", "ImageVersion": "20261018.339.1"}}
+2026-10-21T05:46:34.2462113Z I retained the successful instrumented bootstrap checkpoint.
+2026-10-21T05:46:34.3604811Z ##[group]Run actions/upload-artifact@v4
+2026-10-21T05:46:34.3605060Z with:
+2026-10-21T05:46:34.3605242Z   name: coverage-bootstrap-39544892945-1
+2026-10-21T05:46:34.3605512Z   path: /home/runner/work/_temp/coverage-bootstrap.tar.gz
+2026-10-21T05:46:34.3605775Z   if-no-files-found: error
+2026-10-21T05:46:34.3605989Z   compression-level: 0
+2026-10-21T05:46:34.3606167Z   retention-days: 7
+2026-10-21T05:46:34.3606330Z   overwrite: false
+2026-10-21T05:46:34.3606504Z   include-hidden-files: false
+2026-10-21T05:46:34.3606685Z env:
+2026-10-21T05:46:34.3606885Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T05:46:34.3607145Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T05:46:34.3607343Z   NANO_SHADOW_TRACE: 1
+2026-10-21T05:46:34.3607647Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T05:46:34.3608082Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T05:46:34.3608453Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T05:46:34.3608850Z   BOOTSTRAP_NANOISA_TIMEOUT: 5400
+2026-10-21T05:46:34.3609187Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage
+2026-10-21T05:46:34.3609615Z   LDFLAGS: -lm -lcrypto -fprofile-arcs -ftest-coverage
+2026-10-21T05:46:34.3609868Z ##[endgroup]
+2026-10-21T05:46:34.6160319Z (node:60820) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-21T05:46:34.6161433Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-21T05:46:34.6210346Z With the provided path, there will be 1 file uploaded
+2026-10-21T05:46:34.6215421Z Artifact name is valid!
+2026-10-21T05:46:34.6215720Z Root directory input is valid!
+2026-10-21T05:46:34.9326971Z Beginning upload of artifact content to blob storage
+2026-10-21T05:46:34.9810738Z (node:60820) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-21T05:46:35.4224248Z Uploaded bytes 8388608
+2026-10-21T05:46:35.4815534Z Uploaded bytes 16777216
+2026-10-21T05:46:35.5873939Z Uploaded bytes 25165824
+2026-10-21T05:46:35.5989826Z Uploaded bytes 33554432
+2026-10-21T05:46:35.6236079Z Uploaded bytes 41943040
+2026-10-21T05:46:35.6773821Z Uploaded bytes 50331648
+2026-10-21T05:46:35.7457867Z Uploaded bytes 58720256
+2026-10-21T05:46:35.7681344Z Uploaded bytes 67108864
+2026-10-21T05:46:35.7970087Z Uploaded bytes 75497472
+2026-10-21T05:46:35.8937636Z Uploaded bytes 83886080
+2026-10-21T05:46:35.9262946Z Uploaded bytes 92274688
+2026-10-21T05:46:35.9547045Z Uploaded bytes 100663296
+2026-10-21T05:46:35.9631344Z Uploaded bytes 109051904
+2026-10-21T05:46:36.0698351Z Uploaded bytes 117440512
+2026-10-21T05:46:36.1127415Z Uploaded bytes 125829120
+2026-10-21T05:46:36.1241982Z Uploaded bytes 134217728
+2026-10-21T05:46:36.1548999Z Uploaded bytes 142606336
+2026-10-21T05:46:36.2200933Z Uploaded bytes 150994944
+2026-10-21T05:46:36.2802772Z Uploaded bytes 159383552
+2026-10-21T05:46:36.3143414Z Uploaded bytes 167772160
+2026-10-21T05:46:36.3762489Z Uploaded bytes 176160768
+2026-10-21T05:46:36.3909293Z Uploaded bytes 184549376
+2026-10-21T05:46:36.4617968Z Uploaded bytes 192937984
+2026-10-21T05:46:36.4996479Z Uploaded bytes 201326592
+2026-10-21T05:46:36.5353759Z Uploaded bytes 209715200
+2026-10-21T05:46:36.5575877Z Uploaded bytes 218103808
+2026-10-21T05:46:36.6263099Z Uploaded bytes 226492416
+2026-10-21T05:46:36.7008138Z Uploaded bytes 234881024
+2026-10-21T05:46:36.7179671Z Uploaded bytes 243269632
+2026-10-21T05:46:36.8116912Z Uploaded bytes 251658240
+2026-10-21T05:46:36.8344468Z Uploaded bytes 260046848
+2026-10-21T05:46:36.9049190Z Uploaded bytes 268435456
+2026-10-21T05:46:36.9231742Z Uploaded bytes 276824064
+2026-10-21T05:46:37.0170511Z Uploaded bytes 285212672
+2026-10-21T05:46:37.0289669Z Uploaded bytes 293601280
+2026-10-21T05:46:37.0479588Z Uploaded bytes 301989888
+2026-10-21T05:46:37.1195120Z Uploaded bytes 310378496
+2026-10-21T05:46:37.2076098Z Uploaded bytes 318767104
+2026-10-21T05:46:37.2168505Z Uploaded bytes 327155712
+2026-10-21T05:46:37.2256474Z Uploaded bytes 335544320
+2026-10-21T05:46:37.2927832Z Uploaded bytes 343932928
+2026-10-21T05:46:37.3870564Z Uploaded bytes 352321536
+2026-10-21T05:46:37.3963279Z Uploaded bytes 360710144
+2026-10-21T05:46:37.4055475Z Uploaded bytes 369098752
+2026-10-21T05:46:37.4623821Z Uploaded bytes 377487360
+2026-10-21T05:46:37.5952044Z Uploaded bytes 385875968
+2026-10-21T05:46:37.6043349Z Uploaded bytes 394264576
+2026-10-21T05:46:37.6135982Z Uploaded bytes 402653184
+2026-10-21T05:46:37.6342517Z Uploaded bytes 411041792
+2026-10-21T05:46:37.7860717Z Uploaded bytes 419430400
+2026-10-21T05:46:37.7995156Z Uploaded bytes 427819008
+2026-10-21T05:46:37.8490783Z Uploaded bytes 436207616
+2026-10-21T05:46:37.8659822Z Uploaded bytes 444596224
+2026-10-21T05:46:37.9994004Z Uploaded bytes 452984832
+2026-10-21T05:46:38.0114298Z Uploaded bytes 461373440
+2026-10-21T05:46:38.0314704Z Uploaded bytes 469762048
+2026-10-21T05:46:38.0459666Z Uploaded bytes 478150656
+2026-10-21T05:46:38.1973333Z Uploaded bytes 486539264
+2026-10-21T05:46:38.2079478Z Uploaded bytes 494927872
+2026-10-21T05:46:38.2209858Z Uploaded bytes 503316480
+2026-10-21T05:46:38.2948031Z Uploaded bytes 511705088
+2026-10-21T05:46:38.3594934Z Uploaded bytes 520093696
+2026-10-21T05:46:38.3888139Z Uploaded bytes 528482304
+2026-10-21T05:46:38.4041789Z Uploaded bytes 536870912
+2026-10-21T05:46:38.5249908Z Uploaded bytes 545259520
+2026-10-21T05:46:38.5466518Z Uploaded bytes 553648128
+2026-10-21T05:46:38.6086613Z Uploaded bytes 562036736
+2026-10-21T05:46:38.6175987Z Uploaded bytes 570425344
+2026-10-21T05:46:38.7072602Z Uploaded bytes 578813952
+2026-10-21T05:46:38.7418392Z Uploaded bytes 587202560
+2026-10-21T05:46:38.8291321Z Uploaded bytes 595591168
+2026-10-21T05:46:38.8379448Z Uploaded bytes 603979776
+2026-10-21T05:46:38.9009020Z Uploaded bytes 612368384
+2026-10-21T05:46:38.9166066Z Uploaded bytes 620756992
+2026-10-21T05:46:38.9843392Z Uploaded bytes 629145600
+2026-10-21T05:46:38.9999762Z Uploaded bytes 637534208
+2026-10-21T05:46:39.0708011Z Uploaded bytes 645922816
+2026-10-21T05:46:39.0907129Z Uploaded bytes 654311424
+2026-10-21T05:46:39.1302054Z Uploaded bytes 662700032
+2026-10-21T05:46:39.1956228Z Uploaded bytes 671088640
+2026-10-21T05:46:39.2433870Z Uploaded bytes 679477248
+2026-10-21T05:46:39.3013878Z Uploaded bytes 687865856
+2026-10-21T05:46:39.3168633Z Uploaded bytes 696254464
+2026-10-21T05:46:39.4497571Z Uploaded bytes 704643072
+2026-10-21T05:46:39.4720247Z Uploaded bytes 713031680
+2026-10-21T05:46:39.4808338Z Uploaded bytes 721420288
+2026-10-21T05:46:39.4883770Z Uploaded bytes 729808896
+2026-10-21T05:46:39.6441645Z Uploaded bytes 738197504
+2026-10-21T05:46:39.6536493Z Uploaded bytes 746586112
+2026-10-21T05:46:39.6667847Z Uploaded bytes 754974720
+2026-10-21T05:46:39.7380105Z Uploaded bytes 763363328
+2026-10-21T05:46:39.8438200Z Uploaded bytes 771751936
+2026-10-21T05:46:39.8614450Z Uploaded bytes 780140544
+2026-10-21T05:46:39.8730296Z Uploaded bytes 788529152
+2026-10-21T05:46:39.9069806Z Uploaded bytes 796917760
+2026-10-21T05:46:40.0165972Z Uploaded bytes 805306368
+2026-10-21T05:46:40.0482310Z Uploaded bytes 813694976
+2026-10-21T05:46:40.0574993Z Uploaded bytes 822083584
+2026-10-21T05:46:40.1285603Z Uploaded bytes 830472192
+2026-10-21T05:46:40.2325541Z Uploaded bytes 838860800
+2026-10-21T05:46:40.2421510Z Uploaded bytes 847249408
+2026-10-21T05:46:40.2731144Z Uploaded bytes 855638016
+2026-10-21T05:46:40.2979649Z Uploaded bytes 864026624
+2026-10-21T05:46:40.4186540Z Uploaded bytes 872415232
+2026-10-21T05:46:40.4501266Z Uploaded bytes 880803840
+2026-10-21T05:46:40.4769072Z Uploaded bytes 889192448
+2026-10-21T05:46:40.5212751Z Uploaded bytes 897581056
+2026-10-21T05:46:40.5824608Z Uploaded bytes 905969664
+2026-10-21T05:46:40.6360798Z Uploaded bytes 914358272
+2026-10-21T05:46:40.6912992Z Uploaded bytes 922746880
+2026-10-21T05:46:40.7114637Z Uploaded bytes 931135488
+2026-10-21T05:46:40.8145667Z Uploaded bytes 939524096
+2026-10-21T05:46:40.8424568Z Uploaded bytes 947912704
+2026-10-21T05:46:40.8559967Z Uploaded bytes 956301312
+2026-10-21T05:46:40.9617411Z Uploaded bytes 964689920
+2026-10-21T05:46:41.0150555Z Uploaded bytes 973078528
+2026-10-21T05:46:41.0477131Z Uploaded bytes 981467136
+2026-10-21T05:46:41.0836414Z Uploaded bytes 989855744
+2026-10-21T05:46:41.1073619Z Uploaded bytes 998244352
+2026-10-21T05:46:41.1784543Z Uploaded bytes 1006632960
+2026-10-21T05:46:41.2479628Z Uploaded bytes 1015021568
+2026-10-21T05:46:41.2935509Z Uploaded bytes 1023410176
+2026-10-21T05:46:41.3260677Z Uploaded bytes 1031798784
+2026-10-21T05:46:41.4199439Z Uploaded bytes 1040187392
+2026-10-21T05:46:41.4296385Z Uploaded bytes 1048576000
+2026-10-21T05:46:41.4386957Z Uploaded bytes 1056964608
+2026-10-21T05:46:41.5230133Z Uploaded bytes 1065353216
+2026-10-21T05:46:41.5730110Z Uploaded bytes 1073741824
+2026-10-21T05:46:41.6332817Z Uploaded bytes 1082130432
+2026-10-21T05:46:41.6536859Z Uploaded bytes 1090519040
+2026-10-21T05:46:41.7238088Z Uploaded bytes 1098907648
+2026-10-21T05:46:41.7484553Z Uploaded bytes 1107296256
+2026-10-21T05:46:41.8553277Z Uploaded bytes 1115684864
+2026-10-21T05:46:41.8789804Z Uploaded bytes 1124073472
+2026-10-21T05:46:41.9097948Z Uploaded bytes 1132462080
+2026-10-21T05:46:42.0154699Z Uploaded bytes 1140850688
+2026-10-21T05:46:42.0378999Z Uploaded bytes 1149239296
+2026-10-21T05:46:42.0655458Z Uploaded bytes 1157627904
+2026-10-21T05:46:42.1473531Z Uploaded bytes 1166016512
+2026-10-21T05:46:42.2139192Z Uploaded bytes 1174405120
+2026-10-21T05:46:42.2560518Z Uploaded bytes 1182793728
+2026-10-21T05:46:42.2721239Z Uploaded bytes 1191182336
+2026-10-21T05:46:42.3002606Z Uploaded bytes 1199570944
+2026-10-21T05:46:42.4192391Z Uploaded bytes 1207959552
+2026-10-21T05:46:42.4412235Z Uploaded bytes 1216348160
+2026-10-21T05:46:42.5104689Z Uploaded bytes 1224736768
+2026-10-21T05:46:42.5741550Z Uploaded bytes 1233125376
+2026-10-21T05:46:42.6307393Z Uploaded bytes 1241513984
+2026-10-21T05:46:42.6436013Z Uploaded bytes 1249902592
+2026-10-21T05:46:42.6886772Z Uploaded bytes 1258291200
+2026-10-21T05:46:42.7322012Z Uploaded bytes 1266679808
+2026-10-21T05:46:42.8454916Z Uploaded bytes 1275068416
+2026-10-21T05:46:42.8541870Z Uploaded bytes 1283457024
+2026-10-21T05:46:42.8797019Z Uploaded bytes 1291845632
+2026-10-21T05:46:42.8884547Z Uploaded bytes 1300234240
+2026-10-21T05:46:43.0278254Z Uploaded bytes 1308622848
+2026-10-21T05:46:43.0469750Z Uploaded bytes 1317011456
+2026-10-21T05:46:43.0953970Z Uploaded bytes 1325400064
+2026-10-21T05:46:43.1142188Z Uploaded bytes 1333788672
+2026-10-21T05:46:43.1851000Z Uploaded bytes 1342177280
+2026-10-21T05:46:43.2357244Z Uploaded bytes 1350565888
+2026-10-21T05:46:43.2755403Z Uploaded bytes 1358954496
+2026-10-21T05:46:43.2847151Z Uploaded bytes 1367343104
+2026-10-21T05:46:43.3772232Z Uploaded bytes 1375731712
+2026-10-21T05:46:43.4349625Z Uploaded bytes 1384120320
+2026-10-21T05:46:43.4740595Z Uploaded bytes 1392508928
+2026-10-21T05:46:43.4944340Z Uploaded bytes 1400897536
+2026-10-21T05:46:43.5530844Z Uploaded bytes 1409286144
+2026-10-21T05:46:43.5906094Z Uploaded bytes 1417674752
+2026-10-21T05:46:43.6472625Z Uploaded bytes 1426063360
+2026-10-21T05:46:43.6945002Z Uploaded bytes 1434451968
+2026-10-21T05:46:43.7553385Z Uploaded bytes 1442840576
+2026-10-21T05:46:43.7780382Z Uploaded bytes 1451229184
+2026-10-21T05:46:43.8039910Z Uploaded bytes 1459617792
+2026-10-21T05:46:43.8918798Z Uploaded bytes 1468006400
+2026-10-21T05:46:43.9020407Z Uploaded bytes 1476395008
+2026-10-21T05:46:43.9765519Z Uploaded bytes 1484783616
+2026-10-21T05:46:43.9964021Z Uploaded bytes 1493172224
+2026-10-21T05:46:44.0827136Z Uploaded bytes 1501560832
+2026-10-21T05:46:44.1208317Z Uploaded bytes 1509949440
+2026-10-21T05:46:44.1944388Z Uploaded bytes 1518338048
+2026-10-21T05:46:44.2125665Z Uploaded bytes 1526726656
+2026-10-21T05:46:44.2342718Z Uploaded bytes 1535115264
+2026-10-21T05:46:44.3026319Z Uploaded bytes 1543503872
+2026-10-21T05:46:44.3843633Z Uploaded bytes 1551892480
+2026-10-21T05:46:44.3932822Z Uploaded bytes 1560281088
+2026-10-21T05:46:44.4113398Z Uploaded bytes 1568669696
+2026-10-21T05:46:44.4727908Z Uploaded bytes 1577058304
+2026-10-21T05:46:44.5393167Z Uploaded bytes 1585446912
+2026-10-21T05:46:44.5767987Z Uploaded bytes 1593835520
+2026-10-21T05:46:44.5889970Z Uploaded bytes 1602224128
+2026-10-21T05:46:44.7190167Z Uploaded bytes 1610612736
+2026-10-21T05:46:44.7363376Z Uploaded bytes 1619001344
+2026-10-21T05:46:44.7661631Z Uploaded bytes 1627389952
+2026-10-21T05:46:44.8000432Z Uploaded bytes 1635778560
+2026-10-21T05:46:44.9354105Z Uploaded bytes 1644167168
+2026-10-21T05:46:44.9505017Z Uploaded bytes 1652555776
+2026-10-21T05:46:44.9644671Z Uploaded bytes 1660944384
+2026-10-21T05:46:44.9719035Z Uploaded bytes 1669332992
+2026-10-21T05:46:45.1172265Z Uploaded bytes 1677721600
+2026-10-21T05:46:45.1303553Z Uploaded bytes 1686110208
+2026-10-21T05:46:45.1395375Z Uploaded bytes 1694498816
+2026-10-21T05:46:45.1485966Z Uploaded bytes 1702887424
+2026-10-21T05:46:45.3025170Z Uploaded bytes 1711276032
+2026-10-21T05:46:45.3290858Z Uploaded bytes 1719664640
+2026-10-21T05:46:45.3375187Z Uploaded bytes 1728053248
+2026-10-21T05:46:45.3808345Z Uploaded bytes 1736441856
+2026-10-21T05:46:45.4584135Z Uploaded bytes 1744830464
+2026-10-21T05:46:45.5930315Z Uploaded bytes 1753219072
+2026-10-21T05:46:45.6058048Z Uploaded bytes 1761607680
+2026-10-21T05:46:45.6315586Z Uploaded bytes 1769996288
+2026-10-21T05:46:45.6439635Z Uploaded bytes 1778384896
+2026-10-21T05:46:45.7625911Z Uploaded bytes 1786773504
+2026-10-21T05:46:45.7744029Z Uploaded bytes 1795162112
+2026-10-21T05:46:45.7951238Z Uploaded bytes 1803550720
+2026-10-21T05:46:45.8747461Z Uploaded bytes 1811939328
+2026-10-21T05:46:45.9770750Z Uploaded bytes 1820327936
+2026-10-21T05:46:45.9955946Z Uploaded bytes 1828716544
+2026-10-21T05:46:46.0133865Z Uploaded bytes 1837105152
+2026-10-21T05:46:46.0428438Z Uploaded bytes 1845493760
+2026-10-21T05:46:46.1476926Z Uploaded bytes 1853882368
+2026-10-21T05:46:46.1564349Z Uploaded bytes 1862270976
+2026-10-21T05:46:46.2352863Z Uploaded bytes 1870659584
+2026-10-21T05:46:46.2479308Z Uploaded bytes 1879048192
+2026-10-21T05:46:46.2814759Z Uploaded bytes 1879084924
+2026-10-21T05:46:46.3236271Z Finished uploading artifact content to blob storage!
+2026-10-21T05:46:46.3238238Z SHA256 digest of uploaded artifact zip is afa226ef5b914bf636baec7d084d3190fe8d5bfc8068bdbed2f499bc94735853
+2026-10-21T05:46:46.3240080Z Finalizing artifact upload
+2026-10-21T05:46:46.6383896Z Artifact coverage-bootstrap-39544892945-1.zip successfully finalized. Artifact ID 12323204442
+2026-10-21T05:46:46.6384574Z Artifact coverage-bootstrap-39544892945-1 has been successfully uploaded! Final size is 1879084924 bytes. Artifact ID is 12323204442
+2026-10-21T05:46:46.6390349Z Artifact download URL: https://github.com/jordanhubbard/nanolang/actions/runs/39544892945/artifacts/12323204442
+2026-10-21T05:46:46.6654182Z Post job cleanup.
+2026-10-21T05:46:46.7320444Z [command]/usr/bin/git version
+2026-10-21T05:46:46.7357243Z git version 2.55.0
+2026-10-21T05:46:46.7381205Z Temporarily overriding HOME='/home/runner/work/_temp/15dbb2bd-2fa5-4cdf-acb2-e3b338ed31b9' before making global git config changes
+2026-10-21T05:46:46.7382199Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-21T05:46:46.7384376Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/nanolang/nanolang
+2026-10-21T05:46:46.7414301Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-21T05:46:46.7438952Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-21T05:46:46.7760235Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-21T05:46:46.7780050Z http.https://github.com/.extraheader
+2026-10-21T05:46:46.7788573Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-21T05:46:46.7818909Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-21T05:46:46.8105457Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-21T05:46:46.8131352Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-21T05:46:46.8520753Z Evaluate and set job outputs
+2026-10-21T05:46:46.8526269Z Set output 'checkpoint-artifact'
+2026-10-21T05:46:46.8527728Z Cleaning up orphan processes
+2026-10-21T05:46:46.8677736Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -16272,3 +16272,6 @@ The double-call guard-only first gate preserves the first132/31 Nano cap refusal
 ### I qualify ordered double-call pretests (2026-10-20)
 
 I complete the exact ownership-v2 [exclusive,exclusive,shared] two-region pretest slice after retaining the unchanged baseline and132/31 output refusal. Existing caller-only finite rendering gives actual85/31, with selected consistency shadow108/31; original pretest order, result snapshots and helper remain unchanged. All seven new methods and seven old neighbors pass across retained runs, including exact native second-call assertion causality, actual128/estimated129 boundary and old one-call byte identity. I preserve the corrected tuple-test error. Receipt: `docs/evidence/double-call-pretest-reconstruction-20261020/README.md`. Loop-first witness and other profiles remain outside this change; final aggregate/platform gates remain open.
+
+
+I integrate the double-call pretest component at1f8286c92 and pass all seven aggregate methods in123.219s through unchanged seed/stages/providers. The [aggregate receipt](evidence/double-call-pretest-aggregate-20261020/README.md) retains exact local limits, selected-shadow execution, eager call order and native failure specificity. Current hosted platform and finite remaining scope stay open.
