@@ -1,0 +1,12 @@
+{
+  "Makefile.gnu": "3ef389e0669e7a195c4fb9d66916d599aafd42227afd2dd3058c8e6edecd9bcd",
+  "docs/NANOISA_MAP_PRIVATE_NATIVE_DESIGN.md": "a4ebd091824de05103c7c05ad3b8d16b7bbb6b4a594594b062e492c7bf15cac4",
+  "docs/ROADMAP.md": "2709773863db53776abb8c69739cc77a0a25fc1ccd455eefc56e41287df6811f",
+  "src/nanoisa/nvm2c.c": "7e47514d78041e02801b265c4b0108b964bd3530e2eb2c54805bee934ade7ba3",
+  "src/nanoisa/nvm2c_map_private.h": "6d7e0b404ed608407542ae839c8c06872490e3a83a7d0e70988ffbfbf3bb19ef",
+  "src/nanoisa/nvm2c_map_private.inc": "f6c76e9c6acd5760f50b5d78a252f63cf5a4656858fca6cf73235aa1c43e1d02",
+  "tests/nanoisa/native_map_alloc_probe.h": "94ab7150ab6c4b2d74cf7540b272da715b942aefd34c863591c5c540ff73aa00",
+  "tests/nanoisa/test_record_map_native.c": "c2a976ddce8783c73b653d142dfcc765b6c18b080076e612e9672625a7167d24",
+  "tests/nanoisa/test_record_map_native_alloc.c": "a8307dd19700e3f31aa495a67c079b5239f4dacdb48e5f0df4d1f8c77c5223e8",
+  "tests/test_record_map_native.py": "e3e9ae709f8db509e875645630985b1127438839c6199841bdd3ad606facdd94"
+}

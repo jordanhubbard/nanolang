@@ -1,0 +1,8 @@
+{
+  "src/nanoisa/nvm2c.c": "7e47514d78041e02801b265c4b0108b964bd3530e2eb2c54805bee934ade7ba3",
+  "src/nanoisa/nvm2c_map_private.h": "6d7e0b404ed608407542ae839c8c06872490e3a83a7d0e70988ffbfbf3bb19ef",
+  "src/nanoisa/nvm2c_map_private.inc": "f6c76e9c6acd5760f50b5d78a252f63cf5a4656858fca6cf73235aa1c43e1d02",
+  "tests/test_record_map_native.py": "e3e9ae709f8db509e875645630985b1127438839c6199841bdd3ad606facdd94",
+  "Makefile.gnu": "3ef389e0669e7a195c4fb9d66916d599aafd42227afd2dd3058c8e6edecd9bcd",
+  ".github/workflows/retirement-qualification.yml": "b61f1f0cca0a5a24c3773466e52835e16fd9202f7fa169562eb5e4711c2b8932"
+}

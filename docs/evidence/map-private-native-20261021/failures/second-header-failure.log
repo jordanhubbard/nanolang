@@ -1,0 +1,24 @@
+prior-build 0
+prior-link 1
+/private/tmp/nanolang-map-native-final-checks/golden.c:6:209: error: unknown type name 'NvmV2Module'; did you mean 'NvmModule'?
+    6 | int main(int argc,char **argv){if(argc!=2)return 2;FILE*f=fopen(argv[1],"rb");if(!f)return 3;fseek(f,0,SEEK_END);long n=ftell(f);rewind(f);void*b=malloc(n);if(!b||fread(b,1,n,f)!=(size_t)n)return 4;fclose(f);NvmV2Module v;NvmModule*m=NULL;if(nvm_v2_module_deserialize(b,n,&v)!=NVM_V2_OK)return 5;if(nvm_v2_to_nvm_module(&v,&m)!=NVM_V2_OK)return 6;nvm_v2_module_free(&v);free(b);char e[512];char*c=nvm2c_emit(m,e,sizeof e);if(!c){fprintf(stderr,"%s\n",e);return 7;}fputs(c,stdout);free(c);nvm_module_free(m);return 0;}
+      |                                                                                                                                                                                                                 ^~~~~~~~~~~
+      |                                                                                                                                                                                                                 NvmModule
+src/nanoisa/nvm_format.h:290:3: note: 'NvmModule' declared here
+  290 | } NvmModule;
+      |   ^
+/private/tmp/nanolang-map-native-final-checks/golden.c:6:243: error: call to undeclared function 'nvm_v2_module_deserialize'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    6 | int main(int argc,char **argv){if(argc!=2)return 2;FILE*f=fopen(argv[1],"rb");if(!f)return 3;fseek(f,0,SEEK_END);long n=ftell(f);rewind(f);void*b=malloc(n);if(!b||fread(b,1,n,f)!=(size_t)n)return 4;fclose(f);NvmV2Module v;NvmModule*m=NULL;if(nvm_v2_module_deserialize(b,n,&v)!=NVM_V2_OK)return 5;if(nvm_v2_to_nvm_module(&v,&m)!=NVM_V2_OK)return 6;nvm_v2_module_free(&v);free(b);char e[512];char*c=nvm2c_emit(m,e,sizeof e);if(!c){fprintf(stderr,"%s\n",e);return 7;}fputs(c,stdout);free(c);nvm_module_free(m);return 0;}
+      |                                                                                                                                                                                                                                                   ^
+/private/tmp/nanolang-map-native-final-checks/golden.c:6:300: error: call to undeclared function 'nvm_v2_to_nvm_module'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    6 | int main(int argc,char **argv){if(argc!=2)return 2;FILE*f=fopen(argv[1],"rb");if(!f)return 3;fseek(f,0,SEEK_END);long n=ftell(f);rewind(f);void*b=malloc(n);if(!b||fread(b,1,n,f)!=(size_t)n)return 4;fclose(f);NvmV2Module v;NvmModule*m=NULL;if(nvm_v2_module_deserialize(b,n,&v)!=NVM_V2_OK)return 5;if(nvm_v2_to_nvm_module(&v,&m)!=NVM_V2_OK)return 6;nvm_v2_module_free(&v);free(b);char e[512];char*c=nvm2c_emit(m,e,sizeof e);if(!c){fprintf(stderr,"%s\n",e);return 7;}fputs(c,stdout);free(c);nvm_module_free(m);return 0;}
+      |                                                                                                                                                                                                                                                                                                            ^
+/private/tmp/nanolang-map-native-final-checks/golden.c:6:348: error: call to undeclared function 'nvm_v2_module_free'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    6 | int main(int argc,char **argv){if(argc!=2)return 2;FILE*f=fopen(argv[1],"rb");if(!f)return 3;fseek(f,0,SEEK_END);long n=ftell(f);rewind(f);void*b=malloc(n);if(!b||fread(b,1,n,f)!=(size_t)n)return 4;fclose(f);NvmV2Module v;NvmModule*m=NULL;if(nvm_v2_module_deserialize(b,n,&v)!=NVM_V2_OK)return 5;if(nvm_v2_to_nvm_module(&v,&m)!=NVM_V2_OK)return 6;nvm_v2_module_free(&v);free(b);char e[512];char*c=nvm2c_emit(m,e,sizeof e);if(!c){fprintf(stderr,"%s\n",e);return 7;}fputs(c,stdout);free(c);nvm_module_free(m);return 0;}
+      |                                                                                                                                                                                                                                                                                                                                                            ^
+/private/tmp/nanolang-map-native-final-checks/golden.c:6:348: note: did you mean 'nvm_module_free'?
+src/nanoisa/nvm_format.h:300:6: note: 'nvm_module_free' declared here
+  300 | void nvm_module_free(NvmModule *mod);
+      |      ^
+4 errors generated.
+

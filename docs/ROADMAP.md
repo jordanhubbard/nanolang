@@ -16533,3 +16533,14 @@ I passed actual aggregate private runtime switch/goto gates (2 methods8.824s,271
 ### 2026-10-21 — aggregate private map observation
 
 I integrate f4fbe9c55 after reviewed source and seven-method component qualification. The actual aggregate target passes both dispatches (19,208 checks each; 2 methods, 9.459s) using all four retained originals; 68 workflow/boundary controls pass in 1.985s. I add the target to retirement compiler-contracts. Evidence: docs/evidence/map-observation-aggregate-20261021/README.md. Public/native/publisher admission remains closed and hosted gates pending.
+- #1001 owned_calls owns contract-only private native map consumer audit after f4fbe9c55: docs/NANOISA_MAP_PRIVATE_NATIVE_DESIGN.md maps legacy HM/shape/canonical record/GC sites and proposes a module-taking independently reproved copied-image entrypoint. Exact MAP field transfer and dynamic string byte closure remain review obligations; first four-original native qualification is proposed, not executed. No runtime/public/native/publisher admission edits or builds.
+
+- #1001 owned_calls starts reviewed private native source checkpoint after 4ede28aff: opt-in module-taking copied-image constructor, exact recipe/entry/ordinal/string boundary and private canonical map-field transfer. Source review before any build; unchanged four-original gate must stop at first native restriction/shape failure. Public emitter/admission remains unchanged.
+
+- #1001 owned_calls qualifies the private module-taking native map consumer after 4ede28aff: 2 methods/74.209s, four retained originals, 48 O0/O2 sanitized raw/forced-GC executions, complete 195-position compiler and 656-process generated allocation sweeps. Old public bytes (4), strict syntax (8), six budget rows and old execution/image neighbors (2/17.635s) pass. Evidence: docs/evidence/map-private-native-20261021/README.md. Public VM/native/loader/publisher selection remains refused; no frontend bootstrap or public-lifecycle completion claim.
+
+### I integrate the private native map consumer (2026-10-21)
+
+I merge the reviewed private module-taking native consumer and wire its actual target into retirement qualification. I require the four retained original modules through the aggregate Make target and the existing 68 workflow/capture/checkpoint/container/schema controls before committing. Public map admission remains closed; hosted exact-head qualification remains pending.
+
+I completed this integration gate: actual Make target with four originals passed 2 methods in 37.668s; all 68 workflow/capture/checkpoint/container/schema controls passed in 1.966s. I retain the receipt at `docs/evidence/map-native-aggregate-20261021/README.md`; public admission and exact-head hosted qualification remain open.
