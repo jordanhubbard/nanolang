@@ -16443,3 +16443,9 @@ I retain [copied map recipe qualification](evidence/map-execution-recipes-202610
 I integrate `6940bd144` by ancestry while preserving both roadmap histories. I add `test-record-map-execution` to platform compiler-contract qualification and run the aggregate Make gate against all four retained original modules before pushing. This copies recipes and does not admit execution.
 
 I completed aggregate copied-map-recipe qualification: 1981/4106 checks, 60 recipe and 45 stack/proof allocation prefixes, four retained originals, and 28 workflow/checkpoint/container controls. Receipt: `docs/evidence/map-recipes-aggregate-20261021/`. Public execution remains refused; image/runtime/publishers and current hosted gates remain open.
+
+### 2026-10-21: I repair stale opcode-schema dispatch marker
+
+Hosted sanitizer continuation `119110288530` passed both generations, raw fixedpoint, native checks and exact checkpoint continuation, then failed schema coverage because the test searched `VM_DISPATCH_BEGIN(instr.opcode)` while the actual VM uses `instr->opcode`. I own the narrow test marker correction and full schema-suite rerun; I retain the failure log. This is not an ASan finding and does not waive the remaining unit/negative/platform gates.
+
+I corrected the dispatch marker and passed all33 schema tests in1.209seconds using the qualification environment. I retain hosted generation success, exact unit failure and local missing-PyYAML prerequisite in `docs/evidence/sanitizer-schema-marker-20261021/`. Remaining sanitizer units/negatives and exact-current platform gates remain pending.

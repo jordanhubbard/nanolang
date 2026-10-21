@@ -1,0 +1,520 @@
+﻿2026-10-21T08:36:07.9252062Z Current runner version: '2.338.0'
+2026-10-21T08:36:07.9284921Z ##[group]Runner Image Provisioner
+2026-10-21T08:36:07.9286265Z Hosted Compute Agent
+2026-10-21T08:36:07.9287058Z Version: 20261012.601
+2026-10-21T08:36:07.9287936Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+2026-10-21T08:36:07.9288933Z Build Date: 2026-10-12T17:48:21Z
+2026-10-21T08:36:07.9289835Z Worker ID: {a8f5986c-6dc5-4df1-bf95-079105dcb232}
+2026-10-21T08:36:07.9290948Z Region: northcentralus
+2026-10-21T08:36:07.9291719Z Cloud: Azure
+2026-10-21T08:36:07.9292445Z ##[endgroup]
+2026-10-21T08:36:07.9294283Z ##[group]Operating System
+2026-10-21T08:36:07.9295131Z Ubuntu
+2026-10-21T08:36:07.9295887Z 24.04.5
+2026-10-21T08:36:07.9296698Z LTS
+2026-10-21T08:36:07.9297364Z ##[endgroup]
+2026-10-21T08:36:07.9298107Z ##[group]Runner Image
+2026-10-21T08:36:07.9298902Z Image: ubuntu-24.04
+2026-10-21T08:36:07.9299703Z Version: 20261012.334.1
+2026-10-21T08:36:07.9301453Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-21T08:36:07.9303572Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-21T08:36:07.9304817Z ##[endgroup]
+2026-10-21T08:36:07.9306872Z ##[group]GITHUB_TOKEN Permissions
+2026-10-21T08:36:07.9309698Z Contents: read
+2026-10-21T08:36:07.9310631Z Metadata: read
+2026-10-21T08:36:07.9311404Z ##[endgroup]
+2026-10-21T08:36:07.9313964Z Secret source: Actions
+2026-10-21T08:36:07.9315158Z Cache mode: write
+2026-10-21T08:36:07.9316540Z Prepare workflow directory
+2026-10-21T08:36:07.9945970Z Prepare all required actions
+2026-10-21T08:36:08.0016517Z Getting action download info
+2026-10-21T08:36:08.2160253Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-21T08:36:08.3016576Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-10-21T08:36:08.6737769Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-21T08:36:09.0206301Z Complete job name: Memory Sanitizers
+2026-10-21T08:36:09.0799499Z ##[group]Run test 'success' = success
+2026-10-21T08:36:09.0800431Z [36;1mtest 'success' = success[0m
+2026-10-21T08:36:09.0991848Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-21T08:36:09.0992899Z env:
+2026-10-21T08:36:09.0993562Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T08:36:09.0994416Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T08:36:09.0995045Z   NANO_SHADOW_TRACE: 1
+2026-10-21T08:36:09.0995928Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T08:36:09.0997517Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T08:36:09.0998510Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T08:36:09.0999213Z   BOOTSTRAP_NANOISA_TIMEOUT: 10800
+2026-10-21T08:36:09.0999833Z   CMD_TIMEOUT: 1800
+2026-10-21T08:36:09.1000989Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-21T08:36:09.1002234Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-21T08:36:09.1002971Z ##[endgroup]
+2026-10-21T08:36:09.1364546Z ##[group]Run actions/checkout@v4
+2026-10-21T08:36:09.1365334Z with:
+2026-10-21T08:36:09.1365991Z   repository: jordanhubbard/nanolang
+2026-10-21T08:36:09.1370356Z   token: ***
+2026-10-21T08:36:09.1370879Z   ssh-strict: true
+2026-10-21T08:36:09.1371472Z   ssh-user: git
+2026-10-21T08:36:09.1372029Z   persist-credentials: true
+2026-10-21T08:36:09.1372656Z   clean: true
+2026-10-21T08:36:09.1373220Z   sparse-checkout-cone-mode: true
+2026-10-21T08:36:09.1373848Z   fetch-depth: 1
+2026-10-21T08:36:09.1374965Z   fetch-tags: false
+2026-10-21T08:36:09.1375541Z   show-progress: true
+2026-10-21T08:36:09.1376313Z   lfs: false
+2026-10-21T08:36:09.1377039Z   submodules: false
+2026-10-21T08:36:09.1377625Z   set-safe-directory: true
+2026-10-21T08:36:09.1378449Z   allow-unsafe-pr-checkout: false
+2026-10-21T08:36:09.1379296Z env:
+2026-10-21T08:36:09.1380106Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T08:36:09.1380969Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T08:36:09.1381652Z   NANO_SHADOW_TRACE: 1
+2026-10-21T08:36:09.1382598Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T08:36:09.1383871Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T08:36:09.1384858Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T08:36:09.1385520Z   BOOTSTRAP_NANOISA_TIMEOUT: 10800
+2026-10-21T08:36:09.1386270Z   CMD_TIMEOUT: 1800
+2026-10-21T08:36:09.1387331Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-21T08:36:09.1388535Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-21T08:36:09.1389307Z ##[endgroup]
+2026-10-21T08:36:09.2342403Z Syncing repository: jordanhubbard/nanolang
+2026-10-21T08:36:09.2345043Z ##[group]Getting Git version info
+2026-10-21T08:36:09.2346444Z Working directory is '/home/runner/work/nanolang/nanolang'
+2026-10-21T08:36:09.2347929Z [command]/usr/bin/git version
+2026-10-21T08:36:09.2396839Z git version 2.55.0
+2026-10-21T08:36:09.2417013Z ##[endgroup]
+2026-10-21T08:36:09.2445053Z Temporarily overriding HOME='/home/runner/work/_temp/aee72c40-f71b-4ec7-abfc-fb4da85abe59' before making global git config changes
+2026-10-21T08:36:09.2447508Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-21T08:36:09.2449358Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/nanolang/nanolang
+2026-10-21T08:36:09.2534999Z Deleting the contents of '/home/runner/work/nanolang/nanolang'
+2026-10-21T08:36:09.2537261Z ##[group]Initializing the repository
+2026-10-21T08:36:09.2538522Z [command]/usr/bin/git init /home/runner/work/nanolang/nanolang
+2026-10-21T08:36:09.2650306Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-21T08:36:09.2652705Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-21T08:36:09.2654324Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-21T08:36:09.2655449Z hint: call:
+2026-10-21T08:36:09.2656418Z hint:
+2026-10-21T08:36:09.2657382Z hint: 	git config --global init.defaultBranch <name>
+2026-10-21T08:36:09.2658460Z hint:
+2026-10-21T08:36:09.2659392Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-21T08:36:09.2660855Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-21T08:36:09.2661869Z hint:
+2026-10-21T08:36:09.2662767Z hint: 	git branch -m <name>
+2026-10-21T08:36:09.2664708Z hint:
+2026-10-21T08:36:09.2666234Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-21T08:36:09.2667946Z Initialized empty Git repository in /home/runner/work/nanolang/nanolang/.git/
+2026-10-21T08:36:09.2670743Z [command]/usr/bin/git remote add origin https://github.com/jordanhubbard/nanolang
+2026-10-21T08:36:09.2716653Z ##[endgroup]
+2026-10-21T08:36:09.2717942Z ##[group]Disabling automatic garbage collection
+2026-10-21T08:36:09.2721224Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-21T08:36:09.2753166Z ##[endgroup]
+2026-10-21T08:36:09.2754521Z ##[group]Setting up auth
+2026-10-21T08:36:09.2760281Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-21T08:36:09.2790058Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-21T08:36:09.3137288Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-21T08:36:09.3170861Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-21T08:36:09.3368735Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-21T08:36:09.3398829Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-21T08:36:09.3580468Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-21T08:36:09.3621092Z ##[endgroup]
+2026-10-21T08:36:09.3622609Z ##[group]Fetching the repository
+2026-10-21T08:36:09.3630698Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +c7913f310a84d3a4e8c1617aa7c5d820645d489b:refs/remotes/origin/fix/5.1-immutable-sanitizer-container
+2026-10-21T08:36:17.6223416Z From https://github.com/jordanhubbard/nanolang
+2026-10-21T08:36:17.6225393Z  * [new ref]           c7913f310a84d3a4e8c1617aa7c5d820645d489b -> origin/fix/5.1-immutable-sanitizer-container
+2026-10-21T08:36:17.6228728Z ##[endgroup]
+2026-10-21T08:36:17.6229724Z ##[group]Determining the checkout info
+2026-10-21T08:36:17.6230614Z ##[endgroup]
+2026-10-21T08:36:17.6237457Z [command]/usr/bin/git sparse-checkout disable
+2026-10-21T08:36:17.6293828Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-21T08:36:17.6323818Z ##[group]Checking out the ref
+2026-10-21T08:36:17.6328693Z [command]/usr/bin/git checkout --progress --force -B fix/5.1-immutable-sanitizer-container refs/remotes/origin/fix/5.1-immutable-sanitizer-container
+2026-10-21T08:36:18.7150746Z Updating files:   7% (6776/86162)
+2026-10-21T08:36:18.8825732Z Updating files:   8% (6893/86162)
+2026-10-21T08:36:18.9717184Z Updating files:   9% (7755/86162)
+2026-10-21T08:36:19.0271353Z Updating files:  10% (8617/86162)
+2026-10-21T08:36:19.0768619Z Updating files:  11% (9478/86162)
+2026-10-21T08:36:19.4280350Z Updating files:  12% (10340/86162)
+2026-10-21T08:36:19.6937199Z Updating files:  13% (11202/86162)
+2026-10-21T08:36:19.7213280Z Updating files:  13% (11956/86162)
+2026-10-21T08:36:20.2310989Z Updating files:  14% (12063/86162)
+2026-10-21T08:36:20.3669669Z Updating files:  15% (12925/86162)
+2026-10-21T08:36:20.7053634Z Updating files:  16% (13786/86162)
+2026-10-21T08:36:21.6936988Z Updating files:  16% (13975/86162)
+2026-10-21T08:36:22.0372891Z Updating files:  16% (14430/86162)
+2026-10-21T08:36:22.4071451Z Updating files:  17% (14648/86162)
+2026-10-21T08:36:22.6937205Z Updating files:  18% (15510/86162)
+2026-10-21T08:36:22.7022636Z Updating files:  18% (16366/86162)
+2026-10-21T08:36:23.7032297Z Updating files:  19% (16371/86162)
+2026-10-21T08:36:23.8354057Z Updating files:  19% (17088/86162)
+2026-10-21T08:36:24.6777794Z Updating files:  20% (17233/86162)
+2026-10-21T08:36:24.6934482Z Updating files:  21% (18095/86162)
+2026-10-21T08:36:24.7366047Z Updating files:  21% (18726/86162)
+2026-10-21T08:36:24.8291528Z Updating files:  22% (18956/86162)
+2026-10-21T08:36:25.0133018Z Updating files:  23% (19818/86162)
+2026-10-21T08:36:25.0632799Z Updating files:  24% (20679/86162)
+2026-10-21T08:36:25.1175076Z Updating files:  25% (21541/86162)
+2026-10-21T08:36:25.1945208Z Updating files:  26% (22403/86162)
+2026-10-21T08:36:25.2641558Z Updating files:  27% (23264/86162)
+2026-10-21T08:36:25.3677455Z Updating files:  28% (24126/86162)
+2026-10-21T08:36:25.4038657Z Updating files:  29% (24987/86162)
+2026-10-21T08:36:25.6070940Z Updating files:  30% (25849/86162)
+2026-10-21T08:36:25.7417088Z Updating files:  31% (26711/86162)
+2026-10-21T08:36:25.7621172Z Updating files:  31% (27094/86162)
+2026-10-21T08:36:25.8290568Z Updating files:  32% (27572/86162)
+2026-10-21T08:36:25.8668390Z Updating files:  33% (28434/86162)
+2026-10-21T08:36:25.8904588Z Updating files:  34% (29296/86162)
+2026-10-21T08:36:25.9143426Z Updating files:  35% (30157/86162)
+2026-10-21T08:36:25.9351475Z Updating files:  36% (31019/86162)
+2026-10-21T08:36:25.9857559Z Updating files:  37% (31880/86162)
+2026-10-21T08:36:26.0608572Z Updating files:  38% (32742/86162)
+2026-10-21T08:36:26.1276535Z Updating files:  39% (33604/86162)
+2026-10-21T08:36:26.2755912Z Updating files:  40% (34465/86162)
+2026-10-21T08:36:26.3218912Z Updating files:  41% (35327/86162)
+2026-10-21T08:36:26.3718463Z Updating files:  42% (36189/86162)
+2026-10-21T08:36:26.4214509Z Updating files:  43% (37050/86162)
+2026-10-21T08:36:26.4947519Z Updating files:  44% (37912/86162)
+2026-10-21T08:36:26.5383122Z Updating files:  45% (38773/86162)
+2026-10-21T08:36:26.5860992Z Updating files:  46% (39635/86162)
+2026-10-21T08:36:26.7027931Z Updating files:  47% (40497/86162)
+2026-10-21T08:36:26.7392559Z Updating files:  47% (41332/86162)
+2026-10-21T08:36:27.1109900Z Updating files:  48% (41358/86162)
+2026-10-21T08:36:27.4222874Z Updating files:  49% (42220/86162)
+2026-10-21T08:36:27.6992326Z Updating files:  50% (43081/86162)
+2026-10-21T08:36:27.7906019Z Updating files:  50% (43894/86162)
+2026-10-21T08:36:28.1597093Z Updating files:  51% (43943/86162)
+2026-10-21T08:36:28.2781745Z Updating files:  52% (44805/86162)
+2026-10-21T08:36:28.4808253Z Updating files:  53% (45666/86162)
+2026-10-21T08:36:28.5965144Z Updating files:  54% (46528/86162)
+2026-10-21T08:36:28.7000462Z Updating files:  55% (47390/86162)
+2026-10-21T08:36:28.9364998Z Updating files:  55% (47735/86162)
+2026-10-21T08:36:29.1473662Z Updating files:  56% (48251/86162)
+2026-10-21T08:36:29.1855086Z Updating files:  57% (49113/86162)
+2026-10-21T08:36:29.2202405Z Updating files:  58% (49974/86162)
+2026-10-21T08:36:29.6974727Z Updating files:  59% (50836/86162)
+2026-10-21T08:36:30.4606242Z Updating files:  59% (51303/86162)
+2026-10-21T08:36:30.6982940Z Updating files:  60% (51698/86162)
+2026-10-21T08:36:31.0060361Z Updating files:  60% (51818/86162)
+2026-10-21T08:36:31.3251620Z Updating files:  61% (52559/86162)
+2026-10-21T08:36:31.4825346Z Updating files:  62% (53421/86162)
+2026-10-21T08:36:31.6934838Z Updating files:  63% (54283/86162)
+2026-10-21T08:36:31.8027893Z Updating files:  63% (54681/86162)
+2026-10-21T08:36:31.8159239Z Updating files:  64% (55144/86162)
+2026-10-21T08:36:31.8287103Z Updating files:  65% (56006/86162)
+2026-10-21T08:36:31.8575819Z Updating files:  66% (56867/86162)
+2026-10-21T08:36:31.8715463Z Updating files:  67% (57729/86162)
+2026-10-21T08:36:32.7080154Z Updating files:  68% (58591/86162)
+2026-10-21T08:36:33.2204276Z Updating files:  68% (59354/86162)
+2026-10-21T08:36:33.7080516Z Updating files:  69% (59452/86162)
+2026-10-21T08:36:34.2287292Z Updating files:  69% (59545/86162)
+2026-10-21T08:36:34.7000526Z Updating files:  70% (60314/86162)
+2026-10-21T08:36:35.6999605Z Updating files:  70% (60421/86162)
+2026-10-21T08:36:36.7002161Z Updating files:  70% (60663/86162)
+2026-10-21T08:36:36.8613418Z Updating files:  70% (61030/86162)
+2026-10-21T08:36:37.1164512Z Updating files:  71% (61176/86162)
+2026-10-21T08:36:37.4205991Z Updating files:  72% (62037/86162)
+2026-10-21T08:36:37.7001347Z Updating files:  73% (62899/86162)
+2026-10-21T08:36:37.7979805Z Updating files:  73% (63475/86162)
+2026-10-21T08:36:38.1417242Z Updating files:  74% (63760/86162)
+2026-10-21T08:36:38.5405121Z Updating files:  75% (64622/86162)
+2026-10-21T08:36:38.7001186Z Updating files:  76% (65484/86162)
+2026-10-21T08:36:38.9726012Z Updating files:  76% (65782/86162)
+2026-10-21T08:36:39.4123671Z Updating files:  77% (66345/86162)
+2026-10-21T08:36:39.6236701Z Updating files:  78% (67207/86162)
+2026-10-21T08:36:39.7081519Z Updating files:  79% (68068/86162)
+2026-10-21T08:36:39.8566558Z Updating files:  79% (68276/86162)
+2026-10-21T08:36:39.9746338Z Updating files:  80% (68930/86162)
+2026-10-21T08:36:39.9895712Z Updating files:  81% (69792/86162)
+2026-10-21T08:36:40.1695374Z Updating files:  82% (70653/86162)
+2026-10-21T08:36:40.1827087Z Updating files:  83% (71515/86162)
+2026-10-21T08:36:40.2041145Z Updating files:  84% (72377/86162)
+2026-10-21T08:36:40.2168024Z Updating files:  85% (73238/86162)
+2026-10-21T08:36:40.2289233Z Updating files:  86% (74100/86162)
+2026-10-21T08:36:40.2433670Z Updating files:  87% (74961/86162)
+2026-10-21T08:36:40.7005884Z Updating files:  88% (75823/86162)
+2026-10-21T08:36:41.6524405Z Updating files:  88% (76296/86162)
+2026-10-21T08:36:41.7080042Z Updating files:  89% (76685/86162)
+2026-10-21T08:36:42.3703603Z Updating files:  89% (76692/86162)
+2026-10-21T08:36:42.4901288Z Updating files:  90% (77546/86162)
+2026-10-21T08:36:42.5172454Z Updating files:  91% (78408/86162)
+2026-10-21T08:36:42.7161668Z Updating files:  92% (79270/86162)
+2026-10-21T08:36:43.4774153Z Updating files:  92% (79554/86162)
+2026-10-21T08:36:43.7045618Z Updating files:  93% (80131/86162)
+2026-10-21T08:36:44.3209863Z Updating files:  93% (80323/86162)
+2026-10-21T08:36:44.6972456Z Updating files:  94% (80993/86162)
+2026-10-21T08:36:44.7835422Z Updating files:  94% (81644/86162)
+2026-10-21T08:36:44.8888715Z Updating files:  95% (81854/86162)
+2026-10-21T08:36:44.9410832Z Updating files:  96% (82716/86162)
+2026-10-21T08:36:45.0007807Z Updating files:  97% (83578/86162)
+2026-10-21T08:36:45.0490469Z Updating files:  98% (84439/86162)
+2026-10-21T08:36:45.1040544Z Updating files:  99% (85301/86162)
+2026-10-21T08:36:45.1041050Z Updating files: 100% (86162/86162)
+2026-10-21T08:36:45.1041419Z Updating files: 100% (86162/86162), done.
+2026-10-21T08:36:45.2979851Z Switched to a new branch 'fix/5.1-immutable-sanitizer-container'
+2026-10-21T08:36:45.2981022Z branch 'fix/5.1-immutable-sanitizer-container' set up to track 'origin/fix/5.1-immutable-sanitizer-container'.
+2026-10-21T08:36:45.3042207Z ##[endgroup]
+2026-10-21T08:36:45.3077264Z [command]/usr/bin/git log -1 --format=%H
+2026-10-21T08:36:45.3095595Z c7913f310a84d3a4e8c1617aa7c5d820645d489b
+2026-10-21T08:36:45.3791893Z ##[group]Run actions/download-artifact@v4
+2026-10-21T08:36:45.3792371Z with:
+2026-10-21T08:36:45.3792727Z   artifact-ids: 12321337785
+2026-10-21T08:36:45.3793105Z   path: /home/runner/work/_temp/instrumented-image
+2026-10-21T08:36:45.3793519Z   merge-multiple: true
+2026-10-21T08:36:45.3793849Z   repository: jordanhubbard/nanolang
+2026-10-21T08:36:45.3794178Z   run-id: 39544892945
+2026-10-21T08:36:45.3794518Z env:
+2026-10-21T08:36:45.3794869Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T08:36:45.3795314Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T08:36:45.3795708Z   NANO_SHADOW_TRACE: 1
+2026-10-21T08:36:45.3796319Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T08:36:45.3797083Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T08:36:45.3797597Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T08:36:45.3797952Z   BOOTSTRAP_NANOISA_TIMEOUT: 10800
+2026-10-21T08:36:45.3798514Z   CMD_TIMEOUT: 1800
+2026-10-21T08:36:45.3799133Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-21T08:36:45.3799776Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-21T08:36:45.3800165Z ##[endgroup]
+2026-10-21T08:36:45.5312334Z Downloading artifacts by ID
+2026-10-21T08:36:45.5452510Z (node:2246) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-21T08:36:45.5453479Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-21T08:36:45.7553520Z Found 6 artifact(s)
+2026-10-21T08:36:45.7555021Z Preparing to download the following artifacts:
+2026-10-21T08:36:45.7556329Z - instrumented-image-39544892945-1 (ID: 12321337785, Size: 1176369822, Expected Digest: sha256:2810a186e1698a2c9518e7a07e50f5dadebc6d2ba4fa55a3d83f43e76aac6b2c)
+2026-10-21T08:36:45.9004152Z Redirecting to blob download url: https://productionresultssa8.blob.core.windows.net/actions-results/7be8d396-9da1-4efc-9bbd-eaa1a3b8e404/workflow-job-run-daf58673-afa3-534d-9573-f78a3ef3cec2/artifacts/0a6f0266c015d5a8b83820c14c89cd5b59d672a142d953b7e535f2a8b7535562.zip
+2026-10-21T08:36:45.9006610Z Starting download of artifact to: /home/runner/work/_temp/instrumented-image
+2026-10-21T08:36:46.1247560Z (node:2246) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-10-21T08:37:29.4822171Z SHA256 digest of downloaded artifact is 2810a186e1698a2c9518e7a07e50f5dadebc6d2ba4fa55a3d83f43e76aac6b2c
+2026-10-21T08:37:29.4822933Z Artifact download completed successfully.
+2026-10-21T08:37:29.4823361Z Total of 1 artifact(s) downloaded
+2026-10-21T08:37:29.4830073Z Download artifact has finished successfully
+2026-10-21T08:37:29.4961081Z ##[group]Run python3 scripts/ci_container.py load "$RUNNER_TEMP/instrumented-image/instrumented-image.tar"
+2026-10-21T08:37:29.4961881Z [36;1mpython3 scripts/ci_container.py load "$RUNNER_TEMP/instrumented-image/instrumented-image.tar"[0m
+2026-10-21T08:37:29.5008529Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-21T08:37:29.5009031Z env:
+2026-10-21T08:37:29.5009528Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T08:37:29.5010008Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T08:37:29.5010430Z   NANO_SHADOW_TRACE: 1
+2026-10-21T08:37:29.5010939Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T08:37:29.5011629Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T08:37:29.5012194Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T08:37:29.5012631Z   BOOTSTRAP_NANOISA_TIMEOUT: 10800
+2026-10-21T08:37:29.5013012Z   CMD_TIMEOUT: 1800
+2026-10-21T08:37:29.5013696Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-21T08:37:29.5014768Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-21T08:37:29.5015226Z ##[endgroup]
+2026-10-21T08:37:52.2432944Z Loaded image ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T08:37:52.3635270Z I loaded the exact transported instrumented image.
+2026-10-21T08:37:52.3777059Z ##[group]Run actions/download-artifact@v4
+2026-10-21T08:37:52.3777510Z with:
+2026-10-21T08:37:52.3777807Z   artifact-ids: 12330665362
+2026-10-21T08:37:52.3778214Z   path: /home/runner/work/_temp/sanitizer-checkpoint
+2026-10-21T08:37:52.3778625Z   merge-multiple: true
+2026-10-21T08:37:52.3778955Z   repository: jordanhubbard/nanolang
+2026-10-21T08:37:52.3779358Z   run-id: 39544892945
+2026-10-21T08:37:52.3779657Z env:
+2026-10-21T08:37:52.3779996Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T08:37:52.3780463Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T08:37:52.3780801Z   NANO_SHADOW_TRACE: 1
+2026-10-21T08:37:52.3781301Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T08:37:52.3781974Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T08:37:52.3782512Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T08:37:52.3783014Z   BOOTSTRAP_NANOISA_TIMEOUT: 10800
+2026-10-21T08:37:52.3783368Z   CMD_TIMEOUT: 1800
+2026-10-21T08:37:52.3784149Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-21T08:37:52.3784790Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-21T08:37:52.3785228Z ##[endgroup]
+2026-10-21T08:37:52.5208265Z Downloading artifacts by ID
+2026-10-21T08:37:52.5348476Z (node:2300) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-21T08:37:52.5349788Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-21T08:37:52.6944110Z Found 6 artifact(s)
+2026-10-21T08:37:52.6947417Z Preparing to download the following artifacts:
+2026-10-21T08:37:52.6948874Z - sanitizer-stage1-39544892945-1 (ID: 12330665362, Size: 1973703136, Expected Digest: sha256:fe5a30760b6bfce599983d361609a1cd12370caa090921afe516ecf98e57277c)
+2026-10-21T08:37:52.8488334Z Redirecting to blob download url: https://productionresultssa8.blob.core.windows.net/actions-results/7be8d396-9da1-4efc-9bbd-eaa1a3b8e404/workflow-job-run-deff638f-37a5-5dcb-95ac-8dd84e01b3a1/artifacts/2d2f29c635fda9ce0b9e8faa22489c1930b42ffc92b80b010a29aa3b1639260a.zip
+2026-10-21T08:37:52.8490019Z Starting download of artifact to: /home/runner/work/_temp/sanitizer-checkpoint
+2026-10-21T08:37:53.0386313Z (node:2300) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-10-21T08:38:29.0403734Z SHA256 digest of downloaded artifact is fe5a30760b6bfce599983d361609a1cd12370caa090921afe516ecf98e57277c
+2026-10-21T08:38:29.0404418Z Artifact download completed successfully.
+2026-10-21T08:38:29.0404987Z Total of 1 artifact(s) downloaded
+2026-10-21T08:38:29.0410806Z Download artifact has finished successfully
+2026-10-21T08:38:29.0539126Z ##[group]Run export ASAN_OPTIONS=detect_leaks=0
+2026-10-21T08:38:29.0539642Z [36;1mexport ASAN_OPTIONS=detect_leaks=0[0m
+2026-10-21T08:38:29.0540323Z [36;1mpython3 scripts/ci_bootstrap_checkpoint.py restore "$RUNNER_TEMP/sanitizer-checkpoint/sanitizer-stage1.tar.gz"[0m
+2026-10-21T08:38:29.0580931Z shell: /usr/bin/python3 scripts/ci_container.py shell {0}
+2026-10-21T08:38:29.0581511Z env:
+2026-10-21T08:38:29.0581881Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T08:38:29.0582325Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T08:38:29.0582716Z   NANO_SHADOW_TRACE: 1
+2026-10-21T08:38:29.0583196Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T08:38:29.0583917Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T08:38:29.0584424Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T08:38:29.0584823Z   BOOTSTRAP_NANOISA_TIMEOUT: 10800
+2026-10-21T08:38:29.0585302Z   CMD_TIMEOUT: 1800
+2026-10-21T08:38:29.0585890Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-21T08:38:29.0586706Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-21T08:38:29.0587123Z ##[endgroup]
+2026-10-21T08:38:36.8618303Z {"container": {"archive_sha256": "cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5", "config_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "image_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "platform": "linux/amd64", "version": 1}, "outer_runner": {"ImageOS": "ubuntu24", "ImageVersion": "20261012.334.1"}}
+2026-10-21T08:45:06.7413618Z ##[group]Run export ASAN_OPTIONS=detect_leaks=0
+2026-10-21T08:45:06.7414119Z [36;1mexport ASAN_OPTIONS=detect_leaks=0[0m
+2026-10-21T08:45:06.7414628Z [36;1mmake bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"[0m
+2026-10-21T08:45:06.7415363Z [36;1mpython3 scripts/ci_bootstrap_checkpoint.py verify-resume "$RUNNER_TEMP/sanitizer-checkpoint/sanitizer-stage1.tar.gz"[0m
+2026-10-21T08:45:06.7476615Z shell: /usr/bin/python3 scripts/ci_container.py shell {0}
+2026-10-21T08:45:06.7477043Z env:
+2026-10-21T08:45:06.7477423Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T08:45:06.7477922Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T08:45:06.7478255Z   NANO_SHADOW_TRACE: 1
+2026-10-21T08:45:06.7478831Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T08:45:06.7479492Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T08:45:06.7480130Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T08:45:06.7480496Z   BOOTSTRAP_NANOISA_TIMEOUT: 10800
+2026-10-21T08:45:06.7480918Z   CMD_TIMEOUT: 1800
+2026-10-21T08:45:06.7481513Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-21T08:45:06.7482153Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-21T08:45:06.7482545Z ##[endgroup]
+2026-10-21T08:45:06.8727785Z {"container": {"archive_sha256": "cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5", "config_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "image_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "platform": "linux/amd64", "version": 1}, "outer_runner": {"ImageOS": "ubuntu24", "ImageVersion": "20261012.334.1"}}
+2026-10-21T08:45:07.3450104Z python3 scripts/embed_binary64_parser.py --check
+2026-10-21T08:45:08.2404681Z I run stage2; I retain its log at /workspace/obj/bootstrap-nanoisa/run-ay49jdhz/08-stage2.log.
+2026-10-21T10:48:33.6356882Z I run stage2-verify; I retain its log at /workspace/obj/bootstrap-nanoisa/run-ay49jdhz/09-stage2-verify.log.
+2026-10-21T10:48:43.5629409Z I run stage2-translate; I retain its log at /workspace/obj/bootstrap-nanoisa/run-ay49jdhz/10-stage2-translate.log.
+2026-10-21T10:52:03.0921961Z I run stage2-native; I retain its log at /workspace/obj/bootstrap-nanoisa/run-ay49jdhz/11-stage2-native.log.
+2026-10-21T10:57:30.1529402Z I run stage2-hello-compile; I retain its log at /workspace/obj/bootstrap-nanoisa/run-ay49jdhz/12-stage2-hello-compile.log.
+2026-10-21T10:57:30.5202897Z I run stage2-hello-execute; I retain its log at /workspace/obj/bootstrap-nanoisa/run-ay49jdhz/13-stage2-hello-execute.log.
+2026-10-21T10:57:32.0039190Z I run seed-final-verify; I retain its log at /workspace/obj/bootstrap-nanoisa/run-ay49jdhz/14-seed-final-verify.log.
+2026-10-21T10:57:42.9839203Z I run stage1-final-verify; I retain its log at /workspace/obj/bootstrap-nanoisa/run-ay49jdhz/15-stage1-final-verify.log.
+2026-10-21T10:57:52.3653629Z I run stage2-final-verify; I retain its log at /workspace/obj/bootstrap-nanoisa/run-ay49jdhz/16-stage2-final-verify.log.
+2026-10-21T10:58:01.7976647Z I compared raw Stage 1 and Stage 2 modules: they are byte-identical in this build.
+2026-10-21T10:58:01.7977295Z I have not established reproducibility across clean environments or proved compiler semantic correctness.
+2026-10-21T10:58:01.8082028Z I installed bin/nanoc from the verified Stage 2 module.
+2026-10-21T10:58:01.9877300Z I am testing shadow main
+2026-10-21T10:58:01.9878444Z Hello from NanoLang!
+2026-10-21T10:58:02.1623315Z 🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+2026-10-21T10:58:02.3335130Z I am testing shadow main
+2026-10-21T10:58:02.3335830Z Hello from NanoLang!
+2026-10-21T10:58:02.4980069Z ✅ bin/nanoc succeeded with bin/nanoc_c removed
+2026-10-21T11:01:09.1192388Z I verified continuation from the exact transferred bootstrap checkpoint.
+2026-10-21T11:01:09.2306042Z ##[group]Run export ASAN_OPTIONS=detect_leaks=0
+2026-10-21T11:01:09.2306634Z [36;1mexport ASAN_OPTIONS=detect_leaks=0[0m
+2026-10-21T11:01:09.2306997Z [36;1mmake test-units CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"[0m
+2026-10-21T11:01:09.2360914Z shell: /usr/bin/python3 scripts/ci_container.py shell {0}
+2026-10-21T11:01:09.2361272Z env:
+2026-10-21T11:01:09.2361570Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T11:01:09.2361914Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T11:01:09.2362192Z   NANO_SHADOW_TRACE: 1
+2026-10-21T11:01:09.2362659Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T11:01:09.2363300Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T11:01:09.2363758Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T11:01:09.2364061Z   BOOTSTRAP_NANOISA_TIMEOUT: 10800
+2026-10-21T11:01:09.2364351Z   CMD_TIMEOUT: 1800
+2026-10-21T11:01:09.2364929Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-21T11:01:09.2365504Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-21T11:01:09.2365811Z ##[endgroup]
+2026-10-21T11:01:09.3387841Z {"container": {"archive_sha256": "cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5", "config_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "image_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "platform": "linux/amd64", "version": 1}, "outer_runner": {"ImageOS": "ubuntu24", "ImageVersion": "20261012.334.1"}}
+2026-10-21T11:01:16.8944592Z ....
+2026-10-21T11:01:16.8945374Z ----------------------------------------------------------------------
+2026-10-21T11:01:16.8947084Z Ran 4 tests in 7.140s
+2026-10-21T11:01:16.8947443Z 
+2026-10-21T11:01:16.8947624Z OK
+2026-10-21T11:01:17.0898546Z ..
+2026-10-21T11:01:17.0899075Z ----------------------------------------------------------------------
+2026-10-21T11:01:17.0899590Z Ran 2 tests in 0.136s
+2026-10-21T11:01:17.0899793Z 
+2026-10-21T11:01:17.0899902Z OK
+2026-10-21T11:01:17.1686984Z [schema] Regenerating compiler schema artifacts...
+2026-10-21T11:01:35.0250169Z [schema] Compiler schema artifacts are up-to-date.
+2026-10-21T11:01:37.9003890Z ...........E.....................
+2026-10-21T11:01:37.9006499Z ======================================================================
+2026-10-21T11:01:37.9009430Z ERROR: test_every_schema_opcode_matches_enum_and_vm_dispatch (tests.test_nanoisa_schema.NanoisaSchemaTests.test_every_schema_opcode_matches_enum_and_vm_dispatch)
+2026-10-21T11:01:37.9010366Z ----------------------------------------------------------------------
+2026-10-21T11:01:37.9010797Z Traceback (most recent call last):
+2026-10-21T11:01:37.9011371Z   File "/workspace/tests/test_nanoisa_schema.py", line 132, in test_every_schema_opcode_matches_enum_and_vm_dispatch
+2026-10-21T11:01:37.9012002Z     dispatch = self.dispatch_body(vm_source)
+2026-10-21T11:01:37.9012341Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-21T11:01:37.9012757Z   File "/workspace/tests/test_nanoisa_schema.py", line 96, in dispatch_body
+2026-10-21T11:01:37.9013248Z     start = source.index("VM_DISPATCH_BEGIN(instr.opcode)")
+2026-10-21T11:01:37.9013637Z             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-21T11:01:37.9013965Z ValueError: substring not found
+2026-10-21T11:01:37.9014166Z 
+2026-10-21T11:01:37.9014353Z ----------------------------------------------------------------------
+2026-10-21T11:01:37.9014738Z Ran 33 tests in 2.685s
+2026-10-21T11:01:37.9014905Z 
+2026-10-21T11:01:37.9015006Z FAILED (errors=1)
+2026-10-21T11:01:37.9094392Z make: *** [Makefile.gnu:276: schema-check] Error 1
+2026-10-21T11:01:38.0103323Z ##[error]Process completed with exit code 2.
+2026-10-21T11:01:38.0181815Z ##[group]Run actions/upload-artifact@v4
+2026-10-21T11:01:38.0182120Z with:
+2026-10-21T11:01:38.0182348Z   name: verifier-corpus-sanitizers
+2026-10-21T11:01:38.0183092Z   path: .test_output/verifier-corpus/
+.test_output/sanitizer-checkpoint-resume-plan.log
+obj/component-logs/
+obj/bootstrap-nanoisa/**/*.log
+obj/bootstrap-nanoisa/**/manifest.json
+
+2026-10-21T11:01:38.0183823Z   include-hidden-files: true
+2026-10-21T11:01:38.0184086Z   if-no-files-found: ignore
+2026-10-21T11:01:38.0184344Z   retention-days: 7
+2026-10-21T11:01:38.0184570Z   compression-level: 6
+2026-10-21T11:01:38.0184799Z   overwrite: false
+2026-10-21T11:01:38.0185019Z env:
+2026-10-21T11:01:38.0185289Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T11:01:38.0185639Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T11:01:38.0185901Z   NANO_SHADOW_TRACE: 1
+2026-10-21T11:01:38.0186507Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T11:01:38.0187160Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T11:01:38.0187600Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T11:01:38.0187881Z   BOOTSTRAP_NANOISA_TIMEOUT: 10800
+2026-10-21T11:01:38.0188146Z   CMD_TIMEOUT: 1800
+2026-10-21T11:01:38.0188611Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-21T11:01:38.0189162Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-21T11:01:38.0189470Z ##[endgroup]
+2026-10-21T11:01:38.1983271Z (node:8677) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-21T11:01:38.1983937Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-21T11:01:38.2170882Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-21T11:01:38.2174592Z The least common ancestor is /home/runner/work/nanolang/nanolang. This will be the root directory of the artifact
+2026-10-21T11:01:38.2175596Z With the provided path, there will be 26 files uploaded
+2026-10-21T11:01:38.2177273Z Artifact name is valid!
+2026-10-21T11:01:38.2177790Z Root directory input is valid!
+2026-10-21T11:01:38.4895692Z Beginning upload of artifact content to blob storage
+2026-10-21T11:01:38.5530080Z (node:8677) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-21T11:01:38.7422903Z Uploaded bytes 128425
+2026-10-21T11:01:38.7778164Z Finished uploading artifact content to blob storage!
+2026-10-21T11:01:38.7779045Z SHA256 digest of uploaded artifact zip is 2ddb0cf98aa3e4f101b1d4474bee5879b3d22c9522835700a7866f16c677976d
+2026-10-21T11:01:38.7780224Z Finalizing artifact upload
+2026-10-21T11:01:39.0059959Z Artifact verifier-corpus-sanitizers.zip successfully finalized. Artifact ID 12339848975
+2026-10-21T11:01:39.0060814Z Artifact verifier-corpus-sanitizers has been successfully uploaded! Final size is 128425 bytes. Artifact ID is 12339848975
+2026-10-21T11:01:39.0066253Z Artifact download URL: https://github.com/jordanhubbard/nanolang/actions/runs/39544892945/artifacts/12339848975
+2026-10-21T11:01:39.0179251Z ##[group]Run echo "=== Showing first 3 failed test logs ==="
+2026-10-21T11:01:39.0179691Z [36;1mecho "=== Showing first 3 failed test logs ==="[0m
+2026-10-21T11:01:39.0180065Z [36;1mfor log in .test_output/*.compile.log; do[0m
+2026-10-21T11:01:39.0180400Z [36;1m  if [ -f "$log" ]; then[0m
+2026-10-21T11:01:39.0180677Z [36;1m    echo "=== $log ==="[0m
+2026-10-21T11:01:39.0180953Z [36;1m    cat "$log"[0m
+2026-10-21T11:01:39.0181190Z [36;1m    echo ""[0m
+2026-10-21T11:01:39.0181424Z [36;1m  fi[0m
+2026-10-21T11:01:39.0181652Z [36;1mdone | head -200[0m
+2026-10-21T11:01:39.0220466Z shell: /usr/bin/python3 scripts/ci_container.py shell {0}
+2026-10-21T11:01:39.0220821Z env:
+2026-10-21T11:01:39.0221102Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-21T11:01:39.0221457Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-21T11:01:39.0221723Z   NANO_SHADOW_TRACE: 1
+2026-10-21T11:01:39.0222177Z   NANO_CI_IMAGE_ID: sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e
+2026-10-21T11:01:39.0222760Z   NANO_CI_ARCHIVE_SHA256: cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5
+2026-10-21T11:01:39.0223312Z   NANO_CI_IMAGE_PLATFORM: linux/amd64
+2026-10-21T11:01:39.0223708Z   BOOTSTRAP_NANOISA_TIMEOUT: 10800
+2026-10-21T11:01:39.0223996Z   CMD_TIMEOUT: 1800
+2026-10-21T11:01:39.0224906Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-21T11:01:39.0225472Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-21T11:01:39.0225802Z ##[endgroup]
+2026-10-21T11:01:39.1154786Z {"container": {"archive_sha256": "cc56ff1d35fb825c02f79942c9a8256f95553475ce0fb823430297d6226d42e5", "config_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "image_id": "sha256:d3b925bd127d1d4c32b273b56bdc239c9fe9e917ef8f6de0b6ab21b4f137f37e", "platform": "linux/amd64", "version": 1}, "outer_runner": {"ImageOS": "ubuntu24", "ImageVersion": "20261012.334.1"}}
+2026-10-21T11:01:39.2168436Z === Showing first 3 failed test logs ===
+2026-10-21T11:01:39.3270150Z Post job cleanup.
+2026-10-21T11:01:39.4127766Z [command]/usr/bin/git version
+2026-10-21T11:01:39.4171131Z git version 2.55.0
+2026-10-21T11:01:39.4204793Z Temporarily overriding HOME='/home/runner/work/_temp/b0d98a51-47e3-4936-8e32-05dc51b060a8' before making global git config changes
+2026-10-21T11:01:39.4205858Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-21T11:01:39.4211510Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/nanolang/nanolang
+2026-10-21T11:01:39.4251292Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-21T11:01:39.4283196Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-21T11:01:39.4602720Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-21T11:01:39.4635069Z http.https://github.com/.extraheader
+2026-10-21T11:01:39.4646650Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-21T11:01:39.4684283Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-21T11:01:39.4982270Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-21T11:01:39.5014937Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-21T11:01:39.5492846Z Cleaning up orphan processes
+2026-10-21T11:01:39.5745115Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
