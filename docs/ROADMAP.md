@@ -16832,3 +16832,5 @@ I own the next finite [#1001](https://github.com/jordanhubbard/nanolang/issues/1
 - [ ] I document exact nominal/variant identity, historical payload/field constraints, copied recipes/lifetime/native eligibility and old-budget preservation before any consumer implementation.
 
 I continue #1001 on `design/5.1-ordinary-union-fields` with the reviewed declaration-only owner interface (`e67aad4c3`): source checkpoint before build, old projection unchanged, no execution/transport/publisher enrollment.
+
+I own the next #1001 proof-only union-field slice following `2025a38dd`: separate opt-in context and immutable copied proof, conservative variant-origin safety and explicit deferred-instruction completeness. Recipe/runtime/public/publisher enrollment remains closed; source review precedes builds.
