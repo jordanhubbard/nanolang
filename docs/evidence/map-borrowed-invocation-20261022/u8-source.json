@@ -1,0 +1,186 @@
+{
+  "before": {
+    "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/fixtures/map_nested_u8_borrowed.nano": "0b0deb42e99f19edbc9659f902e150cee487674b2dc9c6d175a24e8a27e06cdd",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "f54c52c7a098fc7cb36a10f871873f7c5322f3ef6f91ff46d0c8f3fce8dc7534",
+    "/private/tmp/nanolang-self-tail-proof-20261021/emitter": "fe1c4db2e9155ec8c12178879284053f50a4d96e1588d8a545e4555760dcba6f",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "368d6d663ea716f03af4f1808b80e46bb9f7575c3d924491d317fabba1b3a609",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "c6eee3d64285c02af7e998a27f9853fc80b3f413539e74b3c9cca849a9094c64"
+  },
+  "commands": [
+    {
+      "provider": "seed",
+      "phase": "compile",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+        "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/fixtures/map_nested_u8_borrowed.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "seed",
+      "phase": "verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "seed",
+      "phase": "vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "seed",
+      "phase": "dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "c-hosted",
+      "phase": "compile",
+      "argv": [
+        "/private/tmp/nanolang-self-tail-proof-20261021/emitter",
+        "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/fixtures/map_nested_u8_borrowed.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-c-hosted.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "c-hosted",
+      "phase": "verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-c-hosted.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "c-hosted",
+      "phase": "vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-c-hosted.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "c-hosted",
+      "phase": "dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-c-hosted.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "stage1",
+      "phase": "compile",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+        "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/fixtures/map_nested_u8_borrowed.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-stage1.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "stage1",
+      "phase": "verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-stage1.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "stage1",
+      "phase": "vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-stage1.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "stage1",
+      "phase": "dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-stage1.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "stage2",
+      "phase": "compile",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+        "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/fixtures/map_nested_u8_borrowed.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-stage2.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "stage2",
+      "phase": "verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-stage2.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "stage2",
+      "phase": "vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-stage2.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "provider": "stage2",
+      "phase": "dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-borrowed-20261022/u8-stage2.nvm"
+      ],
+      "status": 0
+    }
+  ],
+  "after": {
+    "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/fixtures/map_nested_u8_borrowed.nano": "0b0deb42e99f19edbc9659f902e150cee487674b2dc9c6d175a24e8a27e06cdd",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "f54c52c7a098fc7cb36a10f871873f7c5322f3ef6f91ff46d0c8f3fce8dc7534",
+    "/private/tmp/nanolang-self-tail-proof-20261021/emitter": "fe1c4db2e9155ec8c12178879284053f50a4d96e1588d8a545e4555760dcba6f",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "368d6d663ea716f03af4f1808b80e46bb9f7575c3d924491d317fabba1b3a609",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "c6eee3d64285c02af7e998a27f9853fc80b3f413539e74b3c9cca849a9094c64"
+  }
+}

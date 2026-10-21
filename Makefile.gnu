@@ -7133,3 +7133,12 @@ test-record-map-ordinary-heap:
 	RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" python3 -m unittest -f -v tests.test_record_map_ordinary_heap
 
 test-units: test-record-map-ordinary-heap
+
+$(OBJ_DIR)/nanovm/vm.o: $(NANOVM_DIR)/record_map_borrowed_types.inc $(NANOVM_DIR)/record_map_borrowed_context.inc $(NANOVM_DIR)/record_map_borrowed_run.inc $(NANOVM_DIR)/record_map_borrowed_private.h
+
+.PHONY: test-record-map-borrowed
+# Private module-taking borrowed execution; public selectors remain closed.
+test-record-map-borrowed: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_borrowed
+
+test-units: test-record-map-borrowed

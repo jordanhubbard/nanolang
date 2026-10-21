@@ -345,3 +345,13 @@ The reviewed checkpoint1 refinement gives all five ordinary adapters a heap
 argument (const for reads), requiring !gc_running and !private_record_dag.
 Managed map/key ownership by that heap remains a C precondition, not a registry
 lookup. Existing private fast adapters retain their exact source and policy.
+
+Checkpoint2 array validation uses shallow ordinary headers and selected edges.
+Full nested depth/leaf closure is the immutable all-history proof plus fresh full
+import and closed transitions; it is not dynamically recovered from pointers.
+Field reads/writes check immediate element/nominal obligations; ARR_GET and
+ARR_POP validate their selected child before retain/transfer. SLICE checks only
+its selected retained range, including cumulative duplicate headroom. No borrowed
+operation recursively rescans grandchildren or unrelated siblings. Host mutation
+before a new invocation is subject to fresh import; mutation during the exclusive
+invocation is prohibited. This does not claim a shallow runtime proof of depth.

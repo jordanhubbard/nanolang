@@ -1,21 +1,6 @@
 /* Preparation only: no stack allocation, activation, dispatch, or selector. */
 #include "record_map_public_prepare_private.h"
 #include "../nanoisa/record_map_boundary_private.h"
-struct VmRecordMapPublicPreparation {
-    NvmRecordMapBoundaryPlan *boundary;
-    const NvmRecordMapExecutionPlan *plan;
-    const NvmModule *module;
-    const NanoValue *original_stack;
-    NvmRecordMapExecutionInstruction *instructions;
-    VmRecordMapRuntimeField *fields;
-    NvmRecordMapExecutionCounts counts;
-    NvmRecordArrayExecutionFunction functions[256];
-    VmRecordMapRuntimeLayout layouts[256];
-    uint32_t record_layouts[256];
-    uint32_t layout_count,field_count;
-    uint32_t original_stack_capacity,rounded_stack_capacity;
-    uint64_t bytes,work;
-};
 _Static_assert(sizeof(VmRecordMapPublicPreparation)==14512,"public preparation owner ledger");
 _Static_assert(sizeof(NvmRecordMapExecutionInstruction)==80,"instruction row ledger");
 _Static_assert(sizeof(VmRecordMapRuntimeField)==20,"field row ledger");

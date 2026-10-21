@@ -1,0 +1,13 @@
+struct Box { values: array<array<u8>>, entries: HashMap<string,int> }
+fn main() -> int {
+    let entries: HashMap<string,int> = (map_new)
+    (map_put entries "wrapped" 44)
+    let box: Box = Box { values: [[-1,256,300]], entries: entries }
+    assert (== (at (at box.values 0) 0) 255)
+    assert (== (at (at box.values 0) 1) 0)
+    assert (== (at (at box.values 0) 2) 44)
+    assert (map_has box.entries "wrapped")
+    assert (== (map_get box.entries "wrapped") 44)
+    return 0
+}
+shadow main { assert (== (main) 0) }

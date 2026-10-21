@@ -16649,3 +16649,23 @@ This checkpoint enables no activation, dispatch or public selection.
 I preserve both roadmap histories and add the direct ordinary-heap target to retirement qualification. I require the actual aggregate target with explicit ASan/UBSan and the 68 workflow controls before commit. Activation, shared dispatch and public selection remain disabled.
 
 I passed the actual aggregate ordinary heap gate: 3,474 explicit ASan/UBSan checks in1.513s and68 workflow controls in2.056s. Receipt: `docs/evidence/map-ordinary-heap-aggregate-20261021/README.md`. Activation and exact hosted qualification remain open.
+### #1001 borrowed activation checkpoint2 implementation ownership (2026-10-22)
+
+I am drafting only the reviewed private module-taking borrowed invocation: typed
+context, reserved stack activation, ordinary preflight and checked map handlers.
+Public selectors/loaders/native/publishers remain closed. Source review precedes
+any build or first unchanged-anchor execution; no frontend/bootstrap is needed.
+
+Checkpoint2 qualification is complete: private borrowed execution2112 checks per
+dispatch, all12 raw inputs, real source U8 conversion, selected failure/unwind,
+96 allocation positions and actual old NULL-route execution. Old private map,
+preparation and array neighbors pass;16 strict cases and rebuilt six budgets pass.
+[The receipt](evidence/map-borrowed-invocation-20261022/README.md) distinguishes
+synthetic/source evidence and pointer-dependent import work. No public selector,
+loader/native/publisher admission is enabled by this checkpoint.
+
+### Map borrowed invocation aggregate integration (2026-10-21)
+
+I am integrating the qualified private borrowed invocation component and wiring its exact target into compiler contracts. I will run the actual Make target against all twelve retained producer modules and the 68 workflow/schema controls before committing. Public selection remains closed.
+
+I completed the aggregate gate: both dispatch modes passed 2,112 checks each (two methods, 9.445s), and all 68 workflow/schema controls passed (1.956s). I retained the actual target/plan logs and source pins in `docs/evidence/map-borrowed-aggregate-20261021/`. Public selection remains closed; exact-head hosted qualification remains pending.

@@ -1,0 +1,9 @@
+{
+  "Makefile.gnu": "e5cebdbdfd3876460013fe54e6beaf7f5cb811df2ef98b8ebe50d24b59cf838e",
+  ".github/workflows/retirement-qualification.yml": "d40e56998b22bedd6e79243c69b13e58320038512d1a22ab93ef4194469ef0f5",
+  "src/nanovm/vm.c": "29d4b334171d99449d87b99bc68a576ccba3a0a84c48d9b43e8e3158e0844f8f",
+  "src/nanovm/record_map_borrowed_context.inc": "4ff07c8cdfeabbd1140f13547a549e149ac0c0be7132da349fe5f5b3304d6891",
+  "src/nanovm/record_map_borrowed_run.inc": "45c3e07b7ec833da44bb024d8e3b66c0d6a9ffcb379159eb6bca4ba07df9ae3c",
+  "tests/test_record_map_borrowed.py": "f7b887e42e03cbf73174a7d974dc602b42d66bfe3238248157926aa87674d81b",
+  "tests/nanoisa/test_record_map_borrowed.c": "c811eb8f6b4586a82d626d6ee373697a57e607ce65b1ccc22a4949172d3da135"
+}
