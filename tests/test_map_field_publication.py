@@ -189,6 +189,13 @@ int main(void){(void)nmap_collection_budget;int r=fixture_main();nmap_collect();
         self.corpus('unchanged', source)
         self.corpus('concat', source.replace('(remember alias "second" 2)', '(remember alias (+ "sec" "ond") 2)'))
 
+    def test_exact_integer_delete(self):
+        source = (ROOT/'tests/unit/test_map_field_operations.nano').read_text()
+        self.assertEqual(source.count('HashMap<string,string>'), 1)
+        self.assertEqual(source.count('"kept"'), 2)
+        source = source.replace('HashMap<string,string>', 'HashMap<string,int>').replace('"kept"', '42')
+        self.corpus('integer-delete', source)
+
     def test_map_only_multiple_fields_forward_record(self):
         self.corpus('map-only-forward', '''struct Root { child: Leaf }
 struct Leaf { first: HashMap<string,int>, second: HashMap<string,int> }
@@ -222,7 +229,9 @@ shadow main { assert (== (main) 0) }
 
     def test_mixed_omission(self):
         source = (ROOT/'tests/nanoisa/fixtures/map_record_fields.nano').read_text()
-        self.corpus('mixed-omit', source.replace('    return 0', '    (map_remove values "missing")\n    return 0'), ordinary=False, shadow=False)
+        self.assertEqual(source.count('    return 0'), 1)
+        self.corpus('mixed-omit', source.replace('    return 0',
+            '    (map_remove values "missing")\n    assert (== (str_trim " x ") "x")\n    return 0'), ordinary=False, shadow=False)
 
     def test_raw_declaration_mismatch_has_no_authority(self):
         source = self.work/'declaration-mismatch.nano'

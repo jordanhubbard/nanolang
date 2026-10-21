@@ -1,0 +1,74 @@
+[
+  {
+    "case": "scalar",
+    "producer": "seed",
+    "sha256": "141ce582d07c4101f05d1854a2335d534c7af3d17ccebd47ec9849750be5cc72",
+    "bytes": 800,
+    "old_provider": "/private/tmp/nanolang-map-paired-publication-20261022/nano_virt",
+    "old_provider_sha256": "61294b8ec8b82bda1b48e861d3b1804c43266276c97b1cc7902e350837310068",
+    "new_provider_sha256": "af90b461a2410647074c529756bffb093afe01ee3cba156d30558c3945c76888"
+  },
+  {
+    "case": "scalar",
+    "producer": "nano",
+    "sha256": "a0ffad7b8ee13a5763bdd8ef23c27a5cf1d28c9649ea92b8aaf3b4864a7d5226",
+    "bytes": 624,
+    "old_provider": "/private/tmp/nanolang-map-paired-publication-20261022/canonical",
+    "old_provider_sha256": "1cb2a8a392828eddea0386324688ff5eceff2e9b72fd484ba8b75f1f3abf8487",
+    "new_provider_sha256": "867e1320008995c87562323ef3788a885eda2cff64a2bcc375a10b79c7fea4b5"
+  },
+  {
+    "case": "flat",
+    "producer": "seed",
+    "sha256": "670c93856d7d876308de69c7fe6e44cd33a07e2f7944742c770594f81d19cca7",
+    "bytes": 852,
+    "old_provider": "/private/tmp/nanolang-map-paired-publication-20261022/nano_virt",
+    "old_provider_sha256": "61294b8ec8b82bda1b48e861d3b1804c43266276c97b1cc7902e350837310068",
+    "new_provider_sha256": "af90b461a2410647074c529756bffb093afe01ee3cba156d30558c3945c76888"
+  },
+  {
+    "case": "flat",
+    "producer": "nano",
+    "sha256": "fc202440f55a5e113078e1154625c2311ea25c84ae1cac346a56a340523768da",
+    "bytes": 676,
+    "old_provider": "/private/tmp/nanolang-map-paired-publication-20261022/canonical",
+    "old_provider_sha256": "1cb2a8a392828eddea0386324688ff5eceff2e9b72fd484ba8b75f1f3abf8487",
+    "new_provider_sha256": "867e1320008995c87562323ef3788a885eda2cff64a2bcc375a10b79c7fea4b5"
+  },
+  {
+    "case": "depth2",
+    "producer": "seed",
+    "sha256": "777b86ed8277404ffdf65bea4fb71c85236c8affd8127a96ee24cb5bfff01eac",
+    "bytes": 864,
+    "old_provider": "/private/tmp/nanolang-map-paired-publication-20261022/nano_virt",
+    "old_provider_sha256": "61294b8ec8b82bda1b48e861d3b1804c43266276c97b1cc7902e350837310068",
+    "new_provider_sha256": "af90b461a2410647074c529756bffb093afe01ee3cba156d30558c3945c76888"
+  },
+  {
+    "case": "depth2",
+    "producer": "nano",
+    "sha256": "7e8b35784aad4bad3c6fa6876fe6c584214d8c74b6f9dd1b5d7fc82ceab14182",
+    "bytes": 688,
+    "old_provider": "/private/tmp/nanolang-map-paired-publication-20261022/canonical",
+    "old_provider_sha256": "1cb2a8a392828eddea0386324688ff5eceff2e9b72fd484ba8b75f1f3abf8487",
+    "new_provider_sha256": "867e1320008995c87562323ef3788a885eda2cff64a2bcc375a10b79c7fea4b5"
+  },
+  {
+    "case": "depth3",
+    "producer": "seed",
+    "sha256": "b9b5689acdc921d64658c60b26d603e419f58fa48a5029cc4da055db3202e39f",
+    "bytes": 872,
+    "old_provider": "/private/tmp/nanolang-map-paired-publication-20261022/nano_virt",
+    "old_provider_sha256": "61294b8ec8b82bda1b48e861d3b1804c43266276c97b1cc7902e350837310068",
+    "new_provider_sha256": "af90b461a2410647074c529756bffb093afe01ee3cba156d30558c3945c76888"
+  },
+  {
+    "case": "depth3",
+    "producer": "nano",
+    "sha256": "e6e5024ee329f528520b80cee6b8c3a65de31440420cceefc14939ea50dae964",
+    "bytes": 696,
+    "old_provider": "/private/tmp/nanolang-map-paired-publication-20261022/canonical",
+    "old_provider_sha256": "1cb2a8a392828eddea0386324688ff5eceff2e9b72fd484ba8b75f1f3abf8487",
+    "new_provider_sha256": "867e1320008995c87562323ef3788a885eda2cff64a2bcc375a10b79c7fea4b5"
+  }
+]

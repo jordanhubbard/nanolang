@@ -62,6 +62,6 @@ int main(int argc,char **argv) {
     for(unsigned i=1;i<=3;i++)compile_case(text,i,false,false);
     free(text);
     compile_case("struct Plain { value: int } fn main()->int { let m: HashMap<string,int> = (map_new) let p: Plain = Plain { value: 1 } (map_put m \"x\" p.value) return 0 }",0,false,false);
-    compile_case("struct Box { values: array<int>, map: HashMap<string,int> } fn main()->int { let m: HashMap<string,int> = (map_new) let b: Box = Box { values: [1], map: m } (map_put m \"x\" 1) (map_remove m \"missing\") assert (== (at b.values 0) 1) return 0 }",0,false,false);
+    compile_case("struct Box { values: array<int>, map: HashMap<string,int> } fn main()->int { let m: HashMap<string,int> = (map_new) let b: Box = Box { values: [1], map: m } (map_put m \"x\" 1) (map_remove m \"missing\") assert (== (str_trim \" x \" ) \"x\") assert (== (at b.values 0) 1) return 0 }",0,false,false);
     printf("PASS %u paired C publication declaration/ordinary/shadow/omission checks\n",checks);return 0;
 }

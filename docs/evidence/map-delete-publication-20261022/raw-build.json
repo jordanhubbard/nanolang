@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c",
+    "/private/tmp/nanolang-map-delete-publication-20261022/raw-driver.nano",
+    "-o",
+    "/private/tmp/nanolang-map-delete-publication-20261022/raw"
+  ],
+  "status": 0,
+  "seconds": 77.32267791702179,
+  "effective_timeout": 900,
+  "environment": {
+    "TMPDIR": "/private/tmp/nanolang-map-delete-publication-20261022/compiler-tmp",
+    "NANO_BUILD_CACHE": "/private/tmp/nanolang-map-delete-publication-20261022/module-cache",
+    "NANO_VM": "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm"
+  }
+}
