@@ -16284,3 +16284,11 @@ I qualify the reviewed first-eager-pretest witness without planner/runtime/provi
 
 
 I integrate loop-first witness reconstruction atebc430c70 and pass all eight aggregate methods in117.399s through seven unchanged providers; [receipt](evidence/loop-first-witness-aggregate-20261020/README.md). No new planner/runtime/provider change is required. Component hosted coverage now passes exact checkpoint validation/restoration and runs its tests; final platform and full release scope remain open.
+
+### I retain consuming FLOAT loop exits (2026-10-20)
+
+- [x] I execute the unchanged accepted ordinary source through all three producers and an independent original-shadow input; verifier/VM pass, facts succeed, and reconstruction atomically refuses the non-crossing diamond. I retain ten unchanged pins and the harness-only missing-key correction in `evidence/consuming-float-exits-baseline-20261020/`.
+- [ ] I implement the separate consuming-exit region and exact parameter/call-origin contract in `NANOISA_CONSUMING_FLOAT_EXITS_RECONSTRUCTION.md`, after interface review. I retain original ownership and all assertions; no borrowed witness or planner is implied.
+- [ ] I measure the unchanged rendered local counts, qualify ordinary/original-shadow VM/native behavior and adversarial origin/initialization/transfer controls, preserve prior-profile bytes, then integrate and run exact aggregate/platform gates.
+
+I correct the first documentation commit's mistaken root-level ROADMAP path here; my authoritative queue remains this file. No production code changed before that correction.
