@@ -1,0 +1,385 @@
+[
+  {
+    "label": "cc-version",
+    "command": [
+      "/usr/bin/cc",
+      "--version"
+    ],
+    "returncode": 0,
+    "stdout": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+    "stderr": ""
+  },
+  {
+    "label": "clang-version",
+    "command": [
+      "/usr/bin/clang",
+      "--version"
+    ],
+    "returncode": 0,
+    "stdout": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n",
+    "stderr": ""
+  },
+  {
+    "label": "as-version",
+    "command": [
+      "/usr/bin/as",
+      "--version"
+    ],
+    "returncode": 0,
+    "stdout": "GNU assembler (GNU Binutils for Ubuntu) 2.42\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis program is free software; you may redistribute it under the terms of\nthe GNU General Public License version 3 or later.\nThis program has absolutely no warranty.\nThis assembler was configured for a target of `x86_64-linux-gnu'.\n",
+    "stderr": ""
+  },
+  {
+    "label": "gcc-version",
+    "command": [
+      "/usr/bin/gcc",
+      "--version"
+    ],
+    "returncode": 0,
+    "stdout": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+    "stderr": ""
+  },
+  {
+    "label": "0-compiler-version",
+    "command": [
+      "/usr/bin/cc",
+      "--version"
+    ],
+    "returncode": 0,
+    "stdout": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+    "stderr": ""
+  },
+  {
+    "label": "0-assembler-path",
+    "command": [
+      "/usr/bin/cc",
+      "-print-prog-name=as"
+    ],
+    "returncode": 0,
+    "stdout": "as\n",
+    "stderr": ""
+  },
+  {
+    "label": "0-emit-assembly",
+    "command": [
+      "/usr/bin/cc",
+      "-S",
+      "-O0",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/answer.c",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/answer.s"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "0-integrated-dry-run",
+    "command": [
+      "/usr/bin/cc",
+      "-c",
+      "-x",
+      "assembler",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/answer.s",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/integrated.o",
+      "-###"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Using built-in specs.\nCOLLECT_GCC=/usr/bin/cc\nOFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa\nOFFLOAD_TARGET_DEFAULT=1\nTarget: x86_64-linux-gnu\nConfigured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04.1' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2\nThread model: posix\nSupported LTO compression algorithms: zlib zstd\ngcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) \nCOLLECT_GCC_OPTIONS='-c' '-o' '/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/integrated.o' '-mtune=generic' '-march=x86-64' '-dumpdir' '/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/'\n as --64 -o /home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/integrated.o /home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/answer.s\nCOMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/\nLIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/\nCOLLECT_GCC_OPTIONS='-c' '-o' '/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/integrated.o' '-mtune=generic' '-march=x86-64' '-dumpdir' '/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/integrated.'\n"
+  },
+  {
+    "label": "0-integrated-assemble",
+    "command": [
+      "/usr/bin/cc",
+      "-c",
+      "-x",
+      "assembler",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/answer.s",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/integrated.o",
+      "-v"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Using built-in specs.\nCOLLECT_GCC=/usr/bin/cc\nOFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa\nOFFLOAD_TARGET_DEFAULT=1\nTarget: x86_64-linux-gnu\nConfigured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04.1' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2\nThread model: posix\nSupported LTO compression algorithms: zlib zstd\ngcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) \nCOLLECT_GCC_OPTIONS='-c' '-o' '/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/integrated.o' '-v' '-mtune=generic' '-march=x86-64' '-dumpdir' '/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/'\n as -v --64 -o /home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/integrated.o /home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/answer.s\nGNU assembler version 2.42 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.42\nCOMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/\nLIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/\nCOLLECT_GCC_OPTIONS='-c' '-o' '/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/integrated.o' '-v' '-mtune=generic' '-march=x86-64' '-dumpdir' '/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/integrated.'\n"
+  },
+  {
+    "label": "0-integrated-fresh-shared",
+    "command": [
+      "/usr/bin/cc",
+      "-fPIC",
+      "-shared",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/answer.c",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/integrated.so"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "0-external-dry-run",
+    "command": [
+      "/usr/bin/cc",
+      "-fno-integrated-as",
+      "-c",
+      "-x",
+      "assembler",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/answer.s",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/external.o",
+      "-###"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Using built-in specs.\nCOLLECT_GCC=/usr/bin/cc\nOFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa\nOFFLOAD_TARGET_DEFAULT=1\ncc: error: unrecognized command-line option \u2018-fno-integrated-as\u2019; did you mean \u2018--no-integrated-cpp\u2019?\nTarget: x86_64-linux-gnu\nConfigured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04.1' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2\nThread model: posix\nSupported LTO compression algorithms: zlib zstd\ngcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) \n"
+  },
+  {
+    "label": "0-external-assemble",
+    "command": [
+      "/usr/bin/cc",
+      "-fno-integrated-as",
+      "-c",
+      "-x",
+      "assembler",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/answer.s",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/external.o",
+      "-v"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Using built-in specs.\nCOLLECT_GCC=/usr/bin/cc\nOFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa\nOFFLOAD_TARGET_DEFAULT=1\ncc: error: unrecognized command-line option \u2018-fno-integrated-as\u2019; did you mean \u2018--no-integrated-cpp\u2019?\nTarget: x86_64-linux-gnu\nConfigured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04.1' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2\nThread model: posix\nSupported LTO compression algorithms: zlib zstd\ngcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) \n"
+  },
+  {
+    "label": "0-external-fresh-shared",
+    "command": [
+      "/usr/bin/cc",
+      "-fno-integrated-as",
+      "-fPIC",
+      "-shared",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/answer.c",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/0/external.so"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "cc: error: unrecognized command-line option \u2018-fno-integrated-as\u2019; did you mean \u2018--no-integrated-cpp\u2019?\n"
+  },
+  {
+    "label": "1-compiler-version",
+    "command": [
+      "/usr/bin/clang",
+      "--version"
+    ],
+    "returncode": 0,
+    "stdout": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n",
+    "stderr": ""
+  },
+  {
+    "label": "1-assembler-path",
+    "command": [
+      "/usr/bin/clang",
+      "-print-prog-name=as"
+    ],
+    "returncode": 0,
+    "stdout": "/usr/bin/as\n",
+    "stderr": ""
+  },
+  {
+    "label": "1-emit-assembly",
+    "command": [
+      "/usr/bin/clang",
+      "-S",
+      "-O0",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.c",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "1-integrated-dry-run",
+    "command": [
+      "/usr/bin/clang",
+      "-fintegrated-as",
+      "-c",
+      "-x",
+      "assembler",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/integrated.o",
+      "-###"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n (in-process)\n \"/usr/lib/llvm-18/bin/clang\" \"-cc1as\" \"-triple\" \"x86_64-pc-linux-gnu\" \"-filetype\" \"obj\" \"-main-file-name\" \"answer.s\" \"-target-cpu\" \"x86-64\" \"-fdebug-compilation-dir=/home/runner/work/nanolang/nanolang\" \"-dwarf-debug-producer\" \"Ubuntu clang version 18.1.3 (1ubuntu1)\" \"-dwarf-version=5\" \"-mrelocation-model\" \"pic\" \"-o\" \"/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/integrated.o\" \"/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s\"\n"
+  },
+  {
+    "label": "1-integrated-assemble",
+    "command": [
+      "/usr/bin/clang",
+      "-fintegrated-as",
+      "-c",
+      "-x",
+      "assembler",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/integrated.o",
+      "-v"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\nFound candidate GCC installation: /usr/bin/../lib/gcc/x86_64-linux-gnu/12\nFound candidate GCC installation: /usr/bin/../lib/gcc/x86_64-linux-gnu/13\nFound candidate GCC installation: /usr/bin/../lib/gcc/x86_64-linux-gnu/14\nSelected GCC installation: /usr/bin/../lib/gcc/x86_64-linux-gnu/14\nCandidate multilib: .;@m64\nSelected multilib: .;@m64\n (in-process)\n \"/usr/lib/llvm-18/bin/clang\" -cc1as -triple x86_64-pc-linux-gnu -filetype obj -main-file-name answer.s -target-cpu x86-64 -fdebug-compilation-dir=/home/runner/work/nanolang/nanolang -dwarf-debug-producer \"Ubuntu clang version 18.1.3 (1ubuntu1)\" -dwarf-version=5 -mrelocation-model pic -o /home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/integrated.o /home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s\n"
+  },
+  {
+    "label": "1-integrated-fresh-shared",
+    "command": [
+      "/usr/bin/clang",
+      "-fintegrated-as",
+      "-fPIC",
+      "-shared",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.c",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/integrated.so"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "1-integrated-direct-backend-5",
+    "command": [
+      "/usr/lib/llvm-18/bin/clang",
+      "-cc1as",
+      "-triple",
+      "x86_64-pc-linux-gnu",
+      "-filetype",
+      "obj",
+      "-main-file-name",
+      "answer.s",
+      "-target-cpu",
+      "x86-64",
+      "-fdebug-compilation-dir=/home/runner/work/nanolang/nanolang",
+      "-dwarf-debug-producer",
+      "Ubuntu clang version 18.1.3 (1ubuntu1)",
+      "-dwarf-version=5",
+      "-mrelocation-model",
+      "pic",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/integrated.o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "1-integrated-backend-dry-run-5",
+    "command": [
+      "/usr/lib/llvm-18/bin/clang",
+      "-cc1as",
+      "-triple",
+      "x86_64-pc-linux-gnu",
+      "-filetype",
+      "obj",
+      "-main-file-name",
+      "answer.s",
+      "-target-cpu",
+      "x86-64",
+      "-fdebug-compilation-dir=/home/runner/work/nanolang/nanolang",
+      "-dwarf-debug-producer",
+      "Ubuntu clang version 18.1.3 (1ubuntu1)",
+      "-dwarf-version=5",
+      "-mrelocation-model",
+      "pic",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/integrated.o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s",
+      "-###"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "clang -cc1as: error: unknown argument: '-###'\n"
+  },
+  {
+    "label": "1-external-dry-run",
+    "command": [
+      "/usr/bin/clang",
+      "-fno-integrated-as",
+      "-c",
+      "-x",
+      "assembler",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/external.o",
+      "-###"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n \"/usr/bin/as\" \"--64\" \"-o\" \"/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/external.o\" \"/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s\"\n"
+  },
+  {
+    "label": "1-external-assemble",
+    "command": [
+      "/usr/bin/clang",
+      "-fno-integrated-as",
+      "-c",
+      "-x",
+      "assembler",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/external.o",
+      "-v"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\nFound candidate GCC installation: /usr/bin/../lib/gcc/x86_64-linux-gnu/12\nFound candidate GCC installation: /usr/bin/../lib/gcc/x86_64-linux-gnu/13\nFound candidate GCC installation: /usr/bin/../lib/gcc/x86_64-linux-gnu/14\nSelected GCC installation: /usr/bin/../lib/gcc/x86_64-linux-gnu/14\nCandidate multilib: .;@m64\nSelected multilib: .;@m64\n \"/usr/bin/as\" --64 -o /home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/external.o /home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s\n/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s: Assembler messages:\n/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s:24: Error: unknown pseudo-op: `.addrsig'\nclang: error: assembler command failed with exit code 1 (use -v to see invocation)\n"
+  },
+  {
+    "label": "1-external-fresh-shared",
+    "command": [
+      "/usr/bin/clang",
+      "-fno-integrated-as",
+      "-fPIC",
+      "-shared",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.c",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/external.so"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "label": "1-external-direct-backend-4",
+    "command": [
+      "/usr/bin/as",
+      "--64",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/external.o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s: Assembler messages:\n/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s:24: Error: unknown pseudo-op: `.addrsig'\n"
+  },
+  {
+    "label": "1-external-backend-dry-run-4",
+    "command": [
+      "/usr/bin/as",
+      "--64",
+      "-o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/external.o",
+      "/home/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/1/answer.s",
+      "-###"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "/usr/bin/as: unrecognized option '-###'\n"
+  }
+]

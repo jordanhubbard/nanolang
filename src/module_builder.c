@@ -4360,8 +4360,10 @@ static size_t module_assembler_argv(const char *command, char **args, char *stor
 
 static size_t module_assembler_report(char *report, char **args, char *storage, size_t capacity) {
     const char *banner = !strncmp(report, "Apple clang version 21.0.0 ", 27)
-        ? "Apple clang version 21.0.0 " : !strncmp(report, "Debian clang version 14.0.6\n", 28)
-        ? "Debian clang version 14.0.6" : NULL;
+        ? "Apple clang version 21.0.0 " : !strncmp(report, "Apple clang version 15.0.0 ", 27)
+        ? "Apple clang version 15.0.0 " : !strncmp(report, "Debian clang version 14.0.6\n", 28)
+        ? "Debian clang version 14.0.6" : !strncmp(report, "Ubuntu clang version 18.1.3 (1ubuntu1)\n", 39)
+        ? "Ubuntu clang version 18.1.3 (1ubuntu1)" : NULL;
     if (!banner) return 0;
     char *selected = NULL;
     for (char *line = report; line && *line;) {

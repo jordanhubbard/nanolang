@@ -1,0 +1,14 @@
+{
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "environment": {
+    "ImageOS": "ubuntu24",
+    "ImageVersion": "20261012.334.1",
+    "PATH": "/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+    "DEVELOPER_DIR": null,
+    "SDKROOT": null,
+    "CC": null
+  },
+  "revision": "f90b2d7693ffc0cd1630300514ab46c5ea79f562"
+}
