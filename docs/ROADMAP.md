@@ -16432,3 +16432,7 @@ I retain [private map proof qualification](evidence/map-origin-proof-20261021/RE
 - [x] I own the reviewed constructor/query-only slice from `4fc8c9db7`. I preserve sole frozen-origin ownership, old carrier sizes/budgets and atomic stack/plan outputs. I send source for review before compilation; public/runtime/native/image/publisher admission remains outside this work.
 
 I retain [copied map recipe qualification](evidence/map-execution-recipes-20261021/README.md): four original private inputs, complete recipe/query controls,60 constructor and45 stack/proof allocation prefixes, exact constructor byte/work limits with refusal/retry, old execution-plan neighbors and six unchanged budgets. Public execution, image/runtime/native/publisher admission and full #1001 remain open.
+
+### I design independent copied map images (2026-10-21)
+
+- [x] I own the contract-only [copied-image interface](NANOISA_MAP_COPIED_IMAGE_DESIGN.md) after `6940bd144`: independent reproof from the frozen source snapshot, sole ownership of every copied report, and explicit actual retained-size accounting before overlap reservation under unchanged preparation ceilings. The exact cost-helper charge schedule remains a review item. No image/runtime/public/native/publisher implementation is authorized here.
