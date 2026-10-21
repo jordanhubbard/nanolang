@@ -1,0 +1,29 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-execution-8bu1_u7q
+setUpClass (tests.test_record_array_execution.RecordArrayExecution) ... ERROR
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-image-pxilx8a9
+setUpClass (tests.test_record_map_image.RecordMapImage) ... ERROR
+
+======================================================================
+ERROR: setUpClass (tests.test_record_array_execution.RecordArrayExecution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_array_execution.py", line 31, in setUpClass
+    cls.objects = [p for p in shlex.split(os.environ['RECORD_ARRAY_OBJECTS'])
+                                          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'RECORD_ARRAY_OBJECTS'
+
+======================================================================
+ERROR: setUpClass (tests.test_record_map_image.RecordMapImage)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_image.py", line 31, in setUpClass
+    cls.objects = [p for p in shlex.split(os.environ['RECORD_ARRAY_OBJECTS'])
+                                          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'RECORD_ARRAY_OBJECTS'
+
+----------------------------------------------------------------------
+Ran 0 tests in 0.001s
+
+FAILED (errors=2)

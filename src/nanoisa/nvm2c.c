@@ -9,6 +9,10 @@
 #include "service_bindings_module.h"
 #include "owned_array_admission.h"
 #include "nvm2c.h"
+#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
+#include "nvm2c_map_private.h"
+#include "record_map_snapshot_private.h"
+#endif
 #include "../binary64_bits.h"
 #include "../binary64_format.h"
 #include "../binary64_arithmetic_source.h"
@@ -229,6 +233,9 @@ typedef struct {
     int has_owned_strings;
     int has_owned_aggregates;
     bool canonical_records;
+#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
+    const NvmRecordMapExecutionPlan *map_plan;
+#endif
     size_t global_count;
     size_t local_width;
     uint8_t *array_results;
@@ -961,6 +968,50 @@ static int shape_field_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
                                      kind == NVM2C_VK_BOOL ? NVM_SHAPE_BOOL :
                                      kind == NVM2C_VK_FLOAT ? NVM_SHAPE_FLOAT : NVM_SHAPE_INT);
     return source && nvm_shape_convert(&b->shapes, source, id) && shape_ok(b);
+}
+
+/* This opt-in shape is backed by the independently proved image, not a tag guess. */
+static int private_map_shape(Nvm2cBuf *b, NvmShapeId shape) {
+#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
+    if (b->map_plan)
+        return shape_type(b, shape, NVM_SHAPE_MAP) &&
+               shape_type(b, shape_child(b, shape, 0), NVM_SHAPE_STRING) &&
+               shape_type(b, shape_child(b, shape, 1), NVM_SHAPE_INT);
+#else
+    (void)b; (void)shape;
+#endif
+    return 1;
+}
+static int private_map_enabled(const Nvm2cBuf *b) {
+#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
+    return b->map_plan != NULL;
+#else
+    (void)b; return 0;
+#endif
+}
+static int private_map_pack_field(Nvm2cBuf *b, uint32_t ordinal,
+                                  uint16_t index, NvmShapeId shape) {
+#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
+    if (b->map_plan) {
+        NvmRecordArrayExecutionDescriptor descriptor; NvmV2LayoutField field;
+        if (!nvm_record_map_execution_descriptor(b->map_plan, ordinal, &descriptor) ||
+            descriptor.ordinal != ordinal || index >= descriptor.fields ||
+            !nvm_record_map_execution_field(b->map_plan, descriptor.layout, index, &field)) {
+            nvm2c_fail(b, "I require an exact copied native map field descriptor"); return 0;
+        }
+        if (field.type_tag == TAG_HASHMAP) {
+            uint8_t key, value;
+            if (!nvm_record_map_execution_map_field(b->map_plan, descriptor.layout, index, &key, &value) ||
+                key != TAG_STRING || value != TAG_INT) {
+                nvm2c_fail(b, "I require the exact native STRING-to-INT field pair"); return 0;
+            }
+            return private_map_shape(b, shape);
+        }
+    }
+#else
+    (void)b; (void)ordinal; (void)index; (void)shape;
+#endif
+    return 1;
 }
 
 /* Returning a present scalar into optional record storage is a conversion,
@@ -2194,7 +2245,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 NvmShapeId checked = 0;
                 map.shape = shape_variable(b, &checked);
             } else mark_origin(local_kind, nloc, map.origin, NVM2C_VK_MAP);
-            if (!shape_type(b, map.shape, NVM_SHAPE_MAP)) return 0;
+            if (!shape_type(b, map.shape, NVM_SHAPE_MAP) || !private_map_shape(b, map.shape)) return 0;
             if (ins.opcode != OP_HM_LEN) {
                 if (key.kind != NVM2C_VK_STR && key.kind != NVM2C_VK_UNK && key.kind != NVM2C_VK_VALUE) {
                     nvm2c_fail(b, "I require a string hashmap key"); return 0;
@@ -2705,6 +2756,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     return 0;
                 }
                 NvmShapeId field = shape_child(b, packed.shape, count - 1 - ai);
+                if (!private_map_pack_field(b, ins.operands[1].u32,
+                        (uint16_t)(count - 1 - ai), field)) return 0;
                 if (aggregate_kind == AGG_VARIANT && (variant_scalar_kind(v.kind) || v.kind == NVM2C_VK_ARR)) {
                     packed.rec_k[count - 1 - ai] = variant_field_for(v.kind);
                     /* This constructor records an integer-array member. The
@@ -2758,6 +2811,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!valid) return 0;
                 }
             }
+            if (value.kind == NVM2C_VK_MAP && !private_map_shape(b, replacement)) return 0;
             if (!shape_type(b, rec.shape, NVM_SHAPE_RECORD) ||
                 !shape_equal(b, shape_child(b, rec.shape, fi), replacement) ||
                 !shape_equal(b, shape_variable(b, b->shape_current), rec.shape)) return 0;
@@ -5770,7 +5824,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm_shape_lookup(&b->shapes, b->shape_outputs[idx][start], fi));
             if (!shape_ok(b) || (kind != NVM2C_VK_INT && kind != NVM2C_VK_BOOL &&
                 kind != NVM2C_VK_FLOAT && kind != NVM2C_VK_STR &&
-                kind != NVM2C_VK_REC && kind != NVM2C_VK_SARR && !word_array_storage(kind))) {
+                kind != NVM2C_VK_REC && kind != NVM2C_VK_SARR && !word_array_storage(kind) &&
+                !(private_map_enabled(b) && kind == NVM2C_VK_MAP))) {
                 nvm2c_fail(b, "function %u at offset %zu: I require an exact ordinary record replacement representation for field %u (kind %u)", idx, start, fi, kind);
                 goto done;
             }
@@ -5785,7 +5840,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_printf(b, "    r[%d].rec[%u] = nrec_snapshot(r[%d]);\n", rec, fi, value);
             else {
                 const char *field = kind == NVM2C_VK_STR ? "s" :
-                    kind == NVM2C_VK_SARR ? "sa" : word_array_storage(kind) ? "a" : "f";
+                    kind == NVM2C_VK_SARR ? "sa" : word_array_storage(kind) ? "a" :
+                    private_map_enabled(b) && kind == NVM2C_VK_MAP ? "m" : "f";
                 nvm2c_printf(b, "    r[%d].%s[%u] = %s[%d];\n", rec, field, fi,
                     stack_array_name(kind), value);
             }
@@ -7608,7 +7664,16 @@ static int prune_unemittable_callers(Nvm2cBuf *b, const NvmModule *mod) {
 #include "nvm2c_owned.h"
 #include "record_array_admission.h"
 
-char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
+static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
+#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
+                             , const NvmRecordMapExecutionPlan *map_plan
+#endif
+                             ) {
+#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
+    bool private_maps = map_plan != NULL;
+#else
+    bool private_maps = false;
+#endif
     if (err && err_len) err[0] = '\0';
     if (!mod) {
         if (err && err_len) snprintf(err, err_len, "module is null");
@@ -7619,9 +7684,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "I require reviewed service lifetime and dispatch admission before translation");
         return NULL;
     }
-    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return emit_owned_array_module(mod,err,err_len);
-    if(nvm_mixed_samples_candidate(mod))return emit_mixed_samples_module(mod,err,err_len);
-    bool record_arrays=nvm_record_array_candidate(mod);
+    if(!private_maps && nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return emit_owned_array_module(mod,err,err_len);
+    if(!private_maps && nvm_mixed_samples_candidate(mod))return emit_mixed_samples_module(mod,err,err_len);
+    bool record_arrays=!private_maps && nvm_record_array_candidate(mod);
     if(record_arrays) {
         NvmRecordArrayExecutionPlan *plan=NULL;
         NvmArrayEligibilityResult admission=nvm_record_array_admit(mod,&plan);
@@ -7632,7 +7697,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm_record_array_execution_free(plan);
     }
     bool needs_ownership = false;
-    if (!record_arrays && (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK || needs_ownership ||
+    if (!private_maps && !record_arrays && (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK || needs_ownership ||
         nvm_uses_owned_transfers(mod))) {
         if (nvm_verify_owned_module(mod).ok) return emit_owned_module(mod, err, err_len);
         if (err && err_len) snprintf(err, err_len,
@@ -7662,8 +7727,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     memset(&b, 0, sizeof b);
     b.err = err;
     b.err_len = err_len;
-    b.canonical_records = record_arrays;
-    if (record_arrays) b.has_maps = 1;
+    b.canonical_records = record_arrays || private_maps;
+#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
+    b.map_plan = map_plan;
+#endif
+    if (record_arrays || private_maps) b.has_maps = 1;
     b.record_width = 1;
     b.local_width = 1;
     /* I share cleanup-preserving unwinding between HALT and lexical effects. */
@@ -7686,7 +7754,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     /* The tagged map runtime also provides shared frame/aggregate root tracing.
      * Owned strings/aggregates need it even without map instructions. */
     if (b.has_owned_strings) b.has_maps = 1;
-    b.has_owned_aggregates = (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP) || module_has_opcode(mod, OP_ARR_GET)) ||
+    b.has_owned_aggregates = private_maps || (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP) || module_has_opcode(mod, OP_ARR_GET)) ||
         module_has_opcode(mod, OP_ARR_NEW) || module_has_opcode(mod, OP_ARR_LITERAL) ||
         module_has_opcode(mod, OP_ARR_PUSH) || module_has_opcode(mod, OP_ARR_GET) ||
         module_has_opcode(mod, OP_ARR_SET) || module_has_opcode(mod, OP_ARR_LEN) || module_has_opcode(mod, OP_ARR_SLICE) || module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP) ||
@@ -8800,3 +8868,15 @@ fail:
     free(b.data);
     return NULL;
 }
+
+/* Public routing retains the original admission and output behavior. */
+char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
+    return nvm2c_emit_core(mod, err, err_len
+#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
+                           , NULL
+#endif
+                           );
+}
+#ifdef NANO_RECORD_MAP_PRIVATE_NATIVE
+#include "nvm2c_map_private.inc"
+#endif

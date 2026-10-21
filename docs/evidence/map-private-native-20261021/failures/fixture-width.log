@@ -1,0 +1,26 @@
+managed_array_shapes-build 0  
+verifier-build 0  
+verifier_types-build 0  
+vm_decode-build 0  
+ownership_contracts-build 0  
+nvm_v2_layouts-build 0  
+retained_layouts-build 0  
+vm_dispatch-build 0  
+value-build 0  
+heap-build 0  
+heap_cycles-build 0  
+vm-build 0  
+vm_callback-build 0  
+vm_ffi-build 0  
+vm_builtins-build 0  
+cop_protocol-build 0  
+vm_ffi_arrays-build 0  
+callback_runtime-build 0  
+driver 0  
+fixtures 1 I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+ native fixture alias-replacement proof: I have no ordinary record-array transfer for this opcode.
+I failed line 46: proof.status==NVM_ARRAY_ELIGIBLE
+
