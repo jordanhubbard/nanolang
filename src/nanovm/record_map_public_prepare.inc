@@ -138,7 +138,7 @@ static bool vm_rmp_coverage(VmRecordMapPublicPreparation *p,const VmState *vm,Nv
         if(active!=(nvm_record_array_opcode_supported((uint8_t)op) || nvm_record_map_opcode((uint8_t)op)))return false;
         supported+=active;
     }
-    if(supported!=99)return false;
+    if(supported!=100)return false;
     uint32_t total=0;
     for(uint32_t fi=0;fi<p->counts.carrier.functions;fi++) {
         const NvmRecordArrayExecutionFunction *fn=&p->functions[fi];
@@ -189,6 +189,7 @@ static bool vm_rmp_coverage(VmRecordMapPublicPreparation *p,const VmState *vm,Nv
             switch(fact->opcode) {
             case OP_HM_NEW:operation=NVM_RM_NEW;result=1u<<TAG_HASHMAP;break;
             case OP_HM_SET:operation=NVM_RM_SET;result=1u<<TAG_HASHMAP;break;
+            case OP_HM_DELETE:operation=NVM_RM_DELETE;result=1u<<TAG_HASHMAP;break;
             case OP_HM_GET:operation=NVM_RM_GET;result=(1u<<TAG_INT)|(1u<<TAG_VOID);break;
             case OP_HM_HAS:operation=NVM_RM_HAS;result=1u<<TAG_BOOL;break;
             case OP_HM_LEN:operation=NVM_RM_LEN;result=1u<<TAG_INT;break;

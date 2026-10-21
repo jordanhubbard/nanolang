@@ -6,7 +6,7 @@
 #define NVM_RM_INVALID_BASE_RECIPE UINT8_MAX
 typedef struct NvmRecordMapExecutionPlan NvmRecordMapExecutionPlan;
 typedef enum { NVM_RM_NONE, NVM_RM_NEW, NVM_RM_SET, NVM_RM_GET,
-               NVM_RM_HAS, NVM_RM_LEN } NvmRecordMapOperation;
+               NVM_RM_HAS, NVM_RM_LEN, NVM_RM_DELETE } NvmRecordMapOperation;
 typedef struct {
     NvmRecordArrayExecutionCounts carrier;
     NvmRecordMapCounts maps;

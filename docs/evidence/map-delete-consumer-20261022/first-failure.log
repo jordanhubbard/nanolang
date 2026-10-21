@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-map-delete-consumer-20261022/first.py", line 20, in <module>
+    m=out/(name+'-selected.nvm');run(name+'-asm',[out/'nanoisa','asm',base/(name+'-selected.nasm'),'-o',m]);run(name+'-verify',[out/'nano_vm','--verify-only',m]);run(name+'-vm',[out/'nano_vm',m]);run(name+'-native',[out/'nvm2c',m,'-o',out/(name+'.c')]);receipt.setdefault('modules',{})[name]=sha(m)
+                                 ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-map-delete-consumer-20261022/first.py", line 13, in run
+    (out/(name+'.stdout')).write_bytes(r.stdout);(out/(name+'.stderr')).write_bytes(r.stderr);receipt['commands'].append(dict(name=name,argv=list(map(str,args)),status=r.returncode));(out/'first.json').write_text(json.dumps(receipt,indent=2)+'\n');assert r.returncode==0,(name,r.stderr);assert not any(x in r.stderr for x in [b'AddressSanitizer',b'runtime error:']),r.stderr
+                                                                                                                                                                                                                                                               ^^^^^^^^^^^^^^^
+AssertionError: ('seed-asm', b"I cannot assemble '/private/tmp/nanolang-map-delete-baseline-20261022/seed-selected.nasm': Assembled module failed verification: I refuse record-map admission: I have no ordinary record-array transfer for this opcode.\n")

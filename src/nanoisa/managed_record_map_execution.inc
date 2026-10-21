@@ -24,6 +24,7 @@ static void rme_tags(NvmRecordMapExecutionInstruction *r) {
     r->key_tags=(uint16_t)(1u<<TAG_STRING);r->value_tags=(uint16_t)(1u<<TAG_INT);
     switch(r->base.opcode) {
     case OP_HM_NEW:r->map_operation=NVM_RM_NEW;r->result_tags=(uint16_t)(1u<<TAG_HASHMAP);break;
+    case OP_HM_DELETE:r->map_operation=NVM_RM_DELETE;r->result_tags=(uint16_t)(1u<<TAG_HASHMAP);break;
     case OP_HM_SET:r->map_operation=NVM_RM_SET;r->result_tags=(uint16_t)(1u<<TAG_HASHMAP);break;
     case OP_HM_GET:r->map_operation=NVM_RM_GET;r->result_tags=(uint16_t)((1u<<TAG_INT)|(1u<<TAG_VOID));break;
     case OP_HM_HAS:r->map_operation=NVM_RM_HAS;r->result_tags=(uint16_t)(1u<<TAG_BOOL);break;

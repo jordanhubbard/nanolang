@@ -7088,6 +7088,13 @@ test-record-map-runtime: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) 
 
 test-units: test-record-map-runtime
 
+.PHONY: test-record-map-delete
+# Selected DELETE public/private dispatch; optional independently annotated originals.
+test-record-map-delete: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	LSAN_OPTIONS= RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_delete
+
+test-units: test-record-map-delete
+
 .PHONY: test-record-map-observation
 # Copied private observations; no public selector or trusted context escapes.
 test-record-map-observation: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)

@@ -104,6 +104,7 @@ static VmResult vm_rmb_preflight(VmRecordMapBorrowedInvocation *v,const VmDispat
     switch(fact->opcode) {
     case OP_HM_NEW:operation=NVM_RM_NEW;result=1u<<TAG_HASHMAP;break;
     case OP_HM_SET:operation=NVM_RM_SET;result=1u<<TAG_HASHMAP;break;
+    case OP_HM_DELETE:operation=NVM_RM_DELETE;result=1u<<TAG_HASHMAP;break;
     case OP_HM_GET:operation=NVM_RM_GET;result=(1u<<TAG_INT)|(1u<<TAG_VOID);break;
     case OP_HM_HAS:operation=NVM_RM_HAS;result=1u<<TAG_BOOL;break;
     case OP_HM_LEN:operation=NVM_RM_LEN;result=1u<<TAG_INT;break;
@@ -152,7 +153,7 @@ static VmResult vm_rmb_preflight(VmRecordMapBorrowedInvocation *v,const VmDispat
     case OP_HM_NEW:
         if(in->operands[0].u8!=TAG_STRING || in->operands[1].u8!=TAG_INT)return VM_ERR_TYPE_ERROR;
         break;
-    case OP_HM_SET:case OP_HM_GET:case OP_HM_HAS:case OP_HM_LEN: {
+    case OP_HM_SET:case OP_HM_GET:case OP_HM_HAS:case OP_HM_LEN:case OP_HM_DELETE: {
         uint16_t receiver=in->opcode==OP_HM_SET?2:in->opcode==OP_HM_LEN?0:1;
         if(stack_peek(vm,receiver).tag!=TAG_HASHMAP ||
            (in->opcode!=OP_HM_LEN && stack_peek(vm,receiver-1).tag!=TAG_STRING) ||
@@ -318,6 +319,8 @@ static VmResult vm_rmb_map_instruction(VmRecordMapBorrowedInvocation *v,uint8_t 
         switch(opcode) {
         case OP_HM_SET:
             status=vm_rm_ordinary_set(&vm->heap,map.as.hashmap,key,stack_peek(vm,0));output=map;break;
+        case OP_HM_DELETE:
+            status=vm_rm_ordinary_delete(&vm->heap,map.as.hashmap,key);output=map;break;
         case OP_HM_GET:status=vm_rm_ordinary_get(&vm->heap,map.as.hashmap,key,&output);break;
         case OP_HM_HAS: {
             bool found=false;status=vm_rm_ordinary_has(&vm->heap,map.as.hashmap,key,&found);
@@ -332,7 +335,7 @@ static VmResult vm_rmb_map_instruction(VmRecordMapBorrowedInvocation *v,uint8_t 
         if(status!=VM_RM_HEAP_OK)return vm_rmx_heap_status(status);
         for(uint32_t i=0;i<pops;i++) {
             NanoValue consumed=stack_pop(vm);
-            if(!(opcode==OP_HM_SET && i==pops-1))vm_release(&vm->heap,consumed);
+            if(!((opcode==OP_HM_SET || opcode==OP_HM_DELETE) && i==pops-1))vm_release(&vm->heap,consumed);
         }
     }
     /* Exact recipe preflight and whole-invocation reservation guarantee space. */

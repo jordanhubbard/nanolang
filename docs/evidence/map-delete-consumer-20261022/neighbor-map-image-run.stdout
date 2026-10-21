@@ -1,0 +1,8 @@
+I retained 45 allocation prefixes and independent recovery.
+PASS 1095 map origin checks; public boundaries checked
+I retained 45 stack/plan proof failure prefixes.
+I retained 60 recipe allocation prefixes; reserved 67191725 bytes/16863488 work.
+PASS 2812 copied map recipe checks; public boundaries checked
+I matched retained payload and exact logical work without allocations.
+I retained 61 independent-image allocation prefixes; overlap 67215446 bytes/16863784 work.
+PASS 8697 retained map image cost checks; public boundaries checked

@@ -4672,6 +4672,18 @@ vm_return_values: ;
         }
 
         VM_CASE(OP_HM_DELETE) {
+            if(borrowed_map_execution) {
+                VmResult checked=vm_rmb_map_instruction(borrowed_map,OP_HM_DELETE);
+                if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked ordinary map operation.");
+                VM_NEXT();
+            }
+#ifdef NANO_RECORD_MAP_PRIVATE_RUNTIME
+            if(map_execution) {
+                VmResult checked=vm_rmx_map_instruction(record_map,OP_HM_DELETE);
+                if(checked!=VM_OK)return trap_error(vm,checked,"I stopped at a checked private map operation.");
+                VM_NEXT();
+            }
+#endif
             NanoValue key = stack_pop(vm);
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {

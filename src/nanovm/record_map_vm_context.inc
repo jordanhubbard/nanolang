@@ -119,6 +119,7 @@ static VmResult vm_rmx_preflight(VmRecordMapInvocation *v,const VmDispatchInstru
     switch(fact->opcode) {
     case OP_HM_NEW:operation=NVM_RM_NEW;result=1u<<TAG_HASHMAP;break;
     case OP_HM_SET:operation=NVM_RM_SET;result=1u<<TAG_HASHMAP;break;
+    case OP_HM_DELETE:operation=NVM_RM_DELETE;result=1u<<TAG_HASHMAP;break;
     case OP_HM_GET:operation=NVM_RM_GET;result=(1u<<TAG_INT)|(1u<<TAG_VOID);break;
     case OP_HM_HAS:operation=NVM_RM_HAS;result=1u<<TAG_BOOL;break;
     case OP_HM_LEN:operation=NVM_RM_LEN;result=1u<<TAG_INT;break;
@@ -167,7 +168,7 @@ static VmResult vm_rmx_preflight(VmRecordMapInvocation *v,const VmDispatchInstru
     case OP_HM_NEW:
         if(in->operands[0].u8!=TAG_STRING || in->operands[1].u8!=TAG_INT)return VM_ERR_TYPE_ERROR;
         break;
-    case OP_HM_SET:case OP_HM_GET:case OP_HM_HAS:case OP_HM_LEN: {
+    case OP_HM_SET:case OP_HM_GET:case OP_HM_HAS:case OP_HM_LEN:case OP_HM_DELETE: {
         uint16_t receiver=in->opcode==OP_HM_SET?2:in->opcode==OP_HM_LEN?0:1;
         if(stack_peek(vm,receiver).tag!=TAG_HASHMAP ||
            (in->opcode!=OP_HM_LEN && stack_peek(vm,receiver-1).tag!=TAG_STRING) ||
@@ -312,6 +313,10 @@ static VmResult vm_rmx_map_instruction(VmRecordMapInvocation *v,uint8_t opcode) 
     switch(opcode) {
     case OP_HM_SET:
         status=vm_rm_heap_set(&vm->heap,map.as.hashmap,key,value);
+        if(status==VM_RM_HEAP_OK){output=map;map=val_void();}
+        break;
+    case OP_HM_DELETE:
+        status=vm_rm_heap_delete(&vm->heap,map.as.hashmap,key);
         if(status==VM_RM_HEAP_OK){output=map;map=val_void();}
         break;
     case OP_HM_GET:status=vm_rm_heap_get(map.as.hashmap,key,&output);break;

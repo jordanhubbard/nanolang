@@ -40,6 +40,7 @@ static int map_operation(Analysis *a,NvmRecordMapAnalysisContext *maps,uint32_t 
                          const VmDecodedInstruction *d,const Value *stack,uint16_t depth) {
     uint8_t op=d->instruction.opcode;
     if(op==OP_HM_NEW)return 1; /* Every encoded creation was checked, including dead code. */
+    /* GET/HAS/DELETE consume receiver+key; DELETE preserves all history. */
     unsigned pops=op==OP_HM_SET?3u:op==OP_HM_LEN?1u:2u;
     if(depth<pops)return stop(a,NVM_ARRAY_INVALID,fn,d->byte_offset,"I require the verified map stack effect.");
     unsigned base=depth-pops;

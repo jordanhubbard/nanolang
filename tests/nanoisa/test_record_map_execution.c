@@ -26,6 +26,7 @@ static void execution_rows(const NvmModule *m,NvmRecordMapExecutionPlan *p) {
                 CHECK(row.base.pushes==1);CHECK(row.base.obligations&NVM_RA_FIRST_ERROR_CLEANUP);
                 switch(ins.opcode) {
                 case OP_HM_NEW:CHECK(row.map_operation==NVM_RM_NEW&&row.base.pops==0&&row.result_tags==MASK(TAG_HASHMAP));break;
+                case OP_HM_DELETE:CHECK(row.map_operation==NVM_RM_DELETE&&row.base.pops==2&&row.result_tags==MASK(TAG_HASHMAP));break;
                 case OP_HM_SET:CHECK(row.map_operation==NVM_RM_SET&&row.base.pops==3&&row.result_tags==MASK(TAG_HASHMAP));break;
                 case OP_HM_GET:CHECK(row.map_operation==NVM_RM_GET&&row.base.pops==2&&row.result_tags==(MASK(TAG_INT)|MASK(TAG_VOID)));break;
                 case OP_HM_HAS:CHECK(row.map_operation==NVM_RM_HAS&&row.base.pops==2&&row.result_tags==MASK(TAG_BOOL));break;

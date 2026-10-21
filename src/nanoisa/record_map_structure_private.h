@@ -9,6 +9,6 @@ NvmArrayEligibilityResult nvm_record_map_structure_prepare(const NvmModule *,
     NvmRecordArrayBudget *,NvmRecordArrayStructure **,NvmMapDeclarationPlan **);
 static inline bool nvm_record_map_opcode(uint8_t op) {
     return op==OP_HM_NEW || op==OP_HM_SET || op==OP_HM_GET ||
-           op==OP_HM_HAS || op==OP_HM_LEN;
+           op==OP_HM_HAS || op==OP_HM_LEN || op==OP_HM_DELETE;
 }
 #endif
