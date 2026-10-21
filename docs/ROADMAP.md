@@ -16599,3 +16599,20 @@ the contract for one invocation-owned boundary plan/tables, fresh import checkin
 ordinary collector and record-ordinal semantics, complete stack reservation and
 selected-route cleanup. Public selectors, handlers, native, loaders and publishers
 remain unchanged pending interface/allocation review. No compiler job is required.
+
+### #1001 borrowed map preparation implementation ownership (2026-10-22)
+
+I am implementing only the reviewed private preparation owner from contract
+3e9a51aca: same boundary proof and import validation, immutable copied tables,
+cache/constant correspondence, and positive reservation. Stack allocation, runtime
+activation, dispatch, and public selection remain outside this slice. I will
+freeze source for review before a narrow build; no frontend/bootstrap is needed.
+
+Preparation-only qualification is complete: final switch/goto12495 checks each,
+all eight retained originals before/after ordinary baseline execution,69 allocation
+positions with transient/persistent denial+retry, exact budget boundaries and
+nonmutation. Old import13164 each and boundary754/1685 controls remain green;
+12 strict cases and all six old budget rows pass unchanged. I retain the harness
+and neighbor selection failures separately in
+[the preparation receipt](evidence/map-public-preparation-20261022/README.md).
+No activation, stack allocation, handler, or public selector is enabled.

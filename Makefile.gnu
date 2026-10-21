@@ -7117,3 +7117,12 @@ test-record-map-import: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $
 	LSAN_OPTIONS= RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_import
 
 test-units: test-record-map-import
+
+# Immutable preparation only; selected map execution remains closed.
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/record_map_boundary_private.h
+$(OBJ_DIR)/nanovm/vm.o: $(NANOVM_DIR)/record_map_public_prepare_private.h $(NANOVM_DIR)/record_map_public_prepare.inc
+.PHONY: test-record-map-public-prepare
+test-record-map-public-prepare: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_map_public_prepare
+
+test-units: test-record-map-public-prepare

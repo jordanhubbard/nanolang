@@ -5009,6 +5009,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm,const VmOwnedInvocationProof *p
 #include "record_map_vm_run.inc"
 #include "record_map_vm_observe.inc"
 #include "record_map_import.inc"
+#include "record_map_public_prepare.inc"
 #endif
 
 VmTrap vm_core_execute(VmState *vm) {
