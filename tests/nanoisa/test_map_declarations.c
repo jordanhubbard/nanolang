@@ -128,7 +128,7 @@ static void map_signature_boundaries(void) {
     patch(c.ownership,c.extension-4,2);c.module.ownership_size=(uint32_t)end;
     map_refuse(&c,NVM_MAP_INVALID);
 }
-static void map_public_refusal(void) {
+static void map_public_boundary(void) {
     AsmResult error;NvmModule *m=asm_assemble(".entry 0\n.function main 0 0 0 int 1\nHM_NEW 5 1\nPOP\nPUSH_I64 0\nRET\n.end\n",&error);
     CHECK(m);CHECK(nvm_verify(m).ok);
     char diagnostic[256];char *native=nvm2c_emit(m,diagnostic,sizeof diagnostic);CHECK(native);free(native);
@@ -139,11 +139,21 @@ static void map_public_refusal(void) {
     memcpy(m->layout_data,c.layouts,c.l);memcpy(m->ownership_data,c.ownership,c.o);
     m->layout_size=(uint32_t)c.l;m->ownership_size=(uint32_t)c.o;m->struct_count=1;
     NvmMapDeclarationPlan *p=NULL;CHECK(nvm_prepare_map_declarations(m,&p).status==NVM_MAP_DESCRIBED);nvm_map_declarations_free(p);
-    CHECK(!nvm_verify(m).ok);CHECK(nvm2c_emit(m,diagnostic,sizeof diagnostic)==NULL);
-    NvmV2Module encoded;CHECK(nvm_v2_from_nvm_module(m,&encoded)!=NVM_V2_OK);
+    /* Linked mode owns the whole public proof/conversion closure. The
+     * instrumented mode tracks only declaration/layout TU allocations; public
+     * record plans allocate copied layouts in other, unwrapped TUs. */
+#ifndef OAA_INSTRUMENT
+    CHECK(nvm_verify(m).ok);native=nvm2c_emit(m,diagnostic,sizeof diagnostic);CHECK(native);free(native);
+    NvmV2Module encoded;CHECK(nvm_v2_from_nvm_module(m,&encoded)==NVM_V2_OK);
+    NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&encoded,&copy)==NVM_V2_OK);
+    CHECK(copy&&nvm_verify(copy).ok);native=nvm2c_emit(copy,diagnostic,sizeof diagnostic);CHECK(native);free(native);
+    nvm_module_free(copy);nvm_v2_module_free(&encoded);
+#endif
     m->ownership_data[28+12]=99; /* unknown extension kind; no ARRAY shortcut */
     p=(void *)(uintptr_t)1;CHECK(nvm_prepare_map_declarations(m,&p).status==NVM_MAP_INVALID);CHECK(p==(void *)(uintptr_t)1);
     CHECK(!nvm_verify(m).ok);CHECK(nvm2c_emit(m,diagnostic,sizeof diagnostic)==NULL);
+    NvmV2Module prior,denied;memset(&denied,0xa5,sizeof denied);memcpy(&prior,&denied,sizeof prior);
+    CHECK(nvm_v2_from_nvm_module(m,&denied)!=NVM_V2_OK);CHECK(!memcmp(&denied,&prior,sizeof denied));
     nvm_module_free(m);
 }
 static void map_maximum(void) {
@@ -200,9 +210,9 @@ static void map_allocations(void) {
 }
 #endif
 int main(void) {
-    CHECK(old_array_controls_main()==0);map_facts(false);map_facts(true);map_bad();map_mixed_and_duplicates();map_signature_boundaries();map_public_refusal();map_maximum();
+    CHECK(old_array_controls_main()==0);map_facts(false);map_facts(true);map_bad();map_mixed_and_duplicates();map_signature_boundaries();map_public_boundary();map_maximum();
 #ifdef OAA_INSTRUMENT
     map_allocations();
 #endif
-    printf("I passed %u exact map declaration checks; public admission stays refused.\n",checks);return 0;
+    printf("I passed %u exact map declaration checks; linked public boundary and isolated declaration allocation controls.\n",checks);return 0;
 }

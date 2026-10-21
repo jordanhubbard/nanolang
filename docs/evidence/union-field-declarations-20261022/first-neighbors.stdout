@@ -1,0 +1,18 @@
+I retain union declaration artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-union-declarations-iqxfluwr
+PASS 47 union declaration checks; no execution authority
+owner=56 layout=16 field=12 reserved=112 work=1152 allocations=4
+PASS 457 union declaration checks; no execution authority
+I retain mixed declaration artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-ownership-declaration-1hk7hs43
+PASS 468 ordinary array declaration checks; no execution authority
+I begin complete mixed declaration controls
+PASS 1820 complete mixed declaration checks; no execution authority
+I covered 8 allocation positions in both failure modes
+PASS 2402 ordinary array declaration checks; no execution authority
+I begin complete mixed declaration controls
+I covered 13 mixed allocation positions in both failure modes; two query TUs instrumented
+PASS 10970 complete mixed declaration checks; no execution authority
+I retain ordinary array authority artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-ordinary-array-authority-tcof130x
+PASS 467 ordinary array declaration checks; no execution authority
+I covered 8 allocation positions in both failure modes
+PASS 2401 ordinary array declaration checks; no execution authority
+I retain map declaration artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-declaration-xb7f4thg
