@@ -16771,3 +16771,17 @@ I prepared a source-audited second-patch interface proposal covering DELETE tran
 I own the approved atomic DELETE consumer source draft after contract1c9444937: exact proof transfer/recipes, copied correspondence, both contexts and selected dispatch plus native target. No compiler build or publisher test edits before source review; heap1f9c receipt remains intact.
 
 I qualified atomic selected DELETE consumers without publisher rebuilds: both dispatches2,090checks;73public/4private allocation positions;16original+48synthetic native executions and exact generated OOM prefixes; old map/array neighbors; strict80; old VM/heap sizes, ten native outputs and six budget rows exact. [Receipt](evidence/map-delete-consumer-20261022/README.md). Initial manual closure/count-guard and test-loader/link/instrumentation failures remain retained. Publisher expectation migration and actual current-provider ordinary/shadow publication remain separate next work.
+
+
+### Paired publisher contract coverage correction (2026-10-21)
+
+I found that the completed corpus did not execute the contract's map-only/multiple-map-field/forward-record combination; parsed helper shadows alone do not satisfy it. I am adding one complete aliasing source case and running the real current aggregate C and pinned current C-hosted checked/raw producer paths, with no production change or fresh-stage claim.
+
+The missing complete publisher case passed in 4.052s through all five producer paths, with five VM/transport checks and ten sanitized native executions. I preserved the original coverage gap and retained the new exact command/provider hashes separately; no production change was needed.
+
+
+### Explicit raw ordinary map publication gate (2026-10-21)
+
+I found that the prior raw test driver exercised only selected shadows, while the publisher contract separately requires raw ordinary-program publication. I am adding a test-owned dual-path parser driver and qualifying both raw APIs with the existing current C seed/host closure. This requires one bounded driver build, not a compiler bootstrap, and preserves raw parsed provenance rather than asserting checker completion.
+
+The explicit raw ordinary gate passed: dual test-driver build79.451s, full six-method corpus27.485s/36 modules/72 sanitized native executions, plus actual declaration-mismatch refusal0.090s. Both raw APIs emit no authority on that mismatch; checked producers preserve prior output. The old shared shadow driver and all production sources remain unchanged.

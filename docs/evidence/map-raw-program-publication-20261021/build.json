@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_c",
+    "/private/tmp/nanolang-map-raw-program-20261021/driver.nano",
+    "-o",
+    "/private/tmp/nanolang-map-raw-program-20261021/driver"
+  ],
+  "exit": 0,
+  "seconds": 79.45055254199542,
+  "timeout": 900,
+  "environment": {
+    "TMPDIR": "/private/tmp/nanolang-map-raw-program-20261021/tmp",
+    "NANO_BUILD_CACHE": "/private/tmp/nanolang-map-raw-program-20261021/cache"
+  }
+}

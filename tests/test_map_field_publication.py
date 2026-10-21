@@ -33,7 +33,7 @@ class MapFieldPublication(unittest.TestCase):
             if not Path(cls.env['NANO_AS_CAPTURE_HELPER']).is_file():
                 raise AssertionError('I require the selected real Linux assembler capture helper')
         cls.driver_source = cls.work/'raw-shadow.nano'
-        cls.driver_source.write_bytes((ROOT/'tests/nanoisa/fixtures/shadow_module_driver.nano.txt').read_bytes())
+        cls.driver_source.write_bytes((ROOT/'tests/nanoisa/fixtures/map_publication_driver.nano.txt').read_bytes())
         selected = os.environ.get('MAP_PUBLICATION_RAW_DRIVERS')
         cls.raw_drivers = [Path(p) for p in shlex.split(selected)] if selected else []
         if selected is None:
@@ -176,6 +176,11 @@ int main(void){(void)nmap_collection_budget;int r=fixture_main();nmap_collect();
             asm.write_bytes(self.command(name+'-source', [driver, path, 0, 'raw']))
             self.command(name+'-assemble', [self.tools['nanoisa'], 'asm', asm, '-o', module])
             shadow_wires.append(self.qualify(name, module, shadow))
+            name += '-program'
+            asm = self.work/(name+'.nasm'); module = self.work/(name+'.nvm')
+            asm.write_bytes(self.command(name+'-source', [driver, path, 0, 'program']))
+            self.command(name+'-assemble', [self.tools['nanoisa'], 'asm', asm, '-o', module])
+            wires.append(self.qualify(name, module, ordinary))
         self.assertTrue(all(wire == wires[0] for wire in wires))
         self.assertTrue(all(wire == shadow_wires[0] for wire in shadow_wires))
 
@@ -183,6 +188,28 @@ int main(void){(void)nmap_collection_budget;int r=fixture_main();nmap_collect();
         source = (ROOT/'tests/nanoisa/fixtures/map_record_fields.nano').read_text()
         self.corpus('unchanged', source)
         self.corpus('concat', source.replace('(remember alias "second" 2)', '(remember alias (+ "sec" "ond") 2)'))
+
+    def test_map_only_multiple_fields_forward_record(self):
+        self.corpus('map-only-forward', '''struct Root { child: Leaf }
+struct Leaf { first: HashMap<string,int>, second: HashMap<string,int> }
+fn main() -> int {
+    let first: HashMap<string,int> = (map_new)
+    let second: HashMap<string,int> = (map_new)
+    let leaf: Leaf = Leaf { first: first, second: second }
+    let root: Root = Root { child: leaf }
+    let alias: Root = root
+    (map_put alias.child.first "first" 7)
+    (map_put alias.child.second "second" 9)
+    assert (== (map_get root.child.first "first") 7)
+    assert (== (map_get root.child.second "second") 9)
+    assert (== (map_length root.child.first) 1)
+    assert (== (map_length root.child.second) 1)
+    assert (not (map_has root.child.first "second"))
+    assert (not (map_has root.child.second "first"))
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
 
     def test_nested_u8(self):
         self.corpus('nested-u8', (ROOT/'tests/nanoisa/fixtures/map_nested_u8_borrowed.nano').read_text())
@@ -196,6 +223,29 @@ int main(void){(void)nmap_collection_budget;int r=fixture_main();nmap_collect();
     def test_mixed_omission(self):
         source = (ROOT/'tests/nanoisa/fixtures/map_record_fields.nano').read_text()
         self.corpus('mixed-omit', source.replace('    return 0', '    (map_remove values "missing")\n    return 0'), ordinary=False, shadow=False)
+
+    def test_raw_declaration_mismatch_has_no_authority(self):
+        source = self.work/'declaration-mismatch.nano'
+        source.write_text('''struct Box { values: HashMap<string,int> }
+fn main() -> int {
+    let values: HashMap<string,string> = (map_new)
+    (map_put values "key" "value")
+    let box: Box = Box { values: values }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+        for i, compiler in enumerate([self.tools['nano_virt'], *self.compilers]):
+            output = self.work/f'mismatch-checked-{i}.nvm'
+            output.write_bytes(b'prior-output')
+            self.command(f'mismatch-checked-{i}', [compiler, source, '--emit-nvm', '-o', output], fail=True)
+            self.assertEqual(output.read_bytes(), b'prior-output')
+        for i, driver in enumerate(self.raw_drivers):
+            for mode in ('program', 'raw'):
+                text = self.command(f'mismatch-raw-{i}-{mode}', [driver, source, 0, mode], fail=True)
+                self.assertIn(b'I require the declared type for record field values', text)
+                self.assertNotIn(b'.ownership ', text)
+                self.assertNotIn(b'.layouts ', text)
 
     def test_malformed_wire_preserves_output(self):
         source = self.work/'malformed-source.nano'

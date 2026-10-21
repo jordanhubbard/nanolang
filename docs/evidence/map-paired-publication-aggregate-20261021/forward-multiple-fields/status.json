@@ -1,0 +1,650 @@
+[
+  {
+    "name": "map-only-forward-seed-source",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-verify",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-vm",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-dump",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-assemble",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed.nasm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-roundtrip.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-roundtrip",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-roundtrip.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-native",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed.c"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-build-O0",
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-O0"
+    ],
+    "status": 0,
+    "timeout": 600
+  },
+  {
+    "name": "map-only-forward-seed-run-O0",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-O0"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-build-O2",
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-O2"
+    ],
+    "status": 0,
+    "timeout": 600
+  },
+  {
+    "name": "map-only-forward-seed-run-O2",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-O2"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-shadow-source",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/obj/borrow_shadow_names",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward.nano"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-shadow-assemble",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow.nasm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-shadow-verify",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-shadow-vm",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-shadow-dump",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-shadow-assemble",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow.nasm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow-roundtrip.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-shadow-roundtrip",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow-roundtrip.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-shadow-native",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow.c"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-shadow-build-O0",
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow-O0"
+    ],
+    "status": 0,
+    "timeout": 600
+  },
+  {
+    "name": "map-only-forward-seed-shadow-run-O0",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow-O0"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-seed-shadow-build-O2",
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow-O2"
+    ],
+    "status": 0,
+    "timeout": 600
+  },
+  {
+    "name": "map-only-forward-seed-shadow-run-O2",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-seed-shadow-O2"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-source",
+    "argv": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-verify",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-vm",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-dump",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-assemble",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0.nasm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-roundtrip.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-roundtrip",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-roundtrip.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-native",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0.c"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-build-O0",
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-O0"
+    ],
+    "status": 0,
+    "timeout": 600
+  },
+  {
+    "name": "map-only-forward-checked-0-run-O0",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-O0"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-build-O2",
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-O2"
+    ],
+    "status": 0,
+    "timeout": 600
+  },
+  {
+    "name": "map-only-forward-checked-0-run-O2",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-O2"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-shadow-verify",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-shadow-vm",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-shadow-dump",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-shadow-assemble",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow.nasm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow-roundtrip.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-shadow-roundtrip",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow-roundtrip.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-shadow-native",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow.c"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-shadow-build-O0",
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow-O0"
+    ],
+    "status": 0,
+    "timeout": 600
+  },
+  {
+    "name": "map-only-forward-checked-0-shadow-run-O0",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow-O0"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-checked-0-shadow-build-O2",
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow-O2"
+    ],
+    "status": 0,
+    "timeout": 600
+  },
+  {
+    "name": "map-only-forward-checked-0-shadow-run-O2",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-checked-0-shadow-O2"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-raw-0-source",
+    "argv": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/raw_driver",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward.nano",
+      "0",
+      "raw"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-raw-0-assemble",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0.nasm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-raw-0-verify",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-raw-0-vm",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-raw-0-dump",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-raw-0-assemble",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0.nasm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0-roundtrip.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-raw-0-roundtrip",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0-roundtrip.nvm"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-raw-0-native",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0.c"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-raw-0-build-O0",
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0-O0"
+    ],
+    "status": 0,
+    "timeout": 600
+  },
+  {
+    "name": "map-only-forward-raw-0-run-O0",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0-O0"
+    ],
+    "status": 0,
+    "timeout": 180
+  },
+  {
+    "name": "map-only-forward-raw-0-build-O2",
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0.c",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0-O2"
+    ],
+    "status": 0,
+    "timeout": 600
+  },
+  {
+    "name": "map-only-forward-raw-0-run-O2",
+    "argv": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-wpsfune1/map-only-forward-raw-0-O2"
+    ],
+    "status": 0,
+    "timeout": 180
+  }
+]
