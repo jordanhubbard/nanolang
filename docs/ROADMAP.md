@@ -16449,3 +16449,14 @@ I completed aggregate copied-map-recipe qualification: 1981/4106 checks, 60 reci
 Hosted sanitizer continuation `119110288530` passed both generations, raw fixedpoint, native checks and exact checkpoint continuation, then failed schema coverage because the test searched `VM_DISPATCH_BEGIN(instr.opcode)` while the actual VM uses `instr->opcode`. I own the narrow test marker correction and full schema-suite rerun; I retain the failure log. This is not an ASan finding and does not waive the remaining unit/negative/platform gates.
 
 I corrected the dispatch marker and passed all33 schema tests in1.209seconds using the qualification environment. I retain hosted generation success, exact unit failure and local missing-PyYAML prerequisite in `docs/evidence/sanitizer-schema-marker-20261021/`. Remaining sanitizer units/negatives and exact-current platform gates remain pending.
+### I design independent copied map images (2026-10-21)
+
+- [x] I own the contract-only [copied-image interface](NANOISA_MAP_COPIED_IMAGE_DESIGN.md) after `6940bd144`: independent reproof from the frozen source snapshot, sole ownership of every copied report, and explicit actual retained-size accounting before overlap reservation under unchanged preparation ceilings. The exact cost-helper charge schedule remains a review item. No image/runtime/public/native/publisher implementation is authorized here.
+
+I refine the copied-image design with constructor-derived capacities: no decoded buffers survive publication; starts retains257 entries; present zero-arity parameter rows retain one byte; strings include terminators. The proposed no-allocation owning-TU cost helpers have exact logical schedule `180+12*(layouts+functions+strings)` for a complete plan and an independent live requested-payload equality oracle. This remains design-only pending review.
+
+### I implement independent private map images (2026-10-21)
+
+- [x] I own the reviewed retained-cost/image slice from `e63187eec`: exact owning-TU no-allocation cost helpers and a separately reproved copied image within unchanged preparation caps. I first qualify retained bytes against the independent live allocation oracle. Public/runtime/native/publisher admission remains refused; source checkpoint precedes compilation.
+
+I retain [private copied-image qualification](evidence/map-copied-image-20261021/README.md): exact live-payload cost oracles, independently reproved copies,61 failure positions with prior-image/source preservation, semantic reproof controls, unchanged six old budgets and old VM/recipe neighbors. Public/runtime/native/publisher admission and full #1001 remain open.

@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/Users/jkh/.local/bin/python3",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_record_array_vm"
+  ],
+  "exit": 0,
+  "seconds": 31.72072083299281
+}
