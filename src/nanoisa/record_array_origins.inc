@@ -55,8 +55,24 @@ static int ra_prepare_records(Analysis *a) {
             return stop(a,NVM_ARRAY_INVALID,0,0,"I require exact copied array bindings.");
         if(element.tag==TAG_ARRAY) {
             NvmOrdinaryArrayType child;
-            if(!nvm_ownership_declarations_type(a->structure->declarations,element.referent,&child) ||
-               (child.tag<TAG_INT || child.tag>TAG_STRING) || child.referent!=NVM_V2_NO_INDEX)
+            if(!nvm_ownership_declarations_type(a->structure->declarations,element.referent,&child))
+                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact nested primitive element authority.");
+            if(child.tag==TAG_ARRAY) {
+                if(!analysis_work(a,1))return 0;
+                NvmOrdinaryArrayType leaf;
+                if(!nvm_ownership_declarations_type(a->structure->declarations,child.referent,&leaf) ||
+                   leaf.tag<TAG_INT || leaf.tag>TAG_STRING || leaf.referent!=NVM_V2_NO_INDEX)
+                    return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact depth-three primitive authority.");
+                a->nested_arrays|=NESTED_PRESENT|NESTED_DEPTH3;
+                if(leaf.tag==TAG_U8)a->nested_arrays|=NESTED_U8;
+                if(leaf.tag==TAG_FLOAT)a->nested_arrays|=NESTED_FLOAT;
+                if(leaf.tag==TAG_BOOL)a->nested_arrays|=NESTED_BOOL;
+                if(leaf.tag==TAG_STRING)a->nested_arrays|=NESTED_DEPTH3_STRING;
+                a->field_elements[a->layout_fields[binding.layout]+binding.field]=
+                    (uint8_t)(FIELD_DEPTH3_FIRST+leaf.tag-TAG_INT);
+                continue;
+            }
+            if(child.tag<TAG_INT || child.tag>TAG_STRING || child.referent!=NVM_V2_NO_INDEX)
                 return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require exact nested primitive element authority.");
             a->nested_arrays|=NESTED_PRESENT;
             if(child.tag==TAG_U8 || child.tag==TAG_FLOAT || child.tag==TAG_BOOL) {
@@ -97,9 +113,103 @@ static int ra_prepare_records(Analysis *a) {
     }
     return 1;
 }
+/* Each bit names one exact (depth, leaf) shape, never a physical tag union. */
+static uint16_t ra_child_domain(uint16_t domain) {
+    uint16_t out=0;
+    for(uint8_t depth=2;depth<=3;depth++)for(uint8_t leaf=TAG_INT;leaf<=TAG_STRING;leaf++)
+        if(domain&nvm_record_array_requirement(depth,leaf))out|=nvm_record_array_requirement((uint8_t)(depth-1),leaf);
+    return out;
+}
+static uint16_t ra_parent_domain(uint16_t parents,uint16_t children) {
+    uint16_t out=0;
+    for(uint8_t depth=2;depth<=3;depth++)for(uint8_t leaf=TAG_INT;leaf<=TAG_STRING;leaf++) {
+        uint16_t shape=nvm_record_array_requirement(depth,leaf);
+        if((parents&shape) && (children&nvm_record_array_requirement((uint8_t)(depth-1),leaf)))out|=shape;
+    }
+    return out;
+}
+static int ra_check_depth_three(Analysis *a) {
+    int result=0;uint64_t converted_children=0;
+    uint16_t *domains=analysis_alloc(a,ORIGINS,sizeof *domains);
+    if(!domains)return stop(a,NVM_ARRAY_MEMORY,0,0,"I could not allocate bounded depth-three shape domains.");
+    if(!analysis_work(a,ORIGINS*16u))goto done;
+    for(uint32_t i=0;i<a->report.origin_count;i++)if(a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY) {
+        uint8_t declared=a->report.origins[i].declared_tag;
+        Value content=a->children[i];merge(&content,a->all_writes[i]);
+        if(content.unknown)goto invalid;
+        if(declared==TAG_ARRAY) {
+            if((content.tags&~BIT(TAG_ARRAY)) || (content.tags && !content.origins))goto invalid;
+            for(uint8_t depth=2;depth<=3;depth++)for(uint8_t leaf=TAG_INT;leaf<=TAG_STRING;leaf++)
+                domains[i]|=nvm_record_array_requirement(depth,leaf);
+        } else {
+            if(declared<TAG_INT || declared>TAG_STRING || content.origins ||
+               (content.tags&~RECORD_ARRAY_LEAVES))goto invalid;
+            domains[i]=BIT(declared);
+        }
+        if(a->required_elements[i]) {
+            if(!nvm_record_array_requirement_depth(a->required_elements[i]))goto invalid;
+            domains[i]&=a->required_elements[i];
+        }
+        if(!domains[i])goto invalid;
+    }
+    /* Every changing round removes a domain bit or installs one exact required
+     * identity. The fixed bound includes all15 bits and64 origin identities. */
+    for(uint32_t round=0;round<=ORIGINS*16u;round++) {
+        bool changed=false;
+        for(uint32_t i=0;i<a->report.origin_count;i++) {
+            if(!analysis_work(a,1))goto done;
+            if(a->origin_kind[i]!=NVM_HEAP_ORIGIN_ARRAY || a->report.origins[i].declared_tag!=TAG_ARRAY)continue;
+            Value content=a->children[i];merge(&content,a->all_writes[i]);
+            for(uint32_t j=0;j<a->report.origin_count;j++) {
+                if(!analysis_work(a,1))goto done;
+                if(!(content.origins&(UINT64_C(1)<<j)))continue;
+                if(!analysis_work(a,32))goto done;
+                if(a->origin_kind[j]!=NVM_HEAP_ORIGIN_ARRAY)goto invalid;
+                uint16_t parent=ra_parent_domain(domains[i],domains[j]);
+                uint16_t child=(uint16_t)(domains[j]&ra_child_domain(parent));
+                if(!parent || !child)goto invalid;
+                if(parent!=domains[i]){domains[i]=parent;changed=true;}
+                if(child!=domains[j]){domains[j]=child;changed=true;}
+                if(a->required_elements[i]) {
+                    uint16_t required=ra_child_domain(a->required_elements[i]);
+                    if(!nvm_record_array_requirement_depth(required) || !(domains[j]&required) ||
+                       (a->required_elements[j] && a->required_elements[j]!=required))goto invalid;
+                    if(!a->required_elements[j]){a->required_elements[j]=required;changed=true;}
+                    if(domains[j]!=required){domains[j]=required;changed=true;}
+                    if(a->required_elements[i]==NVM_RECORD_ARRAY_OF_U8)converted_children|=UINT64_C(1)<<j;
+                }
+            }
+        }
+        if(!changed)break;
+        if(round==ORIGINS*16u){stop(a,NVM_ARRAY_LIMIT,0,0,"I reached my depth-three closure bound.");goto done;}
+    }
+    for(uint32_t i=0;i<a->report.origin_count;i++)if(a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY) {
+        if(!analysis_work(a,16))goto done;
+        uint8_t declared=a->report.origins[i].declared_tag;
+        Value writes=a->all_writes[i],children=a->children[i];
+        uint16_t allowed=declared==TAG_ARRAY?BIT(TAG_ARRAY):RECORD_ARRAY_LEAVES;
+        if(writes.unknown || children.unknown || (writes.tags&~allowed) ||
+           (children.tags&~allowed) || (a->report.origins[i].child_tags&~allowed))goto invalid;
+        uint16_t required=a->required_elements[i];
+        if(required) {
+            uint8_t depth=nvm_record_array_requirement_depth(required);
+            if(!depth)goto invalid;
+            uint16_t expected=depth>1?BIT(TAG_ARRAY):required;
+            uint16_t accepted=(uint16_t)(expected|((converted_children&(UINT64_C(1)<<i))?BIT(TAG_INT):0));
+            if(expected!=BIT(declared) || (writes.tags&~accepted))goto invalid;
+        }
+    }
+    result=1;goto done;
+invalid:
+    stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require acyclic exact depth-three primitive origins and every historical write.");
+done:
+    free(domains);return result;
+}
+
 /* I impose nested child obligations over the final monotone flow summaries.
  * Every past write remains in all_writes, including removed/replaced aliases. */
 static int ra_check_constraints(Analysis *a) {
+    if(a->nested_arrays&NESTED_DEPTH3)return ra_check_depth_three(a);
     uint64_t converted_children=0;
     if(!analysis_work(a,ORIGINS*16u))return 0;
     if(a->nested_arrays && !analysis_work(a,ORIGINS*ORIGINS*4u))return 0;

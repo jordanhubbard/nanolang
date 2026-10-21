@@ -98,6 +98,72 @@ static void nested_authority(Input *c) {
     b8(c->ownership,&at,TAG_INT);b8(c->ownership,&at,0);b16(c->ownership,&at,0);b32(c->ownership,&at,NO);
     c->m.ownership_size=(uint32_t)c->o;
 }
+static void depth_three_authority(Input *c,uint8_t leaf) {
+    authority(c);c->o-=48;
+    b16(c->ownership,&c->o,2);b16(c->ownership,&c->o,1);b32(c->ownership,&c->o,56);
+    b32(c->ownership,&c->o,3);
+    for(unsigned i=0;i<3;i++) {
+        b8(c->ownership,&c->o,i==2?leaf:TAG_ARRAY);b8(c->ownership,&c->o,0);
+        b16(c->ownership,&c->o,0);b32(c->ownership,&c->o,i==2?NO:i+1);
+    }
+    b32(c->ownership,&c->o,2);
+    for(unsigned i=0;i<2;i++) {
+        b32(c->ownership,&c->o,i);b16(c->ownership,&c->o,0);
+        b16(c->ownership,&c->o,0);b32(c->ownership,&c->o,0);
+    }
+    c->m.ownership_size=(uint32_t)c->o;
+}
+static void depth_three_origins(void) {
+    for(uint8_t leaf=TAG_INT;leaf<=TAG_STRING;leaf++)for(unsigned reverse=0;reverse<2;reverse++)
+    for(unsigned variant=0;variant<8;variant++) {
+        Input c;init(&c,leaf,false);
+        for(unsigned n=0;n<3;n++) {
+            unsigned slot=reverse?2-n:n;
+            uint8_t tag=slot==2?(variant==3?(leaf==TAG_INT?TAG_BOOL:TAG_INT):leaf):TAG_ARRAY;
+            array(&c,tag);arg16(&c,OP_STORE_LOCAL,(uint16_t)slot);
+        }
+        arg16(&c,OP_LOAD_LOCAL,0);record(&c,0);op(&c,OP_POP);
+        if(variant!=1) {
+            arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_LOAD_LOCAL,variant==6?2:1);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+            if(variant!=2) {
+                arg16(&c,OP_LOAD_LOCAL,1);arg16(&c,OP_LOAD_LOCAL,variant==5?0:2);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+            }
+        }
+        if(variant==4) {
+            arg16(&c,OP_LOAD_LOCAL,0);op(&c,OP_ARR_POP);op(&c,OP_POP);
+            arg16(&c,OP_LOAD_LOCAL,2);scalar(&c,leaf==TAG_BOOL?TAG_INT:TAG_BOOL);op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+        }
+        if(variant==7){arg16(&c,OP_LOAD_LOCAL,1);record(&c,1);op(&c,OP_POP);}
+        finish(&c);depth_three_authority(&c,leaf);
+        if(variant>=3)query(&c,NVM_ARRAY_UNRESOLVED);
+        else {
+            NvmRecordArrayOrigins *p=query(&c,NVM_ARRAY_ELIGIBLE);uint16_t required=0;
+            uint32_t outer=reverse?2:0,middle=1,inner=reverse?0:2;
+            CHECK(nvm_record_array_required_elements(p,outer,&required)&&required==nvm_record_array_requirement(3,leaf));
+            if(variant!=1)CHECK(nvm_record_array_required_elements(p,middle,&required)&&required==nvm_record_array_requirement(2,leaf));
+            if(variant==0)CHECK(nvm_record_array_required_elements(p,inner,&required)&&required==MASK(leaf));
+            nvm_record_array_origins_free(p);
+        }
+    }
+    /* Even an otherwise empty array cannot be its own depth-decreasing child. */
+    Input c;init(&c,TAG_BOOL,false);array(&c,TAG_ARRAY);arg16(&c,OP_STORE_LOCAL,0);
+    arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_LOAD_LOCAL,0);op(&c,OP_ARR_PUSH);record(&c,0);op(&c,OP_POP);
+    finish(&c);depth_three_authority(&c,TAG_BOOL);query(&c,NVM_ARRAY_UNRESOLVED);
+    /* An empty fourth layer and a shared empty node with conflicting depths
+     * both refuse from original bytecode origins, before runtime preparation. */
+    for(unsigned conflict=0;conflict<2;conflict++) {
+        init(&c,TAG_BOOL,false);c.fn[0].local_count=4;
+        for(unsigned i=0;i<4;i++){array(&c,TAG_ARRAY);arg16(&c,OP_STORE_LOCAL,(uint16_t)i);}
+        for(unsigned i=0;i<3;i++) {
+            arg16(&c,OP_LOAD_LOCAL,(uint16_t)i);arg16(&c,OP_LOAD_LOCAL,(uint16_t)(i+1));op(&c,OP_ARR_PUSH);op(&c,OP_POP);
+            if(conflict)break;
+        }
+        arg16(&c,OP_LOAD_LOCAL,0);record(&c,0);op(&c,OP_POP);
+        if(conflict){arg16(&c,OP_LOAD_LOCAL,1);record(&c,1);op(&c,OP_POP);}
+        finish(&c);depth_three_authority(&c,TAG_BOOL);query(&c,NVM_ARRAY_UNRESOLVED);
+    }
+}
+
 static void nested_origins(void) {
     for(unsigned leaf=TAG_INT;leaf<=TAG_STRING;leaf++)
     for(unsigned variant=0;variant<5;variant++) {
@@ -290,6 +356,16 @@ static void boundaries(void){
         int ok=ra_check_constraints(&a);
         CHECK(over?(!ok&&a.budget.limited):(ok&&a.budget.work==NVM_RA_STEPS));
     }
+    /* The new domain vector is charged only on the depth-three route. */
+    for(unsigned byte_limit=0;byte_limit<2;byte_limit++)for(unsigned over=0;over<2;over++) {
+        Analysis a={0};NvmRecordArrayStructure structure={0};a.structure=&structure;a.nested_arrays=NESTED_DEPTH3;
+        if(byte_limit)a.budget.bytes=NVM_RA_BYTES-ORIGINS*sizeof(uint16_t)+over;
+        else a.budget.work=NVM_RA_STEPS-ORIGINS*17u+over;
+        int ok=ra_check_constraints(&a);
+        CHECK(over?(!ok&&a.budget.limited):ok);
+        if(!over)CHECK(byte_limit?a.budget.peak==NVM_RA_BYTES:a.budget.work==NVM_RA_STEPS);
+        CHECK(!ra_live&&!ra_bytes);
+    }
     /* I drive actual allocation and transfer callers at exact remaining caps. */
     for(unsigned over=0;over<2;over++){
         Analysis a={0};NvmRecordArrayStructure structure={0};a.structure=&structure;
@@ -322,4 +398,4 @@ static void boundaries(void){
     printf("I measured %zu allocation positions and %zu peak payload bytes; every refusal recovered\n",measured,actual_peak);
 #endif
 }
-int main(void){setvbuf(stdout,NULL,_IONBF,0);puts("I begin copied facts");copied_facts();nested_origins();nested_packed_conversions();mixed_nested_origins();puts("I begin alias/copy facts");aliases_and_copies();puts("I begin refusal boundaries");refusals();puts("I begin call/global/join facts");field_call_global_join();forward_record_identity();puts("I begin old-mode compatibility");old_mode();puts("I begin bounded accounting and recovery");boundaries();printf("PASS %u record-array origin checks; no runtime admission\n",checks);return 0;}
+int main(void){setvbuf(stdout,NULL,_IONBF,0);puts("I begin copied facts");copied_facts();depth_three_origins();nested_origins();nested_packed_conversions();mixed_nested_origins();puts("I begin alias/copy facts");aliases_and_copies();puts("I begin refusal boundaries");refusals();puts("I begin call/global/join facts");field_call_global_join();forward_record_identity();puts("I begin old-mode compatibility");old_mode();puts("I begin bounded accounting and recovery");boundaries();printf("PASS %u record-array origin checks; no runtime admission\n",checks);return 0;}

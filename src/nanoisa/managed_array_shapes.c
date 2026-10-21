@@ -65,8 +65,8 @@ typedef struct {
 } Analysis;
 typedef char NvmNestedPresenceSizeUnchanged[sizeof(bool)==sizeof(uint8_t)?1:-1];
 /* These private byte codes are never tag masks; only the accessor decodes them. */
-enum { FIELD_NESTED_U8=0xf1, FIELD_NESTED_FLOAT=0xf2, FIELD_NESTED_BOOL=0xf3 };
-enum { NESTED_PRESENT=1, NESTED_U8=2, NESTED_FLOAT=4, NESTED_BOOL=8 };
+enum { FIELD_NESTED_U8=0xf1, FIELD_NESTED_FLOAT=0xf2, FIELD_NESTED_BOOL=0xf3, FIELD_DEPTH3_FIRST=0xf4 };
+enum { NESTED_PRESENT=1, NESTED_U8=2, NESTED_FLOAT=4, NESTED_BOOL=8, NESTED_DEPTH3=16, NESTED_DEPTH3_STRING=32 };
 
 #ifdef NMA_TESTING
 static uint64_t allocation_budget = UINT64_MAX;
@@ -478,6 +478,8 @@ static Value read_record(Analysis *a,Value receiver,uint16_t field) {
 static uint16_t record_field_element(const Analysis *a,uint32_t field) {
     if(a->nested_string_fields && (a->nested_string_fields[field/8]&(1u<<(field%8))))
         return NVM_RECORD_ARRAY_OF_STRING;
+    if(a->field_elements[field]>=FIELD_DEPTH3_FIRST && a->field_elements[field]<FIELD_DEPTH3_FIRST+5)
+        return nvm_record_array_requirement(3,(uint8_t)(TAG_INT+a->field_elements[field]-FIELD_DEPTH3_FIRST));
     switch(a->field_elements[field]) {
     case FIELD_NESTED_U8:return NVM_RECORD_ARRAY_OF_U8;
     case FIELD_NESTED_FLOAT:return NVM_RECORD_ARRAY_OF_FLOAT;
@@ -493,7 +495,7 @@ static int record_value_matches(Analysis *a,uint32_t fi,uint32_t pc,
         return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require exact known field-write tags.");
     if(a->structure && field->type_tag==TAG_ARRAY) {
         uint64_t origins=origins_of_kind(a,value,NVM_HEAP_ORIGIN_ARRAY);
-        if(!element || !origins || origins!=value.origins)
+        if(!nvm_record_array_requirement_depth(element) || !origins || origins!=value.origins)
             return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require complete field array origins and element identity.");
         for(uint32_t i=0;i<a->report.origin_count;i++)if(origins&(UINT64_C(1)<<i)) {
             NvmArrayOrigin *origin=&a->report.origins[i];

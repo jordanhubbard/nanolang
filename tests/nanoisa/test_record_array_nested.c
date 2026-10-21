@@ -2,6 +2,9 @@
 #ifndef NESTED_TEST_LEAF
 #define NESTED_TEST_LEAF TAG_INT
 #endif
+#ifndef NESTED_TEST_DEPTH
+#define NESTED_TEST_DEPTH 2
+#endif
 #define main retained_origin_fixture_main
 #include "test_record_array_origins.c"
 #undef main
@@ -41,6 +44,7 @@ static uint64_t leaf_bits(bool final) {
     return final?11:7;
 }
 static void leaf_value(Input *c,bool final) {
+    if(NESTED_TEST_LEAF==TAG_STRING){arg32(c,OP_PUSH_STR,final?2:1);return;}
     uint64_t bits=leaf_bits(final);
     scalar(c,NESTED_TEST_LEAF);
     if(NESTED_TEST_LEAF==TAG_INT || NESTED_TEST_LEAF==TAG_FLOAT) {
@@ -52,10 +56,15 @@ static void leaf_equal(Input *c) {
     op(c,NESTED_TEST_LEAF==TAG_FLOAT?(nan?OP_F64_NE:OP_F64_EQ):OP_EQ);
 }
 static void fixture(Input *c,unsigned mode) {
-    init(c,NESTED_TEST_LEAF,false);c->fn[0].local_count=4;
+    init(c,NESTED_TEST_LEAF,false);c->fn[0].local_count=NESTED_TEST_DEPTH==3?5:4;
     array(c,NESTED_TEST_LEAF);leaf_value(c,false);op(c,OP_ARR_PUSH);arg16(c,OP_STORE_LOCAL,1);
     array(c,TAG_ARRAY);if(mode>=5)arg32(c,OP_CALL,1);arg16(c,OP_STORE_LOCAL,0);
-    arg16(c,OP_LOAD_LOCAL,0);pack_nested(c);arg32(c,OP_STORE_GLOBAL,0);
+    if(NESTED_TEST_DEPTH==3) {
+        array(c,TAG_ARRAY);
+        for(unsigned i=0;i<2;i++){arg16(c,OP_LOAD_LOCAL,0);op(c,OP_ARR_PUSH);}
+        arg16(c,OP_STORE_LOCAL,4);arg16(c,OP_LOAD_LOCAL,4);
+    } else arg16(c,OP_LOAD_LOCAL,0);
+    pack_nested(c);arg32(c,OP_STORE_GLOBAL,0);
     /* I mutate the outer through its original alias after field construction. */
     for(unsigned i=0;i<2;i++) {
         arg16(c,OP_LOAD_LOCAL,0);arg16(c,OP_LOAD_LOCAL,1);op(c,OP_ARR_PUSH);op(c,OP_POP);
@@ -75,6 +84,7 @@ static void fixture(Input *c,unsigned mode) {
     leaf_value(c,true);leaf_equal(c);op(c,OP_ASSERT);
     if(mode!=4) {
         arg32(c,OP_LOAD_GLOBAL,0);arg16(c,OP_AGG_GET,0);integer(c,0);op(c,OP_ARR_GET);
+        if(NESTED_TEST_DEPTH==3){integer(c,0);op(c,OP_ARR_GET);}
         integer(c,0);op(c,OP_ARR_GET);leaf_value(c,true);leaf_equal(c);op(c,OP_ASSERT);
     }
     integer(c,0);op(c,OP_RET);c->fn[0].code_length=(uint32_t)c->n;
@@ -89,7 +99,8 @@ static void fixture(Input *c,unsigned mode) {
             c->fn[f].code_length=(uint32_t)c->n-c->fn[f].code_offset;
         }
     }
-    nested_authority(c);c->ownership[c->o-36]=NESTED_TEST_LEAF;
+    if(NESTED_TEST_DEPTH==3)depth_three_authority(c,NESTED_TEST_LEAF);
+    else {nested_authority(c);c->ownership[c->o-36]=NESTED_TEST_LEAF;}
 }
 static void execute(const NvmModule *m) {
     VmState vm;vm_init(&vm,m);VmResult result=vm_execute(&vm);
@@ -99,6 +110,7 @@ static void execute(const NvmModule *m) {
         CHECK(vm.globals[0].tag==TAG_STRUCT);
         VmArray *outer=vm.globals[0].as.sval->fields[0].as.array;
         CHECK(outer->elem_type==TAG_ARRAY && outer->length==2);
+        if(NESTED_TEST_DEPTH==3)outer=outer->elements[0].as.array;
         VmArray *inner=outer->elements[0].as.array;uint64_t bits;
         CHECK(inner->elem_type==TAG_FLOAT && inner->unboxed && inner->length==1);
         memcpy(&bits,inner->packed,sizeof bits);CHECK(bits==float_payload);
@@ -115,9 +127,11 @@ static void execute(const NvmModule *m) {
         CHECK(vm_record_array_private_observe(private,VM_RA_GLOBAL,0,path,1,&outer));
         CHECK(outer.tag==TAG_ARRAY && outer.element_tag==TAG_ARRAY);
         if(outer.length) {
-            uint32_t inner_path[]={0,0,0};VmRecordArrayObservation value;
-            CHECK(vm_record_array_private_observe(private,VM_RA_GLOBAL,0,inner_path,3,&value));
-            CHECK(value.tag==NESTED_TEST_LEAF && value.scalar_bits==leaf_bits(true));
+            uint32_t inner_path[]={0,0,0,0};VmRecordArrayObservation value;
+            CHECK(vm_record_array_private_observe(private,VM_RA_GLOBAL,0,inner_path,NESTED_TEST_DEPTH+1,&value));
+            CHECK(value.tag==NESTED_TEST_LEAF);
+            if(NESTED_TEST_LEAF==TAG_STRING)CHECK(value.length==6);
+            else CHECK(value.scalar_bits==leaf_bits(true));
         }
     }
     vm_record_array_private_destroy(private);
@@ -146,7 +160,7 @@ static void public_routes(Input *c,const char *directory,unsigned id) {
      * an already serialized container is not a reusable proof token. */
     uint8_t *retained=(uint8_t *)decoded.ownership_data;
     size_t leaf=decoded.ownership_size-36;CHECK(retained[leaf]==NESTED_TEST_LEAF);
-    retained[leaf]=TAG_STRING;copy=NULL;
+    retained[leaf]=NESTED_TEST_LEAF==TAG_STRING?TAG_BOOL:TAG_STRING;copy=NULL;
     CHECK(nvm_v2_to_nvm_module(&decoded,&copy)!=NVM_V2_OK && !copy);
     retained[leaf]=NESTED_TEST_LEAF;
     CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);execute(copy);
@@ -161,7 +175,9 @@ static void public_routes(Input *c,const char *directory,unsigned id) {
         CHECK(fputs("static void verify_bits(void);\n",file)>=0);
         CHECK(fwrite(native,1,(size_t)(cleanup-native),file)==(size_t)(cleanup-native));
         CHECK(fputs("    verify_bits();\n",file)>=0);CHECK(fputs(cleanup,file)>=0);
-        CHECK(fputs("\nstatic void verify_bits(void) { nrec_t record=nvalue_require_record(nglobal[0]); nmap_value outer={7,record.k[0],(char *)record.a[0]}; nmap_value value=nvalue_array_get(nvalue_array_get(outer,0),0); ",file)>=0);
+        CHECK(fputs("\nstatic void verify_bits(void) { nrec_t record=nvalue_require_record(nglobal[0]); nmap_value outer={7,record.k[0],(char *)record.a[0]}; ",file)>=0);
+        if(NESTED_TEST_DEPTH==3)CHECK(fputs("outer=nvalue_array_get(outer,0); ",file)>=0);
+        CHECK(fputs("nmap_value value=nvalue_array_get(nvalue_array_get(outer,0),0); ",file)>=0);
         CHECK(fprintf(file,"if(value.kind!=3 || (uint64_t)value.integer!=UINT64_C(0x%016llx)) abort(); }\n",(unsigned long long)float_payload)>0);
     } else CHECK(fputs(native,file)>=0);
     CHECK(fputs("\n#undef main\nint main(void) { nmap_collection_budget=1; int result=fixture_main(); nglobal[0]=(nmap_value){0}; nmap_collect(); if(nrec_owned_head || narr_owners || nagg_live_bytes) abort(); return result; }\n",file)>=0);
@@ -170,11 +186,11 @@ static void public_routes(Input *c,const char *directory,unsigned id) {
 static void refusal_controls(void) {
     for(unsigned variant=0;variant<5;variant++) {
         Input c;fixture(&c,0);size_t row=c.o-36;
-        if(variant==0)c.ownership[row]=TAG_STRING;
+        if(variant==0)c.ownership[row]=NESTED_TEST_LEAF==TAG_STRING?TAG_BOOL:TAG_STRING;
         if(variant==1){size_t at=c.o-40;b32(c.ownership,&at,0);} /* cycle */
         if(variant==2){size_t at=c.o-40;b32(c.ownership,&at,9);} /* invalid referent */
         if(variant==3)c.ownership[row]=TAG_VOID;
-        if(variant==4)c.code[1]=TAG_STRING; /* known wrong child origin */
+        if(variant==4)c.code[1]=NESTED_TEST_LEAF==TAG_STRING?TAG_BOOL:TAG_STRING; /* known wrong child origin */
         NvmRecordArrayExecutionPlan *plan=(void *)(uintptr_t)1;
         NvmArrayEligibilityResult result=nvm_record_array_admit(&c.m,&plan);
         CHECK(result.status==(variant==0 || variant==4?NVM_ARRAY_UNRESOLVED:NVM_ARRAY_INVALID));
@@ -193,7 +209,7 @@ static void bounds_cleanup(void) {
         while(at<c.n) {
             DecodedInstruction in;uint32_t width=isa_decode(c.code+at,(uint32_t)c.n-at,&in);CHECK(width);
             if(in.opcode==OP_ARR_SET) {
-                size_t value_width=(NESTED_TEST_LEAF==TAG_INT || NESTED_TEST_LEAF==TAG_FLOAT)?9:2;
+                size_t value_width=(NESTED_TEST_LEAF==TAG_INT || NESTED_TEST_LEAF==TAG_FLOAT)?9:(NESTED_TEST_LEAF==TAG_STRING?5:2);
                 CHECK(at>=value_width+9 && c.code[at-value_width-9]==OP_PUSH_I64);
                 memset(c.code+at-value_width-8,negative?0xff:0,8);
                 if(!negative)c.code[at-value_width-8]=1;
@@ -311,6 +327,69 @@ static void slice_headroom(void) {
     execute(&c.m);CHECK(!ra_live && !ra_bytes);
 }
 #endif
+#if defined(NANO_RECORD_ARRAY_PRIVATE_RUNTIME) && NESTED_TEST_DEPTH==3
+static void maximum_private_release(void) {
+    Input c;fixture(&c,0);uint8_t *layouts=calloc(1,4+256*20);CHECK(layouts);
+    size_t n=0;b32(layouts,&n,256);
+    for(unsigned i=0;i<256;i++) {
+        b8(layouts,&n,NVM_V2_LAYOUT_STRUCT);b8(layouts,&n,0);b16(layouts,&n,1);b32(layouts,&n,NO);
+        b8(layouts,&n,i?TAG_STRUCT:TAG_ARRAY);b8(layouts,&n,0);b16(layouts,&n,0);
+        b32(layouts,&n,i?i-1:NO);b32(layouts,&n,NO);
+    }
+    c.m.layout_data=layouts;c.m.layout_size=(uint32_t)n;c.m.struct_count=256;
+    c.o=0;b32(c.ownership,&c.o,3);b32(c.ownership,&c.o,256);
+    for(unsigned i=0;i<256;i++)b8(c.ownership,&c.o,NVM_LAYOUT_COMPLETE);
+    b32(c.ownership,&c.o,1);b16(c.ownership,&c.o,5);b16(c.ownership,&c.o,0);desc(&c,TAG_INT);
+    for(unsigned i=0;i<5;i++)desc(&c,TAG_VOID);
+    b32(c.ownership,&c.o,4);b32(c.ownership,&c.o,0);b32(c.ownership,&c.o,1);
+    b16(c.ownership,&c.o,2);b16(c.ownership,&c.o,1);b32(c.ownership,&c.o,44);b32(c.ownership,&c.o,3);
+    b8(c.ownership,&c.o,TAG_ARRAY);b8(c.ownership,&c.o,0);b16(c.ownership,&c.o,0);b32(c.ownership,&c.o,1);
+    b8(c.ownership,&c.o,TAG_ARRAY);b8(c.ownership,&c.o,0);b16(c.ownership,&c.o,0);b32(c.ownership,&c.o,2);
+    b8(c.ownership,&c.o,TAG_STRING);b8(c.ownership,&c.o,0);b16(c.ownership,&c.o,0);b32(c.ownership,&c.o,NO);
+    b32(c.ownership,&c.o,1);b32(c.ownership,&c.o,0);b16(c.ownership,&c.o,0);b16(c.ownership,&c.o,0);b32(c.ownership,&c.o,0);
+    c.m.ownership_size=(uint32_t)c.o;
+    VmRecordArrayPrivate *p=NULL;CHECK(vm_record_array_private_create(&c.m,&p).status==NVM_ARRAY_ELIGIBLE);free(layouts);
+    CHECK(vm_record_array_private_run(p)==VM_OK && p->layouts[255].rank==256);
+    VmHeap *heap=&p->vm.heap;uint64_t objects=heap->stats.num_objects,bytes=heap->stats.allocated-heap->stats.freed;
+    VmString *text=vm_string_new(heap,"deep dynamic string",19);CHECK(text);
+    VmArray *inner=vm_array_new(heap,TAG_STRING,0),*middle=vm_array_new(heap,TAG_ARRAY,0),*outer=vm_array_new(heap,TAG_ARRAY,0);CHECK(inner&&middle&&outer);
+    CHECK(vm_array_push(heap,inner,val_string(text)));vm_release(heap,val_string(text));
+    CHECK(vm_array_push(heap,middle,val_array(inner)));vm_release(heap,val_array(inner));
+    CHECK(vm_array_push(heap,outer,val_array(middle)));vm_release(heap,val_array(middle));
+    NanoValue child=val_array(outer);
+    for(unsigned i=0;i<256;i++) {
+        CHECK(vm_ra_field_accepts(p,i,0,child));VmStruct *owner=vm_struct_new(heap,i,1);CHECK(owner);
+        owner->fields[0]=child;child=val_struct(owner);
+    }
+    struct PreviousField { NvmV2LayoutField declaration;uint8_t element,nested_leaf; };
+    CHECK(sizeof(VmRecordArrayField)==sizeof(struct PreviousField));
+    printf("I preserve copied field bytes: %zu; release entries: %zu.\n",sizeof(VmRecordArrayField),sizeof heap->private_release/sizeof heap->private_release[0]);
+    CHECK(sizeof heap->private_release/sizeof heap->private_release[0]==259);
+    CHECK(VM_RECORD_ARRAY_PATH_MAX==258);
+    uint32_t path[259]={0};VmRecordArrayObservation observation={0};
+    NanoValue previous=p->vm.globals[0];p->vm.globals[0]=child;
+    CHECK(vm_record_array_private_observe(p,VM_RA_GLOBAL,0,path,258,&observation));
+    CHECK(observation.tag==TAG_ARRAY && observation.element_tag==TAG_STRING);
+    VmRecordArrayObservation retained=observation;
+    CHECK(!vm_record_array_private_observe(p,VM_RA_GLOBAL,0,path,259,&observation));
+    CHECK(!memcmp(&observation,&retained,sizeof observation));
+    p->vm.globals[0]=previous;
+    size_t calls=ra_calls;ra_fail=calls;ra_persistent=1;vm_release(heap,child);
+    CHECK(ra_calls==calls && heap->stats.num_objects==objects && heap->stats.allocated-heap->stats.freed==bytes);
+    ra_fail=SIZE_MAX;ra_persistent=0;
+    /* Empty physical arrays do not justify an unbounded fourth layer. */
+    VmArray *deep=vm_array_new(heap,TAG_ARRAY,0);CHECK(deep);
+    for(unsigned i=0;i<3;i++) {
+        VmArray *parent=vm_array_new(heap,TAG_ARRAY,0);CHECK(parent);
+        CHECK(vm_array_push(heap,parent,val_array(deep)));vm_release(heap,val_array(deep));deep=parent;
+    }
+    CHECK(!vm_ra_array_valid(deep,TAG_ARRAY));
+    CHECK(!vm_ra_array_exact(deep,3,TAG_STRING));
+    vm_release(heap,val_array(deep));
+    CHECK(heap->stats.num_objects==objects && heap->stats.allocated-heap->stats.freed==bytes);
+    vm_record_array_private_destroy(p);CHECK(!ra_live&&!ra_bytes);
+}
+#endif
 int main(int argc,char **argv) {
 #ifdef RA_NESTED_WHITEBOX
     slice_headroom();
@@ -323,6 +402,9 @@ int main(int argc,char **argv) {
         return 0;
     }
     refusal_controls();bounds_cleanup();
+#if defined(NANO_RECORD_ARRAY_PRIVATE_RUNTIME) && NESTED_TEST_DEPTH==3
+    if(NESTED_TEST_LEAF==TAG_STRING)maximum_private_release();
+#endif
     CHECK(argc==2);for(unsigned mode=0;mode<7;mode++) {
         Input c;fixture(&c,mode);
         if(mode==3) {

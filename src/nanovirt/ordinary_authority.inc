@@ -82,7 +82,7 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
     if(!data || !items){free(data);free(items);cg_error(cg,0,"I cannot allocate ordinary declaration facts");return;}
     NvmV2Layouts layouts={items,count};
     bool supported=true;
-    uint32_t arrays=0;uint8_t elements[11]={0};
+    uint32_t arrays=0;uint8_t elements[16]={0};
     for(unsigned i=0;i<count && supported;i++) {
         ASTNode *node=records[i];int fields=node->as.struct_def.field_count;
         if(fields<0 || fields>UINT16_MAX){supported=false;break;}
@@ -101,11 +101,17 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
                    (node->as.struct_def.field_element_types && node->as.struct_def.field_element_types[j]!=element->base_type)) {supported=false;break;}
                 if(elem==TAG_ARRAY) {
                     TypeInfo *inner=element->element_type;
+                    bool depth_three=inner && inner->base_type==TYPE_ARRAY;
+                    if(depth_three) {
+                        if(inner->type_param_count || inner->service_declaration || inner->generic_name){supported=false;break;}
+                        inner=inner->element_type;
+                    }
                     if(!inner || (ordinary_slot_tag(inner->base_type)<TAG_INT || ordinary_slot_tag(inner->base_type)>TAG_STRING) || inner->element_type || inner->type_param_count ||
                        inner->service_declaration || inner->generic_name){supported=false;break;}
-                    elements[ordinary_slot_tag(inner->base_type)-1]=1;
-                    if(inner->base_type==TYPE_STRING)elem=8;
-                    else if(inner->base_type!=TYPE_INT)elem=(uint8_t)(7+ordinary_slot_tag(inner->base_type));
+                    uint8_t leaf=ordinary_slot_tag(inner->base_type);
+                    elements[leaf-1]=1;
+                    elem=leaf==TAG_INT?7:leaf==TAG_STRING?8:(uint8_t)(7+leaf);
+                    if(depth_three){elements[elem-1]=1;elem=(uint8_t)(11+leaf);}
                 } else if(elem<TAG_INT || elem>TAG_STRING || element->element_type){supported=false;break;}
                 elements[elem-1]=1;arrays++;
             }
@@ -144,8 +150,8 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
         }
     }
     if(supported && arrays) {
-        uint32_t types=0,index[11]={0};
-        for(unsigned i=0;i<11;i++)if(elements[i])index[i]=types++;
+        uint32_t types=0,index[16]={0};
+        for(unsigned i=0;i<16;i++)if(elements[i])index[i]=types++;
         size_t extra=28u+(size_t)types*8u+(size_t)arrays*12u;
         if(extra>UINT32_MAX-size){supported=false;}
         else {
@@ -158,9 +164,10 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
                 ordinary_word(data+at,2,2);ordinary_word(data+at+2,1,2);
                 ordinary_word(data+at+4,(uint32_t)(8u+types*8u+arrays*12u),4);at+=8;
                 ordinary_word(data+at,types,4);at+=4;
-                for(unsigned i=0;i<11;i++)if(elements[i]) {
+                for(unsigned i=0;i<16;i++)if(elements[i]) {
                     data[at]=(uint8_t)(i>=6?TAG_ARRAY:i+1);
                     uint32_t reference=i==6?index[TAG_INT-1]:i==7?index[TAG_STRING-1]:
+                        i>=11?index[i==11?6:i==15?7:i-4]:
                         i>=8?index[i-7]:NVM_V2_NO_INDEX;
                     ordinary_word(data+at+4,reference,4);at+=8;
                 }
@@ -169,8 +176,10 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program,ModuleList *modul
                     if(items[i].fields[j].type_tag==TAG_ARRAY) {
                         uint8_t elem=ordinary_slot_tag(records[i]->as.struct_def.field_type_info[j]->element_type->base_type);
                         if(elem==TAG_ARRAY) {
-                            uint8_t leaf=ordinary_slot_tag(records[i]->as.struct_def.field_type_info[j]->element_type->element_type->base_type);
-                            if(leaf==TAG_STRING)elem=8;else if(leaf!=TAG_INT)elem=(uint8_t)(7+leaf);
+                            TypeInfo *inner=records[i]->as.struct_def.field_type_info[j]->element_type->element_type;
+                            if(inner->base_type==TYPE_ARRAY)elem=(uint8_t)(11+ordinary_slot_tag(inner->element_type->base_type));
+                            else {uint8_t leaf=ordinary_slot_tag(inner->base_type);
+                                if(leaf==TAG_STRING)elem=8;else if(leaf!=TAG_INT)elem=(uint8_t)(7+leaf);}
                         }
                         ordinary_word(data+at,i,4);ordinary_word(data+at+4,j,2);
                         ordinary_word(data+at+8,index[elem-1],4);at+=12;

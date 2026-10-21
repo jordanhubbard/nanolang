@@ -96,11 +96,13 @@ class FlatArraySourcePublication(unittest.TestCase):
                         wire_rows.append((tag,ref))
                         if tag==7:
                             self.assertLess(ref,len(rows))
-                            self.assertIn(rows[ref],(1,2,3,4,5))
-                            rows.append({1:7,5:8,2:9,3:10,4:11}[rows[ref]])
+                            self.assertIn(rows[ref],(1,2,3,4,5,7,8,9,10,11))
+                            rows.append({1:7,5:8,2:9,3:10,4:11,7:12,9:13,10:14,11:15,8:16}[rows[ref]])
                         else:
                             self.assertEqual(ref,0xffffffff);rows.append(tag)
                     required=set(elements)
+                    for code,middle in ((12,7),(13,9),(14,10),(15,11),(16,8)):
+                        if code in required: required.add(middle)
                     if 7 in required: required.add(1)
                     if 8 in required: required.add(5)
                     for code in (9,10,11):
@@ -108,6 +110,7 @@ class FlatArraySourcePublication(unittest.TestCase):
                     ordered=sorted(required)
                     expected_rows=[(7,ordered.index(1)) if element==7 else
                                    (7,ordered.index(5)) if element==8 else
+                                   (7,ordered.index({12:7,13:9,14:10,15:11,16:8}[element])) if element>=12 else
                                    (7,ordered.index(element-7)) if element>=9 else
                                    (element,0xffffffff) for element in ordered]
                     self.assertEqual(wire_rows,expected_rows)
@@ -381,8 +384,71 @@ fn main()->int { let box:Box=Box {ints:[[7]],strings:[["seven"]],octets:[[300]],
 shadow main { assert (== (main) 0) }
 """,[7,8,9,10,11])
 
+    def test_depth_three_exact_leaves(self):
+        for leaf,value,expected,code in [('int','7','7',12),('u8','300','44',13),
+                ('float','7.25','7.25',14),('bool','true','true',15),('string','"seven"','"seven"',16)]:
+            with self.subTest(leaf=leaf):
+                self.exercise(f"""struct Box {{ values:array<array<array<{leaf}>>> }}
+fn main()->int {{ let box:Box=Box {{values:[[[{value}],[]],[]]}}
+ assert (== (at (at (at box.values 0) 0) 0) {expected})
+ assert (== (array_length (at (at box.values 0) 1)) 0)
+ assert (== (array_length (at box.values 1)) 0) return 0 }}
+shadow main {{assert (== (main) 0)}}
+""",[code])
+
+    def test_unchanged_depth_three_bool_anchor(self):
+        self.exercise("""struct Entries { values: array<array<array<bool>>> }
+fn main() -> int { let entries: Entries = Entries { values: [[[false, true]]] }
+ assert (at (at (at entries.values 0) 0) 1) return 0 }
+shadow main { assert (== (main) 0) }
+""",[15])
+
+    def test_depth_three_aliases_and_typed_empty(self):
+        self.exercise("""struct Box {values:array<array<array<string>>>, empty:array<array<array<string>>>}
+fn identity(value:T)->T {return value}
+shadow identity {assert (== (identity 7) 7)}
+fn main()->int {
+ let child:array<string> = [(+ "se" "ven")]
+ let middle:array<array<string>> = [child,child]
+ let outer:array<array<array<string>>> = [middle,middle]
+ let box:Box=(identity Box {values:outer,empty:[]})
+ (array_set child 0 (+ "ele" "ven"))
+ assert (== (at (at (at box.values 1) 1) 0) "eleven")
+ let empty:array<array<string>> = []
+ (array_set box.values 0 empty)
+ assert (== (array_length (at box.values 0)) 0)
+ assert (== (at (at (at box.values 1) 0) 0) "eleven")
+ assert (== (array_length box.empty) 0) return 0 }
+shadow main {assert (== (main) 0)}
+""",[16,16])
+
+    def test_depth_three_mixed_depth_tables(self):
+        fields=[];values=[];checks=[];codes=[]
+        for leaf,value,expected,old,new in [('int','7','7',7,12),('u8','300','44',9,13),
+                ('float','7.25','7.25',10,14),('bool','true','true',11,15),('string','"seven"','"seven"',8,16)]:
+            for depth,code in ((2,old),(3,new)):
+                name=leaf+str(depth);fields.append(name+':'+('array<'*depth)+leaf+('>'*depth))
+                values.append(name+':'+('['*depth)+value+(']'*depth));codes.append(code)
+                expression='box.'+name
+                for _ in range(depth): expression='(at '+expression+' 0)'
+                checks.append('assert (== '+expression+' '+expected+')')
+        self.exercise('struct Box {'+','.join(fields)+'}\nfn main()->int {let box:Box=Box {'+
+            ','.join(values)+'}\n'+'\n'.join(checks)+' return 0}\nshadow main {assert (== (main) 0)}\n',codes)
+
+    def test_depth_three_bound_imports(self):
+        previous=self.compilers
+        self.compilers=os.environ.get('NANO_FLAT_ARRAY_BOUND_COMPILERS',str(ROOT/'bin/nano_virt')).split(',')
+        try:
+            self.exercise("""module "types.nano" as types
+fn main()->int {let box:types.Box=types.Box {values:[[[true]]]}
+ assert (at (at (at box.values 0) 0) 0) return 0}
+shadow main {assert (== (main) 0)}
+""",[15],modules={'types.nano':'pub struct Box {values:array<array<array<bool>>>}\n'})
+        finally:
+            self.compilers=previous
+
     def test_unsupported_nested_descriptors_stay_optional(self):
-        for declared,value in [('array<array<array<int>>>','[[[7]]]')]:
+        for declared,value in [('array<array<array<array<int>>>>','[[[[7]]]]')]:
             with self.subTest(declared=declared):
                 self.exercise('struct Box { values:'+declared+' }\nfn main()->int { let box:Box=Box { values:'+value+' } return 0 }\nshadow main { assert true }\n',None,run=False)
         self.exercise('extern fn get_argc()->int\nstruct Box { values:array<array<int>> }\nfn main()->int { let box:Box=Box { values:[[7]] } unsafe { return (get_argc) } }\nshadow main { assert true }\n',None,run=False)

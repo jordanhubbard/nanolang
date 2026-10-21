@@ -73,12 +73,16 @@ static NvmV2Result oaa_array_fields(NvmOwnershipExtensionView view,
         if(color[at]==2)depth=depths[at];
         while(n){uint32_t item=path[--n];if(++depth>64){p->failure=NVM_OAA_LIMIT;return NVM_V2_ERR_INDEX_RANGE;}color[item]=2;depths[item]=(uint8_t)depth;}
     }
-    /* I recognize only exact depth-two primitive ARRAY descriptors. Structural
+    /* I recognize only exact depth-two/three primitive ARRAY descriptors. Structural
      * validity is separate from selected whole-module flow eligibility. */
     for(uint32_t i=0;i<types;i++)if(p->types[i].tag==TAG_ARRAY) {
         if(!oaa_charge(p,1))return NVM_V2_ERR_INDEX_RANGE;
-        if((p->types[p->types[i].referent].tag<TAG_INT || p->types[p->types[i].referent].tag>TAG_STRING) ||
-           p->types[p->types[i].referent].referent!=NVM_V2_NO_INDEX)p->unknown=true;
+        NvmOrdinaryArrayType child=p->types[p->types[i].referent];
+        if(child.tag==TAG_ARRAY) {
+            if(!oaa_charge(p,1))return NVM_V2_ERR_INDEX_RANGE;
+            child=p->types[child.referent];
+        }
+        if(child.tag<TAG_INT || child.tag>TAG_STRING || child.referent!=NVM_V2_NO_INDEX)p->unknown=true;
     }
     nvm_v2_cursor_init(&t,binding_rows,(size_t)bindings*12);
     for(uint32_t i=0;i<bindings;i++) {
