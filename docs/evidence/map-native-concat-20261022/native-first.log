@@ -1,0 +1,19 @@
+test_compiler_allocation_prefixes (tests.test_record_map_native.RecordMapNative.test_compiler_allocation_prefixes) ... I retain private native evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-8twxf6mp
+I reached 195 compiler allocation positions, retained 1 objects/65536 bytes.
+PASS 1961 compiler allocation checks; 195 positions transient/persistent plus retry.
+
+ok
+test_native_semantics_and_allocation_prefixes (tests.test_record_map_native.RecordMapNative.test_native_semantics_and_allocation_prefixes) ... I retain private native evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ja2kaly3
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm; public boundaries checked.
+PASS 645 private native publication checks; public boundaries checked.
+
+I covered every measured native allocation prefix in both modes: {'oom-original-0-O0': 27, 'oom-original-0-O2': 27, 'oom-original-1-O0': 27, 'oom-original-1-O2': 27, 'oom-original-2-O0': 27, 'oom-original-2-O2': 27, 'oom-original-3-O0': 27, 'oom-original-3-O2': 27, 'oom-alias-replacement-O0': 13, 'oom-alias-replacement-O2': 13, 'oom-growth-O0': 47, 'oom-growth-O2': 47, 'oom-concat-lifetime-O0': 31, 'oom-concat-lifetime-O2': 31, 'oom-concat-empty-O0': 31, 'oom-concat-empty-O2': 31}
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 97.549s
+
+OK

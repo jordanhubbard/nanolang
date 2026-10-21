@@ -1,0 +1,1239 @@
+{
+  "base": "24feed248",
+  "before": {
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "f54c52c7a098fc7cb36a10f871873f7c5322f3ef6f91ff46d0c8f3fce8dc7534",
+    "/private/tmp/nanolang-generic-record-field-20261021/canonical": "23834ede1a4e03e865cf50cb3518aa57b24399e53e4ac9319a92addde840a0b6",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "368d6d663ea716f03af4f1808b80e46bb9f7575c3d924491d317fabba1b3a609",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "c6eee3d64285c02af7e998a27f9853fc80b3f413539e74b3c9cca849a9094c64",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "fb815b655ba956d87c9887cc61a9089c0f8a83c3774f9f6a6c6c5127705bd158",
+    "/opt/homebrew/opt/llvm/bin/clang": "5b3adae66bf3e36a0aa2e90db47e3456d31bf5f992124fd09ae9119b076e00be"
+  },
+  "sources": {
+    "unchanged": "9ae2501082657dd7a55e4ef510e3a6ac5dff07bbac2145468b98f4935e1626ee",
+    "concat": "588e87a2fc3de4918dedd9fcc11f6a72299a3adbbc6d9717985716059faa76f8"
+  },
+  "commands": [
+    {
+      "name": "unchanged-seed-compile",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-seed-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-seed-vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-seed-dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-seed-native-translate",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed.c"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-seed-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-seed-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-seed-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-seed-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-seed-forced-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-seed-forced-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-seed-forced-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-seed-forced-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-compile",
+      "argv": [
+        "/private/tmp/nanolang-generic-record-field-20261021/canonical",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-native-translate",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted.c"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-forced-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-forced-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-forced-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-c-hosted-forced-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-compile",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-native-translate",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1.c"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-forced-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-forced-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-forced-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage1-forced-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-compile",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-native-translate",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2.c"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-forced-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-forced-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-forced-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "unchanged-stage2-forced-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-compile",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-native-translate",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.c"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-forced-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-forced-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-forced-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-seed-forced-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-compile",
+      "argv": [
+        "/private/tmp/nanolang-generic-record-field-20261021/canonical",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-native-translate",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.c"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-forced-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-forced-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-forced-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-c-hosted-forced-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-compile",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-native-translate",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.c"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-forced-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-forced-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-forced-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage1-forced-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-compile",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-vm",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-dump",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-native-translate",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.c"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-forced-O0-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-forced-O0-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2-forced-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-forced-O2-build",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2-forced.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2-forced-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "concat-stage2-forced-O2-run",
+      "argv": [
+        "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2-forced-O2"
+      ],
+      "status": 0
+    }
+  ],
+  "cases": [
+    {
+      "source": "unchanged",
+      "producer": "seed",
+      "compile": 0,
+      "verify": 0,
+      "vm": 0,
+      "dump": 0,
+      "native-translate": 0,
+      "concat_opcodes": 0,
+      "struct_opcodes": 0,
+      "authority_present": false
+    },
+    {
+      "source": "unchanged",
+      "producer": "c-hosted",
+      "compile": 0,
+      "verify": 0,
+      "vm": 0,
+      "dump": 0,
+      "native-translate": 0,
+      "concat_opcodes": 0,
+      "struct_opcodes": 0,
+      "authority_present": false
+    },
+    {
+      "source": "unchanged",
+      "producer": "stage1",
+      "compile": 0,
+      "verify": 0,
+      "vm": 0,
+      "dump": 0,
+      "native-translate": 0,
+      "concat_opcodes": 0,
+      "struct_opcodes": 0,
+      "authority_present": false
+    },
+    {
+      "source": "unchanged",
+      "producer": "stage2",
+      "compile": 0,
+      "verify": 0,
+      "vm": 0,
+      "dump": 0,
+      "native-translate": 0,
+      "concat_opcodes": 0,
+      "struct_opcodes": 0,
+      "authority_present": false
+    },
+    {
+      "source": "concat",
+      "producer": "seed",
+      "compile": 0,
+      "verify": 0,
+      "vm": 0,
+      "dump": 0,
+      "native-translate": 0,
+      "concat_opcodes": 1,
+      "struct_opcodes": 0,
+      "authority_present": false
+    },
+    {
+      "source": "concat",
+      "producer": "c-hosted",
+      "compile": 0,
+      "verify": 0,
+      "vm": 0,
+      "dump": 0,
+      "native-translate": 0,
+      "concat_opcodes": 1,
+      "struct_opcodes": 0,
+      "authority_present": false
+    },
+    {
+      "source": "concat",
+      "producer": "stage1",
+      "compile": 0,
+      "verify": 0,
+      "vm": 0,
+      "dump": 0,
+      "native-translate": 0,
+      "concat_opcodes": 1,
+      "struct_opcodes": 0,
+      "authority_present": false
+    },
+    {
+      "source": "concat",
+      "producer": "stage2",
+      "compile": 0,
+      "verify": 0,
+      "vm": 0,
+      "dump": 0,
+      "native-translate": 0,
+      "concat_opcodes": 1,
+      "struct_opcodes": 0,
+      "authority_present": false
+    }
+  ],
+  "after": {
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "f54c52c7a098fc7cb36a10f871873f7c5322f3ef6f91ff46d0c8f3fce8dc7534",
+    "/private/tmp/nanolang-generic-record-field-20261021/canonical": "23834ede1a4e03e865cf50cb3518aa57b24399e53e4ac9319a92addde840a0b6",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "368d6d663ea716f03af4f1808b80e46bb9f7575c3d924491d317fabba1b3a609",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "c6eee3d64285c02af7e998a27f9853fc80b3f413539e74b3c9cca849a9094c64",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "fb815b655ba956d87c9887cc61a9089c0f8a83c3774f9f6a6c6c5127705bd158",
+    "/opt/homebrew/opt/llvm/bin/clang": "5b3adae66bf3e36a0aa2e90db47e3456d31bf5f992124fd09ae9119b076e00be"
+  }
+}

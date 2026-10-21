@@ -189,7 +189,7 @@ static __attribute__((noinline)) void borrowed_u8_source(const char *path) {
 static void public_native_boundaries(void) {
     for(unsigned mode=0;mode<2;mode++) {
         Input c;init(&c,TAG_INT,false);map_new(&c,TAG_STRING,TAG_INT);scalar(&c,TAG_STRING);
-        if(mode){scalar(&c,TAG_STRING);op(&c,OP_STR_CONCAT);}
+        if(mode){op(&c,OP_STR_TRIM);}
         else {c.strings[1]="a\0b";c.lengths[1]=3;}
         scalar(&c,TAG_INT);op(&c,OP_HM_SET);op(&c,OP_AGG_PACK);b8(c.code,&c.n,AGG_RECORD);b32(c.code,&c.n,0);b16(c.code,&c.n,0);b16(c.code,&c.n,1);
         op(&c,OP_POP);map_finish(&c);public_check(&c.m,false);

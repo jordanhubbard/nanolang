@@ -133,6 +133,29 @@ static void native_growth(void) {
     native_record(&c,0);arg16(&c,OP_AGG_GET,0);op(&c,OP_HM_LEN);native_expect(&c,20);map_finish(&c);
     native_fixture(&c,"growth",VM_OK);
 }
+static void native_concat_lifetime(bool empty) {
+    Input c;init(&c,TAG_INT,false);c.strings[1]=empty?"":"\xce\xba";
+    c.lengths[1]=(uint32_t)strlen(c.strings[1]);
+    map_new(&c,TAG_STRING,TAG_INT);native_record(&c,0);arg16(&c,OP_STORE_LOCAL,0);
+    for(unsigned value=7;value<=9;value+=2) {
+        arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_AGG_GET,0);
+        arg32(&c,OP_CALL,1);arg16(&c,OP_STORE_LOCAL,1);arg16(&c,OP_LOAD_LOCAL,1);
+        native_integer(&c,value);op(&c,OP_HM_SET);op(&c,OP_POP);
+    }
+    arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_AGG_GET,0);op(&c,OP_HM_LEN);native_expect(&c,1);
+    arg16(&c,OP_LOAD_LOCAL,0);arg16(&c,OP_AGG_GET,0);arg32(&c,OP_CALL,1);
+    op(&c,OP_HM_GET);native_expect(&c,9);map_finish(&c);
+    c.m.function_count=3;c.fn[1].name_idx=2;c.fn[1].code_offset=(uint32_t)c.n;
+    c.fn[1].result_count=1;c.fn[1].result_tag=TAG_STRING;c.fn[1].local_count=1;
+    scalar(&c,TAG_STRING);scalar(&c,TAG_STRING);op(&c,OP_STR_CONCAT);
+    arg16(&c,OP_STORE_LOCAL,0);arg16(&c,OP_LOAD_LOCAL,0);arg32(&c,OP_TAIL_CALL,2);
+    c.fn[1].code_length=(uint32_t)c.n-c.fn[1].code_offset;
+    c.fn[2].name_idx=1;c.fn[2].code_offset=(uint32_t)c.n;
+    c.fn[2].result_count=1;c.fn[2].result_tag=TAG_STRING;c.fn[2].arity=c.fn[2].local_count=1;
+    uint8_t parameter=TAG_STRING;c.param_rows[2]=&parameter;c.m.function_param_types=c.param_rows;
+    arg16(&c,OP_LOAD_LOCAL,0);op(&c,OP_RET);c.fn[2].code_length=(uint32_t)c.n-c.fn[2].code_offset;
+    map_authority(&c);native_fixture(&c,empty?"concat-empty":"concat-lifetime",VM_OK);
+}
 static void native_target_refusal(Input *c,const char *diagnostic,bool public_eligible) {
     NvmRecordMapExecutionPlan *plan=NULL;VmRecordMapPrivate *vm=NULL;
     CHECK(nvm_prepare_record_map_execution(&c->m,&plan).status==NVM_ARRAY_ELIGIBLE);
@@ -174,5 +197,5 @@ int MAP_NATIVE_MAIN(int argc,char **argv) {
 #endif
         nvm_record_map_image_free(native_images[i]);free(native_texts[i]);
     }
-    native_semantics();native_nonzero_layout();native_growth();native_target_negatives();printf("PASS %u private native publication checks; public boundaries checked.\n",checks);return 0;
+    native_semantics();native_nonzero_layout();native_growth();native_concat_lifetime(false);native_concat_lifetime(true);native_target_negatives();printf("PASS %u private native publication checks; public boundaries checked.\n",checks);return 0;
 }
