@@ -1,0 +1,3 @@
+I retain the older 8841a2bdf sanitizer continuation: run 39563066808, job 119223238407. All 17 bootstrap steps passed; raw Stage1/Stage2 are equal. Raw generation elapsed times are 7010.650s and 8419.189s. The continuation subsequently failed schema-check because test_nanoisa_schema.py searched VM_DISPATCH_BEGIN(instr.opcode). Current aggregate already contains fix 8bb872b97 using instr->opcode. This is not full sanitizer-suite success or current-head qualification.
+
+Artifact 12368460622 is 128294 bytes; zip SHA256 baba4441b814da2c30a773b1a577a47264e6c1cb45259abc1af8c51ffa2a308d. Full retained log: /private/tmp/nanolang-884-sanitizer-continuation-119223238407.log.
