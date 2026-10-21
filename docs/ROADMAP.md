@@ -16734,3 +16734,5 @@ I assign owned_calls contract-only ownership on `design/5.1-map-paired-publicati
 - [ ] Review paired wire construction, complete-candidate dispatch and failure/omission semantics.
 - [ ] Implement the reviewed source checkpoint, then qualify ordinary and independent selected-shadow publication before broader paired gates.
 - [ ] Preserve old bytes/budgets and explicit unsupported dynamic STRING, DELETE and other-pair gaps.
+
+I corrected the paired publisher provenance contract after review: raw Nano emission parses and lowers without a semantic checker, and local ordinary publication already permits bound=false. Proposed map rows therefore use exact parsed declaration binding plus actual lowering and independent complete-module proof on raw paths; only nanoisa_check_and_emit supplies synchronous checker provenance. Imported binding checks and existing raw authority behavior remain unchanged. This is a documentation correction only; source implementation remains held for review.
