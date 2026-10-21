@@ -63,11 +63,15 @@ class OwnedAnalyze(Analyze):
         self.declarations = self.fn['local_types']
         require(len(self.declarations) == self.fn['locals'] <= 128,
                 'require complete local declarations')
-        self.scalar_tags = (INT, BOOL) if self.borrowed else (INT, BOOL, FLOAT)
+        self.borrowed_float_caller = (self.borrowed and index == 0 and
+            module.get('ownership_version', 1) == 2 and len(module['functions']) == 2 and
+            module['functions'][1].get('param_modes') == [2] and
+            type(module['functions'][1]['param_modes'][0]) is int)
+        self.scalar_tags = (INT, BOOL, FLOAT) if not self.borrowed or self.borrowed_float_caller else (INT, BOOL)
         self.types = {i: t for i, (t, _) in enumerate(self.declarations) if t in self.scalar_tags}
-        require(all(tag != FLOAT or not self.borrowed and i >= len(self.fn['params']) and layout == 4294967295
+        require(all(tag != FLOAT or (not self.borrowed or self.borrowed_float_caller) and i >= len(self.fn['params']) and layout == 4294967295
                     for i, (tag, layout) in enumerate(self.declarations)),
-                'require FLOAT only in exact nonparameter consuming local slots')
+                'require FLOAT only in exact nonparameter consuming or approved caller-local slots')
 
         def declared(pair, parameter=False):
             tag, layout = pair
@@ -151,6 +155,10 @@ class OwnedAnalyze(Analyze):
         self.seen = set()
         self.calls = set()
         self.code = self.fn['code']
+        if self.borrowed:
+            require(all(not (ins['op'] == 'PUSH_F64' or ins['op'].startswith('F64_')) or
+                        self.borrowed_float_caller and ins['op'] in ('PUSH_F64', 'F64_NEG', 'F64_EQ')
+                        for ins in self.code), 'require bounded caller-local FLOAT literal/NEG/equality operations')
         if self.helper_owners or self.helper_local_single or self.eight_shared:
             require(all(type(ins.get('arg')) is int and isinstance(ins.get('args'), list) and
                         all(type(value) is int for value in ins['args']) and
@@ -551,7 +559,7 @@ class OwnedAnalyze(Analyze):
                 return body, initialized, self.live, self.used, True
             else:
                 require(op in SIMPLE and op not in ('CALL', 'PUSH_U8', 'F64_FROM_BITS', 'F64_TO_BITS') and
-                        (not self.borrowed or op not in ('PUSH_F64', 'F64_NEG')),
+                        (not self.borrowed or self.borrowed_float_caller or op not in ('PUSH_F64', 'F64_NEG')),
                         'refuse unsupported resource-route instruction ' + op)
                 # I isolate the suffix above the last staged owner before scalar evaluation.
                 split = max((n + 1 for n, value in enumerate(stack)
@@ -637,7 +645,7 @@ class OwnedAnalyze(Analyze):
             body.append(('assert', self.pop(stack, BOOL)))
         else:
             require(op in SIMPLE and op not in ('CALL', 'PUSH_U8', 'F64_FROM_BITS', 'F64_TO_BITS') and
-                        (not self.borrowed or op not in ('PUSH_F64', 'F64_NEG')),
+                        (not self.borrowed or self.borrowed_float_caller or op not in ('PUSH_F64', 'F64_NEG')),
                     'refuse unsupported resource-route instruction ' + op)
             # I isolate the suffix above the last staged owner before scalar evaluation.
             split = max((n + 1 for n, value in enumerate(stack)
@@ -666,6 +674,8 @@ class OwnedAnalyze(Analyze):
         function = Function(self.fn['name'], self.params, self.result, self.types, self.fn['names'], parameters + body)
         function.helper_owners = self.helper_owners
         function.helper_local_single = self.helper_local_single
+        function.borrowed_float_caller = self.borrowed_float_caller and any(
+            tag == FLOAT for tag in self.types.values())
         return function
 
 
@@ -697,6 +707,9 @@ class OwnedEmit(Emit):
             self.reassigned = prove_owner_reassignment(functions[0])
         require(not self.helper_local_single or not self.reassigned,
                 'refuse combining single-helper local ownership with caller owner reassignment')
+        self.borrowed_float_caller = bool(getattr(functions[0], 'borrowed_float_caller', False))
+        require(not self.borrowed_float_caller or not (self.helper_local_single or self.reassigned or self.loop_exits),
+                'refuse overlapping borrowed FLOAT caller rendering profiles')
         self.shared_paths = modes == [1, 1]
         self.single_shared_path = modes == [1] and any(
             stmt[0] == 'path_borrow_call' for stmt in self.walk_statements(functions[0].body))
@@ -774,6 +787,11 @@ class OwnedEmit(Emit):
         if self.helper_local_single and language == 'nano':
             from nanoisa_owned_rendering import plan_reassignment_nano
             lowered, self.single_helper_caller_plan = plan_reassignment_nano(self.functions[0])
+            self.functions = [lowered, self.functions[1]]
+        self.borrowed_float_plan = None
+        if self.borrowed_float_caller and language == 'nano':
+            from nanoisa_owned_rendering import plan_reassignment_nano
+            lowered, self.borrowed_float_plan = plan_reassignment_nano(self.functions[0])
             self.functions = [lowered, self.functions[1]]
         if (self.reassigned or self.loop_exits) and language == 'nano':
             from nanoisa_owned_rendering import plan_reassignment_nano

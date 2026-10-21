@@ -45,6 +45,16 @@ static int owned_facts(const NvmModule *m) {
     bool eight_shared=borrowed && !paths && m->function_count==2 && m->functions[1].arity==8;
     if(borrowed && !eight_shared && (m->function_count!=2 || (m->functions[1].arity!=1 && m->functions[1].arity!=3 && !(paths && m->functions[1].arity==2))))goto done;
     if(borrowed)for(uint32_t i=0;i<layouts.count;i++)if(depths[i]>(paths?3:2))goto done;
+    bool borrowed_float_caller=false;
+    if(paths && borrowed && m->function_count==2 && m->functions[1].arity==1 &&
+       m->functions[1].local_count<=128) {
+        NvmAffineState *signature=nvm_affine_state_create(m,1,m->functions[1].local_count);
+        NvmAffineType parameter;NvmReferenceMode mode;
+        if(!signature)goto done;
+        borrowed_float_caller=nvm_affine_parameter_at(signature,0,&parameter,&mode) &&
+            mode==NVM_REFERENCE_EXCLUSIVE && parameter.tag==TAG_STRUCT;
+        nvm_affine_state_free(signature);
+    }
     if(paths)printf("{\"profile\":\"owned-local-v1\",\"entry\":0,\"ownership_version\":2,\"layouts\":[");
     else printf("{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[");
     for(uint32_t i=0;i<layouts.count;i++) {
@@ -76,7 +86,7 @@ static int owned_facts(const NvmModule *m) {
             if(!(helper && i<fn->arity ? nvm_affine_parameter_at(state,i,&t,&mode) : nvm_affine_local_type(state,i,&t)) ||
                (t.tag!=TAG_INT && t.tag!=TAG_BOOL &&
                 !(!borrowed && i<fn->arity && t.tag==TAG_STRING && t.layout==NVM_V2_NO_INDEX) &&
-                !(!borrowed && i>=fn->arity && t.tag==TAG_FLOAT && t.layout==NVM_V2_NO_INDEX) &&
+                !((!borrowed || (borrowed_float_caller && function==0)) && i>=fn->arity && t.tag==TAG_FLOAT && t.layout==NVM_V2_NO_INDEX) &&
                 !(t.tag==TAG_STRUCT && t.layout<layouts.count && nvm_affine_type_is_owned(state,t))))goto done;
         }
 
@@ -132,6 +142,10 @@ static int owned_facts(const NvmModule *m) {
                 case OPERAND_I64:args[a]=in->operands[a].i64;break;
                 default:break;
             }
+            if(borrowed && (in->opcode==OP_PUSH_F64 ||
+               !strncmp(isa_get_info(in->opcode)->name,"F64_",4)) &&
+               (!(borrowed_float_caller && function==0) ||
+                (in->opcode!=OP_PUSH_F64 && in->opcode!=OP_F64_NEG && in->opcode!=OP_F64_EQ)))goto done;
             if(in->opcode==OP_PUSH_STR) {
                 if(borrowed || in->operand_count!=1)goto done;
                 uint32_t index=in->operands[0].u32,at=0;
