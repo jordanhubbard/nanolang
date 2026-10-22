@@ -8849,8 +8849,14 @@ fail:
 }
 
 #include "nvm2c_map_private.inc"
+#ifdef NANO_UNION_FIELD_PRIVATE_NATIVE
+#include "nvm2c_union_target_private.inc"
+#endif
 /* Absent routing retains the original admission and output behavior. */
 char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
+#ifdef NANO_UNION_FIELD_PRIVATE_NATIVE
+    (void)nvm2c_prepare_union_target_source; /* Retain test-only static query; never execute it here. */
+#endif
     if(nvm_record_map_selected(nvm_record_map_route(mod)))return nvm2c_emit_record_map_source(mod,err,err_len,true);
     return nvm2c_emit_core(mod, err, err_len
                            , NULL, TAG_VOID

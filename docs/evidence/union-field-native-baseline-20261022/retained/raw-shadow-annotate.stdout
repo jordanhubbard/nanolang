@@ -1,0 +1,3 @@
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm instructions=44 functions=3 reserved=67195299 work=16869458
+selected refusal verify=I refuse reference lifetime and ownership instruction dataflow in function[0] at 14: I require a connected affine instruction contract native=I require valid reference lifetime and ownership instruction verification before translation
+PASS 135 annotation boundary checks

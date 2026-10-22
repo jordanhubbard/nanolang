@@ -1,0 +1,47 @@
+[
+  {
+    "name": "final-observed-build",
+    "code": 0,
+    "seconds": 2.2610632920404896
+  },
+  {
+    "name": "final-observed-run",
+    "code": 0,
+    "seconds": 0.45689433405641466
+  },
+  {
+    "name": "final-strict-default",
+    "code": 0,
+    "seconds": 0.07750016590580344
+  },
+  {
+    "name": "final-strict-private",
+    "code": 0,
+    "seconds": 0.07743704202584922
+  },
+  {
+    "name": "default-provider",
+    "code": 0,
+    "seconds": 1.7724790830397978
+  },
+  {
+    "name": "final-linked-build",
+    "code": 0,
+    "seconds": 0.6136174170533195
+  },
+  {
+    "name": "final-linked-run",
+    "code": 0,
+    "seconds": 0.3482236670097336
+  },
+  {
+    "name": "target-stack",
+    "code": 0,
+    "seconds": 0.24012083292473108
+  },
+  {
+    "name": "getters-stack",
+    "code": 0,
+    "seconds": 0.5124957920052111
+  }
+]

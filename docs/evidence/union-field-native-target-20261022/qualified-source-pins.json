@@ -1,0 +1,9 @@
+{
+  "src/nanoisa/nvm2c.c": "2efaf223b03682b382357a2e0383dd8f11082ba3e33a2a7bfc243519539f3846",
+  "src/nanoisa/nvm2c_union_target_private.inc": "f38634b46e500062351a92ff75db1428a2e1e86c4db5466b9d89bd4fab2b439b",
+  "src/nanoisa/union_field_vm_image_private.h": "39ad7530c539b2f0c9458be4ab01ddb4cd9e8967ae01a6dc2fa215f04c32009f",
+  "tests/nanoisa/test_union_field_native_target.c": "d141daa705f9d31ab44984da5c04a39fe12ce3e39f5fbf50b9bd0fc50afeb722",
+  "tests/test_union_field_native_target.py": "6d2b464bc3975d738d4b59ab4fb80274c40f5c3908d0514c1055233aa951b98a",
+  "Makefile.gnu": "205fcd9054253f9c613a46f48ed93af565df52c2d07123b1b9202457cb8c48e0",
+  "docs/NANOISA_UNION_FIELD_NATIVE_DESIGN.md": "b32256a6a135064f0c42525900b27686b957cbe00df1e3ec48136ab748130e0f"
+}

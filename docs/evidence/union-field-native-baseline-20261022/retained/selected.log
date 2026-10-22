@@ -1,0 +1,19 @@
+seed-annotate 0
+seed-selected-verify 1
+seed-selected-native 1
+c-shadow-annotate 0
+c-shadow-selected-verify 1
+c-shadow-selected-native 1
+canonical-annotate 0
+canonical-selected-verify 1
+canonical-selected-native 1
+canonical-shadow-annotate 0
+canonical-shadow-selected-verify 1
+canonical-shadow-selected-native 1
+raw-program-annotate 0
+raw-program-selected-verify 1
+raw-program-selected-native 1
+raw-shadow-annotate 0
+raw-shadow-selected-verify 1
+raw-shadow-selected-native 1
+PASS six independently annotated selected refusals and prior CLI output preservation

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "strict-default",
+    "code": 0,
+    "seconds": 0.3454316669376567
+  },
+  {
+    "name": "strict-private",
+    "code": 0,
+    "seconds": 0.0732985840877518
+  },
+  {
+    "name": "build",
+    "code": 0,
+    "seconds": 0.7794982499908656
+  },
+  {
+    "name": "six-originals",
+    "code": 0,
+    "seconds": 0.3484545419923961
+  }
+]
