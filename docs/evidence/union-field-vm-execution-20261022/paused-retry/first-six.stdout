@@ -1,0 +1,19 @@
+sizes owner=807232 scope=40 VmState=797776 VmHeap=96 outcome=24
+lifecycle mode=0 repeat=0 status=0 outcome=0
+lifecycle mode=0 repeat=1 status=0 outcome=0
+lifecycle mode=1 repeat=0 status=8 outcome=99
+lifecycle mode=1 repeat=1 status=8 outcome=99
+lifecycle mode=2 repeat=0 status=0 outcome=1
+lifecycle mode=2 repeat=1 status=0 outcome=1
+lifecycle mode=3 repeat=0 status=0 outcome=0
+lifecycle mode=3 repeat=1 status=0 outcome=0
+lifecycle mode=4 repeat=0 status=0 outcome=0
+lifecycle mode=4 repeat=1 status=0 outcome=0
+lifecycle mode=5 repeat=0 status=0 outcome=1
+lifecycle mode=5 repeat=1 status=0 outcome=1
+lifecycle mode=6 repeat=0 status=0 outcome=1
+lifecycle mode=6 repeat=1 status=0 outcome=1
+lifecycle mode=7 repeat=0 status=0 outcome=0
+lifecycle mode=7 repeat=1 status=0 outcome=0
+lifecycle mode=8 repeat=0 status=0 outcome=0
+lifecycle mode=8 repeat=1 status=0 outcome=0
