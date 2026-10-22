@@ -48,7 +48,7 @@ const NvmModule *nvm_union_field_image_module_internal(
     const NvmUnionFieldImage *image);
 ```
 
-The existing `nvm_union_field_image_copy(source,out)` remains a literal0/0 wrapper. Extras are positive conservative reservations, never refunds. Checked addition includes extras in the existing source-retained/image-header/comparison charges, then cap-minus-initial checks occur before the first image allocation. Overflow and over-cap requests return LIMIT with output unchanged. Fresh destination construction still independently proves the snapshot and compares all source facts; extras cannot skip proof or correspondence.
+The existing `nvm_union_field_image_copy(source,out)` remains a literal0/0 wrapper. Extras are positive conservative reservations, never refunds. Checked addition includes extras in the existing source-retained/image-header/comparison charges, then cap-minus-initial checks occur before the first image allocation. Overflow and requests exceeding the initial reserve cap return LIMIT before image allocation with output unchanged. Exhaustion of later snapshot/recipe charges may allocate and then unwind; final-measured-cap+1 does not imply a zero-allocation refusal. Fresh destination construction still independently proves the snapshot and compares all source facts; extras cannot skip proof or correspondence.
 
 Existing image0/0 allocation order,55 prefix positions and default byte/work results must remain unchanged. Existing constructor0/0 keeps54 positions, atomic proof/site38 positions, and all old recipe/proof budgets. No source/caller budget token becomes authority. Image statistics include extras when nonzero and must be labeled reserved allowances rather than actual allocated payload.
 
@@ -124,3 +124,7 @@ HALT is not decided by adding an outcome enum. Ordinary baseline and separate su
 ## First qualification gate after source review
 
 I require strict default/private macro compilation and exact owner/table sizeof measurements, then all six retained originals through preparation only, with module/source destruction and copied preparation queries. Test every allocation prefix in transient/persistent denial modes, prior owner sentinel, retry, independent retained/peak bytes, constant dedup and intern growth, S=0/empty strings/optional parameter rows, malformed copied/decode/call-cache correspondence, source limits and positive-extra overflow/cap refusals. Keep image0/0 55 positions, constructor54/38 positions, proof338/393 and six legacy budget rows unchanged. These tests must not call a new executor or claim public/native acceptance.
+
+## Preparation checkpoint evidence
+
+I qualified the preparation-only implementation with160 linked checks/all six originals and47,489 instrumented checks,127/1,329 allocation positions in both denial modes, independent live/peak accounting and unchanged image/recipe/proof/legacy budgets. I measured owner807232B and combined basic reserve76,471,196B/26,134,951 work under unchanged caps. Actual project frame reports and fixed ASan fallback areas are retained;65536 remains a provisional scratch allowance, not a whole-C-stack guarantee. Receipt: `docs/evidence/union-field-vm-preparation-20261022/README.md`. Runtime execution and HALT policy remain unimplemented.

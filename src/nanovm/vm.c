@@ -1645,6 +1645,9 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
 #include "record_array_vm_prepare.inc"
 #endif
 #include "record_map_common.inc"
+#ifdef NANO_UNION_FIELD_PRIVATE_PREPARATION
+#include "union_field_vm_prepare.inc"
+#endif
 #ifdef NANO_RECORD_MAP_PRIVATE_PREPARATION
 #include "record_map_vm_prepare.inc"
 #endif

@@ -1,0 +1,8 @@
+union preparation owner=807232 instruction=144 runtime=9267301/9273676 image=76471196/26134951 source=67189009/16859481 stack=524289
+prepared original /private/tmp/nanolang-union-field-baseline-20261022/seed.nvm rows=40 functions=1 image=76502772/26204095
+prepared original /private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm rows=48 functions=3 image=76511558/26222280
+prepared original /private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm rows=35 functions=1 image=76499359/26194274
+prepared original /private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm rows=44 functions=3 image=76508997/26215385
+prepared original /private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm rows=35 functions=1 image=76499176/26193176
+prepared original /private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm rows=44 functions=3 image=76508814/26213982
+I passed 160 union preparation checks; no execution admission.
