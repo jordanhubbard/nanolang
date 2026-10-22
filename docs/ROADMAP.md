@@ -16890,3 +16890,8 @@ I implement the reviewed preparation-only union owner after contract007ad59c4: p
 I qualified preparation-only union storage with160 linked/all-six and47,489 instrumented checks,127/1,329 allocation positions in both denial modes, exact live-payload oracles, original cap fit and separate real LIMIT recovery. Image/recipes/proof0/0 and six legacy budget rows remain unchanged; strict macro/dispatch checks pass. Receipt: `docs/evidence/union-field-vm-preparation-20261022/README.md`. I have not enabled union execution, HALT policy, public/native selection or publishers.
 
 I passed aggregate private preparation160/all-six and47,489 instrumented checks (11.829s), plus68 workflow/checkpoint/schema controls (2.485s). Receipt: `docs/evidence/union-field-preparation-aggregate-20261021/README.md`. The inspected Make gate rebuilt only the managed-array provider and VM object; no frontend/bootstrap or installed tools were rebuilt. Guest execution/native/publishers remain closed.
+
+
+### 2026-10-22: aggregate private union VM execution
+
+I am integrating the reviewed private executor component `bf6d2dae2` with its interface and ordinary-HALT baseline ancestry. I will run the combined permanent VM gate with all six retained originals, preserve default public refusal and existing NULL routes, and add the explicit retirement target. Public/native/source publication and fresh exact-head platform qualification remain separate pending work. I will retain actual build commands, source/provider pins and failures before publishing the aggregate result.
