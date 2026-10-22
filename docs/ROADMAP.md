@@ -16878,3 +16878,7 @@ I qualified independent union images with2032/6384 checks,55 allocation position
 I integrate independently re-proved image checkpoint75f811f68, add the explicit retirement image target and qualify the aggregate on six retained originals and workflow controls before pushing. These private images do not enable VM/native/public/publisher execution.
 
 I passed aggregate independent images2032/6384 on six originals (6.081s) and68 workflow/checkpoint controls (2.255s). Receipt: `docs/evidence/union-field-image-aggregate-20261021/README.md`. Runtime/native/public/publisher enrollment remains closed.
+
+### 2026-10-21: private union preparation aggregate qualification
+
+I integrate the reviewed preparation-only owner after its independent image checkpoint, wire its explicit retirement target, and run the permanent preparation gate on all six retained originals plus workflow controls. I preserve source/image/default budgets and do not enable guest execution, native lowering or publishers. Hosted qualification remains tied to the final pushed aggregate.
