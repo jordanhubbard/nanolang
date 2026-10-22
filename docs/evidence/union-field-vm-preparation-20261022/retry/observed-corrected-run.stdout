@@ -1,0 +1,3 @@
+union preparation owner=807232 instruction=144 runtime=9267301/9273676 image=76471196/26134951 source=67189009/16859481 stack=524289
+union actual retained=9216651 peak=9216651 calls=127 allocations=43
+I passed 25 union preparation checks; no execution admission.

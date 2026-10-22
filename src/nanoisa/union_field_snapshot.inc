@@ -1,4 +1,5 @@
 #include "union_field_snapshot_private.h"
+#include "union_field_vm_image_private.h"
 struct NvmUnionFieldImage { NvmUnionFieldExecutionPlan *plan;NvmUnionFieldImageCost cost; };
 /* Called only after retained-cost validation established all source count and
  * pointer bounds. The per-function cost pass already prepaid these arity reads.
@@ -114,7 +115,8 @@ void nvm_union_field_image_free(NvmUnionFieldImage *p) {
     if(!p)return;
     nvm_union_field_execution_free(p->plan);free(p);
 }
-NvmArrayEligibilityResult nvm_union_field_image_copy(const NvmUnionFieldExecutionPlan *source,NvmUnionFieldImage **out) {
+NvmArrayEligibilityResult nvm_union_field_image_copy_reserved(const NvmUnionFieldExecutionPlan *source,
+        uint64_t extra_bytes,uint64_t extra_work,NvmUnionFieldImage **out) {
     NvmArrayEligibilityResult result={NVM_ARRAY_INVALID,0,0,"I require an immutable union plan and image output."};
     if(!source || !out)return result;
     NvmMapCopyWork cost={0,NVM_RECORD_ARRAY_EXECUTION_STEPS,false};uint64_t retained,comparison;
@@ -124,7 +126,9 @@ NvmArrayEligibilityResult nvm_union_field_image_copy(const NvmUnionFieldExecutio
     uint64_t bytes=retained,work=cost.used;
     uint64_t initial_bytes=UINT64_C(64)*1024*1024+65536u+sizeof(NvmUnionFieldExecutionPlan)+sizeof(NvmRecordArrayExecutionPlan);
     uint64_t initial_work=UINT64_C(16777216)+65536u+sizeof(NvmUnionFieldExecutionPlan)+sizeof(NvmRecordArrayExecutionPlan);
-    if(nvm_map_copy_sum(&bytes,sizeof(NvmUnionFieldImage))!=NVM_MAP_COST_OK||
+    if(nvm_map_copy_sum(&bytes,extra_bytes)!=NVM_MAP_COST_OK||
+       nvm_map_copy_sum(&work,extra_work)!=NVM_MAP_COST_OK||
+       nvm_map_copy_sum(&bytes,sizeof(NvmUnionFieldImage))!=NVM_MAP_COST_OK||
        nvm_map_copy_sum(&work,sizeof(NvmUnionFieldImage))!=NVM_MAP_COST_OK||
        nvm_map_copy_sum(&work,comparison)!=NVM_MAP_COST_OK||
        initial_bytes>NVM_RECORD_ARRAY_EXECUTION_BYTES||bytes>NVM_RECORD_ARRAY_EXECUTION_BYTES-initial_bytes||
@@ -143,6 +147,13 @@ NvmArrayEligibilityResult nvm_union_field_image_copy(const NvmUnionFieldExecutio
     image->cost=(NvmUnionFieldImageCost){retained,staged->carrier->counts.peak_bytes_reserved,staged->carrier->counts.work_reserved};
     image->plan=staged;staged=NULL;*out=image;
     snprintf(result.message,sizeof result.message,"I independently copied descriptive union facts without execution authority.");return result;
+}
+/* Old image construction keeps its exact allocation and charge path. */
+NvmArrayEligibilityResult nvm_union_field_image_copy(const NvmUnionFieldExecutionPlan *source,NvmUnionFieldImage **out) {
+    return nvm_union_field_image_copy_reserved(source,0,0,out);
+}
+const NvmModule *nvm_union_field_image_module_internal(const NvmUnionFieldImage *image) {
+    return image && image->plan && image->plan->carrier?&image->plan->carrier->snapshot:NULL;
 }
 bool nvm_union_field_image_cost(const NvmUnionFieldImage *p,NvmUnionFieldImageCost *out) {
     if(!p || !out)return false;

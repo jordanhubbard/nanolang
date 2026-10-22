@@ -16882,3 +16882,9 @@ I passed aggregate independent images2032/6384 on six originals (6.081s) and68 w
 ### 2026-10-21: private union preparation aggregate qualification
 
 I integrate the reviewed preparation-only owner after its independent image checkpoint, wire its explicit retirement target, and run the permanent preparation gate on all six retained originals plus workflow controls. I preserve source/image/default budgets and do not enable guest execution, native lowering or publishers. Hosted qualification remains tied to the final pushed aggregate.
+
+I own the next #1001 union preparation contract after image75f811: module-taking private owner, independent image-bound storage, explicit decode/dispatch/constants setup and whole-phase resource accounting. I record the interface in `docs/NANOISA_UNION_FIELD_VM_PREPARATION_DESIGN.md` before production work. This checkpoint permits documentation only; runtime dispatch, HALT policy, public/native selection and publishers remain separate.
+
+I implement the reviewed preparation-only union owner after contract007ad59c4: positive private image reservation, image-bound decode/dispatch/constants storage and copied preparation statistics. Source review precedes any build. I leave all executors, public/native selectors and publishers unchanged, and retain65536 automatic scratch as a provisional allowance requiring measured extents.
+
+I qualified preparation-only union storage with160 linked/all-six and47,489 instrumented checks,127/1,329 allocation positions in both denial modes, exact live-payload oracles, original cap fit and separate real LIMIT recovery. Image/recipes/proof0/0 and six legacy budget rows remain unchanged; strict macro/dispatch checks pass. Receipt: `docs/evidence/union-field-vm-preparation-20261022/README.md`. I have not enabled union execution, HALT policy, public/native selection or publishers.

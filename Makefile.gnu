@@ -7233,3 +7233,11 @@ $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/union_field_snapshot_p
 test-units: test-union-field-image
 test-union-field-image: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_union_field_image
+
+$(OBJ_DIR)/nanovm/vm.o: $(NANOVM_DIR)/union_field_runtime_private.h $(NANOVM_DIR)/union_field_vm_prepare.inc $(NANOISA_DIR)/union_field_vm_image_private.h
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/union_field_vm_image_private.h
+
+.PHONY: test-union-field-preparation
+test-units: test-union-field-preparation
+test-union-field-preparation: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	LSAN_OPTIONS= RECORD_ARRAY_VM_CC="$(CC)" RECORD_ARRAY_VM_CFLAGS="$(CFLAGS)" RECORD_ARRAY_VM_OBJECTS="$(sort $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" RECORD_ARRAY_VM_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_union_field_preparation
