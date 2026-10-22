@@ -1,0 +1,10 @@
+src/nanoisa/isa.c:31:isa_tag_name	0	static
+src/nanoisa/isa.c:67:isa_get_info	0	static
+src/nanoisa/isa.c:76:isa_operand_size	0	static
+src/nanoisa/isa.c:159:isa_encode	0	static
+src/nanoisa/isa.c:215:isa_decode	0	static
+src/nanoisa/isa.c:268:isa_opcode_by_name	48	static
+src/nanoisa/isa.c:308:isa_is_extension_prefix	0	static
+src/nanoisa/isa.c:312:isa_get_extended_info	0	static
+src/nanoisa/isa.c:321:isa_is_file_opcode	0	static
+src/nanoisa/isa.c:325:isa_code_has_file_instructions	128	static
