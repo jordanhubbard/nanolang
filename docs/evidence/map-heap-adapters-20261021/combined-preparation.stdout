@@ -1,0 +1,25 @@
+I retain preparation artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-preparation-qfnhtha8
+I prepared 4 functions/64 rows/3 fields: owner=818472 field=20 layout=16 runtime=9243485/9269619 overlap=76474490/26145743.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I prepared 4 functions/64 rows/3 fields: owner=818472 field=20 layout=16 runtime=9243344/9266652 overlap=76473747/26142322.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I prepared 4 functions/64 rows/3 fields: owner=818472 field=20 layout=16 runtime=9243344/9266546 overlap=76473747/26142216.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I prepared 4 functions/64 rows/3 fields: owner=818472 field=20 layout=16 runtime=9243344/9266546 overlap=76473747/26142216.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+PASS 2605 map origin checks; public admission remains refused
+PASS 2793 copied map recipe checks; public admission remains refused
+I checked 873 preparation allocation prefixes in both modes, including intern growth, retained 9275369 bytes.
+I checked private map preparation and independence; execution remains refused.
+
+I prepared 4 functions/64 rows/3 fields: owner=818472 field=20 layout=16 runtime=9243485/9269619 overlap=76474490/26145743.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I prepared 4 functions/64 rows/3 fields: owner=818472 field=20 layout=16 runtime=9243344/9266652 overlap=76473747/26142322.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I prepared 4 functions/64 rows/3 fields: owner=818472 field=20 layout=16 runtime=9243344/9266546 overlap=76473747/26142216.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I prepared 4 functions/64 rows/3 fields: owner=818472 field=20 layout=16 runtime=9243344/9266546 overlap=76473747/26142216.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+PASS 2605 map origin checks; public admission remains refused
+PASS 2793 copied map recipe checks; public admission remains refused
+I checked private map preparation and independence; execution remains refused.

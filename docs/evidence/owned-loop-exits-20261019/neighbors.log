@@ -1,0 +1,13 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-bd1p1up4
+test_shared_output_is_byte_identical (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_shared_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-yau9t7bm
+test_single_exclusive_output_is_byte_identical (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_single_exclusive_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-e8t7jhm9
+test_v2_exclusive_outputs_remain_byte_identical (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_v2_exclusive_outputs_remain_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-ibtv7i3l
+test_old_two_shared_path_outputs_remain_byte_identical (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_old_two_shared_path_outputs_remain_byte_identical) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.845s
+
+OK

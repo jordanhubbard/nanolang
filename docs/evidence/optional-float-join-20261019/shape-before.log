@@ -1,0 +1,43 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -Isrc/nanoisa -o obj/test_nvm2c_shape \
+		tests/nanoisa/test_nvm2c_shape.c src/nanoisa/nvm2c_shape.c
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, destination) == kinds[i] at line 382
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, destination) == kinds[i] at line 382
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, destination) == kinds[i] at line 382
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, destination) == kinds[i] at line 382
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, destination) == kinds[i] at line 382
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, destination) == kinds[i] at line 382
+I failed nvm_shape_solve_conversions(&g) == (!exact && !mismatch) at line 379
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, destination) == NVM_SHAPE_OPTIONAL at line 384
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, destination, 0)) == kinds[i] at line 385
+I failed nvm_shape_root(&g, scalar) != nvm_shape_root(&g, destination) at line 386
+I failed nvm_shape_solve_conversions(&g) at line 388
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, destination) == kinds[i] at line 382
+I failed nvm_shape_kind(&g, scalar) == kinds[i] at line 380
+I failed nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind at line 381
+I failed nvm_shape_kind(&g, destination) == kinds[i] at line 382
+Shape constraints: 3255 passed, 39 failed
+make: *** [test-nvm2c-shapes] Error 1

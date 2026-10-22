@@ -1,0 +1,8 @@
+{
+  "/private/tmp/nanolang-checked-borrow-compiler": "1749158fbe4bb21b225bd6a9475657fd174a5d5aa36a53ebb8bdc17162890a16",
+  "/private/tmp/nanolang-borrow-c-provider/nano_virt": "e1006b655133719285d4cff445bd14596506feaf3e66257cf400fa15b82e02f7",
+  "bin/nanoc_c": "dac6fda45ab6c414dd647ef277ae8f7f4e4b94655bf93b974e2eb7be491ecce4",
+  "bin/nanoisa": "3b7a0ba468e580a77a16fcdae38e64d16dfdaa35602e4c2530ae6db6cbbd4517",
+  "bin/nano_vm": "0accd36619c83a636a191f333467fb3acaacced7e63cf0c8e86f30e5f19b6c3b",
+  "bin/nvm2c": "b3da39240bff2f80bf25349750beeb67e7066d91575d30f7d9ee13e1efac02ec"
+}

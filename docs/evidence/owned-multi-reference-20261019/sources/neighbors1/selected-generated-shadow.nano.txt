@@ -1,0 +1,56 @@
+resource struct NlrOwned0 { f0: int, f1: bool }
+# I reconstruct ordered resource transfers; original shadows are not retained.
+fn main() -> int {
+    let mut owner_first: NlrOwned0 = NlrOwned0 { f0: 0, f1: false }
+    let result_first: int = (nlr_f1_owned_1 &mut owner_first)
+    let NlrOwned0 { f0, f1 } = owner_first
+    let field_first_0: int = f0
+    let field_first_1: bool = f1
+    let mut owner_second: NlrOwned0 = NlrOwned0 { f0: 0, f1: false }
+    let result_second: int = (nlr_f1_owned_1 &mut owner_second)
+    let NlrOwned0 { f0, f1 } = owner_second
+    let field_second_0: int = f0
+    let field_second_1: bool = f1
+    assert (== result_first result_second)
+    assert (== field_first_0 field_second_0)
+    assert (== field_first_1 field_second_1)
+
+ return 0
+}
+fn nlr_f1_owned_1(nlr_a0: &mut NlrOwned0) -> int {
+    let nlr_t0: int = nlr_a0.f0
+    let nlr_t14_a: int = nlr_t0
+    let nlr_t14_b: int = 3
+    let nlr_t14_low: int = (- -9223372036854775807 1)
+    let nlr_t14_high: int = 9223372036854775807
+    let mut nlr_t14: int = 0
+    if (> nlr_t14_b 0) {
+        let nlr_t14_boundary: int = (- nlr_t14_high nlr_t14_b)
+        if (> nlr_t14_a nlr_t14_boundary) { set nlr_t14 (+ nlr_t14_low (- (- nlr_t14_a nlr_t14_boundary) 1)) } else { set nlr_t14 (+ nlr_t14_a nlr_t14_b) }
+    } else { if (< nlr_t14_b 0) {
+        let nlr_t14_boundary: int = (- nlr_t14_low nlr_t14_b)
+        if (< nlr_t14_a nlr_t14_boundary) { set nlr_t14 (+ nlr_t14_high (+ (- nlr_t14_a nlr_t14_boundary) 1)) } else { set nlr_t14 (+ nlr_t14_a nlr_t14_b) }
+    } else { set nlr_t14 (+ nlr_t14_a nlr_t14_b) } }
+    set nlr_a0.f0 nlr_t14
+    let nlr_t20: bool = nlr_a0.f1
+    let nlr_t25: bool = (not nlr_t20)
+    set nlr_a0.f1 nlr_t25
+    let nlr_t31: int = nlr_a0.f0
+    return nlr_t31
+}
+
+shadow nlr_f1_owned_1 {
+    let mut owner_first: NlrOwned0 = NlrOwned0 { f0: 0, f1: false }
+    let result_first: int = (nlr_f1_owned_1 &mut owner_first)
+    let NlrOwned0 { f0, f1 } = owner_first
+    let field_first_0: int = f0
+    let field_first_1: bool = f1
+    let mut owner_second: NlrOwned0 = NlrOwned0 { f0: 0, f1: false }
+    let result_second: int = (nlr_f1_owned_1 &mut owner_second)
+    let NlrOwned0 { f0, f1 } = owner_second
+    let field_second_0: int = f0
+    let field_second_1: bool = f1
+    assert (== result_first result_second)
+    assert (== field_first_0 field_second_0)
+    assert (== field_first_1 field_second_1)
+}

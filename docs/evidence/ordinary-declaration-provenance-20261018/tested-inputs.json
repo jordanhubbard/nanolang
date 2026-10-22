@@ -1,0 +1,15 @@
+{
+  "base": "64576b4ea784fe64d0193a856dd15cebdfe14905",
+  "sha256": {
+    "src/nanovirt/codegen.c": "43d401e537aa55eb69c7c3892bf7531ddaff7dd902a456a79907d1c4dee6f952",
+    "src/nanovirt/ordinary_authority.inc": "403a1cdd795df5de3a1f087efb60c23f3d2326e2f1dd74dc7c204b51ecc803bf",
+    "tests/test_ordinary_declaration_provenance.py": "b0d52dc86cc69ef26d947891146d27feea87a1fe683bdb7aa7080a2e21d0a056",
+    "bin/nano_virt": "2610bf7a1214c037366156f405eb1272c6448612b54b9bc45e358941bb47362a",
+    "bin/nano_vm": "48fd3144d411dff21c2665952e9d8d76e67b25c86447729bf55a0e89b13203fb",
+    "bin/nvm2c": "ddfa1f59b352579cde0d0dfec2ee052cc4fa5b83eaf639c1c1eaadde44a0b82f",
+    "bin/nanoisa": "ea45b7124756ed66c5a48bc499c846b905ba115a24f055b3a0c39804de7bca7b"
+  },
+  "host": "Darwin 27.0.0 arm64",
+  "generated_native_cc": "cc (Apple Clang; Makefile overrides the environment CC assignment)",
+  "scope": "C seed only; no fresh selfhost bootstrap or Linux execution"
+}

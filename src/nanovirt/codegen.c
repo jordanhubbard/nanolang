@@ -11,6 +11,7 @@
 
 #include "../checked_loop_binding.h"
 #include "nanovirt/codegen.h"
+#include "nanovirt/checked_record_identity.h"
 #include "../nanoisa/local_bindings.h"
 #include "nanolang.h"
 #include "../builtins_registry.h"
@@ -20,6 +21,8 @@
 #include "nanoisa/nvm_format.h"
 #include "nanovm/vm.h"
 #include "generated/compiler_schema.h"
+#include "checked_borrow_facts.h"
+#include "checked_borrow_codegen.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,6 +95,8 @@ typedef struct {
     char **field_type_names;  /* Struct type names for struct-typed fields (NULL entries for non-struct) */
     int field_count;
     uint32_t def_idx;
+    ASTNode *declaration; /* I retain the checked declaration behind this ordinal. */
+    bool declaration_ambiguous;
 } CgStructDef;
 
 typedef struct {
@@ -308,6 +313,7 @@ static uint8_t ordinary_slot_tag(Type type) {
     case TYPE_INT:return TAG_INT; case TYPE_U8:return TAG_U8;
     case TYPE_FLOAT:return TAG_FLOAT; case TYPE_BOOL:return TAG_BOOL;
     case TYPE_STRING:return TAG_STRING; case TYPE_STRUCT:return TAG_STRUCT;
+    case TYPE_ARRAY:return TAG_ARRAY; case TYPE_HASHMAP:return TAG_HASHMAP;
     default:return TAG_COUNT;
     }
 }
@@ -1501,22 +1507,26 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             /* Create array and fill with value */
             compile_expr(cg, args[0]);  /* size */
             uint16_t sz_slot = local_add(cg, "", 0);
+            local_name_begin(cg, sz_slot, "", TYPE_INT, 0);
             emit_op(cg, OP_STORE_LOCAL, (int)sz_slot);
             compile_expr(cg, args[1]);  /* fill value */
+            Type fill_type = check_expression(args[1], cg->env);
             uint16_t fill_slot = local_add(cg, "", 0);
+            local_name_begin(cg, fill_slot, "", fill_type, 0);
             emit_op(cg, OP_STORE_LOCAL, (int)fill_slot);
             /* I evaluate both operands once before rejecting a negative size. */
             emit_op(cg, OP_LOAD_LOCAL, (int)sz_slot);
             emit_op(cg, OP_PUSH_I64, (int64_t)0);
             emit_op(cg, OP_I64_GE_S);
             emit_op(cg, OP_ASSERT);
-            Type fill_type = check_expression(args[1], cg->env);
             emit_op(cg, OP_ARR_NEW, (int)type_to_tag(fill_type,
                     infer_expr_struct_type(cg, args[1]), cg->env));
             uint16_t arr_slot = local_add(cg, "", 0);
+            local_name_begin(cg, arr_slot, "", TYPE_ARRAY, 0);
             emit_op(cg, OP_STORE_LOCAL, (int)arr_slot);
             emit_op(cg, OP_PUSH_I64, (int64_t)0);
             uint16_t i_slot = local_add(cg, "", 0);
+            local_name_begin(cg, i_slot, "", TYPE_INT, 0);
             emit_op(cg, OP_STORE_LOCAL, (int)i_slot);
             uint32_t loop_top = cg->code_size;
             emit_op(cg, OP_LOAD_LOCAL, (int)i_slot);
@@ -3150,6 +3160,32 @@ static void compile_expr(CG *cg, ASTNode *node) {
             cg_error(cg, node->line, "undefined struct '%s'", sname ? sname : "(null)");
             break;
         }
+        bool byte_fields = false;
+        ASTNode *declaration = sd->declaration;
+        if (!nanovirt_checked_record_identity(declaration, sd->name,
+                sd->field_names, sd->field_count, sd->declaration_ambiguous)) {
+            cg_error(cg, node->line, "I require one exact checked record declaration");
+            break;
+        }
+        for (int i = 0; i < sd->field_count; ++i)
+            if (declaration->as.struct_def.field_types[i] == TYPE_U8) byte_fields = true;
+        /* I validate the complete staging map before emitting any operand. */
+        if (byte_fields) {
+            int count = node->as.struct_literal.field_count;
+            if ((!node->as.struct_literal.spread_source && count != sd->field_count) ||
+                count < 0 || count > sd->field_count) {
+                cg_error(cg, node->line, "I require every declared byte record field exactly once");
+                break;
+            }
+            for (int j = 0; j < count; ++j) {
+                if (struct_field_index(sd, node->as.struct_literal.field_names[j]) < 0)
+                    cg_error(cg, node->line, "I require declared byte record field names");
+                for (int k = 0; k < j; ++k)
+                    if (!strcmp(node->as.struct_literal.field_names[j], node->as.struct_literal.field_names[k]))
+                        cg_error(cg, node->line, "I require distinct byte record fields");
+            }
+            if (cg->had_error) break;
+        }
         ASTNode *spread = node->as.struct_literal.spread_source;
         CgStructDef *spread_def = NULL;
         uint16_t spread_slot = 0;
@@ -3166,18 +3202,28 @@ static void compile_expr(CG *cg, ASTNode *node) {
         }
         /* I stage overrides in source order before arranging the record layout. */
         uint16_t *override_slots = NULL;
-        if (spread && node->as.struct_literal.field_count) {
+        if ((spread || byte_fields) && node->as.struct_literal.field_count) {
             override_slots = malloc((size_t)node->as.struct_literal.field_count * sizeof(*override_slots));
             if (!override_slots) {
                 cg_error(cg, node->line, "I cannot retain ordered record overrides");
                 break;
             }
             for (int j = 0; j < node->as.struct_literal.field_count; ++j) {
-                compile_expr(cg, node->as.struct_literal.field_values[j]);
+                int16_t field = struct_field_index(sd, node->as.struct_literal.field_names[j]);
+                if (byte_fields && field >= 0 && declaration->as.struct_def.field_types[field] == TYPE_U8)
+                    compile_expected_tag(cg, node->as.struct_literal.field_values[j], TAG_U8);
+                else compile_expr(cg, node->as.struct_literal.field_values[j]);
+                if (cg->had_error) break;
                 override_slots[j] = local_add(cg, "", node->line);
+                if (byte_fields) {
+                    Type stored = declaration->as.struct_def.field_types[field] == TYPE_U8 ? TYPE_U8 :
+                        check_expression(node->as.struct_literal.field_values[j], cg->env);
+                    local_name_begin(cg, override_slots[j], NULL, stored, node->line);
+                }
                 emit_op(cg, OP_STORE_LOCAL, (int)override_slots[j]);
             }
         }
+        if (cg->had_error) { free(override_slots); break; }
         /* Push field values in definition order */
         for (int i = 0; i < sd->field_count; i++) {
             /* Find matching field in the literal */
@@ -3343,6 +3389,14 @@ static void compile_expr(CG *cg, ASTNode *node) {
     }
 
     case AST_MATCH: {
+        const char *match_source = env_current_file(cg->env);
+        if (!nvm_add_match_coverage(cg->module, cg->current_fn_idx,
+                (uint32_t)node->line, (uint32_t)node->column,
+                cg->generic_active ? 0 : node->as.match_expr.checked_coverage,
+                1, match_source ? match_source : "")) {
+            cg_error(cg, node->line, "I cannot retain the match coverage fact");
+            break;
+        }
         /* Compile: match expr { Variant(binding) => body, ... } */
         compile_expr(cg, node->as.match_expr.expr);
 
@@ -3620,6 +3674,11 @@ static void compile_nested_function_body(CG *cg, ASTNode *node, bool source_bind
     if (!record_function_parameters(cg, node, (uint32_t)fn_idx)) return;
     if (!nvm_add_function_purity(cg->module, (uint32_t)fn_idx, node->as.function.is_pure)) {
         cg_error(cg, node->line, "I cannot retain the nested function purity declaration");
+        return;
+    }
+    if (!nvm_add_function_affine(cg->module, (uint32_t)fn_idx,
+            cg->generic_active ? 0 : node->as.function.checked_affine)) {
+        cg_error(cg, node->line, "I cannot retain the affine checker completion");
         return;
     }
     NestedFnState *st = malloc(sizeof(NestedFnState));
@@ -4574,6 +4633,20 @@ static void compile_function_at(CG *cg, ASTNode *fn_node, int32_t fn_idx) {
         return;
     }
 
+    if (!nvm_add_function_affine(cg->module, (uint32_t)fn_idx,
+            cg->generic_active ? 0 : fn_node->as.function.checked_affine)) {
+        cg_error(cg, fn_node->line, "I cannot retain the affine checker completion");
+        cg->env->current_module = saved_module;
+        return;
+    }
+
+    if (!nvm_add_function_effects(cg->module, (uint32_t)fn_idx,
+            typecheck_advisory_effects(cg->env, fn_node->as.function.body))) {
+        cg_error(cg, fn_node->line, "I cannot retain the function effect summary");
+        cg->env->current_module = saved_module;
+        return;
+    }
+
     cg->names_enabled = true;
     /* Reset per-function state */
     cg->code_size = 0;
@@ -4718,7 +4791,7 @@ static void register_imported_struct(Environment *env, ASTNode *item) {
 
 static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env,
                                               ModuleList *modules, const char *input_file,
-                                              bool shadows, bool include_imports) {
+                                              bool shadows, bool include_imports, bool checked_borrows) {
     CodegenResult result = {0};
     if (ast_has_service_declaration(program)) {
         snprintf(result.error_msg, sizeof(result.error_msg), "I have not resolved File service declarations for this consumer.");
@@ -4736,7 +4809,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         Function *function = &env->functions[i];
         StructDef *returned = function->return_type == TYPE_STRUCT && function->return_struct_type_name
             ? env_get_struct(env, function->return_struct_type_name) : NULL;
-        if(returned && is_resource_type(env,function->return_struct_type_name))return codegen_borrow_compile(program,env,modules,shadows);
+        if(returned && is_resource_type(env,function->return_struct_type_name))return codegen_borrow_compile(program,env,modules,shadows,checked_borrows);
         for (int p = 0; p < function->param_count; ++p) {
             if (!function->params) continue;
             Parameter *parameter = &function->params[p];
@@ -4744,12 +4817,12 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 ? env_get_struct(env, parameter->struct_type_name) : NULL;
             if (parameter->type == TYPE_BORROW_SHARED || parameter->type == TYPE_BORROW_MUT ||
                 (record && is_resource_type(env,parameter->struct_type_name))) {
-                return codegen_borrow_compile(program, env, modules, shadows);
+                return codegen_borrow_compile(program, env, modules, shadows, checked_borrows);
             }
         }
     }
 
-    if(borrow_source_uses_owner(program,env))return codegen_borrow_compile(program,env,modules,shadows);
+    if(borrow_source_uses_owner(program,env))return codegen_borrow_compile(program,env,modules,shadows,checked_borrows);
 
     CgLocalName *local_names=NULL;
     CgAuthoritySlot *authority_slots=NULL;
@@ -4806,6 +4879,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         if (item->type == AST_STRUCT_DEF && cg.struct_count < MAX_STRUCT_DEFS) {
             CgStructDef *sd = &cg.structs[cg.struct_count];
             sd->name = item->as.struct_def.name;
+            sd->declaration = item;
             sd->field_names = item->as.struct_def.field_names;
             sd->field_type_names = item->as.struct_def.field_type_names;
             sd->field_count = item->as.struct_def.field_count;
@@ -4977,6 +5051,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         bool dup = false;
                         for (int s = 0; s < cg.struct_count; s++) {
                             if (strcmp(cg.structs[s].name, mitem->as.struct_def.name) == 0) {
+                                if (cg.structs[s].declaration != mitem)
+                                    cg.structs[s].declaration_ambiguous = true;
                                 dup = true;
                                 break;
                             }
@@ -4984,6 +5060,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         if (!dup) {
                             CgStructDef *sd = &cg.structs[cg.struct_count];
                             sd->name = mitem->as.struct_def.name;
+                            sd->declaration = mitem;
                             sd->field_names = mitem->as.struct_def.field_names;
                             sd->field_type_names = mitem->as.struct_def.field_type_names;
                             sd->field_count = mitem->as.struct_def.field_count;
@@ -5133,12 +5210,15 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                     bool dup = false;
                     for (int s = 0; s < cg.struct_count; s++) {
                         if (strcmp(cg.structs[s].name, mitem->as.struct_def.name) == 0) {
+                            if (cg.structs[s].declaration != mitem)
+                                cg.structs[s].declaration_ambiguous = true;
                             dup = true; break;
                         }
                     }
                     if (!dup) {
                         CgStructDef *sd = &cg.structs[cg.struct_count];
                         sd->name = mitem->as.struct_def.name;
+                        sd->declaration = mitem;
                         sd->field_names = mitem->as.struct_def.field_names;
                         sd->field_type_names = mitem->as.struct_def.field_type_names;
                         sd->field_count = mitem->as.struct_def.field_count;
@@ -5511,7 +5591,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     }
 
     canonicalize_function_code(&cg);
-    if(!cg.had_error) publish_ordinary_authority(&cg,program);
+    if(!cg.had_error) publish_ordinary_authority(&cg,program,modules);
     while(authority_slots) {
         CgAuthoritySlot *next=authority_slots->next;free(authority_slots);authority_slots=next;
     }
@@ -5535,7 +5615,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
 
 CodegenResult codegen_compile(ASTNode *program, Environment *env,
                               ModuleList *modules, const char *input_file) {
-    return codegen_compile_internal(program, env, modules, input_file, false, false);
+    return codegen_compile_internal(program, env, modules, input_file, false, false, false);
 }
 
 CodegenResult codegen_compile_shadows(ASTNode *program, Environment *env,
@@ -5546,5 +5626,15 @@ CodegenResult codegen_compile_shadows(ASTNode *program, Environment *env,
 CodegenResult codegen_compile_shadow_scope(ASTNode *program, Environment *env,
                                           ModuleList *modules, const char *input_file,
                                           bool include_imports) {
-    return codegen_compile_internal(program, env, modules, input_file, true, include_imports);
+    return codegen_compile_internal(program, env, modules, input_file, true, include_imports, false);
+}
+
+CodegenResult codegen_compile_checked(ASTNode *program, Environment *env,
+                                      ModuleList *modules, const char *input_file) {
+    if(!checked_borrow_is_sealed(env)) {
+        CodegenResult out={0};
+        snprintf(out.error_msg,sizeof out.error_msg,"I require a sealed checked source invocation");
+        return out;
+    }
+    return codegen_compile_internal(program,env,modules,input_file,false,false,true);
 }

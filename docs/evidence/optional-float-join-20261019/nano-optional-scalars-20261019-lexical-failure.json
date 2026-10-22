@@ -1,0 +1,897 @@
+{
+  "path": "/private/tmp/nano-optional-scalars-20261019-lexical-failure",
+  "sources": {
+    "float-present.nano": "struct Fact { owner:array<float>, completed:float }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0.0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[7.5],completed:0.0})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed 7.5)\n return 0\n}\nshadow main { assert true }\n",
+    "bool-empty.nano": "struct Fact { owner:array<bool>, completed:bool }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else false))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[],completed:false})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed false)\n return 0\n}\nshadow main { assert true }\n",
+    "float-empty.nano": "struct Fact { owner:array<float>, completed:float }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0.0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[],completed:0.0})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed 0.0)\n return 0\n}\nshadow main { assert true }\n",
+    "string-empty.nano": "struct Fact { owner:array<string>, completed:string }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else \"\"))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[],completed:\"\"})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed \"\")\n return 0\n}\nshadow main { assert true }\n",
+    "float-unchecked.nano": "struct Fact { owner:array<float>, completed:float }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0.0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[7.5],completed:0.0})\n (update Parser{functions:functions} 0 0)\n assert (== (list_Fact_get functions 0).completed 0.0)\n return 0\n}\nshadow main { assert true }\n",
+    "bool-present.nano": "struct Fact { owner:array<bool>, completed:bool }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else false))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[true],completed:false})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed true)\n return 0\n}\nshadow main { assert true }\n",
+    "u8-empty.nano": "struct Fact { owner:array<u8>, completed:u8 }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[],completed:0})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed 0)\n return 0\n}\nshadow main { assert true }\n",
+    "u8-unchecked.nano": "struct Fact { owner:array<u8>, completed:u8 }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[7],completed:0})\n (update Parser{functions:functions} 0 0)\n assert (== (list_Fact_get functions 0).completed 0)\n return 0\n}\nshadow main { assert true }\n",
+    "float-raw_missing.nano": "struct Fact { owner:array<float>, completed:float }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((== checked 1) (at f.owner 1)) (else 0.0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[7.5],completed:0.0})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed 7.5)\n return 0\n}\nshadow main { assert true }\n",
+    "u8-present.nano": "struct Fact { owner:array<u8>, completed:u8 }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else 0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[7],completed:0})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed 7)\n return 0\n}\nshadow main { assert true }\n",
+    "string-unchecked.nano": "struct Fact { owner:array<string>, completed:string }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else \"\"))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[\"yes\"],completed:\"\"})\n (update Parser{functions:functions} 0 0)\n assert (== (list_Fact_get functions 0).completed \"\")\n return 0\n}\nshadow main { assert true }\n",
+    "string-raw_missing.nano": "struct Fact { owner:array<string>, completed:string }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((== checked 1) (at f.owner 1)) (else \"\"))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[\"yes\"],completed:\"\"})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed \"yes\")\n return 0\n}\nshadow main { assert true }\n",
+    "bool-unchecked.nano": "struct Fact { owner:array<bool>, completed:bool }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else false))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[true],completed:false})\n (update Parser{functions:functions} 0 0)\n assert (== (list_Fact_get functions 0).completed false)\n return 0\n}\nshadow main { assert true }\n",
+    "bool-raw_missing.nano": "struct Fact { owner:array<bool>, completed:bool }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((== checked 1) (at f.owner 1)) (else false))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[true],completed:false})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed true)\n return 0\n}\nshadow main { assert true }\n",
+    "u8-raw_missing.nano": "struct Fact { owner:array<u8>, completed:u8 }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((== checked 1) (at f.owner 1)) (else 0))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[7],completed:0})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed 7)\n return 0\n}\nshadow main { assert true }\n",
+    "string-present.nano": "struct Fact { owner:array<string>, completed:string }\nstruct Parser { functions:List<Fact> }\nfn update(p:Parser,index:int,checked:int)->void {\n let f:Fact=(list_Fact_get p.functions index)\n (list_Fact_set p.functions index Fact {owner:f.owner,completed:(cond ((and (== checked 1) (== (array_length f.owner) 1)) (at f.owner 0)) (else \"\"))})\n}\nshadow update { assert true }\nfn main()->int {\n let functions:List<Fact>=(list_Fact_new)\n (list_Fact_push functions Fact {owner:[\"yes\"],completed:\"\"})\n (update Parser{functions:functions} 0 1)\n assert (== (list_Fact_get functions 0).completed \"yes\")\n return 0\n}\nshadow main { assert true }\n"
+  },
+  "results": [
+    {
+      "type": "float",
+      "case": "present",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "float",
+      "case": "present",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "float",
+      "case": "present",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "float",
+      "case": "empty",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "float",
+      "case": "empty",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "float",
+      "case": "empty",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "float",
+      "case": "unchecked",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "float",
+      "case": "unchecked",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "float",
+      "case": "unchecked",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "float",
+      "case": "raw_missing",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "float",
+      "case": "raw_missing",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "float",
+      "case": "raw_missing",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "bool",
+      "case": "present",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "bool",
+      "case": "present",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "bool",
+      "case": "present",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "bool",
+      "case": "empty",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "bool",
+      "case": "empty",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "bool",
+      "case": "empty",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "bool",
+      "case": "unchecked",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "bool",
+      "case": "unchecked",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "bool",
+      "case": "unchecked",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "bool",
+      "case": "raw_missing",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "bool",
+      "case": "raw_missing",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "bool",
+      "case": "raw_missing",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "string",
+      "case": "present",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "string",
+      "case": "present",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "string",
+      "case": "present",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "string",
+      "case": "empty",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "string",
+      "case": "empty",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "string",
+      "case": "empty",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "string",
+      "case": "unchecked",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "string",
+      "case": "unchecked",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "string",
+      "case": "unchecked",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "string",
+      "case": "raw_missing",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "string",
+      "case": "raw_missing",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "string",
+      "case": "raw_missing",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "present",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "present",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "present",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "empty",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "empty",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "empty",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "unchecked",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "unchecked",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "unchecked",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "raw_missing",
+      "producer": "nano_virt",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "raw_missing",
+      "producer": "nanoc_stage1",
+      "produce": 1
+    },
+    {
+      "type": "u8",
+      "case": "raw_missing",
+      "producer": "nanoc_stage2",
+      "produce": 1
+    }
+  ],
+  "providers": {
+    "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt": "0238ff8c9e8e6baf7034e491750f872db97d5010f6221d599c03a6f63dbeccdb",
+    "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1": "c9557024b57b9a8b0ed8584c82ceb350a9e70096ee13bd672c9be8227524da55",
+    "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2": "3cde2cf9ebf1322904fe3b8e0e509eec0435ecb7061d6b89d638195f5a7623a9",
+    "/private/tmp/nano-optional-scalars-20261019/nvm2c": "624791e41ee204886c2472983c0637c0f9d2c529aa80dc4c3eb9ae08a7d101d5",
+    "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm": "98374e4d998b31f1c6a7c903018c652accaa5122fa5f7f5bdc09b7e8c1cfc4d7",
+    "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_aot_runtime.o": "fd6fd0145d1de21cfeba2e8f7a0214029825becffda1ce5ff01ead2fbee046c9"
+  },
+  "commands": {
+    "bool-unchecked-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/bool-unchecked.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "string-raw_missing-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/string-raw_missing.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "string-present-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/string-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/string-present.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "bool-present-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/bool-present.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "float-present-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/float-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/float-present.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "float-raw_missing-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "float-unchecked-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "bool-unchecked-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "float-unchecked-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/float-unchecked.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "u8-raw_missing-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/u8-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-raw_missing-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/u8-raw_missing.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "bool-raw_missing-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/bool-raw_missing.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "float-raw_missing-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/float-raw_missing.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "string-unchecked-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "float-empty-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/float-empty.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "u8-present-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/u8-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-present-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/u8-present.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "u8-empty-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/u8-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-empty-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/u8-empty.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "u8-present-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/u8-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-present-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "string-empty-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/string-empty.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "string-unchecked-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/string-unchecked.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "u8-unchecked-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/u8-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-unchecked-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/u8-unchecked.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "bool-empty-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/bool-empty.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "u8-present-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/u8-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-present-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/u8-present.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "string-empty-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "float-empty-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/float-empty.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "u8-unchecked-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/u8-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-unchecked-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "u8-empty-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/u8-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-empty-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/u8-empty.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "bool-empty-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "float-empty-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-empty-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "string-empty-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-empty-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/string-empty.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "string-unchecked-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-unchecked-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/string-unchecked.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "u8-empty-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/u8-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-empty-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "bool-empty-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-empty-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/bool-empty.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "u8-unchecked-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/u8-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-unchecked-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/u8-unchecked.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "bool-present-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/bool-present.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "float-present-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/float-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/float-present.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "string-raw_missing-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/string-raw_missing.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "string-present-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/string-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/string-present.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "bool-unchecked-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-unchecked-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/bool-unchecked.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "u8-raw_missing-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/u8-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-raw_missing-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "bool-raw_missing-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "float-present-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/float-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-present-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "bool-present-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-present-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "string-raw_missing-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-raw_missing-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "string-present-0-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt",
+        "/private/tmp/nano-optional-scalars-20261019/string-present.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/string-present-0.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Error at line 9, column 25: Expected '>' after List type parameter\nError at line 9, column 25: Expected '=' in let statement (got GE)\nerror: parser failed\n"
+    },
+    "float-raw_missing-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-raw_missing-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/float-raw_missing.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "bool-raw_missing-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/bool-raw_missing-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/bool-raw_missing.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "u8-raw_missing-1-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1",
+        "/private/tmp/nano-optional-scalars-20261019/u8-raw_missing.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/u8-raw_missing-1.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/u8-raw_missing.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    },
+    "float-unchecked-2-produce.json": {
+      "args": [
+        "/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nano-optional-scalars-20261019/float-unchecked-2.nvm"
+      ],
+      "returncode": 1,
+      "stdout": "Parse error at /private/tmp/nano-optional-scalars-20261019/float-unchecked.nano:9, column 25: unexpected token ''\n",
+      "stderr": ""
+    }
+  }
+}

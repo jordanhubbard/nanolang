@@ -1,0 +1,11 @@
+src/nanovm/heap_cycles.c:119:vm_gc_note_suspect	112	static
+src/nanovm/heap_cycles.c:330:vm_gc_collect_cycles	224	dynamic
+src/nanovm/heap_cycles.c:199:scan	112	static
+src/nanovm/heap_cycles.c:316:collect_white	128	static
+src/nanovm/heap_cycles.c:434:vm_gc_cycle_buffer_free	48	static
+src/nanovm/heap_cycles.c:64:for_each_child	112	static
+src/nanovm/heap_cycles.c:160:mark_gray_child	16	static
+src/nanovm/heap_cycles.c:194:scan_child	0	static
+src/nanovm/heap_cycles.c:179:scan_black_child	16	static
+src/nanovm/heap_cycles.c:304:collect_white_slot	48	static
+src/nanovm/heap_cycles.c:asan.module_ctor	16	static

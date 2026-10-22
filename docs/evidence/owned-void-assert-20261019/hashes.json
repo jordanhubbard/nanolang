@@ -1,0 +1,15 @@
+{
+  "bin/nano_virt": "04269be440ea6826fe401d1f9265c2cb012709a8bbed00cf3118a26556402731",
+  "bin/nanoc_u8_context": "d7c3c1369042dfa16c8a54decdb7a96b5a43166ba2cee604f495f2302eb8977e",
+  "bin/nano_vm": "843a6bdc2d1defcb5ba8c5af424c31f4dc64a2877293bdebd7aadb2a957726b6",
+  "bin/nanoisa_hl_facts": "3a054bebc2f142639e26e52e8f847f058d82404f623240a29b4cfff4b71e9407",
+  "scripts/nanoisa_owned_reconstruction.py": "b2656b5866c8f54779af0a0e5d15da691b4fbbeee68303f32a52a180d00c2ff6",
+  "tests/nanoisa/fixtures/source_borrow_shared.nano": "63352319dbf61ece467640b2af1ebe04203bea24ad56c46f81e5145a17d81479",
+  "tests/nanoisa/fixtures/source_borrow_exclusive.nano": "557193a62357d1d1898942cf7d29e08fae0ffa49abd92d36c5811c178fe5c031",
+  "tests/nanoisa/fixtures/source_owned_value_graph.nano": "7a70752235ac69fb53a29dbbe32fdab1ffa188b6335680c93c45eba780d905f1",
+  "tests/nanoisa/fixtures/source_owned_value_nested.nano": "804963dd99415be7939af250ae2f31c93a1b6d7b751682a97978be1033d96e7d",
+  "tests/nanoisa/fixtures/source_borrow_loop_exits.nano": "b35f6d0a255a4e5578ac1a54ae4afb653f3a298ddded17225313856adc2fcd11",
+  "tests/nanoisa/fixtures/union_resource_constructor_order.nano": "37352e865f7fce3bdf2ad9887a126f5089914258b2ad2a49e475208b68ef3dfe",
+  "tests/nanoisa/fixtures/nested_array_contexts.nano": "ebc35fceec4dab1d9c609a05142f23b480afa6648713d7677d58602b91e817a0",
+  "tests/nanoisa/fixtures/global_initialization.nano": "4a68535774b702ce9e1d530d64d0fc6ef403c33d089edf399f2c9ed9b0a9bcf1"
+}

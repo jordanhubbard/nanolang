@@ -1,0 +1,62 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-execution-pur0zl93
+test_complete_plan_and_allocation_controls (tests.test_record_array_execution.RecordArrayExecution.test_complete_plan_and_allocation_controls) ... I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 4523 record-array origin checks; no runtime admission
+I begin owned execution snapshots
+I begin copied byte conversion recipes
+I begin initializer identity and call signatures
+I begin exact branch and instruction facts
+I begin the 256-function and counted-string boundaries
+I begin closed preparation refusal boundaries
+PASS 6558 record-array execution-plan checks; no runtime admission
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+I measured 41 allocation positions and 65034 peak payload bytes; every refusal recovered
+PASS 5051 record-array origin checks; no runtime admission
+I begin owned execution snapshots
+I begin copied byte conversion recipes
+I begin initializer identity and call signatures
+I begin exact branch and instruction facts
+I begin the 256-function and counted-string boundaries
+I begin closed preparation refusal boundaries
+I begin complete opcode recipes
+I checked 94 explicit opcode recipes and every numeric opcode
+I begin precise private layout allocation facts
+I begin plan allocation/work boundaries
+I measured 96 plan allocation positions and 83206 peak payload bytes; each one-shot/persistent refusal recovered
+PASS 10230 record-array execution-plan checks; no runtime admission
+ok
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-image-_730gbzm
+test_complete_origin_and_allocation_controls (tests.test_record_map_image.RecordMapImage.test_complete_origin_and_allocation_controls) ... I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+PASS 2515 map origin checks; public admission remains refused
+PASS 2703 copied map recipe checks; public admission remains refused
+PASS 2799 retained map image cost checks; public admission remains refused
+I retained 45 allocation prefixes and independent recovery.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+PASS 3130 map origin checks; public admission remains refused
+I retained 45 stack/plan proof failure prefixes.
+I retained 60 recipe allocation prefixes; reserved 67191725 bytes/16863488 work.
+PASS 4848 copied map recipe checks; public admission remains refused
+I matched retained payload and exact logical work without allocations.
+I retained 61 independent-image allocation prefixes; overlap 67215446 bytes/16863784 work.
+PASS 10743 retained map image cost checks; public admission remains refused
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 17.635s
+
+OK

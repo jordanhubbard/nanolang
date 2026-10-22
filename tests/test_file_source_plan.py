@@ -45,12 +45,15 @@ class FileSourcePlan(unittest.TestCase):
         if extra: env.update(extra)
         (cls.work/(name+'-command.json')).write_text(json.dumps(dict(argv=args,cwd=str(ROOT),
             ASAN_OPTIONS=env['ASAN_OPTIONS'],UBSAN_OPTIONS=env['UBSAN_OPTIONS'],
-            LSAN_OPTIONS=env['LSAN_OPTIONS']),indent=2)+'\n')
+            LSAN_OPTIONS=env['LSAN_OPTIONS'],timeout_seconds=timeout),indent=2)+'\n')
         process=None
-        status={'returncode':None,'timeout':False,'cleanup_errors':[],'group_absent':False}
+        status={'returncode':None,'timeout':False,'cleanup_errors':[],'group_absent':False,
+                'timeout_seconds':timeout}
+        started=time.monotonic()
         status_path=cls.work/(name+'-status.json')
         stdout_path=cls.work/(name+'.stdout');stderr_path=cls.work/(name+'.stderr')
         def retain_status():
+            status['elapsed_seconds']=time.monotonic()-started
             status_path.write_text(json.dumps(status,indent=2)+'\n')
         retain_status()
         # Children write directly to retained files; cleanup never owns buffered
@@ -59,6 +62,7 @@ class FileSourcePlan(unittest.TestCase):
             try:
                 process=subprocess.Popen(args,cwd=ROOT,env=env,stdout=stdout,
                                          stderr=stderr,start_new_session=True)
+                status['pid']=process.pid
                 try:
                     status['returncode']=process.wait(timeout=timeout)
                     status['first_terminal']='exit'
@@ -66,6 +70,17 @@ class FileSourcePlan(unittest.TestCase):
                     status['timeout']=True
                     status['returncode']=124
                     status['first_terminal']='timeout'
+                    # I retain bounded phase evidence before killing this group.
+                    # Command names omit arguments and unrelated worker processes.
+                    try:
+                        snapshot=subprocess.run(['ps','-axo','pid=,ppid=,pgid=,etime=,time=,comm='],
+                            capture_output=True,text=True,timeout=2,check=True)
+                        rows=[row for row in snapshot.stdout.splitlines()
+                              if len(row.split())>=6 and row.split()[2]==str(process.pid)]
+                        (cls.work/(name+'-timeout-processes.txt')).write_text(
+                            'PID PPID PGID ELAPSED CPU COMMAND\n'+'\n'.join(rows)+'\n')
+                    except (OSError,subprocess.SubprocessError) as failure:
+                        status['process_snapshot_error']=repr(failure)
                 retain_status()
             except OSError as failure:
                 status['launch_or_wait_error']=repr(failure)

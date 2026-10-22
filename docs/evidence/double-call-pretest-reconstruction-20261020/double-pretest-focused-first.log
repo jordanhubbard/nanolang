@@ -1,0 +1,10 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-sm4n_m9a
+test_order_and_first_result_snapshot (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_order_and_first_result_snapshot) ... ok
+test_pretest_ir_and_old_one_call_bytes (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_pretest_ir_and_old_one_call_bytes) ... ok
+test_third_call_and_split_region_refuse (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_third_call_and_split_region_refuse) ... ok
+test_zero_entered_and_final_false_effects (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_zero_entered_and_final_false_effects) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 71.962s
+
+OK

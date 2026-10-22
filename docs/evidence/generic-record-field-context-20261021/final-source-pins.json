@@ -1,0 +1,5 @@
+{
+  "src_nano/compiler/nanoisa_codegen.nano": "0c1e428157b17278ad74217f6fa3df6d5979756f89c58abd27072d2d6005110d",
+  "tests/test_native_generic_record_fields.py": "fff44bd647df0e23c6f733f97556b689da395ba43816d4d6e7a27ddc51e0b47f",
+  "docs/ROADMAP.md": "ca24606cfbb1327227152f1713d5ea9ead1e9ad697f5d7f1cb952e45a8189638"
+}

@@ -1,0 +1,7 @@
+{
+  "/private/tmp/nanolang-field-write-normalizer-before/source.nano": "557193a62357d1d1898942cf7d29e08fae0ffa49abd92d36c5811c178fe5c031",
+  "/private/tmp/nanolang-field-write-normalizer-before/source.nvm": "8bd8709aa0ad42ca3947d712ea0a3524d83a892b3af3c9d489ba378fac95f744",
+  "/private/tmp/nanolang-field-write-normalizer-before/original.nasm": "ce24aa2ee48395cfe835ec4a8af915fdad6d95f6c38ad2093f4987bc9d5b7ef1",
+  "/private/tmp/nanolang-field-write-normalizer-before/original-normalizer.py": "e439e62affddf0dd62fd8977132f100d4627f474242b6355f0a0fdad80b97730",
+  "tests/test_source_borrow_emission.py": "e228fed45d0b494397578f82c52052030c1627ee7d1f4894972f281649ed0437"
+}

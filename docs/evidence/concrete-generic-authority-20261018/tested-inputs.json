@@ -1,0 +1,23 @@
+{
+  "base": "a05e5c4e0",
+  "sources": {
+    "tests/test_ordinary_declaration_provenance.py": "76169e0a7e2711c012f7d0eac4759ca02fbd6ace498a729d06f6856358e6eda4",
+    "tests/test_flat_array_source_publication.py": "6380e050c564cb2d2e59435b433baaf545982ee0e690bc4de353253ab89adebe",
+    "src/nanovirt/ordinary_authority.inc": "76e144a80965192762288e0fa685a91118104dd73194c73d098947f728a08183",
+    "src/nanovirt/generic_codegen.inc": "37699303476f906782114c026f9f2fb017dfe37ab3dfd8f8edf00a9c5a540797",
+    "src_nano/compiler/nanoisa_codegen.nano": "20595dd2f141b53b9d7e6dd398f33526820bf71c0ddc35cb517f8995439c6030",
+    "src/nanoisa/managed_array_shapes.c": "50e73e09ccdbb895a764adcbb18e2e1ee7d33440db2936b929b788965b2ad0eb"
+  },
+  "executables": {
+    "nano_virt": "f2e3c960f62a3e78472ed45a6bb5ba7a1cb4f28d9867bd7258b043519f04e828",
+    "nano_vm": "29c1382bb16d7d492ec10df5bb9a5ceae854f375a3bc93a85f935f64374ef6ce",
+    "nanoisa": "c3fbce122aa706743b68ba77d06f6792bb685db6396ff48f4b50bbf686e68983",
+    "nvm2c": "3847a10dcee31f7b97f8c3f31540ca240d976226c725b52c071fccaa78548d3f",
+    "nanolang-flat-array-canonical-final": "3451619c1419fa4f253110c58db18ab74d45143c6e5d977a4c30f99221837e6c",
+    "nanolang-flat-array-emitter-final": "c89da735b50d05106553c5d45c8f6e89213e5cc17d8bf458ef28e6bedf30da37"
+  },
+  "platform": "Darwin arm64",
+  "methods": 11,
+  "seconds": 7.307,
+  "selfhost_generation": "C-seed-hosted; no new raw Stage1/Stage2"
+}

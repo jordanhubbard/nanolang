@@ -1,0 +1,11 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-y693ad4n
+test_checked_imports_keep_distinct_record_identity (tests.test_u8_field_context.U8FieldContext.test_checked_imports_keep_distinct_record_identity) ... ok
+test_checked_registry_identity (tests.test_u8_field_context.U8FieldContext.test_checked_registry_identity) ... ok
+test_field_refusals_preserve_output (tests.test_u8_field_context.U8FieldContext.test_field_refusals_preserve_output) ... ok
+test_native_c_profiles (tests.test_u8_field_context.U8FieldContext.test_native_c_profiles) ... ok
+test_ordered_exact_field_context (tests.test_u8_field_context.U8FieldContext.test_ordered_exact_field_context) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 6.997s
+
+OK

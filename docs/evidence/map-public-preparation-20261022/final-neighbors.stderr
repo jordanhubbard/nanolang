@@ -1,0 +1,30 @@
+test_original_goto (tests.test_record_map_public_prepare.RecordMapPublicPrepare.test_original_goto) ... ok
+test_original_switch (tests.test_record_map_public_prepare.RecordMapPublicPrepare.test_original_switch) ... ok
+test_original_goto (tests.test_record_map_import.RecordMapImport.test_original_goto) ... ok
+test_original_switch (tests.test_record_map_import.RecordMapImport.test_original_switch) ... ok
+test_complete_origin_and_allocation_controls (tests.test_record_map_boundary.RecordMapBoundary.test_complete_origin_and_allocation_controls) ... FAIL
+
+======================================================================
+FAIL: test_complete_origin_and_allocation_controls (tests.test_record_map_boundary.RecordMapBoundary.test_complete_origin_and_allocation_controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_boundary.py", line 53, in test_complete_origin_and_allocation_controls
+    self.command(mode + '-build', [*self.cc, *self.flags,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *(['-DRA_WHITEBOX'] if observed else []),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'tests/nanoisa/test_record_map_boundary.c',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'tests/nanoisa/record_array_alloc.c', *products, *self.objects,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *self.ldflags, '-o', str(exe)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 5 tests in 36.820s
+
+FAILED (failures=1)

@@ -1,0 +1,10 @@
+{
+  "src/nanoisa/ownership_contracts.c": "be381cc7c78ef608a9857c97dbaeac076fe8b0e47318c1c3e183e8f7d39d47dc",
+  "src/nanoisa/nvm_v2_layouts.c": "b65339952b0b328b60a96f68b9f116686418afa09dc239434aceabb4390bea82",
+  "src/nanoisa/ownership_map_fields.inc": "133335faf2e9fe9b5c7912047eaa3baff9f0f2bebad30bb40d7f61fb8ccd8024",
+  "src/nanoisa/ownership_map_declarations.inc": "7f344c74f046b1752cb587833c706a38029fc1a801d0e2057f55458b86e95628",
+  "src/nanoisa/ownership_map_declarations.h": "4b6e2c1f44e25edc9d5de359de05ec45ed98a9aeef69eec3807f32f8ba568f27",
+  "src_nano/compiler/nanoisa_codegen.nano": "5cbbf93b50cb3b502d37127c5783e97f8f8198b7bf01588ee115766044835bb8",
+  "tests/test_map_declarations.py": "d6c2f57f0f994edd27d07efaf3dcde2ecb281d11bfa9e014d53e0ba198c75ca5",
+  "tests/nanoisa/test_map_declarations.c": "8395d07ee8733bb5d823a476d4e7708703ad03d1579fcb027534d0cdef3d9a2d"
+}

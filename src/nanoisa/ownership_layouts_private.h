@@ -22,4 +22,7 @@ NvmV2Result nvm_ownership_mixed_layouts_private_decode(const uint8_t *,size_t,Nv
  * It is disjoint from input and output storage. No allocation order changes. */
 NvmV2Result nvm_ownership_mixed_layouts_private_decode_detailed(const uint8_t *,size_t,
                                                              NvmV2Layouts *,bool *allocation_failed);
+/* I allow exact map leaves only for the separately bound declaration query. */
+NvmV2Result nvm_ownership_map_layouts_private_decode_detailed(const uint8_t *,size_t,
+                                                             NvmV2Layouts *,bool *allocation_failed);
 #endif

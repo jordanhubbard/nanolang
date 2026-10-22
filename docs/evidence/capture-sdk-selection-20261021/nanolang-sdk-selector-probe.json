@@ -1,0 +1,35 @@
+[
+  {
+    "argv": [
+      "xcrun",
+      "--sdk",
+      "macosx",
+      "--show-sdk-path"
+    ],
+    "status": 0,
+    "stdout": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "xcrun",
+      "--sdk",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "--show-sdk-path"
+    ],
+    "status": 0,
+    "stdout": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "xcrun",
+      "--sdk",
+      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+      "--show-sdk-version"
+    ],
+    "status": 1,
+    "stdout": "",
+    "stderr": "2026-10-21 04:09:49.729 xcodebuild[18926:65284964] Writing error result bundle to /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/ResultBundle_2026-21-10_04-09-0049.xcresult\nxcodebuild: error: SDK \"/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk\" cannot be located.\nxcrun: error: unable to lookup item 'SDKVersion' in SDK '/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk'\n"
+  }
+]

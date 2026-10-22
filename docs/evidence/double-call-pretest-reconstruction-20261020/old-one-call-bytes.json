@@ -1,0 +1,12 @@
+[
+  {
+    "language": "c",
+    "sha256": "f0d0e750ba763849d4429bbdd7d720c24756b4b9f84ff559742055199f202245",
+    "equal": true
+  },
+  {
+    "language": "nano",
+    "sha256": "59c65927f251c2b7c126e0e6cdc8c85ab8ccc89b0ad70f2c59589b9f9f4a2fda",
+    "equal": true
+  }
+]

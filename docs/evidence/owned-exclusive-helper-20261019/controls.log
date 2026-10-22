@@ -1,0 +1,25 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-f1c7l6uu
+test_inline_placement_and_unchanged_helper (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_inline_placement_and_unchanged_helper) ... ok
+test_two_function_budget_refusal_preserves_output (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_two_function_budget_refusal_preserves_output) ... ok
+test_assertion_after_mutation_is_not_successful_cleanup (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_assertion_after_mutation_is_not_successful_cleanup) ... ok
+test_overlapping_reference_holds_refuse_before_publication (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_overlapping_reference_holds_refuse_before_publication) ... FAIL
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-qk20fllq
+test_generated_helper_budget_and_local_budget_refuse_atomically (tests.test_owned_wrapping_reconstruction.OwnedWrappingReconstruction.test_generated_helper_budget_and_local_budget_refuse_atomically) ... ok
+
+======================================================================
+FAIL: test_overlapping_reference_holds_refuse_before_publication (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_overlapping_reference_holds_refuse_before_publication)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 231, in test_overlapping_reference_holds_refuse_before_publication
+    self.command([ROOT/'bin/nanoisa','asm',source,'-o',bad])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-f1c7l6uu/overlap-SHARED.nasm': Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require an available scalar-leaf resource owner and reference slot in a live region
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 16.999s
+
+FAILED (failures=1)

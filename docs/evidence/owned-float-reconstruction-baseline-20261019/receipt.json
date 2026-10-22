@@ -1,0 +1,537 @@
+{
+  "providers": {
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "78b3578f6b90d364203cd960e45ff95235b91be1b7dc67c0c4ce2b17d984e070",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "7044052b5c2ba71435d76abd9e5860e5aa2a2724551c8ffc4b38a8e7c95f0718",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "f7ebdb2c585cdcbf92ec39cc2a75e90ff84ec7b3671927364bd3be9e3e3f295f",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "72da879f9fa8a913eb50d69f4eb9fbcd65ab61b2aa79145dbfe7b54ebfd98f68",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "98b1b76099b9cd22970d0773895ba2147b025b851139b4720495972b0eed80a8",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts": "68e9ca3fea7bfd10b385a7b0a535074cde8863a1d316376a367fbf1b1520042e",
+    "/private/tmp/owned-string-baseline-20261019/shadow_driver": "c23774c828833a8213e51c7cf16185d55902fe1706f383e6b4084570b15db571"
+  },
+  "commands": [
+    {
+      "name": "nano_virt",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+        "/private/tmp/owned-float-baseline-20261019/original.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/owned-float-baseline-20261019/nano_virt.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.039511249982751906,
+        "pid": 8866,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "nanoc_stage1",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+        "/private/tmp/owned-float-baseline-20261019/original.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage1.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.06870341597823426,
+        "pid": 8868,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "nanoc_stage2",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+        "/private/tmp/owned-float-baseline-20261019/original.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage2.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.07037941698217764,
+        "pid": 8871,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "shadow-driver",
+      "args": [
+        "/private/tmp/owned-string-baseline-20261019/shadow_driver",
+        "/private/tmp/owned-float-baseline-20261019/original.nano",
+        "0",
+        "raw"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.019013041048310697,
+        "pid": 8875,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "shadow-assemble",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "asm",
+        "/private/tmp/owned-float-baseline-20261019/shadow.nasm",
+        "-o",
+        "/private/tmp/owned-float-baseline-20261019/shadow.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.005737500032410026,
+        "pid": 8876,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "nano_virt-verify",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/owned-float-baseline-20261019/nano_virt.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.0055390410125255585,
+        "pid": 8877,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "nano_virt-execute",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/owned-float-baseline-20261019/nano_virt.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.005359374976251274,
+        "pid": 8878,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "nano_virt-dump",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/owned-float-baseline-20261019/nano_virt.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.005374583008233458,
+        "pid": 8879,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "nano_virt-facts",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts",
+        "/private/tmp/owned-float-baseline-20261019/nano_virt.nvm"
+      ],
+      "status": {
+        "returncode": 1,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.00548125000204891,
+        "pid": 8880,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 1
+      }
+    },
+    {
+      "name": "nano_virt-reconstruct",
+      "args": [
+        "/Users/jkh/.local/bin/python3",
+        "/Users/jkh/Src/nanolang-51-harness/scripts/nvm2hl.py",
+        "--language",
+        "nano",
+        "/private/tmp/owned-float-baseline-20261019/nano_virt.nvm",
+        "-o",
+        "/private/tmp/owned-float-baseline-20261019/nano_virt.reconstructed.nano"
+      ],
+      "status": {
+        "returncode": 1,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.07289162499364465,
+        "pid": 8881,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 1
+      }
+    },
+    {
+      "name": "nanoc_stage1-verify",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage1.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.005670332990121096,
+        "pid": 8883,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "nanoc_stage1-execute",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage1.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.005313166999258101,
+        "pid": 8884,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "nanoc_stage1-dump",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage1.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.006016250001266599,
+        "pid": 8885,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "nanoc_stage1-facts",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage1.nvm"
+      ],
+      "status": {
+        "returncode": 1,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.01244920800672844,
+        "pid": 8886,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 1
+      }
+    },
+    {
+      "name": "nanoc_stage1-reconstruct",
+      "args": [
+        "/Users/jkh/.local/bin/python3",
+        "/Users/jkh/Src/nanolang-51-harness/scripts/nvm2hl.py",
+        "--language",
+        "nano",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage1.nvm",
+        "-o",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage1.reconstructed.nano"
+      ],
+      "status": {
+        "returncode": 1,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.06980270898202434,
+        "pid": 8887,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 1
+      }
+    },
+    {
+      "name": "nanoc_stage2-verify",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage2.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.005829083034768701,
+        "pid": 8889,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "nanoc_stage2-execute",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage2.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.009433583996724337,
+        "pid": 8890,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "nanoc_stage2-dump",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage2.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.005428457981906831,
+        "pid": 8891,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "nanoc_stage2-facts",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage2.nvm"
+      ],
+      "status": {
+        "returncode": 1,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.005509041016921401,
+        "pid": 8892,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 1
+      }
+    },
+    {
+      "name": "nanoc_stage2-reconstruct",
+      "args": [
+        "/Users/jkh/.local/bin/python3",
+        "/Users/jkh/Src/nanolang-51-harness/scripts/nvm2hl.py",
+        "--language",
+        "nano",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage2.nvm",
+        "-o",
+        "/private/tmp/owned-float-baseline-20261019/nanoc_stage2.reconstructed.nano"
+      ],
+      "status": {
+        "returncode": 1,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.07312729198019952,
+        "pid": 8893,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 1
+      }
+    },
+    {
+      "name": "shadow-verify",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/owned-float-baseline-20261019/shadow.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.005563959013670683,
+        "pid": 8896,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "shadow-execute",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+        "/private/tmp/owned-float-baseline-20261019/shadow.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.009606999985408038,
+        "pid": 8897,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "shadow-dump",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+        "dump",
+        "/private/tmp/owned-float-baseline-20261019/shadow.nvm"
+      ],
+      "status": {
+        "returncode": 0,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.005317415983881801,
+        "pid": 8898,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 0
+      }
+    },
+    {
+      "name": "shadow-facts",
+      "args": [
+        "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts",
+        "/private/tmp/owned-float-baseline-20261019/shadow.nvm"
+      ],
+      "status": {
+        "returncode": 1,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.00563504098681733,
+        "pid": 8899,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 1
+      }
+    },
+    {
+      "name": "shadow-reconstruct",
+      "args": [
+        "/Users/jkh/.local/bin/python3",
+        "/Users/jkh/Src/nanolang-51-harness/scripts/nvm2hl.py",
+        "--language",
+        "nano",
+        "/private/tmp/owned-float-baseline-20261019/shadow.nvm",
+        "-o",
+        "/private/tmp/owned-float-baseline-20261019/shadow.reconstructed.nano"
+      ],
+      "status": {
+        "returncode": 1,
+        "timeout": false,
+        "cleanup_errors": [],
+        "group_absent": true,
+        "timeout_seconds": 180,
+        "elapsed_seconds": 0.06815066700801253,
+        "pid": 8900,
+        "first_terminal": "exit",
+        "remaining_group_killed": false,
+        "child_returncode": 1
+      }
+    }
+  ],
+  "source_sha256": "9bc5be924cd6ad6a82b97fc3c1efab42c1d10cf7823baed293ff15d43b83c1dd",
+  "modules": {
+    "/private/tmp/owned-float-baseline-20261019/nano_virt.nvm": "750e7bfbb3197beccde83e9ad724319380159189af125dd273fdb4cc3bf4c793",
+    "/private/tmp/owned-float-baseline-20261019/nanoc_stage1.nvm": "18b61cb638385bbd6851f87a6d634d8b7ad78303cf10f4f94d4f13c24216fe0e",
+    "/private/tmp/owned-float-baseline-20261019/nanoc_stage2.nvm": "18b61cb638385bbd6851f87a6d634d8b7ad78303cf10f4f94d4f13c24216fe0e",
+    "/private/tmp/owned-float-baseline-20261019/shadow.nvm": "b62791c4578e6a253058d91a850277de9606787026d2c7962e8da0ebf4ff4711"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "src/checked_borrow_facts.c": "b5467da7814e1cc4d613cbca638832cdf74ac03ccf18ba448a3e9e2f497b0273",
+  "src/checked_borrow_facts.h": "9a6457052042103f846cd918958c0198e72dec90ad9889056891f02e80784304",
+  "src/nanoisa/assembler.c": "3a00f90a019df06a63956308c5d92c3ad3c72627430ba9224ad4afddbb48107d",
+  "src/nanoisa/nvm_format.c": "2976a4df8a12a54a18c7891d1a8c64bce8efec084b5dfca7b0efad429b0c8789",
+  "src/nanoisa/nvm_format.h": "0af52fbb6af506cb6afd47991afe5fa2f51d1221be09ddaa76d6b8832e5778a8",
+  "src/nanovirt/borrow_codegen.inc": "a8c957025b701df481b4ba0bb6af530428d312c4a92f213cecdd4c119542cfb2",
+  "src/resource_flow.c": "ed749f3cf912a6b21b92d74adb8de45f87c27bce726c66ca9f5f6ee239f4b5db",
+  "src_nano/compiler/checked_borrow_facts.nano": "b4e2ab1be79ab677849686e65390745c9f5f7e890ba48c79507050a37fdd8232",
+  "src_nano/compiler/nanoisa_borrows.nano": "85bebf8dc511367191397c9a7c36b11e6e8e65c0f6eefd266f26b48c41f6eb1d",
+  "src_nano/compiler/nanoisa_codegen.nano": "91efacde637373ce3406d6117c82eea187b8f2189317a2872fbe01259f8d1a8e",
+  "src_nano/typecheck.nano": "c04f3758a7a28b23cc714518e7d776a966dca5ec4ef93120631ff4f3a9d43724",
+  "tests/nanoisa/test_advisory_metadata.c": "51df08dbdc69734e0429ce0dcc6e12e0dfedc544de87670e7ac1fd4c9988d0ec",
+  "tests/test_checked_borrow_ledger.c": "ffb56e9bad2953ae7349dec23d4bda98da9335c5a25566d2ed5a9d73265dff5c",
+  "tests/test_checked_borrow_metadata.py": "a4505bf60f223c761c50f907e1408ccd49216339d8befc2ba812bd1d36f1e533",
+  "tests/test_source_borrow_emission.py": "e228fed45d0b494397578f82c52052030c1627ee7d1f4894972f281649ed0437",
+  "src/nanoisa/field_write_facts.inc": "27ef90f4d6797ccbf977fa5ac6cf8268ea8f2c4ba3cf9b3da8d68b24e34a8355"
+}

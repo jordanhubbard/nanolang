@@ -1,0 +1,19 @@
+{
+  "command": [
+    "cc",
+    "-std=c11",
+    "-O1",
+    "/private/tmp/nanolang-emitter-join-20261019/driver-fixed.c",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+    "-lm",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-L/opt/homebrew/Cellar/openssl@4/4.0.3/lib",
+    "-o",
+    "/private/tmp/nanolang-emitter-join-20261019/native-emitter"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 16.738949374994263,
+  "timeout_seconds": 1800
+}

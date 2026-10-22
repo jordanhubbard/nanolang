@@ -1,0 +1,11 @@
+# My concrete generic authority checkpoint
+
+I qualify existing concrete generic function instances from `a05e5c4e0`; I add no parameterized struct syntax or new publisher admission. Eleven methods pass in 7.307 seconds on Darwin arm64.
+
+My C producer and C-seed-hosted canonical Nano driver preserve exact ordinary v1 declaration/runtime ordinals for equal-shaped distinct records, forward references and imported source owners. The imported generic functions deliberately choose different arguments, so aliasing their function bodies would change the result. I inspect every function descriptor and retain NO_INDEX for unproved slot nominal identity. Local and imported same-shaped but distinct nominal records cannot bind one repeated generic variable; both producers refuse with the concrete-identity diagnostic and preserve prior output. Runtime success alone is not my authority assertion: I inspect retained bytes, verify/roundtrip, and execute NanoVM plus ASan/UBSan standalone C.
+
+My C producer, C-hosted standalone Nano emitter and C-hosted canonical driver also publish exact v3 ARRAY_FIELDS facts for ordinary flat-array records passed through direct acyclic generic calls with typed local results. Those modules pass the same selected metadata/forgery checks and actual VM/native routes as the original source fixtures.
+
+The first forwarding fixture returned a generic call directly. All producers omitted authority, because the selected flat-array instruction proof supports CALL/RET but not TAIL_CALL. I retain that original failed metadata expectation. The final explicit omission control requires actual TAIL_CALL in the emitted module and confirms existing runtime behavior still works without optional authority. The paired positive case stores the same call result before returning it. I do not lower tail calls differently or relax the verifier to obtain admission.
+
+This closes a bounded qualification gap, not full #1001. The shared selected-flow TAIL_CALL boundary, callable-valued/union/resource/nested-array neighbors and fresh combined compiler generations/platform qualification remain distinct. These Nano products are C-hosted, not new raw Stage1/Stage2 evidence. Advisory generic binding strings never become authority.

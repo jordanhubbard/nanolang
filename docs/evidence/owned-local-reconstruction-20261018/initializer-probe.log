@@ -1,0 +1,22 @@
+test_actual_producers_preserve_nominal_moves_fields_and_snapshots (tests.test_owned_reconstruction.OwnedReconstruction.test_actual_producers_preserve_nominal_moves_fields_and_snapshots) ... ok
+test_corrupt_ownership_and_regions_preserve_prior_output (tests.test_owned_reconstruction.OwnedReconstruction.test_corrupt_ownership_and_regions_preserve_prior_output) ... ok
+test_verified_control_path_outside_slice_refuses (tests.test_owned_reconstruction.OwnedReconstruction.test_verified_control_path_outside_slice_refuses) ... ok
+test_verified_initializer_named_entry_refuses_atomically (tests.test_owned_reconstruction.OwnedReconstruction.test_verified_initializer_named_entry_refuses_atomically) ... FAIL
+
+======================================================================
+FAIL: test_verified_initializer_named_entry_refuses_atomically (tests.test_owned_reconstruction.OwnedReconstruction.test_verified_initializer_named_entry_refuses_atomically)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_owned_reconstruction.py", line 116, in test_verified_initializer_named_entry_refuses_atomically
+    self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', initializer])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_owned_reconstruction.py", line 37, in command
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-initializer-_w2fn_i6/initializer.nasm': Assembled module failed verification: I require a scalar entry and exact bounded value-result helper signatures
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 5.381s
+
+FAILED (failures=1)

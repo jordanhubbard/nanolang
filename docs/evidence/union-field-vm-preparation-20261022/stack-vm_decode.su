@@ -1,0 +1,10 @@
+src/nanovm/vm_decode.c:15:vm_decoded_function_free	48	static
+src/nanovm/vm_decode.c:23:vm_decoded_module_free	96	static
+src/nanovm/vm_decode.c:32:vm_decoded_function_has_boundary	16	static
+src/nanovm/vm_decode.c:38:vm_decode_function	272	static
+src/nanovm/vm_decode.c:145:vm_decoded_function_at	16	static
+src/nanovm/vm_decode.c:154:vm_decode_module	96	static
+src/nanovm/vm_decode.c:asan.module_ctor	16	static
+src/nanovm/vm_decode.c:asan.module_dtor	16	static
+src/nanovm/vm_decode.c:call_dtors.1	16	static
+src/nanovm/vm_decode.c:register_call_dtors.1	16	static

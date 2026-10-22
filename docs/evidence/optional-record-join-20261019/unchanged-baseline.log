@@ -1,0 +1,23 @@
+test_explicit_void_local_retains_join_provenance (tests.test_native_scalar_joins.NativeScalarJoins.test_explicit_void_local_retains_join_provenance) ... ok
+test_forward_scalar_joins_both_orders_and_aliases (tests.test_native_scalar_joins.NativeScalarJoins.test_forward_scalar_joins_both_orders_and_aliases) ... ok
+test_heap_and_unrelated_union_still_refuse_publication (tests.test_native_scalar_joins.NativeScalarJoins.test_heap_and_unrelated_union_still_refuse_publication) ... 
+  test_heap_and_unrelated_union_still_refuse_publication (tests.test_native_scalar_joins.NativeScalarJoins.test_heap_and_unrelated_union_still_refuse_publication) (left='PUSH_U8 1', right='PUSH_I64 1') ... FAIL
+test_loop_header_widens_before_emission (tests.test_native_scalar_joins.NativeScalarJoins.test_loop_header_widens_before_emission) ... ok
+test_negative_zero_bits_survive_boxing (tests.test_native_scalar_joins.NativeScalarJoins.test_negative_zero_bits_survive_boxing) ... ok
+test_nested_join_preserves_provenance (tests.test_native_scalar_joins.NativeScalarJoins.test_nested_join_preserves_provenance) ... ok
+test_parallel_edges_keep_two_distinct_tags (tests.test_native_scalar_joins.NativeScalarJoins.test_parallel_edges_keep_two_distinct_tags) ... ok
+test_three_way_void_integer_boolean_join_stays_refused (tests.test_native_scalar_joins.NativeScalarJoins.test_three_way_void_integer_boolean_join_stays_refused) ... ok
+
+======================================================================
+FAIL: test_heap_and_unrelated_union_still_refuse_publication (tests.test_native_scalar_joins.NativeScalarJoins.test_heap_and_unrelated_union_still_refuse_publication) (left='PUSH_U8 1', right='PUSH_I64 1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_native_scalar_joins.py", line 134, in test_heap_and_unrelated_union_still_refuse_publication
+    self.assertNotEqual(result.returncode,0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+----------------------------------------------------------------------
+Ran 8 tests in 4.243s
+
+FAILED (failures=1)

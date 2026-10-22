@@ -1,6 +1,7 @@
 """I qualify actual C File compiler publication and invocation boundaries."""
 import os
 import json
+import re
 from pathlib import Path
 import subprocess
 import tempfile
@@ -43,7 +44,12 @@ class ServiceDrivers(unittest.TestCase):
                 'argv':list(map(str,args)), 'status':run.returncode, 'expected':expected,
                 'stdout':run.stdout, 'stderr':run.stderr},indent=2)+'\n')
         self.assertEqual(run.returncode,expected,run.stdout+run.stderr)
-        self.assertEqual(list(self.work.glob('.nano-*')),[],run.stdout+run.stderr)
+        # I retain compiler-generated coverage metadata, but no staging payloads.
+        leftovers = [path for path in self.work.glob('.nano-*')
+                     if not (re.fullmatch(r'\.nano-publish\.[A-Za-z0-9]+-program\.gc(?:no|da)', path.name)
+                             and not path.is_symlink() and path.is_file()
+                             and not (path.stat().st_mode & 0o111))]
+        self.assertEqual(leftovers,[],run.stdout+run.stderr)
         return run
 
     def test_generated_shadows_byte_parity_and_native_runtime_grant(self):

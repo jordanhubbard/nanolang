@@ -4805,6 +4805,7 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
     match_node->as.match_expr.union_type_name = NULL;  /* Will be filled during typechecking */
     match_node->as.match_expr.checked_scrutinee_type = TYPE_UNKNOWN;
     match_node->as.match_expr.scrutinee_type_checked = false;
+    match_node->as.match_expr.checked_coverage = 0;
 
     return match_node;
 }

@@ -1,0 +1,7 @@
+I checked build evidence: phase=tool-spawn-ms expected=1 observed=0 accepted=1
+I checked build evidence: phase=tool-first-output-ms expected=1 observed=23 accepted=1
+I checked build evidence: phase=tool-eof-ms expected=1 observed=26 accepted=1
+I checked build evidence: phase=tool-reaped-ms expected=1 observed=53 accepted=1
+I checked build evidence: phase=tool-query-ms expected=30000 observed=53 accepted=1
+I could not retain external-assembler inputs for answer_native; I will not compile live sources after capture failure
+I checked build evidence: phase=build-result expected=1 observed=0 accepted=0

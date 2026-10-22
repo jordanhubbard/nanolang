@@ -1,0 +1,5 @@
+resource struct Box {value:int, flag:bool}
+fn pick(owner:Box, yes:bool)->int {let mut out:int=0 if yes {set out 1} else {set out 2} let Box{value,flag}=owner return (+ value out)}
+shadow pick {assert true}
+fn main()->int {return (+ (pick Box{value:7,flag:true} true) (pick Box{value:7,flag:false} false))}
+shadow main {assert true}

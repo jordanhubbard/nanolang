@@ -1,0 +1,18 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-zp_fqa9m
+test_shadow_local_budget_has_actual_boundary (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_shadow_local_budget_has_actual_boundary) ... ok
+test_single_exclusive_output_is_byte_identical (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_single_exclusive_output_is_byte_identical) ... ok
+test_actual_computed_witness_and_transformed_assert_refuse (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_actual_computed_witness_and_transformed_assert_refuse) ... FAIL
+
+======================================================================
+FAIL: test_actual_computed_witness_and_transformed_assert_refuse (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_actual_computed_witness_and_transformed_assert_refuse)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_multi_reference_reconstruction.py", line 187, in test_actual_computed_witness_and_transformed_assert_refuse
+    self.assertIn('witness',result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'witness' not found in 'I require actual first-call literal owner snapshots\nI did not publish reconstructed source\n'
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.226s
+
+FAILED (failures=1)

@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/Users/jkh/.local/bin/python3",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_record_map_observation.RecordMapObservation.test_original_switch"
+  ],
+  "exit": 0,
+  "seconds": 7.922063082980458
+}

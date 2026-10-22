@@ -1,0 +1,2 @@
+TRACE JOIN final=0 discovery=1 set=0 planned=3 incoming=8003 kind=8 prior=8003 prior_kind=8
+I cannot translate '/private/tmp/nanolang-linux-native-repro/lookup.nvm': I require proved finite payload provenance at a boxed join (function 48, target 649, slot 1)

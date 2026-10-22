@@ -1,0 +1,11 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5yvi9260
+test_defensive_split_region_and_reference_slot_refuse (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_defensive_split_region_and_reference_slot_refuse) ... ok
+test_original_verified_inverted_exit (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_original_verified_inverted_exit) ... ok
+test_pretest_helper_assertion_remains_runtime_failure (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_pretest_helper_assertion_remains_runtime_failure) ... ok
+test_second_call_and_missing_top_level_witness_refuse_atomically (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_second_call_and_missing_top_level_witness_refuse_atomically) ... ok
+test_zero_one_multiple_iterations_retain_last_false_update (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_zero_one_multiple_iterations_retain_last_false_update) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 54.623s
+
+OK

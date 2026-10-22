@@ -1,0 +1,42 @@
+
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-d9tpp1_p/runtime:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000100028b48 <_main>:
+100028b48: a9ba6ffc    	stp	x28, x27, [sp, #-0x60]!
+100028b4c: a90167fa    	stp	x26, x25, [sp, #0x10]
+100028b50: a9025ff8    	stp	x24, x23, [sp, #0x20]
+100028b54: a90357f6    	stp	x22, x21, [sp, #0x30]
+100028b58: a9044ff4    	stp	x20, x19, [sp, #0x40]
+100028b5c: a9057bfd    	stp	x29, x30, [sp, #0x50]
+100028b60: 910143fd    	add	x29, sp, #0x50
+100028b64: d159c7e9    	sub	x9, sp, #0x671, lsl #12 ; =0x671000
+100028b68: d1058129    	sub	x9, x9, #0x160
+100028b6c: 927be93f    	and	sp, x9, #0xffffffffffffffe0
+100028b70: f90027e1    	str	x1, [sp, #0x48]
+100028b74: b90047e0    	str	w0, [sp, #0x44]
+100028b78: b00019e8    	adrp	x8, 0x100365000 <_builtin_function_names+0x5f8>
+100028b7c: f9409908    	ldr	x8, [x8, #0x130]
+100028b80: f9400108    	ldr	x8, [x8]
+100028b84: 9159c7e9    	add	x9, sp, #0x671, lsl #12 ; =0x671000
+100028b88: f900ad28    	str	x8, [x9, #0x158]
+100028b8c: b00019e8    	adrp	x8, 0x100365000 <_builtin_function_names+0x5f8>
+100028b90: f9444108    	ldr	x8, [x8, #0x880]
+100028b94: f9400117    	ldr	x23, [x8]
+100028b98: 52915668    	mov	w8, #0x8ab3             ; =35507
+100028b9c: 72a836a8    	movk	w8, #0x41b5, lsl #16
+100028ba0: 90001609    	adrp	x9, 0x1002e8000 <_write+0x1002e8000>
+100028ba4: 9119e929    	add	x9, x9, #0x67a
+100028ba8: a90c27e8    	stp	x8, x9, [sp, #0xc0]
+100028bac: 90000008    	adrp	x8, 0x100028000 <_vm_call_function_impl+0x1b38>
+100028bb0: 912d2108    	add	x8, x8, #0xb48
+100028bb4: f9006be8    	str	x8, [sp, #0xd0]
+100028bb8: 910303e8    	add	x8, sp, #0xc0
+100028bbc: 8b480efa    	add	x26, x23, x8, lsr #3
+100028bc0: b205d3e8    	mov	x8, #-0x707070707070708 ; =-506381209866536712
+100028bc4: f29e3e28    	movk	x8, #0xf1f1
+100028bc8: f2be3e28    	movk	x8, #0xf1f1, lsl #16
+100028bcc: b205d3e9    	mov	x9, #-0x707070707070708 ; =-506381209866536712
+100028bd0: a9002748    	stp	x8, x9, [x26]
+100028bd4: a9012749    	stp	x9, x9, [x26, #0x10]

@@ -1,0 +1,190 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-fsyntax-only",
+      "src/nanoisa/managed_array_shapes.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-fsyntax-only",
+      "tests/nanoisa/test_record_map_preparation.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-DVM_RM_WHITEBOX",
+      "-fsyntax-only",
+      "tests/nanoisa/test_record_map_preparation.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-fsyntax-only",
+      "src/nanoisa/managed_array_shapes.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-fsyntax-only",
+      "tests/nanoisa/test_record_map_preparation.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-DVM_RM_WHITEBOX",
+      "-fsyntax-only",
+      "tests/nanoisa/test_record_map_preparation.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,488 @@
+[
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-unused-function",
+      "-Wno-unused-variable",
+      "-Wno-unused-parameter",
+      "-fsanitize=address,undefined",
+      "-O0",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.reconstructed.c",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.O0"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.O0"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABCABCABC",
+    "actual_stdout": "ABCABCABC"
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-unused-function",
+      "-Wno-unused-variable",
+      "-Wno-unused-parameter",
+      "-fsanitize=address,undefined",
+      "-O2",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.reconstructed.c",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.O2"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.O2"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABCABCABC",
+    "actual_stdout": "ABCABCABC"
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.reconstructed.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nano_virt.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nano_virt.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nano_virt.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABCABCABC",
+    "actual_stdout": "ABCABCABC"
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.reconstructed.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nanoc_stage1.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nanoc_stage1.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nanoc_stage1.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABCABCABC",
+    "actual_stdout": "ABCABCABC"
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.reconstructed.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nanoc_stage2.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nanoc_stage2.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nanoc_stage2.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABCABCABC",
+    "actual_stdout": "ABCABCABC"
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-unused-function",
+      "-Wno-unused-variable",
+      "-Wno-unused-parameter",
+      "-fsanitize=address,undefined",
+      "-O0",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.reconstructed.c",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.O0"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.O0"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABAB",
+    "actual_stdout": "ABAB"
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-unused-function",
+      "-Wno-unused-variable",
+      "-Wno-unused-parameter",
+      "-fsanitize=address,undefined",
+      "-O2",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.reconstructed.c",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.O2"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.O2"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABAB",
+    "actual_stdout": "ABAB"
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.reconstructed.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nano_virt.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nano_virt.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nano_virt.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABAB",
+    "actual_stdout": "ABAB"
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.reconstructed.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nanoc_stage1.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nanoc_stage1.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nanoc_stage1.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABAB",
+    "actual_stdout": "ABAB"
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.reconstructed.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nanoc_stage2.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nanoc_stage2.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nanoc_stage2.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABAB",
+    "actual_stdout": "ABAB"
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-unused-function",
+      "-Wno-unused-variable",
+      "-Wno-unused-parameter",
+      "-fsanitize=address,undefined",
+      "-O0",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.reconstructed.c",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.O0"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.O0"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABAB",
+    "actual_stdout": "ABAB"
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-unused-function",
+      "-Wno-unused-variable",
+      "-Wno-unused-parameter",
+      "-fsanitize=address,undefined",
+      "-O2",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.reconstructed.c",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.O2"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.O2"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABAB",
+    "actual_stdout": "ABAB"
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.reconstructed.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nano_virt.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nano_virt.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nano_virt.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABAB",
+    "actual_stdout": "ABAB"
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.reconstructed.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nanoc_stage1.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nanoc_stage1.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nanoc_stage1.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABAB",
+    "actual_stdout": "ABAB"
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.reconstructed.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nanoc_stage2.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nanoc_stage2.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": null,
+    "actual_stdout": ""
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nanoc_stage2.nvm"
+    ],
+    "exit": 0,
+    "expected_stdout": "ABAB",
+    "actual_stdout": "ABAB"
+  }
+]

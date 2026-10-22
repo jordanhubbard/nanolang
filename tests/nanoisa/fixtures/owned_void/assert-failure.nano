@@ -1,0 +1,15 @@
+resource struct Box { value: int }
+fn consume(owner: Box) -> void {
+ assert (== owner.value 42)
+ let later: int = (/ 1 (- 43 owner.value))
+ let Box { value } = owner
+ assert (== later 1)
+ return
+}
+shadow consume { (consume Box { value: 42 }) }
+fn main() -> int {
+ (consume Box { value: 43 })
+ return 0
+}
+# I intentionally execute this negative only in the runtime failure checks.
+shadow main { assert true }

@@ -1,0 +1,2 @@
+sizes analysis=39840 value=16 wrapper=16 context=1096 owner=72 row=40 retained=282 peak=60685 reserved=16943517 work=1183046 prefixes=37
+PASS 393 union proof allocation checks

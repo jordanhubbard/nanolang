@@ -1,0 +1,20 @@
+I retain producer build evidence at <temporary-path>
+test_bound_imports (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_bound_imports) ... ok
+test_existing_array_result_without_array_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_existing_array_result_without_array_fields) ... ok
+test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) ... ok
+test_foreign_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_foreign_module_omits_optional_envelope) ... ok
+test_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_forward_record_dag) ... ok
+test_large_closed_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_large_closed_module_omits_optional_envelope) ... ok
+test_nested_arrays_remain_unpublished (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_arrays_remain_unpublished) ... ok
+test_query_status_and_host_interfaces (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_query_status_and_host_interfaces) ... ok
+test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) ... ok
+test_distinct_equal_shape_and_forward_ordinals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_distinct_equal_shape_and_forward_ordinals) ... ok
+test_imported_field_identity_preserves_distinct_same_spelling (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_imported_field_identity_preserves_distinct_same_spelling) ... ok
+test_nested_array_schema_retains_existing_unknown_boundary (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_nested_array_schema_retains_existing_unknown_boundary) ... ok
+test_repeated_direct_and_transitive_import_retains_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_repeated_direct_and_transitive_import_retains_authority) ... ok
+test_same_spelling_in_distinct_imports_retains_distinct_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_same_spelling_in_distinct_imports_retains_distinct_authority) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 9.668s
+
+OK

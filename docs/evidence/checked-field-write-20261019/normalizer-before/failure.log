@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "<stdin>", line 13, in <module>
+  File "retained_old_normalizer", line 248, in affine_comparison
+  File "retained_old_normalizer", line 61, in without_field_reads
+  File "retained_old_normalizer", line 129, in remove_trailing_advisory
+AssertionError: I require an exclusively advisory trailing pool suffix

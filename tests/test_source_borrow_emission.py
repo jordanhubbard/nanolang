@@ -1,5 +1,7 @@
 """I admit a closed source-reference profile only with executable ownership."""
 from pathlib import Path
+import ast
+import struct
 import os
 import subprocess
 import tempfile
@@ -26,6 +28,299 @@ class NativeTestCompilerSelection(unittest.TestCase):
             self.assertEqual(os.environ['CC'], 'driver-cc')
         with mock.patch.dict(os.environ, {}, clear=True):
             self.assertEqual(native_test_compiler(), 'cc')
+
+
+def without_field_writes(text, expected):
+    """I remove only validated, exclusively owned new write-advisory suffixes."""
+    lines = text.splitlines()
+    string_lines = [i for i, line in enumerate(lines) if line.startswith('.string ')]
+    strings = [ast.literal_eval(lines[i][8:]).encode('latin1') for i in string_lines]
+    entries = [line for line in lines if line.startswith('.metadata ')]
+    uses = [line for line in entries if strings[int(line.split()[1])] == b'nano.field-write.v1']
+    if not expected:
+        assert not uses, 'I require raw field-write facts to remain absent'
+    if not uses:
+        return text
+    functions = [line.split()[1] for line in lines if line.startswith('.function ')]
+    owned, sites = set(), set()
+    for entry in uses:
+        key, value_index = map(int, entry.split()[1:])
+        owned.update((key, value_index))
+        value = strings[value_index]
+        assert len(value) >= 28
+        fn, row, column, category, coordinates, reserved, np, nr, nj = struct.unpack('<3IBBH3I', value[:28])
+        assert fn < len(functions) and row and column
+        assert category == 1 and coordinates in (1, 2) and not reserved
+        assert np and nr and nj and len(value) == 28 + np + nr + nj and b'\0' not in value[28:]
+        assert value[28+np+nr:28+np+nr+1] == b'.'
+        for part in (value[28:28+np], value[28+np:28+np+nr], value[28+np+nr:]):
+            part.decode('utf-8')
+        site = (fn, row, column, coordinates, value[28:28+np])
+        assert site not in sites
+        sites.add(site)
+    return remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions,
+                                    (b'nano.local.v1', b'nano.affine.v1', b'nano.affine-use.v1', b'nano.borrow-place.v1', b'nano.field-read.v1'))
+
+
+def without_field_reads(text, expected):
+    """I remove only validated, exclusively owned new read-advisory suffixes."""
+    lines = text.splitlines()
+    string_lines = [i for i, line in enumerate(lines) if line.startswith('.string ')]
+    strings = [ast.literal_eval(lines[i][8:]).encode('latin1') for i in string_lines]
+    entries = [line for line in lines if line.startswith('.metadata ')]
+    uses = [line for line in entries if strings[int(line.split()[1])] == b'nano.field-read.v1']
+    if not expected:
+        assert not uses, 'I require raw field-read facts to remain absent'
+    if not uses:
+        return text
+    functions = [line.split()[1] for line in lines if line.startswith('.function ')]
+    owned, sites = set(), set()
+    for entry in uses:
+        key, value_index = map(int, entry.split()[1:])
+        owned.update((key, value_index))
+        value = strings[value_index]
+        assert len(value) >= 28
+        fn, row, column, category, coordinates, reserved, np, nr, nj = struct.unpack('<3IBBH3I', value[:28])
+        assert fn < len(functions) and row and column
+        assert category in (1, 2, 3) and coordinates in (1, 2) and not reserved
+        assert np and nr and nj and len(value) == 28 + np + nr + nj and b'\0' not in value[28:]
+        assert value[28+np+nr:28+np+nr+1] == b'.'
+        for part in (value[28:28+np], value[28+np:28+np+nr], value[28+np+nr:]):
+            part.decode('utf-8')
+        site = (fn, row, column, coordinates, value[28:28+np])
+        assert site not in sites
+        sites.add(site)
+    return remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions,
+                                    (b'nano.local.v1', b'nano.affine.v1', b'nano.affine-use.v1', b'nano.borrow-place.v1'))
+
+
+def without_borrow_places(text, expected):
+    """I validate the new independent facts before the old affine comparison."""
+    lines = text.splitlines()
+    string_lines = [i for i, line in enumerate(lines) if line.startswith('.string ')]
+    strings = [ast.literal_eval(lines[i][8:]).encode('latin1') for i in string_lines]
+    entries = [line for line in lines if line.startswith('.metadata ')]
+    uses = [line for line in entries if strings[int(line.split()[1])] == b'nano.borrow-place.v1']
+    if not expected:
+        assert not uses, 'I require raw borrow facts to remain absent'
+    if not uses:
+        return text
+    functions = [line.split()[1] for line in lines if line.startswith('.function ')]
+    owned, sites = set(), set()
+    for entry in uses:
+        key, value_index = map(int, entry.split()[1:])
+        owned.update((key, value_index))
+        value = strings[value_index]
+        assert len(value) >= 40
+        fn, cl, cc, al, ac, ordinal, mode, coordinates, reserved, np, nr, nj = struct.unpack('<6IBBH3I', value[:40])
+        assert fn < len(functions) and cl and cc and al and ac
+        assert mode in (1, 2) and coordinates in (1, 2) and not reserved
+        assert np and nr and len(value) == 40 + np + nr + nj and b'\0' not in value[40:]
+        for part in (value[40:40+np], value[40+np:40+np+nr], value[40+np+nr:]):
+            part.decode('utf-8')
+        site = (fn, cl, cc, al, ac, ordinal, coordinates, value[40:40+np])
+        assert site not in sites
+        sites.add(site)
+    return remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions,
+                                    (b'nano.local.v1', b'nano.affine.v1', b'nano.affine-use.v1'))
+
+
+def without_affine_uses(text, expected):
+    """I remove only unshared trailing use facts in my numeric v1 fixtures."""
+    lines = text.splitlines()
+    string_lines = [i for i, line in enumerate(lines) if line.startswith('.string ')]
+    strings = [ast.literal_eval(lines[i][8:]).encode('latin1') for i in string_lines]
+    entries = [line for line in lines if line.startswith('.metadata ')]
+    uses = [line for line in entries if strings[int(line.split()[1])] == b'nano.affine-use.v1']
+    if not expected:
+        assert not uses, 'I require raw unchecked uses to remain unknown'
+    if not uses:
+        return text
+    functions = [line.split()[1] for line in lines if line.startswith('.function ')]
+    owned, sites = set(), set()
+    for entry in uses:
+        key, value_index = map(int, entry.split()[1:])
+        owned.update((key, value_index))
+        value = strings[value_index]
+        assert len(value) >= 24
+        fn, row, column, state, coordinates, reserved, path_size, binding_size = struct.unpack('<IIIBBHII', value[:24])
+        assert fn < len(functions) and row and column
+        assert state in (1, 2) and coordinates in (1, 2) and not reserved
+        assert binding_size and len(value) == 24 + path_size + binding_size
+        assert b'\0' not in value[24:]
+        site = (fn, row, column, coordinates, value[24:24 + path_size])
+        assert site not in sites
+        sites.add(site)
+    return remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions,
+                                    (b'nano.local.v1', b'nano.affine.v1'))
+
+
+def remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions, allowed_keys):
+    """I remove only a proved-exclusive numeric-fixture pool suffix."""
+    first = min(owned)
+    assert owned == set(range(first, len(strings))), 'I require an exclusively advisory trailing pool suffix'
+    assert not any(name.encode() in [strings[i] for i in owned] for name in functions)
+    for entry in entries:
+        if entry in uses:
+            continue
+        key, value = map(int, entry.split()[1:])
+        assert key < first and value < first, 'I preserve shared metadata references'
+        assert strings[key] in allowed_keys, 'I refuse unfamiliar metadata reference schemas'
+    allowed = {'.string', '.metadata', '.types', '.layouts', '.ownership', '.entry', '.function', '.parameters', '.end'}
+    assert all(line.split()[0] in allowed for line in lines if line.startswith('.'))
+    assert not any('PUSH_STR' in line or 'CALL_EXTERN' in line for line in lines)
+    # I inspect actual layout name references, not incidental integers in CODE.
+    layouts = b''.join(bytes.fromhex(ast.literal_eval(line[len('.layouts '):]))
+                       for line in lines if line.startswith('.layouts '))
+    assert len(layouts) >= 4
+    count, = struct.unpack_from('<I', layouts)
+    offset = 4
+    for _ in range(count):
+        kind, reserved, fields, name = struct.unpack_from('<BBHI', layouts, offset)
+        assert not reserved and kind == 0 and (name == 0xffffffff or name < first)
+        offset += 8
+        for _ in range(fields):
+            tag, reserved, nested, name = struct.unpack_from('<B3sII', layouts, offset)
+            assert reserved == b'\0\0\0' and tag in (1, 4)
+            assert nested == 0xffffffff and (name == 0xffffffff or name < first)
+            offset += 12
+    assert offset == len(layouts)
+    ownership = b''.join(bytes.fromhex(ast.literal_eval(line[len('.ownership '):]))
+                         for line in lines if line.startswith('.ownership '))
+    assert len(ownership) >= 4 and struct.unpack_from('<I', ownership)[0] == 1
+    removed_lines = {string_lines[i] for i in owned}
+    return '\n'.join(line for i, line in enumerate(lines) if i not in removed_lines and line not in uses) + '\n'
+
+
+class AffineComparisonIsolation(unittest.TestCase):
+    @staticmethod
+    def fixture(checked):
+        def quoted(value):
+            return '.string "' + ''.join('\\x%02x' % byte for byte in value) + '"'
+        strings = [b'R', b'value', b'main', b'nano.affine.v1', struct.pack('<IB3x', 0, checked)]
+        metadata = ['.metadata 3 4']
+        if checked:
+            strings += [b'nano.affine-use.v1', struct.pack('<IIIBBHII', 0, 2, 3, 1, 1, 0, 1, 5) + b'aowner']
+            metadata += ['.metadata 5 6']
+        layouts = struct.pack('<IBBHI', 1, 0, 0, 1, 0) + struct.pack('<B3sII', 1, b'\0\0\0', 0xffffffff, 1)
+        return '\n'.join([*(quoted(value) for value in strings), *metadata,
+            '.types 1 0 0', '.layouts "' + layouts.hex() + '"', '.ownership "01000000"',
+            '.entry 0', '.function main 0 0 0 int 1', '  PUSH_I64 7', '  RET', '.end'])
+
+    def test_only_advisory_difference_is_normalized(self):
+        raw, checked = self.fixture(0), self.fixture(1)
+        self.assertEqual(affine_comparison(raw, 0), affine_comparison(checked, 1))
+        for original, changed in [('PUSH_I64 7', 'PUSH_I64 8'),
+                                  ('.ownership "01000000"', '.ownership "0100000001000000"')]:
+            self.assertNotEqual(affine_comparison(raw, 0), affine_comparison(checked.replace(original, changed), 1))
+
+    def test_shared_or_untrusted_facts_refuse_normalization(self):
+        checked = self.fixture(1)
+        variants = [checked + '\n.metadata 5 6', checked + '\n.metadata 3 6',
+                    checked + '\n.string "unrelated"', checked + '\n.module_ref "module"',
+                    checked.replace('main 0', 'nano.affine-use.v1 0'),
+                    checked.replace('PUSH_I64 7', 'PUSH_STR 6'),
+                    checked.replace('.ownership "01000000"', '.ownership "03000000"')]
+        # I preserve the layout-name reference even when it points at advisory bytes.
+        old = struct.pack('<IBBHI', 1, 0, 0, 1, 0).hex()
+        new = struct.pack('<IBBHI', 1, 0, 0, 1, 6).hex()
+        variants.append(checked.replace(old, new))
+        for text in variants:
+            with self.subTest(text=text), self.assertRaises(AssertionError):
+                affine_comparison(text, 1)
+        with self.assertRaises(AssertionError):
+            affine_comparison(checked, 0)
+
+    def test_borrow_suffix_preserves_code_authority_and_references(self):
+        checked = self.fixture(1)
+        payload = struct.pack('<6IBBH3I', 0, 2, 3, 2, 8, 0, 1, 1, 0, 1, 5, 0) + b'aowner'
+        suffix = '.string "nano.borrow-place.v1"\n.string "' + ''.join('\\x%02x' % b for b in payload) + '"\n.metadata 7 8'
+        enriched = checked + '\n' + suffix
+        self.assertEqual(affine_comparison(enriched, 1), affine_comparison(checked, 1))
+        for old, new in [('PUSH_I64 7', 'PUSH_I64 8'), ('.ownership "01000000"', '.ownership "0100000001000000"')]:
+            self.assertNotEqual(affine_comparison(enriched.replace(old, new), 1), affine_comparison(checked, 1))
+        old = struct.pack('<IBBHI', 1, 0, 0, 1, 0).hex()
+        new = struct.pack('<IBBHI', 1, 0, 0, 1, 8).hex()
+        variants = [enriched+'\n.metadata 7 8', enriched+'\n.metadata 3 8',
+                    enriched+'\n.string "unrelated"', enriched+'\n.module_ref "module"',
+                    enriched.replace('PUSH_I64 7', 'PUSH_STR 8'), enriched.replace(old, new),
+                    enriched.replace('main 0', 'nano.borrow-place.v1 0')]
+        for value in variants:
+            with self.subTest(value=value), self.assertRaises(AssertionError):
+                affine_comparison(value, 1)
+        with self.assertRaises(AssertionError):
+            affine_comparison(enriched, 0)
+
+    def test_read_suffix_preserves_code_authority_and_references(self):
+        checked = self.fixture(1)
+        payload = struct.pack('<3IBBH3I', 0, 2, 3, 2, 1, 0, 1, 5, 5) + b'aowner.leaf'
+        suffix = '.string "nano.field-read.v1"\n.string "' + ''.join('\\x%02x' % b for b in payload) + '"\n.metadata 7 8'
+        enriched = checked + '\n' + suffix
+        self.assertEqual(affine_comparison(enriched, 1), affine_comparison(checked, 1))
+        for old, new in [('PUSH_I64 7', 'PUSH_I64 8'), ('.ownership "01000000"', '.ownership "0100000001000000"')]:
+            self.assertNotEqual(affine_comparison(enriched.replace(old, new), 1), affine_comparison(checked, 1))
+        old = struct.pack('<IBBHI', 1, 0, 0, 1, 0).hex()
+        new = struct.pack('<IBBHI', 1, 0, 0, 1, 8).hex()
+        variants = [enriched+'\n.metadata 7 8', enriched+'\n.metadata 3 8',
+                    enriched+'\n.string "unrelated"', enriched+'\n.module_ref "module"',
+                    enriched.replace('PUSH_I64 7', 'PUSH_STR 8'), enriched.replace(old, new),
+                    enriched.replace('main 0', 'nano.field-read.v1 0')]
+        for value in variants:
+            with self.subTest(value=value), self.assertRaises(AssertionError):
+                affine_comparison(value, 1)
+        with self.assertRaises(AssertionError):
+            affine_comparison(enriched, 0)
+
+    def test_write_suffix_preserves_code_authority_and_references(self):
+        checked = self.fixture(1)
+        payload = struct.pack('<3IBBH3I', 0, 2, 3, 1, 1, 0, 1, 5, 5) + b'aowner.leaf'
+        suffix = '.string "nano.field-write.v1"\n.string "' + ''.join('\\x%02x' % b for b in payload) + '"\n.metadata 7 8'
+        enriched = checked + '\n' + suffix
+        self.assertEqual(affine_comparison(enriched, 1), affine_comparison(checked, 1))
+        for old, new in [('PUSH_I64 7', 'PUSH_I64 8'), ('.ownership "01000000"', '.ownership "0100000001000000"')]:
+            self.assertNotEqual(affine_comparison(enriched.replace(old, new), 1), affine_comparison(checked, 1))
+        old = struct.pack('<IBBHI', 1, 0, 0, 1, 0).hex()
+        new = struct.pack('<IBBHI', 1, 0, 0, 1, 8).hex()
+        variants = [enriched+'\n.metadata 7 8', enriched+'\n.metadata 3 8',
+                    enriched+'\n.string "unrelated"', enriched+'\n.module_ref "module"',
+                    enriched.replace('PUSH_I64 7', 'PUSH_STR 8'), enriched.replace(old, new),
+                    enriched.replace('main 0', 'nano.field-write.v1 0')]
+        for value in variants:
+            with self.subTest(value=value), self.assertRaises(AssertionError):
+                affine_comparison(value, 1)
+        with self.assertRaises(AssertionError):
+            affine_comparison(enriched, 0)
+
+
+def affine_comparison(text, expected):
+    """I normalize advisory facts only; borrowed Nano roots may remain UNKNOWN.
+
+    I compare executable/authority structure, not equal per-use fact coverage.
+    """
+    lines = without_affine_uses(without_borrow_places(without_field_reads(without_field_writes(text, expected), expected), expected), expected).splitlines()
+    string_lines = [i for i, line in enumerate(lines) if line.startswith('.string ')]
+    strings = [ast.literal_eval(lines[i][8:]).encode('latin1') for i in string_lines]
+    entries = [line for line in lines if line.startswith('.metadata ')]
+    affine = [line for line in entries if strings[int(line.split()[1])] == b'nano.affine.v1']
+    assert affine, 'I require the explicit producer completion facts'
+    # These existing fixtures have no executable string or host imports. I do
+    # not generalize this comparison to a shared executable/advisory pool.
+    assert not any('PUSH_STR' in line or 'CALL_EXTERN' in line for line in lines)
+    seen = set()
+    for entry in affine:
+        value_index = int(entry.split()[2])
+        value = strings[value_index]
+        assert len(value) == 8 and value[4] == expected and value[5:] == b'\0\0\0'
+        assert not any(value_index in map(int, other.split()[1:]) for other in entries if other not in affine)
+        assert value_index not in [int(other.split()[1]) for other in affine]
+        function, state = struct.unpack('<IB3x', value)
+        assert function not in seen
+        seen.add(function)
+        assert function < len([line for line in lines if line.startswith('.function ')])
+        normalized = struct.pack('<IB3x', function, 0)
+        lines[string_lines[value_index]] = '.string "' + ''.join('\\x%02x' % byte for byte in normalized) + '"'
+    assert len(seen) == len([line for line in lines if line.startswith('.function ')])
+    return '\n'.join(lines)
 
 
 class SourceBorrowEmission(unittest.TestCase):
@@ -96,7 +391,7 @@ class SourceBorrowEmission(unittest.TestCase):
                     self.command(emitter, source, '-o', assembly)
                     self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                     actual = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
-                    self.assertEqual(actual, baseline)
+                    self.assertEqual(affine_comparison(actual, 0), affine_comparison(baseline, 1))
                     self.execute_pair(module)
             for compiler in ('nanoc_stage1', 'nanoc_stage2'):
                 module = self.work / (compiler + '.nvm')

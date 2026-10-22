@@ -1,0 +1,159 @@
+{
+  "seed_sha256": "070ae40404ad429d1bbbb8973532f8bf6361033863d2b3ab5a828911bdd8ca86",
+  "source_sha256": "9b7bbbc4d99f267994131b9465481bc570cbe5f5dd95cfe532a49e3d14d180d4",
+  "binaries": {
+    "A": {
+      "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_baseline",
+      "sha256": "605ff1d103230423924170045a7842cf420808c0e96db5073851ba070e7df808"
+    },
+    "B": {
+      "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_view",
+      "sha256": "0822966876650fca2e249f8a345b47118d35f3493ac17d4a9e8b3f0621a139f0"
+    }
+  },
+  "timeout_seconds": 180,
+  "runs": [
+    {
+      "variant": "A",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_baseline",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/nanoc_seed.nvm",
+        "--",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/parser_refactor.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/program.nvm"
+      ],
+      "returncode": 0,
+      "timeout": false,
+      "wall_seconds": 1.4390895419637673,
+      "cpu_seconds": 0.847279,
+      "module_sha256": "0d072588b57c90c5654d52ef72cbacbfa8ac4ebbda76c4af92b46797929ea2a6"
+    },
+    {
+      "variant": "B",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_view",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/nanoc_seed.nvm",
+        "--",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/parser_refactor.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/program.nvm"
+      ],
+      "returncode": 0,
+      "timeout": false,
+      "wall_seconds": 1.0394928330206312,
+      "cpu_seconds": 0.846502,
+      "module_sha256": "0d072588b57c90c5654d52ef72cbacbfa8ac4ebbda76c4af92b46797929ea2a6"
+    },
+    {
+      "variant": "B",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_view",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/nanoc_seed.nvm",
+        "--",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/parser_refactor.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/program.nvm"
+      ],
+      "returncode": 0,
+      "timeout": false,
+      "wall_seconds": 0.8513028339948505,
+      "cpu_seconds": 0.8331420000000002,
+      "module_sha256": "0d072588b57c90c5654d52ef72cbacbfa8ac4ebbda76c4af92b46797929ea2a6"
+    },
+    {
+      "variant": "A",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_baseline",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/nanoc_seed.nvm",
+        "--",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/parser_refactor.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/program.nvm"
+      ],
+      "returncode": 0,
+      "timeout": false,
+      "wall_seconds": 0.839356082957238,
+      "cpu_seconds": 0.8227430000000002,
+      "module_sha256": "0d072588b57c90c5654d52ef72cbacbfa8ac4ebbda76c4af92b46797929ea2a6"
+    },
+    {
+      "variant": "A",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_baseline",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/nanoc_seed.nvm",
+        "--",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/parser_refactor.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/program.nvm"
+      ],
+      "returncode": 0,
+      "timeout": false,
+      "wall_seconds": 0.9251942500122823,
+      "cpu_seconds": 0.905343,
+      "module_sha256": "0d072588b57c90c5654d52ef72cbacbfa8ac4ebbda76c4af92b46797929ea2a6"
+    },
+    {
+      "variant": "B",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_view",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/nanoc_seed.nvm",
+        "--",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/parser_refactor.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab/program.nvm"
+      ],
+      "returncode": 0,
+      "timeout": false,
+      "wall_seconds": 0.8463595409994014,
+      "cpu_seconds": 0.8264400000000003,
+      "module_sha256": "0d072588b57c90c5654d52ef72cbacbfa8ac4ebbda76c4af92b46797929ea2a6"
+    }
+  ],
+  "source_origin": "tests/integration/test_parser_refactor.nano",
+  "outputs": {
+    "2-B-verify.stdout": "",
+    "1-B-execute.stderr": "",
+    "2-B.stderr": "positive\n",
+    "0-A-execute.stderr": "",
+    "0-A.stderr": "positive\n",
+    "5-B.stdout": "",
+    "4-A-verify.stderr": "",
+    "3-A-verify.stderr": "",
+    "4-A-execute.stderr": "",
+    "5-B-execute.stderr": "",
+    "5-B-verify.stdout": "",
+    "4-A-execute.stdout": "positive\n",
+    "5-B-execute.stdout": "positive\n",
+    "5-B-verify.stderr": "",
+    "3-A-verify.stdout": "",
+    "0-A.stdout": "",
+    "5-B.stderr": "positive\n",
+    "4-A-verify.stdout": "",
+    "2-B-verify.stderr": "",
+    "1-B-execute.stdout": "positive\n",
+    "0-A-execute.stdout": "positive\n",
+    "2-B.stdout": "",
+    "0-A-verify.stderr": "",
+    "3-A.stderr": "positive\n",
+    "3-A-execute.stdout": "positive\n",
+    "1-B-verify.stdout": "",
+    "2-B-execute.stdout": "positive\n",
+    "4-A.stdout": "",
+    "1-B.stderr": "positive\n",
+    "4-A.stderr": "positive\n",
+    "1-B.stdout": "",
+    "3-A.stdout": "",
+    "3-A-execute.stderr": "",
+    "2-B-execute.stderr": "",
+    "1-B-verify.stderr": "",
+    "0-A-verify.stdout": ""
+  },
+  "source": "# Test: Parser refactoring doesn't break compilation\n# This file exercises all parser features to ensure refactoring preserves functionality\n\nfn simple_function(x: int) -> int {\n    return x + 1\n}\n\nshadow simple_function {\n    assert (== (simple_function 5) 6)\n}\n\nfn main() -> int {\n    # Test: literals\n    let num = 42\n    let str = \"hello\"\n    let flag = true\n\n    # Test: binary ops\n    let sum = (+ 1 2)\n    let cmp = (< sum 10)\n\n    # Test: function calls\n    let result = (simple_function num)\n\n    # Test: if/else\n    if result > 0 {\n        (println \"positive\")\n    } else {\n        (println \"non-positive\")\n    }\n\n    # Test: while loop\n    let mut i = 0\n    while i < 3 {\n        set i (i + 1)\n    }\n\n    # Test: cond expression\n    let val = (cond\n        ((< i 0) -1)\n        ((> i 10) 1)\n        (else 0)\n    )\n\n    return 0\n}\n\nshadow main {\n    assert (== (main) 0)\n}\n\n"
+}

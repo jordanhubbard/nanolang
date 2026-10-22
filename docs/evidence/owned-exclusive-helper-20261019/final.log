@@ -1,0 +1,32 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-ptf9aw9g
+test_assertion_after_mutation_is_not_successful_cleanup (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_assertion_after_mutation_is_not_successful_cleanup) ... ok
+test_defensive_profile_refusals (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_defensive_profile_refusals) ... ok
+test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) ... ok
+test_existing_exclusive_fixture (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_existing_exclusive_fixture) ... ok
+test_generated_consistency_shadow_execution (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_generated_consistency_shadow_execution) ... ok
+test_generated_local_boundary_is_checked_before_publication (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_generated_local_boundary_is_checked_before_publication) ... FAIL
+test_inline_placement_and_unchanged_helper (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_inline_placement_and_unchanged_helper) ... ok
+test_original_verifier_rejects_malformed_references_atomically (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_original_verifier_rejects_malformed_references_atomically) ... ok
+test_overlapping_reference_holds_refuse_before_publication (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_overlapping_reference_holds_refuse_before_publication) ... ok
+test_shared_output_is_byte_identical (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_shared_output_is_byte_identical) ... ok
+test_two_function_budget_refusal_preserves_output (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_two_function_budget_refusal_preserves_output) ... ok
+
+======================================================================
+FAIL: test_generated_local_boundary_is_checked_before_publication (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_generated_local_boundary_is_checked_before_publication)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 270, in test_generated_local_boundary_is_checked_before_publication
+    module=self.module(compiler,text,'local-bound'+str(count))
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_exclusive_reconstruction.py", line 23, in module
+    self.command([compiler,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 0: I require I require explicit owned entry execution and a non-escaping scalar helper in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 11 tests in 51.162s
+
+FAILED (failures=1)

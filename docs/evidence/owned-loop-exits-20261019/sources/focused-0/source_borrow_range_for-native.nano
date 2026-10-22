@@ -1,0 +1,78 @@
+resource struct Counter { value: int, active: bool }
+fn bump(view: &mut Counter) -> int {
+ for turn in (range 0 3) {
+  if (== turn 0) { continue }
+  set view.value (+ view.value 1)
+  break
+ }
+ return view.value
+}
+shadow bump {
+ let mut owner: Counter = Counter { value: 0, active: true }
+ let index: int = 10
+ let mut total: int = 0
+ for index in (range 0 4) {
+  let transient: Counter = Counter { value: index, active: true }
+  let Counter { value, active } = transient
+  assert (== value index) assert active
+  if (== index 1) { continue }
+  if (== index 3) { break }
+  for inner in (range 0 2) {
+   if (== inner 0) { continue }
+   set total (+ total index)
+   break
+  }
+  assert (== (bump &mut owner) (+ 1 (/ index 2)))
+ }
+ assert (== total 2)
+ for index in (range (bump &mut owner) (+ (bump &mut owner) 2)) {
+  set total (+ total index)
+ }
+ assert (== total 14)
+ assert (== owner.value 4)
+ for index in (range index (+ index 2)) { set total (+ total index) }
+ assert (== total 35) assert (== index 10)
+ for empty in (range 0 -2) { assert false }
+ for empty in (range 3 1) { assert false }
+ let mut edges: int = 0
+ for edge in (range 9223372036854775806 9223372036854775807) { assert (== edge 9223372036854775806) set edges (+ edges 1) }
+ assert (== edges 1)
+ let Counter { value, active } = owner
+ assert (== value 4) assert active
+}
+fn main() -> int {
+ let mut owner: Counter = Counter { value: 0, active: true }
+ let index: int = 10
+ let mut total: int = 0
+ for index in (range 0 4) {
+  let transient: Counter = Counter { value: index, active: true }
+  let Counter { value, active } = transient
+  assert (== value index) assert active
+  if (== index 1) { continue }
+  if (== index 3) { break }
+  for inner in (range 0 2) {
+   if (== inner 0) { continue }
+   set total (+ total index)
+   break
+  }
+  assert (== (bump &mut owner) (+ 1 (/ index 2)))
+ }
+ assert (== total 2)
+ for index in (range (bump &mut owner) (+ (bump &mut owner) 2)) {
+  set total (+ total index)
+ }
+ assert (== total 14)
+ assert (== owner.value 4)
+ for index in (range index (+ index 2)) { set total (+ total index) }
+ assert (== total 35) assert (== index 10)
+ for empty in (range 0 -2) { assert false }
+ for empty in (range 3 1) { assert false }
+ let mut edges: int = 0
+ for edge in (range 9223372036854775806 9223372036854775807) { assert (== edge 9223372036854775806) set edges (+ edges 1) }
+ assert (== edges 1)
+ let Counter { value, active } = owner
+ assert (== value 4) assert active
+ for tail in (range 0 1) { return 0 }
+ return 0
+}
+shadow main { assert true }

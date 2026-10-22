@@ -1,0 +1,29 @@
+2026-10-19T08:46:08.8991938Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T08:46:08.8992342Z   CMD_TIMEOUT: 1800
+2026-10-19T08:46:49.7953071Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T08:46:49.7953371Z   CMD_TIMEOUT: 1800
+2026-10-19T08:46:49.8490741Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T08:46:49.8491005Z   CMD_TIMEOUT: 1800
+2026-10-19T08:47:49.7850423Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T08:47:49.7850620Z   CMD_TIMEOUT: 1800
+2026-10-19T08:55:55.5453046Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T08:55:55.5453240Z   CMD_TIMEOUT: 1800
+2026-10-19T08:55:59.0145608Z I run seed; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-71a63pt3/00-seed.log.
+2026-10-19T08:58:09.3254576Z I run seed-verify; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-71a63pt3/01-seed-verify.log.
+2026-10-19T08:58:18.4537377Z I run stage1; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-71a63pt3/02-stage1.log.
+2026-10-19T10:48:35.3465921Z I run stage1-verify; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-71a63pt3/03-stage1-verify.log.
+2026-10-19T10:48:43.1069559Z I run stage1-translate; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-71a63pt3/04-stage1-translate.log.
+2026-10-19T10:50:47.2645465Z I run stage1-native; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-71a63pt3/05-stage1-native.log.
+2026-10-19T10:56:21.9146234Z I run stage1-hello-compile; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-71a63pt3/06-stage1-hello-compile.log.
+2026-10-19T10:56:22.3816887Z I run stage1-hello-execute; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-71a63pt3/07-stage1-hello-execute.log.
+2026-10-19T10:56:23.4790265Z I run stage2; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-71a63pt3/08-stage2.log.
+2026-10-19T12:49:20.3853487Z I run stage2-verify; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-71a63pt3/09-stage2-verify.log.
+2026-10-19T12:49:28.1192954Z I run stage2-translate; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-71a63pt3/10-stage2-translate.log.
+2026-10-19T12:51:32.0077250Z I run stage2-native; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-71a63pt3/11-stage2-native.log.
+2026-10-19T12:56:08.0303082Z ##[error]The action 'Compile and verify both compiler generations with sanitizers' has timed out after 240 minutes.
+2026-10-19T12:56:08.0388980Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T12:56:08.0389171Z   CMD_TIMEOUT: 1800
+2026-10-19T12:56:09.4330778Z Artifact verifier-corpus-sanitizers.zip successfully finalized. Artifact ID 12186458961
+2026-10-19T12:56:09.4331940Z Artifact verifier-corpus-sanitizers has been successfully uploaded! Final size is 125280 bytes. Artifact ID is 12186458961
+2026-10-19T12:56:09.4507406Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T12:56:09.4507654Z   CMD_TIMEOUT: 1800

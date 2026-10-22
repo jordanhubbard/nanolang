@@ -1,0 +1,59 @@
+[
+  {
+    "producer": "nano_virt",
+    "locals": [
+      2,
+      3,
+      8
+    ],
+    "profile": "owned-local-v1",
+    "ownership_version_field": null,
+    "refusals": {
+      "c": "I require a non-crossing owned diamond\nI did not publish reconstructed source\n",
+      "nano": "I require a non-crossing owned diamond\nI did not publish reconstructed source\n"
+    }
+  },
+  {
+    "producer": "nanoc_stage1",
+    "locals": [
+      2,
+      3,
+      8
+    ],
+    "profile": "owned-local-v1",
+    "ownership_version_field": null,
+    "refusals": {
+      "c": "I require a non-crossing owned diamond\nI did not publish reconstructed source\n",
+      "nano": "I require a non-crossing owned diamond\nI did not publish reconstructed source\n"
+    }
+  },
+  {
+    "producer": "nanoc_stage2",
+    "locals": [
+      2,
+      3,
+      8
+    ],
+    "profile": "owned-local-v1",
+    "ownership_version_field": null,
+    "refusals": {
+      "c": "I require a non-crossing owned diamond\nI did not publish reconstructed source\n",
+      "nano": "I require a non-crossing owned diamond\nI did not publish reconstructed source\n"
+    }
+  },
+  {
+    "producer": "original-shadows",
+    "locals": [
+      2,
+      3,
+      8,
+      2
+    ],
+    "profile": "owned-local-v1",
+    "ownership_version_field": null,
+    "refusals": {
+      "c": "I require a non-crossing owned diamond\nI did not publish reconstructed source\n",
+      "nano": "I require a non-crossing owned diamond\nI did not publish reconstructed source\n"
+    }
+  }
+]

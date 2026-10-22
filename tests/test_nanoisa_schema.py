@@ -93,7 +93,7 @@ class NanoisaSchemaTests(unittest.TestCase):
         on the compiler, so the region is delimited by the macros rather than
         by a brace-matched switch statement.
         """
-        start = source.index("VM_DISPATCH_BEGIN(instr.opcode)")
+        start = source.index("VM_DISPATCH_BEGIN(instr->opcode)")
         end = source.index("VM_DISPATCH_END()", start)
         return source[start:end]
 

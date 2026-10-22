@@ -1,0 +1,22 @@
+test_linked_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_linked_preparation) ... FAIL
+
+======================================================================
+FAIL: test_linked_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_linked_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_preparation.py", line 40, in test_linked_preparation
+    self.command('harness-build', [*self.cc, *self.flags,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'tests/nanoisa/test_record_map_preparation.c', 'tests/nanoisa/record_array_alloc.c',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *products, *self.objects, *self.ldflags, '-o', str(exe)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 6.035s
+
+FAILED (failures=1)

@@ -1,0 +1,143 @@
+[
+  {
+    "name": "nano_virt.dump.nasm",
+    "sha256": "0dbf34de5e4cbe7d382fd971a3ed6882e608a71ecd58be8a5d1c1b02b2b8149e",
+    "functions": [
+      ".function main 0 12 0 int 1",
+      ".function combine 2 41 0 int 1"
+    ],
+    "opcodes": {
+      "PUSH_I64": 26,
+      "STORE_LOCAL": 30,
+      "PUSH_BOOL": 8,
+      "LOAD_LOCAL": 33,
+      "OWN_PACK": 8,
+      "OWN_STORE_LOCAL": 22,
+      "REGION_BEGIN": 22,
+      "BORROW_LOCAL_EXCLUSIVE": 2,
+      "BORROW_LOCAL_SHARED": 20,
+      "CALL_REF": 2,
+      "REGION_END": 22,
+      "EQ": 18,
+      "ASSERT": 25,
+      "OWN_MOVE_LOCAL": 14,
+      "REF_GET": 26,
+      "NOT": 3,
+      "OWN_UNPACK_LOCAL": 8,
+      "POP": 14,
+      "RET": 2,
+      "ADD": 2,
+      "REF_SET": 1,
+      "BORROW_PATH_SHARED": 2,
+      "JMP_FALSE": 2,
+      "JMP": 2,
+      "LT": 1
+    }
+  },
+  {
+    "name": "nanoc_stage1.dump.nasm",
+    "sha256": "8b23f3076654721d9a0e270191847d68608aafb71cdfdfb2eebad1c40606ee5c",
+    "functions": [
+      ".function main 0 12 0 int 1",
+      ".function combine 2 41 0 int 1"
+    ],
+    "opcodes": {
+      "PUSH_I64": 26,
+      "STORE_LOCAL": 30,
+      "PUSH_BOOL": 8,
+      "LOAD_LOCAL": 33,
+      "OWN_PACK": 8,
+      "OWN_STORE_LOCAL": 22,
+      "REGION_BEGIN": 22,
+      "BORROW_LOCAL_EXCLUSIVE": 2,
+      "BORROW_LOCAL_SHARED": 20,
+      "CALL_REF": 2,
+      "REGION_END": 22,
+      "EQ": 18,
+      "ASSERT": 25,
+      "OWN_MOVE_LOCAL": 14,
+      "REF_GET": 26,
+      "NOT": 3,
+      "OWN_UNPACK_LOCAL": 8,
+      "POP": 14,
+      "RET": 2,
+      "ADD": 2,
+      "REF_SET": 1,
+      "BORROW_PATH_SHARED": 2,
+      "JMP_FALSE": 2,
+      "JMP": 2,
+      "LT": 1
+    }
+  },
+  {
+    "name": "nanoc_stage2.dump.nasm",
+    "sha256": "8b23f3076654721d9a0e270191847d68608aafb71cdfdfb2eebad1c40606ee5c",
+    "functions": [
+      ".function main 0 12 0 int 1",
+      ".function combine 2 41 0 int 1"
+    ],
+    "opcodes": {
+      "PUSH_I64": 26,
+      "STORE_LOCAL": 30,
+      "PUSH_BOOL": 8,
+      "LOAD_LOCAL": 33,
+      "OWN_PACK": 8,
+      "OWN_STORE_LOCAL": 22,
+      "REGION_BEGIN": 22,
+      "BORROW_LOCAL_EXCLUSIVE": 2,
+      "BORROW_LOCAL_SHARED": 20,
+      "CALL_REF": 2,
+      "REGION_END": 22,
+      "EQ": 18,
+      "ASSERT": 25,
+      "OWN_MOVE_LOCAL": 14,
+      "REF_GET": 26,
+      "NOT": 3,
+      "OWN_UNPACK_LOCAL": 8,
+      "POP": 14,
+      "RET": 2,
+      "ADD": 2,
+      "REF_SET": 1,
+      "BORROW_PATH_SHARED": 2,
+      "JMP_FALSE": 2,
+      "JMP": 2,
+      "LT": 1
+    }
+  },
+  {
+    "name": "original-shadows.dump.nasm",
+    "sha256": "41a79f0062ba0ad9b90982604170e0739beabc62a840131d1f3d187ae937305c",
+    "functions": [
+      ".function __nanoisa_shadow_entry 0 12 0 int 1",
+      ".function combine 2 41 0 int 1"
+    ],
+    "opcodes": {
+      "NOP": 2,
+      "PUSH_I64": 26,
+      "STORE_LOCAL": 30,
+      "PUSH_BOOL": 9,
+      "LOAD_LOCAL": 33,
+      "OWN_PACK": 8,
+      "OWN_STORE_LOCAL": 22,
+      "REGION_BEGIN": 22,
+      "BORROW_LOCAL_EXCLUSIVE": 2,
+      "BORROW_LOCAL_SHARED": 20,
+      "CALL_REF": 2,
+      "REGION_END": 22,
+      "EQ": 18,
+      "ASSERT": 26,
+      "OWN_MOVE_LOCAL": 14,
+      "REF_GET": 26,
+      "NOT": 3,
+      "OWN_UNPACK_LOCAL": 8,
+      "POP": 14,
+      "RET": 2,
+      "ADD": 2,
+      "REF_SET": 1,
+      "BORROW_PATH_SHARED": 2,
+      "JMP_FALSE": 2,
+      "JMP": 2,
+      "LT": 1
+    }
+  }
+]

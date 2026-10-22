@@ -1,0 +1,22 @@
+prior-build 0
+prior-link 0
+current-build 0
+current-link 0
+prior-0 0
+current-0 0
+prior-1 0
+current-1 0
+prior-2 0
+current-2 0
+prior-3 0
+current-3 0
+FOUR OLD PUBLIC OUTPUTS BYTE IDENTICAL
+clang-ordinary 0
+clang-private 0
+clang-harness 0
+clang-allocator 0
+gcc-16-ordinary 0
+gcc-16-private 0
+gcc-16-harness 0
+gcc-16-allocator 0
+diff-check 0

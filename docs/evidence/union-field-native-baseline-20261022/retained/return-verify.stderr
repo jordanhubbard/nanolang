@@ -1,0 +1,1 @@
+Error: Failed to load '/private/tmp/nanolang-union-halt-baseline-20261022/return.nvm': module was built for NanoISA v1 (NVM\x01); rebuild it with nanoc 4.0 or later

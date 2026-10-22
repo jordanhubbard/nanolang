@@ -1,0 +1,16 @@
+{
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "88288eee9c6743aca8d09d8e51ee0fa4227bbcb7a5331755d9f289af637984cf",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "420014efed1644e6ce93661d661d828b1981861012654e64deec93596b66ef9b",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "2387eaacf67eec87c7f049addf7e88c75add5764e9b11b3600477da40d7222b6",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "6f6a695a43fa84d613c48deab987a5466b2878f601da55c187ffaa108422ae77",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts": "12d11f0519e4b41009e978ec585c5d7fb90171b0fc0a18c531813c0570f5660f",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o": "ba2af3b6b612558643e407f9d67860aaae7d38817781e8ed8ba2e31e07a24016",
+  "/Users/jkh/Src/nanolang-51-harness/obj/module_cache/v2-07d334248f4824b975eb2faa0e032194c0a1bc92c66f43fbf5e81055b5df07fa/.nano-gen-ToxJOx/libcompiler_support.dylib": "e088ba1ddb16f5b4a69cd6839ef50badf3a53ef8f9992dbf86599ed0862c8de0",
+  "/Users/jkh/Src/nanolang-51-harness/obj/module_cache/v2-70cd48fe7cf3880bf367681119d6151acdfc19633801def8b5b36e2d69853293/.nano-gen-s7z7C9/libstd.dylib": "32d67f3368db91c51f2c709d4a9ff2bb64f7c67548d025737e468a7ba1a84f9a",
+  "/Users/jkh/Src/nanolang-51-harness/obj/module_cache/v2-8daa8df6cb78f31ebe738ee430729e94115c825b9b32ed85b05aa65d13e2894e/.nano-gen-sRb3sR/libnanoisa.dylib": "269dde5348d8596dea6d5a8641cb41447a418322e3bdef0e43b51f196ff15d90",
+  "/Users/jkh/Src/nanolang-51-harness/obj/module_cache/v2-aa913e7e89f9fb07381cb10d60502d94c985a2f941342ffc19de9a1d92316aa6/.nano-gen-8KgiSD/libfile_source_catalog.dylib": "f85080b8d72cb02380fc44466fc255c99e7b683253543aa23001ac241f20e65f",
+  "/Users/jkh/Src/nanolang-51-harness/obj/module_cache/v2-dd709d35b9559e1ebb46eb4dcf672f03f0909594ffaa729dabb6ea9198df4b83/.nano-gen-EbljWX/libfile_source_inputs.dylib": "878eca3797d97cef9b0eab5e3e8eaad36a21244d5c6d963cabdacde17f9d0dff",
+  "/Users/jkh/Src/nanolang-51-harness/obj/module_cache/v2-e827c9da71c6a52f2d058483dcb549813218227a7b3e034ed3e83d4663bbb305/.nano-gen-2am3hV/libfile_product.dylib": "b589089d5ea1a837ec52ab5feceb2da545beec3885739faffc26c05c78ec066a"
+}

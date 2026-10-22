@@ -1,0 +1,128 @@
+resource struct NlrOwned0 { f0: int, f1: bool }
+resource struct NlrOwned1 { f0: int, f1: bool }
+# I reconstruct ordered resource transfers; original shadows are not retained.
+fn main() -> int {
+    let mut owner_first_0: NlrOwned0 = NlrOwned0 { f0: 10, f1: true }
+    let owner_first_1: NlrOwned1 = NlrOwned1 { f0: 3, f1: true }
+    let mut owner_first_2: NlrOwned0 = NlrOwned0 { f0: 20, f1: false }
+    let result_first: int = (nlr_f1_owned_1 &mut owner_first_0 &owner_first_1 &mut owner_first_2)
+    let NlrOwned0 { f0, f1 } = owner_first_0
+    let field_first_0_0: int = f0
+    let field_first_0_1: bool = f1
+    let NlrOwned1 { f0, f1 } = owner_first_1
+    let field_first_1_0: int = f0
+    let field_first_1_1: bool = f1
+    let NlrOwned0 { f0, f1 } = owner_first_2
+    let field_first_2_0: int = f0
+    let field_first_2_1: bool = f1
+    let mut owner_second_0: NlrOwned0 = NlrOwned0 { f0: 10, f1: true }
+    let owner_second_1: NlrOwned1 = NlrOwned1 { f0: 3, f1: true }
+    let mut owner_second_2: NlrOwned0 = NlrOwned0 { f0: 20, f1: false }
+    let result_second: int = (nlr_f1_owned_1 &mut owner_second_0 &owner_second_1 &mut owner_second_2)
+    let NlrOwned0 { f0, f1 } = owner_second_0
+    let field_second_0_0: int = f0
+    let field_second_0_1: bool = f1
+    let NlrOwned1 { f0, f1 } = owner_second_1
+    let field_second_1_0: int = f0
+    let field_second_1_1: bool = f1
+    let NlrOwned0 { f0, f1 } = owner_second_2
+    let field_second_2_0: int = f0
+    let field_second_2_1: bool = f1
+    assert (== result_first result_second)
+    assert (== field_first_0_0 field_second_0_0)
+    assert (== field_first_0_1 field_second_0_1)
+    assert (== field_first_1_0 field_second_1_0)
+    assert (== field_first_1_1 field_second_1_1)
+    assert (== field_first_2_0 field_second_2_0)
+    assert (== field_first_2_1 field_second_2_1)
+
+ return 0
+}
+fn nlr_f1_owned_1(nlr_a0: &mut NlrOwned0, nlr_a1: &NlrOwned1, nlr_a2: &mut NlrOwned0) -> int {
+    let mut nlr_l3: int = 0
+    let nlr_t0: int = nlr_a0.f0
+    let nlr_t5: int = nlr_a1.f0
+    let nlr_t10_a: int = nlr_t0
+    let nlr_t10_b: int = nlr_t5
+    let nlr_t10_low: int = (- -9223372036854775807 1)
+    let nlr_t10_high: int = 9223372036854775807
+    let mut nlr_t10: int = 0
+    if (> nlr_t10_b 0) {
+        let nlr_t10_boundary: int = (- nlr_t10_high nlr_t10_b)
+        if (> nlr_t10_a nlr_t10_boundary) { set nlr_t10 (+ nlr_t10_low (- (- nlr_t10_a nlr_t10_boundary) 1)) } else { set nlr_t10 (+ nlr_t10_a nlr_t10_b) }
+    } else { if (< nlr_t10_b 0) {
+        let nlr_t10_boundary: int = (- nlr_t10_low nlr_t10_b)
+        if (< nlr_t10_a nlr_t10_boundary) { set nlr_t10 (+ nlr_t10_high (+ (- nlr_t10_a nlr_t10_boundary) 1)) } else { set nlr_t10 (+ nlr_t10_a nlr_t10_b) }
+    } else { set nlr_t10 (+ nlr_t10_a nlr_t10_b) } }
+    set nlr_a0.f0 nlr_t10
+    let nlr_t16: int = nlr_a2.f0
+    let nlr_t21: int = nlr_a1.f0
+    let nlr_t26_a: int = nlr_t16
+    let nlr_t26_b: int = nlr_t21
+    let nlr_t26_low: int = (- -9223372036854775807 1)
+    let nlr_t26_high: int = 9223372036854775807
+    let mut nlr_t26: int = 0
+    if (> nlr_t26_b 0) {
+        let nlr_t26_boundary: int = (+ nlr_t26_low nlr_t26_b)
+        if (< nlr_t26_a nlr_t26_boundary) { set nlr_t26 (+ nlr_t26_high (+ (- nlr_t26_a nlr_t26_boundary) 1)) } else { set nlr_t26 (- nlr_t26_a nlr_t26_b) }
+    } else { if (< nlr_t26_b 0) {
+        let nlr_t26_boundary: int = (+ nlr_t26_high nlr_t26_b)
+        if (> nlr_t26_a nlr_t26_boundary) { set nlr_t26 (+ nlr_t26_low (- nlr_t26_a (+ nlr_t26_boundary 1))) } else { set nlr_t26 (- nlr_t26_a nlr_t26_b) }
+    } else { set nlr_t26 (- nlr_t26_a nlr_t26_b) } }
+    set nlr_a2.f0 nlr_t26
+    let nlr_t32: bool = nlr_a1.f1
+    assert nlr_t32
+    let nlr_t38: int = nlr_a0.f0
+    let nlr_t43: int = nlr_a2.f0
+    let nlr_t48_a: int = nlr_t38
+    let nlr_t48_b: int = nlr_t43
+    let nlr_t48_low: int = (- -9223372036854775807 1)
+    let nlr_t48_high: int = 9223372036854775807
+    let mut nlr_t48: int = 0
+    if (> nlr_t48_b 0) {
+        let nlr_t48_boundary: int = (- nlr_t48_high nlr_t48_b)
+        if (> nlr_t48_a nlr_t48_boundary) { set nlr_t48 (+ nlr_t48_low (- (- nlr_t48_a nlr_t48_boundary) 1)) } else { set nlr_t48 (+ nlr_t48_a nlr_t48_b) }
+    } else { if (< nlr_t48_b 0) {
+        let nlr_t48_boundary: int = (- nlr_t48_low nlr_t48_b)
+        if (< nlr_t48_a nlr_t48_boundary) { set nlr_t48 (+ nlr_t48_high (+ (- nlr_t48_a nlr_t48_boundary) 1)) } else { set nlr_t48 (+ nlr_t48_a nlr_t48_b) }
+    } else { set nlr_t48 (+ nlr_t48_a nlr_t48_b) } }
+    set nlr_l3 nlr_t48
+    let nlr_t52: int = nlr_l3
+    return nlr_t52
+}
+
+shadow nlr_f1_owned_1 {
+    let mut owner_first_0: NlrOwned0 = NlrOwned0 { f0: 10, f1: true }
+    let owner_first_1: NlrOwned1 = NlrOwned1 { f0: 3, f1: true }
+    let mut owner_first_2: NlrOwned0 = NlrOwned0 { f0: 20, f1: false }
+    let result_first: int = (nlr_f1_owned_1 &mut owner_first_0 &owner_first_1 &mut owner_first_2)
+    let NlrOwned0 { f0, f1 } = owner_first_0
+    let field_first_0_0: int = f0
+    let field_first_0_1: bool = f1
+    let NlrOwned1 { f0, f1 } = owner_first_1
+    let field_first_1_0: int = f0
+    let field_first_1_1: bool = f1
+    let NlrOwned0 { f0, f1 } = owner_first_2
+    let field_first_2_0: int = f0
+    let field_first_2_1: bool = f1
+    let mut owner_second_0: NlrOwned0 = NlrOwned0 { f0: 10, f1: true }
+    let owner_second_1: NlrOwned1 = NlrOwned1 { f0: 3, f1: true }
+    let mut owner_second_2: NlrOwned0 = NlrOwned0 { f0: 20, f1: false }
+    let result_second: int = (nlr_f1_owned_1 &mut owner_second_0 &owner_second_1 &mut owner_second_2)
+    let NlrOwned0 { f0, f1 } = owner_second_0
+    let field_second_0_0: int = f0
+    let field_second_0_1: bool = f1
+    let NlrOwned1 { f0, f1 } = owner_second_1
+    let field_second_1_0: int = f0
+    let field_second_1_1: bool = f1
+    let NlrOwned0 { f0, f1 } = owner_second_2
+    let field_second_2_0: int = f0
+    let field_second_2_1: bool = f1
+    assert (== result_first result_second)
+    assert (== field_first_0_0 field_second_0_0)
+    assert (== field_first_0_1 field_second_0_1)
+    assert (== field_first_1_0 field_second_1_0)
+    assert (== field_first_1_1 field_second_1_1)
+    assert (== field_first_2_0 field_second_2_0)
+    assert (== field_first_2_1 field_second_2_1)
+}

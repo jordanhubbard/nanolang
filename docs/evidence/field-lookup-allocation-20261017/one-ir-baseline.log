@@ -1,0 +1,68 @@
+python3 scripts/embed_binary64_parser.py --check
+python3 -m unittest -v tests.test_one_ir_product_invariants
+test_nvm2c_native_product_does_not_link_the_vm (tests.test_one_ir_product_invariants.OneIrProductInvariants.test_nvm2c_native_product_does_not_link_the_vm) ... ok
+test_transpiler_nano_is_absent_from_the_product_compiler (tests.test_one_ir_product_invariants.OneIrProductInvariants.test_transpiler_nano_is_absent_from_the_product_compiler) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.495s
+
+OK
+................s
+----------------------------------------------------------------------
+Ran 8 tests in 10.867s
+
+OK (skipped=1)
+...................
+----------------------------------------------------------------------
+Ran 28 tests in 30.556s
+
+OK
+.....................................................................................F.......................
+======================================================================
+FAIL: test_vm_native_semantics_and_no_per_lookup_map (tests.test_field_metadata_lookup.FieldMetadataLookup.test_vm_native_semantics_and_no_per_lookup_map)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-release/tests/test_field_metadata_lookup.py", line 69, in test_vm_native_semantics_and_no_per_lookup_map
+    result = self.run_checked([binary], env={**os.environ})
+  File "/Users/jkh/Src/nanolang-51-release/tests/test_field_metadata_lookup.py", line 36, in run_checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : lookup_maps=1
+
+
+----------------------------------------------------------------------
+Ran 109 tests in 1696.659s
+
+FAILED (failures=1)
+roots=1024 comparisons=4574 seconds=0.000135
+roots=2048 comparisons=8988 seconds=0.000150
+roots=4096 comparisons=17871 seconds=0.000282
+scans=0 peak=3
+all families scans=1 visits=10004 retained=2097484 allocated=4196113
+scans=0 visits=0 map_peak_bytes=230288
+mixed scans=2 visits=20008 retained=2097504 allocated=4195016 peak=2097796
+string_peak_bytes=65550
+string_peak_bytes=84222
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65630
+string_peak_bytes=65623
+string_peak_bytes=65630
+string_peak_bytes=65630
+string_peak_bytes=65671
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66712
+aggregate_peak_bytes=67672
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66856
+aggregate_peak_bytes=66856
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66584
+aggregate_peak_bytes=66856
+make: *** [test-one-ir-compiler] Error 1

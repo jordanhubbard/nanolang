@@ -1,0 +1,24 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-f3lra4rb
+test_independently_selected_consistency_shadow (tests.test_owned_double_call_pretest_reconstruction.OwnedDoubleCallPretest.test_independently_selected_consistency_shadow) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pzm4evp3
+test_defensive_split_region_and_reference_slot_refuse (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_defensive_split_region_and_reference_slot_refuse) ... ok
+test_missing_top_level_witness_refuses_atomically (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_missing_top_level_witness_refuses_atomically) ... ERROR
+test_original_verified_inverted_exit (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_original_verified_inverted_exit) ... ok
+test_output_local_limit_is_measured_and_atomic (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_output_local_limit_is_measured_and_atomic) ... ok
+test_pretest_helper_assertion_remains_runtime_failure (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_pretest_helper_assertion_remains_runtime_failure) ... ok
+test_return_body_and_zero_body_keep_complete_owner_consumption (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_return_body_and_zero_body_keep_complete_owner_consumption) ... ok
+test_zero_one_multiple_iterations_retain_last_false_update (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_zero_one_multiple_iterations_retain_last_false_update) ... ok
+
+======================================================================
+ERROR: test_missing_top_level_witness_refuses_atomically (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_missing_top_level_witness_refuses_atomically)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_call_pretest_reconstruction.py", line 91, in test_missing_top_level_witness_refuses_atomically
+    for name,options,message in (
+        ^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 3)
+
+----------------------------------------------------------------------
+Ran 8 tests in 136.261s
+
+FAILED (errors=1)

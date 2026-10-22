@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+    "/private/tmp/empty-owned-baseline-20261019/original.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/empty-owned-baseline-20261019/nanoc_stage1.nvm"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-harness",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "timeout_seconds": 180
+}

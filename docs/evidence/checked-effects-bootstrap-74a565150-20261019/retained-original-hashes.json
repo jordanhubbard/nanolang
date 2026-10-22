@@ -1,0 +1,116 @@
+[
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/manifest.json",
+    "original_sha256": "252d4a28375f2f0b785f62775f7fa5c847dea179bbb024fbb091e4d8999c8356",
+    "copy": "manifest.json",
+    "copy_sha256": "252d4a28375f2f0b785f62775f7fa5c847dea179bbb024fbb091e4d8999c8356"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/00-seed.log",
+    "original_sha256": "87c8d8ea753117cd952a8c015c62cffa3bdd406f08ca1a14ae14bcb2d0033b44",
+    "copy": "00-seed.log",
+    "copy_sha256": "87c8d8ea753117cd952a8c015c62cffa3bdd406f08ca1a14ae14bcb2d0033b44"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/01-seed-verify.log",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copy": "01-seed-verify.log",
+    "copy_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/02-stage1.log",
+    "original_sha256": "8ceec1c6f583eebaf7ac8839020f8d7e8e062d7f8f846f7f31b3088068ee8502",
+    "copy": "02-stage1.log",
+    "copy_sha256": "8ceec1c6f583eebaf7ac8839020f8d7e8e062d7f8f846f7f31b3088068ee8502"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/03-stage1-verify.log",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copy": "03-stage1-verify.log",
+    "copy_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/04-stage1-translate.log",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copy": "04-stage1-translate.log",
+    "copy_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/05-stage1-native.log",
+    "original_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3",
+    "copy": "05-stage1-native.log",
+    "copy_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/06-stage1-hello-compile.log",
+    "original_sha256": "dc7fa7a02885bb10463608f0ad1bc16a3b0ecdeb24dd2c9bd8a27a9c1c576322",
+    "copy": "06-stage1-hello-compile.log",
+    "copy_sha256": "dc7fa7a02885bb10463608f0ad1bc16a3b0ecdeb24dd2c9bd8a27a9c1c576322"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/07-stage1-hello-execute.log",
+    "original_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+    "copy": "07-stage1-hello-execute.log",
+    "copy_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/08-stage2.log",
+    "original_sha256": "794405c0e011a3949096d074b16d08d2a0979c1a00ddb849bc904977490e716e",
+    "copy": "08-stage2.log",
+    "copy_sha256": "794405c0e011a3949096d074b16d08d2a0979c1a00ddb849bc904977490e716e"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/09-stage2-verify.log",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copy": "09-stage2-verify.log",
+    "copy_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/10-stage2-translate.log",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copy": "10-stage2-translate.log",
+    "copy_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/11-stage2-native.log",
+    "original_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3",
+    "copy": "11-stage2-native.log",
+    "copy_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/12-stage2-hello-compile.log",
+    "original_sha256": "dc7fa7a02885bb10463608f0ad1bc16a3b0ecdeb24dd2c9bd8a27a9c1c576322",
+    "copy": "12-stage2-hello-compile.log",
+    "copy_sha256": "dc7fa7a02885bb10463608f0ad1bc16a3b0ecdeb24dd2c9bd8a27a9c1c576322"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/13-stage2-hello-execute.log",
+    "original_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+    "copy": "13-stage2-hello-execute.log",
+    "copy_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/14-seed-final-verify.log",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copy": "14-seed-final-verify.log",
+    "copy_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/15-stage1-final-verify.log",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copy": "15-stage1-final-verify.log",
+    "copy_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-harness/obj/bootstrap-nanoisa/run-wexcmzb9/16-stage2-final-verify.log",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copy": "16-stage2-final-verify.log",
+    "copy_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "/private/tmp/nanolang-74a-fresh-metadata.log",
+    "original_sha256": "45e60d204336552ef9732cdf4c1a3460c3dbf8fd44b9b50eb17e268db4e1e0a1",
+    "copy": "fresh-metadata.log",
+    "copy_sha256": "45e60d204336552ef9732cdf4c1a3460c3dbf8fd44b9b50eb17e268db4e1e0a1"
+  }
+]

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-consuming-float-exits-baseline.py", line 25, in <module>
+    module=out/(name+'.nvm');r=run([root/'bin'/name,source,'--emit-nvm','-o',module]);assert r.returncode==0,r.stderr;qualify(module,name)
+                                                                                                                      ~~~~~~~^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-consuming-float-exits-baseline.py", line 23, in qualify
+    results.append({'producer':name,'locals':[f['locals'] for f in facts['functions']],'ownership_version':facts['ownership_version'],'refusals':refusals})
+                                                                                                           ~~~~~^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'ownership_version'

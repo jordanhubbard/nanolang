@@ -1,0 +1,39 @@
+I copied observations32/identity16 with owner818512 unchanged; lookup work229.
+I measured exact observe33/string36/empty-string34/identity430 logical work.
+I bounded64 colliding keys at34950 lookup work and retained exact counted-NUL keys.
+I observed actual64-origin tree scalar path63; path259 refused without traversal.
+PASS 17876 private copied map observation checks; public boundaries checked.
+I copied observations32/identity16 with owner818512 unchanged; lookup work229.
+I measured exact observe33/string36/empty-string34/identity430 logical work.
+I bounded64 colliding keys at34950 lookup work and retained exact counted-NUL keys.
+I observed actual64-origin tree scalar path63; path259 refused without traversal.
+PASS 17876 private copied map observation checks; public boundaries checked.
+I reserve import state4200/table row16/report40 without changing VmState803992 or VmHeap6312.
+I measured independent query peak81729 bytes excluding caller heap125812.
+I denied all 67 import allocations transiently and persistently, including identity growth.
+I measured import reservation 67193773 bytes/16864804 work and exact-cap/+1 recovery.
+I checked actual63-frame tree with64 static/runtime origins.
+PASS 12604 ordinary import query checks; public boundaries checked
+I reserve import state4200/table row16/report40 without changing VmState803992 or VmHeap6312.
+I measured independent query peak81729 bytes excluding caller heap125812.
+I denied all 67 import allocations transiently and persistently, including identity growth.
+I measured import reservation 67193773 bytes/16864804 work and exact-cap/+1 recovery.
+I checked actual63-frame tree with64 static/runtime origins.
+PASS 12604 ordinary import query checks; public boundaries checked
+I checked 96 complete invocation allocation positions in both denial modes.
+I measured borrowed reservation 84057329 bytes / 16956480 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67214833 bytes / 16891156 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I checked 1699 borrowed map execution assertions; public boundaries checked.
+I checked 96 complete invocation allocation positions in both denial modes.
+I measured borrowed reservation 84057329 bytes / 16956480 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67214833 bytes / 16891156 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I checked 1699 borrowed map execution assertions; public boundaries checked.
+PASS 500 map origin checks; public boundaries checked
+PASS 687 copied map recipe checks; public boundaries checked
+I checked 873 preparation allocation prefixes in both modes, including intern growth, retained 9275409 bytes.
+I checked private map preparation and independence; execution remains refused.
+PASS old observation/import/borrowed and preparation neighbors

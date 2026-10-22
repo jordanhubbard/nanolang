@@ -1,0 +1,4 @@
+tests/nanovm/test_record_map_ordinary_heap.c:58:33: error: use of undeclared identifier 'VM_GC_GREY'
+   58 |         case 0:m->header.colour=VM_GC_GREY;break;
+      |                                 ^~~~~~~~~~
+1 error generated.

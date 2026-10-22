@@ -1,0 +1,13 @@
+src/nanovm/vm_dispatch.c:17:vm_dispatch_function_free	48	static
+src/nanovm/vm_dispatch.c:24:vm_dispatch_module_free	96	static
+src/nanovm/vm_dispatch.c:42:vm_dispatch_profile_none	0	static
+src/nanovm/vm_dispatch.c:47:vm_dispatch_profile_all	0	static
+src/nanovm/vm_dispatch.c:106:vm_dispatch_build_function	208	static
+src/nanovm/vm_dispatch.c:205:vm_dispatch_build_module	128	static
+src/nanovm/vm_dispatch.c:235:vm_dispatch_seek	16	static
+src/nanovm/vm_dispatch.c:246:vm_dispatch_current	16	static
+src/nanovm/vm_dispatch.c:254:vm_dispatch_advance	16	static
+src/nanovm/vm_dispatch.c:asan.module_ctor	16	static
+src/nanovm/vm_dispatch.c:asan.module_dtor	16	static
+src/nanovm/vm_dispatch.c:call_dtors.1	16	static
+src/nanovm/vm_dispatch.c:register_call_dtors.1	16	static

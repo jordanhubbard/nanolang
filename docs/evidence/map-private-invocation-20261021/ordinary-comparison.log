@@ -1,0 +1,17 @@
+baseline-O1 build 1 /private/tmp/nanolang-map-runtime-20261021/baseline-admission.c:23:10: fatal error: '../nanoisa/owned_fixture.h' file not found
+   23 | #include "../nanoisa/owned_fixture.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+current-noinline build 0
+current-noinline run 0 g=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=5 op=ASSERT stack=2 top={tag=bool raw=1 ptr=0x1} top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=6 op=PUSH_I64 stack=1 top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=15 op=RET stack=2 top={tag=int raw=42 ptr=0x2a} top={tag=void raw=0 ptr=0x0}
+
+current-normal build 0
+current-normal run 0 g=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=5 op=ASSERT stack=2 top={tag=bool raw=1 ptr=0x1} top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=6 op=PUSH_I64 stack=1 top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=15 op=RET stack=2 top={tag=int raw=42 ptr=0x2a} top={tag=void raw=0 ptr=0x0}
+

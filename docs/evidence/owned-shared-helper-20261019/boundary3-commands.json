@@ -1,0 +1,133 @@
+[
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_virt",
+      "/Users/jkh/Src/nanolang-owned-shared-helper/tests/nanoisa/fixtures/source_borrow_shared.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoisa",
+      "dump",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/original-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"Counter\"\n.string \"value\"\n.string \"active\"\n.string \"Other\"\n.string \"main\"\n.string \"read\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x1f\\x00\\x00\\x00~\\x00\\x00\\x00owner\"\n.string \"\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00M\\x00\\x00\\x00~\\x00\\x00\\x00value\"\n.string \"\\x00\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\\\\\x00\\x00\\x00~\\x00\\x00\\x00active\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x06\\x00\\x00\\x00view\"\n.string \"nano.affine.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"nano.affine-use.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x0e\\x00\\x00\\x00\\x14\\x00\\x00\\x00\\x01\\x01\\x00\\x00\\\\\\x00\\x00\\x00\\x05\\x00\\x00\\x00/Users/jkh/Src/nanolang-owned-shared-helper/tests/nanoisa/fixtures/source_borrow_shared.nanoowner\"\n.string \"\\x00\\x00\\x00\\x00\\x0f\\x00\\x00\\x00\\\"\\x00\\x00\\x00\\x02\\x01\\x00\\x00\\\\\\x00\\x00\\x00\\x05\\x00\\x00\\x00/Users/jkh/Src/nanolang-owned-shared-helper/tests/nanoisa/fixtures/source_borrow_shared.nanoowner\"\n.string \"\\x01\\x00\\x00\\x00\\x03\\x00\\x00\\x00)\\x00\\x00\\x00\\x01\\x01\\x00\\x00\\\\\\x00\\x00\\x00\\x04\\x00\\x00\\x00/Users/jkh/Src/nanolang-owned-shared-helper/tests/nanoisa/fixtures/source_borrow_shared.nanoview\"\n\n.metadata 6 7\n.metadata 6 8\n.metadata 6 9\n.metadata 6 10\n.metadata 11 12\n.metadata 11 13\n.metadata 14 15\n.metadata 14 16\n.metadata 14 17\n\n.types 2 0 0\n\n.layouts \"02000000000002000000000001000000ffffffff0100000004000000ffffffff\"\n.layouts \"02000000000002000300000001000000ffffffff0100000004000000ffffffff\"\n.layouts \"02000000\"\n\n.ownership \"010000000200000003030000020000000600000001000000ffffffff01000000\"\n.ownership \"ffffffff04000000ffffffff0800000000000000080000000000000001000000\"\n.ownership \"ffffffff04000000ffffffff0100010001000000ffffffff0801000000000000\"\n\n.entry 0\n\n.function main 0 6 0 int 1\n  PUSH_I64 12\n  STORE_LOCAL 0\n  PUSH_BOOL 0\n  STORE_LOCAL 1\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  OWN_PACK 0\n  OWN_STORE_LOCAL 2\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 2\n  CALL_REF 1 0\n  REGION_END\n  PUSH_I64 12\n  EQ\n  ASSERT\n  OWN_MOVE_LOCAL 2\n  OWN_STORE_LOCAL 3\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 3\n  REF_GET 0 0\n  REGION_END\n  STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 3\n  REF_GET 0 1\n  REGION_END\n  STORE_LOCAL 5\n  LOAD_LOCAL 4\n  PUSH_I64 12\n  EQ\n  ASSERT\n  LOAD_LOCAL 5\n  NOT\n  ASSERT\n  PUSH_I64 0\n  OWN_UNPACK_LOCAL 3\n  POP\n  POP\n  RET\n.end\n\n.function read 1 1 0 int 1\n  REF_GET 0 0\n  RET\n.end\n\n.parameters 1 struct\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoisa",
+      "asm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.nasm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4]},{\"identity\":1,\"resource\":true,\"fields\":[1,4]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":6,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[8,0],[8,0],[1,4294967295],[4,4294967295]],\"size\":136,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":9,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":18,\"op\":\"ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":19,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":22,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":24,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":27,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":30,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":33,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":38,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":41,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":42,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":47,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":54,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":55,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":64,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":65,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":66,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":69,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":72,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":73,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":78,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":83,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":84,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":87,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":88,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,3],\"target\":4294967295},{\"pc\":93,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":98,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":99,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":102,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":105,\"op\":\"PUSH_I64\",\"arg\":12,\"args\":[12],\"target\":4294967295},{\"pc\":114,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":115,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":116,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":119,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":120,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":121,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":130,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":133,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":134,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":135,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[1],\"names\":[\"\"],\"local_types\":[[8,0]],\"size\":6,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.c",
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.c",
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-shared-helper/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-n1cir3e7/extra-helper.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require the existing two-function borrowed Nano profile\nI did not publish reconstructed source\n"
+  }
+]

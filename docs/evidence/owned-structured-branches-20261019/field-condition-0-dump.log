@@ -1,0 +1,109 @@
+.string "Box"
+.string "value"
+.string "flag"
+.string "main"
+.string "pick"
+.string "nano.local.v1"
+.string "\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00u\x00\x00\x00owner"
+.string "\x01\x00\x00\x00\x02\x00\x00\x00&\x00\x00\x00>\x00\x00\x00value"
+.string "\x01\x00\x00\x00\x03\x00\x00\x005\x00\x00\x00>\x00\x00\x00flag"
+.string "\x01\x00\x00\x00\x05\x00\x00\x00S\x00\x00\x00u\x00\x00\x00value"
+.string "\x01\x00\x00\x00\x06\x00\x00\x00b\x00\x00\x00u\x00\x00\x00flag"
+.string "nano.affine.v1"
+.string "\x00\x00\x00\x00\x01\x00\x00\x00"
+.string "\x01\x00\x00\x00\x01\x00\x00\x00"
+.string "nano.affine-use.v1"
+.string "\x01\x00\x00\x00\x02\x00\x00\x00\x1d\x00\x00\x00\x01\x01\x00\x00B\x00\x00\x00\x05\x00\x00\x00/private/tmp/nanolang-owned-branches-20261019/field-condition.nanoowner"
+.string "\x01\x00\x00\x00\x02\x00\x00\x00=\x00\x00\x00\x02\x01\x00\x00B\x00\x00\x00\x05\x00\x00\x00/private/tmp/nanolang-owned-branches-20261019/field-condition.nanoowner"
+.string "\x01\x00\x00\x00\x02\x00\x00\x00k\x00\x00\x00\x02\x01\x00\x00B\x00\x00\x00\x05\x00\x00\x00/private/tmp/nanolang-owned-branches-20261019/field-condition.nanoowner"
+
+.metadata 5 6
+.metadata 5 7
+.metadata 5 8
+.metadata 5 9
+.metadata 5 10
+.metadata 11 12
+.metadata 11 13
+.metadata 14 15
+.metadata 14 16
+.metadata 14 17
+
+.types 1 0 0
+
+.layouts "01000000000002000000000001000000ffffffff0100000004000000ffffffff"
+.layouts "02000000"
+
+.ownership "010000000100000003000000020000000400000001000000ffffffff01000000"
+.ownership "ffffffff04000000ffffffff01000000ffffffff04000000ffffffff07000100"
+.ownership "01000000ffffffff0800000000000000080000000000000001000000ffffffff"
+.ownership "04000000ffffffff080000000000000001000000ffffffff04000000ffffffff"
+
+.entry 0
+
+.function main 0 4 0 int 1
+  PUSH_I64 7
+  STORE_LOCAL 0
+  PUSH_BOOL 1
+  STORE_LOCAL 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  OWN_PACK 0
+  CALL 1
+  PUSH_I64 7
+  STORE_LOCAL 2
+  PUSH_BOOL 0
+  STORE_LOCAL 3
+  LOAD_LOCAL 2
+  LOAD_LOCAL 3
+  OWN_PACK 0
+  CALL 1
+  ADD
+  RET
+.end
+
+.function pick 1 7 0 int 1
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 1 0
+  REF_GET 1 1
+  REGION_END
+  JMP_FALSE L0
+  OWN_MOVE_LOCAL 0
+  OWN_STORE_LOCAL 1
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 1 1
+  REF_GET 1 0
+  REGION_END
+  STORE_LOCAL 2
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 1 1
+  REF_GET 1 1
+  REGION_END
+  STORE_LOCAL 3
+  LOAD_LOCAL 2
+  OWN_UNPACK_LOCAL 1
+  POP
+  POP
+  RET
+L0:
+  OWN_MOVE_LOCAL 0
+  OWN_STORE_LOCAL 4
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 1 4
+  REF_GET 1 0
+  REGION_END
+  STORE_LOCAL 5
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 1 4
+  REF_GET 1 1
+  REGION_END
+  STORE_LOCAL 6
+  LOAD_LOCAL 5
+  PUSH_I64 1
+  ADD
+  OWN_UNPACK_LOCAL 4
+  POP
+  POP
+  RET
+.end
+
+.parameters 1 struct

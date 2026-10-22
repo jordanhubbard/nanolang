@@ -1,0 +1,12 @@
+seed compile 0
+seed verify 0
+seed repeat 0
+c-hosted-nano compile 0
+c-hosted-nano verify 0
+c-hosted-nano repeat 0
+stage1 compile 0
+stage1 verify 0
+stage1 repeat 0
+stage2 compile 0
+stage2 verify 0
+stage2 repeat 0

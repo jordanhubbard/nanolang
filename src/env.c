@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "checked_borrow_facts.h"
 #include "nanoisa/file_source_snapshot.h"
 #include "service_namespace.h"
 #include "service_bodies.h"
@@ -484,6 +485,7 @@ void env_reclaim_static_arrays(Environment *env) {
 
 /* Free environment */
 void free_environment(Environment *env) {
+    checked_borrow_end(env);
     nl_service_ownership_free(env->service_ownership);
     nl_service_body_check_free(env->service_bodies);
     nl_service_namespace_free(env->service_namespace);

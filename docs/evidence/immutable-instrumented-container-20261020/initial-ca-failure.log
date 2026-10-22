@@ -1,0 +1,78 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  3.584kB
+Step 1/5 : FROM ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+24.04: Pulling from library/ubuntu
+d5aec63251bb: Pulling fs layer
+99fcc9c4b770: Download complete
+d5aec63251bb: Download complete
+d5aec63251bb: Pull complete
+Digest: sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+Status: Downloaded newer image for ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+ ---> 68ee22004a91
+Step 2/5 : COPY ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources
+ ---> 215f3cf0b1eb
+Step 3/5 : RUN rm -f /etc/apt/sources.list     && apt-get -o Acquire::Retries=2 update     && DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=2 install -y --no-install-recommends        build-essential git ca-certificates python3 python3-yaml pkg-config        libssl-dev libffi-dev libsqlite3-dev lcov bc        libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev        libncurses-dev libreadline-dev libevent-dev libuv1-dev libbullet-dev        libglfw3-dev libglew-dev freeglut3-dev gforth     && dpkg-query -W -f='${Package}\t${Version}\t${Architecture}\n' > /etc/nanolang-ci-packages     && git config --system --add safe.directory /workspace     && rm -rf /var/lib/apt/lists/*
+ ---> Running in 77dd19646c73
+Ign:1 https://snapshot.ubuntu.com/ubuntu/20261019T000000Z noble InRelease
+Ign:2 https://snapshot.ubuntu.com/ubuntu/20261019T000000Z noble-updates InRelease
+Ign:3 https://snapshot.ubuntu.com/ubuntu/20261019T000000Z noble-security InRelease
+Ign:1 https://snapshot.ubuntu.com/ubuntu/20261019T000000Z noble InRelease
+Ign:2 https://snapshot.ubuntu.com/ubuntu/20261019T000000Z noble-updates InRelease
+Ign:3 https://snapshot.ubuntu.com/ubuntu/20261019T000000Z noble-security InRelease
+Err:1 https://snapshot.ubuntu.com/ubuntu/20261019T000000Z noble InRelease
+  Certificate verification failed: The certificate is NOT trusted. The certificate issuer is unknown.  Could not handshake: Error in the certificate verification. [IP: 185.125.189.69 443]
+Err:2 https://snapshot.ubuntu.com/ubuntu/20261019T000000Z noble-updates InRelease
+  Certificate verification failed: The certificate is NOT trusted. The certificate issuer is unknown.  Could not handshake: Error in the certificate verification. [IP: 185.125.189.69 443]
+Err:3 https://snapshot.ubuntu.com/ubuntu/20261019T000000Z noble-security InRelease
+  Certificate verification failed: The certificate is NOT trusted. The certificate issuer is unknown.  Could not handshake: Error in the certificate verification. [IP: 185.125.189.69 443]
+Reading package lists...
+[91mW: http://snapshot.ubuntu.com/ubuntu/20261019T000000Z/dists/noble/InRelease: No system certificates available. Try installing ca-certificates.
+W: http://snapshot.ubuntu.com/ubuntu/20261019T000000Z/dists/noble-updates/InRelease: No system certificates available. Try installing ca-certificates.
+W: http://snapshot.ubuntu.com/ubuntu/20261019T000000Z/dists/noble-security/InRelease: No system certificates available. Try installing ca-certificates.
+W: http://snapshot.ubuntu.com/ubuntu/20261019T000000Z/dists/noble/InRelease: No system certificates available. Try installing ca-certificates.
+W: http://snapshot.ubuntu.com/ubuntu/20261019T000000Z/dists/noble-updates/InRelease: No system certificates available. Try installing ca-certificates.
+W: http://snapshot.ubuntu.com/ubuntu/20261019T000000Z/dists/noble-security/InRelease: No system certificates available. Try installing ca-certificates.
+W: http://snapshot.ubuntu.com/ubuntu/20261019T000000Z/dists/noble/InRelease: No system certificates available. Try installing ca-certificates.
+W: http://snapshot.ubuntu.com/ubuntu/20261019T000000Z/dists/noble-updates/InRelease: No system certificates available. Try installing ca-certificates.
+W: http://snapshot.ubuntu.com/ubuntu/20261019T000000Z/dists/noble-security/InRelease: No system certificates available. Try installing ca-certificates.
+W: Failed to fetch http://snapshot.ubuntu.com/ubuntu/20261019T000000Z/dists/noble/InRelease  Certificate verification failed: The certificate is NOT trusted. The certificate issuer is unknown.  Could not handshake: Error in the certificate verification. [IP: 185.125.189.69 443]
+W: Failed to fetch http://snapshot.ubuntu.com/ubuntu/20261019T000000Z/dists/noble-updates/InRelease  Certificate verification failed: The certificate is NOT trusted. The certificate issuer is unknown.  Could not handshake: Error in the certificate verification. [IP: 185.125.189.69 443]
+W: Failed to fetch http://snapshot.ubuntu.com/ubuntu/20261019T000000Z/dists/noble-security/InRelease  Certificate verification failed: The certificate is NOT trusted. The certificate issuer is unknown.  Could not handshake: Error in the certificate verification. [IP: 185.125.189.69 443]
+W: Some index files failed to download. They have been ignored, or old ones used instead.
+[0mReading package lists...
+Building dependency tree...
+Reading state information...
+Package ca-certificates is not available, but is referred to by another package.
+This may mean that the package is missing, has been obsoleted, or
+is only available from another source
+
+[91mE: Unable to locate package build-essential
+E: Unable to locate package git
+E: Package 'ca-certificates' has no installation candidate
+E: Unable to locate package python3
+E: Unable to locate package python3-yaml
+E: Unable to locate package pkg-config
+E: Unable to locate package libssl-dev
+E: Unable to locate package libffi-dev
+E: Unable to locate package libsqlite3-dev
+E: Unable to locate package lcov
+E: Unable to locate package bc
+E: Unable to locate package libsdl2-dev
+E: Unable to locate package libsdl2-image-dev
+E: [0m[91mUnable to locate package libsdl2-mixer-dev
+E: Unable to locate package libsdl2-ttf-dev
+E: Unable to locate package libutf8proc-dev
+E: Unable to locate package libncurses-dev
+[0m[91mE: Unable to locate package libreadline-dev
+E: Unable to locate package libevent-dev
+E[0m[91m: Unable to locate package libuv1-dev
+E: Unable to locate package libbullet-dev
+E: [0m[91mUnable to locate package libglfw3-dev
+E: Unable to locate package libglew-dev
+E: [0m[91mUnable to locate package freeglut3-dev
+E: Unable to locate package gforth
+[0mThe command '/bin/sh -c rm -f /etc/apt/sources.list     && apt-get -o Acquire::Retries=2 update     && DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=2 install -y --no-install-recommends        build-essential git ca-certificates python3 python3-yaml pkg-config        libssl-dev libffi-dev libsqlite3-dev lcov bc        libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev        libncurses-dev libreadline-dev libevent-dev libuv1-dev libbullet-dev        libglfw3-dev libglew-dev freeglut3-dev gforth     && dpkg-query -W -f='${Package}\t${Version}\t${Architecture}\n' > /etc/nanolang-ci-packages     && git config --system --add safe.directory /workspace     && rm -rf /var/lib/apt/lists/*' returned a non-zero code: 100
+Command '['docker', 'build', '--platform', 'linux/arm64', '--iidfile', '/private/tmp/nanolang-instrumented-image.id', '/Users/jkh/Src/nanolang-51-sanitizer-container/.github/containers/instrumented']' returned non-zero exit status 100.

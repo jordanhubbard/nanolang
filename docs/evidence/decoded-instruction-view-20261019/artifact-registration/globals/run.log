@@ -1,0 +1,57 @@
+I am checking native image reload 1: /private/tmp/nanolang-asan-artifact-registration/globals/first.so
+I am checking native image reload 1: /private/tmp/nanolang-asan-artifact-registration/globals/second.so
+I am checking native image reload 2: /private/tmp/nanolang-asan-artifact-registration/globals/first.so
+=================================================================
+==18205==ERROR: AddressSanitizer: odr-violation (0x000104829a40):
+  [1] size=4 'array_matching__nano_array_abi' tests/nanovm/ffi_artifact_fixture.c in first.so
+  [2] size=4 'array_matching__nano_array_abi' tests/nanovm/ffi_artifact_fixture.c in first.so
+These globals were registered at these points:
+  [1]:
+    #0 0x000104e37d44 in __asan_register_globals+0xa0 (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x13d44)
+    #1 0x000104829944 in asan.module_ctor+0x1c (first.so:arm64+0x1944)
+    #2 0x0001908eadec in dyld4::LibSystemHelpers::callInitializer(int, char const* const*, char const* const*, char const* const*, dyld4::ProgramVars const*, void (*)(int, char const* const*, char const* const*, char const* const*, dyld4::ProgramVars const*)) const+0x24 (libdyld.dylib:arm64e+0x7dec)
+    #3 0x00019096d734 in invocation function for block in dyld4::Loader::findAndRunAllInitializers(dyld4::RuntimeState&) const::$_0::operator()() const+0x144 (dyld:arm64e+0x63734)
+    #4 0x0001909a1068 in invocation function for block in mach_o::Image::forEachInitializer(void (unsigned int) block_pointer) const+0x50 (dyld:arm64e+0x97068)
+    #5 0x000190998504 in mach_o::Header::SegmentInfo mach_o::Header::parse_segment_command<true>(mach_o::Header::LoadCommandInfo const&, unsigned short, void (mach_o::Header::SegmentInfo const&, mach_o::Header::SectionInfo const&) block_pointer, mach_o::Error*) const+0x240 (dyld:arm64e+0x8e504)
+    #6 0x00019099d970 in invocation function for block in mach_o::Header::forEachSection(void (mach_o::Header::SectionInfo const&, bool&) block_pointer) const+0x98 (dyld:arm64e+0x93970)
+    #7 0x000190997000 in mach_o::Header::forEachLoadCommand(void (mach_o::Header::LoadCommandInfo const&, bool&) block_pointer, mach_o::Error*) const+0xe0 (dyld:arm64e+0x8d000)
+    #8 0x00019099b078 in mach_o::Header::forEachSection(void (mach_o::Header::SectionInfo const&, bool&) block_pointer) const+0x7c (dyld:arm64e+0x91078)
+    #9 0x0001909a0f98 in mach_o::Image::forEachInitializer(void (unsigned int) block_pointer) const+0xf0 (dyld:arm64e+0x96f98)
+    #10 0x000190968610 in dyld4::Loader::findAndRunAllInitializers(dyld4::RuntimeState&) const+0x2a4 (dyld:arm64e+0x5e610)
+    #11 0x00019095ffdc in dyld4::JustInTimeLoader::runInitializers(dyld4::RuntimeState&) const+0x20 (dyld:arm64e+0x55fdc)
+    #12 0x000190968c04 in dyld4::Loader::runInitializersBottomUp(dyld4::RuntimeState&, lsl::Vector<AuthenticatedValue<dyld4::Loader const*>>&, lsl::Vector<AuthenticatedValue<dyld4::Loader const*>>&) const+0x1e4 (dyld:arm64e+0x5ec04)
+    #13 0x00019096d7f4 in dyld4::Loader::runInitializersBottomUpPlusUpwardLinks(dyld4::RuntimeState&) const::$_0::operator()() const+0x78 (dyld:arm64e+0x637f4)
+    #14 0x000190968d54 in dyld4::Loader::runInitializersBottomUpPlusUpwardLinks(dyld4::RuntimeState&) const+0xc0 (dyld:arm64e+0x5ed54)
+    #15 0x000190934114 in dyld4::APIs::dlopen_from(char const*, int, void*)::$_0::operator()() const+0x6d0 (dyld:arm64e+0x2a114)
+    #16 0x0001909282d8 in dyld4::APIs::dlopen_from(char const*, int, void*)+0x248 (dyld:arm64e+0x1e2d8)
+    #17 0x000190927fe8 in dyld4::APIs::dlopen(char const*, int)+0x74 (dyld:arm64e+0x1dfe8)
+    #18 0x000104e54fec in dlopen+0x188 (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x30fec)
+    #19 0x000104524858 in main test_artifact_load.c:10
+    #20 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+  [2]:
+    #0 0x000104e37d44 in __asan_register_globals+0xa0 (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x13d44)
+    #1 0x000104829944 in asan.module_ctor+0x1c (first.so:arm64+0x1944)
+    #2 0x0001908eadec in dyld4::LibSystemHelpers::callInitializer(int, char const* const*, char const* const*, char const* const*, dyld4::ProgramVars const*, void (*)(int, char const* const*, char const* const*, char const* const*, dyld4::ProgramVars const*)) const+0x24 (libdyld.dylib:arm64e+0x7dec)
+    #3 0x00019096d734 in invocation function for block in dyld4::Loader::findAndRunAllInitializers(dyld4::RuntimeState&) const::$_0::operator()() const+0x144 (dyld:arm64e+0x63734)
+    #4 0x0001909a1068 in invocation function for block in mach_o::Image::forEachInitializer(void (unsigned int) block_pointer) const+0x50 (dyld:arm64e+0x97068)
+    #5 0x000190998504 in mach_o::Header::SegmentInfo mach_o::Header::parse_segment_command<true>(mach_o::Header::LoadCommandInfo const&, unsigned short, void (mach_o::Header::SegmentInfo const&, mach_o::Header::SectionInfo const&) block_pointer, mach_o::Error*) const+0x240 (dyld:arm64e+0x8e504)
+    #6 0x00019099d970 in invocation function for block in mach_o::Header::forEachSection(void (mach_o::Header::SectionInfo const&, bool&) block_pointer) const+0x98 (dyld:arm64e+0x93970)
+    #7 0x000190997000 in mach_o::Header::forEachLoadCommand(void (mach_o::Header::LoadCommandInfo const&, bool&) block_pointer, mach_o::Error*) const+0xe0 (dyld:arm64e+0x8d000)
+    #8 0x00019099b078 in mach_o::Header::forEachSection(void (mach_o::Header::SectionInfo const&, bool&) block_pointer) const+0x7c (dyld:arm64e+0x91078)
+    #9 0x0001909a0f98 in mach_o::Image::forEachInitializer(void (unsigned int) block_pointer) const+0xf0 (dyld:arm64e+0x96f98)
+    #10 0x000190968610 in dyld4::Loader::findAndRunAllInitializers(dyld4::RuntimeState&) const+0x2a4 (dyld:arm64e+0x5e610)
+    #11 0x00019095ffdc in dyld4::JustInTimeLoader::runInitializers(dyld4::RuntimeState&) const+0x20 (dyld:arm64e+0x55fdc)
+    #12 0x000190968c04 in dyld4::Loader::runInitializersBottomUp(dyld4::RuntimeState&, lsl::Vector<AuthenticatedValue<dyld4::Loader const*>>&, lsl::Vector<AuthenticatedValue<dyld4::Loader const*>>&) const+0x1e4 (dyld:arm64e+0x5ec04)
+    #13 0x00019096d7f4 in dyld4::Loader::runInitializersBottomUpPlusUpwardLinks(dyld4::RuntimeState&) const::$_0::operator()() const+0x78 (dyld:arm64e+0x637f4)
+    #14 0x000190968d54 in dyld4::Loader::runInitializersBottomUpPlusUpwardLinks(dyld4::RuntimeState&) const+0xc0 (dyld:arm64e+0x5ed54)
+    #15 0x000190934114 in dyld4::APIs::dlopen_from(char const*, int, void*)::$_0::operator()() const+0x6d0 (dyld:arm64e+0x2a114)
+    #16 0x0001909282d8 in dyld4::APIs::dlopen_from(char const*, int, void*)+0x248 (dyld:arm64e+0x1e2d8)
+    #17 0x000190927fe8 in dyld4::APIs::dlopen(char const*, int)+0x74 (dyld:arm64e+0x1dfe8)
+    #18 0x000104e54fec in dlopen+0x188 (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x30fec)
+    #19 0x000104524858 in main test_artifact_load.c:10
+    #20 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+==18205==HINT: if you don't care about these errors you may set ASAN_OPTIONS=detect_odr_violation=0
+SUMMARY: AddressSanitizer: odr-violation: global 'array_matching__nano_array_abi' at tests/nanovm/ffi_artifact_fixture.c in first.so
+==18205==ABORTING

@@ -1,0 +1,3 @@
+Warning at line 2, column 1: Unused variable 'view'
+Warning at line 2, column 1: Unused variable 'view'
+PASS: complete no-read module is byte-identical before/after field-read extension

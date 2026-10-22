@@ -1,0 +1,1 @@
+PASS 12 synthetic native outcomes: dynamic sole-root CALL, absent VOID, exact string-guard abort; O0/O2 ASan/UBSan raw/forced GC

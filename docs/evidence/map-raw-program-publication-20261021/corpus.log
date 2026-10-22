@@ -1,0 +1,12 @@
+I retain paired map publisher evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-acr6w_4b
+test_independent_shadow_omission (tests.test_map_field_publication.MapFieldPublication.test_independent_shadow_omission) ... ok
+test_malformed_wire_preserves_output (tests.test_map_field_publication.MapFieldPublication.test_malformed_wire_preserves_output) ... ok
+test_map_only_multiple_fields_forward_record (tests.test_map_field_publication.MapFieldPublication.test_map_only_multiple_fields_forward_record) ... ok
+test_mixed_omission (tests.test_map_field_publication.MapFieldPublication.test_mixed_omission) ... ok
+test_nested_u8 (tests.test_map_field_publication.MapFieldPublication.test_nested_u8) ... ok
+test_unchanged_and_concat (tests.test_map_field_publication.MapFieldPublication.test_unchanged_and_concat) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 27.485s
+
+OK

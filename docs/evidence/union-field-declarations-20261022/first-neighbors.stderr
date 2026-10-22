@@ -1,0 +1,20 @@
+test_owned_declarations_and_failures (tests.test_union_field_declarations.UnionFieldDeclarations.test_owned_declarations_and_failures) ... ok
+test_owned_declarations_and_failures (tests.test_ownership_declaration_projection.OwnershipDeclarationProjection.test_owned_declarations_and_failures) ... ok
+test_owned_declarations_and_failures (tests.test_ordinary_array_authority.OrdinaryArrayAuthority.test_owned_declarations_and_failures) ... ok
+test_map_declarations_and_failures (tests.test_map_declarations.MapDeclarations.test_map_declarations_and_failures) ... FAIL
+
+======================================================================
+FAIL: test_map_declarations_and_failures (tests.test_map_declarations.MapDeclarations.test_map_declarations_and_failures)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_map_declarations.py", line 26, in test_map_declarations_and_failures
+    output=self.command(mode+'-run',[str(exe)])
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 4 tests in 8.864s
+
+FAILED (failures=1)

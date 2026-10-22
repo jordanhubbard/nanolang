@@ -1,0 +1,8 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_nk5qk5u
+test_signed_multiplication_endpoints (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_signed_multiplication_endpoints) ... ok
+test_later_false_helper_assertion_stays_runtime_failure (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_later_false_helper_assertion_stays_runtime_failure) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 147.299s
+
+OK

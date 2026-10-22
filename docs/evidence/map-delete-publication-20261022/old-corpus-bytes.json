@@ -1,0 +1,206 @@
+[
+  {
+    "name": "unchanged-raw-0.nvm",
+    "equal": true,
+    "before": "d8a321d30fcebf0cf8f5236a2981fad6b442e12b75138b8dc20f649d9221c4c8",
+    "after": "d8a321d30fcebf0cf8f5236a2981fad6b442e12b75138b8dc20f649d9221c4c8"
+  },
+  {
+    "name": "map-only-forward-checked-0-shadow.nvm",
+    "equal": true,
+    "before": "d4471f4214fc645dc9fa3c55f8857b9ba5430e97a4d9c1d2b5fc56a9539bf5cc",
+    "after": "d4471f4214fc645dc9fa3c55f8857b9ba5430e97a4d9c1d2b5fc56a9539bf5cc"
+  },
+  {
+    "name": "nested-u8-raw-0.nvm",
+    "equal": true,
+    "before": "40cc0e91ce9ee966f53fdb7b0ef2675fcabf289c6d5ea8a69eaa1d07429924a8",
+    "after": "40cc0e91ce9ee966f53fdb7b0ef2675fcabf289c6d5ea8a69eaa1d07429924a8"
+  },
+  {
+    "name": "shadow-omit-raw-0.nvm",
+    "equal": true,
+    "before": "d4005b1b63ff5a8947b8abbccff0e56e2b9da630b6c8390165779aa93516e226",
+    "after": "d4005b1b63ff5a8947b8abbccff0e56e2b9da630b6c8390165779aa93516e226"
+  },
+  {
+    "name": "nested-u8-seed-shadow.nvm",
+    "equal": false,
+    "before": "b5cc692d4bd41d7ba0c6d0dfafa4d5f9b810605ff5ceabeaf6f3da0315a32b24",
+    "after": "030c7cd9a350c06b3a1b4edb787592f117c255c1cf7d26c70b2c2916aa530537",
+    "dump_equal_except_source_directory": true
+  },
+  {
+    "name": "malformed-output.nvm",
+    "equal": false,
+    "before": "d060a8fceaa7bac39a8329c2cbc696b90dba34ecc73496579ca5d5fba5cb2e69",
+    "after": "fd7856df78dfb01b93b2925e10d9d46de5831c931f8485dc7f797da9275672e7",
+    "scope": "malformed control artifact, not compatibility oracle"
+  },
+  {
+    "name": "map-only-forward-seed-shadow.nvm",
+    "equal": false,
+    "before": "b53427547775f35e8c523a75fdc15042494abc4accbdbfd167da31dcbc11dada",
+    "after": "f66b4013be05a4b8c368078a56a18b062ee22da43a507a46eb065410377c2857",
+    "dump_equal_except_source_directory": true
+  },
+  {
+    "name": "map-only-forward-raw-0-program.nvm",
+    "equal": true,
+    "before": "97dcf777778283fdd2c5ec06ce96136e513ad24712e0802e348c8c741a4f4e23",
+    "after": "97dcf777778283fdd2c5ec06ce96136e513ad24712e0802e348c8c741a4f4e23"
+  },
+  {
+    "name": "shadow-omit-raw-0-program.nvm",
+    "equal": true,
+    "before": "1d9e5e98dcc7212dbe3f6077d36ee2591017c337b89cdfc7e85f5ceb6a10833d",
+    "after": "1d9e5e98dcc7212dbe3f6077d36ee2591017c337b89cdfc7e85f5ceb6a10833d"
+  },
+  {
+    "name": "map-only-forward-seed.nvm",
+    "equal": false,
+    "before": "350079932c5168efc7197a13fda0464ce98cef9ef3af647861e9fd9aac9711ff",
+    "after": "93c4d336db6f7e26f023a8560867e2c72fc683b9c1bf5d4cf09aa15a000cc02d",
+    "dump_equal_except_source_directory": true
+  },
+  {
+    "name": "concat-raw-0-program.nvm",
+    "equal": true,
+    "before": "0b9c85e69ea94a1e9759149b1a55d852bcebc8a0cd746f985e7d97dea3497c0b",
+    "after": "0b9c85e69ea94a1e9759149b1a55d852bcebc8a0cd746f985e7d97dea3497c0b"
+  },
+  {
+    "name": "nested-u8-raw-0-program.nvm",
+    "equal": true,
+    "before": "63c2f52c0656a0c0494ba5a10e7bbbf505b3c20c7d609e1333db231b3af64923",
+    "after": "63c2f52c0656a0c0494ba5a10e7bbbf505b3c20c7d609e1333db231b3af64923"
+  },
+  {
+    "name": "nested-u8-seed.nvm",
+    "equal": false,
+    "before": "bb72ffb3c1d0f53408b0b368ef7fc507c5129d1f4217d6782de55f67d84473e3",
+    "after": "bb61f090bc27c9aab34e5ded4b38ad7fdd92e18fb279ac12d73c9eac323e87b6",
+    "dump_equal_except_source_directory": true
+  },
+  {
+    "name": "shadow-omit-checked-0.nvm",
+    "equal": true,
+    "before": "e0499c218dc45e83ad6337f299af3d72c9a7fc00eb7628121eaa2fdd384f5cfa",
+    "after": "e0499c218dc45e83ad6337f299af3d72c9a7fc00eb7628121eaa2fdd384f5cfa"
+  },
+  {
+    "name": "unchanged-checked-0-shadow.nvm",
+    "equal": true,
+    "before": "d8a321d30fcebf0cf8f5236a2981fad6b442e12b75138b8dc20f649d9221c4c8",
+    "after": "d8a321d30fcebf0cf8f5236a2981fad6b442e12b75138b8dc20f649d9221c4c8"
+  },
+  {
+    "name": "shadow-omit-seed.nvm",
+    "equal": false,
+    "before": "62ec62a54c5a7e8417ccfc0ce1a563a9a05c286b4c83f94cf7bf4e6c2d842b62",
+    "after": "ebf538ac258caac1c11614ecb56fab6f864572ae7b7af23a756d58c92b4e7291",
+    "dump_equal_except_source_directory": true
+  },
+  {
+    "name": "shadow-omit-seed-shadow.nvm",
+    "equal": false,
+    "before": "47497a55364b8800941769139ec95be55a86d0d66c69ba65507a391e4680d446",
+    "after": "4a69bf34ec4577786d5a5c921d6b7711612e0ad6c3c0a86b4caa917e58502de9",
+    "dump_equal_except_source_directory": true
+  },
+  {
+    "name": "concat-seed-shadow.nvm",
+    "equal": false,
+    "before": "c8694309a4289f667ed05bbc3de7d7af764bc5ade0e11b26642b3d0b76f6b75b",
+    "after": "f2b85e94c854aae605a5d93ac4f246ae7ef327bd0e8b370ce5889fed2f23a6cf",
+    "dump_equal_except_source_directory": true
+  },
+  {
+    "name": "map-only-forward-checked-0.nvm",
+    "equal": true,
+    "before": "97dcf777778283fdd2c5ec06ce96136e513ad24712e0802e348c8c741a4f4e23",
+    "after": "97dcf777778283fdd2c5ec06ce96136e513ad24712e0802e348c8c741a4f4e23"
+  },
+  {
+    "name": "malformed-base.nvm",
+    "equal": false,
+    "before": "d060a8fceaa7bac39a8329c2cbc696b90dba34ecc73496579ca5d5fba5cb2e69",
+    "after": "fd7856df78dfb01b93b2925e10d9d46de5831c931f8485dc7f797da9275672e7",
+    "scope": "malformed control artifact, not compatibility oracle"
+  },
+  {
+    "name": "unchanged-seed.nvm",
+    "equal": false,
+    "before": "a9b764450931dbce883599bd3203356e6795c1b343739549bf8fe523e853694f",
+    "after": "f6c4702361dc962200a6a07d9aee91123bf9339384594a06905c647ba6b2a2bf",
+    "dump_equal_except_source_directory": true
+  },
+  {
+    "name": "nested-u8-checked-0-shadow.nvm",
+    "equal": true,
+    "before": "40cc0e91ce9ee966f53fdb7b0ef2675fcabf289c6d5ea8a69eaa1d07429924a8",
+    "after": "40cc0e91ce9ee966f53fdb7b0ef2675fcabf289c6d5ea8a69eaa1d07429924a8"
+  },
+  {
+    "name": "unchanged-checked-0.nvm",
+    "equal": true,
+    "before": "e0499c218dc45e83ad6337f299af3d72c9a7fc00eb7628121eaa2fdd384f5cfa",
+    "after": "e0499c218dc45e83ad6337f299af3d72c9a7fc00eb7628121eaa2fdd384f5cfa"
+  },
+  {
+    "name": "unchanged-seed-shadow.nvm",
+    "equal": false,
+    "before": "f705025c6bf4e14357a851c959db9890e32e88acc4a42fca5b325aeb01ef9dec",
+    "after": "e41f19a4bdd5079ddfbaa5e3ed5c79b02874fd1be70542c5622fe7da48d65252",
+    "dump_equal_except_source_directory": true
+  },
+  {
+    "name": "nested-u8-checked-0.nvm",
+    "equal": true,
+    "before": "63c2f52c0656a0c0494ba5a10e7bbbf505b3c20c7d609e1333db231b3af64923",
+    "after": "63c2f52c0656a0c0494ba5a10e7bbbf505b3c20c7d609e1333db231b3af64923"
+  },
+  {
+    "name": "concat-checked-0-shadow.nvm",
+    "equal": true,
+    "before": "8ce63c90f877fa41771df2e1af020e811870f4046177489c704a25108b78dcd3",
+    "after": "8ce63c90f877fa41771df2e1af020e811870f4046177489c704a25108b78dcd3"
+  },
+  {
+    "name": "shadow-omit-checked-0-shadow.nvm",
+    "equal": true,
+    "before": "d4005b1b63ff5a8947b8abbccff0e56e2b9da630b6c8390165779aa93516e226",
+    "after": "d4005b1b63ff5a8947b8abbccff0e56e2b9da630b6c8390165779aa93516e226"
+  },
+  {
+    "name": "map-only-forward-raw-0.nvm",
+    "equal": true,
+    "before": "d4471f4214fc645dc9fa3c55f8857b9ba5430e97a4d9c1d2b5fc56a9539bf5cc",
+    "after": "d4471f4214fc645dc9fa3c55f8857b9ba5430e97a4d9c1d2b5fc56a9539bf5cc"
+  },
+  {
+    "name": "unchanged-raw-0-program.nvm",
+    "equal": true,
+    "before": "1d9e5e98dcc7212dbe3f6077d36ee2591017c337b89cdfc7e85f5ceb6a10833d",
+    "after": "1d9e5e98dcc7212dbe3f6077d36ee2591017c337b89cdfc7e85f5ceb6a10833d"
+  },
+  {
+    "name": "concat-checked-0.nvm",
+    "equal": true,
+    "before": "99b5a7d158caa74d280ea3323067fe44cf309ccfbc6a5c8c12e1a95422d66662",
+    "after": "99b5a7d158caa74d280ea3323067fe44cf309ccfbc6a5c8c12e1a95422d66662"
+  },
+  {
+    "name": "concat-raw-0.nvm",
+    "equal": true,
+    "before": "8ce63c90f877fa41771df2e1af020e811870f4046177489c704a25108b78dcd3",
+    "after": "8ce63c90f877fa41771df2e1af020e811870f4046177489c704a25108b78dcd3"
+  },
+  {
+    "name": "concat-seed.nvm",
+    "equal": false,
+    "before": "5c8ddff28f4849fa27fb31c550c7aaafd6af787b7e38c6adac1bb619737e92d8",
+    "after": "5b62f7f3f64742b8c21852c164ace879207a374d4267c34d962a035623819013",
+    "dump_equal_except_source_directory": true
+  }
+]

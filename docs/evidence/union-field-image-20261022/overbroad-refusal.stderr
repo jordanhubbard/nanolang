@@ -1,0 +1,1 @@
+I failed line32: !nvm_verify(&image->plan->carrier->snapshot).ok

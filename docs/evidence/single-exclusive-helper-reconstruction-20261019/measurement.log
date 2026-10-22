@@ -1,0 +1,2 @@
+c {'cost': [228, 29], 'work': {'work': 288, 'loops': [], 'add_work': 256, 'limit': 4096}, 'returncode': 0, 'stderr': '', 'sentinel_preserved': False}
+nano {'cost': [209, 29], 'work': {'work': 288, 'loops': [], 'add_work': 256, 'limit': 4096}, 'shadow_cost': 60, 'returncode': 1, 'stderr': 'I limit generated exclusive Nano functions to 128 local slots\nI did not publish reconstructed source\n', 'sentinel_preserved': True}

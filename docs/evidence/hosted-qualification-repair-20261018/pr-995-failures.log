@@ -1,0 +1,2 @@
+Memory Sanitizers	UNKNOWN STEP	2026-10-18T00:10:01.3990681Z bash: line 6: 62032 Alarm clock             perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' bin/nanoc "src_nano/$src.nano" -o "$out" > "$log" 2>&1
+Memory Sanitizers	UNKNOWN STEP	2026-10-18T00:10:01.3991563Z     ❌ typecheck compilation failed

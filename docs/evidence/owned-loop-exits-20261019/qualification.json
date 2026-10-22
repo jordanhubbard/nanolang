@@ -1,0 +1,17 @@
+{
+  "environment": {
+    "NANOLANG_OWNED_RECONSTRUCTION_COMPILERS": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+    "NANO_NATIVE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang"
+  },
+  "target": "tests.test_owned_loop_exit_reconstruction",
+  "new_methods": 15,
+  "final_full_methods": 11,
+  "subsequent_added_pure_methods": 2,
+  "commands_retained": 880,
+  "artifact_hashes": 1311,
+  "base": "8f5b21af0a1cdf0d91027f368a80261190e26f7f",
+  "design_commit": "43ee2a39f5e073b1c63c285539a99274b289eee5",
+  "syntax_exit": 0,
+  "diff_check_exit": 0,
+  "subsequent_added_routing_methods": 2
+}

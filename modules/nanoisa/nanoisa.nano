@@ -113,3 +113,14 @@ shadow last_error {
         assert (== (delete directory) 0)
     }
 }
+
+# I query complete optional ARRAY/MAP candidates without publishing files or
+# retaining an admission token. Zero means unsupported/unestablished/limit,
+# not a validity certificate; the base candidate still needs its normal validation.
+extern fn nl_nanoisa_array_publication(source: string) -> int
+pub fn array_publication(source: string) -> int {
+    unsafe { return (nl_nanoisa_array_publication source) }
+}
+shadow array_publication {
+    assert (== (array_publication "not assembly") (- 0 1))
+}

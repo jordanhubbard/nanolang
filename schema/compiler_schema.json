@@ -342,6 +342,18 @@
         [
           "name",
           "string"
+        ],
+        [
+          "affine_owner",
+          "array<int>"
+        ],
+        [
+          "affine_epoch",
+          "int"
+        ],
+        [
+          "checked_affine_use",
+          "int"
         ]
       ],
       "emit_c": true
@@ -870,6 +882,18 @@
         [
           "self_name",
           "string"
+        ],
+        [
+          "checked_affine",
+          "int"
+        ],
+        [
+          "affine_owner",
+          "array<int>"
+        ],
+        [
+          "affine_completed_epoch",
+          "int"
         ]
       ],
       "emit_c": true
@@ -1175,6 +1199,10 @@
         ],
         [
           "column",
+          "int"
+        ],
+        [
+          "checked_coverage",
           "int"
         ],
         [

@@ -1,0 +1,17 @@
+{
+  "first.log": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-heap-c_s4a29_"
+  ],
+  "corrected.log": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-heap-dt3mw7o4"
+  ],
+  "final-sanitized.log": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-heap-1bn_ohg1"
+  ],
+  "combined-preparation.stdout": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-preparation-qfnhtha8"
+  ],
+  "old-array-vm.stdout": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-vm-enflxb2c"
+  ]
+}

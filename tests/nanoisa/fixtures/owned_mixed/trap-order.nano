@@ -1,0 +1,16 @@
+resource struct Leaf { value: int }
+resource struct Box { child: Leaf, marker: int }
+fn check(ok: bool) -> int { assert ok return 3 }
+shadow check { assert (== (check true) 3) }
+fn make(divisor: int) -> Leaf {
+ let value: int = (/ 1 divisor)
+ return Leaf { value: value }
+}
+shadow make { let leaf: Leaf = (make 1) let Leaf { value } = leaf assert (== value 1) }
+fn main() -> int {
+ let box: Box = Box { marker: (check false), child: (make 0) }
+ let Box { child, marker } = box
+ let Leaf { value } = child
+ return (+ marker value)
+}
+shadow main { assert true }

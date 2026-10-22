@@ -1,0 +1,60 @@
+[
+  {
+    "input": "nano_virt",
+    "before": [
+      131,
+      21
+    ],
+    "planned": [
+      98,
+      21
+    ],
+    "plan": {
+      "patterns": {
+        "scalar_constructor_bundle": 2,
+        "pack_store": 3,
+        "move_own_store": 7,
+        "snapshot_assert": 7,
+        "read_store": 4,
+        "unused_unpack_copies": 4
+      },
+      "removed_slots": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "covered_statements": 104,
+      "original_statements": 104
+    }
+  },
+  {
+    "input": "original-shadows",
+    "before": [
+      131,
+      21
+    ],
+    "planned": [
+      98,
+      21
+    ],
+    "plan": {
+      "patterns": {
+        "scalar_constructor_bundle": 2,
+        "pack_store": 3,
+        "move_own_store": 7,
+        "snapshot_assert": 7,
+        "read_store": 4,
+        "unused_unpack_copies": 4
+      },
+      "removed_slots": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "covered_statements": 107,
+      "original_statements": 107
+    }
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "revision": "f2729ab1bfbd8c794de65707c0cf42eef75d19ed",
+  "imported_sources": {
+    "nanoisa_owned_reconstruction.py": "1aa12d15ae11606c81e8942b1e5068e329b784d4e81372cd49f9de9c581a5ee0",
+    "nanoisa_reconstruction.py": "99fb618ca5fc7f336dd7a8d2781b95295d8fb19131b7d82bb3975a7a23ded74a"
+  },
+  "kind": "Prior analyzer API replay on actual original-verified facts, not old CLI execution",
+  "results": [
+    {
+      "anchor": "source_borrow_control_flow",
+      "target": "c",
+      "exception": "Refusal",
+      "message": "I require the exact nested-path helper profile",
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pjpkkswp/source_borrow_control_flow-nanoc_u8_context.nvm",
+      "module_sha256": "d908f823d0b0fc6094675ac754f5f1fec2f1c2a5b22a60991d1f2a5d0fcc0e31",
+      "facts_sha256": "9728ad9946deac75a34d31c9e47aef7a92fac33d787c5c8b16184387d6b455b4"
+    },
+    {
+      "anchor": "source_borrow_control_flow",
+      "target": "nano",
+      "exception": "Refusal",
+      "message": "I require the exact nested-path helper profile",
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pjpkkswp/source_borrow_control_flow-nanoc_u8_context.nvm",
+      "module_sha256": "d908f823d0b0fc6094675ac754f5f1fec2f1c2a5b22a60991d1f2a5d0fcc0e31",
+      "facts_sha256": "9728ad9946deac75a34d31c9e47aef7a92fac33d787c5c8b16184387d6b455b4"
+    },
+    {
+      "anchor": "source_borrow_returns",
+      "target": "c",
+      "exception": "Refusal",
+      "message": "I require a straight-line scalar borrowed helper",
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pjpkkswp/source_borrow_returns-nanoc_u8_context.nvm",
+      "module_sha256": "a114afb2a1285e6f6b26de55df19b55c067078c82cdd79832e7cd284bda02010",
+      "facts_sha256": "68bb83702a2434d9f4ac13059ee3fb6e141e9a9a63a99ee9724ce4c19dd65608"
+    },
+    {
+      "anchor": "source_borrow_returns",
+      "target": "nano",
+      "exception": "Refusal",
+      "message": "I require a straight-line scalar borrowed helper",
+      "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pjpkkswp/source_borrow_returns-nanoc_u8_context.nvm",
+      "module_sha256": "a114afb2a1285e6f6b26de55df19b55c067078c82cdd79832e7cd284bda02010",
+      "facts_sha256": "68bb83702a2434d9f4ac13059ee3fb6e141e9a9a63a99ee9724ce4c19dd65608"
+    }
+  ]
+}

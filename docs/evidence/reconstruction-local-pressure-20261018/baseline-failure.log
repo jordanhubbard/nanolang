@@ -1,0 +1,302 @@
+I run the complete existing scalar corpus without invoking a second compiler bootstrap.
+test_acyclic_terminal_tail_calls (tests.test_scalar_reconstruction.ScalarReconstruction.test_acyclic_terminal_tail_calls) ... ok
+test_diamond_both_results_and_definite_assignment (tests.test_scalar_reconstruction.ScalarReconstruction.test_diamond_both_results_and_definite_assignment) ... ok
+test_int_boundaries_and_boolean_call (tests.test_scalar_reconstruction.ScalarReconstruction.test_int_boundaries_and_boolean_call) ... ok
+test_loaded_value_snapshot_survives_later_store (tests.test_scalar_reconstruction.ScalarReconstruction.test_loaded_value_snapshot_survives_later_store) ... ok
+test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) ... ok
+test_optional_names_do_not_alias_slots (tests.test_scalar_reconstruction.ScalarReconstruction.test_optional_names_do_not_alias_slots) ... ok
+test_refusal_preserves_prior_outputs (tests.test_scalar_reconstruction.ScalarReconstruction.test_refusal_preserves_prior_outputs) ... ok
+test_tail_calls_from_actual_source_producers (tests.test_scalar_reconstruction.ScalarReconstruction.test_tail_calls_from_actual_source_producers) ... ok
+test_tail_result_mismatch_refused_by_verifier (tests.test_scalar_reconstruction.ScalarReconstruction.test_tail_result_mismatch_refused_by_verifier) ... ok
+test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) ... ok
+test_arithmetic_pretest_loop (tests.test_reconstructed_integer_addition.IntegerReconstruction.test_arithmetic_pretest_loop) ... ok
+test_remaining_arithmetic_and_type_refusals_preserve_output (tests.test_reconstructed_integer_addition.IntegerReconstruction.test_remaining_arithmetic_and_type_refusals_preserve_output) ... ok
+test_signed_endpoints_and_cancellation (tests.test_reconstructed_integer_addition.IntegerReconstruction.test_signed_endpoints_and_cancellation) ... ok
+test_bool_multiplication_refused_before_publication (tests.test_reconstructed_integer_multiplication.IntegerMultiplication.test_bool_multiplication_refused_before_publication) ... ok
+test_multiplication_in_structured_loop (tests.test_reconstructed_integer_multiplication.IntegerMultiplication.test_multiplication_in_structured_loop) ... ok
+test_signed_digits_endpoints_and_high_products (tests.test_reconstructed_integer_multiplication.IntegerMultiplication.test_signed_digits_endpoints_and_high_products) ... ok
+test_division_pretest_loop_and_remainder_snapshot (tests.test_reconstructed_integer_division.IntegerDivision.test_division_pretest_loop_and_remainder_snapshot) ... ok
+test_signed_endpoints_zero_and_nonexact_quotients (tests.test_reconstructed_integer_division.IntegerDivision.test_signed_endpoints_zero_and_nonexact_quotients) ... ok
+test_wrong_tag_refusal_preserves_previous_output (tests.test_reconstructed_integer_division.IntegerDivision.test_wrong_tag_refusal_preserves_previous_output) ... ok
+test_all_shift_families_and_masked_counts (tests.test_reconstructed_integer_shifts.IntegerShifts.test_all_shift_families_and_masked_counts) ... ok
+test_shift_loop_condition_and_snapshots (tests.test_reconstructed_integer_shifts.IntegerShifts.test_shift_loop_condition_and_snapshots) ... ok
+test_wrong_tag_refusal_preserves_previous_output (tests.test_reconstructed_integer_shifts.IntegerShifts.test_wrong_tag_refusal_preserves_previous_output) ... ok
+test_binary_patterns_and_signed_endpoints (tests.test_reconstructed_integer_bitwise.IntegerBitwise.test_binary_patterns_and_signed_endpoints) ... ok
+test_inversion_only_and_double_inversion (tests.test_reconstructed_integer_bitwise.IntegerBitwise.test_inversion_only_and_double_inversion) ... ok
+test_loop_and_inversion_snapshot (tests.test_reconstructed_integer_bitwise.IntegerBitwise.test_loop_and_inversion_snapshot) ... ok
+test_wrong_tag_refusal_preserves_previous_output (tests.test_reconstructed_integer_bitwise.IntegerBitwise.test_wrong_tag_refusal_preserves_previous_output) ... ok
+test_unsigned_endpoint_order_and_bool_returns (tests.test_reconstructed_unsigned_comparisons.UnsignedComparisons.test_unsigned_endpoint_order_and_bool_returns) ... ok
+test_unsigned_loop_crossing_sign_boundary_and_snapshot (tests.test_reconstructed_unsigned_comparisons.UnsignedComparisons.test_unsigned_loop_crossing_sign_boundary_and_snapshot) ... ok
+test_wrong_input_and_result_tags_preserve_output (tests.test_reconstructed_unsigned_comparisons.UnsignedComparisons.test_wrong_input_and_result_tags_preserve_output) ... ok
+test_missing_operand_refusal_preserves_previous_output (tests.test_reconstructed_unsigned_division.UnsignedDivision.test_missing_operand_refusal_preserves_previous_output) ... ok
+test_unsigned_division_loop_and_remainder_snapshot (tests.test_reconstructed_unsigned_division.UnsignedDivision.test_unsigned_division_loop_and_remainder_snapshot) ... ok
+test_unsigned_endpoints_zero_and_high_bit_quotients (tests.test_reconstructed_unsigned_division.UnsignedDivision.test_unsigned_endpoints_zero_and_high_bit_quotients) ... 
+  test_unsigned_endpoints_zero_and_high_bit_quotients (tests.test_reconstructed_unsigned_division.UnsignedDivision.test_unsigned_endpoints_zero_and_high_bit_quotients) (opcode='I64_DIV_U') ... FAIL
+  test_unsigned_endpoints_zero_and_high_bit_quotients (tests.test_reconstructed_unsigned_division.UnsignedDivision.test_unsigned_endpoints_zero_and_high_bit_quotients) (opcode='I64_REM_U') ... FAIL
+test_wrong_tag_refusal_preserves_previous_output (tests.test_reconstructed_unsigned_division.UnsignedDivision.test_wrong_tag_refusal_preserves_previous_output) ... ok
+test_call_snapshot_and_indexed_loop_condition (tests.test_reconstructed_indexed_stack.IndexedStack.test_call_snapshot_and_indexed_loop_condition) ... ok
+test_mixed_tags_all_depths_and_stack_order (tests.test_reconstructed_indexed_stack.IndexedStack.test_mixed_tags_all_depths_and_stack_order) ... ok
+test_out_of_range_depth_preserves_output (tests.test_reconstructed_indexed_stack.IndexedStack.test_out_of_range_depth_preserves_output) ... ok
+test_each_compiler_failure_retains_exact_command_and_output (tests.test_reconstruction_harness_diagnostics.HarnessDiagnostics.test_each_compiler_failure_retains_exact_command_and_output) ... ok
+test_casts_and_not_endpoints (tests.test_reconstructed_truthiness.ScalarTruthiness.test_casts_and_not_endpoints) ... ok
+test_eager_calls_and_local_snapshot (tests.test_reconstructed_truthiness.ScalarTruthiness.test_eager_calls_and_local_snapshot) ... ok
+test_excluded_tags_and_wrong_arity_preserve_output (tests.test_reconstructed_truthiness.ScalarTruthiness.test_excluded_tags_and_wrong_arity_preserve_output) ... ok
+test_mixed_truth_tables (tests.test_reconstructed_truthiness.ScalarTruthiness.test_mixed_truth_tables) ... ok
+test_total_cast_loop_condition (tests.test_reconstructed_truthiness.ScalarTruthiness.test_total_cast_loop_condition) ... ok
+test_call_and_local_snapshots (tests.test_reconstructed_wide_multiply.WideMultiply.test_call_and_local_snapshots) ... ok
+test_pure_loop_condition_and_body_words (tests.test_reconstructed_wide_multiply.WideMultiply.test_pure_loop_condition_and_body_words) ... ok
+test_small_signed_and_unsigned_word_cases (tests.test_reconstructed_wide_multiply.WideMultiply.test_small_signed_and_unsigned_word_cases) ... ok
+test_type_arity_and_profile_refusals_preserve_output (tests.test_reconstructed_wide_multiply.WideMultiply.test_type_arity_and_profile_refusals_preserve_output) ... ok
+test_call_local_snapshots_and_loop_condition (tests.test_reconstructed_generic_integer.GenericInteger.test_call_local_snapshots_and_loop_condition) ... ok
+test_other_tags_refused_before_publication (tests.test_reconstructed_generic_integer.GenericInteger.test_other_tags_refused_before_publication) ... ok
+test_small_total_integer_cases (tests.test_reconstructed_generic_integer.GenericInteger.test_small_total_integer_cases) ... ok
+test_call_local_snapshot_and_pure_loop (tests.test_reconstructed_rot3.ScalarRot3.test_call_local_snapshot_and_pure_loop) ... ok
+test_distinct_values_and_mixed_tags (tests.test_reconstructed_rot3.ScalarRot3.test_distinct_values_and_mixed_tags) ... ok
+test_underflow_refused_without_execution (tests.test_reconstructed_rot3.ScalarRot3.test_underflow_refused_without_execution) ... ok
+test_each_operator_and_both_tag_orders (tests.test_reconstructed_comparisons.ScalarComparisons.test_each_operator_and_both_tag_orders) ... ok
+test_mixed_constant_retains_calls_and_local_snapshot (tests.test_reconstructed_comparisons.ScalarComparisons.test_mixed_constant_retains_calls_and_local_snapshot) ... ok
+test_other_tags_preserve_output (tests.test_reconstructed_comparisons.ScalarComparisons.test_other_tags_preserve_output) ... ok
+test_pure_loop_comparisons (tests.test_reconstructed_comparisons.ScalarComparisons.test_pure_loop_comparisons) ... ok
+test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) ... 
+  test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) (opcode='I64_ADD_CARRY', carries=(-9223372036854775808, -3, -2)) ... FAIL
+  test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) (opcode='I64_ADD_CARRY', carries=(-1, 0, 1)) ... FAIL
+  test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) (opcode='I64_ADD_CARRY', carries=(2, 3, 9223372036854775807)) ... FAIL
+  test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) (opcode='I64_SUB_BORROW', carries=(-9223372036854775808, -3, -2)) ... FAIL
+  test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) (opcode='I64_SUB_BORROW', carries=(-1, 0, 1)) ... FAIL
+  test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) (opcode='I64_SUB_BORROW', carries=(2, 3, 9223372036854775807)) ... FAIL
+test_loop_high_result_and_call_snapshot (tests.test_reconstructed_carry_borrow.CarryBorrow.test_loop_high_result_and_call_snapshot) ... ok
+test_tag_and_arity_refusals_preserve_output (tests.test_reconstructed_carry_borrow.CarryBorrow.test_tag_and_arity_refusals_preserve_output) ... ok
+test_cast_bool_controls_a_pretest_loop (tests.test_reconstructed_u8.U8Reconstruction.test_cast_bool_controls_a_pretest_loop) ... ok
+test_constants_locals_calls_branches_and_explicit_casts (tests.test_reconstructed_u8.U8Reconstruction.test_constants_locals_calls_branches_and_explicit_casts) ... ok
+test_contextual_source_literal_refusals_preserve_output (tests.test_reconstructed_u8.U8Reconstruction.test_contextual_source_literal_refusals_preserve_output) ... 
+  test_contextual_source_literal_refusals_preserve_output (tests.test_reconstructed_u8.U8Reconstruction.test_contextual_source_literal_refusals_preserve_output) (producer='nano_virt', expression='(- 0 1)') ... FAIL
+  test_contextual_source_literal_refusals_preserve_output (tests.test_reconstructed_u8.U8Reconstruction.test_contextual_source_literal_refusals_preserve_output) (producer='nano_virt', expression='(+ 127 1)') ... FAIL
+test_contextual_source_literals_keep_exact_byte_tags (tests.test_reconstructed_u8.U8Reconstruction.test_contextual_source_literals_keep_exact_byte_tags) ... ok
+test_u8_entry_result_preserves_prior_output (tests.test_reconstructed_u8.U8Reconstruction.test_u8_entry_result_preserves_prior_output) ... ok
+
+======================================================================
+FAIL: test_unsigned_endpoints_zero_and_high_bit_quotients (tests.test_reconstructed_unsigned_division.UnsignedDivision.test_unsigned_endpoints_zero_and_high_bit_quotients) (opcode='I64_DIV_U')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_unsigned_division.py", line 40, in test_unsigned_endpoints_zero_and_high_bit_quotients
+    self.paired(text, 0, shadows, names=('nlr_i64_'+name,))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_integer_addition.py", line 24, in checked
+    return base.ScalarReconstruction.checked(self, args, expected)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 92, in checked
+    self.assertEqual(p.returncode, expected,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     'I ran: '+shlex.join(argv)+'\n'+p.stdout+p.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I ran: /Users/jkh/Src/nanolang-51-reconstruction/bin/nanoc_stage1 /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-mpkhv1u0/result.nano -o /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-mpkhv1u0/nanoc_stage1
+I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_bytecode_product_plAM7M/program.nvm': function 1: too many locals
+
+
+======================================================================
+FAIL: test_unsigned_endpoints_zero_and_high_bit_quotients (tests.test_reconstructed_unsigned_division.UnsignedDivision.test_unsigned_endpoints_zero_and_high_bit_quotients) (opcode='I64_REM_U')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_unsigned_division.py", line 40, in test_unsigned_endpoints_zero_and_high_bit_quotients
+    self.paired(text, 0, shadows, names=('nlr_i64_'+name,))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_integer_addition.py", line 24, in checked
+    return base.ScalarReconstruction.checked(self, args, expected)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 92, in checked
+    self.assertEqual(p.returncode, expected,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     'I ran: '+shlex.join(argv)+'\n'+p.stdout+p.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I ran: /Users/jkh/Src/nanolang-51-reconstruction/bin/nanoc_stage1 /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-xl58_nqs/result.nano -o /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-xl58_nqs/nanoc_stage1
+I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_bytecode_product_Ad4Umm/program.nvm': function 1: too many locals
+
+
+======================================================================
+FAIL: test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) (opcode='I64_ADD_CARRY', carries=(-9223372036854775808, -3, -2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_carry_borrow.py", line 40, in test_endpoints_and_noncanonical_carry_bits
+    self.paired('.entry main\n.function main 0 2 0 int 1\n' + body + '.end\n', 0,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                'shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_integer_addition.py", line 24, in checked
+    return base.ScalarReconstruction.checked(self, args, expected)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 92, in checked
+    self.assertEqual(p.returncode, expected,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     'I ran: '+shlex.join(argv)+'\n'+p.stdout+p.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I ran: /Users/jkh/Src/nanolang-51-reconstruction/bin/nanoc_stage1 /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-khcqoop8/result.nano -o /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-khcqoop8/nanoc_stage1
+I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_bytecode_product_i9tRVV/program.nvm': function 1: too many locals
+
+
+======================================================================
+FAIL: test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) (opcode='I64_ADD_CARRY', carries=(-1, 0, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_carry_borrow.py", line 40, in test_endpoints_and_noncanonical_carry_bits
+    self.paired('.entry main\n.function main 0 2 0 int 1\n' + body + '.end\n', 0,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                'shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_integer_addition.py", line 24, in checked
+    return base.ScalarReconstruction.checked(self, args, expected)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 92, in checked
+    self.assertEqual(p.returncode, expected,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     'I ran: '+shlex.join(argv)+'\n'+p.stdout+p.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I ran: /Users/jkh/Src/nanolang-51-reconstruction/bin/nanoc_stage1 /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-_0_2eprq/result.nano -o /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-_0_2eprq/nanoc_stage1
+I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_bytecode_product_VAMr58/program.nvm': function 1: too many locals
+
+
+======================================================================
+FAIL: test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) (opcode='I64_ADD_CARRY', carries=(2, 3, 9223372036854775807))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_carry_borrow.py", line 40, in test_endpoints_and_noncanonical_carry_bits
+    self.paired('.entry main\n.function main 0 2 0 int 1\n' + body + '.end\n', 0,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                'shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_integer_addition.py", line 24, in checked
+    return base.ScalarReconstruction.checked(self, args, expected)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 92, in checked
+    self.assertEqual(p.returncode, expected,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     'I ran: '+shlex.join(argv)+'\n'+p.stdout+p.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I ran: /Users/jkh/Src/nanolang-51-reconstruction/bin/nanoc_stage1 /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-w0lieerv/result.nano -o /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-w0lieerv/nanoc_stage1
+I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_bytecode_product_xPsbdK/program.nvm': function 1: too many locals
+
+
+======================================================================
+FAIL: test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) (opcode='I64_SUB_BORROW', carries=(-9223372036854775808, -3, -2))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_carry_borrow.py", line 40, in test_endpoints_and_noncanonical_carry_bits
+    self.paired('.entry main\n.function main 0 2 0 int 1\n' + body + '.end\n', 0,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                'shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_integer_addition.py", line 24, in checked
+    return base.ScalarReconstruction.checked(self, args, expected)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 92, in checked
+    self.assertEqual(p.returncode, expected,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     'I ran: '+shlex.join(argv)+'\n'+p.stdout+p.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I ran: /Users/jkh/Src/nanolang-51-reconstruction/bin/nanoc_stage1 /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-zh59y9na/result.nano -o /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-zh59y9na/nanoc_stage1
+I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_bytecode_product_Xikbth/program.nvm': function 1: too many locals
+
+
+======================================================================
+FAIL: test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) (opcode='I64_SUB_BORROW', carries=(-1, 0, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_carry_borrow.py", line 40, in test_endpoints_and_noncanonical_carry_bits
+    self.paired('.entry main\n.function main 0 2 0 int 1\n' + body + '.end\n', 0,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                'shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_integer_addition.py", line 24, in checked
+    return base.ScalarReconstruction.checked(self, args, expected)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 92, in checked
+    self.assertEqual(p.returncode, expected,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     'I ran: '+shlex.join(argv)+'\n'+p.stdout+p.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I ran: /Users/jkh/Src/nanolang-51-reconstruction/bin/nanoc_stage1 /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-ewr2wwxm/result.nano -o /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-ewr2wwxm/nanoc_stage1
+I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_bytecode_product_Or5bg8/program.nvm': function 1: too many locals
+
+
+======================================================================
+FAIL: test_endpoints_and_noncanonical_carry_bits (tests.test_reconstructed_carry_borrow.CarryBorrow.test_endpoints_and_noncanonical_carry_bits) (opcode='I64_SUB_BORROW', carries=(2, 3, 9223372036854775807))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_carry_borrow.py", line 40, in test_endpoints_and_noncanonical_carry_bits
+    self.paired('.entry main\n.function main 0 2 0 int 1\n' + body + '.end\n', 0,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                'shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_integer_addition.py", line 24, in checked
+    return base.ScalarReconstruction.checked(self, args, expected)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 92, in checked
+    self.assertEqual(p.returncode, expected,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     'I ran: '+shlex.join(argv)+'\n'+p.stdout+p.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I ran: /Users/jkh/Src/nanolang-51-reconstruction/bin/nanoc_stage1 /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-fm0ayi6e/result.nano -o /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-fm0ayi6e/nanoc_stage1
+I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_bytecode_product_J9A9e4/program.nvm': function 1: too many locals
+
+
+======================================================================
+FAIL: test_contextual_source_literal_refusals_preserve_output (tests.test_reconstructed_u8.U8Reconstruction.test_contextual_source_literal_refusals_preserve_output) (producer='nano_virt', expression='(- 0 1)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_u8.py", line 222, in test_contextual_source_literal_refusals_preserve_output
+    self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_contextual_source_literal_refusals_preserve_output (tests.test_reconstructed_u8.U8Reconstruction.test_contextual_source_literal_refusals_preserve_output) (producer='nano_virt', expression='(+ 127 1)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_reconstructed_u8.py", line 222, in test_contextual_source_literal_refusals_preserve_output
+    self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+----------------------------------------------------------------------
+Ran 64 tests in 306.386s
+
+FAILED (failures=10)

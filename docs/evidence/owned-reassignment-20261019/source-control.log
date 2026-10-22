@@ -1,0 +1,6 @@
+test_pruned_source_omits_only_unused_scalar_copies (tests.test_owned_reassignment_reconstruction.OwnerRenderingProof.test_pruned_source_omits_only_unused_scalar_copies) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.008s
+
+OK

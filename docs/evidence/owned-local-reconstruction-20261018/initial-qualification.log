@@ -1,0 +1,984 @@
+test_actual_producers_preserve_nominal_moves_fields_and_snapshots (tests.test_owned_reconstruction.OwnedReconstruction.test_actual_producers_preserve_nominal_moves_fields_and_snapshots) ... 
+  test_actual_producers_preserve_nominal_moves_fields_and_snapshots (tests.test_owned_reconstruction.OwnedReconstruction.test_actual_producers_preserve_nominal_moves_fields_and_snapshots) (compiler='/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nano_virt') ... FAIL
+test_corrupt_ownership_and_regions_preserve_prior_output (tests.test_owned_reconstruction.OwnedReconstruction.test_corrupt_ownership_and_regions_preserve_prior_output) ... ok
+test_verified_borrow_and_control_paths_outside_slice_refuse (tests.test_owned_reconstruction.OwnedReconstruction.test_verified_borrow_and_control_paths_outside_slice_refuse) ... ok
+test_acyclic_terminal_tail_calls (tests.test_scalar_reconstruction.ScalarReconstruction.test_acyclic_terminal_tail_calls) ... 
+  test_acyclic_terminal_tail_calls (tests.test_scalar_reconstruction.ScalarReconstruction.test_acyclic_terminal_tail_calls) (flag=0) ... ERROR
+  test_acyclic_terminal_tail_calls (tests.test_scalar_reconstruction.ScalarReconstruction.test_acyclic_terminal_tail_calls) (flag=1) ... ERROR
+  test_acyclic_terminal_tail_calls (tests.test_scalar_reconstruction.ScalarReconstruction.test_acyclic_terminal_tail_calls) (loop_start=0) ... ERROR
+  test_acyclic_terminal_tail_calls (tests.test_scalar_reconstruction.ScalarReconstruction.test_acyclic_terminal_tail_calls) (loop_start=3) ... ERROR
+test_diamond_both_results_and_definite_assignment (tests.test_scalar_reconstruction.ScalarReconstruction.test_diamond_both_results_and_definite_assignment) ... 
+  test_diamond_both_results_and_definite_assignment (tests.test_scalar_reconstruction.ScalarReconstruction.test_diamond_both_results_and_definite_assignment) (flag=0) ... ERROR
+  test_diamond_both_results_and_definite_assignment (tests.test_scalar_reconstruction.ScalarReconstruction.test_diamond_both_results_and_definite_assignment) (flag=1) ... ERROR
+test_int_boundaries_and_boolean_call (tests.test_scalar_reconstruction.ScalarReconstruction.test_int_boundaries_and_boolean_call) ... ERROR
+test_loaded_value_snapshot_survives_later_store (tests.test_scalar_reconstruction.ScalarReconstruction.test_loaded_value_snapshot_survives_later_store) ... ERROR
+test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) ... 
+  test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) (start=3) ... ERROR
+  test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) (start=2) ... ERROR
+  test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) (start=0) ... ERROR
+test_optional_names_do_not_alias_slots (tests.test_scalar_reconstruction.ScalarReconstruction.test_optional_names_do_not_alias_slots) ... ERROR
+test_refusal_preserves_prior_outputs (tests.test_scalar_reconstruction.ScalarReconstruction.test_refusal_preserves_prior_outputs) ... ok
+test_shared_snapshot_survives_store_compaction (tests.test_scalar_reconstruction.ScalarReconstruction.test_shared_snapshot_survives_store_compaction) ... ERROR
+test_tail_calls_from_actual_source_producers (tests.test_scalar_reconstruction.ScalarReconstruction.test_tail_calls_from_actual_source_producers) ... 
+  test_tail_calls_from_actual_source_producers (tests.test_scalar_reconstruction.ScalarReconstruction.test_tail_calls_from_actual_source_producers) (driver='nano_virt') ... ERROR
+  test_tail_calls_from_actual_source_producers (tests.test_scalar_reconstruction.ScalarReconstruction.test_tail_calls_from_actual_source_producers) (driver='nanoc_stage1') ... ERROR
+  test_tail_calls_from_actual_source_producers (tests.test_scalar_reconstruction.ScalarReconstruction.test_tail_calls_from_actual_source_producers) (driver='nanoc_stage2') ... ERROR
+test_tail_result_mismatch_refused_by_verifier (tests.test_scalar_reconstruction.ScalarReconstruction.test_tail_result_mismatch_refused_by_verifier) ... ok
+test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) ... 
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='direct', start=0) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='direct', start=2) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='direct', start=3) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='diamond', start=0) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='diamond', start=2) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='diamond', start=3) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='nested', start=0) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='nested', start=2) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='nested', start=3) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='multiple', start=0) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='multiple', start=2) ... ERROR
+  test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='multiple', start=3) ... ERROR
+
+======================================================================
+ERROR: test_acyclic_terminal_tail_calls (tests.test_scalar_reconstruction.ScalarReconstruction.test_acyclic_terminal_tail_calls) (flag=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 184, in test_acyclic_terminal_tail_calls
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_acyclic_terminal_tail_calls (tests.test_scalar_reconstruction.ScalarReconstruction.test_acyclic_terminal_tail_calls) (flag=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 184, in test_acyclic_terminal_tail_calls
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_acyclic_terminal_tail_calls (tests.test_scalar_reconstruction.ScalarReconstruction.test_acyclic_terminal_tail_calls) (loop_start=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 197, in test_acyclic_terminal_tail_calls
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_acyclic_terminal_tail_calls (tests.test_scalar_reconstruction.ScalarReconstruction.test_acyclic_terminal_tail_calls) (loop_start=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 197, in test_acyclic_terminal_tail_calls
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_diamond_both_results_and_definite_assignment (tests.test_scalar_reconstruction.ScalarReconstruction.test_diamond_both_results_and_definite_assignment) (flag=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 224, in test_diamond_both_results_and_definite_assignment
+    self.paired(DIAMOND.format(flag=flag),expected,shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_diamond_both_results_and_definite_assignment (tests.test_scalar_reconstruction.ScalarReconstruction.test_diamond_both_results_and_definite_assignment) (flag=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 224, in test_diamond_both_results_and_definite_assignment
+    self.paired(DIAMOND.format(flag=flag),expected,shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_int_boundaries_and_boolean_call (tests.test_scalar_reconstruction.ScalarReconstruction.test_int_boundaries_and_boolean_call)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 296, in test_int_boundaries_and_boolean_call
+    self.paired(text,42,shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_loaded_value_snapshot_survives_later_store (tests.test_scalar_reconstruction.ScalarReconstruction.test_loaded_value_snapshot_survives_later_store)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 239, in test_loaded_value_snapshot_survives_later_store
+    self.paired(text,42,'shadow nlr_f0_main { assert (== (nlr_f0_main) 42) }')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) (start=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 145, in test_nested_loops_zero_one_and_multiple_iterations
+    self.paired(LOOP.format(start=start),3,shadows,True)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) (start=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 145, in test_nested_loops_zero_one_and_multiple_iterations
+    self.paired(LOOP.format(start=start),3,shadows,True)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) (start=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 145, in test_nested_loops_zero_one_and_multiple_iterations
+    self.paired(LOOP.format(start=start),3,shadows,True)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_optional_names_do_not_alias_slots (tests.test_scalar_reconstruction.ScalarReconstruction.test_optional_names_do_not_alias_slots)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 266, in test_optional_names_do_not_alias_slots
+    self.paired(text,42,'shadow nlr_f0_main { assert (== (nlr_f0_main) 42) }',
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                names=('nlr_l0_if_return','nlr_l1_if_return'))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_shared_snapshot_survives_store_compaction (tests.test_scalar_reconstruction.ScalarReconstruction.test_shared_snapshot_survives_store_compaction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 248, in test_shared_snapshot_survives_store_compaction
+    self.paired(text, 0, 'shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_tail_calls_from_actual_source_producers (tests.test_scalar_reconstruction.ScalarReconstruction.test_tail_calls_from_actual_source_producers) (driver='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 216, in test_tail_calls_from_actual_source_producers
+    self.paired(None, 7, shadows, module_bytes=module.read_bytes())
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_tail_calls_from_actual_source_producers (tests.test_scalar_reconstruction.ScalarReconstruction.test_tail_calls_from_actual_source_producers) (driver='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 208, in test_tail_calls_from_actual_source_producers
+    self.checked([ROOT/'bin'/driver, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_tail_calls_from_actual_source_producers (tests.test_scalar_reconstruction.ScalarReconstruction.test_tail_calls_from_actual_source_producers) (driver='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 208, in test_tail_calls_from_actual_source_producers
+    self.checked([ROOT/'bin'/driver, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='direct', start=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 168, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='direct', start=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 168, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='direct', start=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 168, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='diamond', start=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 168, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='diamond', start=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 168, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='diamond', start=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 168, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='nested', start=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 168, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='nested', start=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 168, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='nested', start=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 168, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='multiple', start=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 168, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='multiple', start=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 168, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+ERROR: test_terminal_pretest_loop_bodies (tests.test_scalar_reconstruction.ScalarReconstruction.test_terminal_pretest_loop_bodies) (kind='multiple', start=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 168, in test_terminal_pretest_loop_bodies
+    self.paired(text, expected, shadows)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 136, in paired
+    self.checked([compiler,output,'-o',binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_scalar_reconstruction.py", line 90, in checked
+    p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
+                       env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_c'
+
+======================================================================
+FAIL: test_actual_producers_preserve_nominal_moves_fields_and_snapshots (tests.test_owned_reconstruction.OwnedReconstruction.test_actual_producers_preserve_nominal_moves_fields_and_snapshots) (compiler='/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-reconstruction/tests/test_owned_reconstruction.py", line 87, in test_actual_producers_preserve_nominal_moves_fields_and_snapshots
+    self.assertEqual(struct.unpack_from('<IIII', ownership), (1, 2, 3, 3))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, 2, 771, 3) != (1, 2, 3, 3)
+
+First differing element 2:
+771
+3
+
+- (1, 2, 771, 3)
+?        ^^^
+
++ (1, 2, 3, 3)
+?        ^
+
+
+----------------------------------------------------------------------
+Ran 14 tests in 11.199s
+
+FAILED (failures=1, errors=28)

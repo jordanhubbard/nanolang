@@ -1,0 +1,7 @@
+{
+  "src_nano/compiler/nanoisa_codegen.nano": "5cbbf93b50cb3b502d37127c5783e97f8f8198b7bf01588ee115766044835bb8",
+  "tests/test_map_field_operations.py": "e8aaea874f4d579b9f08489ecc81403bea9817c3828cdd6a158bfd230d4e795a",
+  "Makefile.gnu": "febc87ef7bfab84e1d0e78189576f3759328b72f8529c7cba74befa3c8834b5c",
+  ".github/workflows/retirement-qualification.yml": "f561019b51ce2454d189f6175bcb27627d089ec10a231242f5f8ca7052e2100c",
+  "/private/tmp/nanolang-map-remove-20261021/canonical": "a1a8059821dae28867eb047806013d747cc68cd599b4f7d124dd8613f4198e85"
+}

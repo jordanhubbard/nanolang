@@ -1,0 +1,58 @@
+=================================================================
+==19247==ERROR: AddressSanitizer: heap-use-after-free on address 0x61a0000004cd at pc 0x000102d6ce28 bp 0x00016d35e460 sp 0x00016d35e458
+READ of size 1 at 0x61a0000004cd thread T0
+    #0 0x000102d6ce24 in nvm_v2_u32 nvm_v2_cursor.c:48
+    #1 0x000102b57d60 in map_public_ownership_scan record_map_route.inc:30
+    #2 0x000102b58378 in nvm_record_map_wire_selected record_map_route.inc:77
+    #3 0x000102d6b234 in nvm_private_to_module nvm_v2_convert.c:665
+    #4 0x000102d6b234 in nvm_v2_to_nvm_module nvm_v2_convert.c:676
+    #5 0x000102abfc3c in deletion_original test_record_map_delete.c:46
+    #6 0x000102abfc3c in main test_record_map_delete.c:61
+    #7 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+0x61a0000004cd is located 1101 bytes inside of 1216-byte region [0x61a000000080,0x61a000000540)
+freed by thread T0 here:
+    #0 0x0001044dd4fc in free+0x74 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x554fc)
+    #1 0x000102abfc1c in deletion_original test_record_map_delete.c:45
+    #2 0x000102abfc1c in main test_record_map_delete.c:61
+    #3 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+previously allocated by thread T0 here:
+    #0 0x0001044dd40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000102abfb98 in deletion_original test_record_map_delete.c:44
+    #2 0x000102abfb98 in main test_record_map_delete.c:61
+    #3 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+SUMMARY: AddressSanitizer: heap-use-after-free nvm_v2_cursor.c:48 in nvm_v2_u32
+Shadow bytes around the buggy address:
+  0x61a000000200: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x61a000000280: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x61a000000300: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x61a000000380: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x61a000000400: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+=>0x61a000000480: fd fd fd fd fd fd fd fd fd[fd]fd fd fd fd fd fd
+  0x61a000000500: fd fd fd fd fd fd fd fd fa fa fa fa fa fa fa fa
+  0x61a000000580: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x61a000000600: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x61a000000680: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x61a000000700: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==19247==ABORTING

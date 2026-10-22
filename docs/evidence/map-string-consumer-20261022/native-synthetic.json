@@ -1,0 +1,278 @@
+[
+  {
+    "name": "ss-0-False-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-0-False-O0.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-0-False-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-0-False-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-0-False-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-0-False-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-0-False-O2.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-0-False-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-0-False-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-0-False-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-0-True-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-0-True-O0.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-0-True-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-0-True-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-0-True-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-0-True-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-0-True-O2.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-0-True-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-0-True-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-0-True-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-1-False-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-1-False-O0.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-1-False-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-1-False-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-1-False-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-1-False-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-1-False-O2.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-1-False-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-1-False-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-1-False-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-1-True-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-1-True-O0.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-1-True-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-1-True-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-1-True-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-1-True-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-1-True-O2.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-1-True-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-1-True-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-1-True-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-2-False-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-2-False-O0.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-2-False-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-2-False-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-2-False-O0"
+    ],
+    "status": -6
+  },
+  {
+    "name": "ss-2-False-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-2-False-O2.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-2-False-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-2-False-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-2-False-O2"
+    ],
+    "status": -6
+  },
+  {
+    "name": "ss-2-True-O0-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O0",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-2-True-O0.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-2-True-O0"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-2-True-O0-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-2-True-O0"
+    ],
+    "status": -6
+  },
+  {
+    "name": "ss-2-True-O2-build",
+    "args": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-g",
+      "-O2",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-2-True-O2.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-2-True-O2"
+    ],
+    "status": 0
+  },
+  {
+    "name": "ss-2-True-O2-run",
+    "args": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/ss-2-True-O2"
+    ],
+    "status": -6
+  }
+]

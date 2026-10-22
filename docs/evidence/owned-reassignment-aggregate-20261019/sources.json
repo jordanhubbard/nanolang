@@ -1,0 +1,10 @@
+{
+  "head": "f75ebf6518bdf6f7b88e0059ae6b147a81b6f630",
+  "sha256": {
+    "scripts/nanoisa_owned_reconstruction.py": "43d4b5c2a9c544fd22f3958a2cea111c55948d8ae2a6a4597a644166179ac177",
+    "scripts/nanoisa_owned_origins.py": "38b613257895c4d4a8128721f5fb5a89a4b407e7321ff6294fe2ea19e4e66e6a",
+    "scripts/nanoisa_owned_rendering.py": "857d1bac232cc6f0c299a84a2d1ff20a1b3250e12b9209e79f0645965aa4ffd7",
+    "tests/test_owned_reassignment_reconstruction.py": "42657419b254aef733dd1ab3b3a8b97bb57075d21a3c49d13f4bef3694fd3819",
+    "Makefile.gnu": "f6f20d32eef88ff56863d39acb2e6297e921423beff6fea69d2be70a2699f00d"
+  }
+}

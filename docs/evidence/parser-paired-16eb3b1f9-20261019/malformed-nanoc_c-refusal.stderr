@@ -1,0 +1,8 @@
+Error at line 1, column 117: Expected binding variable in match pattern
+Error at line 1, column 117: Expected '}' after match arms (got COMMA)
+Error at line 1, column 118: Unexpected token in expression: RPAREN (type=8)
+Error at line 1, column 120: Unexpected token in expression: ARROW (type=16)
+Error at line 1, column 123: Unexpected token in expression: LBRACE (type=9)
+Error at line 1, column 136: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 138: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Parsing error

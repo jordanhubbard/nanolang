@@ -1,0 +1,10 @@
+{
+  "src/nanoisa/ownership_union_fields_private.h": "9ff06a8886f98c78a7c4711eb7c06e1b495b1c6d40ad3da1a8ad44907931eee9",
+  "src/nanoisa/ownership_union_fields_private.inc": "dd0637e95d2e9a3d39d30c8b22aad80be13c5b03525e6c7a74f19df9fe081936",
+  "src/nanoisa/ownership_contracts.c": "386551c92bff6e391c0fca12052b4fbdf3f8405ff6fe2eca32649543784ca7d2",
+  "tests/nanoisa/test_union_field_declarations.c": "d8da94e5cae2351f5c7d288dc855a2d63229e20b962d5cf6d97df2ce1f7a6393",
+  "tests/test_union_field_declarations.py": "96deaeb4f8a5dc978dca1a16490c96279baa29e9eb2976f3b9d870e8a529feb1",
+  "tests/nanoisa/test_map_declarations.c": "b6be17e8fb590942e5037dafddfc965edd4154171483a6a71cb32b2dacee54f2",
+  "tests/test_map_declarations.py": "ac73d5825b1d65d295282fd3e61665a1111dc8bdda33fccb91604af63fe4d8a5",
+  "Makefile.gnu": "953a9cf692ee940d4fd7ee7ff68c9d16e9808b9f1d17268524194ade0558550a"
+}

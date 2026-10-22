@@ -1,0 +1,7 @@
+{
+  "equal": true,
+  "source_sha256": "2b9d4a7af7bfe01ebb2b85b39c5764badbde0865ee843b6260f9cd5baba7be29",
+  "linear_dispatch_sha256": "a4414ef60f8b56896f4fb3193ae6ff26bfb651add67e3efeefdeb87afc1876b5",
+  "normalization": "I omit RET, handled by explicit ExitRegions outcomes, dedent, and replace stack rebinding with passed-list slice assignment. All remaining dispatch checks/statements are identical.",
+  "touch_and_advance": "I retain the op-not-in-SIMPLE-or-CALL touch condition, exact observation(i,end) and reference_region_length advance; ExitRegions handles branch/JMP/RET coverage separately."
+}

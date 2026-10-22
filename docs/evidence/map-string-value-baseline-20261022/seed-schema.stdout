@@ -1,0 +1,1 @@
+PASS exact single STRING scalar/pair(0,0)/Holder.values declaration; selected UNRESOLVED: I prove only exact STRING-to-INT maps.; verifier refuses: I refuse record-map admission: I prove only exact STRING-to-INT maps.

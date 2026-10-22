@@ -1,0 +1,107 @@
+[
+  {
+    "name": "seed-old-int-native",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nvm2c",
+      "/private/tmp/nanolang-map-delete-consumer-20261022/seed-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/seed-old-int.c"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical-old-int-native",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nvm2c",
+      "/private/tmp/nanolang-map-delete-consumer-20261022/canonical-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/canonical-old-int.c"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow-old-int-native",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nvm2c",
+      "/private/tmp/nanolang-map-delete-consumer-20261022/c-shadow-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/c-shadow-old-int.c"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow-old-int-native",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/nvm2c",
+      "/private/tmp/nanolang-map-delete-consumer-20261022/raw-shadow-selected.nvm",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/raw-shadow-old-int.c"
+    ],
+    "status": 0
+  },
+  {
+    "name": "default-sizes-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-I.",
+      "-Isrc",
+      "/private/tmp/nanolang-map-string-consumer-20261022/sizes.c",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/sizes-default"
+    ],
+    "status": 0
+  },
+  {
+    "name": "default-sizes",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/sizes-default"
+    ],
+    "status": 0
+  },
+  {
+    "name": "array-sizes-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-I.",
+      "-Isrc",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "/private/tmp/nanolang-map-string-consumer-20261022/sizes.c",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/sizes-array"
+    ],
+    "status": 0
+  },
+  {
+    "name": "array-sizes",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/sizes-array"
+    ],
+    "status": 0
+  },
+  {
+    "name": "combined-sizes-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-I.",
+      "-Isrc",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "/private/tmp/nanolang-map-string-consumer-20261022/sizes.c",
+      "-o",
+      "/private/tmp/nanolang-map-string-consumer-20261022/sizes-combined"
+    ],
+    "status": 0
+  },
+  {
+    "name": "combined-sizes",
+    "argv": [
+      "/private/tmp/nanolang-map-string-consumer-20261022/sizes-combined"
+    ],
+    "status": 0
+  }
+]

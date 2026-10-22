@@ -9,6 +9,7 @@ typedef struct {
     const char **locals;
     bool *mutable;
     int count, capacity;
+    unsigned *budget; /* I bound advisory work without changing pure-fn checking. */
 } PurityWalk;
 static unsigned purity_node(PurityWalk *, ASTNode *);
 static unsigned purity_function(PurityWalk *, Function *);
@@ -128,6 +129,10 @@ static unsigned purity_identifier(PurityWalk *p,const char *name) {
     return PURE_UNKNOWN;
 }
 static unsigned purity_node(PurityWalk *p, ASTNode *node) {
+    if (p->budget) {
+        if (!*p->budget) return PURE_UNKNOWN;
+        --*p->budget;
+    }
     if (!node) return 0;
     unsigned result=0;
 #define CHILD(n) (result |= purity_node(p,(n)))
@@ -224,7 +229,7 @@ static unsigned purity_function(PurityWalk *parent,Function *fn) {
     if (parent->seen[index]) return 0;
     parent->seen[index]=true;
     PurityWalk p={0}; p.env=parent->env; p.seen=parent->seen;
-    p.source_file=parent->source_file;
+    p.source_file=parent->source_file; p.budget=parent->budget;
     if (fn->source_file) p.source_file=fn->source_file;
     char *saved=p.env->current_module; p.env->current_module=fn->module_name;
     unsigned result=purity_type(&p,fn->return_type,fn->return_struct_type_name,fn->return_type_info,0);
@@ -251,4 +256,25 @@ static void check_purity(ASTNode *body,Environment *env,const char *name) {
             "I reject observable state, mutation, resources and unknown calls or constructs");
         g_typecheck_error_count++;
     }
+}
+
+/* I reuse my checked-body analysis within a finite advisory work budget.
+ * Missing bodies and oversized modules remain explicitly unknown. */
+unsigned typecheck_advisory_effects(Environment *env, ASTNode *body) {
+    if (!env || !body) return PURE_UNKNOWN;
+    Function *target=NULL;
+    unsigned bodies=0;
+    for (int i=0; i<env->function_count; ++i) {
+        Function *fn=&env->functions[i];
+        if (fn->body && ++bodies>64) return PURE_UNKNOWN;
+        if (fn->body==body) target=fn;
+    }
+    if (!target) return PURE_UNKNOWN;
+    unsigned budget=4096;
+    PurityWalk p={0}; p.env=env; p.source_file=env_current_file(env);
+    p.budget=&budget;
+    p.seen=calloc((size_t)env->function_count,sizeof(bool));
+    unsigned result=p.seen ? purity_function(&p,target) : PURE_UNKNOWN;
+    free(p.seen);
+    return result;
 }

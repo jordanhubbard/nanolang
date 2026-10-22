@@ -1,0 +1,3 @@
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm instructions=35 functions=1 reserved=67193669 work=16866769
+selected refusal verify=I refuse reference lifetime and ownership instruction dataflow in function[0] at 0: I require checked ownership declarations native=I require valid reference lifetime and ownership instruction verification before translation
+PASS 115 annotation boundary checks

@@ -1,0 +1,84 @@
+.string "Leaf"
+.string "value"
+.string "Box"
+.string "leaf"
+.string "active"
+.string "main"
+.string "nano.local.v1"
+.string "\x00\x00\x00\x00\x01\x00\x00\x00\x17\x00\x00\x00l\x00\x00\x00leaf"
+.string "\x00\x00\x00\x00\x04\x00\x00\x000\x00\x00\x00l\x00\x00\x00box"
+.string "\x00\x00\x00\x00\x08\x00\x00\x00E\x00\x00\x00l\x00\x00\x00leaf"
+.string "\x00\x00\x00\x00\t\x00\x00\x00K\x00\x00\x00l\x00\x00\x00active"
+.string "\x00\x00\x00\x00\x0b\x00\x00\x00d\x00\x00\x00l\x00\x00\x00value"
+.string "nano.affine.v1"
+.string "\x00\x00\x00\x00\x01\x00\x00\x00"
+.string "nano.affine-use.v1"
+.string "\x00\x00\x00\x00\x05\x00\x00\x00+\x00\x00\x00\x02\x01\x00\x00Y\x00\x00\x00\x04\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/owned_mixed/basic.nanoleaf"
+.string "\x00\x00\x00\x00\x06\x00\x00\x00\x1d\x00\x00\x00\x02\x01\x00\x00Y\x00\x00\x00\x03\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/owned_mixed/basic.nanobox"
+.string "\x00\x00\x00\x00\x08\x00\x00\x00\x17\x00\x00\x00\x02\x01\x00\x00Y\x00\x00\x00\x04\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/owned_mixed/basic.nanoleaf"
+
+.metadata 6 7
+.metadata 6 8
+.metadata 6 9
+.metadata 6 10
+.metadata 6 11
+.metadata 12 13
+.metadata 14 15
+.metadata 14 16
+.metadata 14 17
+
+.types 2 0 0
+
+.layouts "02000000000001000000000001000000ffffffff010000000000020002000000"
+.layouts "08000000000000000300000004000000ffffffff04000000"
+
+.ownership "010000000200000003030000010000000c00000001000000ffffffff01000000"
+.ownership "ffffffff080000000000000004000000ffffffff080000000000000008000000"
+.ownership "010000000800000001000000080000000000000004000000ffffffff08000000"
+.ownership "0000000004000000ffffffff080000000000000001000000ffffffff"
+
+.entry 0
+
+.function main 0 12 0 int 1
+  PUSH_I64 7
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  OWN_PACK 0
+  OWN_STORE_LOCAL 1
+  PUSH_BOOL 1
+  STORE_LOCAL 2
+  OWN_MOVE_LOCAL 1
+  OWN_STORE_LOCAL 3
+  OWN_MOVE_LOCAL 3
+  LOAD_LOCAL 2
+  OWN_PACK 1
+  OWN_STORE_LOCAL 4
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 4
+  REF_GET 0 1
+  REGION_END
+  POP
+  OWN_MOVE_LOCAL 4
+  OWN_STORE_LOCAL 5
+  OWN_UNPACK_LOCAL 5
+  STORE_LOCAL 7
+  OWN_STORE_LOCAL 6
+  OWN_MOVE_LOCAL 6
+  OWN_STORE_LOCAL 8
+  LOAD_LOCAL 7
+  STORE_LOCAL 9
+  LOAD_LOCAL 9
+  ASSERT
+  OWN_MOVE_LOCAL 8
+  OWN_STORE_LOCAL 10
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 10
+  REF_GET 0 0
+  REGION_END
+  STORE_LOCAL 11
+  LOAD_LOCAL 11
+  OWN_UNPACK_LOCAL 10
+  POP
+  RET
+.end
+

@@ -1,0 +1,26 @@
+sizes owner=807232 scope=40 VmState=797776 VmHeap=96 outcome=24
+lifecycle mode=0 repeat=0 status=0 outcome=0
+lifecycle mode=0 repeat=1 status=0 outcome=0
+lifecycle mode=1 repeat=0 status=8 outcome=99
+lifecycle mode=1 repeat=1 status=8 outcome=99
+lifecycle mode=2 repeat=0 status=0 outcome=1
+lifecycle mode=2 repeat=1 status=0 outcome=1
+lifecycle mode=3 repeat=0 status=0 outcome=0
+lifecycle mode=3 repeat=1 status=0 outcome=0
+lifecycle mode=4 repeat=0 status=0 outcome=0
+lifecycle mode=4 repeat=1 status=0 outcome=0
+lifecycle mode=5 repeat=0 status=0 outcome=1
+lifecycle mode=5 repeat=1 status=0 outcome=1
+lifecycle mode=6 repeat=0 status=0 outcome=1
+lifecycle mode=6 repeat=1 status=0 outcome=1
+lifecycle mode=7 repeat=0 status=0 outcome=0
+lifecycle mode=7 repeat=1 status=0 outcome=0
+lifecycle mode=8 repeat=0 status=0 outcome=0
+lifecycle mode=8 repeat=1 status=0 outcome=0
+prepared original /private/tmp/nanolang-union-field-baseline-20261022/seed.nvm rows=40 functions=1 image=76502772/26204095
+prepared original /private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm rows=48 functions=3 image=76511558/26222280
+prepared original /private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm rows=35 functions=1 image=76499359/26194274
+prepared original /private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm rows=44 functions=3 image=76508997/26215385
+prepared original /private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm rows=35 functions=1 image=76499176/26193176
+prepared original /private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm rows=44 functions=3 image=76508814/26213982
+PASS 321 private union execution checks, six originals twice; no public enrollment

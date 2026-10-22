@@ -1,0 +1,119 @@
+[
+  {
+    "case": "scalar",
+    "producer": "seed",
+    "sha256": "b82e70eca058e6859311bf39cfe85d917c027561b626a8e2977a9c08e2034802",
+    "bytes": 800,
+    "old_provider": "/private/tmp/nanolang-map-delete-publication-20261022/nano_virt",
+    "old_provider_sha256": "af90b461a2410647074c529756bffb093afe01ee3cba156d30558c3945c76888",
+    "new_provider_sha256": "f2042aaff097ca94dbd13510f88fd5f8900ef12ed80f0090d1e5cd4cb10a3985"
+  },
+  {
+    "case": "scalar",
+    "producer": "nano",
+    "sha256": "a0ffad7b8ee13a5763bdd8ef23c27a5cf1d28c9649ea92b8aaf3b4864a7d5226",
+    "bytes": 624,
+    "old_provider": "/private/tmp/nanolang-map-delete-publication-20261022/canonical",
+    "old_provider_sha256": "867e1320008995c87562323ef3788a885eda2cff64a2bcc375a10b79c7fea4b5",
+    "new_provider_sha256": "a07c7ad3f8d32fea8227ec20591bdc3495b87e36ed2c5ea6e5622ef28b8b791f"
+  },
+  {
+    "case": "flat",
+    "producer": "seed",
+    "sha256": "53ef69db7a82cc853028c5e126a79fc09b3ec7c50f44fa07ad133cf6ad718468",
+    "bytes": 852,
+    "old_provider": "/private/tmp/nanolang-map-delete-publication-20261022/nano_virt",
+    "old_provider_sha256": "af90b461a2410647074c529756bffb093afe01ee3cba156d30558c3945c76888",
+    "new_provider_sha256": "f2042aaff097ca94dbd13510f88fd5f8900ef12ed80f0090d1e5cd4cb10a3985"
+  },
+  {
+    "case": "flat",
+    "producer": "nano",
+    "sha256": "fc202440f55a5e113078e1154625c2311ea25c84ae1cac346a56a340523768da",
+    "bytes": 676,
+    "old_provider": "/private/tmp/nanolang-map-delete-publication-20261022/canonical",
+    "old_provider_sha256": "867e1320008995c87562323ef3788a885eda2cff64a2bcc375a10b79c7fea4b5",
+    "new_provider_sha256": "a07c7ad3f8d32fea8227ec20591bdc3495b87e36ed2c5ea6e5622ef28b8b791f"
+  },
+  {
+    "case": "depth2",
+    "producer": "seed",
+    "sha256": "7546da6dabc68a28649955e5d34f779e78aef58544500337d29efa56d1ad3630",
+    "bytes": 864,
+    "old_provider": "/private/tmp/nanolang-map-delete-publication-20261022/nano_virt",
+    "old_provider_sha256": "af90b461a2410647074c529756bffb093afe01ee3cba156d30558c3945c76888",
+    "new_provider_sha256": "f2042aaff097ca94dbd13510f88fd5f8900ef12ed80f0090d1e5cd4cb10a3985"
+  },
+  {
+    "case": "depth2",
+    "producer": "nano",
+    "sha256": "7e8b35784aad4bad3c6fa6876fe6c584214d8c74b6f9dd1b5d7fc82ceab14182",
+    "bytes": 688,
+    "old_provider": "/private/tmp/nanolang-map-delete-publication-20261022/canonical",
+    "old_provider_sha256": "867e1320008995c87562323ef3788a885eda2cff64a2bcc375a10b79c7fea4b5",
+    "new_provider_sha256": "a07c7ad3f8d32fea8227ec20591bdc3495b87e36ed2c5ea6e5622ef28b8b791f"
+  },
+  {
+    "case": "depth3",
+    "producer": "seed",
+    "sha256": "246422826fed55e8edd7b89732cab14adffee0b91cf99ed55f153a01176f34ca",
+    "bytes": 872,
+    "old_provider": "/private/tmp/nanolang-map-delete-publication-20261022/nano_virt",
+    "old_provider_sha256": "af90b461a2410647074c529756bffb093afe01ee3cba156d30558c3945c76888",
+    "new_provider_sha256": "f2042aaff097ca94dbd13510f88fd5f8900ef12ed80f0090d1e5cd4cb10a3985"
+  },
+  {
+    "case": "depth3",
+    "producer": "nano",
+    "sha256": "e6e5024ee329f528520b80cee6b8c3a65de31440420cceefc14939ea50dae964",
+    "bytes": 696,
+    "old_provider": "/private/tmp/nanolang-map-delete-publication-20261022/canonical",
+    "old_provider_sha256": "867e1320008995c87562323ef3788a885eda2cff64a2bcc375a10b79c7fea4b5",
+    "new_provider_sha256": "a07c7ad3f8d32fea8227ec20591bdc3495b87e36ed2c5ea6e5622ef28b8b791f"
+  },
+  {
+    "case": "map",
+    "producer": "seed",
+    "mode": "ordinary",
+    "sha256": "5b36280f66c6bc2f15cf0a457c7a902c97cfb7c510e42c2c8f149bb1991bbc0e",
+    "bytes": 2144,
+    "old_provider_sha256": "af90b461a2410647074c529756bffb093afe01ee3cba156d30558c3945c76888",
+    "new_provider_sha256": "f2042aaff097ca94dbd13510f88fd5f8900ef12ed80f0090d1e5cd4cb10a3985"
+  },
+  {
+    "case": "map",
+    "producer": "nano",
+    "mode": "ordinary",
+    "sha256": "e0499c218dc45e83ad6337f299af3d72c9a7fc00eb7628121eaa2fdd384f5cfa",
+    "bytes": 1744,
+    "old_provider_sha256": "867e1320008995c87562323ef3788a885eda2cff64a2bcc375a10b79c7fea4b5",
+    "new_provider_sha256": "a07c7ad3f8d32fea8227ec20591bdc3495b87e36ed2c5ea6e5622ef28b8b791f"
+  },
+  {
+    "case": "map",
+    "producer": "c-shadow",
+    "mode": "shadow",
+    "sha256": "b60c84a0b5b01051932f29ab7c13c6e8caf4904f9b6e584e4f05fdf28a36fd3e",
+    "bytes": 5925,
+    "old_provider_sha256": "b88f33f6a976ba8644bf3be5dcd4ea01b41d1398debd278a89cc88ae88623098",
+    "new_provider_sha256": "d434e105e986db90d553ade905fa3917098c39b520b30781c0a38cc03d05a6be"
+  },
+  {
+    "case": "map",
+    "producer": "raw",
+    "mode": "raw",
+    "sha256": "0cc177567bce6dcfdb339167fa68acabc40eeef770d8862de6ebed5052a56ed8",
+    "bytes": 3732,
+    "old_provider_sha256": "9a5565c9ac1d41440c8d8d8bec59b259ff84dc74cba752d7e5d75c714bcb3e67",
+    "new_provider_sha256": "55923145a08f46f92938d2e0b4290a6c82c0b46b5bd424596fee80cc820b82b8"
+  },
+  {
+    "case": "map",
+    "producer": "raw",
+    "mode": "program",
+    "sha256": "830d97234ffcaf6a4ea49025aefa129b80643258abc9f73ffac1e1b93787edc6",
+    "bytes": 2188,
+    "old_provider_sha256": "9a5565c9ac1d41440c8d8d8bec59b259ff84dc74cba752d7e5d75c714bcb3e67",
+    "new_provider_sha256": "55923145a08f46f92938d2e0b4290a6c82c0b46b5bd424596fee80cc820b82b8"
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "mode": "default",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Isrc",
+      "/private/tmp/nanolang-map-delete-consumer-20261022/sizes.c",
+      "-o",
+      "/private/tmp/nanolang-map-delete-consumer-20261022/sizes-default"
+    ],
+    "sizes": "797776 96"
+  },
+  {
+    "mode": "array",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Isrc",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "/private/tmp/nanolang-map-delete-consumer-20261022/sizes.c",
+      "-o",
+      "/private/tmp/nanolang-map-delete-consumer-20261022/sizes-array"
+    ],
+    "sizes": "803992 6312"
+  },
+  {
+    "mode": "combined",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Isrc",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_PREPARATION",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "/private/tmp/nanolang-map-delete-consumer-20261022/sizes.c",
+      "-o",
+      "/private/tmp/nanolang-map-delete-consumer-20261022/sizes-combined"
+    ],
+    "sizes": "803992 6312"
+  }
+]

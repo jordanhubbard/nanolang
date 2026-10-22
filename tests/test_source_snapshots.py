@@ -2376,7 +2376,13 @@ os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
         accepted_reports = [accepted, banner + "clang: warning: argument unused during compilation: '-fPIC' [-Wunused-command-line-argument]\n" + command]
         debian = "Debian clang version 14.0.6\nTarget: aarch64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n (in-process)\n"
         accepted_reports.append(debian + command)
-        reports = accepted_reports + ["", banner, command, accepted + command, accepted + "unexpected command\n",
+        apple15 = banner.replace("21.0.0", "15.0.0")
+        ubuntu18 = debian.replace("Debian clang version 14.0.6", "Ubuntu clang version 18.1.3 (1ubuntu1)")
+        accepted_reports.extend((apple15 + command, ubuntu18 + command))
+        reports = accepted_reports + [apple15.replace("15.0.0", "15.0.01") + command,
+                   ubuntu18.replace("18.1.3", "18.1.30") + command,
+                   ubuntu18.replace("(1ubuntu1)", "(1ubuntu2)") + command,
+                   ubuntu18 + command + command] + ["", banner, command, accepted + command, accepted + "unexpected command\n",
                    debian.replace("14.0.6", "14.0.61") + command, debian.replace("14.0.6", "18.0.0") + command,
                    debian + command + command, debian.replace("(in-process)", "(unknown)") + command,
                    accepted.replace("21.0.0", "22.0.0"), banner + ' "/unterminated\n',

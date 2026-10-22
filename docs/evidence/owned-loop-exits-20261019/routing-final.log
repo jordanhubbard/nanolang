@@ -1,0 +1,16 @@
+test_single_backedge_routing_requires_exact_internal_exit (tests.test_owned_loop_exit_reconstruction.LoopExitProof.test_single_backedge_routing_requires_exact_internal_exit) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-orm9pycv
+test_single_final_backedge_with_internal_break_uses_proved_profile (tests.test_owned_loop_exit_reconstruction.OwnedLoopExitReconstruction.test_single_final_backedge_with_internal_break_uses_proved_profile) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_o1doj_x
+test_shared_output_is_byte_identical (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_shared_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-t0s8ps7u
+test_single_exclusive_output_is_byte_identical (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_single_exclusive_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-hw0pvpem
+test_v2_exclusive_outputs_remain_byte_identical (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_v2_exclusive_outputs_remain_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-7f2y9m_a
+test_old_two_shared_path_outputs_remain_byte_identical (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_old_two_shared_path_outputs_remain_byte_identical) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 9.132s
+
+OK

@@ -1,0 +1,870 @@
+{
+  "refusal-1-array_push-True-command.json": [
+    "/private/tmp/nanoc-empty-array-context",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/wrong.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/prior.nvm"
+  ],
+  "storage-float-1-nanoc-empty-array-contextO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-1-nanoc-empty-array-contextO2"
+  ],
+  "storage-string-1-nanoc-empty-array-context-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-1-nanoc-empty-array-context.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-1-nanoc-empty-array-context.c"
+  ],
+  "storage-u8-0-nano_virtO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-0-nano_virtO2"
+  ],
+  "storage-bool-1-nanoc-empty-array-contextO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-1-nanoc-empty-array-contextO2"
+  ],
+  "storage-u8-0-nano_virt-produce-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-0-nano_virt.nvm"
+  ],
+  "storage-int-0-nano_virtO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-0-nano_virtO2"
+  ],
+  "declared-names-1-nanoc-empty-array-context-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-1-nanoc-empty-array-context.nvm"
+  ],
+  "ordered-0-nano_virt-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-0-nano_virt.nvm"
+  ],
+  "ordered-1-nanoc-empty-array-context-produce-command.json": [
+    "/private/tmp/nanoc-empty-array-context",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-float-1-nanoc-empty-array-contextO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-1-nanoc-empty-array-contextO0"
+  ],
+  "storage-u8-0-nano_virtO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-0-nano_virtO0"
+  ],
+  "declared-names-1-nanoc-empty-array-context-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-1-nanoc-empty-array-context.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-1-nanoc-empty-array-context.c"
+  ],
+  "storage-float-0-nano_virt-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-0-nano_virt.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-0-nano_virt.c"
+  ],
+  "storage-u8-1-nanoc-empty-array-context-produce-command.json": [
+    "/private/tmp/nanoc-empty-array-context",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-bool-0-nano_virt-produce-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-0-nano_virt.nvm"
+  ],
+  "storage-bool-1-nanoc-empty-array-contextO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-1-nanoc-empty-array-contextO0"
+  ],
+  "storage-u8-0-nano_virt-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-0-nano_virt.nvm"
+  ],
+  "storage-float-0-nano_virtO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-0-nano_virtO0"
+  ],
+  "ordered-1-nanoc-empty-array-contextO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-1-nanoc-empty-array-contextO2"
+  ],
+  "storage-u8-1-nanoc-empty-array-contextO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-1-nanoc-empty-array-contextO2"
+  ],
+  "storage-string-1-nanoc-empty-array-contextO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-1-nanoc-empty-array-contextO0"
+  ],
+  "storage-float-0-nano_virt-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-0-nano_virt.nvm"
+  ],
+  "storage-bool-0-nano_virtO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-0-nano_virtO2"
+  ],
+  "storage-float-0-nano_virt-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-0-nano_virt.nvm"
+  ],
+  "refusal-1-array_set-True-command.json": [
+    "/private/tmp/nanoc-empty-array-context",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/wrong.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/prior.nvm"
+  ],
+  "declared-names-0-nano_virt-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-0-nano_virt.nvm"
+  ],
+  "storage-float-0-nano_virtO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-0-nano_virtO2"
+  ],
+  "storage-float-1-nanoc-empty-array-context-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-int-0-nano_virt-produce-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-0-nano_virt.nvm"
+  ],
+  "storage-u8-0-nano_virtO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-0-nano_virtO2"
+  ],
+  "refusal-0-array_set-False-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/wrong.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/prior.nvm"
+  ],
+  "storage-int-0-nano_virt-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-0-nano_virt.nvm"
+  ],
+  "storage-bool-0-nano_virtO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-0-nano_virtO2"
+  ],
+  "storage-string-1-nanoc-empty-array-contextO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-1-nanoc-empty-array-contextO0"
+  ],
+  "storage-int-1-nanoc-empty-array-context-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-1-nanoc-empty-array-context.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-1-nanoc-empty-array-context.c"
+  ],
+  "storage-bool-0-nano_virt-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-0-nano_virt.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-0-nano_virt.c"
+  ],
+  "declared-names-0-nano_virt-produce-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-0-nano_virt.nvm"
+  ],
+  "declared-names-1-nanoc-empty-array-contextO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-1-nanoc-empty-array-contextO2"
+  ],
+  "declared-names-1-nanoc-empty-array-contextO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-1-nanoc-empty-array-contextO2"
+  ],
+  "storage-float-0-nano_virtO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-0-nano_virtO2"
+  ],
+  "ordered-0-nano_virtO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-0-nano_virtO0"
+  ],
+  "storage-string-1-nanoc-empty-array-contextO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-1-nanoc-empty-array-contextO2"
+  ],
+  "storage-float-1-nanoc-empty-array-context-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-bool-0-nano_virtO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-0-nano_virtO0"
+  ],
+  "storage-bool-1-nanoc-empty-array-context-produce-command.json": [
+    "/private/tmp/nanoc-empty-array-context",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-int-1-nanoc-empty-array-contextO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-1-nanoc-empty-array-contextO2"
+  ],
+  "declared-names-1-nanoc-empty-array-contextO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-1-nanoc-empty-array-contextO0"
+  ],
+  "refusal-0-array_set-True-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/wrong.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/prior.nvm"
+  ],
+  "storage-bool-1-nanoc-empty-array-contextO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-1-nanoc-empty-array-contextO2"
+  ],
+  "storage-int-1-nanoc-empty-array-context-produce-command.json": [
+    "/private/tmp/nanoc-empty-array-context",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-float-1-nanoc-empty-array-contextO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-1-nanoc-empty-array-contextO0"
+  ],
+  "declared-names-0-nano_virtO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-0-nano_virtO2"
+  ],
+  "storage-float-0-nano_virt-produce-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-0-nano_virt.nvm"
+  ],
+  "storage-string-0-nano_virtO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-0-nano_virtO0"
+  ],
+  "declared-names-1-nanoc-empty-array-context-produce-command.json": [
+    "/private/tmp/nanoc-empty-array-context",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-1-nanoc-empty-array-context.nvm"
+  ],
+  "ordered-1-nanoc-empty-array-context-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-u8-1-nanoc-empty-array-context-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-1-nanoc-empty-array-context.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-1-nanoc-empty-array-context.c"
+  ],
+  "storage-string-0-nano_virt-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-0-nano_virt.nvm"
+  ],
+  "ordered-1-nanoc-empty-array-context-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-float-1-nanoc-empty-array-context-produce-command.json": [
+    "/private/tmp/nanoc-empty-array-context",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-int-1-nanoc-empty-array-contextO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-1-nanoc-empty-array-contextO0"
+  ],
+  "declared-names-0-nano_virtO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-0-nano_virtO2"
+  ],
+  "ordered-1-nanoc-empty-array-context-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-1-nanoc-empty-array-context.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-1-nanoc-empty-array-context.c"
+  ],
+  "storage-int-0-nano_virt-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-0-nano_virt.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-0-nano_virt.c"
+  ],
+  "ordered-1-nanoc-empty-array-contextO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-1-nanoc-empty-array-contextO2"
+  ],
+  "storage-u8-1-nanoc-empty-array-context-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-1-nanoc-empty-array-context.nvm"
+  ],
+  "ordered-0-nano_virtO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-0-nano_virtO2"
+  ],
+  "ordered-1-nanoc-empty-array-contextO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-1-nanoc-empty-array-contextO0"
+  ],
+  "storage-string-0-nano_virt-produce-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-0-nano_virt.nvm"
+  ],
+  "declared-names-1-nanoc-empty-array-contextO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-1-nanoc-empty-array-contextO0"
+  ],
+  "storage-float-0-nano_virtO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-0-nano_virtO0"
+  ],
+  "declared-names-0-nano_virtO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-0-nano_virtO0"
+  ],
+  "declared-names-0-nano_virtO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-0-nano_virtO0"
+  ],
+  "ordered-0-nano_virt-produce-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-0-nano_virt.nvm"
+  ],
+  "storage-u8-1-nanoc-empty-array-contextO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-1-nanoc-empty-array-contextO0"
+  ],
+  "storage-string-0-nano_virtO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-0-nano_virtO2"
+  ],
+  "storage-bool-0-nano_virt-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-0-nano_virt.nvm"
+  ],
+  "storage-string-0-nano_virt-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-0-nano_virt.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-0-nano_virt.c"
+  ],
+  "storage-bool-0-nano_virt-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-0-nano_virt.nvm"
+  ],
+  "storage-string-1-nanoc-empty-array-context-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-float-1-nanoc-empty-array-contextO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-1-nanoc-empty-array-contextO2"
+  ],
+  "storage-bool-1-nanoc-empty-array-contextO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-1-nanoc-empty-array-contextO0"
+  ],
+  "storage-u8-1-nanoc-empty-array-contextO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-1-nanoc-empty-array-contextO2"
+  ],
+  "refusal-1-array_push-False-command.json": [
+    "/private/tmp/nanoc-empty-array-context",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/wrong.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/prior.nvm"
+  ],
+  "storage-bool-1-nanoc-empty-array-context-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-string-0-nano_virtO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-0-nano_virtO2"
+  ],
+  "storage-int-1-nanoc-empty-array-contextO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-1-nanoc-empty-array-contextO2"
+  ],
+  "declared-names-0-nano_virt-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-0-nano_virt.nvm"
+  ],
+  "storage-string-1-nanoc-empty-array-context-produce-command.json": [
+    "/private/tmp/nanoc-empty-array-context",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-bool-1-nanoc-empty-array-context-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-1-nanoc-empty-array-context.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-1-nanoc-empty-array-context.c"
+  ],
+  "refusal-1-array_set-False-command.json": [
+    "/private/tmp/nanoc-empty-array-context",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/wrong.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/prior.nvm"
+  ],
+  "storage-string-0-nano_virtO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-0-nano_virtO0"
+  ],
+  "storage-int-1-nanoc-empty-array-contextO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-1-nanoc-empty-array-contextO0"
+  ],
+  "storage-bool-1-nanoc-empty-array-context-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-int-1-nanoc-empty-array-context-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-int-0-nano_virtO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-0-nano_virtO0"
+  ],
+  "refusal-0-array_push-False-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/wrong.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/prior.nvm"
+  ],
+  "storage-u8-0-nano_virt-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-0-nano_virt.nvm"
+  ],
+  "ordered-0-nano_virtO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-0-nano_virtO2"
+  ],
+  "ordered-0-nano_virt-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-0-nano_virt.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-0-nano_virt.c"
+  ],
+  "storage-int-0-nano_virtO2-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-0-nano_virtO2"
+  ],
+  "storage-int-0-nano_virt-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-0-nano_virt.nvm"
+  ],
+  "storage-string-0-nano_virt-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-0-nano_virt.nvm"
+  ],
+  "storage-u8-0-nano_virt-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-0-nano_virt.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-0-nano_virt.c"
+  ],
+  "refusal-0-array_push-True-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/wrong.nano",
+    "--emit-nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/prior.nvm"
+  ],
+  "storage-u8-0-nano_virtO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-0-nano_virtO0"
+  ],
+  "declared-names-0-nano_virt-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-0-nano_virt.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-0-nano_virt.c"
+  ],
+  "ordered-1-nanoc-empty-array-contextO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-1-nanoc-empty-array-contextO0"
+  ],
+  "storage-float-1-nanoc-empty-array-context-translate-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-1-nanoc-empty-array-context.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-float-1-nanoc-empty-array-context.c"
+  ],
+  "storage-u8-1-nanoc-empty-array-contextO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-1-nanoc-empty-array-contextO0"
+  ],
+  "ordered-0-nano_virt-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-0-nano_virt.nvm"
+  ],
+  "storage-int-1-nanoc-empty-array-context-vm-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-string-1-nanoc-empty-array-contextO2-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-1-nanoc-empty-array-context.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-1-nanoc-empty-array-contextO2"
+  ],
+  "storage-u8-1-nanoc-empty-array-context-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-u8-1-nanoc-empty-array-context.nvm"
+  ],
+  "declared-names-1-nanoc-empty-array-context-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/declared-names-1-nanoc-empty-array-context.nvm"
+  ],
+  "storage-bool-0-nano_virtO0-build-command.json": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-0-nano_virt.c",
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-bool-0-nano_virtO0"
+  ],
+  "storage-int-0-nano_virtO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-int-0-nano_virtO0"
+  ],
+  "ordered-0-nano_virtO0-native-command.json": [
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/ordered-0-nano_virtO0"
+  ],
+  "storage-string-1-nanoc-empty-array-context-verify-command.json": [
+    "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "--verify-only",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv/storage-string-1-nanoc-empty-array-context.nvm"
+  ]
+}

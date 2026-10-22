@@ -1,0 +1,7 @@
+test_native_and_vm_match (tests.test_cseed_nested_array_literals.CSeedNestedArrayLiterals.test_native_and_vm_match) ... ok
+test_native_empty_replacement_preserves_inner_tag (tests.test_cseed_nested_array_literals.CSeedNestedArrayLiterals.test_native_empty_replacement_preserves_inner_tag) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.532s
+
+OK

@@ -1,0 +1,15 @@
+{
+  "status": "completed",
+  "exit_code": 0,
+  "elapsed": 2036.2343406250002,
+  "command": [
+    "/private/tmp/nanolang-asan-profile-4cfad3737/bin/nano_vm",
+    "/private/tmp/nanolang-asan-profile-4cfad3737/bin/nanoc_seed.nvm",
+    "--",
+    "src_nano/nanoc_v06.nano",
+    "--verbose",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-asan-provisioned-stage1.nvm"
+  ]
+}

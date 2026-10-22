@@ -1,0 +1,10 @@
+I retain FLOAT evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-7ulf3y6l
+test_consuming_call_origin_defensive_refusals (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_consuming_call_origin_defensive_refusals) ... ok
+test_immutable_origins_and_no_borrowed_witness (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_immutable_origins_and_no_borrowed_witness) ... ok
+test_parameter_origin_survives_every_break_and_backedge (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_parameter_origin_survives_every_break_and_backedge) ... ok
+test_unchanged_original_and_independent_shadow (tests.test_consuming_float_exits_reconstruction.ConsumingFloatExits.test_unchanged_original_and_independent_shadow) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 5.864s
+
+OK

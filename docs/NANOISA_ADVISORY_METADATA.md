@@ -110,3 +110,109 @@ unchanged. A function-table rewriter must remap indices or discard the records.
 Because fields are inline bytes, string-pool relocation needs no hidden index
 rewrite. Complete generic signatures, fact-aware linking and source reconstruction
 remain separate obligations.
+
+## Conservative frontend effect summaries
+
+I retain `nano.effects.v1` independently of declared `nano.purity.v1`. Its
+8-byte payload is a little-endian `u32` function index, one mask byte, and three
+zero reserved bytes. The mask uses I/O `1`, mutable read `2`, mutation `4`,
+unknown `8`, unsafe `16`, and resource `32`. Zero means my frontend analysis
+closed an empty summary; a nonzero bit records a possible effect or an analysis
+boundary, not proof that an effect occurs. An absent record is not a zero mask.
+
+My lookup returns `-1` for absent, malformed, or duplicate records. I reject
+out-of-range indices, reserved bits/bytes, and wrong payload lengths when
+interpreting this key. I transport unknown versions without interpreting them.
+My assembler accepts `.function_effects 0` through `.function_effects 63` inside
+a function and canonical assembly retains the raw metadata representation.
+Rewriters must remap function indices or discard these records.
+
+My first producer slice reuses the purity checker's reachable-body analysis for
+ordinary functions, including direct calls and recursion. I bound advisory work
+at 64 source bodies and 4096 visited AST nodes; larger modules or exhausted
+budgets retain unknown. My self-hosted producer also bounds local scratch slots
+at 4096 and retains unknown for global identifiers without a symbol context.
+My declared-pure checking remains unchanged and does not use this advisory
+budget. These conservative summaries need not be equal outside the tested
+ordinary subset: imported/global context, specialization, nested declarations,
+affine uses, and match exhaustiveness remain separate completion work in #998.
+
+I do not consume these records as verifier, native lowering, optimization,
+handler, ownership, or runtime authority. Stripping, duplicating, changing, or
+forging them must not change accepted execution or generated native code.
+`test-function-effects-metadata` checks actual emitted summaries, canonical
+round trips, VM/native execution, and those negative controls. Set
+`NANOLANG_EFFECTS_COMPILERS` to colon-separated fresh producer paths to exercise
+both the C seed and self-hosted stages.
+
+## My checked match-site coverage
+
+I retain `nano.match.v1` only as an advisory checker result. My payload is
+little-endian: function index u32, line u32, column u32, coverage u8,
+coordinate provenance u8, two zero reserved bytes, source-path byte count
+u32, then the counted source-path bytes without a terminator or string-pool
+reference. A rewriter must remap function indices or discard these records.
+
+Coverage 0 is UNKNOWN, 1 is checked total integer coverage, and 2 is checked
+total named-union coverage. I initialize the parsed field to UNKNOWN and
+retain success only from my existing coverage checker. My known scrutinee
+domain is not a coverage proof. Unchecked case lowering retains UNKNOWN even when its
+separate defensive coverage/backstop checks succeed. My C return lowering may
+invoke the real expression checker before emitting a match, and I retain that
+checked result. Active generic instantiations remain UNKNOWN: I do not reuse a
+shared template fact as a demonstrated per-instance check. I do not serialize a
+claim that every function, arm body, guard type, or resource path is valid.
+
+Coordinate provenance 1 means original C-frontend source coordinates.
+Provenance 2 means positions in my self-hosted flattened parser input; the
+path identifies the owning source when available, but the line is **not** an
+original imported-file line. Empty paths explicitly mean unknown source.
+Lines and columns are positive. Missing records are UNKNOWN, never evidence
+that a function has no matches. Other producer families and unretained
+specializations may omit facts. I make no collection-completeness claim.
+
+I emit `.match_coverage line column coverage coordinates "source-path"` at
+actual match lowering. The assembler stores the corresponding ordinary
+metadata entry; canonical assembly transports the bytes through `.metadata`.
+I reject duplicate site identities when adding records. Lookup rejects any
+malformed known-version record and duplicate identity (function, path,
+coordinates, line, column), leaving its output unchanged. Unknown versions
+remain uninterpreted ordinary metadata.
+
+I do not feed these facts into verifier, runtime, ownership, or optimization
+admission. Stripping, forging, or duplicating them cannot make an invalid
+program valid. My checked affine-use requirement and broader frontend-fact
+requirement remain open under #998.
+
+## My retained affine checker completion
+
+I retain `nano.affine.v1` as eight bytes: a little-endian `u32` function
+index, a one-byte completion state, and three zero reserved bytes. State 0
+is UNKNOWN; state 1 means my existing resource-flow traversal and exit checks
+completed without new diagnostics for that exact source function. It does
+not describe individual moves, borrows, branch joins, or lifetime paths, and
+it is not runtime ownership authority. My full per-use/path obligation in
+#998 remains open.
+
+I initialize parsed functions to UNKNOWN and reset the retained result on a
+new check. An absent resource declaration skips this checker and stays
+UNKNOWN, as do external declarations without bodies. My C checker additionally
+requires a clean incoming error flag; my Nano checker records its own
+function-local diagnostic delta. Neither fact certifies whole-program
+validity, and failed overall checking still prevents artifact publication.
+Generic specializations and synthesized shadow functions do not inherit a
+shared source body's completion. Raw unchecked emitters retain UNKNOWN.
+
+I publish the retained result in ordinary functions, nested functions, and my
+actual resource producer. For the resource route I append advisory records
+after executable literals and lexical-name storage, preserving those earlier
+string indices. My assembler accepts `.function_affine 0|1` inside a function
+or `.affine_completion <existing-function-index> 0|1` outside functions.
+Both use the same checked codec and reject duplicate records.
+
+My lookup returns -1 for absent, malformed, duplicate, or unknown-version
+facts. Reserved bytes, lengths, state values and function indices are checked
+before interpretation. Unknown versions remain transportable and opaque.
+Consumers must remap function indices when rewriting a module. Stripping,
+forging or duplicating these advisory records cannot change verification,
+execution, ownership admission or generated native code.

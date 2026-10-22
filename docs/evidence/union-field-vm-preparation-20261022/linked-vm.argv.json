@@ -1,0 +1,20 @@
+[
+  "/opt/homebrew/opt/llvm/bin/clang",
+  "-std=c11",
+  "-D_DEFAULT_SOURCE",
+  "-g",
+  "-O1",
+  "-Wall",
+  "-Wextra",
+  "-Werror",
+  "-Isrc",
+  "-Isrc/nanoisa",
+  "-fsanitize=address,undefined",
+  "-fno-sanitize-recover=all",
+  "-DNANO_UNION_FIELD_PRIVATE_PREPARATION",
+  "-DNANO_NO_COMPUTED_GOTO",
+  "-c",
+  "src/nanovm/vm.c",
+  "-o",
+  "/private/tmp/nanolang-union-vm-preparation-20261022/linked-vm.o"
+]

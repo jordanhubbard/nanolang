@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa",
+    "dump",
+    "/private/tmp/owned-string-baseline-20261019/nano_virt.nvm"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-owned-nested-depth2",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "timeout_seconds": 180
+}

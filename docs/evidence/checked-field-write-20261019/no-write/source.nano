@@ -1,0 +1,20 @@
+resource struct Counter { value: int, active: bool }
+resource struct Other { value: int, active: bool }
+fn read(view: &Counter) -> int { return view.value }
+shadow read {
+ let owner: Counter = Counter { active: true, value: 7 }
+ assert (== (read &owner) 7)
+ assert (== (read &owner) 7)
+ let Counter { value, active } = owner
+ assert (== value 7)
+ assert active
+}
+fn main() -> int {
+ let owner: Counter = Counter { value: 12, active: false }
+ assert (== (read &owner) 12)
+ let Counter { value, active } = owner
+ assert (== value 12)
+ assert (not active)
+ return 0
+}
+shadow main { assert true }

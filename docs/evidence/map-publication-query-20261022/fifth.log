@@ -1,0 +1,21 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-publication-36orv01y
+test_complete_origin_and_allocation_controls (tests.test_record_map_publication.RecordMapPublication.test_complete_origin_and_allocation_controls) ... I refused 40 executable references to one 1048576-byte literal at the publication scan limit.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm; public boundaries checked.
+PASS 240 complete-module publication query checks; publishers unchanged
+I refused 40 executable references to one 1048576-byte literal at the publication scan limit.
+I measured 115 publication allocations and 103319 peak payload bytes.
+I checked 230 transient/persistent allocation denials plus retry.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm; public boundaries checked.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm; public boundaries checked.
+PASS 1407 complete-module publication query checks; publishers unchanged
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 7.872s
+
+OK

@@ -1,0 +1,26 @@
+{
+  "kind": "exact prior9b analyzer API output replay on original verified fixture; not pre-fix artifact selection",
+  "revision": "9b8667ae9efffcf55c0ab3f155536457453f9511",
+  "analyzer_sha256": "32c3b6ad3606a05c64be735b9fc8afe1e43de3e9284dadf5711923ac8de81375",
+  "module": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-atblmdax/prior-two-shared-nano_virt.nvm",
+  "module_sha256": "5465479e2d0b7b218950156944f525f1d1ef0c18bac3cc1fa45a063929498b12",
+  "outputs": {
+    "c": {
+      "sha256": "55f0f8c1c533a35f5e5decb03b7edae17d29a16437a6ebdfb15fd6dd6135f78d",
+      "bytes": 5285
+    },
+    "nano": {
+      "sha256": "ac1267b2a20b05a4c189f52bc8f9f2d1a780bee0693bbd82c2bdf4878b1b5813",
+      "bytes": 10265
+    }
+  },
+  "imported_helpers": [
+    {
+      "path": "scripts/nanoisa_reconstruction.py",
+      "revision": "9b8667ae9efffcf55c0ab3f155536457453f9511",
+      "sha256": "99fb618ca5fc7f336dd7a8d2781b95295d8fb19131b7d82bb3975a7a23ded74a",
+      "current_bytes_equal": true
+    }
+  ],
+  "facts_sha256": "27b0927c431c02543f60e95f869fc3d4f618c9d2e09a7a75b28a6115e80416c3"
+}

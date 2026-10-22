@@ -1,0 +1,2 @@
+Warning at line 2, column 185: Unused variable 'flag'
+I could not compile shadows at line 2: I require an exact live owner assigned to a consumed mutable owner in my source borrow profile

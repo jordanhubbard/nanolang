@@ -1,0 +1,18 @@
+{
+  "parent": "97fbde3a4",
+  "files": {
+    "scripts/nanoisa_owned_control.py": "bb08d9188d5428389b79d8cc186494df517067936dd97c179aedb4f91b9e0914",
+    "scripts/nanoisa_owned_exits.py": "35295d7c411fdb692985ea163cf52ca793db6a1e4bbff731217cac2db65d028b",
+    "scripts/nanoisa_owned_origins.py": "38b613257895c4d4a8128721f5fb5a89a4b407e7321ff6294fe2ea19e4e66e6a",
+    "scripts/nanoisa_owned_reconstruction.py": "2b9d4a7af7bfe01ebb2b85b39c5764badbde0865ee843b6260f9cd5baba7be29",
+    "scripts/nanoisa_owned_rendering.py": "857d1bac232cc6f0c299a84a2d1ff20a1b3250e12b9209e79f0645965aa4ffd7",
+    "scripts/nanoisa_reconstruction.py": "a3e60685718069ac4b18335e9885e0c79e0d76224fce46b03a25dd8cf7f98776"
+  },
+  "source": "tests/nanoisa/fixtures/source_owned_value_graph.nano",
+  "source_sha256": "7a70752235ac69fb53a29dbbe32fdab1ffa188b6335680c93c45eba780d905f1",
+  "facts_sha256": "8d1da0261817fd062a798ec1639a91313e51618a0eb63d0b60329ae539d95dad",
+  "outputs": {
+    "c": "9a56ed85578c18a0e34fc570928a51e7693fad1a4e1f0961cd94e9e1da4d13a0",
+    "nano": "9b97705d2f85f1bfc01e447a5062c28ffd6ff65185a0d3ce623cc43f70e0518f"
+  }
+}

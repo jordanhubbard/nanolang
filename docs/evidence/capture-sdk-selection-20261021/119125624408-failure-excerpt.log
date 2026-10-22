@@ -1,0 +1,6 @@
+2026-10-21T10:18:12.4481290Z ##[group]Run python3 scripts/ci_select_capture_clang.py
+2026-10-21T10:18:12.4481820Z [36;1mpython3 scripts/ci_select_capture_clang.py[0m
+2026-10-21T10:18:15.7487700Z   File "/Users/runner/work/nanolang/nanolang/scripts/ci_select_capture_clang.py", line 74, in <module>
+2026-10-21T10:18:15.7490530Z   File "/Users/runner/work/nanolang/nanolang/scripts/ci_select_capture_clang.py", line 44, in select
+2026-10-21T10:18:15.7491090Z     raise ValueError('I require the exact qualified macOS SDK path.')
+2026-10-21T10:18:15.7491570Z ValueError: I require the exact qualified macOS SDK path.

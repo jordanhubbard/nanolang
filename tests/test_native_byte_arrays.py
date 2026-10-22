@@ -43,7 +43,8 @@ class NativeByteArrays(unittest.TestCase):
             generated = generated.replace(marker, 'static size_t collections;\n' + marker + '    ++collections;\n')
             native_c.write_text('#define main fixture_main\n' + generated +
                                 '\n#undef main\nint main(void) { int result = fixture_main();\n'
-                                '    if (collections < 2) abort(); return result; }\n')
+                                '    if (collections < 2) { abort(); }\n'
+                                '    return result;\n}\n')
         self.command(*shlex.split(os.environ.get('CC', 'clang')), '-std=c11',
                      '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined',
                      '-fno-sanitize-recover=all', native_c, '-lm', '-o', binary)

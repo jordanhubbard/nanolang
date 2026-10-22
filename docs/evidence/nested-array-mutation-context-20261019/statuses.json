@@ -1,0 +1,362 @@
+{
+  "storage-u8-0-nano_virt-translate-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-0-nano_virt-verify-status.json": {
+    "returncode": 0
+  },
+  "storage-float-1-nanoc-empty-array-context-translate-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-0-nano_virtO2-native-status.json": {
+    "returncode": 0
+  },
+  "storage-string-1-nanoc-empty-array-contextO0-native-status.json": {
+    "returncode": 0
+  },
+  "refusal-1-array_set-False-status.json": {
+    "returncode": 1
+  },
+  "declared-names-0-nano_virt-verify-status.json": {
+    "returncode": 0
+  },
+  "storage-float-0-nano_virtO0-build-status.json": {
+    "returncode": 0
+  },
+  "storage-string-0-nano_virtO2-build-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-1-nanoc-empty-array-contextO2-native-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-1-nanoc-empty-array-context-translate-status.json": {
+    "returncode": 0
+  },
+  "ordered-0-nano_virt-vm-status.json": {
+    "returncode": 0
+  },
+  "ordered-1-nanoc-empty-array-contextO2-native-status.json": {
+    "returncode": 0
+  },
+  "ordered-1-nanoc-empty-array-contextO2-build-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-0-nano_virtO2-native-status.json": {
+    "returncode": 0
+  },
+  "storage-string-1-nanoc-empty-array-context-vm-status.json": {
+    "returncode": 0
+  },
+  "storage-float-0-nano_virt-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-int-0-nano_virtO2-native-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-1-nanoc-empty-array-context-verify-status.json": {
+    "returncode": 0
+  },
+  "storage-float-1-nanoc-empty-array-contextO2-build-status.json": {
+    "returncode": 0
+  },
+  "refusal-1-array_set-True-status.json": {
+    "returncode": 1
+  },
+  "refusal-1-array_push-False-status.json": {
+    "returncode": 1
+  },
+  "storage-float-0-nano_virt-translate-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-1-nanoc-empty-array-context-vm-status.json": {
+    "returncode": 0
+  },
+  "ordered-0-nano_virt-verify-status.json": {
+    "returncode": 0
+  },
+  "storage-int-1-nanoc-empty-array-context-vm-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-0-nano_virt-vm-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-0-nano_virt-translate-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-1-nanoc-empty-array-contextO2-native-status.json": {
+    "returncode": 0
+  },
+  "storage-float-1-nanoc-empty-array-contextO0-native-status.json": {
+    "returncode": 0
+  },
+  "storage-float-0-nano_virtO2-build-status.json": {
+    "returncode": 0
+  },
+  "storage-string-0-nano_virtO0-build-status.json": {
+    "returncode": 0
+  },
+  "declared-names-1-nanoc-empty-array-context-translate-status.json": {
+    "returncode": 0
+  },
+  "refusal-0-array_set-True-status.json": {
+    "returncode": 1
+  },
+  "ordered-1-nanoc-empty-array-contextO0-build-status.json": {
+    "returncode": 0
+  },
+  "storage-float-0-nano_virt-vm-status.json": {
+    "returncode": 0
+  },
+  "storage-string-0-nano_virt-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-string-1-nanoc-empty-array-context-verify-status.json": {
+    "returncode": 0
+  },
+  "ordered-1-nanoc-empty-array-context-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-string-0-nano_virtO0-native-status.json": {
+    "returncode": 0
+  },
+  "storage-string-1-nanoc-empty-array-context-translate-status.json": {
+    "returncode": 0
+  },
+  "refusal-0-array_set-False-status.json": {
+    "returncode": 1
+  },
+  "declared-names-0-nano_virtO2-native-status.json": {
+    "returncode": 0
+  },
+  "storage-float-1-nanoc-empty-array-contextO0-build-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-0-nano_virt-vm-status.json": {
+    "returncode": 0
+  },
+  "storage-float-0-nano_virtO2-native-status.json": {
+    "returncode": 0
+  },
+  "declared-names-1-nanoc-empty-array-contextO2-native-status.json": {
+    "returncode": 0
+  },
+  "ordered-0-nano_virtO0-native-status.json": {
+    "returncode": 0
+  },
+  "storage-int-0-nano_virt-vm-status.json": {
+    "returncode": 0
+  },
+  "storage-int-1-nanoc-empty-array-contextO2-native-status.json": {
+    "returncode": 0
+  },
+  "storage-float-1-nanoc-empty-array-context-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-0-nano_virt-produce-status.json": {
+    "returncode": 0
+  },
+  "ordered-0-nano_virtO2-build-status.json": {
+    "returncode": 0
+  },
+  "storage-string-0-nano_virtO2-native-status.json": {
+    "returncode": 0
+  },
+  "declared-names-0-nano_virtO0-native-status.json": {
+    "returncode": 0
+  },
+  "storage-string-1-nanoc-empty-array-contextO2-build-status.json": {
+    "returncode": 0
+  },
+  "declared-names-0-nano_virt-translate-status.json": {
+    "returncode": 0
+  },
+  "ordered-1-nanoc-empty-array-context-translate-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-1-nanoc-empty-array-contextO2-build-status.json": {
+    "returncode": 0
+  },
+  "declared-names-1-nanoc-empty-array-contextO2-build-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-0-nano_virtO2-build-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-1-nanoc-empty-array-context-vm-status.json": {
+    "returncode": 0
+  },
+  "storage-float-0-nano_virt-verify-status.json": {
+    "returncode": 0
+  },
+  "storage-float-1-nanoc-empty-array-context-verify-status.json": {
+    "returncode": 0
+  },
+  "storage-float-1-nanoc-empty-array-contextO2-native-status.json": {
+    "returncode": 0
+  },
+  "declared-names-1-nanoc-empty-array-context-vm-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-1-nanoc-empty-array-contextO0-native-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-0-nano_virtO0-build-status.json": {
+    "returncode": 0
+  },
+  "storage-int-0-nano_virtO2-build-status.json": {
+    "returncode": 0
+  },
+  "declared-names-0-nano_virt-vm-status.json": {
+    "returncode": 0
+  },
+  "storage-int-1-nanoc-empty-array-contextO0-native-status.json": {
+    "returncode": 0
+  },
+  "storage-int-1-nanoc-empty-array-contextO2-build-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-1-nanoc-empty-array-context-verify-status.json": {
+    "returncode": 0
+  },
+  "storage-float-1-nanoc-empty-array-context-vm-status.json": {
+    "returncode": 0
+  },
+  "declared-names-0-nano_virtO2-build-status.json": {
+    "returncode": 0
+  },
+  "ordered-0-nano_virtO2-native-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-1-nanoc-empty-array-contextO2-build-status.json": {
+    "returncode": 0
+  },
+  "storage-float-0-nano_virtO0-native-status.json": {
+    "returncode": 0
+  },
+  "declared-names-1-nanoc-empty-array-contextO0-native-status.json": {
+    "returncode": 0
+  },
+  "refusal-0-array_push-True-status.json": {
+    "returncode": 1
+  },
+  "storage-u8-1-nanoc-empty-array-context-translate-status.json": {
+    "returncode": 0
+  },
+  "storage-int-0-nano_virt-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-0-nano_virtO0-native-status.json": {
+    "returncode": 0
+  },
+  "ordered-0-nano_virtO0-build-status.json": {
+    "returncode": 0
+  },
+  "storage-int-1-nanoc-empty-array-context-translate-status.json": {
+    "returncode": 0
+  },
+  "ordered-1-nanoc-empty-array-context-vm-status.json": {
+    "returncode": 0
+  },
+  "storage-string-0-nano_virt-translate-status.json": {
+    "returncode": 0
+  },
+  "declared-names-1-nanoc-empty-array-context-verify-status.json": {
+    "returncode": 0
+  },
+  "storage-string-1-nanoc-empty-array-contextO0-build-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-0-nano_virt-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-int-1-nanoc-empty-array-context-verify-status.json": {
+    "returncode": 0
+  },
+  "declared-names-1-nanoc-empty-array-contextO0-build-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-1-nanoc-empty-array-contextO0-build-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-0-nano_virtO0-native-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-0-nano_virtO0-build-status.json": {
+    "returncode": 0
+  },
+  "storage-string-1-nanoc-empty-array-context-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-string-1-nanoc-empty-array-contextO2-native-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-1-nanoc-empty-array-context-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-int-0-nano_virt-verify-status.json": {
+    "returncode": 0
+  },
+  "declared-names-1-nanoc-empty-array-context-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-0-nano_virtO2-build-status.json": {
+    "returncode": 0
+  },
+  "storage-u8-1-nanoc-empty-array-contextO0-native-status.json": {
+    "returncode": 0
+  },
+  "ordered-0-nano_virt-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-string-0-nano_virt-verify-status.json": {
+    "returncode": 0
+  },
+  "storage-int-0-nano_virtO0-build-status.json": {
+    "returncode": 0
+  },
+  "ordered-1-nanoc-empty-array-contextO0-native-status.json": {
+    "returncode": 0
+  },
+  "refusal-0-array_push-False-status.json": {
+    "returncode": 1
+  },
+  "refusal-1-array_push-True-status.json": {
+    "returncode": 1
+  },
+  "storage-int-1-nanoc-empty-array-contextO0-build-status.json": {
+    "returncode": 0
+  },
+  "declared-names-0-nano_virt-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-int-0-nano_virt-translate-status.json": {
+    "returncode": 0
+  },
+  "ordered-0-nano_virt-translate-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-1-nanoc-empty-array-context-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-0-nano_virt-verify-status.json": {
+    "returncode": 0
+  },
+  "storage-string-0-nano_virt-vm-status.json": {
+    "returncode": 0
+  },
+  "declared-names-0-nano_virtO0-build-status.json": {
+    "returncode": 0
+  },
+  "storage-int-1-nanoc-empty-array-context-produce-status.json": {
+    "returncode": 0
+  },
+  "storage-int-0-nano_virtO0-native-status.json": {
+    "returncode": 0
+  },
+  "ordered-1-nanoc-empty-array-context-verify-status.json": {
+    "returncode": 0
+  },
+  "storage-bool-1-nanoc-empty-array-contextO0-build-status.json": {
+    "returncode": 0
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "src/nanoisa/nvm2c_map_private.inc": "b6e92c59bd9706eaaf86024dcf977890ae2af3a3cae34d06ac58a568c24f3254",
+  "tests/nanoisa/test_record_map_native.c": "b69d6434a30a7298127801c2323986ccb6ae3042040266b3c90c4fe73b071557",
+  "tests/test_record_map_native.py": "c47d15028a4f21e1109d3804898be57c801d024229bd400efc20b3d6372b9e86",
+  "tests/nanoisa/test_record_map_public.c": "bfadac51e30f8488869ebe329a9ee7a99881122b1c31d53ec390b96bf07b56ec",
+  "obj/nanoisa/nvm2c.o": "6d502c62ef4eb82d90311a856ccd5de3e673703ca01d6c484fc847aa464b3628",
+  "/private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm": "2726a1955133318bcdd686a26080fda282c6bc5e788548d35adccf9f5d464de3",
+  "/private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm": "9c764f88b32cf1e769b78722b24b990018f21d6eab7d35cf4febacf9da782c1c",
+  "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm": "9c764f88b32cf1e769b78722b24b990018f21d6eab7d35cf4febacf9da782c1c",
+  "/private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm": "9c764f88b32cf1e769b78722b24b990018f21d6eab7d35cf4febacf9da782c1c"
+}

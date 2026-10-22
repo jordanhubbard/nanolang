@@ -1,0 +1,7 @@
+python3 -m unittest -v tests.test_resource_generic_records
+test_retained_classification_matrix (tests.test_resource_generic_records.ResourceGenericRecords.test_retained_classification_matrix) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.705s
+
+OK

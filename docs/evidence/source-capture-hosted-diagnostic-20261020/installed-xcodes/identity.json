@@ -1,0 +1,14 @@
+{
+  "platform": "macOS-14.8.9-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "environment": {
+    "ImageOS": "macos14",
+    "ImageVersion": "20260831.0302.1",
+    "PATH": "/opt/homebrew/lib/ruby/gems/3.3.0/bin:/opt/homebrew/opt/ruby@3.3/bin:/Users/runner/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/Users/runner/Library/Android/sdk/tools:/Users/runner/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/Current/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/.dotnet/tools",
+    "DEVELOPER_DIR": null,
+    "SDKROOT": null,
+    "CC": null
+  },
+  "revision": "a7279dbb0768d3ccf8041e7105fc6ed5a6c8b498"
+}

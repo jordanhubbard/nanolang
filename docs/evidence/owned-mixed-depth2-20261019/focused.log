@@ -1,0 +1,11 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-87zvec_y
+test_mixed_descriptors_and_child_scalar_operations_refuse (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_descriptors_and_child_scalar_operations_refuse) ... ok
+test_mixed_order_calls_branches_and_loop (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_order_calls_branches_and_loop) ... ok
+test_raw_aggregate_read_and_scalar_child_confusion_refuse_atomically (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_raw_aggregate_read_and_scalar_child_confusion_refuse_atomically) ... ok
+test_source_and_verifier_observation_boundaries_refuse (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_source_and_verifier_observation_boundaries_refuse) ... ok
+test_written_assertion_precedes_declaration_order_division (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_written_assertion_precedes_declaration_order_division) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 29.799s
+
+OK

@@ -1,0 +1,41 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-iripag7t
+test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) ... ok
+test_exact_shared_profile_refusals (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_exact_shared_profile_refusals) ... ok
+test_original_verifier_rejects_malformed_references_atomically (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_original_verifier_rejects_malformed_references_atomically) ... ok
+test_owned_local_reconstruction (unittest.loader._FailedTest.test_owned_local_reconstruction) ... ERROR
+test_actual_calls_preserve_exact_signatures_order_and_results (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_actual_calls_preserve_exact_signatures_order_and_results) ... ok
+test_corrupt_call_transfers_refuse_atomically (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_corrupt_call_transfers_refuse_atomically) ... ok
+test_generated_function_budget_refuses_atomically (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_generated_function_budget_refuses_atomically) ... ok
+test_scalar_suffix_cannot_copy_or_consume_staged_owner (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_scalar_suffix_cannot_copy_or_consume_staged_owner) ... ok
+test_terminal_helper_branch_preserves_call_graph (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_terminal_helper_branch_preserves_call_graph) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-h0iutq98
+test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) ... ok
+test_crc_valid_branch_mutations_refuse_atomically (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_crc_valid_branch_mutations_refuse_atomically) ... ok
+test_ephemeral_sequence_cannot_cross_region_end (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_ephemeral_sequence_cannot_cross_region_end) ... ok
+test_join_state_refusals_from_actual_facts (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_join_state_refusals_from_actual_facts) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_xb7uoce
+test_actual_borrow_and_arithmetic_pretests_refuse_atomically (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_actual_borrow_and_arithmetic_pretests_refuse_atomically) ... ok
+test_actual_loop_lifetimes_and_both_outputs (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_actual_loop_lifetimes_and_both_outputs) ... ok
+test_crc_valid_loop_edges_refuse_atomically (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_crc_valid_loop_edges_refuse_atomically) ... ok
+test_loop_state_refusals_from_actual_facts (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_loop_state_refusals_from_actual_facts) ... ok
+test_verified_inverted_pretest_and_unreachable_backedge (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_verified_inverted_pretest_and_unreachable_backedge) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-im2lva3n
+test_actual_void_helpers_and_structured_outputs (tests.test_owned_void_reconstruction.OwnedVoidReconstruction.test_actual_void_helpers_and_structured_outputs) ... ok
+test_crc_valid_counts_layouts_and_void_parameters_refuse_atomically (tests.test_owned_void_reconstruction.OwnedVoidReconstruction.test_crc_valid_counts_layouts_and_void_parameters_refuse_atomically) ... ok
+test_false_assertion_traps_before_later_division_and_cleanup (tests.test_owned_void_reconstruction.OwnedVoidReconstruction.test_false_assertion_traps_before_later_division_and_cleanup) ... ok
+test_void_stack_and_false_assertion_do_not_forge_cleanup (tests.test_owned_void_reconstruction.OwnedVoidReconstruction.test_void_stack_and_false_assertion_do_not_forge_cleanup) ... ok
+
+======================================================================
+ERROR: test_owned_local_reconstruction (unittest.loader._FailedTest.test_owned_local_reconstruction)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_owned_local_reconstruction
+Traceback (most recent call last):
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/loader.py", line 141, in loadTestsFromName
+    module = __import__(module_name)
+ModuleNotFoundError: No module named 'tests.test_owned_local_reconstruction'
+
+
+----------------------------------------------------------------------
+Ran 22 tests in 173.615s
+
+FAILED (errors=1)

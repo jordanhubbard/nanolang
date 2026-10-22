@@ -1,0 +1,8 @@
+clang (/usr/bin/clang): 222 compiles, 0 failed, 36.1s
+gcc (/opt/homebrew/bin/gcc-16): 222 compiles, 0 failed, 67.4s
+fast gate: ok
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.686s
+
+OK

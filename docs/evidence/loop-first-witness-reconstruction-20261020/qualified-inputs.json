@@ -1,0 +1,12 @@
+{
+  "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py": "48baa7d553c96685f4da9c7defb4c2b483bb6d0fb2f3711314c286a9f2aa5ac3",
+  "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_loop_first_witness_reconstruction.py": "18e54d95d4714c51295a849ebe239a1ef7caf505f4ee8e08c5a7ff23106412fc",
+  "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_owned_call_pretest_reconstruction.py": "8652988b28827686f6e99beeb79517866ff4acd69bf8477101a02b3bb50a6dbd",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "18a870082df7f6f1522b3706e82a794db4b1c12410fc1a415303b3b51898a2cc",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "420014efed1644e6ce93661d661d828b1981861012654e64deec93596b66ef9b",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "2387eaacf67eec87c7f049addf7e88c75add5764e9b11b3600477da40d7222b6",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "6f6a695a43fa84d613c48deab987a5466b2878f601da55c187ffaa108422ae77",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o": "ba2af3b6b612558643e407f9d67860aaae7d38817781e8ed8ba2e31e07a24016"
+}

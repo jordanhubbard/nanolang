@@ -1,0 +1,48 @@
+{
+  "source": "6fc4bca180569bcd23bb55cf8fd9ceea265dd8e2",
+  "steps": [
+    {
+      "label": "seed",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-release/bin/nano_virt",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-or3_ffkh/seed.nvm"
+      ],
+      "log": "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-or3_ffkh/00-seed.log",
+      "exit_code": 0,
+      "elapsed_seconds": 59.25172241701512,
+      "log_sha256": "2939603fc0c898c1ff768fa0819ba4471007f0731d4e69410f6114e3b7922d77"
+    },
+    {
+      "label": "seed-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-release/bin/nano_vm",
+        "--verify-only",
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-or3_ffkh/seed.nvm"
+      ],
+      "log": "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-or3_ffkh/01-seed-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.4043541249993723,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-release/bin/nano_vm",
+        "/Users/jkh/Src/nanolang-51-release/bin/nanoc_seed.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-or3_ffkh/stage1.nvm"
+      ],
+      "log": "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-or3_ffkh/02-stage1.log",
+      "interrupted_or_timed_out": true,
+      "elapsed_seconds": 42.8598197499814
+    }
+  ],
+  "note": "I interrupted my diagnostic baseline after sampling; its stage1 timeout flag represents that explicit interruption, not another timeout."
+}

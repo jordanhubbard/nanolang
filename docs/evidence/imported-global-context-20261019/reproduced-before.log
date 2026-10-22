@@ -1,0 +1,59 @@
+test_qualified_distinct_types_and_dependency_shadows (tests.test_imported_globals.ImportedGlobals.test_qualified_distinct_types_and_dependency_shadows) ... 
+  test_qualified_distinct_types_and_dependency_shadows (tests.test_imported_globals.ImportedGlobals.test_qualified_distinct_types_and_dependency_shadows) (compiler=['/Users/jkh/Src/nanolang-51-imported-global-context/bin/nanoc_stage1']) ... FAIL
+  test_qualified_distinct_types_and_dependency_shadows (tests.test_imported_globals.ImportedGlobals.test_qualified_distinct_types_and_dependency_shadows) (compiler=['/Users/jkh/Src/nanolang-51-imported-global-context/bin/nanoc_stage2']) ... FAIL
+test_selective_aliases_and_lexical_shadowing (tests.test_imported_globals.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) ... 
+  test_selective_aliases_and_lexical_shadowing (tests.test_imported_globals.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) (compiler=['/Users/jkh/Src/nanolang-51-imported-global-context/bin/nanoc_stage1']) ... FAIL
+  test_selective_aliases_and_lexical_shadowing (tests.test_imported_globals.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) (compiler=['/Users/jkh/Src/nanolang-51-imported-global-context/bin/nanoc_stage2']) ... FAIL
+
+======================================================================
+FAIL: test_qualified_distinct_types_and_dependency_shadows (tests.test_imported_globals.ImportedGlobals.test_qualified_distinct_types_and_dependency_shadows) (compiler=['/Users/jkh/Src/nanolang-51-imported-global-context/bin/nanoc_stage1'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-imported-global-context/tests/test_imported_globals.py", line 31, in check
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0001] Return value of __nano_module_0_read_answer: I expected a value of type `int`, but found `string`. (/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-imported-global-kpxhah7p/a.nano:4:27)
+
+
+======================================================================
+FAIL: test_qualified_distinct_types_and_dependency_shadows (tests.test_imported_globals.ImportedGlobals.test_qualified_distinct_types_and_dependency_shadows) (compiler=['/Users/jkh/Src/nanolang-51-imported-global-context/bin/nanoc_stage2'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-imported-global-context/tests/test_imported_globals.py", line 31, in check
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0001] Return value of __nano_module_0_read_answer: I expected a value of type `int`, but found `string`. (/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-imported-global-5riio73_/a.nano:4:27)
+
+
+======================================================================
+FAIL: test_selective_aliases_and_lexical_shadowing (tests.test_imported_globals.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) (compiler=['/Users/jkh/Src/nanolang-51-imported-global-context/bin/nanoc_stage1'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-imported-global-context/tests/test_imported_globals.py", line 31, in check
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0001] Return value of __nano_module_0_read_answer: I expected a value of type `int`, but found `string`. (/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-imported-global-hnju3o4t/a.nano:4:27)
+
+
+======================================================================
+FAIL: test_selective_aliases_and_lexical_shadowing (tests.test_imported_globals.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) (compiler=['/Users/jkh/Src/nanolang-51-imported-global-context/bin/nanoc_stage2'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-imported-global-context/tests/test_imported_globals.py", line 31, in check
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0001] Return value of __nano_module_0_read_answer: I expected a value of type `int`, but found `string`. (/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-imported-global-3r8wi_z_/a.nano:4:27)
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.737s
+
+FAILED (failures=4)

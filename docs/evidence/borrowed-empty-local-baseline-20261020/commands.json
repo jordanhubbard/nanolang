@@ -1,0 +1,317 @@
+[
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"Empty\"\n.string \"Counter\"\n.string \"value\"\n.string \"active\"\n.string \"main\"\n.string \"update\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x08\\x00\\x00\\x00\\x9b\\x00\\x00\\x00empty\"\n.string \"\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00-\\x00\\x00\\x00\\x9b\\x00\\x00\\x00owner\"\n.string \"\\x00\\x00\\x00\\x00\\x06\\x00\\x00\\x00h\\x00\\x00\\x00\\x9b\\x00\\x00\\x00value\"\n.string \"\\x00\\x00\\x00\\x00\\x07\\x00\\x00\\x00w\\x00\\x00\\x00\\x9b\\x00\\x00\\x00active\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00%\\x00\\x00\\x00view\"\n.string \"nano.affine.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"nano.affine-use.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x13\\x00\\x00\\x00\\x11\\x00\\x00\\x00\\x02\\x01\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoempty\"\n.string \"\\x00\\x00\\x00\\x00\\x15\\x00\\x00\\x00\\x1a\\x00\\x00\\x00\\x01\\x01\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner\"\n.string \"\\x00\\x00\\x00\\x00\\x16\\x00\\x00\\x00\\t\\x00\\x00\\x00\\x01\\x01\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner\"\n.string \"\\x00\\x00\\x00\\x00\\x17\\x00\\x00\\x00\\\"\\x00\\x00\\x00\\x02\\x01\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x14\\x00\\x00\\x00\\x01\\x01\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x17\\x00\\x00\\x00\\x01\\x01\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview\"\n.string \"\\x01\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\t\\x00\\x00\\x00\\x01\\x01\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview\"\n.string \"nano.borrow-place.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x15\\x00\\x00\\x00\\r\\x00\\x00\\x00\\x15\\x00\\x00\\x00\\x15\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x01\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x00\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner\"\n.string \"nano.field-read.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x16\\x00\\x00\\x00\\x0e\\x00\\x00\\x00\\x01\\x01\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x07\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner.active\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x18\\x00\\x00\\x00\\x03\\x01\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x06\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.value\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x1b\\x00\\x00\\x00\\x03\\x01\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x07\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.active\"\n.string \"\\x01\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\r\\x00\\x00\\x00\\x03\\x01\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x06\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.value\"\n.string \"nano.field-write.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x01\\x01\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x06\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.value\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x01\\x01\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x07\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.active\"\n\n.metadata 6 7\n.metadata 6 8\n.metadata 6 9\n.metadata 6 10\n.metadata 6 11\n.metadata 12 13\n.metadata 12 14\n.metadata 15 16\n.metadata 15 17\n.metadata 15 18\n.metadata 15 19\n.metadata 15 20\n.metadata 15 21\n.metadata 15 22\n.metadata 23 24\n.metadata 25 26\n.metadata 25 27\n.metadata 25 28\n.metadata 25 29\n.metadata 30 31\n.metadata 30 32\n\n.types 2 0 0\n\n.layouts \"020000000000000000000000000002000100000001000000ffffffff02000000\"\n.layouts \"04000000ffffffff03000000\"\n\n.ownership \"010000000200000003030000020000000800000001000000ffffffff08000000\"\n.ownership \"00000000080000000000000001000000ffffffff04000000ffffffff08000000\"\n.ownership \"01000000080000000100000001000000ffffffff04000000ffffffff01000100\"\n.ownership \"01000000ffffffff0802000001000000\"\n\n.entry 0\n\n.function main 0 8 0 int 1\n  OWN_PACK 0\n  OWN_STORE_LOCAL 0\n  OWN_MOVE_LOCAL 0\n  OWN_STORE_LOCAL 1\n  PUSH_I64 12\n  STORE_LOCAL 2\n  PUSH_BOOL 0\n  STORE_LOCAL 3\n  LOAD_LOCAL 2\n  LOAD_LOCAL 3\n  OWN_PACK 1\n  OWN_STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_EXCLUSIVE 0 4\n  CALL_REF 1 0\n  REGION_END\n  PUSH_I64 15\n  EQ\n  ASSERT\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 4\n  REF_GET 0 1\n  REGION_END\n  ASSERT\n  OWN_MOVE_LOCAL 4\n  OWN_STORE_LOCAL 5\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 5\n  REF_GET 0 0\n  REGION_END\n  STORE_LOCAL 6\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 5\n  REF_GET 0 1\n  REGION_END\n  STORE_LOCAL 7\n  LOAD_LOCAL 6\n  PUSH_I64 15\n  EQ\n  ASSERT\n  LOAD_LOCAL 7\n  ASSERT\n  PUSH_I64 0\n  OWN_UNPACK_LOCAL 1\n  OWN_UNPACK_LOCAL 5\n  POP\n  POP\n  RET\n.end\n\n.function update 1 1 0 int 1\n  REF_GET 0 0\n  PUSH_I64 3\n  ADD\n  REF_SET 0 0\n  REF_GET 0 1\n  NOT\n  REF_SET 0 1\n  REF_GET 0 0\n  RET\n.end\n\n.parameters 1 struct\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nano_virt.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "--language",
+      "c",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nano_virt.nvm",
+      "-o",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nano_virt.refused.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nano_virt.nvm",
+      "-o",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nano_virt.refused.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"Empty\"\n.string \"Counter\"\n.string \"value\"\n.string \"active\"\n.string \"main\"\n.string \"update\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x08\\x00\\x00\\x00\\x9b\\x00\\x00\\x00empty\"\n.string \"\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00-\\x00\\x00\\x00\\x9b\\x00\\x00\\x00owner\"\n.string \"\\x00\\x00\\x00\\x00\\x06\\x00\\x00\\x00h\\x00\\x00\\x00\\x9b\\x00\\x00\\x00value\"\n.string \"\\x00\\x00\\x00\\x00\\x07\\x00\\x00\\x00w\\x00\\x00\\x00\\x9b\\x00\\x00\\x00active\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00%\\x00\\x00\\x00view\"\n.string \"nano.affine.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"nano.affine-use.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x13\\x00\\x00\\x00\\x11\\x00\\x00\\x00\\x02\\x02\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoempty\"\n.string \"\\x00\\x00\\x00\\x00\\x15\\x00\\x00\\x00\\x1a\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner\"\n.string \"\\x00\\x00\\x00\\x00\\x16\\x00\\x00\\x00\\t\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner\"\n.string \"\\x00\\x00\\x00\\x00\\x17\\x00\\x00\\x00\\\"\\x00\\x00\\x00\\x02\\x02\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x14\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x17\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview\"\n.string \"\\x01\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\t\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview\"\n.string \"nano.borrow-place.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x15\\x00\\x00\\x00\\r\\x00\\x00\\x00\\x15\\x00\\x00\\x00\\x15\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x02\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x00\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner\"\n.string \"nano.field-read.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x16\\x00\\x00\\x00\\x0e\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x07\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner.active\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x18\\x00\\x00\\x00\\x03\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x06\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.value\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x1b\\x00\\x00\\x00\\x03\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x07\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.active\"\n.string \"\\x01\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\r\\x00\\x00\\x00\\x03\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x06\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.value\"\n.string \"nano.field-write.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x06\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.value\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x07\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.active\"\n\n.metadata 6 7\n.metadata 6 8\n.metadata 6 9\n.metadata 6 10\n.metadata 6 11\n.metadata 12 13\n.metadata 12 14\n.metadata 15 16\n.metadata 15 17\n.metadata 15 18\n.metadata 15 19\n.metadata 15 20\n.metadata 15 21\n.metadata 15 22\n.metadata 23 24\n.metadata 25 26\n.metadata 25 27\n.metadata 25 28\n.metadata 25 29\n.metadata 30 31\n.metadata 30 32\n\n.types 2 0 0\n\n.layouts \"020000000000000000000000000002000100000001000000ffffffff02000000\"\n.layouts \"04000000ffffffff03000000\"\n\n.ownership \"010000000200000003030000020000000800000001000000ffffffff08000000\"\n.ownership \"00000000080000000000000001000000ffffffff04000000ffffffff08000000\"\n.ownership \"01000000080000000100000001000000ffffffff04000000ffffffff01000100\"\n.ownership \"01000000ffffffff0802000001000000\"\n\n.entry 0\n\n.function main 0 8 0 int 1\n  OWN_PACK 0\n  OWN_STORE_LOCAL 0\n  OWN_MOVE_LOCAL 0\n  OWN_STORE_LOCAL 1\n  PUSH_I64 12\n  STORE_LOCAL 2\n  PUSH_BOOL 0\n  STORE_LOCAL 3\n  LOAD_LOCAL 2\n  LOAD_LOCAL 3\n  OWN_PACK 1\n  OWN_STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_EXCLUSIVE 0 4\n  CALL_REF 1 0\n  REGION_END\n  PUSH_I64 15\n  EQ\n  ASSERT\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 4\n  REF_GET 0 1\n  REGION_END\n  ASSERT\n  OWN_MOVE_LOCAL 4\n  OWN_STORE_LOCAL 5\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 5\n  REF_GET 0 0\n  REGION_END\n  STORE_LOCAL 6\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 5\n  REF_GET 0 1\n  REGION_END\n  STORE_LOCAL 7\n  LOAD_LOCAL 6\n  PUSH_I64 15\n  EQ\n  ASSERT\n  LOAD_LOCAL 7\n  ASSERT\n  PUSH_I64 0\n  OWN_UNPACK_LOCAL 1\n  OWN_UNPACK_LOCAL 5\n  POP\n  POP\n  RET\n.end\n\n.function update 1 1 0 int 1\n  REF_GET 0 0\n  PUSH_I64 3\n  ADD\n  REF_SET 0 0\n  REF_GET 0 1\n  NOT\n  REF_SET 0 1\n  REF_GET 0 0\n  RET\n.end\n\n.parameters 1 struct\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage1.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "--language",
+      "c",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage1.nvm",
+      "-o",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage1.refused.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage1.nvm",
+      "-o",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage1.refused.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"Empty\"\n.string \"Counter\"\n.string \"value\"\n.string \"active\"\n.string \"main\"\n.string \"update\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x08\\x00\\x00\\x00\\x9b\\x00\\x00\\x00empty\"\n.string \"\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00-\\x00\\x00\\x00\\x9b\\x00\\x00\\x00owner\"\n.string \"\\x00\\x00\\x00\\x00\\x06\\x00\\x00\\x00h\\x00\\x00\\x00\\x9b\\x00\\x00\\x00value\"\n.string \"\\x00\\x00\\x00\\x00\\x07\\x00\\x00\\x00w\\x00\\x00\\x00\\x9b\\x00\\x00\\x00active\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00%\\x00\\x00\\x00view\"\n.string \"nano.affine.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"nano.affine-use.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x13\\x00\\x00\\x00\\x11\\x00\\x00\\x00\\x02\\x02\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoempty\"\n.string \"\\x00\\x00\\x00\\x00\\x15\\x00\\x00\\x00\\x1a\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner\"\n.string \"\\x00\\x00\\x00\\x00\\x16\\x00\\x00\\x00\\t\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner\"\n.string \"\\x00\\x00\\x00\\x00\\x17\\x00\\x00\\x00\\\"\\x00\\x00\\x00\\x02\\x02\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x14\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x17\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview\"\n.string \"\\x01\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\t\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview\"\n.string \"nano.borrow-place.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x15\\x00\\x00\\x00\\r\\x00\\x00\\x00\\x15\\x00\\x00\\x00\\x15\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x02\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x00\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner\"\n.string \"nano.field-read.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x16\\x00\\x00\\x00\\x0e\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x07\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoowner.active\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x18\\x00\\x00\\x00\\x03\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x06\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.value\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x1b\\x00\\x00\\x00\\x03\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x07\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.active\"\n.string \"\\x01\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\r\\x00\\x00\\x00\\x03\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x06\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.value\"\n.string \"nano.field-write.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x06\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.value\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x01\\x02\\x00\\x00A\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x07\\x00\\x00\\x00/private/tmp/borrowed-empty-local-baseline-20261020/original.nanoview.active\"\n\n.metadata 6 7\n.metadata 6 8\n.metadata 6 9\n.metadata 6 10\n.metadata 6 11\n.metadata 12 13\n.metadata 12 14\n.metadata 15 16\n.metadata 15 17\n.metadata 15 18\n.metadata 15 19\n.metadata 15 20\n.metadata 15 21\n.metadata 15 22\n.metadata 23 24\n.metadata 25 26\n.metadata 25 27\n.metadata 25 28\n.metadata 25 29\n.metadata 30 31\n.metadata 30 32\n\n.types 2 0 0\n\n.layouts \"020000000000000000000000000002000100000001000000ffffffff02000000\"\n.layouts \"04000000ffffffff03000000\"\n\n.ownership \"010000000200000003030000020000000800000001000000ffffffff08000000\"\n.ownership \"00000000080000000000000001000000ffffffff04000000ffffffff08000000\"\n.ownership \"01000000080000000100000001000000ffffffff04000000ffffffff01000100\"\n.ownership \"01000000ffffffff0802000001000000\"\n\n.entry 0\n\n.function main 0 8 0 int 1\n  OWN_PACK 0\n  OWN_STORE_LOCAL 0\n  OWN_MOVE_LOCAL 0\n  OWN_STORE_LOCAL 1\n  PUSH_I64 12\n  STORE_LOCAL 2\n  PUSH_BOOL 0\n  STORE_LOCAL 3\n  LOAD_LOCAL 2\n  LOAD_LOCAL 3\n  OWN_PACK 1\n  OWN_STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_EXCLUSIVE 0 4\n  CALL_REF 1 0\n  REGION_END\n  PUSH_I64 15\n  EQ\n  ASSERT\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 4\n  REF_GET 0 1\n  REGION_END\n  ASSERT\n  OWN_MOVE_LOCAL 4\n  OWN_STORE_LOCAL 5\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 5\n  REF_GET 0 0\n  REGION_END\n  STORE_LOCAL 6\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 5\n  REF_GET 0 1\n  REGION_END\n  STORE_LOCAL 7\n  LOAD_LOCAL 6\n  PUSH_I64 15\n  EQ\n  ASSERT\n  LOAD_LOCAL 7\n  ASSERT\n  PUSH_I64 0\n  OWN_UNPACK_LOCAL 1\n  OWN_UNPACK_LOCAL 5\n  POP\n  POP\n  RET\n.end\n\n.function update 1 1 0 int 1\n  REF_GET 0 0\n  PUSH_I64 3\n  ADD\n  REF_SET 0 0\n  REF_GET 0 1\n  NOT\n  REF_SET 0 1\n  REF_GET 0 0\n  RET\n.end\n\n.parameters 1 struct\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage2.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "--language",
+      "c",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage2.nvm",
+      "-o",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage2.refused.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage2.nvm",
+      "-o",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/nanoc_stage2.refused.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/private/tmp/owned-string-baseline-20261019/shadow_driver",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original.nano",
+      "0",
+      "raw"
+    ],
+    "returncode": 0,
+    "stdout": ".types 2 0 0\n.entry 0\n.string \"Empty\"\n.string \"Counter\"\n.string \"value\"\n.string \"active\"\n.string \"__nanoisa_shadow_entry\"\n.string \"update\"\n.layouts \"020000000000000000000000000002000100000001000000ffffffff0200000004000000ffffffff03000000\"\n.ownership \"010000000200000003030000020000000600000001000000ffffffff01000000ffffffff04000000ffffffff0800000001000000080000000100000001000000ffffffff04000000ffffffff0100010001000000ffffffff0802000001000000\"\n.function __nanoisa_shadow_entry 0 6 0 int 1\n  .shadow \"update\"\n  PUSH_I64 7\n  STORE_LOCAL 0\n  PUSH_BOOL 1\n  STORE_LOCAL 1\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  OWN_PACK 1\n  OWN_STORE_LOCAL 2\n  .local_begin 2 \"owner\"\n  REGION_BEGIN\n  BORROW_LOCAL_EXCLUSIVE 0 2\n  CALL_REF 1 0\n  REGION_END\n  PUSH_I64 10\n  EQ\n  ASSERT\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 2\n  REF_GET 0 0\n  REGION_END\n  PUSH_I64 10\n  EQ\n  ASSERT\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 2\n  REF_GET 0 1\n  REGION_END\n  NOT\n  ASSERT\n  OWN_MOVE_LOCAL 2\n  OWN_STORE_LOCAL 3\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 3\n  REF_GET 0 0\n  REGION_END\n  STORE_LOCAL 4\n  .local_begin 4 \"value\"\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 3\n  REF_GET 0 1\n  REGION_END\n  STORE_LOCAL 5\n  .local_begin 5 \"active\"\n  LOAD_LOCAL 4\n  PUSH_I64 10\n  EQ\n  ASSERT\n  LOAD_LOCAL 5\n  NOT\n  ASSERT\n  OWN_UNPACK_LOCAL 3\n  POP\n  POP\n  .local_end 2\n  .local_end 4\n  .local_end 5\n  .shadow \"main\"\n  PUSH_BOOL 1\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n.function update 1 1 0 int 1\n  .local_begin 0 \"view\"\n  REF_GET 0 0\n  PUSH_I64 3\n  ADD\n  REF_SET 0 0\n  REF_GET 0 1\n  NOT\n  REF_SET 0 1\n  REF_GET 0 0\n  RET\n  .local_end 0\n.end\n.affine_completion 0 0\n.affine_completion 1 0\n.parameters 1 struct\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original-shadows.nasm",
+      "-o",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original-shadows.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original-shadows.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original-shadows.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original-shadows.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"Empty\"\n.string \"Counter\"\n.string \"value\"\n.string \"active\"\n.string \"__nanoisa_shadow_entry\"\n.string \"update\"\n.string \"nanolang.shadow.offset.0\"\n.string \"nanolang.shadow.offset.154\"\n.string \"main\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00 \\x00\\x00\\x00\\x9a\\x00\\x00\\x00owner\"\n.string \"\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00s\\x00\\x00\\x00\\x9a\\x00\\x00\\x00value\"\n.string \"\\x00\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x82\\x00\\x00\\x00\\x9a\\x00\\x00\\x00active\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00%\\x00\\x00\\x00view\"\n.string \"nano.affine.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n\n.metadata 6 5\n.metadata 7 8\n.metadata 9 10\n.metadata 9 11\n.metadata 9 12\n.metadata 9 13\n.metadata 14 15\n.metadata 14 16\n\n.types 2 0 0\n\n.layouts \"020000000000000000000000000002000100000001000000ffffffff02000000\"\n.layouts \"04000000ffffffff03000000\"\n\n.ownership \"010000000200000003030000020000000600000001000000ffffffff01000000\"\n.ownership \"ffffffff04000000ffffffff0800000001000000080000000100000001000000\"\n.ownership \"ffffffff04000000ffffffff0100010001000000ffffffff0802000001000000\"\n\n.entry 0\n\n.function __nanoisa_shadow_entry 0 6 0 int 1\n  NOP\n  PUSH_I64 7\n  STORE_LOCAL 0\n  PUSH_BOOL 1\n  STORE_LOCAL 1\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  OWN_PACK 1\n  OWN_STORE_LOCAL 2\n  REGION_BEGIN\n  BORROW_LOCAL_EXCLUSIVE 0 2\n  CALL_REF 1 0\n  REGION_END\n  PUSH_I64 10\n  EQ\n  ASSERT\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 2\n  REF_GET 0 0\n  REGION_END\n  PUSH_I64 10\n  EQ\n  ASSERT\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 2\n  REF_GET 0 1\n  REGION_END\n  NOT\n  ASSERT\n  OWN_MOVE_LOCAL 2\n  OWN_STORE_LOCAL 3\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 3\n  REF_GET 0 0\n  REGION_END\n  STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 0 3\n  REF_GET 0 1\n  REGION_END\n  STORE_LOCAL 5\n  LOAD_LOCAL 4\n  PUSH_I64 10\n  EQ\n  ASSERT\n  LOAD_LOCAL 5\n  NOT\n  ASSERT\n  OWN_UNPACK_LOCAL 3\n  POP\n  POP\n  NOP\n  PUSH_BOOL 1\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n.function update 1 1 0 int 1\n  REF_GET 0 0\n  PUSH_I64 3\n  ADD\n  REF_SET 0 0\n  REF_GET 0 1\n  NOT\n  REF_SET 0 1\n  REF_GET 0 0\n  RET\n.end\n\n.parameters 1 struct\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original-shadows.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "--language",
+      "c",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original-shadows.nvm",
+      "-o",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original-shadows.refused.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original-shadows.nvm",
+      "-o",
+      "/private/tmp/borrowed-empty-local-baseline-20261020/original-shadows.refused.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a verified bounded resource module with exact fields.\nI did not publish reconstructed source\n"
+  }
+]

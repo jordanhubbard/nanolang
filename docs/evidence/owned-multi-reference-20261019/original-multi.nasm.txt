@@ -1,0 +1,257 @@
+.string "Left"
+.string "value"
+.string "active"
+.string "Right"
+.string "main"
+.string "adjust"
+.string "nano.local.v1"
+.string "\x00\x00\x00\x00\x02\x00\x00\x00\x1f\x00\x00\x00\xbb\x01\x00\x00one"
+.string "\x00\x00\x00\x00\x05\x00\x00\x00>\x00\x00\x00\xbb\x01\x00\x00middle_owner"
+.string "\x00\x00\x00\x00\x08\x00\x00\x00]\x00\x00\x00\xbb\x01\x00\x00three"
+.string "\x00\x00\x00\x00\n\x00\x00\x00\x14\x01\x00\x00\xbb\x01\x00\x00value"
+.string "\x00\x00\x00\x00\x0b\x00\x00\x00#\x01\x00\x00\xbb\x01\x00\x00active"
+.string "\x00\x00\x00\x00\r\x00\x00\x00J\x01\x00\x00\xbb\x01\x00\x00value"
+.string "\x00\x00\x00\x00\x0e\x00\x00\x00Y\x01\x00\x00\xbb\x01\x00\x00active"
+.string "\x00\x00\x00\x00\x10\x00\x00\x00\x81\x01\x00\x00\xbb\x01\x00\x00value"
+.string "\x00\x00\x00\x00\x11\x00\x00\x00\x90\x01\x00\x00\xbb\x01\x00\x00active"
+.string "\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x008\x00\x00\x00first"
+.string "\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x008\x00\x00\x00middle"
+.string "\x01\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x008\x00\x00\x00last"
+.string "\x01\x00\x00\x00\x03\x00\x00\x004\x00\x00\x008\x00\x00\x00total"
+.string "nano.affine.v1"
+.string "\x00\x00\x00\x00\x01\x00\x00\x00"
+.string "\x01\x00\x00\x00\x01\x00\x00\x00"
+.string "nano.affine-use.v1"
+.string "\x00\x00\x00\x00\x1d\x00\x00\x00\x1a\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x03\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanoone"
+.string "\x00\x00\x00\x00\x1d\x00\x00\x00\x1f\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x0c\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanomiddle_owner"
+.string "\x00\x00\x00\x00\x1d\x00\x00\x001\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x05\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanothree"
+.string "\x00\x00\x00\x00\x1e\x00\x00\x00\r\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x03\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanoone"
+.string "\x00\x00\x00\x00\x1e\x00\x00\x00&\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x05\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanothree"
+.string "\x00\x00\x00\x00\x1f\x00\x00\x00\x1a\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x05\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanothree"
+.string "\x00\x00\x00\x00\x1f\x00\x00\x00!\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x0c\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanomiddle_owner"
+.string "\x00\x00\x00\x00\x1f\x00\x00\x003\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x03\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanoone"
+.string "\x00\x00\x00\x00 \x00\x00\x00\r\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x03\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanoone"
+.string "\x00\x00\x00\x00 \x00\x00\x00&\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x05\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanothree"
+.string "\x00\x00\x00\x00!\x00\x00\x00\x1f\x00\x00\x00\x02\x01\x00\x00[\x00\x00\x00\x03\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanoone"
+.string "\x00\x00\x00\x00#\x00\x00\x00\x1f\x00\x00\x00\x02\x01\x00\x00[\x00\x00\x00\x05\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanothree"
+.string "\x00\x00\x00\x00%\x00\x00\x00 \x00\x00\x00\x02\x01\x00\x00[\x00\x00\x00\x0c\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanomiddle_owner"
+.string "\x01\x00\x00\x00\x04\x00\x00\x00\x15\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x05\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanofirst"
+.string "\x01\x00\x00\x00\x04\x00\x00\x00!\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x06\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanomiddle"
+.string "\x01\x00\x00\x00\x05\x00\x00\x00\x14\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x04\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanolast"
+.string "\x01\x00\x00\x00\x05\x00\x00\x00\x1f\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x06\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanomiddle"
+.string "\x01\x00\x00\x00\x06\x00\x00\x00\t\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x06\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanomiddle"
+.string "\x01\x00\x00\x00\x07\x00\x00\x00\x16\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x05\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanofirst"
+.string "\x01\x00\x00\x00\x07\x00\x00\x00\"\x00\x00\x00\x01\x01\x00\x00[\x00\x00\x00\x04\x00\x00\x00/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/source_borrow_multi.nanolast"
+
+.metadata 6 7
+.metadata 6 8
+.metadata 6 9
+.metadata 6 10
+.metadata 6 11
+.metadata 6 12
+.metadata 6 13
+.metadata 6 14
+.metadata 6 15
+.metadata 6 16
+.metadata 6 17
+.metadata 6 18
+.metadata 6 19
+.metadata 20 21
+.metadata 20 22
+.metadata 23 24
+.metadata 23 25
+.metadata 23 26
+.metadata 23 27
+.metadata 23 28
+.metadata 23 29
+.metadata 23 30
+.metadata 23 31
+.metadata 23 32
+.metadata 23 33
+.metadata 23 34
+.metadata 23 35
+.metadata 23 36
+.metadata 23 37
+.metadata 23 38
+.metadata 23 39
+.metadata 23 40
+.metadata 23 41
+.metadata 23 42
+.metadata 23 43
+
+.types 2 0 0
+
+.layouts "02000000000002000000000001000000ffffffff0100000004000000ffffffff"
+.layouts "02000000000002000300000001000000ffffffff0100000004000000ffffffff"
+.layouts "02000000"
+
+.ownership "010000000200000003030000020000001200000001000000ffffffff01000000"
+.ownership "ffffffff04000000ffffffff080000000000000001000000ffffffff04000000"
+.ownership "ffffffff080000000100000001000000ffffffff04000000ffffffff08000000"
+.ownership "00000000080000000000000001000000ffffffff04000000ffffffff08000000"
+.ownership "0000000001000000ffffffff04000000ffffffff080000000100000001000000"
+.ownership "ffffffff04000000ffffffff0400030001000000ffffffff0802000000000000"
+.ownership "0801000001000000080200000000000001000000ffffffff"
+
+.entry 0
+
+.function main 0 18 0 int 1
+  PUSH_I64 10
+  STORE_LOCAL 0
+  PUSH_BOOL 1
+  STORE_LOCAL 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  OWN_PACK 0
+  OWN_STORE_LOCAL 2
+  PUSH_I64 3
+  STORE_LOCAL 3
+  PUSH_BOOL 1
+  STORE_LOCAL 4
+  LOAD_LOCAL 3
+  LOAD_LOCAL 4
+  OWN_PACK 1
+  OWN_STORE_LOCAL 5
+  PUSH_I64 20
+  STORE_LOCAL 6
+  PUSH_BOOL 0
+  STORE_LOCAL 7
+  LOAD_LOCAL 6
+  LOAD_LOCAL 7
+  OWN_PACK 0
+  OWN_STORE_LOCAL 8
+  REGION_BEGIN
+  BORROW_LOCAL_EXCLUSIVE 0 2
+  BORROW_LOCAL_SHARED 1 5
+  BORROW_LOCAL_EXCLUSIVE 2 8
+  CALL_REF 1 0
+  REGION_END
+  PUSH_I64 30
+  EQ
+  ASSERT
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 2
+  REF_GET 0 0
+  REGION_END
+  PUSH_I64 13
+  EQ
+  ASSERT
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 8
+  REF_GET 0 0
+  REGION_END
+  PUSH_I64 17
+  EQ
+  ASSERT
+  REGION_BEGIN
+  BORROW_LOCAL_EXCLUSIVE 0 8
+  BORROW_LOCAL_SHARED 1 5
+  BORROW_LOCAL_EXCLUSIVE 2 2
+  CALL_REF 1 0
+  REGION_END
+  PUSH_I64 30
+  EQ
+  ASSERT
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 2
+  REF_GET 0 0
+  REGION_END
+  PUSH_I64 10
+  EQ
+  ASSERT
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 8
+  REF_GET 0 0
+  REGION_END
+  PUSH_I64 20
+  EQ
+  ASSERT
+  OWN_MOVE_LOCAL 2
+  OWN_STORE_LOCAL 9
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 9
+  REF_GET 0 0
+  REGION_END
+  STORE_LOCAL 10
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 9
+  REF_GET 0 1
+  REGION_END
+  STORE_LOCAL 11
+  LOAD_LOCAL 10
+  PUSH_I64 10
+  EQ
+  ASSERT
+  LOAD_LOCAL 11
+  ASSERT
+  OWN_MOVE_LOCAL 8
+  OWN_STORE_LOCAL 12
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 12
+  REF_GET 0 0
+  REGION_END
+  STORE_LOCAL 13
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 12
+  REF_GET 0 1
+  REGION_END
+  STORE_LOCAL 14
+  LOAD_LOCAL 13
+  PUSH_I64 20
+  EQ
+  ASSERT
+  LOAD_LOCAL 14
+  NOT
+  ASSERT
+  OWN_MOVE_LOCAL 5
+  OWN_STORE_LOCAL 15
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 15
+  REF_GET 0 0
+  REGION_END
+  STORE_LOCAL 16
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 15
+  REF_GET 0 1
+  REGION_END
+  STORE_LOCAL 17
+  LOAD_LOCAL 16
+  PUSH_I64 3
+  EQ
+  ASSERT
+  LOAD_LOCAL 17
+  ASSERT
+  PUSH_I64 0
+  OWN_UNPACK_LOCAL 9
+  POP
+  POP
+  OWN_UNPACK_LOCAL 12
+  POP
+  POP
+  OWN_UNPACK_LOCAL 15
+  POP
+  POP
+  RET
+.end
+
+.function adjust 3 4 0 int 1
+  REF_GET 0 0
+  REF_GET 1 0
+  ADD
+  REF_SET 0 0
+  REF_GET 2 0
+  REF_GET 1 0
+  SUB
+  REF_SET 2 0
+  REF_GET 1 1
+  ASSERT
+  REF_GET 0 0
+  REF_GET 2 0
+  ADD
+  STORE_LOCAL 3
+  LOAD_LOCAL 3
+  RET
+.end
+
+.parameters 1 struct struct struct
+

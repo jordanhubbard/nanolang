@@ -1,0 +1,73 @@
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror src/nsi_socket_resolver_main.c src/nsi_socket.c src/nsi_cap.c -o bin/nano-resolver -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.0.3/lib
+NANO_NATIVE_TEST_CC="cc" python3 -m unittest -f -v tests.test_websocket_service_drivers
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -o obj/test_service_lowering tests/test_service_lowering.c src/runtime/service_shadows.c obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o lib/libnano_file_runtime.a lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.0.3/lib
+test_installed_and_relocated_native_publication (tests.test_websocket_service_drivers.WebSocketServiceDrivers.test_installed_and_relocated_native_publication) ... NANO_NATIVE_TEST_CC="cc" python3 -m unittest -v tests.test_mixed_websocket_source
+ok
+test_lookup_requires_separate_authority (tests.test_websocket_service_drivers.WebSocketServiceDrivers.test_lookup_requires_separate_authority) ... ok
+test_nonexecuting_emission_and_source_aliases (tests.test_websocket_service_drivers.WebSocketServiceDrivers.test_nonexecuting_emission_and_source_aliases) ... ok
+test_refusals_preserve_prior_outputs (tests.test_websocket_service_drivers.WebSocketServiceDrivers.test_refusals_preserve_prior_outputs) ... ok
+test_source_shadows_and_invocation_policy (tests.test_websocket_service_drivers.WebSocketServiceDrivers.test_source_shadows_and_invocation_policy) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.186s
+
+OK
+NANO_NATIVE_TEST_CC="cc" python3 -m unittest -f -v tests.test_websocket_service_network
+test_source_lifecycles_with_numeric_and_dns_hosts (tests.test_websocket_service_network.WebSocketServiceNetwork.test_source_lifecycles_with_numeric_and_dns_hosts) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 18.314s
+
+OK
+test_paired_source_bytes (tests.test_mixed_websocket_source.MixedWebSocketLowering.test_paired_source_bytes) ... ok
+test_lookup_policy_is_supplied_at_invocation (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_lookup_policy_is_supplied_at_invocation) ... ok
+test_nonexecuting_emission_and_failed_shadow_preserve_output (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_nonexecuting_emission_and_failed_shadow_preserve_output) ... ok
+test_permissions_shadows_and_native_invocation (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_permissions_shadows_and_native_invocation) ... ok
+test_relocated_native_product (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_relocated_native_product) ... ok
+test_required_live_peer (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_required_live_peer) ... FAIL
+test_required_live_peer (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_required_live_peer) ... FAIL
+
+======================================================================
+FAIL: test_required_live_peer (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_required_live_peer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-release/tests/test_mixed_websocket_source.py", line 145, in test_required_live_peer
+    self.run_command([driver,source,*flags,'--emit-nvm','-o',wire])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-release/tests/test_service_drivers.py", line 45, in run_command
+    self.assertEqual(run.returncode,expected,run.stdout+run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : SELECT 0 2f707269766174652f7661722f666f6c646572732f76302f7078796c325f6d35313276356a396e68763637347074343030303030676e2f542f6e616e6f2d66696c652d647269766572732d6f637a69346b6f392f70617274302e6e616e6f 7061796c6f6164
+SELECT 1 2f707269766174652f7661722f666f6c646572732f76302f7078796c325f6d35313276356a396e68763637347074343030303030676e2f542f6e616e6f2d66696c652d647269766572732d6f637a69346b6f392f70617274302e6e616e6f 70726f6265
+SELECT 2 2f707269766174652f7661722f666f6c646572732f76302f7078796c325f6d35313276356a396e68763637347074343030303030676e2f542f6e616e6f2d66696c652d647269766572732d6f637a69346b6f392f70617274312e6e616e6f 70726f6265
+SELECT 3 2f707269766174652f7661722f666f6c646572732f76302f7078796c325f6d35313276356a396e68763637347074343030303030676e2f542f6e616e6f2d66696c652d647269766572732d6f637a69346b6f392f70617274332e6e616e6f 7061796c6f6164
+SELECT 4 2f707269766174652f7661722f666f6c646572732f76302f7078796c325f6d35313276356a396e68763637347074343030303030676e2f542f6e616e6f2d66696c652d647269766572732d6f637a69346b6f392f70617274332e6e616e6f 70726f6265
+SELECT 5 2f707269766174652f7661722f666f6c646572732f76302f7078796c325f6d35313276356a396e68763637347074343030303030676e2f542f6e616e6f2d66696c652d647269766572732d6f637a69346b6f392f736f757263652e6e616e6f 6d61696e
+START 0 2f707269766174652f7661722f666f6c646572732f76302f7078796c325f6d35313276356a396e68763637347074343030303030676e2f542f6e616e6f2d66696c652d647269766572732d6f637a69346b6f392f70617274302e6e616e6f 7061796c6f6164
+DONE 0 2f707269766174652f7661722f666f6c646572732f76302f7078796c325f6d35313276356a396e68763637347074343030303030676e2f542f6e616e6f2d66696c652d647269766572732d6f637a69346b6f392f70617274302e6e616e6f 7061796c6f6164
+START 1 2f707269766174652f7661722f666f6c646572732f76302f7078796c325f6d35313276356a396e68763637347074343030303030676e2f542f6e616e6f2d66696c652d647269766572732d6f637a69346b6f392f70617274302e6e616e6f 70726f6265
+I will not publish after mixed-service shadow failure (status 3).
+
+
+======================================================================
+FAIL: test_required_live_peer (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_required_live_peer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-release/tests/test_websocket_dispatch.py", line 90, in cleanup
+    self.assertEqual(errors, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: Lists differ: [AssertionError("'GET /test HTTP/1.1' != '[90 chars]\n")] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+AssertionError("'GET /test HTTP/1.1' != 'GET /?mode=test HTTP/1.1'\n- GET /test HTTP/1.1\n+ GET /?mode=test HTTP/1.1\n?      ++++++\n")
+
+- [AssertionError("'GET /test HTTP/1.1' != 'GET /?mode=test HTTP/1.1'\n- GET /test HTTP/1.1\n+ GET /?mode=test HTTP/1.1\n?      ++++++\n")]
++ []
+
+----------------------------------------------------------------------
+Ran 6 tests in 128.139s
+
+FAILED (failures=2)
+make: *** [test-mixed-websocket-source] Error 1

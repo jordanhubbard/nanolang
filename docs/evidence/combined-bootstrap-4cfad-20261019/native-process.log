@@ -1,0 +1,9 @@
+test_budget_default_override_and_invalid_values (tests.test_native_process.NativeProcess.test_budget_default_override_and_invalid_values) ... ok
+test_build_budget_is_explicit_and_guest_deadline_stays_short (tests.test_native_process.NativeProcess.test_build_budget_is_explicit_and_guest_deadline_stays_short) ... ok
+test_link_flags_inherit_and_preserve_explicit_empty_override (tests.test_native_process.NativeProcess.test_link_flags_inherit_and_preserve_explicit_empty_override) ... ok
+test_timeout_kills_descendant_and_reaps_driver (tests.test_native_process.NativeProcess.test_timeout_kills_descendant_and_reaps_driver) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 5.319s
+
+OK

@@ -1,0 +1,19 @@
+/private/tmp/nanolang-map-runtime-audit-20261021/heap-growth.c:16:132: error: format specifies type 'unsigned long long' but the argument has type 'size_t' (aka 'unsigned long') [-Werror,-Wformat]
+   16 |     printf("buckets=%u->%u count=%u allocated=%" PRIu64 " freed-before=%" PRIu64 " objects=%" PRIu64 "\n",initial,final,map->count,heap.stats.allocated,heap.stats.freed,heap.stats.num_objects);
+      |                                               ~~~~~~~~~                                                                            ^~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-map-runtime-audit-20261021/heap-growth.c:16:153: error: format specifies type 'unsigned long long' but the argument has type 'size_t' (aka 'unsigned long') [-Werror,-Wformat]
+   16 |     printf("buckets=%u->%u count=%u allocated=%" PRIu64 " freed-before=%" PRIu64 " objects=%" PRIu64 "\n",initial,final,map->count,heap.stats.allocated,heap.stats.freed,heap.stats.num_objects);
+      |                                                                        ~~~~~~~~~                                                                        ^~~~~~~~~~~~~~~~
+/private/tmp/nanolang-map-runtime-audit-20261021/heap-growth.c:16:170: error: format specifies type 'unsigned long long' but the argument has type 'size_t' (aka 'unsigned long') [-Werror,-Wformat]
+   16 |     printf("buckets=%u->%u count=%u allocated=%" PRIu64 " freed-before=%" PRIu64 " objects=%" PRIu64 "\n",initial,final,map->count,heap.stats.allocated,heap.stats.freed,heap.stats.num_objects);
+      |                                                                                            ~~~~~~~~~                                                                     ^~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-map-runtime-audit-20261021/heap-growth.c:18:102: error: format specifies type 'unsigned long long' but the argument has type 'size_t' (aka 'unsigned long') [-Werror,-Wformat]
+   18 |     printf("allocated=%" PRIu64 " freed-after=%" PRIu64 " objects=%" PRIu64 " expected-growth=%zu\n",heap.stats.allocated,heap.stats.freed,heap.stats.num_objects,(size_t)(final-initial)*sizeof(VmHMEntry));
+      |                       ~~~~~~~~~                                                                      ^~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-map-runtime-audit-20261021/heap-growth.c:18:123: error: format specifies type 'unsigned long long' but the argument has type 'size_t' (aka 'unsigned long') [-Werror,-Wformat]
+   18 |     printf("allocated=%" PRIu64 " freed-after=%" PRIu64 " objects=%" PRIu64 " expected-growth=%zu\n",heap.stats.allocated,heap.stats.freed,heap.stats.num_objects,(size_t)(final-initial)*sizeof(VmHMEntry));
+      |                                               ~~~~~~~~~                                                                   ^~~~~~~~~~~~~~~~
+/private/tmp/nanolang-map-runtime-audit-20261021/heap-growth.c:18:140: error: format specifies type 'unsigned long long' but the argument has type 'size_t' (aka 'unsigned long') [-Werror,-Wformat]
+   18 |     printf("allocated=%" PRIu64 " freed-after=%" PRIu64 " objects=%" PRIu64 " expected-growth=%zu\n",heap.stats.allocated,heap.stats.freed,heap.stats.num_objects,(size_t)(final-initial)*sizeof(VmHMEntry));
+      |                                                                   ~~~~~~~~~                                                                ^~~~~~~~~~~~~~~~~~~~~~
+6 errors generated.

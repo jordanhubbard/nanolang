@@ -1,0 +1,11 @@
+/Users/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/selected-tools/cc
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+Target: arm64-apple-darwin27.0.0
+Thread model: posix
+InstalledDir: /Applications/Xcode_27.2_beta_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+/Users/runner/work/nanolang/nanolang/.test_output/source-capture-diagnostic/selected-tools/clang
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+Target: arm64-apple-darwin27.0.0
+Thread model: posix
+InstalledDir: /Applications/Xcode_27.2_beta_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+/Applications/Xcode_27.2_beta_2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as

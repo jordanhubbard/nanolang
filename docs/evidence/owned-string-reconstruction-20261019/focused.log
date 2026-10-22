@@ -1,0 +1,67 @@
+I retain descriptive-plan artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-source-plan-sw2etcw5
+test_c_ownership_allocation_and_exact_budget (tests.test_file_source_plan.FileSourcePlan.test_c_ownership_allocation_and_exact_budget) ... ok
+test_paired_full_modules_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_full_modules_and_selected_shadows) ... FAIL
+test_paired_mixed_catalogs_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_mixed_catalogs_and_selected_shadows) ... FAIL
+test_paired_websocket_catalog_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_websocket_catalog_and_selected_shadows) ... FAIL
+I retain owned STRING evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-string-reconstruction-em18zju4
+test_assert_failure_prefix_and_no_later_print (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_assert_failure_prefix_and_no_later_print) ... ok
+test_defensive_string_table_and_parameter_refusals (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_defensive_string_table_and_parameter_refusals) ... ok
+test_exact_bytes_forwarding_and_positional_owners (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_exact_bytes_forwarding_and_positional_owners) ... ok
+test_independent_original_shadow_executable (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_independent_original_shadow_executable) ... ok
+test_invalid_utf8_is_target_specific (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_invalid_utf8_is_target_specific) ... ok
+test_literal_payload_bound_and_atomic_overlimit (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_literal_payload_bound_and_atomic_overlimit) ... ok
+test_original_verifier_rejects_wrong_print_argument_and_constant (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_original_verifier_rejects_wrong_print_argument_and_constant) ... ok
+test_unchanged_ordinary_example (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_unchanged_ordinary_example) ... ok
+
+======================================================================
+FAIL: test_paired_full_modules_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_full_modules_and_selected_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_file_source_plan.py", line 140, in test_paired_full_modules_and_selected_shadows
+    self.paired(corpus(), False)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_file_source_plan.py", line 172, in paired
+    build_out,trace=self.command(compiler+'-build',args,timeout=900,
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         extra={'NANO_SHADOW_TRACE':'1', 'NANO_SHADOW_TIMEOUT_SECONDS':'30'})
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('nanoc_c-build', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 900, 'elapsed_seconds': 0.0019405000493861735, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_paired_mixed_catalogs_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_mixed_catalogs_and_selected_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_file_source_plan.py", line 143, in test_paired_mixed_catalogs_and_selected_shadows
+    self.paired(service_corpus(), True)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_file_source_plan.py", line 172, in paired
+    build_out,trace=self.command(compiler+'-build',args,timeout=900,
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         extra={'NANO_SHADOW_TRACE':'1', 'NANO_SHADOW_TIMEOUT_SECONDS':'30'})
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('nanoc_c-build', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 900, 'elapsed_seconds': 0.0019365000189282, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_paired_websocket_catalog_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_websocket_catalog_and_selected_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_file_source_plan.py", line 146, in test_paired_websocket_catalog_and_selected_shadows
+    self.paired(websocket_corpus(), True)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_file_source_plan.py", line 172, in paired
+    build_out,trace=self.command(compiler+'-build',args,timeout=900,
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         extra={'NANO_SHADOW_TRACE':'1', 'NANO_SHADOW_TIMEOUT_SECONDS':'30'})
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('nanoc_c-build', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 900, 'elapsed_seconds': 0.002011333010159433, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+----------------------------------------------------------------------
+Ran 12 tests in 51.475s
+
+FAILED (failures=3)

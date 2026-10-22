@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+    "--language",
+    "c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/child-authority.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/prior.c"
+  ],
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "I cannot load this module: Invalid NVM v2 module: unknown-section-type\nI did not publish reconstructed source\n"
+}

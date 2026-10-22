@@ -1,0 +1,22 @@
+[
+  {
+    "name": "instrumented-build",
+    "returncode": 0,
+    "seconds": 1.3029488339670934
+  },
+  {
+    "name": "instrumented-run",
+    "returncode": 0,
+    "seconds": 0.48013579100370407
+  },
+  {
+    "name": "linked-build",
+    "returncode": 0,
+    "seconds": 0.9411083749728277
+  },
+  {
+    "name": "linked-run",
+    "returncode": 0,
+    "seconds": 0.23565845796838403
+  }
+]

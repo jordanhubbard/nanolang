@@ -1,0 +1,12 @@
+{
+  "src/nanovm/vm.h": "b4e9e35218f10d70fda94a11cb7aef0b4d48e73decffa63c6033d5cdc1a29192",
+  "src/nanovm/heap.h": "e5e6455d7419fdba18abdc5689ce7f827c231afe9ee3f5ab3f2c1edba1021f5e",
+  "src/nanovm/vm.c": "5b4e1d14930c44ecae6b3058abb893a294a74b08498c041e1ff6bbe12e264d78",
+  "src/nanovm/union_field_vm_prepare.inc": "1a94bc7ed47f9220e08940be742325f7fca61c59ca0c8e195ac805ce931c97b2",
+  "src/nanovm/union_field_runtime_private.h": "64a47c2159d07280a2cb3eecc49b7ef9a52ce9b154cd4a26377faeda0492886c",
+  "src/nanoisa/union_field_snapshot.inc": "b72764fbfec7f7239933b709820f9a0d1f47ac2ed501b57582f670740fb95f6e",
+  "src/nanoisa/union_field_vm_image_private.h": "e92e4e07c813726d2d76609043c6b3814566456d26a8dd1c360c41c057bcfb2c",
+  "tests/nanoisa/test_union_field_preparation.c": "8b421b188e7a481eb973699e296c110fdd2231767a58ed651e3b334869c485d4",
+  "tests/test_union_field_preparation.py": "bb385bd3deba67630708511c00d8a8543d60dfe5716954c517b63accc066bc03",
+  "Makefile.gnu": "a7c1c51b94672ec19535ab18de5f03a0e0ef6670096817b41304b8f118673e1f"
+}

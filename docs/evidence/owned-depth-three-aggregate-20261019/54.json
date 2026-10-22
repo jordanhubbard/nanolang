@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/basic-nano_virt.nanoc_stage1.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/basic-nano_virt.nanoc_stage1.c"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": ""
+}

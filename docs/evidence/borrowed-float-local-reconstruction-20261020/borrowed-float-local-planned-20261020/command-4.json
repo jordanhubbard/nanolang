@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+    "/private/tmp/borrowed-float-local-planned-20261020/nano_virt.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/borrowed-float-local-planned-20261020/nano_virt-rebuilt.nvm"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-owned-float-design"
+}

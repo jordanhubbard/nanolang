@@ -1,0 +1,78 @@
+[
+  {
+    "case": "immutable",
+    "producer": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+    "producer_sha256": "5f79f32cc86812dd943e2cf89062e02b3a6c3e4b91656c9029d2802345d8a242",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-effects-global-map-20261019/immutable.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-effects-global-map-20261019/immutable-nano_virt.nvm"
+    ],
+    "status": 0,
+    "facts": {
+      "read": 0,
+      "main": 0
+    },
+    "vm_status": 0,
+    "vm_output": ""
+  },
+  {
+    "case": "immutable",
+    "producer": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+    "producer_sha256": "b07896f8a84457b62e13111d0ff2b71635a567c0a80a2c8e03d4e87a0870f5a3",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/private/tmp/nanolang-effects-global-map-20261019/immutable.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-effects-global-map-20261019/immutable-nanoc_stage1.nvm"
+    ],
+    "status": 0,
+    "facts": {
+      "main": 8,
+      "read": 8
+    },
+    "vm_status": 0,
+    "vm_output": ""
+  },
+  {
+    "case": "mutable",
+    "producer": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+    "producer_sha256": "5f79f32cc86812dd943e2cf89062e02b3a6c3e4b91656c9029d2802345d8a242",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-effects-global-map-20261019/mutable.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-effects-global-map-20261019/mutable-nano_virt.nvm"
+    ],
+    "status": 0,
+    "facts": {
+      "read": 2,
+      "main": 2
+    },
+    "vm_status": 0,
+    "vm_output": ""
+  },
+  {
+    "case": "mutable",
+    "producer": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+    "producer_sha256": "b07896f8a84457b62e13111d0ff2b71635a567c0a80a2c8e03d4e87a0870f5a3",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/private/tmp/nanolang-effects-global-map-20261019/mutable.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-effects-global-map-20261019/mutable-nanoc_stage1.nvm"
+    ],
+    "status": 0,
+    "facts": {
+      "main": 8,
+      "read": 8
+    },
+    "vm_status": 0,
+    "vm_output": ""
+  }
+]

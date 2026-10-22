@@ -1,0 +1,7 @@
+{
+  "returncode": 1,
+  "actual_compiler": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+  "sha256": "1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9",
+  "wrapper_sha256": "0ef0d6d3a1f718900d242c7b12570c26a4e40497a2c8dd4ea50b47bd3cde6d30",
+  "stdout": ""
+}

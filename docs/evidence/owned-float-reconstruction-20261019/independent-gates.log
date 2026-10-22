@@ -1,0 +1,9 @@
+I retain FLOAT evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-3nv8mu7o
+test_unchanged_ordinary_and_independent_original_shadow (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_unchanged_ordinary_and_independent_original_shadow) ... ok
+test_dynamic_nan_copy_and_typed_predicates (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_dynamic_nan_copy_and_typed_predicates) ... ok
+test_nonfinite_and_malformed_literal_target_boundaries (tests.test_owned_float_reconstruction.OwnedFloatReconstruction.test_nonfinite_and_malformed_literal_target_boundaries) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 6.946s
+
+OK

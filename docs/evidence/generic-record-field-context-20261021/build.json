@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c",
+    "src_nano/nanoc_v06.nano",
+    "-o",
+    "/private/tmp/nanolang-generic-record-field-20261021/canonical"
+  ],
+  "exit": 0,
+  "seconds": 132.90669412497664,
+  "timeout": 900,
+  "environment": {
+    "TMPDIR": "/private/tmp/nanolang-generic-record-field-20261021/compiler-tmp",
+    "NANO_BUILD_CACHE": "/private/tmp/nanolang-generic-record-field-20261021/module-cache"
+  }
+}

@@ -1,0 +1,152 @@
+[
+  {
+    "mode": "image",
+    "cwd": "/Users/jkh/Src/nanolang-51-harness",
+    "commands": [
+      [
+        "clang",
+        "-O3",
+        "-g",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fPIC",
+        "-dynamiclib",
+        "-DARTIFACT_ANSWER=42",
+        "tests/nanovm/ffi_artifact_fixture.c",
+        "-o",
+        "/private/tmp/nanolang-asan-artifact-registration/image/first.so"
+      ],
+      [
+        "clang",
+        "-O3",
+        "-g",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fPIC",
+        "-dynamiclib",
+        "-DARTIFACT_ANSWER=43",
+        "tests/nanovm/ffi_artifact_identity_fixture.c",
+        "-o",
+        "/private/tmp/nanolang-asan-artifact-registration/image/second.so"
+      ],
+      [
+        "clang",
+        "-O3",
+        "-g",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "tests/nanovm/test_artifact_load.c",
+        "-o",
+        "/private/tmp/nanolang-asan-artifact-registration/image/loader"
+      ],
+      [
+        "/private/tmp/nanolang-asan-artifact-registration/image/loader",
+        "/private/tmp/nanolang-asan-artifact-registration/image/first.so",
+        "/private/tmp/nanolang-asan-artifact-registration/image/second.so"
+      ]
+    ],
+    "timeout_seconds_each": 30,
+    "exit": -6
+  },
+  {
+    "mode": "globals",
+    "cwd": "/Users/jkh/Src/nanolang-51-harness",
+    "commands": [
+      [
+        "clang",
+        "-O3",
+        "-g",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-address-globals-dead-stripping",
+        "-fPIC",
+        "-dynamiclib",
+        "-DARTIFACT_ANSWER=42",
+        "tests/nanovm/ffi_artifact_fixture.c",
+        "-o",
+        "/private/tmp/nanolang-asan-artifact-registration/globals/first.so"
+      ],
+      [
+        "clang",
+        "-O3",
+        "-g",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-address-globals-dead-stripping",
+        "-fPIC",
+        "-dynamiclib",
+        "-DARTIFACT_ANSWER=43",
+        "tests/nanovm/ffi_artifact_identity_fixture.c",
+        "-o",
+        "/private/tmp/nanolang-asan-artifact-registration/globals/second.so"
+      ],
+      [
+        "clang",
+        "-O3",
+        "-g",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-address-globals-dead-stripping",
+        "tests/nanovm/test_artifact_load.c",
+        "-o",
+        "/private/tmp/nanolang-asan-artifact-registration/globals/loader"
+      ],
+      [
+        "/private/tmp/nanolang-asan-artifact-registration/globals/loader",
+        "/private/tmp/nanolang-asan-artifact-registration/globals/first.so",
+        "/private/tmp/nanolang-asan-artifact-registration/globals/second.so"
+      ]
+    ],
+    "timeout_seconds_each": 30,
+    "exit": -6
+  },
+  {
+    "mode": "homebrew",
+    "cwd": "/Users/jkh/Src/nanolang-51-harness",
+    "commands": [
+      [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-O3",
+        "-g",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fPIC",
+        "-dynamiclib",
+        "-DARTIFACT_ANSWER=42",
+        "tests/nanovm/ffi_artifact_fixture.c",
+        "-o",
+        "/private/tmp/nanolang-asan-artifact-registration/homebrew/first.so"
+      ],
+      [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-O3",
+        "-g",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "-fPIC",
+        "-dynamiclib",
+        "-DARTIFACT_ANSWER=43",
+        "tests/nanovm/ffi_artifact_identity_fixture.c",
+        "-o",
+        "/private/tmp/nanolang-asan-artifact-registration/homebrew/second.so"
+      ],
+      [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-O3",
+        "-g",
+        "-Isrc",
+        "-fsanitize=address,undefined",
+        "tests/nanovm/test_artifact_load.c",
+        "-o",
+        "/private/tmp/nanolang-asan-artifact-registration/homebrew/loader"
+      ],
+      [
+        "/private/tmp/nanolang-asan-artifact-registration/homebrew/loader",
+        "/private/tmp/nanolang-asan-artifact-registration/homebrew/first.so",
+        "/private/tmp/nanolang-asan-artifact-registration/homebrew/second.so"
+      ]
+    ],
+    "timeout_seconds_each": 30,
+    "exit": 0
+  }
+]

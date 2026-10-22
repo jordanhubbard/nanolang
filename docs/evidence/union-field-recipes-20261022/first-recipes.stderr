@@ -1,0 +1,7 @@
+test_complete_origin_and_allocation_controls (tests.test_union_field_execution.UnionFieldExecution.test_complete_origin_and_allocation_controls) ... ok
+test_copied_recipe_and_allocation_controls (tests.test_union_field_execution.UnionFieldExecution.test_copied_recipe_and_allocation_controls) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 15.898s
+
+OK

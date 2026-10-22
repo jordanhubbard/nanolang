@@ -1,0 +1,9 @@
+{
+  "src/nanovm/heap.c": "66ab6f1bdf22226acaee3ef161eb291009c98bbbc311e196fe9f8b38d445012a",
+  "src/nanovm/record_map_heap.inc": "598e04ee03699a9a1b2b498edb6996189a2983d028f7074e5c58ef87d255b175",
+  "src/nanovm/record_map_heap_private.h": "868de7aa799ab43ad5219e5ccbe91ca97d36db3bbb9670c3ada86d71f2a95a4d",
+  "tests/nanovm/test_record_map_string_heap.c": "79dcf3ac3b95e18e2be92ab0755ca95fb691aad2c85d0558edcbbc20b9f65002",
+  "tests/test_record_map_string_heap.py": "4821939748343250011b7148f9ddb2e65cf746de23725939717888717cb1c593",
+  "/opt/homebrew/opt/llvm/bin/clang": "5b3adae66bf3e36a0aa2e90db47e3456d31bf5f992124fd09ae9119b076e00be",
+  "old_include_prefix": "1c32b72ddf6b5328082a3b3cb5011e895fd3031486338fa1c55c02e59bcbe2a6"
+}

@@ -1,0 +1,7 @@
+{
+  "/Users/jkh/Src/nanolang-51-nested-array/src/nanoisa/managed_array_shapes.c": "161bee007d87c465541e09c4ef95435448e883f3e277ecb803f255b0d43ad72e",
+  "/Users/jkh/Src/nanolang-51-nested-array/src/nanoisa/managed_record_array_origins.h": "e34f578e24d91cfa79295884208f1da011fac17932060850f1e21cd37361eaf7",
+  "/Users/jkh/Src/nanolang-51-nested-array/src/nanoisa/ownership_array_fields.inc": "1900897b95e19696804f21542c2e6e9a4a90f556fb4a7d4dbe5d4003c666f3ff",
+  "/Users/jkh/Src/nanolang-51-nested-array/src/nanoisa/record_array_origins.inc": "06b34ed6c805183b6396d065b33860478a443c8edbdf00821308ab46cb4d3084",
+  "/Users/jkh/Src/nanolang-51-nested-array/src/nanovm/record_array_vm_prepare.inc": "ca51c28bd86f41fa2f18af2ba8f4fc03162a96f331e5c99e35f4773383d05f77"
+}

@@ -1,0 +1,7 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-8p18b4nu
+test_actual_local_cap_and_atomic_refusal (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_actual_local_cap_and_atomic_refusal) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.277s
+
+OK

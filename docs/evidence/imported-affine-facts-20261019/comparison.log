@@ -1,0 +1,11 @@
+{
+  "no_collision_sha256": "0ab7e0a7a6b119ecfbfbcc213754f5297134fba418c02f4ed11d3e5e630705d6",
+  "colliding_function_ordinals_signatures_instructions_and_metadata_payloads": "unchanged",
+  "new_wire_names": [
+    "main",
+    "take",
+    "run",
+    "$import.3.0",
+    "$import.4.0"
+  ]
+}

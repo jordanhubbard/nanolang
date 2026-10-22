@@ -1,0 +1,12 @@
+{
+  "artifact_id": 12204047789,
+  "zip_sha256": "98061e6c5df0aac49260d9d8e5f7148ac425df2aeb44d6fcfca824b57b8bb79e",
+  "zip_bytes": 1875670968,
+  "tar_gz_bytes": 1875670804,
+  "commit": "445ddb5b3efc29b27f6dfaacfb6a432acf53ef00",
+  "phase": "stage2",
+  "records": 87319,
+  "directories": 0,
+  "elapsed_seconds": 102.24260878562927,
+  "restored_or_executed": false
+}

@@ -1,0 +1,8 @@
+test_interleaved_progress_preserves_duplicate_events (tests.test_shadow_trace_names.ShadowTraceNames.test_interleaved_progress_preserves_duplicate_events) ... ok
+test_malformed_event_refuses (tests.test_shadow_trace_names.ShadowTraceNames.test_malformed_event_refuses) ... ok
+test_progress_is_not_execution_evidence (tests.test_shadow_trace_names.ShadowTraceNames.test_progress_is_not_execution_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK

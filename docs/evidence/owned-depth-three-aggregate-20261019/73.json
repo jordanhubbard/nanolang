@@ -1,0 +1,20 @@
+{
+  "command": [
+    "cc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/basic-nanoc_stage1.c",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o",
+    "-lm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/basic-nanoc_stage1.O0.exe"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": ""
+}

@@ -1,0 +1,404 @@
+[
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Warning at line 2, column 92: Unused variable 'flag'\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nano_virt.nvm"
+    ],
+    "returncode": 17,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"Box\"\n.string \"value\"\n.string \"flag\"\n.string \"main\"\n.string \"pick\"\n.string \"nano.local.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00h\\x00\\x00\\x00owner\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00h\\x00\\x00\\x00count\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x0c\\x00\\x00\\x00h\\x00\\x00\\x00i\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00L\\x00\\x00\\x00h\\x00\\x00\\x00value\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00[\\x00\\x00\\x00h\\x00\\x00\\x00flag\"\n.string \"nano.affine.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"nano.affine-use.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00p\\x00\\x00\\x00\\x02\\x01\\x00\\x00:\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/nanolang-owned-wrapping-map-20261019/add.nanoowner\"\n\n.metadata 5 6\n.metadata 5 7\n.metadata 5 8\n.metadata 5 9\n.metadata 5 10\n.metadata 11 12\n.metadata 11 13\n.metadata 14 15\n\n.types 1 0 0\n\n.layouts \"01000000000002000000000001000000ffffffff0100000004000000ffffffff\"\n.layouts \"02000000\"\n\n.ownership \"010000000100000003000000020000000400000001000000ffffffff01000000\"\n.ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff06000200\"\n.ownership \"01000000ffffffff080000000000000001000000ffffffff01000000ffffffff\"\n.ownership \"080000000000000001000000ffffffff04000000ffffffff\"\n\n.entry 0\n\n.function main 0 4 0 int 1\n  PUSH_I64 7\n  STORE_LOCAL 0\n  PUSH_BOOL 1\n  STORE_LOCAL 1\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  OWN_PACK 0\n  PUSH_I64 3\n  CALL 1\n  PUSH_I64 7\n  STORE_LOCAL 2\n  PUSH_BOOL 1\n  STORE_LOCAL 3\n  LOAD_LOCAL 2\n  LOAD_LOCAL 3\n  OWN_PACK 0\n  PUSH_I64 0\n  CALL 1\n  ADD\n  RET\n.end\n\n.function pick 2 6 0 int 1\n  PUSH_I64 0\n  STORE_LOCAL 2\nL1:\n  LOAD_LOCAL 2\n  LOAD_LOCAL 1\n  PUSH_I64 0\n  ADD\n  LT\n  JMP_FALSE L0\n  LOAD_LOCAL 2\n  PUSH_I64 1\n  ADD\n  STORE_LOCAL 2\n  JMP L1\nL0:\n  OWN_MOVE_LOCAL 0\n  OWN_STORE_LOCAL 3\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 2 3\n  REF_GET 2 0\n  REGION_END\n  STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 2 3\n  REF_GET 2 1\n  REGION_END\n  STORE_LOCAL 5\n  LOAD_LOCAL 4\n  LOAD_LOCAL 2\n  ADD\n  OWN_UNPACK_LOCAL 3\n  POP\n  POP\n  RET\n.end\n\n.parameters 1 struct int\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nano_virt.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a nontrapping pure scalar owned pretest\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nano_virt.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a nontrapping pure scalar owned pretest\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nanoc_u8_context.nvm"
+    ],
+    "returncode": 17,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"Box\"\n.string \"value\"\n.string \"flag\"\n.string \"main\"\n.string \"pick\"\n.string \"nano.local.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00h\\x00\\x00\\x00owner\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00h\\x00\\x00\\x00count\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x0c\\x00\\x00\\x00h\\x00\\x00\\x00i\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00L\\x00\\x00\\x00h\\x00\\x00\\x00value\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00[\\x00\\x00\\x00h\\x00\\x00\\x00flag\"\n.string \"nano.affine.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"nano.affine-use.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00p\\x00\\x00\\x00\\x02\\x02\\x00\\x00:\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/nanolang-owned-wrapping-map-20261019/add.nanoowner\"\n\n.metadata 5 6\n.metadata 5 7\n.metadata 5 8\n.metadata 5 9\n.metadata 5 10\n.metadata 11 12\n.metadata 11 13\n.metadata 14 15\n\n.types 1 0 0\n\n.layouts \"01000000000002000000000001000000ffffffff0100000004000000ffffffff\"\n.layouts \"02000000\"\n\n.ownership \"010000000100000003000000020000000400000001000000ffffffff01000000\"\n.ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff06000200\"\n.ownership \"01000000ffffffff080000000000000001000000ffffffff01000000ffffffff\"\n.ownership \"080000000000000001000000ffffffff04000000ffffffff\"\n\n.entry 0\n\n.function main 0 4 0 int 1\n  PUSH_I64 7\n  STORE_LOCAL 0\n  PUSH_BOOL 1\n  STORE_LOCAL 1\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  OWN_PACK 0\n  PUSH_I64 3\n  CALL 1\n  PUSH_I64 7\n  STORE_LOCAL 2\n  PUSH_BOOL 1\n  STORE_LOCAL 3\n  LOAD_LOCAL 2\n  LOAD_LOCAL 3\n  OWN_PACK 0\n  PUSH_I64 0\n  CALL 1\n  ADD\n  RET\n.end\n\n.function pick 2 6 0 int 1\n  PUSH_I64 0\n  STORE_LOCAL 2\nL1:\n  LOAD_LOCAL 2\n  LOAD_LOCAL 1\n  PUSH_I64 0\n  ADD\n  LT\n  JMP_FALSE L0\n  LOAD_LOCAL 2\n  PUSH_I64 1\n  ADD\n  STORE_LOCAL 2\n  JMP L1\nL0:\n  OWN_MOVE_LOCAL 0\n  OWN_STORE_LOCAL 3\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 2 3\n  REF_GET 2 0\n  REGION_END\n  STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 2 3\n  REF_GET 2 1\n  REGION_END\n  STORE_LOCAL 5\n  LOAD_LOCAL 4\n  LOAD_LOCAL 2\n  ADD\n  OWN_UNPACK_LOCAL 3\n  POP\n  POP\n  RET\n.end\n\n.parameters 1 struct int\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nanoc_u8_context.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nanoc_u8_context.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a nontrapping pure scalar owned pretest\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nanoc_u8_context.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/add-nanoc_u8_context.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a nontrapping pure scalar owned pretest\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Warning at line 2, column 92: Unused variable 'flag'\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nano_virt.nvm"
+    ],
+    "returncode": 17,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"Box\"\n.string \"value\"\n.string \"flag\"\n.string \"main\"\n.string \"pick\"\n.string \"nano.local.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00h\\x00\\x00\\x00owner\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00h\\x00\\x00\\x00count\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x0c\\x00\\x00\\x00h\\x00\\x00\\x00i\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00L\\x00\\x00\\x00h\\x00\\x00\\x00value\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00[\\x00\\x00\\x00h\\x00\\x00\\x00flag\"\n.string \"nano.affine.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"nano.affine-use.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00p\\x00\\x00\\x00\\x02\\x01\\x00\\x00:\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/nanolang-owned-wrapping-map-20261019/sub.nanoowner\"\n\n.metadata 5 6\n.metadata 5 7\n.metadata 5 8\n.metadata 5 9\n.metadata 5 10\n.metadata 11 12\n.metadata 11 13\n.metadata 14 15\n\n.types 1 0 0\n\n.layouts \"01000000000002000000000001000000ffffffff0100000004000000ffffffff\"\n.layouts \"02000000\"\n\n.ownership \"010000000100000003000000020000000400000001000000ffffffff01000000\"\n.ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff06000200\"\n.ownership \"01000000ffffffff080000000000000001000000ffffffff01000000ffffffff\"\n.ownership \"080000000000000001000000ffffffff04000000ffffffff\"\n\n.entry 0\n\n.function main 0 4 0 int 1\n  PUSH_I64 7\n  STORE_LOCAL 0\n  PUSH_BOOL 1\n  STORE_LOCAL 1\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  OWN_PACK 0\n  PUSH_I64 3\n  CALL 1\n  PUSH_I64 7\n  STORE_LOCAL 2\n  PUSH_BOOL 1\n  STORE_LOCAL 3\n  LOAD_LOCAL 2\n  LOAD_LOCAL 3\n  OWN_PACK 0\n  PUSH_I64 0\n  CALL 1\n  ADD\n  RET\n.end\n\n.function pick 2 6 0 int 1\n  PUSH_I64 0\n  STORE_LOCAL 2\nL1:\n  LOAD_LOCAL 2\n  LOAD_LOCAL 1\n  PUSH_I64 0\n  SUB\n  LT\n  JMP_FALSE L0\n  LOAD_LOCAL 2\n  PUSH_I64 1\n  ADD\n  STORE_LOCAL 2\n  JMP L1\nL0:\n  OWN_MOVE_LOCAL 0\n  OWN_STORE_LOCAL 3\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 2 3\n  REF_GET 2 0\n  REGION_END\n  STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 2 3\n  REF_GET 2 1\n  REGION_END\n  STORE_LOCAL 5\n  LOAD_LOCAL 4\n  LOAD_LOCAL 2\n  ADD\n  OWN_UNPACK_LOCAL 3\n  POP\n  POP\n  RET\n.end\n\n.parameters 1 struct int\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nano_virt.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a nontrapping pure scalar owned pretest\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nano_virt.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a nontrapping pure scalar owned pretest\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nanoc_u8_context.nvm"
+    ],
+    "returncode": 17,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"Box\"\n.string \"value\"\n.string \"flag\"\n.string \"main\"\n.string \"pick\"\n.string \"nano.local.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00h\\x00\\x00\\x00owner\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00h\\x00\\x00\\x00count\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x0c\\x00\\x00\\x00h\\x00\\x00\\x00i\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00L\\x00\\x00\\x00h\\x00\\x00\\x00value\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00[\\x00\\x00\\x00h\\x00\\x00\\x00flag\"\n.string \"nano.affine.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"nano.affine-use.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00p\\x00\\x00\\x00\\x02\\x02\\x00\\x00:\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/nanolang-owned-wrapping-map-20261019/sub.nanoowner\"\n\n.metadata 5 6\n.metadata 5 7\n.metadata 5 8\n.metadata 5 9\n.metadata 5 10\n.metadata 11 12\n.metadata 11 13\n.metadata 14 15\n\n.types 1 0 0\n\n.layouts \"01000000000002000000000001000000ffffffff0100000004000000ffffffff\"\n.layouts \"02000000\"\n\n.ownership \"010000000100000003000000020000000400000001000000ffffffff01000000\"\n.ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff06000200\"\n.ownership \"01000000ffffffff080000000000000001000000ffffffff01000000ffffffff\"\n.ownership \"080000000000000001000000ffffffff04000000ffffffff\"\n\n.entry 0\n\n.function main 0 4 0 int 1\n  PUSH_I64 7\n  STORE_LOCAL 0\n  PUSH_BOOL 1\n  STORE_LOCAL 1\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  OWN_PACK 0\n  PUSH_I64 3\n  CALL 1\n  PUSH_I64 7\n  STORE_LOCAL 2\n  PUSH_BOOL 1\n  STORE_LOCAL 3\n  LOAD_LOCAL 2\n  LOAD_LOCAL 3\n  OWN_PACK 0\n  PUSH_I64 0\n  CALL 1\n  ADD\n  RET\n.end\n\n.function pick 2 6 0 int 1\n  PUSH_I64 0\n  STORE_LOCAL 2\nL1:\n  LOAD_LOCAL 2\n  LOAD_LOCAL 1\n  PUSH_I64 0\n  SUB\n  LT\n  JMP_FALSE L0\n  LOAD_LOCAL 2\n  PUSH_I64 1\n  ADD\n  STORE_LOCAL 2\n  JMP L1\nL0:\n  OWN_MOVE_LOCAL 0\n  OWN_STORE_LOCAL 3\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 2 3\n  REF_GET 2 0\n  REGION_END\n  STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 2 3\n  REF_GET 2 1\n  REGION_END\n  STORE_LOCAL 5\n  LOAD_LOCAL 4\n  LOAD_LOCAL 2\n  ADD\n  OWN_UNPACK_LOCAL 3\n  POP\n  POP\n  RET\n.end\n\n.parameters 1 struct int\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nanoc_u8_context.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nanoc_u8_context.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a nontrapping pure scalar owned pretest\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nanoc_u8_context.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/sub-nanoc_u8_context.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a nontrapping pure scalar owned pretest\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Warning at line 2, column 92: Unused variable 'flag'\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nano_virt.nvm"
+    ],
+    "returncode": 17,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"Box\"\n.string \"value\"\n.string \"flag\"\n.string \"main\"\n.string \"pick\"\n.string \"nano.local.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00h\\x00\\x00\\x00owner\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00h\\x00\\x00\\x00count\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x0c\\x00\\x00\\x00h\\x00\\x00\\x00i\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00L\\x00\\x00\\x00h\\x00\\x00\\x00value\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00[\\x00\\x00\\x00h\\x00\\x00\\x00flag\"\n.string \"nano.affine.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"nano.affine-use.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00p\\x00\\x00\\x00\\x02\\x01\\x00\\x00:\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/nanolang-owned-wrapping-map-20261019/mul.nanoowner\"\n\n.metadata 5 6\n.metadata 5 7\n.metadata 5 8\n.metadata 5 9\n.metadata 5 10\n.metadata 11 12\n.metadata 11 13\n.metadata 14 15\n\n.types 1 0 0\n\n.layouts \"01000000000002000000000001000000ffffffff0100000004000000ffffffff\"\n.layouts \"02000000\"\n\n.ownership \"010000000100000003000000020000000400000001000000ffffffff01000000\"\n.ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff06000200\"\n.ownership \"01000000ffffffff080000000000000001000000ffffffff01000000ffffffff\"\n.ownership \"080000000000000001000000ffffffff04000000ffffffff\"\n\n.entry 0\n\n.function main 0 4 0 int 1\n  PUSH_I64 7\n  STORE_LOCAL 0\n  PUSH_BOOL 1\n  STORE_LOCAL 1\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  OWN_PACK 0\n  PUSH_I64 3\n  CALL 1\n  PUSH_I64 7\n  STORE_LOCAL 2\n  PUSH_BOOL 1\n  STORE_LOCAL 3\n  LOAD_LOCAL 2\n  LOAD_LOCAL 3\n  OWN_PACK 0\n  PUSH_I64 0\n  CALL 1\n  ADD\n  RET\n.end\n\n.function pick 2 6 0 int 1\n  PUSH_I64 0\n  STORE_LOCAL 2\nL1:\n  LOAD_LOCAL 2\n  LOAD_LOCAL 1\n  PUSH_I64 1\n  MUL\n  LT\n  JMP_FALSE L0\n  LOAD_LOCAL 2\n  PUSH_I64 1\n  ADD\n  STORE_LOCAL 2\n  JMP L1\nL0:\n  OWN_MOVE_LOCAL 0\n  OWN_STORE_LOCAL 3\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 2 3\n  REF_GET 2 0\n  REGION_END\n  STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 2 3\n  REF_GET 2 1\n  REGION_END\n  STORE_LOCAL 5\n  LOAD_LOCAL 4\n  LOAD_LOCAL 2\n  ADD\n  OWN_UNPACK_LOCAL 3\n  POP\n  POP\n  RET\n.end\n\n.parameters 1 struct int\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nano_virt.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a nontrapping pure scalar owned pretest\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nano_virt.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a nontrapping pure scalar owned pretest\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nanoc_u8_context.nvm"
+    ],
+    "returncode": 17,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"Box\"\n.string \"value\"\n.string \"flag\"\n.string \"main\"\n.string \"pick\"\n.string \"nano.local.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00h\\x00\\x00\\x00owner\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00h\\x00\\x00\\x00count\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x0c\\x00\\x00\\x00h\\x00\\x00\\x00i\"\n.string \"\\x01\\x00\\x00\\x00\\x04\\x00\\x00\\x00L\\x00\\x00\\x00h\\x00\\x00\\x00value\"\n.string \"\\x01\\x00\\x00\\x00\\x05\\x00\\x00\\x00[\\x00\\x00\\x00h\\x00\\x00\\x00flag\"\n.string \"nano.affine.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"\\x01\\x00\\x00\\x00\\x01\\x00\\x00\\x00\"\n.string \"nano.affine-use.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00p\\x00\\x00\\x00\\x02\\x02\\x00\\x00:\\x00\\x00\\x00\\x05\\x00\\x00\\x00/private/tmp/nanolang-owned-wrapping-map-20261019/mul.nanoowner\"\n\n.metadata 5 6\n.metadata 5 7\n.metadata 5 8\n.metadata 5 9\n.metadata 5 10\n.metadata 11 12\n.metadata 11 13\n.metadata 14 15\n\n.types 1 0 0\n\n.layouts \"01000000000002000000000001000000ffffffff0100000004000000ffffffff\"\n.layouts \"02000000\"\n\n.ownership \"010000000100000003000000020000000400000001000000ffffffff01000000\"\n.ownership \"ffffffff04000000ffffffff01000000ffffffff04000000ffffffff06000200\"\n.ownership \"01000000ffffffff080000000000000001000000ffffffff01000000ffffffff\"\n.ownership \"080000000000000001000000ffffffff04000000ffffffff\"\n\n.entry 0\n\n.function main 0 4 0 int 1\n  PUSH_I64 7\n  STORE_LOCAL 0\n  PUSH_BOOL 1\n  STORE_LOCAL 1\n  LOAD_LOCAL 0\n  LOAD_LOCAL 1\n  OWN_PACK 0\n  PUSH_I64 3\n  CALL 1\n  PUSH_I64 7\n  STORE_LOCAL 2\n  PUSH_BOOL 1\n  STORE_LOCAL 3\n  LOAD_LOCAL 2\n  LOAD_LOCAL 3\n  OWN_PACK 0\n  PUSH_I64 0\n  CALL 1\n  ADD\n  RET\n.end\n\n.function pick 2 6 0 int 1\n  PUSH_I64 0\n  STORE_LOCAL 2\nL1:\n  LOAD_LOCAL 2\n  LOAD_LOCAL 1\n  PUSH_I64 1\n  MUL\n  LT\n  JMP_FALSE L0\n  LOAD_LOCAL 2\n  PUSH_I64 1\n  ADD\n  STORE_LOCAL 2\n  JMP L1\nL0:\n  OWN_MOVE_LOCAL 0\n  OWN_STORE_LOCAL 3\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 2 3\n  REF_GET 2 0\n  REGION_END\n  STORE_LOCAL 4\n  REGION_BEGIN\n  BORROW_LOCAL_SHARED 2 3\n  REF_GET 2 1\n  REGION_END\n  STORE_LOCAL 5\n  LOAD_LOCAL 4\n  LOAD_LOCAL 2\n  ADD\n  OWN_UNPACK_LOCAL 3\n  POP\n  POP\n  RET\n.end\n\n.parameters 1 struct int\n\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nanoc_u8_context.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nanoc_u8_context.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a nontrapping pure scalar owned pretest\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nanoc_u8_context.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-wrapping-map-20261019/mul-nanoc_u8_context.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a nontrapping pure scalar owned pretest\nI did not publish reconstructed source\n"
+  }
+]

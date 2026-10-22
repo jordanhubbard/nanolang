@@ -29,7 +29,7 @@ class ScalarComparisons(unittest.TestCase):
         if self.inspect_calls and Path(args[0]).name=='nvm2hl':
             source=Path(args[-1]).read_text()
             for index,name in ((1,'integer'),(2,'boolean')):
-                calls=re.findall(rf'nlr_f{index}_{name}\(nlr_t\d+\)|\(nlr_f{index}_{name} nlr_t\d+\)',source)
+                calls=re.findall(rf'=\s*nlr_f{index}_{name}\(|\(nlr_f{index}_{name}\s+',source)
                 self.assertEqual(len(calls),1)
         return result
 

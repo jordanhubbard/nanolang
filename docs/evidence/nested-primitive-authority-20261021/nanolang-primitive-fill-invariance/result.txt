@@ -1,0 +1,1 @@
+PASS exact canonical text after removing only new layout/ownership blocks and their disassembler separator lines. Code, order, names and advisory bytes unchanged. Initial comparison retained extra block separators and failed; inspected exact diff before correcting normalization.

@@ -10,6 +10,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from nanoisa_reconstruction import analyze, Emit, Refusal
+from nanoisa_owned_reconstruction import reconstruct_owned
 
 
 def main():
@@ -29,7 +30,8 @@ def main():
         if result.returncode:
             raise Refusal(result.stderr.strip() or 'I could not read verified scalar facts')
         facts = json.loads(result.stdout)
-        text = Emit(analyze(facts), args.language).run(facts['entry'])
+        text = (reconstruct_owned(facts, args.language) if facts.get('profile') == 'owned-local-v1'
+                else Emit(analyze(facts), args.language).run(facts['entry']))
         if args.output:
             with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', dir=args.output.absolute().parent,
                                              prefix='.nvm2hl-', delete=False) as file:

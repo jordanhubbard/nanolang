@@ -1,0 +1,19 @@
+[
+  [
+    "/private/tmp/nanolang-field-write-c/nano_virt",
+    "/private/tmp/nanolang-field-write-normalizer-before/source.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-field-write-normalizer-before/source.nvm"
+  ],
+  [
+    "bin/nanoisa",
+    "dump",
+    "/private/tmp/nanolang-field-write-normalizer-before/source.nvm"
+  ],
+  [
+    "git",
+    "show",
+    "d67295b3d:tests/test_source_borrow_emission.py"
+  ]
+]

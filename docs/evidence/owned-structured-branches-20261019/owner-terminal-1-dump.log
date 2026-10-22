@@ -1,0 +1,123 @@
+.string "Box"
+.string "value"
+.string "flag"
+.string "main"
+.string "pick"
+.string "nano.local.v1"
+.string "\x00\x00\x00\x00\x02\x00\x00\x00&\x00\x00\x00\xac\x00\x00\x00first"
+.string "\x00\x00\x00\x00\x04\x00\x00\x00;\x00\x00\x00\xac\x00\x00\x00value"
+.string "\x00\x00\x00\x00\x05\x00\x00\x00J\x00\x00\x00\xac\x00\x00\x00flag"
+.string "\x00\x00\x00\x00\x06\x00\x00\x00P\x00\x00\x00\xac\x00\x00\x00saved"
+.string "\x00\x00\x00\x00\t\x00\x00\x00{\x00\x00\x00\xac\x00\x00\x00second"
+.string "\x00\x00\x00\x00\x0b\x00\x00\x00\x90\x00\x00\x00\xac\x00\x00\x00value"
+.string "\x00\x00\x00\x00\x0c\x00\x00\x00\x9f\x00\x00\x00\xac\x00\x00\x00flag"
+.string "\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00owner"
+.string "\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00yes"
+.string "nano.affine.v1"
+.string "\x00\x00\x00\x00\x01\x00\x00\x00"
+.string "\x01\x00\x00\x00\x01\x00\x00\x00"
+.string "nano.affine-use.v1"
+.string "\x00\x00\x00\x00\x04\x00\x00\x00V\x00\x00\x00\x02\x02\x00\x00A\x00\x00\x00\x05\x00\x00\x00/private/tmp/nanolang-owned-branches-20261019/owner-terminal.nanofirst"
+.string "\x00\x00\x00\x00\x04\x00\x00\x00\xb8\x00\x00\x00\x02\x02\x00\x00A\x00\x00\x00\x06\x00\x00\x00/private/tmp/nanolang-owned-branches-20261019/owner-terminal.nanosecond"
+.string "\x01\x00\x00\x00\x02\x00\x00\x003\x00\x00\x00\x02\x02\x00\x00A\x00\x00\x00\x05\x00\x00\x00/private/tmp/nanolang-owned-branches-20261019/owner-terminal.nanoowner"
+.string "\x01\x00\x00\x00\x02\x00\x00\x00G\x00\x00\x00\x02\x02\x00\x00A\x00\x00\x00\x05\x00\x00\x00/private/tmp/nanolang-owned-branches-20261019/owner-terminal.nanoowner"
+
+.metadata 5 6
+.metadata 5 7
+.metadata 5 8
+.metadata 5 9
+.metadata 5 10
+.metadata 5 11
+.metadata 5 12
+.metadata 5 13
+.metadata 5 14
+.metadata 15 16
+.metadata 15 17
+.metadata 18 19
+.metadata 18 20
+.metadata 18 21
+.metadata 18 22
+
+.types 1 0 0
+
+.layouts "01000000000002000000000001000000ffffffff0100000004000000ffffffff"
+.layouts "02000000"
+
+.ownership "010000000100000003000000020000000d00000001000000ffffffff01000000"
+.ownership "ffffffff04000000ffffffff0800000000000000080000000000000001000000"
+.ownership "ffffffff04000000ffffffff01000000ffffffff01000000ffffffff04000000"
+.ownership "ffffffff0800000000000000080000000000000001000000ffffffff04000000"
+.ownership "ffffffff020002000800000000000000080000000000000004000000ffffffff"
+
+.entry 0
+
+.function main 0 13 0 int 1
+  PUSH_I64 7
+  STORE_LOCAL 0
+  PUSH_BOOL 1
+  STORE_LOCAL 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  OWN_PACK 0
+  PUSH_BOOL 1
+  CALL 1
+  OWN_STORE_LOCAL 2
+  OWN_MOVE_LOCAL 2
+  OWN_STORE_LOCAL 3
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 3
+  REF_GET 0 0
+  REGION_END
+  STORE_LOCAL 4
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 3
+  REF_GET 0 1
+  REGION_END
+  STORE_LOCAL 5
+  LOAD_LOCAL 4
+  STORE_LOCAL 6
+  PUSH_I64 7
+  STORE_LOCAL 7
+  PUSH_BOOL 0
+  STORE_LOCAL 8
+  LOAD_LOCAL 7
+  LOAD_LOCAL 8
+  OWN_PACK 0
+  PUSH_BOOL 0
+  OWN_UNPACK_LOCAL 3
+  POP
+  POP
+  CALL 1
+  OWN_STORE_LOCAL 9
+  OWN_MOVE_LOCAL 9
+  OWN_STORE_LOCAL 10
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 10
+  REF_GET 0 0
+  REGION_END
+  STORE_LOCAL 11
+  REGION_BEGIN
+  BORROW_LOCAL_SHARED 0 10
+  REF_GET 0 1
+  REGION_END
+  STORE_LOCAL 12
+  LOAD_LOCAL 6
+  LOAD_LOCAL 11
+  ADD
+  OWN_UNPACK_LOCAL 10
+  POP
+  POP
+  RET
+.end
+
+.function pick 2 2 0 struct 1
+  LOAD_LOCAL 1
+  JMP_FALSE L0
+  OWN_MOVE_LOCAL 0
+  RET
+L0:
+  OWN_MOVE_LOCAL 0
+  RET
+.end
+
+.parameters 1 struct bool

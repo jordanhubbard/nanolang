@@ -1,0 +1,22 @@
+{
+  "immutable-nano_virt.nasm": {
+    "original_path": "/private/tmp/nanolang-effects-global-map-20261019/immutable-nano_virt.nasm",
+    "original_sha256": "94d33c309da8786162a6aa4f717f9be2c9394c5d3507a9891d143d20ba4762cf",
+    "retained_sha256": "67ee14dd83c2eed14189c92d2da427576d85512f536eb1d2d7c38fa6d7334194"
+  },
+  "mutable-nano_virt.nasm": {
+    "original_path": "/private/tmp/nanolang-effects-global-map-20261019/mutable-nano_virt.nasm",
+    "original_sha256": "2856a127ca3c2a9dbbb3ba8ee953ed127b53fbf52bb79361ad83bf6c5195c268",
+    "retained_sha256": "8ee9de64a761427968a74238f2db8022a6affafa0677f1103b6cdb9fc983d74e"
+  },
+  "mutable-nanoc_stage1.nasm": {
+    "original_path": "/private/tmp/nanolang-effects-global-map-20261019/mutable-nanoc_stage1.nasm",
+    "original_sha256": "87a30d779be4c06fa66d41df10da7140986bb3e225470892638df2475e6313e7",
+    "retained_sha256": "ec32ce8cee08640eca47e096aec175a23a987f4397dff9d5ed16d03992156941"
+  },
+  "immutable-nanoc_stage1.nasm": {
+    "original_path": "/private/tmp/nanolang-effects-global-map-20261019/immutable-nanoc_stage1.nasm",
+    "original_sha256": "87a30d779be4c06fa66d41df10da7140986bb3e225470892638df2475e6313e7",
+    "retained_sha256": "ec32ce8cee08640eca47e096aec175a23a987f4397dff9d5ed16d03992156941"
+  }
+}

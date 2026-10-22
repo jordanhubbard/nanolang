@@ -1,0 +1,17 @@
+{
+  "component": "a02fa9b4cd99168b15498de2e4580f5c82cb1581",
+  "sha256": {
+    "/Users/jkh/Src/nanolang-51-harness/src/nanoisa/managed_array_shapes.c": "fb95f8c37e9ba6f07ea363b5b33cdd4de0f7f8ec325af2748af0c47d3eb1a1ae",
+    "/Users/jkh/Src/nanolang-51-harness/tests/test_record_array_self_tail.py": "c236cc6327bbb56c273a9c29baeb02bc8e7a92f25bb904ed9673a6a3aed29ce1",
+    "/Users/jkh/Src/nanolang-51-harness/.github/workflows/retirement-qualification.yml": "8ddd44e5052da53da834ac9326637c95e0915b6828b1bab23dc2daecdcb16efc",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "f54c52c7a098fc7cb36a10f871873f7c5322f3ef6f91ff46d0c8f3fce8dc7534",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "368d6d663ea716f03af4f1808b80e46bb9f7575c3d924491d317fabba1b3a609",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "c6eee3d64285c02af7e998a27f9853fc80b3f413539e74b3c9cca849a9094c64",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "fb815b655ba956d87c9887cc61a9089c0f8a83c3774f9f6a6c6c5127705bd158",
+    "/Users/jkh/Src/nanolang-51-harness/bin/libnanoisa_query.so": "2dfd50cef4004a16208ef0c63e1fec9a8ee89215bd42e10c941216fe60572695",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+    "/private/tmp/nanolang-self-tail-proof-20261021/emitter": "fe1c4db2e9155ec8c12178879284053f50a4d96e1588d8a545e4555760dcba6f",
+    "/private/tmp/nanolang-depth-three-canonical": "09652c04f4c1ea630c9cabf855a4ddc96ada0a345fc8f773ab6a4e92558ccf29"
+  }
+}

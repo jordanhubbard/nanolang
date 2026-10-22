@@ -1,0 +1,12 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-vzv4_xyj
+test_actual_local_cap_and_atomic_refusal (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_actual_local_cap_and_atomic_refusal) ... ok
+test_finite_negative_zero_equality (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_finite_negative_zero_equality) ... ok
+test_forbidden_float_operations_and_helper_locals (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_forbidden_float_operations_and_helper_locals) ... ok
+test_generated_consistency_shadow (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_generated_consistency_shadow) ... ok
+test_planner_preserves_float_order_and_prior_helper (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_planner_preserves_float_order_and_prior_helper) ... ok
+test_unchanged_ordinary_and_independent_shadow (tests.test_borrowed_float_local_reconstruction.BorrowedFloatLocalReconstruction.test_unchanged_ordinary_and_independent_shadow) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 54.124s
+
+OK

@@ -1,0 +1,14 @@
+test_byte_integer_join_retains_exact_tags (tests.test_native_scalar_joins.NativeScalarJoins.test_byte_integer_join_retains_exact_tags) ... ok
+test_explicit_void_local_retains_join_provenance (tests.test_native_scalar_joins.NativeScalarJoins.test_explicit_void_local_retains_join_provenance) ... ok
+test_forward_scalar_joins_both_orders_and_aliases (tests.test_native_scalar_joins.NativeScalarJoins.test_forward_scalar_joins_both_orders_and_aliases) ... ok
+test_heap_and_unrelated_union_still_refuse_publication (tests.test_native_scalar_joins.NativeScalarJoins.test_heap_and_unrelated_union_still_refuse_publication) ... ok
+test_loop_header_widens_before_emission (tests.test_native_scalar_joins.NativeScalarJoins.test_loop_header_widens_before_emission) ... ok
+test_negative_zero_bits_survive_boxing (tests.test_native_scalar_joins.NativeScalarJoins.test_negative_zero_bits_survive_boxing) ... ok
+test_nested_join_preserves_provenance (tests.test_native_scalar_joins.NativeScalarJoins.test_nested_join_preserves_provenance) ... ok
+test_parallel_edges_keep_two_distinct_tags (tests.test_native_scalar_joins.NativeScalarJoins.test_parallel_edges_keep_two_distinct_tags) ... ok
+test_three_way_void_integer_boolean_join_stays_refused (tests.test_native_scalar_joins.NativeScalarJoins.test_three_way_void_integer_boolean_join_stays_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 6.895s
+
+OK

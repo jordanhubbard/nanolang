@@ -1,0 +1,13 @@
+51: Qualification (compiler-contracts, ubuntu-latest)	Run actions/checkout@v4	2026-10-19T05:33:35.5754864Z   CMD_TIMEOUT: 1800
+243: Qualification (compiler-contracts, ubuntu-latest)	Install Linux dependencies	2026-10-19T05:33:58.2031742Z   CMD_TIMEOUT: 1800
+1096: Qualification (compiler-contracts, ubuntu-latest)	Install Python dependencies	2026-10-19T05:34:36.1783212Z   CMD_TIMEOUT: 1800
+1108: Qualification (compiler-contracts, ubuntu-latest)	Require real SQLite header qualification	2026-10-19T05:34:36.2304793Z   CMD_TIMEOUT: 1800
+1122: Qualification (compiler-contracts, ubuntu-latest)	Record source identity	2026-10-19T05:34:36.3072258Z   CMD_TIMEOUT: 1800
+1137: Qualification (compiler-contracts, ubuntu-latest)	Build and verify fresh compiler generations	2026-10-19T05:34:36.5391842Z   CMD_TIMEOUT: 1800
+1369: Qualification (compiler-contracts, ubuntu-latest)	Build and verify fresh compiler generations	2026-10-19T05:36:27.6461018Z cc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -fPIC -shared -o bin/nano_as_capture.so src/runtime/assembler_capture.c -lm -lcrypto -lffi -rdynamic -ldl
+1482: Qualification (compiler-contracts, ubuntu-latest)	Qualify complete native compiler and managed-runtime corpus	2026-10-19T06:26:52.9999836Z   CMD_TIMEOUT: 1800
+1510: Qualification (compiler-contracts, ubuntu-latest)	Qualify complete native compiler and managed-runtime corpus	2026-10-19T07:19:16.0068252Z FAIL: test_compiler_bytecode_to_native_to_program (tests.test_one_ir_compiler.OneIrCompiler.test_compiler_bytecode_to_native_to_program)
+1518: Qualification (compiler-contracts, ubuntu-latest)	Qualify complete native compiler and managed-runtime corpus	2026-10-19T07:19:16.0087049Z I cannot lower this checked program: I cannot build the owning module artifact: /home/runner/work/nanolang/nanolang/modules/file_source_inputs/file_source_inputs.nano
+1519: Qualification (compiler-contracts, ubuntu-latest)	Qualify complete native compiler and managed-runtime corpus	2026-10-19T07:19:16.0088750Z I could not retain compiler and assembler inputs for file_source_inputs; I will not compile live sources after capture failure
+1565: Qualification (compiler-contracts, ubuntu-latest)	Verify unchanged source and compiler providers	2026-10-19T07:19:16.1224717Z   CMD_TIMEOUT: 1800
+1583: Qualification (compiler-contracts, ubuntu-latest)	Retain qualification evidence	2026-10-19T07:19:17.5990900Z   CMD_TIMEOUT: 1800

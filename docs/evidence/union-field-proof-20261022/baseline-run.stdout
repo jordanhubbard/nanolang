@@ -1,0 +1,5 @@
+PASS 58 union declaration checks; no execution authority
+verify=0 message=I refuse reference lifetime and ownership instruction dataflow in function[0] at 19: I require an exact complete copyable record constructor native=0 error=I require valid reference lifetime and ownership instruction verification before translation
+from=0
+to=0
+copy verify=0 message=I refuse reference lifetime and ownership instruction dataflow in function[0] at 19: I require an exact complete copyable record constructor native=0 error=I require valid reference lifetime and ownership instruction verification before translation layouts=44 ownership=84

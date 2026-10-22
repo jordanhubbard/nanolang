@@ -1,0 +1,10 @@
+ld: warning: ignoring duplicate libraries: '-lcrypto'
+Undefined symbols for architecture arm64:
+  "_nvm_add_borrow_place", referenced from:
+      ltmp6 in assembler-corrected.o
+  "_nvm_add_field_read", referenced from:
+      ltmp6 in assembler-corrected.o
+  "_nvm_add_field_write", referenced from:
+      ltmp6 in assembler-corrected.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)

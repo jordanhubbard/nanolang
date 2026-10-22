@@ -1,0 +1,20 @@
+test_instrumented_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_instrumented_preparation) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_instrumented_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_preparation.py", line 54, in test_instrumented_preparation
+    self.qualify(True)
+    ~~~~~~~~~~~~^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_preparation.py", line 46, in qualify
+    output = self.command(mode + '-preparation-run', [str(exe), *shlex.split(os.environ.get('RECORD_MAP_MODULES', ''))])
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 6.807s
+
+FAILED (failures=1)
