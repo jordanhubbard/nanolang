@@ -1,4 +1,5 @@
 """Private module-taking native map proof and generated-code qualification."""
+from tests.native_process import objects_before_archives
 import json
 import os
 from pathlib import Path
@@ -60,6 +61,7 @@ class RecordMapNative(unittest.TestCase):
                      if allocator else array_vm.PROVIDERS)
         names = {Path(s).stem for s in providers} | {'nvm2c'}
         objects = [p for p in self.objects if Path(p).stem not in names]
+        objects = objects_before_archives(objects)
         products = []
         for source in providers:
             obj = self.work/(Path(source).stem+'.o')

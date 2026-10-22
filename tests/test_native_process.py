@@ -2,16 +2,49 @@
 import os
 from pathlib import Path
 import subprocess
+import shlex
 import sys
 import tempfile
 import time
 import unittest
 from unittest.mock import patch
 
-from tests.native_process import native_compile_timeout, native_link_flags, run_captured
+from tests.native_process import native_compile_timeout, native_link_flags, objects_before_archives, run_captured
 
 
 class NativeProcess(unittest.TestCase):
+    def test_archive_order_preserves_inputs_and_links_real_users(self):
+        inputs = [Path('first.a'), 'user.o', 'second.a', 'other.o', 'first.a']
+        self.assertEqual(objects_before_archives(inputs),
+                         ['user.o', 'other.o', Path('first.a'), 'second.a', 'first.a'])
+        with tempfile.TemporaryDirectory(prefix='nano-link-order-') as directory:
+            root = Path(directory)
+            (root / 'provider.c').write_text('int provided(void) { return 41; }\n')
+            (root / 'user.c').write_text('int provided(void); int user(void) { return provided()+1; }\n')
+            (root / 'main.c').write_text('int user(void); int main(void) { return user()!=42; }\n')
+            cc = shlex.split(os.environ.get('CC', 'cc'))
+            for name in ('provider', 'user', 'main'):
+                result = run_captured([*cc, '-c', root / (name+'.c'), '-o', root / (name+'.o')], timeout=30)
+                self.assertEqual(result.returncode, 0, result.stderr)
+            archive = root / 'provider.a'
+            result = run_captured([*shlex.split(os.environ.get('AR', 'ar')), 'rcs', archive, root / 'provider.o'], timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            output = root / 'linked'
+            bad = [archive, root / 'user.o', root / 'main.o']
+            # Darwin can rescan archives. GNU single-pass links must expose the
+            # actual negative case before my corrected order is accepted.
+            result = run_captured([*cc, *bad, '-o', output], timeout=30)
+            if sys.platform.startswith('linux'):
+                linker = run_captured([*cc, '-Wl,--version'], timeout=30)
+            else:
+                linker = None
+            if linker is not None and b'GNU ld' in linker.stdout:
+                self.assertNotEqual(result.returncode, 0, 'I require the archive-before-user negative control.')
+                self.assertIn(b'provided', result.stderr)
+            result = run_captured([*cc, *objects_before_archives(bad), '-o', output], timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(run_captured([output], timeout=5).returncode, 0)
+
     def test_budget_default_override_and_invalid_values(self):
         with patch.dict(os.environ, {}, clear=True):
             self.assertEqual(native_compile_timeout(), 600)

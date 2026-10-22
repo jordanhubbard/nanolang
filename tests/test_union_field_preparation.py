@@ -1,4 +1,5 @@
 """I prepare private union storage without exposing an executor."""
+from tests.native_process import objects_before_archives
 import json
 import os
 from pathlib import Path
@@ -25,6 +26,7 @@ class UnionFieldPreparation(unittest.TestCase):
         # Only the known Make concatenation duplicate; retain other archive order.
         cls.objects = [obj for i, obj in enumerate(objects)
             if not (obj.endswith("/libnano_compiler_inputs.a") and obj in objects[i + 1:])]
+        cls.objects = objects_before_archives(cls.objects)
         cls.ldflags = shlex.split(os.environ.get("RECORD_ARRAY_VM_LDFLAGS", "-lm -lcrypto -lffi -pthread"))
         cls.modules = shlex.split(os.environ.get("UNION_PREPARATION_MODULES", ""))
         if len(cls.modules) not in (0, 6):

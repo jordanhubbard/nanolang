@@ -1,4 +1,5 @@
 """Actual public map transport/VM/native boundaries; no source publisher change."""
+from tests.native_process import objects_before_archives
 import json
 import os
 from pathlib import Path
@@ -42,6 +43,7 @@ class RecordMapPublic(unittest.TestCase):
                          if Path(obj).name == 'libnano_compiler_inputs.a'}
         cls.objects = [obj for i, obj in enumerate(cls.objects)
                        if obj not in final_archive or final_archive[obj] == i]
+        cls.objects = objects_before_archives(cls.objects)
         cls.products = {}
         cls.statuses = []
         (cls.work/'selection.json').write_text(json.dumps(dict(cc=cls.cc, flags=cls.flags,

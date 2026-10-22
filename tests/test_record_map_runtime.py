@@ -1,4 +1,5 @@
 """Actual private map invocation with copied immutable authority."""
+from tests.native_process import objects_before_archives
 import json
 import os
 from pathlib import Path
@@ -33,6 +34,7 @@ class RecordMapRuntime(unittest.TestCase):
         providers = test_record_array_vm.PROVIDERS
         names = {Path(source).stem for source in providers}
         objects = [p for p in shlex.split(os.environ['RECORD_ARRAY_VM_OBJECTS']) if Path(p).stem not in names]
+        objects = objects_before_archives(objects)
         ldflags = shlex.split(os.environ.get('RECORD_ARRAY_VM_LDFLAGS', '-lm -lcrypto -lffi -pthread'))
         modules = shlex.split(os.environ.get('RECORD_MAP_MODULES', ''))
         (self.artifacts / 'selection.json').write_text(json.dumps({'cc': cc, 'flags': flags,

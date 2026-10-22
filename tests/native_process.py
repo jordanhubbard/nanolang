@@ -21,6 +21,17 @@ def native_link_flags():
     return shlex.split(os.environ.get('NANO_LDFLAGS', os.environ.get('LDFLAGS', '')))
 
 
+def objects_before_archives(inputs):
+    """I stably order an object/archive-only closure for single-pass linkers.
+
+    I preserve duplicate inputs and archive order. Link flags, groups and runtime
+    libraries belong outside this list; I do not infer dependencies among archives.
+    """
+    inputs = list(inputs)
+    return ([p for p in inputs if not os.fspath(p).endswith('.a')] +
+            [p for p in inputs if os.fspath(p).endswith('.a')])
+
+
 def run_captured(args, *, timeout, build=False, **kwargs):
     """I capture output and kill the whole session on timeout or interruption."""
     budget = native_compile_timeout() if build else timeout

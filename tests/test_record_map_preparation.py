@@ -1,4 +1,5 @@
 """Private map preparation only; no runtime admission."""
+from tests.native_process import objects_before_archives
 import json
 import os
 from pathlib import Path
@@ -24,6 +25,7 @@ class RecordMapPreparation(unittest.TestCase):
         names = {Path(source).stem for source in PROVIDERS}
         cls.objects = [obj for obj in shlex.split(os.environ['RECORD_ARRAY_VM_OBJECTS'])
                        if Path(obj).stem not in names]
+        cls.objects = objects_before_archives(cls.objects)
         cls.ldflags = shlex.split(os.environ.get('RECORD_ARRAY_VM_LDFLAGS', '-lm -lcrypto -lffi -pthread'))
         (cls.artifacts / 'selection.json').write_text(json.dumps({
             'cc': cls.cc, 'flags': cls.flags, 'objects': cls.objects,
