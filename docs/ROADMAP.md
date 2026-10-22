@@ -16882,3 +16882,9 @@ I qualified preparation-only union storage with160 linked/all-six and47,489 inst
 ### #1001 private union invocation baseline and outcome design (2026-10-22)
 
 The owned-calls workstream retains the frozen preparation checkpoint and measures ordinary HALT through current pinned public VM providers before proposing private execution. All nine baseline modules independently verify; initializer HALT continues entry, while root/helper HALT returns VM_OK with frames/residue, and false ASSERT preserves its exact error. The new design distinguishes terminal activation HALT from a returned INT, proposes initializer continuation with selected cleanup, and preserves output on errors without global rollback. This is design/baseline only: no executor, selector, native or publisher enrollment. See `NANOISA_UNION_FIELD_VM_EXECUTION_DESIGN.md` and `evidence/union-field-ordinary-halt-baseline-20261022/README.md`.
+
+### #1001 private union executor source checkpoint ownership (2026-10-22)
+
+Following reviewed outcome/interface commits763eedddc/547f0cc89, owned-calls implements only the private typed scope and supervisor over the prepared owner. Exact entry/initializer signature gates precede activation; old core wrappers forward NULL. Owner/VM/heap layouts and public/native/publisher selection remain unchanged. Source review is required before compilation; actual execution qualification is pending.
+
+- Private union executor qualification (2026-10-22): typed call-local scope and selected initializer/ASSERT/HALT cleanup, unchanged owner/VM/heap layouts and literal NULL old routes. Both dispatches pass344 linked checks with six unchanged originals plus633 wrapped runtime controls; old preparation/array/map neighbors and six exact resource rows remain green. See `docs/evidence/union-field-vm-execution-20261022/README.md`. Public/native/publisher enrollment and accepted-source conservative proof gaps remain open.

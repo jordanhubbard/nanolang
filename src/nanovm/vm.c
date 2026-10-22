@@ -1658,9 +1658,25 @@ typedef struct VmRecordMapBorrowedInvocation VmRecordMapBorrowedInvocation;
 #endif
 #include "record_map_borrowed_types.inc"
 #include "record_map_borrowed_context.inc"
-static VmTrap vm_core_execute_pair(VmState *vm, const VmOwnedInvocationProof *proof,
+typedef struct VmUnionFieldInvocation VmUnionFieldInvocation;
+#ifdef NANO_UNION_FIELD_PRIVATE_PREPARATION
+#include "union_field_vm_context.inc"
+#endif
+static VmTrap vm_core_execute_union(VmState *vm, const VmOwnedInvocationProof *proof,
                                       VmOrdinaryAdmission *ordinary,VmRecordArrayPrivate *record_array,
-                                      VmRecordMapInvocation *record_map,VmRecordMapBorrowedInvocation *borrowed_map,uint8_t map_value_tag) {
+                                      VmRecordMapInvocation *record_map,VmRecordMapBorrowedInvocation *borrowed_map,uint8_t map_value_tag,
+                                      VmUnionFieldInvocation *union_field) {
+    bool union_execution=false;
+#ifdef NANO_UNION_FIELD_PRIVATE_PREPARATION
+    if(union_field) {
+        if(proof || ordinary || record_array || record_map || borrowed_map || map_value_tag!=TAG_VOID ||
+           !vm_uf_context(union_field,vm))
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require this exact private union invocation.");
+        union_execution=true;
+    }
+#else
+    if(union_field)return trap_error(vm,VM_ERR_TYPE_ERROR,"I have no private union runtime.");
+#endif
     VmOwnedInvocationProof resumed;
     bool admitted=false, required=false;
     bool reuse=vm_ordinary_admission_matches(vm,ordinary);
@@ -1691,7 +1707,7 @@ static VmTrap vm_core_execute_pair(VmState *vm, const VmOwnedInvocationProof *pr
     (void)record_array;
 #endif
     if (ordinary) ordinary->valid=false;
-    if (!reuse && !record_execution && !map_execution && !borrowed_map_execution) {
+    if (!reuse && !record_execution && !map_execution && !borrowed_map_execution && !union_execution) {
         /* These service facts expire at the end of this classification block.
          * No host callback or bytecode dispatch occurs while they are live. */
         NvmServiceClassification service;
@@ -1756,7 +1772,7 @@ static VmTrap vm_core_execute_pair(VmState *vm, const VmOwnedInvocationProof *pr
     /* Only ordinary classification is reused. The owned frame/reference
      * checks above and all dispatch/stack checks below remain on every entry.
      * Ordinary CALL/RET/effect transitions do not change module declarations. */
-    if (ordinary && !record_execution && !map_execution && !borrowed_map_execution && !admitted && !required && vm_ordinary_admission_eligible(vm)) {
+    if (ordinary && !record_execution && !map_execution && !borrowed_map_execution && !union_execution && !admitted && !required && vm_ordinary_admission_eligible(vm)) {
         ordinary->vm=vm;
         ordinary->module=vm->module;
         ordinary->valid=true;
@@ -1989,6 +2005,10 @@ vm_dispatch_top:
 #else
     while (vm->ip < code_end) {
 #endif
+#ifdef NANO_UNION_FIELD_PRIVATE_PREPARATION
+        if(union_execution && !vm_uf_context(union_field,vm))
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require bounded union frames before dispatch lookup.");
+#endif
         if(borrowed_map_execution && !vm_rmb_context(borrowed_map,vm))
             return trap_error(vm,VM_ERR_TYPE_ERROR,"I require bounded borrowed frames before dispatch lookup.");
         if (vm->callbacks && --callback_budget == 0) {
@@ -2033,6 +2053,12 @@ vm_dispatch_top:
         if(map_execution) {
             VmResult checked=vm_rmx_preflight(record_map,decoded,map_value_tag);
             if(checked!=VM_OK)return trap_error(vm,checked,"I require the complete private map opcode root contract.");
+        }
+#endif
+#ifdef NANO_UNION_FIELD_PRIVATE_PREPARATION
+        if(union_execution) {
+            VmResult checked=vm_uf_preflight(union_field,decoded);
+            if(checked!=VM_OK)return trap_error(vm,checked,"I require the complete private union opcode contract.");
         }
 #endif
         /* I borrow this checked instruction only until this dispatch returns or advances. */
@@ -3315,6 +3341,9 @@ dynamic_div:
             if(map_execution && vm->frame_count==1)record_map->active_root=callee_idx;
 #endif
             if(borrowed_map_execution && vm->frame_count==1)borrowed_map->active_root=callee_idx;
+#ifdef NANO_UNION_FIELD_PRIVATE_PREPARATION
+            if(union_execution && vm->frame_count==1)union_field->active_root=callee_idx;
+#endif
             if(admitted && proof->ordinary_arrays && vm->frame_count==1)
                 *proof->ordinary_active_root=callee_idx;
             frame->instruction_ip = callee->code_offset;
@@ -5051,12 +5080,30 @@ vm_dispatch_done: ;
     } /* while */
 #endif
 
+#ifdef NANO_UNION_FIELD_PRIVATE_PREPARATION
+    if(union_execution) {
+        if(!vm_uf_context(union_field,vm) ||
+           vm->stack_size-frame->stack_base-frame->local_count!=cur_fn->result_count ||
+           (cur_fn->result_count && (stack_peek(vm,0).tag!=cur_fn->result_tag ||
+             !vm_uf_shell(union_field->owner,stack_peek(vm,0)))))
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact union completion result.");
+    }
+#endif
     /* The verifier requires exactly the declared results at this boundary.
      * Resume a nested caller through the same activation/module path as RET. */
     if (vm->frame_count > vm->activation_floor) goto vm_return_values;
 
     return trap_none();
 }
+
+static VmTrap vm_core_execute_pair(VmState *vm,const VmOwnedInvocationProof *proof,
+    VmOrdinaryAdmission *ordinary,VmRecordArrayPrivate *record_array,
+    VmRecordMapInvocation *record_map,VmRecordMapBorrowedInvocation *borrowed_map,uint8_t map_value_tag) {
+    return vm_core_execute_union(vm,proof,ordinary,record_array,record_map,borrowed_map,map_value_tag,NULL);
+}
+#ifdef NANO_UNION_FIELD_PRIVATE_PREPARATION
+#include "union_field_vm_run.inc"
+#endif
 
 static VmTrap vm_core_execute_views(VmState *vm,const VmOwnedInvocationProof *proof,
     VmOrdinaryAdmission *ordinary,VmRecordArrayPrivate *record_array,

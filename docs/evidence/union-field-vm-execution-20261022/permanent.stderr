@@ -1,0 +1,7 @@
+test_goto (tests.test_union_field_vm.UnionFieldVm.test_goto) ... ok
+test_switch (tests.test_union_field_vm.UnionFieldVm.test_switch) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 37.230s
+
+OK
