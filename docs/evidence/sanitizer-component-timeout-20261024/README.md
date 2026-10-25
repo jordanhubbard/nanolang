@@ -1,0 +1,5 @@
+# I raise the instrumented component compile deadline
+
+Hosted run 39707859417 (job 119664117109) at `aa56744ec` builds `parser` under ASan in about 11 minutes, then `typecheck` reaches the 1800-second `CMD_TIMEOUT` alarm ("Alarm clock", exit before any sanitizer diagnostic). This is a budget miss, not an ASan or UBSan finding. An earlier continuation (run 39544892945, job 119110288530) completed the same step, so I do not know whether this is source growth or runner variance; I have not profiled `typecheck`.
+
+I raise `CMD_TIMEOUT` from 1800 to 3600 in `sanitizers-stage1` and `sanitizers` together, because the transferred checkpoint environment must match. Flags, instrumentation, tests, the 300-second shadow deadline and raw-generation limits are unchanged. The 210-minute continuation step is also unchanged; it may be tight if typecheck uses its whole new allowance, and GitHub's 360-minute hosted job ceiling prevents raising it without cutting the unit allowance. `tests.test_ci_workflow`, `tests.test_ci_bootstrap_checkpoint` and `tests.test_ci_container` pass locally (28 tests). Hosted confirmation is pending.

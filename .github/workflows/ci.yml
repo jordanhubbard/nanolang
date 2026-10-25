@@ -519,8 +519,9 @@ jobs:
       # I retain a three-hour instrumented generation budget after the hosted
       # raw compiler exceeded 7200 seconds; shadow deadlines remain separate.
       BOOTSTRAP_NANOISA_TIMEOUT: "10800"
-      # I use the same component compilation budget as my platform/coverage jobs.
-      CMD_TIMEOUT: "1800"
+      # I allow an instrumented component compile one hour: hosted run 39707859417
+      # reached the former 1800-second alarm compiling typecheck under ASan.
+      CMD_TIMEOUT: "3600"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
       LDFLAGS: "-lm -lcrypto -fsanitize=address,undefined"
     runs-on: ubuntu-latest
@@ -614,8 +615,9 @@ jobs:
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
       # I match the Stage 1 environment for exact checkpoint validation.
       BOOTSTRAP_NANOISA_TIMEOUT: "10800"
-      # I use the same component compilation budget as my platform/coverage jobs.
-      CMD_TIMEOUT: "1800"
+      # I allow an instrumented component compile one hour: hosted run 39707859417
+      # reached the former 1800-second alarm compiling typecheck under ASan.
+      CMD_TIMEOUT: "3600"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
       LDFLAGS: "-lm -lcrypto -fsanitize=address,undefined"
     runs-on: ubuntu-latest
