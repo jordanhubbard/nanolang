@@ -38,6 +38,10 @@ jobs:
   retirement:
     name: Qualification (${{ matrix.corpus }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    # I do not block on xcode-27: hosted run 40168478499 found no
+    # /Applications/Xcode_27.2_beta_2.app on that runner image. Failures still
+    # report, but they do not fail the workflow until the image provides it.
+    continue-on-error: ${{ matrix.os == 'xcode-27' }}
     # I keep this corpus separate from the already full platform quick job.
     timeout-minutes: 360
     strategy:
