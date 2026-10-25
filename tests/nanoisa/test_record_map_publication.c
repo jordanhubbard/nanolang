@@ -30,7 +30,7 @@ static void publication_cases(void) {
     c.ownership[c.o-1]=255;
     CHECK(nvm_record_map_publication(&c.m).status==NVM_ARRAY_INVALID);
     CHECK(!nvm_verify(&c.m).ok);
-    publication_input(&c,0);c.code[0]=OP_HM_DELETE;c.code[c.n-1]=255;
+    publication_input(&c,0);c.code[0]=OP_HM_KEYS;c.code[c.n-1]=255;
     CHECK(nvm_record_map_publication(&c.m).status==NVM_ARRAY_UNRESOLVED);
     CHECK(!nvm_verify(&c.m).ok); /* omission never grants execution authority */
     publication_input(&c,0);c.m.layout_size=1;c.m.ownership_size=0;c.m.ownership_data=NULL;
