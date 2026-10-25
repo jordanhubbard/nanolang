@@ -310,7 +310,7 @@ NvmArrayEligibilityResult vm_union_field_private_prepare(const NvmModule *module
     return result;
 invalid:
     vm_union_field_private_destroy(p);result.status=failure;
-    snprintf(result.message,sizeof result.message,"I could not prepare independent union storage and correspondence: %.160s",
+    snprintf(result.message,sizeof result.message,"I could not prepare independent union storage and correspondence: %.120s",
         error[0]?error:"private storage or copied rows failed");return result;
 }
 bool vm_union_field_private_preparation(const VmUnionFieldPrivate *p,VmUnionFieldPreparation *out) {
