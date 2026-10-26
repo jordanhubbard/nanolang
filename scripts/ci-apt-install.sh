@@ -52,14 +52,21 @@ APT_ATTEMPT='
   attempt="$1"
   shift
   if [ "$attempt" -gt 1 ]; then
+    # A mirror that stalled once is likely to stall again: hosted runs spent
+    # three 420-second attempts on azure.archive.ubuntu.com without finishing.
+    # I retry against the main archive instead.
+    for list in /etc/apt/apt-mirrors.txt /etc/apt/sources.list /etc/apt/sources.list.d/*.sources /etc/apt/sources.list.d/*.list; do
+      [ -f "$list" ] || continue
+      sudo sed -i "s#azure\.archive\.ubuntu\.com#archive.ubuntu.com#g" "$list" || true
+    done
     echo "I recover pending dpkg configuration before retrying installation"
     # I may still lack dependencies after interrupted unpacking. I retain that
     # diagnostic and let apt repair them within this same attempt deadline.
     sudo -E dpkg --configure -a || echo "dpkg configuration needs dependency repair" >&2
-    sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 --fix-broken install -y
+    sudo -E apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Dpkg::Use-Pty=0 --fix-broken install -y
   fi
-  sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 update -qq
-  sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 install -y "$@"
+  sudo -E apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Dpkg::Use-Pty=0 update -qq
+  sudo -E apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Dpkg::Use-Pty=0 install -y "$@"
 '
 
 install_once() {
