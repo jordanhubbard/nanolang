@@ -524,6 +524,13 @@ void free_environment(Environment *env) {
         }
         free(env->structs[i].field_names);
         free(env->structs[i].field_types);
+        if (env->structs[i].field_type_names) {
+            for (int j = 0; j < env->structs[i].field_count; j++)
+                free(env->structs[i].field_type_names[j]);
+            free(env->structs[i].field_type_names);
+        }
+        free(env->structs[i].field_element_types);
+        free(env->structs[i].module_name);
     }
     free(env->structs);
     
