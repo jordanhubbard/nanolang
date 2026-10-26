@@ -62,7 +62,7 @@ jobs:
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
-        timeout-minutes: 10
+        timeout-minutes: 25
         run: |
           ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev \
             libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev \

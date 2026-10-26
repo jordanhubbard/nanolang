@@ -5,19 +5,21 @@
 # (mirror stalls, dpkg locks). Without a per-attempt timeout those hangs consume the
 # entire job budget and surface as a cancelled workflow rather than a retryable
 # install failure. This helper bounds each attempt and retries a few times.
+# The bound must outlast a slow mirror: hosted runs 40377551919 and 40377552283
+# fetched about 20 packages in 180 seconds and were killed three times running.
 #
 # Usage:
 #   ./scripts/ci-apt-install.sh <package> [package...]
 #
 # Environment:
 #   CI_APT_ATTEMPTS      Max attempts (default: 3)
-#   CI_APT_TIMEOUT_SECS  Per-attempt timeout in seconds (default: 180)
+#   CI_APT_TIMEOUT_SECS  Per-attempt timeout in seconds (default: 420)
 #   CI_APT_BACKOFF_SECS  Backoff base in seconds, scaled by attempt (default: 5)
 
 set -euo pipefail
 
 MAX_ATTEMPTS="${CI_APT_ATTEMPTS:-3}"
-ATTEMPT_TIMEOUT="${CI_APT_TIMEOUT_SECS:-180}"
+ATTEMPT_TIMEOUT="${CI_APT_TIMEOUT_SECS:-420}"
 BACKOFF_SECS="${CI_APT_BACKOFF_SECS:-5}"
 
 if [ "$#" -eq 0 ]; then
