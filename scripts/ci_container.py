@@ -10,6 +10,7 @@ import signal
 import subprocess
 import sys
 import tarfile
+import time
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -97,8 +98,19 @@ def build(archive, platform):
     require(platform in ('linux/amd64', 'linux/arm64'), 'an explicit build platform')
     archive.parent.mkdir(parents=True, exist_ok=True)
     image_file = archive.with_suffix('.id')
-    docker('build', '--platform', platform, '--iidfile', image_file,
-           ROOT / '.github/containers/instrumented', capture=False, timeout=1500)
+    # The pinned snapshot.ubuntu.com source answered 503 in hosted run 40461079037 and
+    # failed this gate, and the sanitizer jobs behind it, before any code was tested.
+    # I retry only the build: the resulting image is verified below either way.
+    for attempt in range(1, 4):
+        try:
+            docker('build', '--platform', platform, '--iidfile', image_file,
+                   ROOT / '.github/containers/instrumented', capture=False, timeout=1500)
+            break
+        except subprocess.CalledProcessError:
+            if attempt == 3:
+                raise
+            print(f'I retry the instrumented image build after attempt {attempt} failed.', flush=True)
+            time.sleep(30 * attempt)
     image = image_file.read_text().strip()
     inspect_image(image, platform)
     docker('save', '--output', archive, image, capture=False, timeout=300)
