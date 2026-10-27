@@ -26,7 +26,7 @@ class CaptureSelection(unittest.TestCase):
             root = Path(tmp); developer, tools, sdk, pins = self.fixture(root)
             with patch.dict(os.environ, GITHUB_ENV=str(root/'env'), GITHUB_PATH=str(root/'path')):
                 with patch.object(selection.subprocess, 'check_output', side_effect=[str(sdk)+'\n',
-                        'Apple clang version 21.0.0 (clang-2100.3.34.2)\n']) as query:
+                        'Apple clang version 21.0.0 (clang-2100.3.34.1)\n']) as query:
                     record = selection.select(root/'out', developer, pins, sdk)
             self.assertEqual(query.call_count, 2)
             self.assertEqual(query.call_args_list[0].args[0],
