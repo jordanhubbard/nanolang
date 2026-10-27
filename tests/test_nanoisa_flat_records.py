@@ -180,10 +180,10 @@ class FlatRecordEmitter(unittest.TestCase):
             self.assertEqual(whole.returncode, 1)
             self.assertEqual(whole.stdout, "")
             # Every initializer is a root, even when main never reads its slot.
-            source.write_text('let unused: int = (effect) fn effect() -> int { (println "effect") return 1 } '
+            source.write_text('let unused: int = (announce) fn announce() -> int { (println "effect") return 1 } '
                               'let words: array<string> = [] fn main() -> int { assert (== (array_length words) 0) return 0 }\n')
             rooted = self.run_checked(tool, source, "program").stdout
-            self.assertIn(".function effect", rooted)
+            self.assertIn(".function announce", rooted)
             self.assertIn(".function __init__", rooted)
             self.assertIn("ARR_LITERAL 5 0", rooted)
             assembly.write_text(rooted)

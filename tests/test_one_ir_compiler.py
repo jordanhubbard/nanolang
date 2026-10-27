@@ -396,8 +396,11 @@ static inline void tracked_free(void *p) {
             self.run_checked([ROOT / "bin/nanoc_c", ROOT / "src_nano/nanoc_v06.nano",
                               "-o", seed], timeout=600)
             # I retain the canonical frontend's dependency and root shadow checks.
+            # This compile takes about 356 seconds of CPU on a development machine, and
+            # hosted ubuntu-latest and xcode-27 both exceeded the former 600-second
+            # budget, so I allow it 1500 seconds.
             self.run_checked([seed, ROOT / "src_nano/nanoc_v06.nano", "--emit-nvm",
-                              "-o", module], timeout=600, extra_env=helper_env)
+                              "-o", module], timeout=1500, extra_env=helper_env)
             self.assertGreater(module.stat().st_size, 0)
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
             self.assert_no_vm_wrapper(source.read_text())
