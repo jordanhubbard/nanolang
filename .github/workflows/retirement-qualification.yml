@@ -49,7 +49,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, xcode-27]
-        corpus: [retirement, compiler-contracts]
+        corpus: [retirement, compiler-contracts, record-maps]
     env:
       CMD_TIMEOUT: '1800'
       BOOTSTRAP_NANOISA_TIMEOUT: '5400'
@@ -181,9 +181,23 @@ jobs:
           make -f Makefile.gnu CC="${CC:-cc}" test-one-ir-compiler \
             test-native-nested-arrays test-native-array-identity test-map-field-operations \
             test-native-generic-record-fields test-native-nominal-order test-optional-record-join \
-            test-imported-ordinary-authority test-computed-u8-context test-u8-record-fields test-nested-array-mutation-context test-record-array-public test-record-array-tail test-record-array-self-tail test-record-array-nested test-record-array-nested-string test-record-array-nested-primitive test-record-array-depth-three test-map-declarations test-union-field-declarations test-union-field-proof test-union-field-execution test-union-field-image test-union-field-preparation test-union-field-vm test-union-field-native-target test-record-map-origins test-record-map-execution test-record-map-image test-record-map-preparation test-record-map-heap test-record-map-string-heap test-record-map-runtime test-record-map-string test-record-map-delete test-record-map-observation test-record-map-native test-record-map-boundary test-record-map-import test-record-map-public-prepare test-record-map-ordinary-heap test-record-map-borrowed test-record-map-public test-record-map-publication test-map-field-publication test-ordinary-array-authority \
-            test-flat-array-source-publication test-publication-allocation \
+            test-imported-ordinary-authority test-computed-u8-context test-u8-record-fields test-nested-array-mutation-context test-record-array-public test-record-array-tail test-record-array-self-tail test-record-array-nested test-record-array-nested-string test-record-array-nested-primitive test-record-array-depth-three test-map-declarations test-union-field-declarations test-union-field-proof test-union-field-execution test-union-field-image test-union-field-preparation test-union-field-vm test-union-field-native-target \
             2>&1 | tee .test_output/retirement/compiler-managed.log
+
+      - name: Qualify record-map and managed-array publication corpus
+        if: matrix.corpus == 'record-maps'
+        # I split these targets from compiler-contracts: hosted run 40426710361 spent its
+        # whole 120-minute step budget reaching test-record-map-native, and a hosted job
+        # cannot exceed 360 minutes, so one leg could not hold the entire corpus.
+        timeout-minutes: 150
+        run: |
+          set -o pipefail
+          NANO_FLAT_ARRAY_COMPILERS="$PWD/bin/nano_virt,$PWD/bin/nanoc_stage1,$PWD/bin/nanoc_stage2" \
+          NANO_FLAT_ARRAY_BOUND_COMPILERS="$PWD/bin/nano_virt,$PWD/bin/nanoc_stage1,$PWD/bin/nanoc_stage2" \
+          NANO_ORDINARY_COMPILERS="nano_virt,nanoc_stage1,nanoc_stage2" \
+          make -f Makefile.gnu CC="${CC:-cc}" test-record-map-origins test-record-map-execution test-record-map-image test-record-map-preparation test-record-map-heap test-record-map-string-heap test-record-map-runtime test-record-map-string test-record-map-delete test-record-map-observation test-record-map-native test-record-map-boundary test-record-map-import test-record-map-public-prepare test-record-map-ordinary-heap test-record-map-borrowed test-record-map-public test-record-map-publication test-map-field-publication test-ordinary-array-authority \
+            test-flat-array-source-publication test-publication-allocation \
+            2>&1 | tee .test_output/retirement/record-maps.log
 
       - name: Qualify advisory metadata and paired source effects
         if: matrix.corpus == 'compiler-contracts'
