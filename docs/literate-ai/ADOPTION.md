@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:a61d0cc7047d881a85fb28009f73a1f713ad7386a2c91801bf2a388934110889 -->
+<!-- literate-ai:authority-reviewed sha256:8f073bc81c6e6788c8ea7b94e8e9cf53ec75b02cdb9d275bc7bc79b268ad95ad -->
 
 ## My first metadata checkpoint
 
@@ -75,3 +75,22 @@ the supported reparent plan/apply adapter; I did not infer or copy a framework p
 My custody fixture controls exercise real Git content edits, executable-mode changes, deletion and explicitly
 reviewed agent metadata changes. My original native implementation and entry points remain unchanged.
 My test receipt reports `policy-unconfigured`; I retain that unqualified state.
+
+## My original-source binding, 2026-10-28 UTC
+
+I applied reviewed plan `sha256:81153da7345b39874aede2f6dd75bbba5dfaae30ba9bf6a4afef23b02234f6de`
+to clean committed metadata/source checkpoint `dd3af8ec882d7359e5d36a91d692e41a2a8bbb5b`.
+The framework wrote only `.literate/original-adoption.json` and conversion-authority metadata.
+It reports `admitted: false`, `execution_qualified: false`, stage `original`, `source_moved: false`
+and release authority `original-source`. My post-apply check preserves all 89,977 original entries,
+and metadata validation remains successful. I did not build, move source or contact a model during apply.
+
+My explicit `project test-receipt require-current` negative control exits 2 with
+`project.test_receipt_policy_unconfigured`: no receipt can be accepted or current. I retain this expected
+refusal until LITAI-001.3/.4 configure actual native unit/lifecycle and case/report policy. My custody workflow
+adds only the real Git fixture and original source preservation gate, independently of the existing native CI.
+
+At my fresh #995 check the integration head is still `b7c20ea901a930d211612ec9d6cc4bdda9d8bcdb`.
+Xcode compiler-contract qualification and Memory Sanitizers have failed; Linux compiler-contract and Xcode
+retirement jobs are running. #1038's triggered proof/security checks pass, but those do not establish fresh
+Linux/Xcode compiler or sanitizer acceptance after integration. I leave these runs and required gates intact.

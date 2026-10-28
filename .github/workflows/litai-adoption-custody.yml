@@ -1,0 +1,40 @@
+name: Literate AI adoption custody
+
+on:
+  pull_request:
+    paths:
+      - 'literate/**'
+      - '.literate/**'
+      - 'literate.project.json'
+      - 'PROJECT.md'
+      - 'SKILL.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - '.cursor/rules/literate-ai.mdc'
+      - 'agents/openai.yaml'
+      - 'docs/literate-ai/**'
+      - 'scripts/litai_source_preservation.py'
+      - 'tests/test_litai_source_preservation.py'
+      - '.github/workflows/litai-adoption-custody.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-custody:
+    name: Original source custody (metadata only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch my exact original source checkpoint
+        run: git fetch --no-tags --depth=1 origin 37dfd59df4b30ce331f6111a56258e151301d108
+      - name: Exercise real Git custody controls
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python3 -m unittest -v tests.test_litai_source_preservation
+      - name: Check my original source paths, modes and objects
+        run: python3 scripts/litai_source_preservation.py
+      # I do not substitute this metadata gate for native lifecycle qualification,
+      # existing 5.1 compiler/sanitizer jobs or a verifier-owned LitAI receipt.
