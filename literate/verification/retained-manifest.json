@@ -604607,8 +604607,8 @@
       "mode": 420,
       "path": "docs/literate-ai/ADOPTION.md",
       "role": "docs-definition",
-      "sha256": "a3046506145d4bead8432a506be62b338ffe1bf33a93184d33cbd7aef8d3b800",
-      "size": 8719
+      "sha256": "8352ccebc04121a451e8089d0e75927fdd033f6e4e89f53f0bf8e871e847157d",
+      "size": 9372
     },
     {
       "mode": 420,
@@ -605139,14 +605139,14 @@
       "mode": 420,
       "path": "literate/retained/profile.json",
       "role": "build-definition",
-      "sha256": "524b2f8fb05beab53e54fce7b093ff8d556096ea24b5535706017129a03c611e",
+      "sha256": "e726505ed66b17a6e9007dec77eb6cab81a1822644e59c29c3f2dbeca9d9e5d1",
       "size": 19566
     },
     {
       "mode": 420,
       "path": "literate/retained/test-policy.json",
       "role": "test-policy",
-      "sha256": "1618541377d600efec8939df8d81d884e9c04231a139408fdff1ced78f2d76cd",
+      "sha256": "130819184eb5c3edf66b72e60211ae594e78c9642236b9ca906b80cb3df2fc1e",
       "size": 50176
     },
     {
@@ -605167,8 +605167,8 @@
       "mode": 493,
       "path": "literate/retained/tools/run-cases",
       "role": "toolchain",
-      "sha256": "6f555e50416424e40ae46f5c3ef391ca879cbe9d9df21d38e81c886fff8d89b9",
-      "size": 863
+      "sha256": "39a592895a12b7efc7298de164c8767766ca2c5d14be0426ea84c720fd964031",
+      "size": 2005
     },
     {
       "mode": 420,
