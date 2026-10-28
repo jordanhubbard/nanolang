@@ -605139,8 +605139,8 @@
       "mode": 420,
       "path": "literate/retained/profile.json",
       "role": "build-definition",
-      "sha256": "e726505ed66b17a6e9007dec77eb6cab81a1822644e59c29c3f2dbeca9d9e5d1",
-      "size": 19566
+      "sha256": "36dfd7513d85d32c3e149ae679fd930a4a025d4171efbcbf68e67b2a3739c02e",
+      "size": 19787
     },
     {
       "mode": 420,
@@ -608723,8 +608723,8 @@
       "mode": 420,
       "path": "scripts/litai_retained_author.py",
       "role": "build-definition",
-      "sha256": "77025ea846e204b66175cf68b05b825267274f1977985e8f0ad240f961e3ecf2",
-      "size": 6964
+      "sha256": "f295710748b0a38bc96391d9af0ab014ace57010deee5b2437ae63cce87740dc",
+      "size": 9557
     },
     {
       "mode": 420,

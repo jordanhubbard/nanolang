@@ -1,4 +1,5 @@
 {
+  "acceptance_policy_identity": "sha256:b4c976872f43fc60bc7fe717939795ecaadfa5514dbe4a690cab4506e98bece3",
   "actions": [
     {
       "argv": [
@@ -540,7 +541,10 @@
       ],
       "id": "accept",
       "inventory": [
-        "release-docs-check"
+        "nano-vm-rejects-unknown-option",
+        "nanoisa-emitter-entry-assertions",
+        "parser-entry-assertions",
+        "nvm2c-usage"
       ],
       "outputs": [],
       "requires": [
