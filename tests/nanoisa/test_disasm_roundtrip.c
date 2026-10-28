@@ -133,16 +133,17 @@ static void quoted_string_boundaries(void) {
 
 static void large_symbol_and_branch_tables(void) {
     const uint32_t count = 2200;
-    char *text = malloc(200000);
+    const size_t capacity = 200000;
+    char *text = malloc(capacity);
     CHECK(text != NULL, "allocate many-symbol fixture");
     if (!text) return;
     size_t used = 0;
     for (uint32_t i = 0; i < count; i++)
-        used += (size_t)sprintf(text + used, ".string s%u \"same\"\n", i);
-    used += (size_t)sprintf(text + used, ".function main 0 0 0 int 1\n");
+        used += (size_t)snprintf(text + used, capacity - used, ".string s%u \"same\"\n", i);
+    used += (size_t)snprintf(text + used, capacity - used, ".function main 0 0 0 int 1\n");
     for (uint32_t i = 0; i < count; i++)
-        used += (size_t)sprintf(text + used, " JMP label%u\nlabel%u:\n", i, i);
-    sprintf(text + used, " PUSH_I64 37\n RET\n.end\n");
+        used += (size_t)snprintf(text + used, capacity - used, " JMP label%u\nlabel%u:\n", i, i);
+    snprintf(text + used, capacity - used, " PUSH_I64 37\n RET\n.end\n");
     AsmResult result;
     NvmModule *module = asm_assemble(text, &result);
     CHECK(module != NULL, "large symbol label and patch tables assemble");
