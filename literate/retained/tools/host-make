@@ -1,0 +1,4 @@
+#!/bin/sh
+# I delegate to the host make. My identity binds these bytes, not the host binary: host toolchain
+# provenance is a recorded Literate AI limitation (LITAI-001.3), not a qualified closure.
+exec make "$@"

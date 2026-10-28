@@ -1,0 +1,7 @@
+#!/bin/sh
+# I run the unchanged native build, then place the built programs under the sealed output root.
+# usage: build-native OUTPUT_ROOT
+set -e
+make build
+mkdir -p "$1"
+cp -R bin "$1/bin"

@@ -1,0 +1,2427 @@
+{
+  "cases": [
+    {
+      "action": "tests",
+      "id": "shadow-check",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-actor",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-advisory-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-advisory-metadata-alloc",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-affine-bytecode",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-affine-effect-runtime",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-affine-global-flow",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-affine-ordinary-records",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-affine-scalar-union-runtime",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-affine-scalar-union-source",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-affine-state",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-affine-use-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-array-abi-loader",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-array-adapter-boundaries",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-array-new-evaluation",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-artifact-string-release",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-asm-examples",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-assembler-string-alloc",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-assembler-subnormal",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-bcp47",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-bench",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-bootstrap-native-guard",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-borrow-annotations",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-borrow-contract-allocation",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-byte-array-literals",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-c-service-inputs",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-calculator-host-abi",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-callback-runtime",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-callee-snapshots",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-caller-reference-analysis",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-caller-references",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-canonical-f64-bits",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-canonical-filesystem",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-canonical-match-guards",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-canonical-nvm-output",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-canonical-prefix-conversion",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-canonical-string-builtins",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-canonical-vm-shadows",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cast-string-allocation",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-catalog",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-channel",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-checked-borrow-environment",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-checked-borrow-ledger",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-checked-borrow-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-checked-owner-selection",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-collection-array-exports",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-compiler-artifact-support",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-computed-u8-context",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-concrete-union-array-contracts",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-conditional-field-types",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-constructor-call-context",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-consuming-calls",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cop-fuzz",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cop-lifecycle-harness",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cop-protocol",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-coroutine-scheduler",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cseed-generic-functions",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cseed-global-identity",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cseed-imported-globals",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cseed-imported-unions",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cseed-nested-array-literals",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cseed-record-array-literals",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cseed-shadow-trace",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cseed-single-letter-enums",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cseed-single-letter-nominals",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-cseed-union-signatures",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-dataflow",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-debug-text",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-diagnostics",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-directory-walk",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-disasm-roundtrip",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-dispatch-equivalence",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-dispatch-gate",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-dispatch-retained",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-docgen",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-dyn-array",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-dyn-array-allocation",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-effect-array-producer",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-effect-binding-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-effect-execution",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-effects",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-empty-record-array-fields",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-env-scoping",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-env-symbol-index",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-eval",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-exclusive-borrows",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-explicit-generic-constructors",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-ffi",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-ffi-array-copyback",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-file-body",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-file-bytes",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-file-code",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-file-flow",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-file-hosted",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-file-nominal",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-file-product-bridge",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-file-source-inputs",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-file-source-snapshots",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-file-write",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-filesystem-array-exports",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-flat-array-source-publication",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-fmt",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-forth-session",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-frontend-contract",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-frontend-matrix",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-function-affine-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-function-effects-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-function-purity-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-fuzz-malformed",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-gc-struct",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-generated-list-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-generic-binding-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-generic-function-values",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-generic-selected-ownership",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-generic-selected-patterns",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-generic-union-emission",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-github-issues",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-glew-array-boundary",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-global-initializer-context",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-global-resource-boundary",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-header-constant-functions",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-helper-local-owners",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-implicit-returns",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-inline-owned-construction",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-inline-union-match",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-instantiated-ownership",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-integer-pair-verification",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-intern",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-legacy-binary64-eval",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-legacy-binary64-parse",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-legacy-float-conversion",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-local-binding-alloc",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-local-binding-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-local-binding-producers",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-local-marker-alloc",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-log-utf8",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-logic",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-mac-command-boundary",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-managed-array-eligibility",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-managed-record-eligibility",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-managed-record-plan",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-map-constructor-contexts",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-map-constructor-diagnostics",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-map-declarations",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-map-declared-tags",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-map-field-operations",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-map-field-publication",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-map-results",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-map-type-boundaries",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-match-aggregate-results",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-match-coverage-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-mixed-float-proof",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-mixed-layout-view",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-mixed-samples",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-mixed-samples-admission",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-mixed-samples-runtime",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-mixed-samples-runtime-alloc",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-mixed-service-drivers",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-mixed-websocket-runtime",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-mixed-websocket-source",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-mixed-websocket-values",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-ml",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-module-builder-cache",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-module-builder-self-capture",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-module-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-multi-caller-references",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-multi-nominal",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-multiple-consuming-calls",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-named-scalar-callbacks",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nano-emacs-worker",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nano-eval",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanocore",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanocore-export-buffer",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanocore-unit",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-byte-arrays",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-dump",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-emit-driver",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-extern-declarations",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-functional-arrays",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-host-closure",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-introspection",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-list-free",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-local-inference",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-match-guards",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-module",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-shadow-isolation",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanoisa-src-nano",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanovirt",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nanovm",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-array-identity",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-array-pop",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-byte-arrays",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-call-argument-order",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-dead-callable-paths",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-effects",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-enum-scalars",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-float-arrays",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-float-records",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-floats",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-functional-callbacks",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-generic-arithmetic",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-generic-record-fields",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-imported-constants",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-invariant-diagnostics",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-jump-true",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-list-record-fields",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-local-clear",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-map-key-storage",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-module-linking",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-nested-arrays",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-nested-generics",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-nominal-context",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-nominal-order",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-numeric-union",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-optional-array-reads",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-optional-float-calls",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-process",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-record-array-scalar-tags",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-record-field-transport",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-record-globals",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-referenced-labels",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-returned-maps",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-scalar-joins",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-string-equality-guards",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-tagged-arithmetic",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-tco",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-total-arithmetic",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-typed-enum",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-u8-tail-results",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-underscore-bindings",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-union-padding",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-variant-array-carriers",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-native-variant-scalar-carriers",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nested-array-mutation-context",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nested-borrows",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nested-owned-results",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nested-references",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nl-string",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nominal-record-array-contracts",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-cap",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-fabric",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-file",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-file-plan",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-file-values",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-gen",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-journal",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-manifest",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-obs",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-policy",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-runtime",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-shm",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-socket",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-socket-binding",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-socket-network",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-socket-plan",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-socket-resolver",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-socket-values",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-websocket-plan",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nsi-websocket-protocol",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm-callbacks",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm-format-v2",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm-pool-alloc",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm-v2-constants",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm-v2-convert",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm-v2-cursor",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm-v2-endtoend",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm-v2-functions",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm-v2-imports",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm-v2-layouts",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm-v2-module",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm-v2-signatures",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm2c",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm2c-callables",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm2c-opcode-coverage",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm2c-sanitizer-driver",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-nvm2c-shapes",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-object",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-one-ir-product-invariants",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-opt-passes",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-optimizer",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-optional-record-join",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-ordinary-array-authority",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-ordinary-declaration-provenance",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-ordinary-record-authority",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-ordinary-record-producers",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-array-authority",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-array-layouts",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-array-origins",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-assertions",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-binary64",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-effect-c-source",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-float-reconstruction",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-global-installed",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-global-producer",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-global-runtime",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-global-source",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-reconstruction",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-result-descriptors",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-runtime",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-string-fields",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-string-joins",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-string-print",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-transfers",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-union-c-source",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-union-installed",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-union-producer",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-union-runtime",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-value-graphs",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-owned-value-results",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-ownership-contracts",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-parameter-nominal-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-parser",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-passive-flow-frontends",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-passive-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-passive-par-frontends",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-path-normalize",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-peg-array-exports",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-pgo-pass",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-preferences-save",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-process-pipe-array",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-process-run-array",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-proptest-unit",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-public-global-declarations",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-publication-allocation",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-purity-contract",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-reconstruction-binary64-facts",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-array-depth-three",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-array-nested",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-array-nested-primitive",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-array-nested-string",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-array-projection",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-array-public",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-array-public-build",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-array-self-tail",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-array-tail",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-array-tail-build",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-borrowed",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-boundary",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-delete",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-execution",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-heap",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-image",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-import",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-native",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-observation",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-ordinary-heap",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-origins",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-preparation",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-public",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-public-prepare",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-publication",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-runtime",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-string",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-record-map-string-heap",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-refcount-gc",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-reference-eval-transport",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-reference-places",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-release-gates",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-release-version",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-resource-callback-boundary",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-resource-classification",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-resource-flow-allocations",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-resource-generic-records",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-retained-layouts",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-ringbuf",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-runtime-lists",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-same-frame-references",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-scalar-reconstruction",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-scheme",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-sdl-image-arrays",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-sdl-text-input-events",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selected-variant-ownership",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-array-compatibility",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-array-field-setter",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-array-literal-context",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-byte-array-identity",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-effects",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-enum-metadata",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-float-values",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-generic-contexts",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-header-constants",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-imported-globals",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-json-artifacts",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-map-results",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-map-types",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-module-bindings",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-native-link-flags",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-native-u8",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-opaque-imports",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-range-bounds",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-regex-host-abi",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-rejection-gate",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-returned-calls",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-selfhost-sqlite-artifacts",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-service-bindings",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-service-bodies",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-service-drivers",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-service-inputs",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-service-lowering",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-service-lowering-nano",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-service-origins",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-service-ownership",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-service-shadows",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-service-strings",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-service-wire",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-services-dispatch",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-services-flow",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-services-public",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-services-values",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-shadow-identifiers",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-shadow-trace-names",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-shared-borrows",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-shell",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-socket-body",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-socket-code",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-socket-dispatch",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-socket-flow",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-socket-hosted",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-socket-nominal",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-socket-nominal-module",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-socket-public",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-socket-resolver-install",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-socket-runtime",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-socket-service-drivers",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-socket-service-source",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-source-borrow-emission",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-std-fs-write-failures",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-string-boundaries",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-transpiler",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-type-infer",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-typechecker",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-u8-record-fields",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-u8-strings",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-ui-array-bounds",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-underscore-payload",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-unicode-ffi",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-union-field-declarations",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-union-field-execution",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-union-field-image",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-union-field-native-target",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-union-field-preparation",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-union-field-proof",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-union-field-vm",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-union-literal-context",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-units",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-unreachable-warning",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-utf8",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-value",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-verifier",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-verifier-cleanup",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-verifier-profiles",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-verify-all-programs",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-verify-only",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-vm-builtins",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-vm-callback-allocation",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-vm-effect-ownership",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-vm-ffi",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-vm-shadow-supervision",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-vm-substring-contract",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-void-bindings",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-walk-result-release",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-artifacts",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-bindings",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-body",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-client",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-dispatch",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-flow",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-hosted",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-nominal",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-nominal-boundary",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-public",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-runtime",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-service-drivers",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-service-network",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-service-source",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-source-binding",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-source-lowering",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-transport",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-websocket-values",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-wrapper-gen",
+      "skip_reason": null
+    },
+    {
+      "action": "tests",
+      "id": "test-wrapper-packaged-interpreter",
+      "skip_reason": null
+    }
+  ],
+  "project_policy_identity": "sha256:467cf6287823913c628fb2881af98caa5d077fa46a419e690227ae7769e86831",
+  "reports": [
+    {
+      "action": "tests",
+      "path": "test-result.json"
+    }
+  ],
+  "schema": "literate-ai/retained-project-test-policy@1"
+}

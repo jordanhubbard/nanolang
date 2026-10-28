@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:177d5a1e702a3876e373996cea16ba4bb7a78cbb6410575ef5d24273144036a8 -->
+<!-- literate-ai:authority-reviewed sha256:ef4e59b32dcc21f16543c634d2420bac60813244fe44f14fc5185d723e0aa38d -->
 
 ## My first metadata checkpoint
 
@@ -104,3 +104,12 @@ file/executable mode must remain intact. New dirty and committed deletion, symli
 while reviewed content edits pass. My unchanged 89,977-entry source check passes with the corrected guard.
 The review also corrected the documented native command to `make test-quick`; I changed no native entry point.
 All 67 original scope bullet rows remain byte-identical.
+
+## My retained-planning authority additions (LITAI-001.3)
+
+I added `literate.release.json`, a project receipt policy requiring 483 cases and the Standard lifecycle
+binding (applied through `litai project lifecycle rebind-standard`). I reviewed these changes as part of the
+authority above. They are inputs to a read-only retained plan, not a test receipt, execution authority or
+release permission. My release policy binds version to `literate.project.json` and `package.json` because the
+framework cannot bind `src/version.h`; its gate is `make release-docs-check` and is weaker than the 5.1 gates,
+which remain in force.

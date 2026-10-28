@@ -36,6 +36,53 @@
     },
     "artifact_publication": "metadata-only"
   },
+  "lifecycle_driver": {
+    "schema": "urn:literate-ai:schema:v2:project-lifecycle-driver",
+    "binding": "standard",
+    "framework_distribution_identity": {
+      "schema": "urn:literate-ai:schema:v1:content-identity",
+      "algorithm": "sha256",
+      "digest": "8f79206494c30b79685be78ca19234aecce33f8ea58b92aec0e391458fa27250"
+    },
+    "policy_identity": {
+      "schema": "urn:literate-ai:schema:v1:content-identity",
+      "algorithm": "sha256",
+      "digest": "a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+    }
+  },
   "test_receipt": "literate/verification/current.json",
-  "default_flavor_selectors": []
+  "test_receipt_policy": {
+    "schema": "urn:literate-ai:schema:v1:project-test-receipt-policy",
+    "suite_id": "nanolang-original-suite",
+    "suite_version": "5.1.0",
+    "runner_identity": {
+      "schema": "urn:literate-ai:schema:v1:content-identity",
+      "algorithm": "sha256",
+      "digest": "6f555e50416424e40ae46f5c3ef391ca879cbe9d9df21d38e81c886fff8d89b9"
+    },
+    "required_evidence_kinds": [
+      "test-report",
+      "test-runner"
+    ],
+    "minimum_test_count": 483
+  },
+  "repository_policy": {
+    "schema": "literate-ai/repository-policy@1",
+    "default_branch": "main",
+    "main_state": "free",
+    "pre_release_version": null,
+    "default_component": null,
+    "sample_component_roots": [
+      "samples"
+    ],
+    "work_queue": "docs/roadmap/active-work.md",
+    "remote": "origin",
+    "merge_method": "merge",
+    "pull_request_labels": [],
+    "release_engineer_source": "README.md#release-engineers",
+    "release_ci_workflow": "CI",
+    "patch_authority": "strict",
+    "writers": [],
+    "branch_gc_minimum_age_days": 7
+  }
 }

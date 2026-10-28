@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""I run each declared make target as one case and write the retained test report.
+
+usage: run-cases POLICY REPORT_PATH ACTION_ID. A case passes only when its make target exits zero."""
+import json
+import subprocess
+import sys
+
+policy, report_path, action = sys.argv[1:4]
+cases = [c["id"] for c in json.load(open(policy))["cases"] if c["action"] == action]
+results = []
+for case in cases:
+    code = subprocess.run(["make", case]).returncode
+    results.append({"id": case, "outcome": "passed" if code == 0 else "failed",
+                    "reason": None if code == 0 else f"make {case} exited {code}"})
+with open(report_path, "w") as out:
+    json.dump({"schema": "literate-ai/retained-project-test-report@1", "action": action, "cases": results}, out, sort_keys=True)
+sys.exit(0 if all(r["outcome"] == "passed" for r in results) else 1)
