@@ -2416,7 +2416,7 @@
       "skip_reason": null
     }
   ],
-  "project_policy_identity": "sha256:467cf6287823913c628fb2881af98caa5d077fa46a419e690227ae7769e86831",
+  "project_policy_identity": "sha256:2f70d66eeaa3afb14828052fbccc6a80e481285b37deb6c65de7dd173e79214f",
   "reports": [
     {
       "action": "tests",

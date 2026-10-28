@@ -560,8 +560,8 @@
   "release_policy_identity": "sha256:50b8a890093a5d478472d8fb4445181e269fd7761a04cc4857ac525b99765cdd",
   "schema": "literate-ai/retained-project-profile@1",
   "target": "host",
-  "test_policy_identity": "sha256:1618541377d600efec8939df8d81d884e9c04231a139408fdff1ced78f2d76cd",
-  "toolchain_identity": "sha256:8fbf399b40ec48aff75b16c02eda98bc4b79e3c13681e8be296973744099238b",
+  "test_policy_identity": "sha256:130819184eb5c3edf66b72e60211ae594e78c9642236b9ca906b80cb3df2fc1e",
+  "toolchain_identity": "sha256:7dd6b9ef0acbd20478d4ecd4471de91f6fd67cbbe1a95cc6f1c39241afdf3740",
   "tools": [
     {
       "identity": "sha256:b8d082a011ac029f2ba9084284cd5c7a81a1d0d5bb984dcb103f531d9040ebf2",
@@ -574,7 +574,7 @@
       "path": "literate/retained/tools/host-make"
     },
     {
-      "identity": "sha256:6f555e50416424e40ae46f5c3ef391ca879cbe9d9df21d38e81c886fff8d89b9",
+      "identity": "sha256:39a592895a12b7efc7298de164c8767766ca2c5d14be0426ea84c720fd964031",
       "name": "run-cases",
       "path": "literate/retained/tools/run-cases"
     }
