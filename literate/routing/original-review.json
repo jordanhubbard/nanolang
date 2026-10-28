@@ -1,0 +1,9 @@
+{
+  "schema": "literate-ai/generation-routing@1",
+  "routing_id": "nanolang-original-review",
+  "version": "1.0.0",
+  "group_id": "nanolang-unconfigured-review",
+  "required_locality": null,
+  "fallback_allowed": false,
+  "data_egress": "source-allowed"
+}
