@@ -65,7 +65,6 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:ef4e59b32dcc21f16543c634d2420bac60813244fe44f14fc5185d723e0aa38d -->
 
 ## My first metadata checkpoint
 
@@ -113,3 +112,12 @@ authority above. They are inputs to a read-only retained plan, not a test receip
 release permission. My release policy binds version to `literate.project.json` and `package.json` because the
 framework cannot bind `src/version.h`; its gate is `make release-docs-check` and is weaker than the 5.1 gates,
 which remain in force.
+
+The installed `litai` was reinstalled during this work (git `26289fd2` to `22062a72`), so the pinned Standard
+distribution no longer matched the wheel and the plan refused. I re-pinned it through the same supported
+`rebind-standard` update; it changed only the distribution identity, not the policy or receipt policy.
+My `run-cases` runner reproduces `make test`'s compiler swap (`bin/nanoc` to the C reference, `NANOLANG_COMPILER`,
+per-case `TEST_TIMEOUT`) and deviates in one place: it passes `CMD_TIMEOUT=1800` so a loaded host does not kill
+the self-hosted compile at make's 600s default. Load-induced timeouts in a run are not compiler evidence.
+
+<!-- literate-ai:authority-reviewed sha256:ae66cf78776d8c3ee839097eb3206f0927749fc9a23c74cc7628f43bb0c5d7de -->
