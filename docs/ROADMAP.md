@@ -16919,3 +16919,21 @@ I passed aggregate private union execution after merge `c5ec3489a`: both dispatc
 - Union native target-only qualification (#1001): I retain1,272 observed checks (109 allocation positions, both denial modes, independent retry/zero wrapped live bytes),122 linked checks with all six selected originals, and default zero-selector synthetic coverage. Eight Clang/GCC syntax checks pass; a rebuilt default native provider preserves six old generated C outputs. Exact reserved-work controls always run, including hosted zero-selector mode. True dormant constructions remain UNRESOLVED. Target context never escapes; allocator/emission/HALT/public/publisher work remains separate. See `evidence/union-field-native-target-20261022/README.md`.
 
 I integrate the qualified private native target preparation after `fffd8f07e`, preserving both ROADMAP histories. Component tests pass; the actual aggregate Make target is pending because the data volume fell to16GiB free/100% reported use. Its dry run requires only managed-array and native-provider objects, no frontend/bootstrap. Public/native emission and publisher selection remain closed.
+
+### #1036 disassembly fixture bounds (2026-10-27)
+
+- [x] I retain PR995 sanitizer run40527688607/job122356428817 at b7c20ea90: GCC rejects fixture sprintf calls with null-destination format-overflow diagnostics. I bound fixture writes and check allocation/capacity refusal without suppressing strict warnings.
+- [x] I pass the focused round-trip target with220 checks under macOS Clang ASan/UBSan, explicit null/exhausted/truncating/exact-fit construction cases and strict GCC16 O3 sanitized object compilation. I preserve the original Linux diagnostic; macOS checks do not establish its exact hosted repair.
+- [ ] I require exact current-head hosted sanitizer acceptance separately under #976.
+
+I own tests/nanoisa/test_disasm_roundtrip.c and this evidence/roadmap checkpoint on fix/5.1-disasm-fixture-bounds. Active qualification jobs remain untouched.
+
+### #1037 string-retention build supervision (2026-10-27)
+
+- [x] I retain Xcode compiler-contracts job122479317295/artifact12778883419: the sole error in110 cases is sanitized compilation of the3500-call safepoint case exceeding the harness's hardcoded90-second subprocess deadline. I select the existing native build budget and group cleanup only for compilation, preserving the90-second execution deadline and every assertion/workload.
+- [x] I pass six build/runtime classification and real process-cleanup controls (5.567s), then the unchanged focused safepoint case on exact-source tools (37.790s, string_peak_bytes=65550).
+- [ ] I require exact current-head hosted Xcode compiler-contract acceptance under #976.
+
+I own tests/test_native_string_retention.py on fix/5.1-disasm-fixture-bounds for this separately tracked repair. I do not infer an infrastructure cause from the timeout.
+
+I retain both original gate failures, artifact identities, commands and scoped local results in [the qualification harness repair record](evidence/qualification-harness-repair-20261027/README.md). These repairs do not close the full5.1 scope or claim release acceptance.
