@@ -82,14 +82,10 @@ def require_clean():
 
 
 def component_locks():
-    """The component-lock tuple of the current reviewed plan, from the read-only plan I already require."""
-    plan = subprocess.run(
-        ['litai', 'build', '--project', '.', '--retained-project', MANIFEST, '--retained-project-profile', PROFILE,
-         '--retained-project-plan'], cwd=ROOT, capture_output=True, text=True)
-    try:
-        return tuple(ContentIdentity.parse_uri(u) for u in json.loads(plan.stdout)['result']['plan']['component_locks'])
-    except (ValueError, KeyError):
-        sys.exit('cannot read component locks from the read-only plan; refresh the manifest and profile first:\n' + plan.stdout[:400])
+    """The project's current component-lock tuple, read through the framework API the planner itself uses."""
+    from literate_ai.adapters.component_lock_application import current_project_component_locks
+    from literate_ai.projects import load_project
+    return tuple(lock.identity for lock in current_project_component_locks(load_project(ROOT)))
 
 
 def observe(executable, argv):
