@@ -53,6 +53,24 @@ class SourceCustody(unittest.TestCase):
             git('add', '.')
             git('commit', '-qm', 'metadata delegate')
             self.assertTrue(preserve.inspect(root, policy, 'HEAD')['preserved'])
+            # Reviewed metadata permits content edits only, in either Git or the worktree.
+            content_checkpoint = git('rev-parse', 'HEAD')
+            for mutation in ['delete', 'symlink', 'executable']:
+                git('reset', '--hard', content_checkpoint)
+                metadata = root / 'AGENTS.md'
+                if mutation in {'delete', 'symlink'}:
+                    metadata.unlink()
+                    if mutation == 'symlink':
+                        metadata.symlink_to('compiler.c')
+                else:
+                    metadata.chmod(0o755)
+                self.assertFalse(preserve.inspect(root, policy, 'HEAD')['preserved'], mutation)
+                git('add', '-A')
+                git('commit', '-qm', 'mutate metadata ' + mutation)
+                report = preserve.inspect(root, policy, 'HEAD')
+                self.assertFalse(report['preserved'], mutation)
+                self.assertIn('AGENTS.md', report['changed_original_paths'])
+            git('reset', '--hard', content_checkpoint)
             git('rm', 'compiler.c')
             git('commit', '-qm', 'delete original source')
             self.assertFalse(preserve.inspect(root, policy, 'HEAD')['preserved'])

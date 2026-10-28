@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import stat
 from pathlib import Path
 import subprocess
 
@@ -52,19 +53,36 @@ def inspect(repo: Path, policy: dict, revision: str) -> dict:
         counts[name] = counts.get(name, 0) + 1
         digest.update(json.dumps([path, *entry, name], ensure_ascii=True,
                                  separators=(',', ':')).encode() + b'\n')
-        if current.get(path) != entry and path not in allowed:
+        selected = current.get(path)
+        reviewed_content_only = (path in allowed and selected is not None
+                                 and selected[:2] == entry[:2])
+        if selected != entry and not reviewed_content_only:
             changed.append(path)
     # Git tree comparison alone cannot qualify an edited working tree.
     raw = subprocess.run(['git', 'diff', '--name-only', '-z', revision, '--'],
                          cwd=repo, capture_output=True, check=True, timeout=30).stdout
-    dirty = [p.decode() for p in raw.split(b'\0') if p and p.decode() in baseline
-             and p.decode() not in allowed]
+    dirty = {p.decode() for p in raw.split(b'\0') if p and p.decode() in baseline
+             and p.decode() not in allowed}
+    # Reviewed content changes never permit removal, links or executable-mode changes.
+    for path in allowed & baseline.keys():
+        mode, kind, _ = baseline[path]
+        try:
+            actual = (repo / path).lstat()
+            regular = stat.S_ISREG(actual.st_mode)
+            executable = bool(actual.st_mode & 0o111)
+            preserved_shape = (kind == 'blob' and regular
+                               and mode in {'100644', '100755'}
+                               and executable == (mode == '100755'))
+        except FileNotFoundError:
+            preserved_shape = False
+        if not preserved_shape:
+            dirty.add(path)
     return {'schema': 'nanolang/source-preservation-report@1',
             'baseline_commit': policy['baseline_commit'], 'revision': revision,
             'original_entries': len(baseline), 'owners': counts,
             'inventory_sha256': digest.hexdigest(),
             'inventory_format': 'sorted JSONL [path, Git mode, Git type, Git object ID, preservation owner]',
-            'changed_original_paths': changed, 'dirty_original_paths': dirty,
+            'changed_original_paths': changed, 'dirty_original_paths': sorted(dirty),
             'preserved': not changed and not dirty,
             'native_lifecycle_qualified': False,
             'limits': 'Git custody only; original Git object IDs are not file SHA256 or native SBOM/toolchain admission'}

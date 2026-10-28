@@ -27,7 +27,7 @@ compiler lifecycle. I did not apply the plan. LITAI-001.7 records the inspector 
 ## Native lifecycle and custody
 
 I preserve GNUmakefile -> Makefile.gnu and the BSD Makefile bridge. My real entry points include `make build`,
-`make test`, `make testquick`, `make test-one-ir-compiler`, bootstrap scripts and `make install PREFIX=...`.
+`make test`, `make test-quick`, `make test-one-ir-compiler`, bootstrap scripts and `make install PREFIX=...`.
 I must run install parity with a fresh PREFIX, not mistake DESTDIR or VSCode package-json for native packaging.
 I retain `src/`, `src_nano/`, `modules/`, `std/`, `stdlib/`, `tests/`, `formal/`, `scripts/`, bin/lib/obj and
 bootstrap checkpoints. Bootstrap guards bind absolute root and shadow budgets. `make test` temporarily
@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:8f073bc81c6e6788c8ea7b94e8e9cf53ec75b02cdb9d275bc7bc79b268ad95ad -->
+<!-- literate-ai:authority-reviewed sha256:177d5a1e702a3876e373996cea16ba4bb7a78cbb6410575ef5d24273144036a8 -->
 
 ## My first metadata checkpoint
 
@@ -94,3 +94,13 @@ At my fresh #995 check the integration head is still `b7c20ea901a930d211612ec9d6
 Xcode compiler-contract qualification and Memory Sanitizers have failed; Linux compiler-contract and Xcode
 retirement jobs are running. #1038's triggered proof/security checks pass, but those do not establish fresh
 Linux/Xcode compiler or sanitizer acceptance after integration. I leave these runs and required gates intact.
+
+## My independent review correction
+
+My first checker exempted the five reviewed metadata files too broadly: an isolated Git fixture proved that
+deleting an exempted file still reported preservation. I corrected this before treating custody qualification
+as complete. Reviewed edits now permit content changes only; original path, Git type/mode and actual regular
+file/executable mode must remain intact. New dirty and committed deletion, symlink and mode controls all refuse,
+while reviewed content edits pass. My unchanged 89,977-entry source check passes with the corrected guard.
+The review also corrected the documented native command to `make test-quick`; I changed no native entry point.
+All 67 original scope bullet rows remain byte-identical.
