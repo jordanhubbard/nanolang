@@ -17,6 +17,7 @@ from literate_ai.adapters.retained_project_inputs import discover_retained_proje
 from literate_ai.cli.execution_workers import select_execution_worker
 from literate_ai.contracts.identity import ContentIdentity, canonical_identity
 from literate_ai.contracts.retained_project import RetainedProjectLimits
+from literate_ai.contracts.retained_project_acceptance import RetainedProjectAcceptanceCase, RetainedProjectAcceptancePolicy
 from literate_ai.contracts.retained_project_lifecycle import RetainedProjectAction, RetainedProjectProfile
 from literate_ai.contracts.retained_project_tests import RetainedProjectExpectedCase, RetainedProjectTestPolicy
 from literate_ai.contracts.testing import ProjectTestReceiptPolicy
@@ -26,6 +27,16 @@ RETAINED = 'literate/retained'
 POLICY = f'{RETAINED}/test-policy.json'
 PROFILE = f'{RETAINED}/profile.json'
 MANIFEST = 'literate/verification/retained-manifest.json'
+# The verifier-owned acceptance policy must sit outside every manifest root (the framework withholds it).
+ACCEPTANCE = 'verification/retained-project-acceptance.json'
+# Built executables whose exact exit, stdout and stderr I record. I only pick output that carries no build
+# time, absolute path or argv[0]: `nanoc_c --version` embeds a build timestamp, so it cannot be a case.
+ACCEPTANCE_CASES = (
+    ('nano-vm-rejects-unknown-option', 'bin/nano_vm', ('--bogus',)),
+    ('nanoisa-emitter-entry-assertions', 'bin/nanoisa_emitter', ()),
+    ('parser-entry-assertions', 'bin/parser', ()),
+    ('nvm2c-usage', 'bin/nvm2c', ()),
+)
 TOOLS = ('build-native', 'host-make', 'run-cases')
 # Roots and the ownership role each carries. Everything under a root takes its role.
 ROLES = {
@@ -70,6 +81,44 @@ def require_clean():
         sys.exit('retained roots must be clean and tracked; found:\n' + dirty[:600])
 
 
+def component_locks():
+    """The component-lock tuple of the current reviewed plan, from the read-only plan I already require."""
+    plan = subprocess.run(
+        ['litai', 'build', '--project', '.', '--retained-project', MANIFEST, '--retained-project-profile', PROFILE,
+         '--retained-project-plan'], cwd=ROOT, capture_output=True, text=True)
+    try:
+        return tuple(ContentIdentity.parse_uri(u) for u in json.loads(plan.stdout)['result']['plan']['component_locks'])
+    except (ValueError, KeyError):
+        sys.exit('cannot read component locks from the read-only plan; refresh the manifest and profile first:\n' + plan.stdout[:400])
+
+
+def observe(executable, argv):
+    """Run one built executable twice from a neutral directory with an empty environment; refuse unstable output."""
+    import tempfile
+    seen = []
+    for _ in range(2):
+        with tempfile.TemporaryDirectory() as cwd:
+            result = subprocess.run([str(ROOT / executable), *argv], cwd=cwd, env={}, input=b'', capture_output=True, timeout=60)
+        seen.append((result.returncode, result.stdout, result.stderr))
+    if seen[0] != seen[1] or str(ROOT).encode() in seen[0][1] + seen[0][2]:
+        sys.exit(f'{executable} {argv}: output is not deterministic or embeds the tree path; it cannot be an acceptance case')
+    return seen[0]
+
+
+def write_acceptance():
+    cases = []
+    for case_id, executable, argv in ACCEPTANCE_CASES:
+        if not (ROOT / executable).is_file():
+            sys.exit(f'{executable} is not built; run `make build` first so I can record its exact output')
+        code, out, err = observe(executable, argv)
+        cases.append(RetainedProjectAcceptanceCase(case_id, 'accept', executable, argv, b'', code, out, err, 60))
+    policy = RetainedProjectAcceptancePolicy(component_locks(), tuple(cases))
+    target = ROOT / ACCEPTANCE
+    target.parent.mkdir(exist_ok=True)
+    target.write_text(json.dumps(policy.to_dict(), indent=2, sort_keys=True) + '\n')
+    return tuple(c[0] for c in ACCEPTANCE_CASES), digest(ACCEPTANCE)
+
+
 def digest(path):
     import hashlib
     return ContentIdentity.parse_uri('sha256:' + hashlib.sha256((ROOT / path).read_bytes()).hexdigest())
@@ -94,13 +143,14 @@ def main():
     # The profile must be a manifest member, and it names the manifest's role closures; so I write it
     # with placeholder closure identities, discover the manifest, then write the real profile and re-discover.
     worker = select_execution_worker(argparse.Namespace(), project_root=ROOT, target_profile=args.target)
+    accept_ids, acceptance_identity = write_acceptance()
     actions = (
         RetainedProjectAction('build', 'build', 'build-native', ('{output_root}',), (), ('native-build',), ('bin',), 21600),
         RetainedProjectAction('tests', 'test', 'run-cases', (POLICY, '{output_root}/test-result.json', 'tests'), ('build',),
                               tuple(cases), ('test-result.json',), 86400),
         RetainedProjectAction('docs', 'docs', 'host-make', ('userguide-export',), ('build',), ('userguide-export',), (), 7200),
         RetainedProjectAction('accept', 'accept', 'host-make', ('release-docs-check',), ('tests', 'docs'),
-                              ('release-docs-check',), (), 7200),
+                              accept_ids, (), 7200),
     )
     limits = RetainedProjectLimits(1_000_000, 512 * 1024 * 1024, 16 * 1024 * 1024 * 1024)
     executable = tuple(f'{RETAINED}/tools/{t}' for t in TOOLS)
@@ -110,7 +160,7 @@ def main():
         return RetainedProjectProfile(
             args.target, worker.worker.identity, toolchain, dependency, digest(POLICY), digest('literate.release.json'),
             tuple((t, f'{RETAINED}/tools/{t}', digest(f'{RETAINED}/tools/{t}')) for t in TOOLS),
-            actions, ('bin',),
+            actions, ('bin',), acceptance_identity,
         )
 
     def write_profile(p):
