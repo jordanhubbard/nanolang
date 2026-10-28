@@ -7171,8 +7171,8 @@
       "mode": 420,
       "path": "docs/ROADMAP.md",
       "role": "docs-definition",
-      "sha256": "67df13b249253b4e77dcba6a9c4f7bd545e60e89acb21e0a3f5bfce980e99ee3",
-      "size": 2137713
+      "sha256": "0304a6389f06353f0d251de492de27cc7ea3e15837e05c1a06d63e6ba265df02",
+      "size": 2138599
     },
     {
       "mode": 420,
@@ -604607,7 +604607,7 @@
       "mode": 420,
       "path": "docs/literate-ai/ADOPTION.md",
       "role": "docs-definition",
-      "sha256": "07512335fe3210beed41df4a499a3d8ff6402d189cff414abf636a35d5a4dadf",
+      "sha256": "a3046506145d4bead8432a506be62b338ffe1bf33a93184d33cbd7aef8d3b800",
       "size": 8719
     },
     {
