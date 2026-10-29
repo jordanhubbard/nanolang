@@ -565,20 +565,20 @@
   "schema": "literate-ai/retained-project-profile@1",
   "target": "host",
   "test_policy_identity": "sha256:130819184eb5c3edf66b72e60211ae594e78c9642236b9ca906b80cb3df2fc1e",
-  "toolchain_identity": "sha256:7dd6b9ef0acbd20478d4ecd4471de91f6fd67cbbe1a95cc6f1c39241afdf3740",
+  "toolchain_identity": "sha256:2ab432c05ca524f65f38933f64ab50ec929d91ff2ef0d3a438936ab5e068380f",
   "tools": [
     {
-      "identity": "sha256:b8d082a011ac029f2ba9084284cd5c7a81a1d0d5bb984dcb103f531d9040ebf2",
+      "identity": "sha256:c2a8a8879c323c3cd50c4e0d2d95c3d74c46fad5539222c385ef07918b68db38",
       "name": "build-native",
       "path": "literate/retained/tools/build-native"
     },
     {
-      "identity": "sha256:f317fcd6323cd6fa2b93eabf500cf07738b41a7266cbbb1891adf5092b214759",
+      "identity": "sha256:c2a8a8879c323c3cd50c4e0d2d95c3d74c46fad5539222c385ef07918b68db38",
       "name": "host-make",
       "path": "literate/retained/tools/host-make"
     },
     {
-      "identity": "sha256:39a592895a12b7efc7298de164c8767766ca2c5d14be0426ea84c720fd964031",
+      "identity": "sha256:c2a8a8879c323c3cd50c4e0d2d95c3d74c46fad5539222c385ef07918b68db38",
       "name": "run-cases",
       "path": "literate/retained/tools/run-cases"
     }

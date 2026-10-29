@@ -3564,6 +3564,7 @@
     "formal/sail",
     "include",
     "literate/retained/tools",
+    "literate/retained/tools/src",
     "modules",
     "modules/audio_helpers",
     "modules/audio_viz",
@@ -605139,7 +605140,7 @@
       "mode": 420,
       "path": "literate/retained/profile.json",
       "role": "build-definition",
-      "sha256": "36dfd7513d85d32c3e149ae679fd930a4a025d4171efbcbf68e67b2a3739c02e",
+      "sha256": "ce22dd140a57d5aa97303fda68472206636c62f6815835812994a290ac04157f",
       "size": 19787
     },
     {
@@ -605153,22 +605154,43 @@
       "mode": 493,
       "path": "literate/retained/tools/build-native",
       "role": "toolchain",
-      "sha256": "b8d082a011ac029f2ba9084284cd5c7a81a1d0d5bb984dcb103f531d9040ebf2",
-      "size": 191
+      "sha256": "c2a8a8879c323c3cd50c4e0d2d95c3d74c46fad5539222c385ef07918b68db38",
+      "size": 34928
     },
     {
       "mode": 493,
       "path": "literate/retained/tools/host-make",
       "role": "toolchain",
-      "sha256": "f317fcd6323cd6fa2b93eabf500cf07738b41a7266cbbb1891adf5092b214759",
-      "size": 213
+      "sha256": "c2a8a8879c323c3cd50c4e0d2d95c3d74c46fad5539222c385ef07918b68db38",
+      "size": 34928
+    },
+    {
+      "mode": 420,
+      "path": "literate/retained/tools/pins.txt",
+      "role": "toolchain",
+      "sha256": "4195e803e448db8adbb4f5111ba86ac31e29ab32899f042cd0f258aec9cdb34a",
+      "size": 1894
     },
     {
       "mode": 493,
       "path": "literate/retained/tools/run-cases",
       "role": "toolchain",
+      "sha256": "c2a8a8879c323c3cd50c4e0d2d95c3d74c46fad5539222c385ef07918b68db38",
+      "size": 34928
+    },
+    {
+      "mode": 493,
+      "path": "literate/retained/tools/run-cases.py",
+      "role": "toolchain",
       "sha256": "39a592895a12b7efc7298de164c8767766ca2c5d14be0426ea84c720fd964031",
       "size": 2005
+    },
+    {
+      "mode": 420,
+      "path": "literate/retained/tools/src/retained_launcher.c",
+      "role": "toolchain",
+      "sha256": "861d86cb0cdaab380122635584d9a2346ce8664d2b64e66c11e4eff1cb026413",
+      "size": 4725
     },
     {
       "mode": 420,
@@ -608725,6 +608747,13 @@
       "role": "build-definition",
       "sha256": "f295710748b0a38bc96391d9af0ab014ace57010deee5b2437ae63cce87740dc",
       "size": 9557
+    },
+    {
+      "mode": 493,
+      "path": "scripts/litai_retained_tools.py",
+      "role": "build-definition",
+      "sha256": "774751f81b1d27d060080839ffb6c4b4bfaac7fb9e6eb4745642368aef484fad",
+      "size": 3015
     },
     {
       "mode": 420,
