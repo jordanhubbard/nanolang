@@ -1,0 +1,20 @@
+{
+  "schema": "nanolang/excluded-native-artifacts@1",
+  "reason": "tracked native binaries are stale build outputs; the Makefile regenerates them",
+  "paths": [
+    "docs/evidence/ordinary-array-authority-integration/nanolang-array-d74-puck/controls/nvm_v2_convert-ordinary",
+    "docs/evidence/ordinary-array-authority-integration/nanolang-array-d74-puck/controls/nvm_v2_convert-ordinary.dSYM/Contents/Resources/DWARF/nvm_v2_convert-ordinary",
+    "docs/evidence/ordinary-array-authority-integration/nanolang-array-d74-puck/controls/nvm_v2_endtoend-ordinary",
+    "docs/evidence/ordinary-array-authority-integration/nanolang-array-d74-puck/controls/nvm_v2_endtoend-ordinary.dSYM/Contents/Resources/DWARF/nvm_v2_endtoend-ordinary",
+    "docs/evidence/ordinary-array-authority-integration/nanolang-array-d74-puck/controls/ordinary_record_authority-ordinary",
+    "docs/evidence/ordinary-array-authority-integration/nanolang-array-d74-puck/controls/ordinary_record_authority-ordinary.dSYM/Contents/Resources/DWARF/ordinary_record_authority-ordinary",
+    "docs/evidence/passive-internal-cfg-integration/nanolang-passive-integrated-6ae-puck/flow",
+    "docs/evidence/passive-internal-cfg-union-integration/nanolang-passive-933-puck/flow",
+    "docs/evidence/passive-internal-cfg/nanolang-passive-cfg-1f0db-puck/flow",
+    "tests/fuzzing/simple_fuzz_lexer",
+    "tests/nested_structs",
+    "tests/test_cond_comprehensive",
+    "tests/test_cond_minimal",
+    "tests/test_string_plus"
+  ]
+}
