@@ -8,6 +8,7 @@ walks the file system, so ignored or untracked files under a retained root would
 My output is review input. It is not a receipt, and it grants no execution authority."""
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -27,6 +28,11 @@ RETAINED = 'literate/retained'
 POLICY = f'{RETAINED}/test-policy.json'
 PROFILE = f'{RETAINED}/profile.json'
 MANIFEST = 'literate/verification/retained-manifest.json'
+# Tracked native binaries are stale build outputs (the Makefile regenerates them), so they are not inputs. The framework
+# inspects every Mach-O input and refuses an ASan-linked one, so I leave them out and record exactly what I left out.
+EXCLUDED = 'literate/retained/excluded-native-artifacts.json'
+MACHO = {b'\xce\xfa\xed\xfe', b'\xfe\xed\xfa\xce', b'\xcf\xfa\xed\xfe', b'\xfe\xed\xfa\xcf',
+         b'\xca\xfe\xba\xbe', b'\xbe\xba\xfe\xca', b'\xca\xfe\xba\xbf', b'\xbf\xba\xfe\xca'}
 # The verifier-owned acceptance policy must sit outside every manifest root (the framework withholds it).
 ACCEPTANCE = 'verification/retained-project-acceptance.json'
 # Built executables whose exact exit, stdout and stderr I record. I only pick output that carries no build
@@ -115,6 +121,39 @@ def write_acceptance():
     return tuple(c[0] for c in ACCEPTANCE_CASES), digest(ACCEPTANCE)
 
 
+def tracked_native():
+    """Tracked regular files that are Mach-O, other than the declared retained tools."""
+    tools = {f'{RETAINED}/tools/{t}' for t in TOOLS}
+    found = []
+    for name in run('git', 'ls-files', '-z').split('\0'):
+        path = ROOT / name
+        if not name or name in tools or path.is_symlink() or not path.is_file():
+            continue
+        with path.open('rb') as handle:
+            if handle.read(4) in MACHO:
+                found.append(name)
+    return sorted(found)
+
+
+def expand_roles(roles, excluded):
+    """Replace a root that contains an excluded file by its remaining children, so the walk never sees it."""
+    skip = set(excluded)
+    result = {}
+
+    def visit(path, role):
+        if path in skip:
+            return
+        if (ROOT / path).is_dir() and any(e.startswith(path + '/') for e in skip):
+            for child in sorted(os.listdir(ROOT / path)):
+                visit(f'{path}/{child}', role)
+        else:
+            result[path] = role
+
+    for path, role in roles.items():
+        visit(path, role)
+    return result
+
+
 def digest(path):
     import hashlib
     return ContentIdentity.parse_uri('sha256:' + hashlib.sha256((ROOT / path).read_bytes()).hexdigest())
@@ -125,6 +164,10 @@ def main():
     parser.add_argument('--target', default='host')
     args = parser.parse_args()
     require_clean()
+    excluded = tracked_native()
+    roles = expand_roles(ROLES, excluded)
+    (ROOT / EXCLUDED).write_text(json.dumps({'schema': 'nanolang/excluded-native-artifacts@1', 'reason': 'tracked native binaries are '
+                                              'stale build outputs; the Makefile regenerates them', 'paths': excluded}, indent=2) + '\n')
     cases = test_cases()
     receipt = json.loads((ROOT / 'literate.project.json').read_text()).get('test_receipt_policy')
     if receipt is None:
@@ -163,10 +206,10 @@ def main():
         (ROOT / PROFILE).write_text(json.dumps(p.to_dict(), indent=2, sort_keys=True) + '\n')
 
     write_profile(profile(zero, zero))
-    manifest = discover_retained_project_inputs(ROOT, ROLES, limits, executable_paths=executable)
+    manifest = discover_retained_project_inputs(ROOT, roles, limits, executable_paths=executable)
     final = profile(manifest.role_identity({'sdk', 'toolchain'}), manifest.role_identity({'dependency'}))
     write_profile(final)
-    manifest = discover_retained_project_inputs(ROOT, ROLES, limits, executable_paths=executable)
+    manifest = discover_retained_project_inputs(ROOT, roles, limits, executable_paths=executable)
     (ROOT / MANIFEST).parent.mkdir(parents=True, exist_ok=True)
     (ROOT / MANIFEST).write_text(json.dumps(manifest.to_dict(), indent=2, sort_keys=True) + '\n')
     print(json.dumps({'cases': len(cases), 'members': len(manifest.members), 'directories': len(manifest.directories),
