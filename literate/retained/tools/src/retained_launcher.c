@@ -120,7 +120,8 @@ int main(int argc, char **argv) {
         code = run(make);
         if (code != 0) return code;
         snprintf(destination, sizeof destination, "%s/bin", argv[2]);
-        char *copy_out[] = {"/bin/cp", "-R", "bin", destination, NULL};
+        /* -L: the framework refuses links in a sealed output, and bin/nanoc is a symlink to nanoc_c. */
+        char *copy_out[] = {"/bin/cp", "-RL", "bin", destination, NULL};
         return run(copy_out);
     }
     if (strcmp(name, "run-cases") == 0) {
