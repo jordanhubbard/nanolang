@@ -184,7 +184,7 @@ def main():
     worker = select_execution_worker(argparse.Namespace(), project_root=ROOT, target_profile=args.target)
     accept_ids, acceptance_identity = write_acceptance()
     actions = (
-        RetainedProjectAction('build', 'build', 'build-native', ('{output_root}',), (), ('native-build',), ('bin',), 21600),
+        RetainedProjectAction('build', 'build', 'build-native', ('{input_root}', '{output_root}'), (), ('native-build',), ('bin',), 21600),
         RetainedProjectAction('tests', 'test', 'run-cases', (POLICY, '{output_root}/test-result.json', 'tests'), ('build',),
                               tuple(cases), ('test-result.json',), 86400),
         RetainedProjectAction('docs', 'docs', 'host-make', ('userguide-export',), ('build',), ('userguide-export',), (), 7200),

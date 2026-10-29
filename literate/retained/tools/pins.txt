@@ -7,6 +7,7 @@ PATH	/Applications/Xcode.app/Contents/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:
 2840879786eb8868f03c3d378eef6c71d8416e15d8b14aebbf0c0cb80ad81c24	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib
 fe709619aab6d3b280cc22cb06d14432b3fa5fa7eb323e8d4817071410760f1b	/Applications/Xcode.app/Contents/Developer/usr/bin/make
 dff595035109e19c43c4b3e73ee08b5f4651e719f25f8b4713f819d28964dc19	/Applications/Xcode.app/Contents/Developer/usr/bin/python3
+69a801599d0b5d6908d97d487939c29b626442999af60b6dc57b58aa4824f751	/bin/chmod
 d7e1aa741105cfce82c6e7b2ea1359c715a570f86ce711e492c41315632ea182	/bin/cp
 84ca7f9b83021621e16059a1c7850df72a462d879e8239d566236ca6ddd00953	/bin/sh
 efb00fbd817f6f81d59427129d191cc5cfd408671b59c715569e5ebafc81454e	/opt/homebrew/Cellar/openssl@4/4.1.0/lib/libcrypto.4.dylib

@@ -101,17 +101,27 @@ int main(int argc, char **argv) {
         return run(args);
     }
     if (strcmp(name, "build-native") == 0) {
-        if (argc != 2) {
-            fprintf(stderr, "usage: build-native OUTPUT_ROOT\n");
+        /* The input tree is read-only and my working directory is the writable object root. I copy the tree
+         * here once, preserving modes and times so make sees it as up to date, make it writable, build in
+         * place, and export bin. Later actions (run-cases, host-make) run in this same directory. */
+        if (argc != 3) {
+            fprintf(stderr, "usage: build-native INPUT_ROOT OUTPUT_ROOT\n");
             return 2;
         }
-        char *make[] = {"/usr/bin/make", "build", NULL};
-        int code = run(make);
+        char source[PATH_MAX], destination[PATH_MAX];
+        snprintf(source, sizeof source, "%s/.", argv[1]);
+        char *copy_tree[] = {"/bin/cp", "-Rp", source, ".", NULL};
+        int code = run(copy_tree);
         if (code != 0) return code;
-        char destination[PATH_MAX];
-        snprintf(destination, sizeof destination, "%s/bin", argv[1]);
-        char *copy_args[] = {"/bin/cp", "-R", "bin", destination, NULL};
-        return run(copy_args);
+        char *writable[] = {"/bin/chmod", "-R", "u+w", ".", NULL};
+        code = run(writable);
+        if (code != 0) return code;
+        char *make[] = {"/usr/bin/make", "build", NULL};
+        code = run(make);
+        if (code != 0) return code;
+        snprintf(destination, sizeof destination, "%s/bin", argv[2]);
+        char *copy_out[] = {"/bin/cp", "-R", "bin", destination, NULL};
+        return run(copy_out);
     }
     if (strcmp(name, "run-cases") == 0) {
         char script[PATH_MAX];
