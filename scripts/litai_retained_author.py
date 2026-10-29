@@ -55,6 +55,22 @@ ROLES = {
     f'{RETAINED}/tools': 'toolchain', POLICY: 'test-policy', 'literate.release.json': 'release-policy',
 }
 
+# Every other tracked top-level path is still an input: the build reads tools/, tests read .github/, skills/ and the
+# root documents. Only framework-owned authority state is left out. Unlisted paths default to 'source' and are
+# written to literate/retained/input-roots.json for review.
+EXTRA_ROLES = {
+    'tools': 'build-definition', 'skills': 'build-definition', '.github': 'build-definition', 'githooks': 'build-definition',
+    '.gitattributes': 'build-definition', '.gitignore': 'build-definition', 'package.json': 'build-definition',
+    'packages.json': 'build-definition', 'mkdocs.yml': 'build-definition', 'settings.json': 'build-definition',
+    'planning': 'docs-definition', 'AGENTS.md': 'docs-definition', 'CHANGELOG.md': 'docs-definition',
+    'CLAUDE.md': 'docs-definition', 'CONTRIBUTING.md': 'docs-definition', 'CONTRIBUTORS.md': 'docs-definition',
+    'LICENSE': 'docs-definition', 'MEMORY.md': 'docs-definition', 'PROJECT.md': 'docs-definition',
+    'SKILL.md': 'docs-definition', 'SPEC_AUDIT.md': 'docs-definition',
+    'examples': 'test-definition', 'bench': 'test-definition',
+}
+FRAMEWORK_OWNED = {'.literate', 'verification', 'literate', 'literate.project.json'}
+INPUT_ROOTS = 'literate/retained/input-roots.json'
+
 
 def run(*args, check=True):
     return subprocess.run(args, cwd=ROOT, capture_output=True, text=True, check=check).stdout
@@ -79,9 +95,9 @@ def test_cases():
     return cases
 
 
-def require_clean():
+def require_clean(roles):
     generated = (POLICY, PROFILE, MANIFEST)
-    dirty = run('git', 'status', '--porcelain', '--ignored', '--', *[r for r in ROLES if (ROOT / r).exists()])
+    dirty = run('git', 'status', '--porcelain', '--ignored', '--', *[r for r in roles if (ROOT / r).exists()])
     dirty = '\n'.join(l for l in dirty.splitlines() if not l[3:].startswith(generated))
     if dirty.strip():
         sys.exit('retained roots must be clean and tracked; found:\n' + dirty[:600])
@@ -119,6 +135,19 @@ def write_acceptance():
     target.parent.mkdir(exist_ok=True)
     target.write_text(json.dumps(policy.to_dict(), indent=2, sort_keys=True) + '\n')
     return tuple(c[0] for c in ACCEPTANCE_CASES), digest(ACCEPTANCE)
+
+
+def complete_roles():
+    """ROLES plus every other tracked top-level path, except framework-owned authority state."""
+    roles = dict(ROLES)
+    added = {}
+    tops = sorted({name.split('/')[0] for name in run('git', 'ls-files', '-z').split('\0') if name})
+    for top in tops:
+        covered = any(r == top or r.startswith(top + '/') or top.startswith(r + '/') for r in ROLES)
+        if covered or top in FRAMEWORK_OWNED:
+            continue
+        roles[top] = added[top] = EXTRA_ROLES.get(top, 'source')
+    return roles, added
 
 
 def tracked_native():
@@ -163,9 +192,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--target', default='host')
     args = parser.parse_args()
-    require_clean()
+    base, added = complete_roles()
+    require_clean(base)
     excluded = tracked_native()
-    roles = expand_roles(ROLES, excluded)
+    roles = expand_roles(base, excluded)
+    (ROOT / INPUT_ROOTS).write_text(json.dumps({'schema': 'nanolang/retained-input-roots@1', 'added_roles': added,
+                                                'framework_owned_left_out': sorted(FRAMEWORK_OWNED)}, indent=2, sort_keys=True) + '\n')
     (ROOT / EXCLUDED).write_text(json.dumps({'schema': 'nanolang/excluded-native-artifacts@1', 'reason': 'tracked native binaries are '
                                               'stale build outputs; the Makefile regenerates them', 'paths': excluded}, indent=2) + '\n')
     cases = test_cases()
