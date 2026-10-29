@@ -1,5 +1,23 @@
 {
   "directories": [
+    ".claude",
+    ".codex",
+    ".cursor",
+    ".cursor/rules",
+    ".cursor/rules/code-quality",
+    ".cursor/rules/file-organization",
+    ".cursor/rules/testing-standards",
+    ".factory",
+    ".github",
+    ".github/ISSUE_TEMPLATE",
+    ".github/containers",
+    ".github/containers/instrumented",
+    ".github/workflows",
+    ".mac",
+    ".vscode",
+    "C-samples",
+    "agents",
+    "bench",
     "catalogs",
     "catalogs/messages",
     "docs/benchmarks",
@@ -3536,9 +3554,55 @@
     "docs/superpowers/plans",
     "docs/superpowers/specs",
     "docs/tutorials",
+    "editors",
+    "editors/emacs",
+    "editors/vim",
+    "editors/vim/ftdetect",
+    "editors/vscode",
+    "editors/vscode/nanolang",
+    "editors/vscode/nanolang/syntaxes",
+    "examples",
+    "examples/advanced",
+    "examples/api_lessons",
+    "examples/audio",
+    "examples/cross_backend",
+    "examples/data",
+    "examples/debug",
+    "examples/diagnostics",
+    "examples/emacs",
+    "examples/games",
+    "examples/gpu",
+    "examples/graphics",
+    "examples/graphics/assets",
+    "examples/hello_pkg",
+    "examples/icons",
+    "examples/integration",
+    "examples/language",
+    "examples/language/data",
+    "examples/language/forth",
+    "examples/large_project",
+    "examples/large_project/src",
+    "examples/lib",
+    "examples/mujoco",
+    "examples/mujoco/assets",
+    "examples/nanoisa",
+    "examples/network",
+    "examples/network/hello_public",
+    "examples/opengl",
+    "examples/opl",
+    "examples/opl/bundle",
+    "examples/opl/examples",
+    "examples/opl/examples/output",
+    "examples/physics",
+    "examples/playground",
+    "examples/playground/public",
+    "examples/properties",
+    "examples/terminal",
+    "examples/verified",
     "formal",
     "formal/extracted",
     "formal/sail",
+    "githooks",
     "include",
     "literate/retained/tools",
     "literate/retained/tools/src",
@@ -3612,11 +3676,27 @@
     "modules/uv",
     "modules/vector2d",
     "modules/websocket",
+    "planning",
+    "planning/archive",
+    "planning/archive/docs",
+    "playground",
     "schema",
     "schema/nsi",
     "schema/nsi/examples",
     "schema/nsi/modules",
     "scripts",
+    "skills",
+    "skills/github-issue-tracking",
+    "skills/nanovm-opcode-debugging",
+    "skills/reading-nanolang",
+    "skills/release-readiness",
+    "skills/releasing",
+    "skills/releasing/documentation",
+    "skills/releasing/lib",
+    "skills/releasing/presentation",
+    "skills/roadmap-execution",
+    "skills/session-completion",
+    "spec",
     "src",
     "src/actor",
     "src/dataflow",
@@ -3711,6 +3791,11 @@
     "tests/unit",
     "tests/unit/unions",
     "tests/user_guide",
+    "tools",
+    "tools/nanocore_ref",
+    "tools/vscode-nanolang",
+    "tools/vscode-nanolang/snippets",
+    "tools/vscode-nanolang/syntaxes",
     "userguide",
     "userguide/api_reference",
     "userguide/appendices",
@@ -3740,7 +3825,11 @@
     "userguide/part3_modules/19_terminal_ui",
     "userguide/part3_modules/20_testing",
     "userguide/part3_modules/21_configuration",
-    "userguide/part4_advanced"
+    "userguide/part4_advanced",
+    "vscode",
+    "vscode/out",
+    "vscode/src",
+    "vscode/syntaxes"
   ],
   "limits": {
     "max_entries": 1000000,
@@ -3750,10 +3839,318 @@
   "members": [
     {
       "mode": 420,
+      "path": ".claude/settings.json",
+      "role": "source",
+      "sha256": "ba2aef1c5d09cd978a3ede5fc4d8e9acfce4a08f2762510279bfa9bcc4814c3e",
+      "size": 615
+    },
+    {
+      "mode": 420,
+      "path": ".claude/settings.local.json",
+      "role": "source",
+      "sha256": "8d6e5cfd1f3c1956699869247cdf8803223199a94369e75987d1c4810ee57b77",
+      "size": 1282
+    },
+    {
+      "mode": 420,
+      "path": ".codex/config.toml",
+      "role": "source",
+      "sha256": "3e9c20f0bed663b2b0962f39d948f12120732d4984f6953ee79053241f12db89",
+      "size": 88
+    },
+    {
+      "mode": 420,
+      "path": ".codex/hooks.json",
+      "role": "source",
+      "sha256": "ff4646d9eb26d98a6eac700601e9bcd8d9ac79aa9452e14a5a7a077b5fc2badd",
+      "size": 616
+    },
+    {
+      "mode": 420,
+      "path": ".cursor/.gitignore",
+      "role": "source",
+      "sha256": "396e3c9d22ce4ce53919500b40edb6bb2bae825bab3121a2280ee0ad3a6aef89",
+      "size": 7
+    },
+    {
+      "mode": 420,
+      "path": ".cursor/rules/code-quality/RULE.md",
+      "role": "source",
+      "sha256": "ec448afcdc554378ae0b31bba96ba5c9c8d87bbfae3a688b72d94c93317f87d4",
+      "size": 3298
+    },
+    {
+      "mode": 420,
+      "path": ".cursor/rules/file-organization/RULE.md",
+      "role": "source",
+      "sha256": "3ad7559cdb8d61383a1866ef858e6e043ed105df09e7296b0851ca207f83803c",
+      "size": 1262
+    },
+    {
+      "mode": 420,
+      "path": ".cursor/rules/literate-ai.mdc",
+      "role": "source",
+      "sha256": "e446e37ecc2acc3e9d96a04f5f255ee3f90212fb115633d4e4889e1dc5d12c5e",
+      "size": 174
+    },
+    {
+      "mode": 420,
+      "path": ".cursor/rules/testing-standards/RULE.md",
+      "role": "source",
+      "sha256": "eee1648800911a9ce5594366b2e98b5f55859f961a94d1016ab7b4873b85bb99",
+      "size": 2373
+    },
+    {
+      "mode": 420,
+      "path": ".cursor/worktrees.json",
+      "role": "source",
+      "sha256": "bcbb830af87909a7acfdbf2d8b7638df77c8b2d97baf692d6193d3b1f13b437c",
+      "size": 48
+    },
+    {
+      "mode": 420,
+      "path": ".cursorrules",
+      "role": "source",
+      "sha256": "ed994675c79343c541805b77c7dc1ad8cffeb3b4dbf87843e2c386a15ddf4c5e",
+      "size": 6290
+    },
+    {
+      "mode": 420,
+      "path": ".factory/PROJECT_RULES.md",
+      "role": "source",
+      "sha256": "6324029c2e9d18efebc5215a76d6016d960d71442dad5213449a9ab67a26013e",
+      "size": 8448
+    },
+    {
+      "mode": 420,
+      "path": ".gitattributes",
+      "role": "build-definition",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "mode": 420,
+      "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+      "role": "build-definition",
+      "sha256": "0c8d64f29fb4536513653bf8c97da30f3340e2041b91c8952db1515d6b23a7b3",
+      "size": 834
+    },
+    {
+      "mode": 420,
+      "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+      "role": "build-definition",
+      "sha256": "311b27135c5fc8f93aaed0a44c414ad6e355d459711791682ecc2f4660fac936",
+      "size": 948
+    },
+    {
+      "mode": 420,
+      "path": ".github/PULL_REQUEST_TEMPLATE.md",
+      "role": "build-definition",
+      "sha256": "0295eb075db8150ab752b253c960ae791b238a405fabc65177ea81b9bcbd16c0",
+      "size": 1242
+    },
+    {
+      "mode": 420,
+      "path": ".github/containers/instrumented/Dockerfile",
+      "role": "build-definition",
+      "sha256": "90d178ada955291c6dc86f027b5871e0a2fb22b8cba736503ebfdaf1ebd999e3",
+      "size": 2226
+    },
+    {
+      "mode": 420,
+      "path": ".github/containers/instrumented/README.md",
+      "role": "build-definition",
+      "sha256": "a99fba0caae2a232975f5540810fd4325c47495cce90483ae7eb665f42197151",
+      "size": 2762
+    },
+    {
+      "mode": 420,
+      "path": ".github/containers/instrumented/ubuntu.sources",
+      "role": "build-definition",
+      "sha256": "a198bf4b3119a8bc9355e33656a8537b9332b484935a937ddf94d68730170afb",
+      "size": 299
+    },
+    {
+      "mode": 420,
+      "path": ".github/workflows/backend-matrix.yml",
+      "role": "build-definition",
+      "sha256": "0ef35644b21c95239a7212418053e41a8ac09b5b2a67bce80c0194c353b9351a",
+      "size": 7131
+    },
+    {
+      "mode": 420,
+      "path": ".github/workflows/ci.yml",
+      "role": "build-definition",
+      "sha256": "ccdd2ba3622d3add571b6d96db49ad1c9c17c49db1434fc55d128c811edb687a",
+      "size": 44791
+    },
+    {
+      "mode": 420,
+      "path": ".github/workflows/litai-adoption-custody.yml",
+      "role": "build-definition",
+      "sha256": "6dc5c60c49d85e92df1d221dde6d6282cc54588aeceb0e7b622392d7f9176ed2",
+      "size": 1304
+    },
+    {
+      "mode": 420,
+      "path": ".github/workflows/proofs.yml",
+      "role": "build-definition",
+      "sha256": "05a2d3a53a5eb9634b5e8bfae172350cc92607d7a85311f4908ed48487802ba0",
+      "size": 587
+    },
+    {
+      "mode": 420,
+      "path": ".github/workflows/retirement-qualification.yml",
+      "role": "build-definition",
+      "sha256": "9315a270d6a455c17a3cc22d88732f45cb2e7a9ccc7d3ecefc4ff37011fe071d",
+      "size": 12779
+    },
+    {
+      "mode": 420,
+      "path": ".github/workflows/source-capture-toolchain-diagnostic.yml",
+      "role": "build-definition",
+      "sha256": "30aee778654db31a76ed977d7878f99454c390188e4590856d9b014cb80c23db",
+      "size": 5547
+    },
+    {
+      "mode": 420,
+      "path": ".github/workflows/userguide_pages.yml",
+      "role": "build-definition",
+      "sha256": "e71b28f0b34a18649e3fea645251bb2ba1633cb767a08ee36fb9cd1e22fd29a8",
+      "size": 2338
+    },
+    {
+      "mode": 420,
+      "path": ".gitignore",
+      "role": "build-definition",
+      "sha256": "98e9c7bbeccdaf602cafc4ef36ac51dcc22f442394e65fc66edd6c3b4b07b9b1",
+      "size": 2911
+    },
+    {
+      "mode": 420,
+      "path": ".mac/README.md",
+      "role": "source",
+      "sha256": "af37a3a8e7efe8b6b3503a15f3db06a745ab96a9bb16eaf53d0a1f9497bbb36f",
+      "size": 264
+    },
+    {
+      "mode": 420,
+      "path": ".mac/project.yaml",
+      "role": "source",
+      "sha256": "ab53e8b78e45687bdc595e49eba69b0635ff9376ca7fe38854142127e9a140a4",
+      "size": 516
+    },
+    {
+      "mode": 420,
+      "path": ".mcp.json",
+      "role": "source",
+      "sha256": "e1319e7dd82622a5a6604baab355b6eb2a80c89040c034e3884703968f0d6965",
+      "size": 145
+    },
+    {
+      "mode": 420,
+      "path": ".vscode/extensions.json",
+      "role": "source",
+      "sha256": "1f8832fe92fff5ea1af8e4e32aa5eba5f51b45333f09312bf88ccbb9ea6e43d0",
+      "size": 55
+    },
+    {
+      "mode": 420,
+      "path": ".vscode/settings.json",
+      "role": "source",
+      "sha256": "fb157feea75f00211d2f1ae71c839c6dd09c1fa3897fead1fab45dd7be59f698",
+      "size": 59
+    },
+    {
+      "mode": 420,
+      "path": ".vscode/tasks.json",
+      "role": "source",
+      "sha256": "8f962cb9fdcae7445379ae8c08bd765044237acef2af12efee7a2ff45c2f6835",
+      "size": 2222
+    },
+    {
+      "mode": 420,
+      "path": "AGENTS.md",
+      "role": "docs-definition",
+      "sha256": "acb8c0377f6b8a866abcfa173db2ab645eef3c9ad61b51dc1735830e02e81a48",
+      "size": 4910
+    },
+    {
+      "mode": 420,
+      "path": "C-samples/Makefile",
+      "role": "source",
+      "sha256": "081a3a31ccbead78c08a2f1db87e852fa00c31e4a7f2ee9f4b87e9ce0107b087",
+      "size": 1204
+    },
+    {
+      "mode": 420,
+      "path": "C-samples/README.md",
+      "role": "source",
+      "sha256": "79f0e054dc7f668aa0dd00315fa777fa8efbaefaf9472ad3f1e8838db13c0b68",
+      "size": 428
+    },
+    {
+      "mode": 420,
+      "path": "C-samples/checkers.c",
+      "role": "source",
+      "sha256": "b5af3cc2a6dcd4ba9da59a61b55856780c4d4490a8c0682e130f8f6d91a4c536",
+      "size": 37116
+    },
+    {
+      "mode": 420,
+      "path": "C-samples/pt2_state.c",
+      "role": "source",
+      "sha256": "390d8124467faabcb69b3dfa5e11cedec6bf7639e123a859983b004182a9c02a",
+      "size": 4048
+    },
+    {
+      "mode": 420,
+      "path": "CHANGELOG.md",
+      "role": "docs-definition",
+      "sha256": "2d95277b971e5bcdb49e6d209fafd774efe968deb110a486d6d2da23d547a4c2",
+      "size": 62172
+    },
+    {
+      "mode": 420,
+      "path": "CLAUDE.md",
+      "role": "docs-definition",
+      "sha256": "34e43e1998f8c69b30e937bdb8588cd0da05b8e90ab7c04a25eab12c62914e9e",
+      "size": 2245
+    },
+    {
+      "mode": 420,
+      "path": "CONTRIBUTING.md",
+      "role": "docs-definition",
+      "sha256": "30cef4774f9a3318bfd9b8bc336f7ae6e439b7f21b506e8251a5ccfc03ffad9a",
+      "size": 19575
+    },
+    {
+      "mode": 420,
+      "path": "CONTRIBUTORS.md",
+      "role": "docs-definition",
+      "sha256": "f351d826ee3db1cdd56b3a2ac4a3fc47115af710d28dd550f725726131920a9e",
+      "size": 714
+    },
+    {
+      "mode": 420,
       "path": "GNUmakefile",
       "role": "build-definition",
       "sha256": "5b0e30a30e733c4fc7171ecd027fc2727809bdb96c8471b3bdee813a7a22dcca",
       "size": 130
+    },
+    {
+      "mode": 420,
+      "path": "LICENSE",
+      "role": "docs-definition",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "size": 11357
+    },
+    {
+      "mode": 420,
+      "path": "MEMORY.md",
+      "role": "docs-definition",
+      "sha256": "7d9be605821240b49fa163a3bc9825fcd7e0edefcde2e7a0771d848738ac7fb5",
+      "size": 51396
     },
     {
       "mode": 420,
@@ -3771,10 +4168,80 @@
     },
     {
       "mode": 420,
+      "path": "PROJECT.md",
+      "role": "docs-definition",
+      "sha256": "204d06201aad60bdd577b463a5337a978a5437a3eebe83edb0e343fdc2cbff2b",
+      "size": 1519
+    },
+    {
+      "mode": 420,
       "path": "README.md",
       "role": "docs-definition",
       "sha256": "f6d337ed285766424a51cd69a64006b254bee7c1c7d1b7f21a1c4a256b00007a",
       "size": 20662
+    },
+    {
+      "mode": 420,
+      "path": "SKILL.md",
+      "role": "docs-definition",
+      "sha256": "b615fd09a04c51c772f53c8e6aef29cbfa87fdb46668ea151304a34433ba816c",
+      "size": 1573
+    },
+    {
+      "mode": 420,
+      "path": "SPEC_AUDIT.md",
+      "role": "docs-definition",
+      "sha256": "a322fcce47bba98b1f8b07ae083e29c30be4b7f59a1a02610f47d4ee351c4461",
+      "size": 9763
+    },
+    {
+      "mode": 420,
+      "path": "agents/openai.yaml",
+      "role": "source",
+      "sha256": "4755808f72a838e48ef406e46fc6b63791efee68721516659905a7db4143b8d4",
+      "size": 298
+    },
+    {
+      "mode": 420,
+      "path": "bench/ackermann.nano",
+      "role": "test-definition",
+      "sha256": "2373fb89c86896a4355225fe8d32f56e8fa359a95ca0904b1a56e54dddc5f048",
+      "size": 676
+    },
+    {
+      "mode": 420,
+      "path": "bench/fib.nano",
+      "role": "test-definition",
+      "sha256": "36114cf355bde6811fff891bbe634f1fdece4dba6e6247ad4f1fdb0c54c82fea",
+      "size": 506
+    },
+    {
+      "mode": 420,
+      "path": "bench/fib_iter.nano",
+      "role": "test-definition",
+      "sha256": "882ecbb6e11d0583045effdbe03f0f5733928571e2d642a30e37d26eb09d4edf",
+      "size": 678
+    },
+    {
+      "mode": 420,
+      "path": "bench/primes.nano",
+      "role": "test-definition",
+      "sha256": "59fb494b229c4d0f9e792572f55ebfd7bcfa9f1657847f2ca39fb081e04a6cc5",
+      "size": 1109
+    },
+    {
+      "mode": 420,
+      "path": "bench/string_ops.nano",
+      "role": "test-definition",
+      "sha256": "6a57c3788599ca857894edcb1c00eb387e10e36787a4f3e87a0d4919ed2891ff",
+      "size": 1375
+    },
+    {
+      "mode": 420,
+      "path": "bench/sum_loop.nano",
+      "role": "test-definition",
+      "sha256": "1cdb829b47407063bceb986a56382e0d0cd57d495d4960169d6c72469137346d",
+      "size": 793
     },
     {
       "mode": 420,
@@ -604791,6 +605258,2673 @@
     },
     {
       "mode": 420,
+      "path": "editors/README.md",
+      "role": "source",
+      "sha256": "9f77734ce1f2f801d505ebf6a2adaf23b6b71a21aa6de43b49aab0196d637407",
+      "size": 3336
+    },
+    {
+      "mode": 420,
+      "path": "editors/emacs/README.md",
+      "role": "source",
+      "sha256": "c5fd32aa7e56bf847db18f08018e3c3b720e22cc324ff9e347cc88134f7ffba2",
+      "size": 2411
+    },
+    {
+      "mode": 420,
+      "path": "editors/emacs/nanolang-mode.el",
+      "role": "source",
+      "sha256": "c13d42bee5f103f9acb5c05c6a100626806b356c5bac9e1b78ae3adc1896278e",
+      "size": 3955
+    },
+    {
+      "mode": 420,
+      "path": "editors/vim/README.md",
+      "role": "source",
+      "sha256": "8fc48e54f169ae6815b658ac0f08b4c7c3fec0f8d4113af7d2570ee8f672d139",
+      "size": 1346
+    },
+    {
+      "mode": 420,
+      "path": "editors/vim/ftdetect/nanolang.vim",
+      "role": "source",
+      "sha256": "110169bddfff98b8baaa1b4555276d4dcc096ae737f90d340f32da0648bff53c",
+      "size": 86
+    },
+    {
+      "mode": 420,
+      "path": "editors/vim/nanolang.vim",
+      "role": "source",
+      "sha256": "71e32497dcf57f014adf6f8977649a60659cd2101917cf7e827443af3d5c63a6",
+      "size": 1890
+    },
+    {
+      "mode": 420,
+      "path": "editors/vscode/README.md",
+      "role": "source",
+      "sha256": "eb8e0f0b2f44d0d1dc284a69dca73b7a5e13e26e446f1c1e62c80a9bf27c5d6e",
+      "size": 1009
+    },
+    {
+      "mode": 420,
+      "path": "editors/vscode/extension.js",
+      "role": "source",
+      "sha256": "1b1d8d344ccfb8f27acd9f17184d9b0de40641b072acf948752a476d6602b7b0",
+      "size": 3135
+    },
+    {
+      "mode": 420,
+      "path": "editors/vscode/nanolang/language-configuration.json",
+      "role": "source",
+      "sha256": "5607496227a0a64971fcdcd040cf2e67398dbeb2a938f4df146a0b8e6df130dc",
+      "size": 521
+    },
+    {
+      "mode": 420,
+      "path": "editors/vscode/nanolang/package.json",
+      "role": "source",
+      "sha256": "107a8ea8f592d890729b94d4e81fbb956c34b8c7cd51bfe633d6aba7c1234597",
+      "size": 599
+    },
+    {
+      "mode": 420,
+      "path": "editors/vscode/nanolang/syntaxes/nanolang.tmLanguage.json",
+      "role": "source",
+      "sha256": "80baeb4110fe3603030f76f76a664dfd37475028266869e6aa85b447ebecbdd6",
+      "size": 3484
+    },
+    {
+      "mode": 420,
+      "path": "editors/vscode/package.json",
+      "role": "source",
+      "sha256": "39d873bd24be9413d68bc22b73f6b28e4c28213016301b823997904d5914c558",
+      "size": 893
+    },
+    {
+      "mode": 420,
+      "path": "examples/.gitignore",
+      "role": "test-definition",
+      "sha256": "71254a98c85a7a4df869dedb3f8426af1dcff1caa39ba9de6ecf1ec888ff26de",
+      "size": 5
+    },
+    {
+      "mode": 420,
+      "path": "examples/Makefile",
+      "role": "test-definition",
+      "sha256": "f2d26a0ef64d97808c977352baf746dedba6c234853685a8ba1a5dc71b53f723",
+      "size": 38806
+    },
+    {
+      "mode": 420,
+      "path": "examples/PROTRACKER_CLONE.md",
+      "role": "test-definition",
+      "sha256": "a663b5a387d61400fdd93500c2f2899a11d5d5adf603d82c31669da2d3d032c3",
+      "size": 12291
+    },
+    {
+      "mode": 420,
+      "path": "examples/README.md",
+      "role": "test-definition",
+      "sha256": "380a78c25773f0e05b3035a02deb4ef94639d211f6025063e57b69817c7b4472",
+      "size": 2626
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/datetime_demo.nano",
+      "role": "test-definition",
+      "sha256": "9b19f623312a7104adbb8596d27823dc7596e49dc4719b0c9c52e6c1434b9e13",
+      "size": 5674
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/error_handling_patterns.nano",
+      "role": "test-definition",
+      "sha256": "96259803d89a9fe95e0dcc84bfc2cb0f659aa6b160ff6a95ccd552bb9ee0e4b7",
+      "size": 6120
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/event_example.nano",
+      "role": "test-definition",
+      "sha256": "42620b44eb0a1b9285205b32f2fb5b31e213bc9eafe3bdfc641c654e0796dc89",
+      "size": 1394
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/ffi_tutorial.nano",
+      "role": "test-definition",
+      "sha256": "4e3e8426222399c80474b97b4518fdb36feaae83cbf7858fd54a7d6dc8eeabc2",
+      "size": 6194
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/libc_demo.nano",
+      "role": "test-definition",
+      "sha256": "8b7d4c426fac2aa516880d22e42fc098d26d3e3b8f204c71b575c3f791a67363",
+      "size": 2516
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/mac_assert_with_task.nano",
+      "role": "test-definition",
+      "sha256": "f9a5f265b28ff143c9ba689adea229847f9d315180e352b3a3c6be1f9cf36913",
+      "size": 5238
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/mac_basic_usage.nano",
+      "role": "test-definition",
+      "sha256": "97f210d5d36679b60684d80d695b2838cb5c8cb37d524109f46ca829ca501d85",
+      "size": 2344
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/mac_workflow_automation.nano",
+      "role": "test-definition",
+      "sha256": "ea873ad1922e1cd909356cdde132f1d9a217bb2ebea64438f46934f2ac55da2b",
+      "size": 7337
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/math_ext_demo.nano",
+      "role": "test-definition",
+      "sha256": "72134dfe0289415ce4434f743c4a03c40d222fa639bc59c211dd5b8a9ac23c93",
+      "size": 10454
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/math_helper.nano",
+      "role": "test-definition",
+      "sha256": "f77867026ba01a0b28733da62ad5a70ca42bb9bec8df13e85b962f2471e51acf",
+      "size": 825
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/module_introspection_demo.nano",
+      "role": "test-definition",
+      "sha256": "7cd509b8f44afbf68420a0cb42d0ab950b9d60ec2265cc0dd6a9ee8a90aa2b06",
+      "size": 2332
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/namespace_demo.nano",
+      "role": "test-definition",
+      "sha256": "89b7e60f4f42d1f0a02b0f9cb77eacb6c2003929bb843cbf6862d23191c56357",
+      "size": 5352
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/performance_optimization.nano",
+      "role": "test-definition",
+      "sha256": "398cfb1b2abd5ac3abbb529488ddad37d5a984590a7d27c76b7c7175a6621131",
+      "size": 8880
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/regex_demo.nano",
+      "role": "test-definition",
+      "sha256": "613dc35a925b24d6db3983442941885717ab0d0babc86555f6aaf749a59d0318",
+      "size": 8968
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/regex_demo_simple.nano",
+      "role": "test-definition",
+      "sha256": "e5af6df6199f763d9f757f43692fc4ac7ec14e50c3c97dae7f187f98b27701a3",
+      "size": 4469
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/sqlite_simple.nano",
+      "role": "test-definition",
+      "sha256": "77f6151cb81a58803c688d1b0fa1bdccf598d4f2ddbafd510d803a5e42532971",
+      "size": 5094
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/stdio_file_processor.nano",
+      "role": "test-definition",
+      "sha256": "e2df4264abe5ff0b67d11a6935077bba4f4154827692b2f3cd986e6122cf5455",
+      "size": 3704
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/stdlib_ast_demo.nano",
+      "role": "test-definition",
+      "sha256": "830959532ed7de73fd03ae3df45bee2c4947afa931c83d296036dfa3adcfd4c8",
+      "size": 4776
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/testing_strategies.nano",
+      "role": "test-definition",
+      "sha256": "fb98c8a34ec5c2f0767df74916b0eff8373777f18f788ff3197095cb59774df6",
+      "size": 8848
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/ui_code_display_demo.nano",
+      "role": "test-definition",
+      "sha256": "da6a4c75bff012314cef85127c06ce562c1a5f61c1485a29b7c593872625a890",
+      "size": 6006
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/unicode_demo.nano",
+      "role": "test-definition",
+      "sha256": "cd3c1b1ff932f0619f67549d3ce858c807a23b63db889dd7b644cc152fcf3c4c",
+      "size": 3151
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/unsafe_demo.nano",
+      "role": "test-definition",
+      "sha256": "0b2b35391badac92ccc5575f841d76ca60412ffeb6f210e171f4d92e9cca2c2a",
+      "size": 2653
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/uv_example.nano",
+      "role": "test-definition",
+      "sha256": "da9ab678d02070de90e3b41b0c3a26e8ab595676a6ab9dc35f3108bc169772e6",
+      "size": 1451
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/vector2d_demo.nano",
+      "role": "test-definition",
+      "sha256": "9725217135ffbadac81a97277052afe34cd7932cb0e3e5d291c4c38c0727362a",
+      "size": 1771
+    },
+    {
+      "mode": 420,
+      "path": "examples/advanced/vector2d_physics_simple.nano",
+      "role": "test-definition",
+      "sha256": "babbf892d5c7ea8bc08f0eb4f0e272f051e9c8a31fba6b1605ec3eb98f83867c",
+      "size": 2971
+    },
+    {
+      "mode": 420,
+      "path": "examples/agentos_ipc_schema.nano",
+      "role": "test-definition",
+      "sha256": "a743e703f315b496df8ca089bf664d2fd4c81733345aef9e4ebd016380ccd584",
+      "size": 1484
+    },
+    {
+      "mode": 420,
+      "path": "examples/ai_github_agent.nano",
+      "role": "test-definition",
+      "sha256": "87376930d21a8501c5996f7086d5f251113686a49ec95c7c11c0dd9831bb853b",
+      "size": 1917
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/array_utils_api.nano",
+      "role": "test-definition",
+      "sha256": "68dd03cd1591fa49adbaa9707468bd7d01033f6db05f0b855b72b2f5cdacddf1",
+      "size": 879
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/audio_helpers_api.nano",
+      "role": "test-definition",
+      "sha256": "f0079f61e96ff7a47ad4790685a1e70d265744151889f833336ca0a3b9be7c83",
+      "size": 961
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/binary_api.nano",
+      "role": "test-definition",
+      "sha256": "4a34d2816525161034411a776cd0da7c2fba3557df1ca8e47082254271c94cca",
+      "size": 2535
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/collections_hashmap_api.nano",
+      "role": "test-definition",
+      "sha256": "7480785dc48e919adcc1bc39da6c90503c00efc2fe41d25235232e177e223172",
+      "size": 2508
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/collections_set_api.nano",
+      "role": "test-definition",
+      "sha256": "0122442f2ed94e8c29c6b63644b051b2d49e8574fa3df61ddfab69710e1d95ad",
+      "size": 1517
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/diagnostics_api.nano",
+      "role": "test-definition",
+      "sha256": "d39f595db54990399fee3ebdb8f8d9670eb17eef942aecc18ce2bd6b143040ba",
+      "size": 2591
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/dispatch_api.nano",
+      "role": "test-definition",
+      "sha256": "96c46846a84e46a19a1a0d200709c972aa1d44cc4db2378e602fc0a14d787fe4",
+      "size": 1962
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/env_api.nano",
+      "role": "test-definition",
+      "sha256": "5d7096287da7c0135e3589653371a58d963415ff06f4e9865f40c6aa7e1e7cc8",
+      "size": 1139
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/examples_diag_api.nano",
+      "role": "test-definition",
+      "sha256": "33850bc58a3e5c7d78b9cd55adfb9509d4a1c76336f830b54f6eb66359045359",
+      "size": 1094
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/fs_api.nano",
+      "role": "test-definition",
+      "sha256": "f0f0010297b8fe2b8d34b35b467cb1160a32b427b9a40c2a0686cdeac2b37c29",
+      "size": 1713
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/glut_helpers_api.nano",
+      "role": "test-definition",
+      "sha256": "cb3a7846c358b0b27792ea1315dc72c4b15b927f7da78fe8603b30892f80f97a",
+      "size": 1383
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/json_api.nano",
+      "role": "test-definition",
+      "sha256": "768591bde5f43b79924dbdffd7f2002bf660d2525ffe4ff00e40c66ef017bc6e",
+      "size": 1568
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/log_api.nano",
+      "role": "test-definition",
+      "sha256": "f9dbb5395878959d3274b7ba32be4af47b623205d87c4149fa63d567df77ad09",
+      "size": 1562
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/math_array_ops_api.nano",
+      "role": "test-definition",
+      "sha256": "630b1dbf449d1e00b4950e7eec9967bbbbabefde34ffb305b06f3c57723cb7eb",
+      "size": 2634
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/math_complex_api.nano",
+      "role": "test-definition",
+      "sha256": "76ace1b05a31e6560a91a6875f61a9607bf4f7e6e6c4250fe8542dabd6a56f38",
+      "size": 2082
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/math_ext_api.nano",
+      "role": "test-definition",
+      "sha256": "fe1b3bb58dbb2eaeadd8d5de73e479246153e3b41fa5318ff9fc0dbd658a0638",
+      "size": 2072
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/math_extended_api.nano",
+      "role": "test-definition",
+      "sha256": "159650723a95250a8997502f776760114957e7be672490ceca82d851a406c187",
+      "size": 2640
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/math_matrix4_api.nano",
+      "role": "test-definition",
+      "sha256": "abb2393dad84c2f95da5c37524d414d86da88dc8159f195078b75854ac4f8ea3",
+      "size": 2166
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/math_quaternion_api.nano",
+      "role": "test-definition",
+      "sha256": "a832577635aa8659098e1e80a94d9624af1a261d8d80574c9704006b49db32e2",
+      "size": 1988
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/math_vector2d_api.nano",
+      "role": "test-definition",
+      "sha256": "970b3194a4c9b7b654d5c8e85bf9f04cca63a731ef4d0cb2fc565bd43dbb7b39",
+      "size": 2229
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/math_vector3d_api.nano",
+      "role": "test-definition",
+      "sha256": "837a1c0697c4c6ea6fb054acfe54b07234e26f29449fd81403127dbb7b26b03c",
+      "size": 2449
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/math_vector4d_api.nano",
+      "role": "test-definition",
+      "sha256": "5e8fe892e55fd44debcbd08901f780f8157cb05ba2eed3b9a4ce520c31000487",
+      "size": 2013
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/nano_highlight_api.nano",
+      "role": "test-definition",
+      "sha256": "24f8a88d0a955a327e1e7c04696992e739b587a7972e7bce884c1b0cf1abb7c2",
+      "size": 1178
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/peg2_api.nano",
+      "role": "test-definition",
+      "sha256": "47c300f065fc2055664b0050058e25d966c39ccf2a18980b658bb7e1b39ff035",
+      "size": 1978
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/peg_api.nano",
+      "role": "test-definition",
+      "sha256": "54532af6cbb685f197b1024e7d5b4ea7c112882410bc5bcd7f4bd56055ce6793",
+      "size": 1850
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/preferences_api.nano",
+      "role": "test-definition",
+      "sha256": "7e286a629d5fe9349819ec385f6eaffec342e9d815c96adc20d9da1802309767",
+      "size": 1553
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/process_api.nano",
+      "role": "test-definition",
+      "sha256": "5d6f9ffb25b896d0d0085a11a7b0350b082222de083e7edaf460ff5185c1ac86",
+      "size": 1655
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/proptest_api.nano",
+      "role": "test-definition",
+      "sha256": "2cbab6a6663d19d6d5eae1e40518947a0c48060f523e43b93edb99849ef80ed9",
+      "size": 1543
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/pt2_audio_api.nano",
+      "role": "test-definition",
+      "sha256": "0f4848b5127b2db1834e6a3e71803b747e53b3427a0b066db9bac7d70234ac42",
+      "size": 1423
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/pt2_module_api.nano",
+      "role": "test-definition",
+      "sha256": "ed9a81b08b06cff9a1e50ea40ced2683affec6d5e7815d0002c936c693ebb6e7",
+      "size": 1842
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/pt2_state_api.nano",
+      "role": "test-definition",
+      "sha256": "017cfe300f8606c123a36a7e59973950fdfe6d72e87397cd0ed2bc14e9ad1471",
+      "size": 3330
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/pybridge_api.nano",
+      "role": "test-definition",
+      "sha256": "9ad8fef01b0b9fe731f2cadf4682c83ae57717398dc3edbd093953d338d4809f",
+      "size": 1774
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/pybridge_matplotlib_api.nano",
+      "role": "test-definition",
+      "sha256": "88a9a33a0975f0545a7e0a0657ebb51fae7ed65091a0e64fabc2c7da33247aa3",
+      "size": 1173
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/result_api.nano",
+      "role": "test-definition",
+      "sha256": "ee6935acac5507b1fd62d8019df8f2fd8bd686e1f279892f40a9b169284181e2",
+      "size": 1252
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/sdl_image_safe_api.nano",
+      "role": "test-definition",
+      "sha256": "94fb74f54e3aac837d28489732e7aec9b619ba5d92709151fddcf7d54a0ba7bf",
+      "size": 2864
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/std_lib_api.nano",
+      "role": "test-definition",
+      "sha256": "b74725b1f7128917eff967c920a93868ded17a519fbb6926ef0285fb9c430f14",
+      "size": 684
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/stdio_api.nano",
+      "role": "test-definition",
+      "sha256": "cad2ef9ddfd18cc487a56bfabef8ba18dd669b5eeb70a2757da23f7b9c04bae4",
+      "size": 1202
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/stringbuilder_api.nano",
+      "role": "test-definition",
+      "sha256": "e3cf6962a98032f17cdc6bf7daa1ad3fc184589b77e5a91e34a8b6938fc402b4",
+      "size": 1872
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/tidy_api.nano",
+      "role": "test-definition",
+      "sha256": "0a9726c44286d144f76b0465f38e6418589a175a685a337240f000a374633319",
+      "size": 1088
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/vector2d_api.nano",
+      "role": "test-definition",
+      "sha256": "02f60e86e33832c61d99dc1270f34bb746e24e0afc3a56d5ca5e5146e8b79b51",
+      "size": 2003
+    },
+    {
+      "mode": 420,
+      "path": "examples/api_lessons/websocket_api.nano",
+      "role": "test-definition",
+      "sha256": "87bb5b246a1c528b0f83d26897446a8c3cf3a7ce2fa2636a92a5155efc5cb531",
+      "size": 1266
+    },
+    {
+      "mode": 420,
+      "path": "examples/audio/README.md",
+      "role": "test-definition",
+      "sha256": "8079c0f3fd2f4dd693a0945b44319c870a7dfab73d7d339df8f36eeb07dd1700",
+      "size": 1888
+    },
+    {
+      "mode": 420,
+      "path": "examples/audio/gabba-studies-12.mod",
+      "role": "test-definition",
+      "sha256": "edcf9cfbbe586690f8903d6d8e8544299a2120a4adc733840c257dd6db4c8ea7",
+      "size": 229496
+    },
+    {
+      "mode": 420,
+      "path": "examples/audio/nanoamp_playlist_harness.nano",
+      "role": "test-definition",
+      "sha256": "61a9b8b8ad369297a43ba651a5bc377201dbdbf90b5c6e19af850482d86fd2f4",
+      "size": 6282
+    },
+    {
+      "mode": 420,
+      "path": "examples/audio/nanolang-test-tone.wav",
+      "role": "test-definition",
+      "sha256": "7eb24c641b00701db22be60f2430fc4cc2468529d90d7d89584ecd51420fc61e",
+      "size": 132344
+    },
+    {
+      "mode": 420,
+      "path": "examples/audio/sdl_audio_player.nano",
+      "role": "test-definition",
+      "sha256": "7e31a26d009a5a7f5d9436267e9519faaea8a5f88c661e70e6faff98204f1191",
+      "size": 12228
+    },
+    {
+      "mode": 420,
+      "path": "examples/audio/sdl_audio_wav.nano",
+      "role": "test-definition",
+      "sha256": "ce68cc4eeb0a04443e71115d60f0370bfea89a60682d4823d0e12abc316dfe78",
+      "size": 2940
+    },
+    {
+      "mode": 420,
+      "path": "examples/audio/sdl_mod_visualizer.nano",
+      "role": "test-definition",
+      "sha256": "863abb749dd7b6caed82f0e70441047a528a13ec36475bb9fdafe010d6e36b7d",
+      "size": 17735
+    },
+    {
+      "mode": 420,
+      "path": "examples/audio/sdl_nanoamp.nano",
+      "role": "test-definition",
+      "sha256": "7a22af44daed4c830d1e3c705b0059ede4fd6cad0e1749f4f57fd90ec36f56b8",
+      "size": 41236
+    },
+    {
+      "mode": 420,
+      "path": "examples/audio/sdl_tracker_shell.nano",
+      "role": "test-definition",
+      "sha256": "f6b02d8725b5fae534bdbf583b5186a0d25f658191cf0b2b2df76c53b6f63d32",
+      "size": 60153
+    },
+    {
+      "mode": 420,
+      "path": "examples/bench_sample.nano",
+      "role": "test-definition",
+      "sha256": "cd79127bdd5f3fcb744d71c045c0cc71a689da3d54270634de9fd3b714811b06",
+      "size": 982
+    },
+    {
+      "mode": 420,
+      "path": "examples/cross_backend/hello_cross_backend.nano",
+      "role": "test-definition",
+      "sha256": "97a655dca856334b5c5c598fcd99d8154a37fcb813e8eddec9e942297071f877",
+      "size": 767
+    },
+    {
+      "mode": 420,
+      "path": "examples/data/json_demo.nano",
+      "role": "test-definition",
+      "sha256": "f9c8d9cb5db894228cd6e331e3997c96a23e80f67451f7a576edbb52d49aee7c",
+      "size": 3080
+    },
+    {
+      "mode": 420,
+      "path": "examples/data/json_errors_demo.c",
+      "role": "test-definition",
+      "sha256": "9c73a787ce8a24c5c8f7266585aacba7f69ea1710943acb9e85c668b1d112d1c",
+      "size": 1179
+    },
+    {
+      "mode": 420,
+      "path": "examples/debug/coverage_demo.nano",
+      "role": "test-definition",
+      "sha256": "a5cf4aefb6be8b61c905ed31cec33d7904b2ce5f3de0a3da376b3502e9214fd2",
+      "size": 3959
+    },
+    {
+      "mode": 420,
+      "path": "examples/debug/logging_demo.nano",
+      "role": "test-definition",
+      "sha256": "2abf44f694edf7163398608e9231fa1d514b6370d6a6ef82e4481aab4ff7e4f2",
+      "size": 2187
+    },
+    {
+      "mode": 420,
+      "path": "examples/debug/property_test_math.nano",
+      "role": "test-definition",
+      "sha256": "f2114f7ad6b98dfc621d7646ccaa9a77747a1c85c9910a6386404f6f025dd3f4",
+      "size": 9679
+    },
+    {
+      "mode": 420,
+      "path": "examples/debug/property_test_sorting.nano",
+      "role": "test-definition",
+      "sha256": "83b454f953bef0ad6d5ad78ed8bf26b95af922467d6c055140f92b6ff8574bfa",
+      "size": 7037
+    },
+    {
+      "mode": 420,
+      "path": "examples/diagnostics/llm_diags_type_mismatch.nano",
+      "role": "test-definition",
+      "sha256": "5fd9fbec328988bd4915257b126adda5200eaf57ed4f7527e4daed40b2227b7c",
+      "size": 639
+    },
+    {
+      "mode": 420,
+      "path": "examples/emacs/emacs_buffer.nano",
+      "role": "test-definition",
+      "sha256": "282e589db7a9c01b6bf4fa95c8143a1214960a4cc4f23b4f735e94c7dca90b6e",
+      "size": 4613
+    },
+    {
+      "mode": 420,
+      "path": "examples/emacs/emacs_keys.nano",
+      "role": "test-definition",
+      "sha256": "431954adacf043baf169b469efebed5d5a32c90f61a410437476a61b94eed7d1",
+      "size": 5806
+    },
+    {
+      "mode": 420,
+      "path": "examples/emacs/init.nano",
+      "role": "test-definition",
+      "sha256": "2ed6d3d11949972ed452ba592163cb76e0ff6276c8a90b76bbe841b46080b665",
+      "size": 273
+    },
+    {
+      "mode": 420,
+      "path": "examples/emacs/nano_emacs.nano",
+      "role": "test-definition",
+      "sha256": "d16d1d80badd6cd5f90c56a637cfdbe64c8d2ea55cef5600d6af54c31c84cc77",
+      "size": 18981
+    },
+    {
+      "mode": 420,
+      "path": "examples/fluid_sim.nano",
+      "role": "test-definition",
+      "sha256": "3b3728a7663019f967316ac09f52662d312fd7f85ab083df2c1be7f764947bcd",
+      "size": 6688
+    },
+    {
+      "mode": 420,
+      "path": "examples/games/sdl_asteroids.nano",
+      "role": "test-definition",
+      "sha256": "b073a90e6783a664379424e9f856ed07ab37af97ae8c8de612434dbf6e1e6ec0",
+      "size": 37160
+    },
+    {
+      "mode": 420,
+      "path": "examples/games/sdl_checkers.nano",
+      "role": "test-definition",
+      "sha256": "dd973af48ce3307a95f0d9e0ac612d805990b91397aa47e2ad06a2f9f827577a",
+      "size": 47517
+    },
+    {
+      "mode": 420,
+      "path": "examples/games/sdl_pong.nano",
+      "role": "test-definition",
+      "sha256": "589da8dbd504b522302fbe69d42c56c3f269377b6734df3e3543d4dafc1a07a2",
+      "size": 13247
+    },
+    {
+      "mode": 420,
+      "path": "examples/gpu/README.md",
+      "role": "test-definition",
+      "sha256": "5dc1cc85fc8d49adc49fdbade5be8a2a007407ef0d9f7a0412de689419ea61dd",
+      "size": 6670
+    },
+    {
+      "mode": 420,
+      "path": "examples/gpu/julia_flow.nano",
+      "role": "test-definition",
+      "sha256": "4437d881aa435eed6127cefe121a261d354539fe69bc79e898a87ed55f93b8f5",
+      "size": 14497
+    },
+    {
+      "mode": 420,
+      "path": "examples/gpu/matmul.nano",
+      "role": "test-definition",
+      "sha256": "71ae84c7e9d11e438d9df6ff8d4316f0a410feea9f02a482cb8092863425ee07",
+      "size": 7066
+    },
+    {
+      "mode": 420,
+      "path": "examples/gpu/reduce_sum.nano",
+      "role": "test-definition",
+      "sha256": "6d817bea5b32c9d61d1358948da832898c40bf9a7de0c0c740ad07dfb7817cd6",
+      "size": 3608
+    },
+    {
+      "mode": 420,
+      "path": "examples/gpu/saxpy.nano",
+      "role": "test-definition",
+      "sha256": "0199ed278b755afd31cb12f74110c4ca0bbd6d30864450fddb29258eb81c8773",
+      "size": 3941
+    },
+    {
+      "mode": 420,
+      "path": "examples/gpu/vector_add.nano",
+      "role": "test-definition",
+      "sha256": "ede9f6065be3817ae11cad2f5c440538294ce5968a26455629f25b02ca73b6e5",
+      "size": 5999
+    },
+    {
+      "mode": 420,
+      "path": "examples/gpu/vector_scale.nano",
+      "role": "test-definition",
+      "sha256": "128190ad8eac764505aa986355c45134c53551a7a2a7820ee2bba3dbaab062b0",
+      "size": 4493
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/assets/orb_sprite_sheet.png",
+      "role": "test-definition",
+      "sha256": "328b9c92bfb39fac76a05bd369969f1b28125dccd52e5da336900b6597047b86",
+      "size": 3980
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_boids.nano",
+      "role": "test-definition",
+      "sha256": "6bcc58bad55ace1a4103ccb8703943703364c4854e4a61edd68822087631bf92",
+      "size": 12157
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_drawing_primitives.nano",
+      "role": "test-definition",
+      "sha256": "6910591da3ac0de6e06a09be17a1f6fadb546fee85cf2c9db98691f975d8b66d",
+      "size": 3250
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_falling_sand.nano",
+      "role": "test-definition",
+      "sha256": "c2be58dd956c3e8ae76a9c4bfca5cbbb24f7590b82245d67a0bb6c9803f95aef",
+      "size": 24220
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_fire.nano",
+      "role": "test-definition",
+      "sha256": "196f49eacfd3e8a4de985bc3647bfd4cbcf39e11ae9697edd69f5f709503cc90",
+      "size": 8654
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_forth_ide.nano",
+      "role": "test-definition",
+      "sha256": "0d88c6abf05053c4130fb66e28b2d348b92756a0bd72aa27ae8417a79ddf6fad",
+      "size": 13908
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_game_of_life.nano",
+      "role": "test-definition",
+      "sha256": "d1553782d4846e813624e0757074fd403418ac2d73af6b281f79dabb28325666",
+      "size": 7835
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_glass_sphere.nano",
+      "role": "test-definition",
+      "sha256": "22b454249bfa131574c7b28240b16b0f0d431dfdd7d0e78ff94ad2e3165525f3",
+      "size": 18981
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_image_demo.nano",
+      "role": "test-definition",
+      "sha256": "4f152fa88a27ad0ac15f1f439760e16a2bda3ee97b36c4b674ef5f9e620eae52",
+      "size": 7639
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_image_sprite_animation.nano",
+      "role": "test-definition",
+      "sha256": "e8642b01c19f27ccdf865184878fd966511590fe125c84d6c4c2036dd5d180e0",
+      "size": 3563
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_image_tiled_background.nano",
+      "role": "test-definition",
+      "sha256": "449a3f17e2b6e9e24bbbe9bd85b2fa05cc40b360643d2d7aef084deb6cf06cde",
+      "size": 5767
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_mouse_click.nano",
+      "role": "test-definition",
+      "sha256": "5e740ab6fa613311a3e47f9d13010ae3d1cdca121f8c7c9765f79bd7da865a01",
+      "size": 4170
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_nanoviz.nano",
+      "role": "test-definition",
+      "sha256": "01edd32982c5879747b2073e97ac7274ec436c07f9de48143c9884df9acc7461",
+      "size": 19838
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_particles.nano",
+      "role": "test-definition",
+      "sha256": "508952d4199393eb86c0db644aac531c64d1a30bf6ba2bfb8f5040c1aea30a5d",
+      "size": 11111
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_physics_demo.nano",
+      "role": "test-definition",
+      "sha256": "c7a9beaab7edea331139dbadd2f527fbc85be17b3439aa5d1d83863701ebb10e",
+      "size": 12945
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_raytracer.nano",
+      "role": "test-definition",
+      "sha256": "e4899ca574506703dd01ca3c1432a4bed489ac89cce72f1d7def478dbfcda4bf",
+      "size": 17784
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_starfield.nano",
+      "role": "test-definition",
+      "sha256": "9893a2cab61b591b277307daf1c76751e6ff79314d73f19f029b716b451e4e8d",
+      "size": 8648
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_terrain_explorer.nano",
+      "role": "test-definition",
+      "sha256": "ffe7ab7963f6337ea76c277d1a0f864c047a56e416b5b8c1bcca91652f0e5c91",
+      "size": 30459
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_texture_demo.nano",
+      "role": "test-definition",
+      "sha256": "809349f337248a731e87866fee69016df82857450d9346cd0280d2afaebb2220",
+      "size": 3746
+    },
+    {
+      "mode": 420,
+      "path": "examples/graphics/sdl_ui_widgets_extended.nano",
+      "role": "test-definition",
+      "sha256": "509ef6d32cde99e25ecc069cc23d854e860026528821501039ba62bee91fcfcf",
+      "size": 15004
+    },
+    {
+      "mode": 420,
+      "path": "examples/hello_pkg/main.nano",
+      "role": "test-definition",
+      "sha256": "60920c7614e2ade2176d572cbc11c7aa6a7404e1c65b70b38bd64eec086476ba",
+      "size": 633
+    },
+    {
+      "mode": 420,
+      "path": "examples/hello_pkg/nano.toml",
+      "role": "test-definition",
+      "sha256": "329bb6fdf3409f1077cba4b1157d00f76847a8af462d3ddbf520fdf127211019",
+      "size": 619
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/bullet_beads_visual.png",
+      "role": "test-definition",
+      "sha256": "e58ff4e4e9aac796ed967915d834b05745ba508b3c7116124676157ea819bc21",
+      "size": 1132
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/bullet_bouncy_balls.png",
+      "role": "test-definition",
+      "sha256": "157f7c9ee31865c1ced3b05df061ddb53429fbbd093e6b682ed18b825eb34b03",
+      "size": 2132
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/bullet_rigid_megastacks.png",
+      "role": "test-definition",
+      "sha256": "06e9932a7199a46af7f3613f61da9a0a6c96792b4d13f17ebc388470a1be3ecd",
+      "size": 1461
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/bullet_soft_body_modern.png",
+      "role": "test-definition",
+      "sha256": "f388260b8d516225f087d08787bf7de82aa705636067aa4971e94d5bc4abe878",
+      "size": 1437
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/bullet_softbody_hourglass.png",
+      "role": "test-definition",
+      "sha256": "8a2bc5a14c7a966566a38b41986bac11d26613726d394e3ca5a7df40ebdbdff1",
+      "size": 2017
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/matmul.png",
+      "role": "test-definition",
+      "sha256": "58883814f8dc6a012daa02b2abc935eee078de6cbc0ee96ca9422039d810566f",
+      "size": 1197
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/mujoco_opengl_cartpole.png",
+      "role": "test-definition",
+      "sha256": "1004a956c8e2ec9826a7a4fddfc4c1b63de5210985076c54234a7334551a7a93",
+      "size": 1964
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/mujoco_opengl_drop_lab.png",
+      "role": "test-definition",
+      "sha256": "39745c13ce59d54733a6f210f9900531c1b739c51163b17e241b8b86ca1988b5",
+      "size": 3201
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/mujoco_opengl_geom_browser.png",
+      "role": "test-definition",
+      "sha256": "9c0e73d68afc7f6fa756a09fda4492e46dbfd272f2a9b7fc6ea49d0fe22b8b71",
+      "size": 2137
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/ocean.png",
+      "role": "test-definition",
+      "sha256": "166b0efb2865f859a8e567e97e6b886c282d1b144e8f684128a8dbe8e899a39a",
+      "size": 1881
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/opengl_cube.png",
+      "role": "test-definition",
+      "sha256": "990013103e78d4cd1ed232464cecf4ed01bce39bb86dbb578c4b7c7ddb1fdd11",
+      "size": 1664
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/opengl_modern_hello_triangle.png",
+      "role": "test-definition",
+      "sha256": "39050446b6210ecd70e63337a601ccb608454635adb6c3bb874ff84a0cdc80e0",
+      "size": 1848
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/opengl_modern_postprocess.png",
+      "role": "test-definition",
+      "sha256": "6ef9aad283f594136a899e64ad71c09b19c0a5625fcaeffaceea34e4bcaa9d07",
+      "size": 2837
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/opengl_particle_fountain.png",
+      "role": "test-definition",
+      "sha256": "50bc603dbfa70d682c61e819eb08e04ae230f5a47219930828c4fb6f5338aa82",
+      "size": 2591
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/opengl_solar_system.png",
+      "role": "test-definition",
+      "sha256": "d64ba1ce85b4945942e9a3b7c092fb03d4926be750aaf68dbbe8941d51de0850",
+      "size": 6811
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/opengl_teapot.png",
+      "role": "test-definition",
+      "sha256": "5206ccf25eb1f563292ce6f203764c9f4aed8bcad0f7b5244e8f3689d0e7019d",
+      "size": 1964
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_asteroids.png",
+      "role": "test-definition",
+      "sha256": "80179d91e038d30f23bc01fd4378431351eb07b2a40e67d24e369f308bfebb4b",
+      "size": 9478
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_audio_player.png",
+      "role": "test-definition",
+      "sha256": "e7dca05b02ffcedb7eaab498ea64a01910538de9fd2c85905ace7b50b2cfab77",
+      "size": 4605
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_audio_wav.png",
+      "role": "test-definition",
+      "sha256": "6d8f2968c1a78644559de89634f02a45e55901997bea87f76b13382f4b7f2d0d",
+      "size": 8921
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_boids.png",
+      "role": "test-definition",
+      "sha256": "6f6f37ef2e79cfbdc507c36d8caf56ed4b228c5a5051ef0dad36061e4903d0fc",
+      "size": 10155
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_checkers.png",
+      "role": "test-definition",
+      "sha256": "cf2ac840b0a6227d58f0031782aee09523e6110645fc48fb0c87fd2953c9e5f8",
+      "size": 7892
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_drawing_primitives.png",
+      "role": "test-definition",
+      "sha256": "aaa5e1625054a3ab9f9032cbcd1411c7accb6420ab9fcabb008a837a0f475cc2",
+      "size": 8715
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_example_launcher.png",
+      "role": "test-definition",
+      "sha256": "e73bc47d4776aea91c4a1c4686f90628eaacc68a419e739b1b3349e3465131a4",
+      "size": 10093
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_falling_sand.png",
+      "role": "test-definition",
+      "sha256": "76c1f6d610b3e1cd946e10d1342f5d356ffb2d7ea620814fd3ed8f79e7ec3319",
+      "size": 9298
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_fire.png",
+      "role": "test-definition",
+      "sha256": "0ebcea93de66e19607877892cf4584866ff78bbdccdfda3613f1bb6ada3e27f6",
+      "size": 9532
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_game_of_life.png",
+      "role": "test-definition",
+      "sha256": "20968b0519a1ed3261665c56519560b1425a88542c6cca7102cf1050015d6b46",
+      "size": 647
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_glass_sphere.png",
+      "role": "test-definition",
+      "sha256": "382679ddd638e4706ad3e445b1cf24153b3d4d01738216f8d6cefea4de9d2d72",
+      "size": 14395
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_image_demo.png",
+      "role": "test-definition",
+      "sha256": "24b61c1561d7720630c994c6b20edf29d33658a0c4d0788362179f32427575d7",
+      "size": 1475
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_image_effects.png",
+      "role": "test-definition",
+      "sha256": "ff195899d9831d65dcf2bb83a527842ce29e1d4d8594402784cab4004b0c0f4a",
+      "size": 1673
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_image_sprite_animation.png",
+      "role": "test-definition",
+      "sha256": "2544040fcafd633b636ec6b7da10a1139b661bf67df44cc1e8519edc95737051",
+      "size": 1355
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_image_tiled_background.png",
+      "role": "test-definition",
+      "sha256": "71a7f3852d101848c6fa36a5b62e88c42b62b8076904eaf05e35109787544263",
+      "size": 689
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_mod_visualizer.png",
+      "role": "test-definition",
+      "sha256": "48cc44d4424ba9e547ea2fab3a567a783c985e78f578ae64e1bcb17bbeae30c0",
+      "size": 10586
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_mouse_click.png",
+      "role": "test-definition",
+      "sha256": "dc3cf00838dc95d5f1e8ac93c162a6f176894e10db06a5649a914d508cede658",
+      "size": 9754
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_nanoamp.png",
+      "role": "test-definition",
+      "sha256": "7b056b96093b0afa17cc3485c3e0f9cf59a8f1fa346eac146c80f8cd55594e28",
+      "size": 9970
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_nanoviz.png",
+      "role": "test-definition",
+      "sha256": "343233d91de4f01ae40cd801eecbf73aefd1c4c327173d64737ccf13ac717118",
+      "size": 9141
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_particles.png",
+      "role": "test-definition",
+      "sha256": "6d267bc539c402bc553e3e8e0870145c57ed5bd26422d37998ab9900ae9c36be",
+      "size": 14707
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_physics_demo.png",
+      "role": "test-definition",
+      "sha256": "f4b2b40312a67a9885eeefe02566ee1797e590ce91793b0f25742c887be56beb",
+      "size": 1872
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_pong.png",
+      "role": "test-definition",
+      "sha256": "72a7dc3c914581f95b3a47bb463dc69be98999910e791b86a2366e69b1b95695",
+      "size": 4959
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_raytracer.png",
+      "role": "test-definition",
+      "sha256": "7e5f2dc16d0f62f21aa0493b91f8ec08c4b2360e83e42d2b216b8c4871bc1e44",
+      "size": 1172
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_snake.png",
+      "role": "test-definition",
+      "sha256": "1667b493985cc480ae1c7ceeb6e77e2ee083d5f64a6e0a8a9893872eb2f6d2a1",
+      "size": 8420
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_starfield.png",
+      "role": "test-definition",
+      "sha256": "1a965a7d2b789c6967faf921e70cde2c0420949c77622d3cdd34284a01de9f3c",
+      "size": 8217
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_terrain_explorer.png",
+      "role": "test-definition",
+      "sha256": "9be76d8aad39dd73d3ad62c114bdc8642cea9d336e2501c0c39a23a8f02f7acb",
+      "size": 10692
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_texture_demo.png",
+      "role": "test-definition",
+      "sha256": "fbc69e48f69b55ff71fe5f425953f0c3ed2749ac78f9eb496193ccddd0031d2e",
+      "size": 13110
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_tracker_shell.png",
+      "role": "test-definition",
+      "sha256": "789590280e5f62f499f2400c6aa81fa53b21bae1fb302c2c048031c49e2b75f7",
+      "size": 12414
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/sdl_ui_widgets_extended.png",
+      "role": "test-definition",
+      "sha256": "bc72f3b24ac0bc887933b4585a7f5d31514d12743b27da6ba5c153d34bfbc632",
+      "size": 8515
+    },
+    {
+      "mode": 420,
+      "path": "examples/icons/ui_code_display_demo.png",
+      "role": "test-definition",
+      "sha256": "7d3eb108ce123bce574fbf28e065cdd0ce94bc718a5a122466c3dd7f36176d0c",
+      "size": 1146
+    },
+    {
+      "mode": 420,
+      "path": "examples/integration/file_pipeline.nano",
+      "role": "test-definition",
+      "sha256": "3f8ba0697b92bbdb703cd0610bb4c5d599fbe5e1fc21a7a990e380d3dca75f57",
+      "size": 2098
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/data/words.txt",
+      "role": "test-definition",
+      "sha256": "b94c2c68c4e25e9e0b262a27579a83d7fe9c7afbb4be217c22df92f57d8b13ad",
+      "size": 332
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/forth/pi.fs",
+      "role": "test-definition",
+      "sha256": "7e120afb853c9ef10fff926b39f6587fe53932410a020d9871664dca101b1bb3",
+      "size": 2536
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/forth/run_tests.fs",
+      "role": "test-definition",
+      "sha256": "b1acc3094e97fec5a559f9e7c443ad35e8d9292ec1b36f2f05def3f3e52486b0",
+      "size": 747
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/forth/session_prelude.fs",
+      "role": "test-definition",
+      "sha256": "e390dc773f15e8d8629ce6069c5b39ddc40feee0a46c7243668a9dbdfb36bf0b",
+      "size": 248
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/forth/test_arithmetic.fs",
+      "role": "test-definition",
+      "sha256": "92122fa707ec987a5ddf0f8ee9215f1e6c5f0017b87954921c2e7d419c813353",
+      "size": 2123
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/forth/test_base.fs",
+      "role": "test-definition",
+      "sha256": "d23912f6c5b6a426de3e97b09e7f9146201b3685ca0c7dbeb6da93360775e672",
+      "size": 324
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/forth/test_bitwise.fs",
+      "role": "test-definition",
+      "sha256": "7a99926979d36bdf94f140623265d76a3ff188a47464daa6ecc8326647ecd0d8",
+      "size": 835
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/forth/test_compare.fs",
+      "role": "test-definition",
+      "sha256": "1589fafa3ab41445da90be041b65f44e05ec26ce04a2fc43803a996f7c975e82",
+      "size": 1167
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/forth/test_control.fs",
+      "role": "test-definition",
+      "sha256": "cc7711beeba4f2e555bafe7db3a96567a92eba0710ce821207e7daba44d28e49",
+      "size": 1405
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/forth/test_memory.fs",
+      "role": "test-definition",
+      "sha256": "7c73df89f43837957cea14832845a83257cf5313bdbc6688ace44926d0e70730",
+      "size": 945
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/forth/test_rstack.fs",
+      "role": "test-definition",
+      "sha256": "9e2bfe246ced5b5b1d5b7c151e69070ef59ca483b67e105beec4dfafa9f97299",
+      "size": 692
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/forth/test_stack.fs",
+      "role": "test-definition",
+      "sha256": "013a7ca3b929c6389af216c169d89e39bb49817c3660b4008a9cb054bc587199",
+      "size": 1112
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/forth/test_words.fs",
+      "role": "test-definition",
+      "sha256": "581a46be9dcb07c0927e6c1f3d6791e969cb5ce5aaf3b5e01219d6c1d0dd8010",
+      "size": 1156
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/full_repl.nano",
+      "role": "test-definition",
+      "sha256": "39b7935b19d4480fd796c7a85d63e569bac746ae358834d8eee1f9ac98cde6e0",
+      "size": 30199
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/i18n_six_scripts.nano",
+      "role": "test-definition",
+      "sha256": "eaa03a454c6a9fa7f2cfcba5604d12f142d9afba68e47e4be6c80ef96c164505",
+      "size": 571
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_advanced_math.nano",
+      "role": "test-definition",
+      "sha256": "2ba1269b6341e12f2fad8a4baa5b83918005f67aea6466569b842c74d6eb6c44",
+      "size": 2509
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_affine_resource_demo.nano",
+      "role": "test-definition",
+      "sha256": "f9cd44a9bd4112913cc36f01b09b34db544a5e7b4323bf242d29dea6e888ef64",
+      "size": 1034
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_array_bounds.nano",
+      "role": "test-definition",
+      "sha256": "b4aa9e97240d7adbb276a338fbb052e2ee18cf74e1add852f3beaa485b119be4",
+      "size": 900
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_array_complete.nano",
+      "role": "test-definition",
+      "sha256": "55a060495289aadc37a310e26acf12b33cba118aa5551ecb82555951682b8ff8",
+      "size": 2643
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_array_functional.nano",
+      "role": "test-definition",
+      "sha256": "c2ef812f6062a5ea0ae0a0a25c6ebf1497428fffe8a58113f13b96c7021000a2",
+      "size": 3902
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_array_infer.nano",
+      "role": "test-definition",
+      "sha256": "714992d0eb5a57f86421a102d5aada4593280efa0ab80a4f2eb98a9651115834",
+      "size": 1990
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_boids.nano",
+      "role": "test-definition",
+      "sha256": "0209dc18bd19a9fc29e72249f8d23024655678e6b74c76a1c5f174c2371900c8",
+      "size": 7954
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_calculator.nano",
+      "role": "test-definition",
+      "sha256": "e5a865b94deb0eef6532b97448b288fcf4b219b1a4f64d44d8c7791acd2b4219",
+      "size": 4568
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_checked_math_demo.nano",
+      "role": "test-definition",
+      "sha256": "3b62a0c1de24ba216577424ae25f551e1f5c1fe40fc94e249744f7bdf0f2256f",
+      "size": 6506
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_comparisons.nano",
+      "role": "test-definition",
+      "sha256": "44542fc7f03290a92e51603c2e70dcbb87842039792930b69d516f0aed032b9b",
+      "size": 2445
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_control_for.nano",
+      "role": "test-definition",
+      "sha256": "fccefd6bf0f4397b373f1acea9d778bc05fb293657682548c67bb3da2c86fea8",
+      "size": 4212
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_control_if_while.nano",
+      "role": "test-definition",
+      "sha256": "33d964a75de05c0ff2c5d8f68106559590103bd250cedd6afc75fbeafefdc496",
+      "size": 5679
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_control_match.nano",
+      "role": "test-definition",
+      "sha256": "834ee79cc0a64e11f58cde04953be67c7827ff2ad2f001adc576dc3b03adcfd8",
+      "size": 7911
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_csv_processor.nano",
+      "role": "test-definition",
+      "sha256": "e4d7079f95723bab0f6bc2384a990024cb99c06913a6e67358f392ae448467ee",
+      "size": 8144
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_data_analytics.nano",
+      "role": "test-definition",
+      "sha256": "e546e31f0330b159322036fe376765d7e0d127f90b699675db57bf671115b56a",
+      "size": 9427
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_demo_selfhosting.nano",
+      "role": "test-definition",
+      "sha256": "bbd0cb21ffeeec1216fb5a7ed0b892ee050cf8c092983dac3447e5fcab8dd12e",
+      "size": 4640
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_dispatch_counter.nano",
+      "role": "test-definition",
+      "sha256": "e0f49511a0472d008aee3d272e659be9ca08cb220202ff5b034d5dbda9c30117",
+      "size": 2084
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_dispatch_pipeline.nano",
+      "role": "test-definition",
+      "sha256": "899d4c6b85e1c023c7f76e07679d76f1125e05ece2507ee163d3a774d71e94da",
+      "size": 2232
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_dispatch_stats.nano",
+      "role": "test-definition",
+      "sha256": "77dc3951b08bcaa1a782e13410ac18d3c8031ee170d74af6152f10cf99c92612",
+      "size": 1998
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_enum.nano",
+      "role": "test-definition",
+      "sha256": "877dc18eee34a818bf30535cdcd6c4d1c66ce965ed7fc39c6e53b77c7c33ba9b",
+      "size": 2301
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_extern_char.nano",
+      "role": "test-definition",
+      "sha256": "bfe55e97637ddb44955a87dd97e04ad92754a1651d240a2b970fe533b713dd97",
+      "size": 5415
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_extern_math.nano",
+      "role": "test-definition",
+      "sha256": "92fa3e225404ddb7ac8ae6412462b08d73ae4d8d119b627bc80141c55d466dd1",
+      "size": 4356
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_extern_string.nano",
+      "role": "test-definition",
+      "sha256": "70134443bf2b5c5e2481841515f1675e3a01a305cf154d574a7887e6aa296c53",
+      "size": 6217
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_factorial.nano",
+      "role": "test-definition",
+      "sha256": "f06b3180b9c0cd0317405cfa8033fa5f378d5a92dfbf7c62bcaea693d40eff0e",
+      "size": 1137
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_falling_sand.nano",
+      "role": "test-definition",
+      "sha256": "28d35ce4234c30337ee67eded9fdaf3907034c6f351c52e9a7212af614f813cb",
+      "size": 5043
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_fibonacci.nano",
+      "role": "test-definition",
+      "sha256": "40f1a650a16526ede4d1f8718e1224bd753b7a94c1be19d4d0f1bc09216109ca",
+      "size": 1240
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_filter_map_fold.nano",
+      "role": "test-definition",
+      "sha256": "3673919e7434ed68ab0438e2e615a827a43174c4f3eb02cdb1751f9b4c4931dc",
+      "size": 6626
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_first_class_functions.nano",
+      "role": "test-definition",
+      "sha256": "9dc31d16458c4098ddbd56e2364175be2cdf38f9c4de7235298b2032ed51c9ee",
+      "size": 2015
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_floats.nano",
+      "role": "test-definition",
+      "sha256": "418a08d53b0cb1e0f8db33f5ed1992ac721d9095693a2904582b07efbb2a2117",
+      "size": 1811
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_for_in_array.nano",
+      "role": "test-definition",
+      "sha256": "13cb5206173c20ce118713cd9a2a18e2734082ca7d421499c999a2f032a33090",
+      "size": 2235
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_forth_interpreter.nano",
+      "role": "test-definition",
+      "sha256": "39df92cf63c62cb3206f99d48cc2ea2ec0f6fb7cd8f3778e5c6c83cba727a803",
+      "size": 81519
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_function_factories_v2.nano",
+      "role": "test-definition",
+      "sha256": "580dbc5ad070079a9dfe92fecd2cfbbf70bc5a30797155f4b0fc1be6357f867b",
+      "size": 2713
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_function_return_values.nano",
+      "role": "test-definition",
+      "sha256": "38ca9722ba01c866113c1592f3723d5d7d9025665efc6cefd95373438a33552b",
+      "size": 2144
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_function_variables.nano",
+      "role": "test-definition",
+      "sha256": "26554fd5318ac9a91edc0e4d72b227fcabee7e1b747a905e03883aa24585dd8e",
+      "size": 4895
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_functions_basic.nano",
+      "role": "test-definition",
+      "sha256": "f463a1e5690870a1329b1fc9d9c94c53bf690e8f9e915a4201527bb7554d831b",
+      "size": 5488
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_game_of_life.nano",
+      "role": "test-definition",
+      "sha256": "90d6637a668ee2e0125d67b830209e99df0412f835e1895698612e7bcc153c8d",
+      "size": 9383
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_generics_demo.nano",
+      "role": "test-definition",
+      "sha256": "133b01c4ef4904e9a011e500ab89fc445a8e2b2cd4ef69346623c4f47300adcb",
+      "size": 10973
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_global_counter.nano",
+      "role": "test-definition",
+      "sha256": "e2d41e996c293385518829707ca3a2a398d9106863a8171a47259fd7943c1b2f",
+      "size": 1921
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_hashmap.nano",
+      "role": "test-definition",
+      "sha256": "b51db44226a8d3c4ea465670c59ec03ded35eb6c70e12819425316a7f92cd0d2",
+      "size": 959
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_hashmap_word_count.nano",
+      "role": "test-definition",
+      "sha256": "4b34adab2c6563ca71aa60700510a5423c9e91d19be1e01f471ee6feb67469f3",
+      "size": 1434
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_hello.nano",
+      "role": "test-definition",
+      "sha256": "90c27fd7d4600e377c44e7dc3b24c00352b726218849dfba22e245a7d52214af",
+      "size": 375
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_logical.nano",
+      "role": "test-definition",
+      "sha256": "84ed11bd1fd4eae03ae73b81650606f519d4769b8aca0dbf6807403dc0558b00",
+      "size": 2598
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_match_int.nano",
+      "role": "test-definition",
+      "sha256": "f1c41430ea9d57d0bab2adfae7249716ccb724e7e29f5b95dc750e334d94260e",
+      "size": 2352
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_matrix_operations.nano",
+      "role": "test-definition",
+      "sha256": "f9167f1241059552af44ea99face6e0bb61143eac67d9d15c0a5445e32fdeaa9",
+      "size": 6023
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_maze.nano",
+      "role": "test-definition",
+      "sha256": "c1d42185f0a3da97575d41b416a46eea4c761a2059c838bb555b33e20034d08c",
+      "size": 10404
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_mutable.nano",
+      "role": "test-definition",
+      "sha256": "0e50e9dd09ac59b81d8715c5a6a2b24159cd4c0f73df61eb9129e45bfeeaa43d",
+      "size": 2123
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_operators.nano",
+      "role": "test-definition",
+      "sha256": "49600636c954af977fb3fbad2df0c9fe53891dc19419dd73e1a097e79346f430",
+      "size": 2025
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_peg2_csv.nano",
+      "role": "test-definition",
+      "sha256": "9aa656e8555b07967aacad895b324cd26f5b1a8341ff2929ceeb8cef366361b1",
+      "size": 3769
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_peg2_expr.nano",
+      "role": "test-definition",
+      "sha256": "24748eaf6986957e737f521cb9a618212eac1295e14074d509dcf4ace7ddd18f",
+      "size": 2826
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_peg2_json.nano",
+      "role": "test-definition",
+      "sha256": "45a70c3d76f7767ad265b6c7f08e0b79866e86a6e24fbd9dd3cb13e614ff1b6c",
+      "size": 3787
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_pi_calculator.nano",
+      "role": "test-definition",
+      "sha256": "2a3a4e57f6a47bfd040d5ee2e8573b2672ba06335ad3e90246fde5975dd895ea",
+      "size": 9697
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_pi_chudnovsky.nano",
+      "role": "test-definition",
+      "sha256": "c078f2e0f6b2a86940751b1211a10dcb1476dcf42de9c286cbcdfbbb69038a5d",
+      "size": 11813
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_primes.nano",
+      "role": "test-definition",
+      "sha256": "3be390d2f9b1906c82d144d81a373db094f8dca11a5390251e89bc0e967f88d9",
+      "size": 2295
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_primes_sieve.nano",
+      "role": "test-definition",
+      "sha256": "6512c4e8ce0b6dbc2898c65e27bee9a9551509cad4f8a8d9ff895d3b7e7aaa8f",
+      "size": 2364
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_random_sentence.nano",
+      "role": "test-definition",
+      "sha256": "da58e9290a340136fea4fd55c01ed26e734ffcf2e136619c37591a5c34ad269b",
+      "size": 7396
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_result_propagation.nano",
+      "role": "test-definition",
+      "sha256": "7a8099f7398b151ac6d29f66cd4562c2d979ccba7f24bc389fadd2e58a6364c3",
+      "size": 4492
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_snake.nano",
+      "role": "test-definition",
+      "sha256": "3fa678af559b0447e7d91da73958086a5c65854b0fc64d3a962361e909301e64",
+      "size": 10042
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_string_interp.nano",
+      "role": "test-definition",
+      "sha256": "6b3efa51d7ac438902beb2060698746ec765c12386fedc54140a3b316aa750c6",
+      "size": 2540
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_string_operations.nano",
+      "role": "test-definition",
+      "sha256": "25a8e141ac5ee4d2d9df03c1ae2119e346b451a5594230bcee4fc0599afd572b",
+      "size": 1522
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_struct.nano",
+      "role": "test-definition",
+      "sha256": "0024b9880d2a88893412bd8b9947427076a0f5185b027f0ef1b8be7203cf4e8e",
+      "size": 1871
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_tictactoe.nano",
+      "role": "test-definition",
+      "sha256": "dbed9fe5a3c35165b96459cb9013d7dd1d36e1b633fe9fd1e9850acb568b530d",
+      "size": 8573
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_tracing.nano",
+      "role": "test-definition",
+      "sha256": "1ced57b3ace206a1185fcadec687977e43723db279d78997cd7ed283280bac86",
+      "size": 1175
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_types.nano",
+      "role": "test-definition",
+      "sha256": "d099ac4c847554ae31c3b83a631ac12f80f80afd32ef11d3b5a8895b1afc1ada",
+      "size": 3130
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_types_tuple.nano",
+      "role": "test-definition",
+      "sha256": "0ba0bb08e1c3282104687dbedd529add776a3330a56e613e658318afe346f80c",
+      "size": 8087
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_types_union_construct.nano",
+      "role": "test-definition",
+      "sha256": "41dbacb1462fef07a47877fd7c12ed5c3c925dbca47e9a91f094a03b8d7a68e2",
+      "size": 9654
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_union_types.nano",
+      "role": "test-definition",
+      "sha256": "6ee1d8772142499dccb17fde8efdfc9db1c1e25d3e5d5960659ea27f2391d181",
+      "size": 2249
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_unsafe_demo.nano",
+      "role": "test-definition",
+      "sha256": "d95e64fb48e73668211680dd34d868d19d613199cf13f80f129f121d72a92420",
+      "size": 2761
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/nl_word_frequency.nano",
+      "role": "test-definition",
+      "sha256": "0bbfde4d7c8e0fa2aa21ac6a55ffefde199728d7b5baef0c440e890944f7dd03",
+      "size": 12001
+    },
+    {
+      "mode": 420,
+      "path": "examples/language/timing_helper.c",
+      "role": "test-definition",
+      "sha256": "c7f6d8bcb9e601ae2425ec7fff32fe4b779bc39a19756dd82f40a10d21876a98",
+      "size": 361
+    },
+    {
+      "mode": 420,
+      "path": "examples/large_project/README.md",
+      "role": "test-definition",
+      "sha256": "ba2076bf77391ba3defec6f0485de9bd003fb19aae7b1e53465eb35240f82824",
+      "size": 357
+    },
+    {
+      "mode": 420,
+      "path": "examples/large_project/main.nano",
+      "role": "test-definition",
+      "sha256": "f078a9229bcb9b82a370a2e92c487114268fd61709cb8d2e4c78fabc28be4e9a",
+      "size": 968
+    },
+    {
+      "mode": 420,
+      "path": "examples/large_project/nano.toml",
+      "role": "test-definition",
+      "sha256": "aa8b87a14f8cb8f089427654e355a6b7eaeb72811da72a4f2c3cf035524b6525",
+      "size": 319
+    },
+    {
+      "mode": 420,
+      "path": "examples/large_project/src/models.nano",
+      "role": "test-definition",
+      "sha256": "3b7bda6b880cf5bbdceb72ec9f25fb3cbf427b334eb10803cbb667c75fb8f39a",
+      "size": 571
+    },
+    {
+      "mode": 420,
+      "path": "examples/large_project/src/pricing.nano",
+      "role": "test-definition",
+      "sha256": "e65fc472e11ad6b8625967c4e64e33d5875bbcb21dedbb12ac57f362d280668d",
+      "size": 866
+    },
+    {
+      "mode": 420,
+      "path": "examples/lib/example_discovery.nano",
+      "role": "test-definition",
+      "sha256": "46b2fff5f3072c51c74bb950177008867eff3f282cb07e3c014bf116765fa2c7",
+      "size": 13906
+    },
+    {
+      "mode": 420,
+      "path": "examples/lib/launcher_ui.nano",
+      "role": "test-definition",
+      "sha256": "d3d26ba5d8a571785be65221befd5b0fd7509a22f4d3ecc3204af7bc1e69fce4",
+      "size": 13792
+    },
+    {
+      "mode": 420,
+      "path": "examples/lib/process_manager.nano",
+      "role": "test-definition",
+      "sha256": "dd282685f426154cfffe62bc0e43fd9bfb2405f541d1c72f17d48585473a3ffe",
+      "size": 26739
+    },
+    {
+      "mode": 420,
+      "path": "examples/lib/resource_monitor.nano",
+      "role": "test-definition",
+      "sha256": "d010e6c16253b8bfd22b487a0a9909099fc3261923ecac768ba56eabe4919b3d",
+      "size": 7991
+    },
+    {
+      "mode": 420,
+      "path": "examples/lib/source_editor.nano",
+      "role": "test-definition",
+      "sha256": "78a340b7f719d05cafa50537d04b7e4dab59076f1806737e7d5911a700630fc3",
+      "size": 12864
+    },
+    {
+      "mode": 420,
+      "path": "examples/mujoco/assets/cartpole.xml",
+      "role": "test-definition",
+      "sha256": "b959490dbfd2efe96ee0d5aed10a0a3702540a9043e090530f83c7f565e86947",
+      "size": 1229
+    },
+    {
+      "mode": 420,
+      "path": "examples/mujoco/assets/drop_lab.xml",
+      "role": "test-definition",
+      "sha256": "7162eeb8203e1f70dbc644376b36c7681002159a49908c9bd5b3be08c226f280",
+      "size": 1969
+    },
+    {
+      "mode": 420,
+      "path": "examples/mujoco/assets/robot_sorter.xml",
+      "role": "test-definition",
+      "sha256": "0687e237d48e69c402e9f51866f633cb718e04b0a8d3da378378e21e306917d8",
+      "size": 3861
+    },
+    {
+      "mode": 420,
+      "path": "examples/mujoco/mujoco_cartpole_balance.nano",
+      "role": "test-definition",
+      "sha256": "3993b85abefb050167db50b03fbccd05b0df69367014657211f0a7a84b187afc",
+      "size": 3440
+    },
+    {
+      "mode": 420,
+      "path": "examples/mujoco/mujoco_opengl_cartpole.nano",
+      "role": "test-definition",
+      "sha256": "a308af4780e8676bf3f6399157636c2a1d833111e3ee753f16deb8cffb867287",
+      "size": 6355
+    },
+    {
+      "mode": 420,
+      "path": "examples/mujoco/mujoco_opengl_drop_lab.nano",
+      "role": "test-definition",
+      "sha256": "ffc71ac26ee8b367f2b50370dfca45865884d86614bc66a19b943b3d07d4f667",
+      "size": 7759
+    },
+    {
+      "mode": 420,
+      "path": "examples/mujoco/mujoco_opengl_geom_browser.nano",
+      "role": "test-definition",
+      "sha256": "19d5ff31fcec6dcd50af2bea578661b96da5c3fcbead288333cdffe01a6c0057",
+      "size": 10091
+    },
+    {
+      "mode": 420,
+      "path": "examples/mujoco/mujoco_opengl_robot_sorter.nano",
+      "role": "test-definition",
+      "sha256": "14a11a51da3c871fc0b9ae8eead726104e6d19988da5f23fca15238956750d4e",
+      "size": 17945
+    },
+    {
+      "mode": 420,
+      "path": "examples/mujoco/mujoco_state_audit.nano",
+      "role": "test-definition",
+      "sha256": "77b38fbb0aa9aa904592b8349850847876948f32165899149fbd1d60a07ad9cc",
+      "size": 5713
+    },
+    {
+      "mode": 420,
+      "path": "examples/nano_tools_lint.nano",
+      "role": "test-definition",
+      "sha256": "c7dc945e677d875ac5ab00383420a5943aba419722477fb5e8c6edcfd0dff89b",
+      "size": 1313
+    },
+    {
+      "mode": 420,
+      "path": "examples/nanoisa/forth_words.nasm",
+      "role": "test-definition",
+      "sha256": "42b0726e5cf0ab5fba67272b4563021c69c7cb19fe6e4db8860553011eaff85f",
+      "size": 2726
+    },
+    {
+      "mode": 420,
+      "path": "examples/nanoisa/nanolang_shapes.nasm",
+      "role": "test-definition",
+      "sha256": "d8e6b9cf05c76e0e554db10996848b8eb7e017f4b8f2d77600f5ad68c535e3de",
+      "size": 3437
+    },
+    {
+      "mode": 420,
+      "path": "examples/network/hello_public/index.html",
+      "role": "test-definition",
+      "sha256": "9e9a07f12dda6af2a933b8e586deb9c98165457b6683d9ebc5ac90ad1d307714",
+      "size": 109
+    },
+    {
+      "mode": 420,
+      "path": "examples/network/http_hello_world.nano",
+      "role": "test-definition",
+      "sha256": "129e8163e9f2f3ff333d4dc0b914a511c353a9968d420e0abf4696b1ba8b82e9",
+      "size": 1254
+    },
+    {
+      "mode": 420,
+      "path": "examples/network/http_static_server.nano",
+      "role": "test-definition",
+      "sha256": "7467b690567f5d20a916466d7e2e2576a967499bdabfc1687943402c0f99ac94",
+      "size": 1383
+    },
+    {
+      "mode": 420,
+      "path": "examples/opengl/opengl_cube.nano",
+      "role": "test-definition",
+      "sha256": "568b0364cf11cfee9b1e192cc14c994f294b19632187c1696a41a04f38fedf80",
+      "size": 5764
+    },
+    {
+      "mode": 420,
+      "path": "examples/opengl/opengl_lit_atelier.nano",
+      "role": "test-definition",
+      "sha256": "891f90b18661e1d0ca7330e6b4de91bfe51bee109da80c13ca30530c3058e035",
+      "size": 10489
+    },
+    {
+      "mode": 420,
+      "path": "examples/opengl/opengl_modern_hello_triangle.nano",
+      "role": "test-definition",
+      "sha256": "efe2ab674f9b1ff9da00316228c20143a4f666d1aa9b3046389ba7180fbe7f26",
+      "size": 3625
+    },
+    {
+      "mode": 420,
+      "path": "examples/opengl/opengl_modern_postprocess.nano",
+      "role": "test-definition",
+      "sha256": "5795d6fc2e5193c7332d3087486bdc8776d3d132f0eee2fb7ba41cf4324e5767",
+      "size": 4463
+    },
+    {
+      "mode": 420,
+      "path": "examples/opengl/opengl_particle_fountain.nano",
+      "role": "test-definition",
+      "sha256": "847d805d14596829cfb2b99fddfc0ba8b97197489a3ede5b2df3e38e42ae64ac",
+      "size": 6584
+    },
+    {
+      "mode": 420,
+      "path": "examples/opengl/opengl_solar_system.nano",
+      "role": "test-definition",
+      "sha256": "c013c48a8ec29ad159d78eb09570ce68e1a0925a47c14cd523cb7280688c3eaf",
+      "size": 4786
+    },
+    {
+      "mode": 420,
+      "path": "examples/opengl/opengl_teapot.nano",
+      "role": "test-definition",
+      "sha256": "b9e0c2d74d5d6e1d32b1bed4aa8dc156b79e93ff46b14c9ca0f36f19c55af0fa",
+      "size": 22317
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/README.md",
+      "role": "test-definition",
+      "sha256": "ca0be4081d197b88e6f6170951b3dcd6f9b97e57d7dfe4334cbe6ac8a713870e",
+      "size": 2542
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/AST_IR.schema.json",
+      "role": "test-definition",
+      "sha256": "937c1c07b6b2c180b25fd5b91b1fe5c8cce9e092eb45d83ba8334016ce12fa8c",
+      "size": 9471
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/BUILTINS.md",
+      "role": "test-definition",
+      "sha256": "cf1e96f38442d759ed7bc0a2f0e95b74604be4bb3a12e60b38fef9aeb257b0e5",
+      "size": 402
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/ERRORS.md",
+      "role": "test-definition",
+      "sha256": "facd1c4c6efba0bbd6aede70cc3dd54efed8aff3f027e34930a1a97de5d38f0f",
+      "size": 798
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/EXAMPLES.expected_ast.json",
+      "role": "test-definition",
+      "sha256": "963b8af11310273f8eae7b12f43663326a3c6c918d4773a1838a406b6edbcc7f",
+      "size": 5745
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/EXAMPLES.expected_plan.json",
+      "role": "test-definition",
+      "sha256": "d81a2baed387637989242102bc2c2842f581ccb347f0a8407f7eee9a8b89fcec",
+      "size": 1847
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/EXAMPLES.opl",
+      "role": "test-definition",
+      "sha256": "cb62465ec455e11139755ebec5393e37e21f01e46821d035afc8689c91a706dd",
+      "size": 758
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/GRAMMAR.ebnf",
+      "role": "test-definition",
+      "sha256": "6df5a5f91ecf0316653887663ec2bfa436914a122679792136f983c6a41d17d8",
+      "size": 2477
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/IMPLEMENTATION_GUIDE.md",
+      "role": "test-definition",
+      "sha256": "5ee1ea2bfa682dc42b62c214d54f0cc6d9e9a2bf8f3c1956b018afb2255e1cc0",
+      "size": 816
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/PLAN.md",
+      "role": "test-definition",
+      "sha256": "bbb2597e2fa7e55f267b9558a88e3eebc0b21eba05e2c3ba0a12d1b93c290eea",
+      "size": 4960
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/PLAN_IR.schema.json",
+      "role": "test-definition",
+      "sha256": "a955dec4238d82de53361808b695b15d9f834bee75e73e6ac47d30eeebbf4ad2",
+      "size": 3040
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/SEMANTICS.md",
+      "role": "test-definition",
+      "sha256": "b0b520df18e7bd6574c385cbca4af2a62f98ec99a1da59871c656de338b3da6f",
+      "size": 1265
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/SPEC.md",
+      "role": "test-definition",
+      "sha256": "72f6b20f2329178ee1c759c94905871ee7e4d1953e96880b6fd8fe43905084b0",
+      "size": 2343
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/STYLE.md",
+      "role": "test-definition",
+      "sha256": "4b9d636a98f8c3f107e44e50b2bc0c897d18b9295a7881c69b00099c4d9a56b2",
+      "size": 439
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/TESTS.cases.json",
+      "role": "test-definition",
+      "sha256": "3952915ba70c0f30559f6033d5cdbbd34b9fea442afd5e5f82f86d494d6ade97",
+      "size": 1345
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/TESTS.md",
+      "role": "test-definition",
+      "sha256": "d052d54416d158dff581c61f57fa3b0b88c46b87475e5a7b37a4020c6231c959",
+      "size": 508
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/TOKENS.md",
+      "role": "test-definition",
+      "sha256": "0c12f301778ae16097cfc536f70d82d9a60340cfd80b589d518c65a8f0aa1dec",
+      "size": 1250
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/bundle/VALIDATION.md",
+      "role": "test-definition",
+      "sha256": "ceaedbbe98b1a347565044d57948fb58be935f36a253752f8f78392daae44872",
+      "size": 1926
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/.gitignore",
+      "role": "test-definition",
+      "sha256": "0d74dfec818ff05dd774df1ccc03475525bec348ce00b3694d63c84fdf77e49e",
+      "size": 100
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/Makefile",
+      "role": "test-definition",
+      "sha256": "716ffe469eb52e8916f9d74179c81f5ed5df98ace23b10b8512ce0f21c31707d",
+      "size": 4519
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/README.md",
+      "role": "test-definition",
+      "sha256": "98b486f5fc092c263980fa17e3ef878ebe3f91fdb82c01b291cb9095ebaa8736",
+      "size": 3265
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/conditional.opl",
+      "role": "test-definition",
+      "sha256": "bab07c914acca63a0d59989f764b279968dc8bb6fa4cc2717de2a6ed48d5929b",
+      "size": 307
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/hello.opl",
+      "role": "test-definition",
+      "sha256": "1cab01fd92b54af727c7f0c4cb159582fec6e176a23c6959138bc5a404e00aeb",
+      "size": 190
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/multi_tool.opl",
+      "role": "test-definition",
+      "sha256": "b721313e0b25f223c9c512f7ed2bbab26e1cb0468bab2bba6dd2baa271d3981e",
+      "size": 377
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/output/conditional.ast.json",
+      "role": "test-definition",
+      "sha256": "54888b9a0393110d1dcf7c967fd118acae7530e13c39c5ae3fb305dd14fd8e03",
+      "size": 1176
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/output/conditional.plan.json",
+      "role": "test-definition",
+      "sha256": "25080575bdfb3878b3e973ed5b3c079835b15b9bde60dbc2d685f3e6dc0db538",
+      "size": 393
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/output/conditional.validate.json",
+      "role": "test-definition",
+      "sha256": "7c0a2babd510b37c8e7db851fa0d230472c56ae2abd22440c169397e8f37def8",
+      "size": 23
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/output/hello.ast.json",
+      "role": "test-definition",
+      "sha256": "087d6c10b10cdd4da4a17d71819c5f1c8f2f1c52d2624454d2b8e962c0cc0012",
+      "size": 32
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/output/hello.nano",
+      "role": "test-definition",
+      "sha256": "30ce270ac9623b9490dabc49c0e98099370e2f3e7800ab4db5bb8d4a4784147f",
+      "size": 5491
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/output/hello.plan.json",
+      "role": "test-definition",
+      "sha256": "34b23e2af1caa43c2f3cdc6f2d092c6af733398ab660e445c76a3f1af8930589",
+      "size": 41
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/output/web_search.ast.json",
+      "role": "test-definition",
+      "sha256": "8c602a85a7fa8dca51d249c7b299857177aaecd2fc85465e913044745e3464ea",
+      "size": 1028
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/output/web_search.plan.json",
+      "role": "test-definition",
+      "sha256": "ab29390b35413ba4242f2de8a2dff97655b435a50b7f04c4460838538e0f2f78",
+      "size": 384
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/output/web_search.validate.json",
+      "role": "test-definition",
+      "sha256": "7c0a2babd510b37c8e7db851fa0d230472c56ae2abd22440c169397e8f37def8",
+      "size": 23
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/service_spec.opl",
+      "role": "test-definition",
+      "sha256": "21ddfe8b1e3827e7d2ad1a787eb57040c3dd7511947b08aef2b89cd6e9de977b",
+      "size": 327
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/examples/web_search.opl",
+      "role": "test-definition",
+      "sha256": "d76e16f211d54872281116ef45beeedc163ba22727fd25e896cbc108c2528192",
+      "size": 283
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/opl_ast.nano",
+      "role": "test-definition",
+      "sha256": "f73d1d9715fddcc72bf5750eb578a14be9e260ddccf84a9c22e7740541263b95",
+      "size": 4890
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/opl_ast_builders.nano",
+      "role": "test-definition",
+      "sha256": "347ddd8cb96516127aa1fe401624a01fb8e997d5bc1407979a4ba5b03a4df79a",
+      "size": 7731
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/opl_cli.nano",
+      "role": "test-definition",
+      "sha256": "218a3d62a4f3fe2157037cc695261bfb36831f74186236020fc7dd86460c8e3a",
+      "size": 12238
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/opl_codegen.nano",
+      "role": "test-definition",
+      "sha256": "6ae0f5b525a13427fdda964b0bbc39d40f16c7aa5151d0188de98ca50c8480b0",
+      "size": 14190
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/opl_compile.nano",
+      "role": "test-definition",
+      "sha256": "1ef5874ac10bee15badb5d2729f2df3fc532d69ac0d3854766164064a31b9388",
+      "size": 14495
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/opl_json.nano",
+      "role": "test-definition",
+      "sha256": "13c1bbdc9dbf359fc79df6e7693ed4f4e13a55365ee6fec11c6c8b661b92f5dd",
+      "size": 3211
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/opl_lexer.nano",
+      "role": "test-definition",
+      "sha256": "6bd91aa306c6c652ac7ec4e9a5241b4040796f3d110c5b3270e2fc4dcfcacf82",
+      "size": 17750
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/opl_lexer_driver.nano",
+      "role": "test-definition",
+      "sha256": "2b38d88aef4d696a0e37293d3ed9be72db0ef0061720e8aabbb6e1ccf41d6962",
+      "size": 454
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/opl_parser.nano",
+      "role": "test-definition",
+      "sha256": "cde1047c0da8d7dfec723dd4719baddef6a7d2ccdfb0435a1cd8c20a21456517",
+      "size": 28441
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/opl_parser_driver.nano",
+      "role": "test-definition",
+      "sha256": "45f5cf5a010396f421eb8f5d57f4bd075bd0f074ae1b52dbc52607e844cf5ed7",
+      "size": 2488
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/opl_validate.nano",
+      "role": "test-definition",
+      "sha256": "9c0ed90ea3d198724fe2a954e9bdb3f0b0c2416ce4418ae82ca8393a569f7f06",
+      "size": 15246
+    },
+    {
+      "mode": 420,
+      "path": "examples/opl/opl_validate_driver.nano",
+      "role": "test-definition",
+      "sha256": "ea2c58e39b7ce38c423b5a6202ee8ee06af04667d9350702e77a4150f7ee975c",
+      "size": 597
+    },
+    {
+      "mode": 420,
+      "path": "examples/physics/bullet_beads_simple.nano",
+      "role": "test-definition",
+      "sha256": "2286e04959db34ca69dc4f90c2d9f736fe2747ec81e071b570711b950a30c652",
+      "size": 2863
+    },
+    {
+      "mode": 420,
+      "path": "examples/physics/bullet_beads_visual.nano",
+      "role": "test-definition",
+      "sha256": "5a2ebfbe01b4686856e7b02a0f84d2362d516a31dc652c1c274e734cd420bc40",
+      "size": 7858
+    },
+    {
+      "mode": 420,
+      "path": "examples/physics/bullet_bouncy_balls.nano",
+      "role": "test-definition",
+      "sha256": "c3cb23ec2e52c3cddc4cd5388a9b3035dbfb66f4e1f89c83b0ef185997da88fd",
+      "size": 21894
+    },
+    {
+      "mode": 420,
+      "path": "examples/physics/bullet_rigid_megastacks.nano",
+      "role": "test-definition",
+      "sha256": "76b36dc733fd6be44166336d0d7061928fe14b483122185fd4d19e74159cda5a",
+      "size": 12327
+    },
+    {
+      "mode": 420,
+      "path": "examples/physics/bullet_soft_body_modern.nano",
+      "role": "test-definition",
+      "sha256": "bb21537e685509706c169f17fa65e49df3697b9b618ed85236ebd2dc77914c2e",
+      "size": 11496
+    },
+    {
+      "mode": 420,
+      "path": "examples/physics/bullet_softbody_hourglass.nano",
+      "role": "test-definition",
+      "sha256": "0e07714f733d96a87d3912092eebd9a38ddae2c574196f190fe8d7d496c4e2c1",
+      "size": 14224
+    },
+    {
+      "mode": 420,
+      "path": "examples/playground/README.md",
+      "role": "test-definition",
+      "sha256": "044d6fa4d27facb13e4df3cf47c4ffb6da75a4bb2be185664a3077835f0ad8c6",
+      "size": 2268
+    },
+    {
+      "mode": 420,
+      "path": "examples/playground/playground_server.nano",
+      "role": "test-definition",
+      "sha256": "46b92ccdbb4f37274175fb2f47cc0cb204a3a6fd5208b20036748497f78bc158",
+      "size": 4597
+    },
+    {
+      "mode": 420,
+      "path": "examples/playground/public/app.js",
+      "role": "test-definition",
+      "sha256": "fc1e1aa98be1419cbf71d0a6b298b04ffb98f66c16b6b6a1c8616eb6905ea68b",
+      "size": 15571
+    },
+    {
+      "mode": 420,
+      "path": "examples/playground/public/examples.js",
+      "role": "test-definition",
+      "sha256": "b4b9440593ef075ad32ad99eb58e05b4cfb22cbf031284b20114b391ffdfc587",
+      "size": 9955
+    },
+    {
+      "mode": 420,
+      "path": "examples/playground/public/index.html",
+      "role": "test-definition",
+      "sha256": "be35fa6c9a176d49fd0f5cfd2fd872d5c3577d0499928bc1edd2ef4f5427aad7",
+      "size": 10362
+    },
+    {
+      "mode": 420,
+      "path": "examples/playground/public/nanolang.js",
+      "role": "test-definition",
+      "sha256": "ea3dca9465a1238c5cc30934cda021385cf8865c2da20d8b9217b821060503f2",
+      "size": 71843
+    },
+    {
+      "mode": 493,
+      "path": "examples/playground/public/nanolang.wasm",
+      "role": "test-definition",
+      "sha256": "1f63ef6be4dbbaf35d0820a7fee95413024b454726fc47864934e4269139b583",
+      "size": 367941
+    },
+    {
+      "mode": 420,
+      "path": "examples/playground/public/style.css",
+      "role": "test-definition",
+      "sha256": "81a4db703ac995961520641da310bc80dfab60521024b74adb55f763b160e6f1",
+      "size": 10676
+    },
+    {
+      "mode": 420,
+      "path": "examples/properties/sort_idempotent.nano",
+      "role": "test-definition",
+      "sha256": "c3626c9033967428ea1956928896ec83052b50a26550f4a10bbd9b7854fd3041",
+      "size": 3603
+    },
+    {
+      "mode": 420,
+      "path": "examples/row_poly_records.nano",
+      "role": "test-definition",
+      "sha256": "1f96a904817198ac90ee2b02f77ba88a33ba0d62350a124184934c785ebdcceb",
+      "size": 1005
+    },
+    {
+      "mode": 420,
+      "path": "examples/run_examples.nano",
+      "role": "test-definition",
+      "sha256": "5458ec7a5ceb1518945c5cd51cc32de72d22db0c6ba18f3b465d1016fd6a6d17",
+      "size": 5002
+    },
+    {
+      "mode": 420,
+      "path": "examples/sdl_example_launcher.nano",
+      "role": "test-definition",
+      "sha256": "41e98142d31228b4af124216077d03583d58e2841053ca182aaff177bcf060a7",
+      "size": 31126
+    },
+    {
+      "mode": 420,
+      "path": "examples/terminal/ncurses_game_of_life.nano",
+      "role": "test-definition",
+      "sha256": "df807b2b2c7d60b5cf5ad45c259d350636ccfcef79c194e57447644fd6c95915",
+      "size": 10196
+    },
+    {
+      "mode": 420,
+      "path": "examples/terminal/ncurses_matrix_rain.nano",
+      "role": "test-definition",
+      "sha256": "e183d84b1694fab39f9f80accd52bd703d8de6b2878da808f355ed2d15c3573e",
+      "size": 7203
+    },
+    {
+      "mode": 420,
+      "path": "examples/terminal/ncurses_snake.nano",
+      "role": "test-definition",
+      "sha256": "0cf12e65ede96f506ec12ce50175f38abb6d045dc088f7e4758072f8be4f7692",
+      "size": 10337
+    },
+    {
+      "mode": 420,
+      "path": "examples/verified/README.md",
+      "role": "test-definition",
+      "sha256": "4d9fa4dfd36d63931b26c5c5576daff8b874456577676d689a09361e3739de83",
+      "size": 4032
+    },
+    {
+      "mode": 420,
+      "path": "examples/verified/break_the_proof.nano",
+      "role": "test-definition",
+      "sha256": "7f86542382564bcf904f3de1abedd0efef75320808c5a86e5000f148f3891a7b",
+      "size": 4518
+    },
+    {
+      "mode": 420,
+      "path": "examples/verified/checksum_validator.nano",
+      "role": "test-definition",
+      "sha256": "19fa09b69029ca0ac6576c57d2a6c539bf40424de8cae92e7cff3b847f4aa727",
+      "size": 8698
+    },
+    {
+      "mode": 420,
+      "path": "examples/verified/financial_order_validator.nano",
+      "role": "test-definition",
+      "sha256": "aa3f3d8197a841e1cd78e4c6aeb122dbb469a3dccb3111d8a0b640e07dd7ee7f",
+      "size": 12721
+    },
+    {
+      "mode": 420,
+      "path": "examples/verified/medical_dosage.nano",
+      "role": "test-definition",
+      "sha256": "0620f0ff0f0662135fbdbc3ff64c8da65cfe20914f8df40edffb3d81e04d2a40",
+      "size": 9279
+    },
+    {
+      "mode": 420,
+      "path": "examples/verified/pid_controller.nano",
+      "role": "test-definition",
+      "sha256": "bb44cbe2258389c3a289bcc27a3246c2a38b361d92184fd3d908a32bc9bd072f",
+      "size": 8668
+    },
+    {
+      "mode": 420,
+      "path": "examples/verified/proof_trace.nano",
+      "role": "test-definition",
+      "sha256": "4e91d4c562d764b31993f6e20eb5fbd9900113b6f1ec887ffcb01afee052bf44",
+      "size": 2464
+    },
+    {
+      "mode": 420,
+      "path": "examples/verified/sensor_voting.nano",
+      "role": "test-definition",
+      "sha256": "90be51054a27cf2c7923a78a416f91c5964893d2e665d064aa50ee767b52ae62",
+      "size": 11304
+    },
+    {
+      "mode": 420,
+      "path": "examples/verified/state_machine.nano",
+      "role": "test-definition",
+      "sha256": "c2b4ecd52289d14954cd58ae9dec439f8f93808ffa3c85e526e231e6d1cfdebc",
+      "size": 12189
+    },
+    {
+      "mode": 420,
+      "path": "examples/verified/verified_vs_unverified.nano",
+      "role": "test-definition",
+      "sha256": "6c1bfae3f9508efa5b12afc72ed1d210ce65eaeb32304bb6d38e0e25adca0030",
+      "size": 3133
+    },
+    {
+      "mode": 420,
+      "path": "examples/vm_example_launcher.nano",
+      "role": "test-definition",
+      "sha256": "a2d51a93221264a530be7b882e736dad3cc5b35d7fc97c8c4e0e0107ffe14932",
+      "size": 7246
+    },
+    {
+      "mode": 420,
       "path": "formal/Assumptions.v",
       "role": "test-definition",
       "sha256": "a332f499698bd270364f36450f93d07dc62f080408892112eeafbc7863712c40",
@@ -605036,6 +608170,41 @@
     },
     {
       "mode": 420,
+      "path": "githooks/README.md",
+      "role": "build-definition",
+      "sha256": "846e20722545e939c2e4293fa7e9c4af71842d2d98e27486bc9e05f49d665a17",
+      "size": 393
+    },
+    {
+      "mode": 493,
+      "path": "githooks/post-checkout",
+      "role": "build-definition",
+      "sha256": "fdb17863d1b77442efb61adce7879c0368a0e54710258fe0eb606100bf91f935",
+      "size": 158
+    },
+    {
+      "mode": 493,
+      "path": "githooks/post-commit",
+      "role": "build-definition",
+      "sha256": "fdb17863d1b77442efb61adce7879c0368a0e54710258fe0eb606100bf91f935",
+      "size": 158
+    },
+    {
+      "mode": 493,
+      "path": "githooks/post-merge",
+      "role": "build-definition",
+      "sha256": "fdb17863d1b77442efb61adce7879c0368a0e54710258fe0eb606100bf91f935",
+      "size": 158
+    },
+    {
+      "mode": 493,
+      "path": "githooks/post-rewrite",
+      "role": "build-definition",
+      "sha256": "fdb17863d1b77442efb61adce7879c0368a0e54710258fe0eb606100bf91f935",
+      "size": 158
+    },
+    {
+      "mode": 420,
       "path": "include/ringbuf.h",
       "role": "source",
       "sha256": "285aba97d8aaa288a7078b5b1f1b660b6432a241cf11bab6ca14d2cb468c313d",
@@ -605103,6 +608272,13 @@
       "role": "toolchain",
       "sha256": "89a97a39441fd7be43f5f7e0f472ab010915451054fb5116934c22fea1ff95d8",
       "size": 5395
+    },
+    {
+      "mode": 420,
+      "path": "mkdocs.yml",
+      "role": "build-definition",
+      "sha256": "bcb5055101194d03dbf1f4d4a527d56e99f1e5243ab442702502b27d853727ef",
+      "size": 1650
     },
     {
       "mode": 420,
@@ -608242,6 +611418,524 @@
     },
     {
       "mode": 420,
+      "path": "package.json",
+      "role": "build-definition",
+      "sha256": "71928987abba45ae715694af10b6dbea93052ba1c1b7272e8b5c0141d20977c4",
+      "size": 379
+    },
+    {
+      "mode": 420,
+      "path": "packages.json",
+      "role": "build-definition",
+      "sha256": "aecf7b19934ae7193a2276e6358c9afca24cc31636162d35830244522568db12",
+      "size": 12358
+    },
+    {
+      "mode": 420,
+      "path": "planning/AUDIO_EXAMPLES_DEFAULT_ARGS_AUDIT.md",
+      "role": "docs-definition",
+      "sha256": "e8ae4efc7694ee3b65c6ee2be4651bf614d6b56ec53702470c005c7ed716478c",
+      "size": 5474
+    },
+    {
+      "mode": 420,
+      "path": "planning/BEAD_FIXES_SUMMARY.md",
+      "role": "docs-definition",
+      "sha256": "e817177a1500e3cde7f96c4ad297f4e6e9f037c73758ef4ea5afe9b0d95708dc",
+      "size": 11076
+    },
+    {
+      "mode": 420,
+      "path": "planning/CHANGELOG.md",
+      "role": "docs-definition",
+      "sha256": "172614354591f771aea2a3b5773fcf4c013b46c4f790df8ba2aa982d754f1b4d",
+      "size": 2452
+    },
+    {
+      "mode": 420,
+      "path": "planning/COMPILER_OPTIMIZATIONS_DESIGN.md",
+      "role": "docs-definition",
+      "sha256": "e6ddee4644705a1cf7579de7f711108f6ff0c0b478c2927b3281333c560e7c87",
+      "size": 15481
+    },
+    {
+      "mode": 420,
+      "path": "planning/DEP_LOCATOR_NANO_REQUIREMENTS.md",
+      "role": "docs-definition",
+      "sha256": "1e19a3cb10745027da1b3d203de6391e6d0f8e85f00a5bced112ec6e114edf72",
+      "size": 8129
+    },
+    {
+      "mode": 420,
+      "path": "planning/ENUM_IMPLEMENTATION_PLAN.md",
+      "role": "docs-definition",
+      "sha256": "cd2acadb55a4567d7f272a59fb5fbf7ffca0191ce90de2b6350b55a5733fe647",
+      "size": 7551
+    },
+    {
+      "mode": 420,
+      "path": "planning/EVAL_REFACTORING_PLAN.md",
+      "role": "docs-definition",
+      "sha256": "7f0eeb3f22a7ae325e1a9bbe9ccbbc4e362db17b3f17f16848887c591c8a10f3",
+      "size": 6242
+    },
+    {
+      "mode": 420,
+      "path": "planning/EXAMPLES_AUDIT_PROGRESS.md",
+      "role": "docs-definition",
+      "sha256": "bb2af2689135a2312805eeada8325c6ab2affeaa6f11de7f6a509109f5bf7fca",
+      "size": 4342
+    },
+    {
+      "mode": 420,
+      "path": "planning/EXAMPLES_CONSOLIDATION_AUDIT.md",
+      "role": "docs-definition",
+      "sha256": "4658ca3f02f90ce5de791d457989dc93f01413b8cc3129dd66d23194332f35a9",
+      "size": 8935
+    },
+    {
+      "mode": 420,
+      "path": "planning/EXAMPLES_MODERNIZATION.md",
+      "role": "docs-definition",
+      "sha256": "641926773f3a172dda93733cdfba52195295f25e21312f3d8b0dc1cf595b3b10",
+      "size": 4993
+    },
+    {
+      "mode": 420,
+      "path": "planning/FIRST_CLASS_FUNCTIONS_DESIGN.md",
+      "role": "docs-definition",
+      "sha256": "94cf22e57bebe2b92d4edbfcb4dfdab00aa4068926ed8e2c1e41868de9b83783",
+      "size": 22465
+    },
+    {
+      "mode": 420,
+      "path": "planning/GC_DESIGN.md",
+      "role": "docs-definition",
+      "sha256": "e3289a22d12f8a422c7b5693915b0e800671d12dfa556ab68b5e36a5dc96e0c0",
+      "size": 9218
+    },
+    {
+      "mode": 420,
+      "path": "planning/GC_UNIVERSAL_OBJECTS.md",
+      "role": "docs-definition",
+      "sha256": "0672052adb5c9eeaddfc332979bdb0b4df732683daa99bde50c3e2400bb7ff00",
+      "size": 14814
+    },
+    {
+      "mode": 420,
+      "path": "planning/GENERICS_DESIGN.md",
+      "role": "docs-definition",
+      "sha256": "b54c6c939d8befa6f3c15c49ffc0e25a23749a47028e34bafb9f138b6f3e09b2",
+      "size": 10961
+    },
+    {
+      "mode": 420,
+      "path": "planning/GENERICS_EXTENDED_DESIGN.md",
+      "role": "docs-definition",
+      "sha256": "9fa3c9ea201ff9913d253c2ea294e2f226eb456199f207d8f33b90d01c8c31c9",
+      "size": 11003
+    },
+    {
+      "mode": 420,
+      "path": "planning/INTERPRETER_ONLY_EXAMPLES_ANALYSIS.md",
+      "role": "docs-definition",
+      "sha256": "6e590305a7b0896e23582be8109abe553cb901d26ebb5c0e5ba4299f432f8b38",
+      "size": 5537
+    },
+    {
+      "mode": 420,
+      "path": "planning/KNOWN_ISSUES.md",
+      "role": "docs-definition",
+      "sha256": "cb1c1c9fb2b11bc821301b814bc708b05e90aa78468de0b29d0d0c137b544f37",
+      "size": 4907
+    },
+    {
+      "mode": 420,
+      "path": "planning/LEXER_ENUM_ACCESS_LIMITATION.md",
+      "role": "docs-definition",
+      "sha256": "e37fa5b98360b0a105edb96f9e830b19977f7c504479cb5d62b8bb17b5bb772e",
+      "size": 4599
+    },
+    {
+      "mode": 420,
+      "path": "planning/LSP_DESIGN.md",
+      "role": "docs-definition",
+      "sha256": "974eb8e7c457c7518fb66721c3f9d88373d5ac829ec5bbf28de5192eb8256173",
+      "size": 11486
+    },
+    {
+      "mode": 420,
+      "path": "planning/MODULE_FFI_IMPLEMENTATION.md",
+      "role": "docs-definition",
+      "sha256": "0c3a792e434db51c8ee8c855a215c97394bef4bc984992d1805b0d5c750e095d",
+      "size": 7152
+    },
+    {
+      "mode": 420,
+      "path": "planning/MODULE_SYSTEM_ANALYSIS.md",
+      "role": "docs-definition",
+      "sha256": "a645745a783de0fb072b327a07f424b98e5a00d4f980fc1a51fb2dda3312e0f3",
+      "size": 7541
+    },
+    {
+      "mode": 420,
+      "path": "planning/NANOISA_TO_WASM_PROPOSAL.md",
+      "role": "docs-definition",
+      "sha256": "3d763928eda787443d931532703752ce8068da9fa1c4a0533cd752bf07b37a7b",
+      "size": 14560
+    },
+    {
+      "mode": 420,
+      "path": "planning/PACKAGE_MANAGER_DESIGN.md",
+      "role": "docs-definition",
+      "sha256": "e780ecd692e9bfe94f838508d59c128f268b19839f0403b67c0073c440f15870",
+      "size": 11830
+    },
+    {
+      "mode": 420,
+      "path": "planning/README.md",
+      "role": "docs-definition",
+      "sha256": "f886db4d14532a124869ca86137f0072efd55c7a5701ecbb51db1bbed60cffd5",
+      "size": 3580
+    },
+    {
+      "mode": 420,
+      "path": "planning/REMAINING_TODOS.md",
+      "role": "docs-definition",
+      "sha256": "8785237558e4d3c3340f1b96e36c6dbd3632f0a0a9bebc7444a9abd2e71b7ce5",
+      "size": 3383
+    },
+    {
+      "mode": 420,
+      "path": "planning/REPL_DESIGN.md",
+      "role": "docs-definition",
+      "sha256": "ab912f57c15808c4ca7f59d141d0c165c837467a6b01ac6007fc6f93f1339200",
+      "size": 9581
+    },
+    {
+      "mode": 420,
+      "path": "planning/SHOWCASE_GAMES_ROADMAP.md",
+      "role": "docs-definition",
+      "sha256": "d66edd26a60eba8e58cfe80a3ebd4159470fe123cb1669bcef50533803798a7a",
+      "size": 12938
+    },
+    {
+      "mode": 420,
+      "path": "planning/SRC_NANO_IMPROVEMENTS.md",
+      "role": "docs-definition",
+      "sha256": "c1e2b067d4dafc04e29bac78a759eb065d9718c0307031f65907e74b05525c49",
+      "size": 9777
+    },
+    {
+      "mode": 420,
+      "path": "planning/STAGE2_STATUS.md",
+      "role": "docs-definition",
+      "sha256": "f2b123a3bdc371b8d2fcb978460c92ccfd6ad0c51dadef718b21bd2918650508",
+      "size": 3166
+    },
+    {
+      "mode": 420,
+      "path": "planning/STDLIB_REORGANIZATION_PLAN.md",
+      "role": "docs-definition",
+      "sha256": "0ca9b3d6b02536ec33032e713a8e8004ce190bafbb371aafd11e43ccdb64561b",
+      "size": 7484
+    },
+    {
+      "mode": 420,
+      "path": "planning/STRING_OPERATIONS_PLAN.md",
+      "role": "docs-definition",
+      "sha256": "641bf8725ea2c0e52732b5caa031fa3092aaac816ce30c18e89ff25a69cc79eb",
+      "size": 11696
+    },
+    {
+      "mode": 420,
+      "path": "planning/TEST_AUDIT_REPORT.md",
+      "role": "docs-definition",
+      "sha256": "7d6f2d773bc163ef095022289f7befa398776df0276f30e5a23423e155d5551a",
+      "size": 10217
+    },
+    {
+      "mode": 420,
+      "path": "planning/TODO.md",
+      "role": "docs-definition",
+      "sha256": "9557a77daa35db33352fae692a6b27d08eac2bc998449e5ae83aa2bd06ce9e93",
+      "size": 17075
+    },
+    {
+      "mode": 420,
+      "path": "planning/TRACING_DESIGN.md",
+      "role": "docs-definition",
+      "sha256": "3f33c7c0bff88985027f1899a419512a2a16f6e0911d436addac93fe495ff4e9",
+      "size": 2638
+    },
+    {
+      "mode": 420,
+      "path": "planning/TRANSPILER_ENUM_ISSUE.md",
+      "role": "docs-definition",
+      "sha256": "67e662bc3e36e7826dc985612d46f1c22a28d59b0267ba26a89ad877c693a431",
+      "size": 3684
+    },
+    {
+      "mode": 420,
+      "path": "planning/TUPLE_RETURN_IMPLEMENTATION.md",
+      "role": "docs-definition",
+      "sha256": "0dbed8093886962624c8d803663e18f29d4b2c01f0e400fb2d8df285a7dfe518",
+      "size": 5789
+    },
+    {
+      "mode": 420,
+      "path": "planning/UNION_TYPES_AUDIT.md",
+      "role": "docs-definition",
+      "sha256": "32806bbffdce04c544b92136147abdf11cc9373314441a07ed31811c8acf1060",
+      "size": 11755
+    },
+    {
+      "mode": 420,
+      "path": "planning/WEB_PLAYGROUND_DESIGN.md",
+      "role": "docs-definition",
+      "sha256": "5ca91ba597682713290b2fe160435f1275ad7cbd41de08774b552142bdd99e47",
+      "size": 15536
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/CAST_IMPLEMENTATION.md",
+      "role": "docs-definition",
+      "sha256": "9bec93fc0c53b65d4eaea6d962e8501dc7ce375bef73fdf2c23be741add105f6",
+      "size": 2898
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/COMPILER_WARNINGS_FIXED.md",
+      "role": "docs-definition",
+      "sha256": "0f91b98dd725e36f4a572a4ff383fbe337b22d2a4df6b03bf37c7c0474b39a0b",
+      "size": 7664
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/EXAMPLES_AUDIT_REPORT.md",
+      "role": "docs-definition",
+      "sha256": "64838927899a330949964e8462c930c48ffc6a07b3567c76bfd17dd350ff4a82",
+      "size": 12723
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/MULTILINE_REPL_DESIGN.md",
+      "role": "docs-definition",
+      "sha256": "95f23718a9145318446639de300dac371e2110d6301843c1b0a03141484f82e3",
+      "size": 6416
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/MULTI_TYPE_REPL_DESIGN.md",
+      "role": "docs-definition",
+      "sha256": "25f3111b3e1c5562aa0dd5ce4d363fb30b704b0f0ea8d92d578a11c31bc3a901",
+      "size": 4494
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/REPL_IMPLEMENTATION_PLAN.md",
+      "role": "docs-definition",
+      "sha256": "cec10257ab6b542e6bf2bb92fc79b63590e2b6fcb7029d53b4ea8a6dbcef9779",
+      "size": 8787
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/REPL_PROGRESS.md",
+      "role": "docs-definition",
+      "sha256": "3b2c3bf2cf4ffccd9749a335b8be12b318e53ae46ab31f31911c888fa8cde204",
+      "size": 10836
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/SESSION_WRAPUP_NOV14.md",
+      "role": "docs-definition",
+      "sha256": "0a0d8da96ad6c6f27a15ab050235d9443feb553bc785e95d2b5c45cb286e34c5",
+      "size": 11890
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/STRUCT_ARRAYS_PLAN.md",
+      "role": "docs-definition",
+      "sha256": "afc2421fb65912f85beee9ccc2f47dbf856397b3c0ab511a1ddb2a7adc73e6ae",
+      "size": 4583
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/BEADS_PROGRESS_2025-12-15.md",
+      "role": "docs-definition",
+      "sha256": "d4a0513ef0a528d51207f54058e02b305e5573d8d038600088baa78caef21134",
+      "size": 10977
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/BEADS_PROGRESS_FINAL_2025-12-15.md",
+      "role": "docs-definition",
+      "sha256": "80376fc78620445b3edc47bc95083ea2ed006cfa0bcdade27a6a90d0b36f48b2",
+      "size": 5685
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/CHANGELOG_2025-12.md",
+      "role": "docs-definition",
+      "sha256": "a2d5078531b4c7c11df1615ea3e70a8075d4007c496befe240c39a2073203c01",
+      "size": 10500
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/CLOSURES_VS_FIRSTCLASS.md",
+      "role": "docs-definition",
+      "sha256": "5f33488f8d5f9e5d3b4954c386bea2565d21a7c3ee442573efd93171b46768e6",
+      "size": 9387
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/CLOSURE_CLARIFICATION_SUMMARY.md",
+      "role": "docs-definition",
+      "sha256": "193aae85ab7746d55909584dab6e21cf529bc65393b43f01d4e9788b26af02a2",
+      "size": 8672
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/EXAMPLES_INSTRUCTIONAL_REVIEW.md",
+      "role": "docs-definition",
+      "sha256": "75832633b5832d54d07a4deef5a383179557ee093b8f0e179b376c2dd049a37f",
+      "size": 18669
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/EXAMPLES_OVERLAP_AUDIT.md",
+      "role": "docs-definition",
+      "sha256": "df425c648d0f952cc68c6b567024e98c7d4df4709c62aca1d9a51b2ee63986c6",
+      "size": 16570
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/EXAMPLES_WARNINGS_AUDIT.md",
+      "role": "docs-definition",
+      "sha256": "f349bdaeede234a8050de14fe5d7013d8ab09e31d7825400470351912025a833",
+      "size": 5251
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/FEATURES_COMPLETE.md",
+      "role": "docs-definition",
+      "sha256": "3a308ad9abc90c3242ef7b33de275f0708fa5c0eb661a3551eb4a176ca1351a7",
+      "size": 8176
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/INTERPRETER_VS_COMPILED_STATUS.md",
+      "role": "docs-definition",
+      "sha256": "11a227e415fc0866a34391de45e69f2cc99c479ef912455f9fafa4c75e4a9420",
+      "size": 10043
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/NAMESPACE_FIXES.md",
+      "role": "docs-definition",
+      "sha256": "d5912f3c0b44831e9d037e50d92dc1f1627dd5bd0fb93192ad7938189c82bc44",
+      "size": 11517
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/OUTDATED_ASSUMPTIONS_FIXED.md",
+      "role": "docs-definition",
+      "sha256": "0fe9b466dd93007788447007b66ab9f870ea9dde62d6cfd6d435cd4495b46517",
+      "size": 10269
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/REALWORLD_EXAMPLES_EVALUATION.md",
+      "role": "docs-definition",
+      "sha256": "7565759eea852132f95cc10ac2a2cd5e56c42dd6e326aec7feb41d1e083e6669",
+      "size": 18846
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/RELEASE_NOTES_v1.0.0.md",
+      "role": "docs-definition",
+      "sha256": "ce2dafc39e13753227786f28cd30d8fc504eac80cd61aefad9cea399d05cf65d",
+      "size": 6051
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/SAFE_C_FFI_FUNCTIONS.md",
+      "role": "docs-definition",
+      "sha256": "7d9d107c1486fe19916b164c3685a29981a3e49ecf655ed0bda36765e395b1d2",
+      "size": 9796
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/SESSION_SUMMARY_2025-12-15.md",
+      "role": "docs-definition",
+      "sha256": "905785f208cf703ddb86dfdd1dd63a5b3101377c3b3f908243048b7423f9accd",
+      "size": 10913
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/TRANSPILER_AUDIT_2025-12-15.md",
+      "role": "docs-definition",
+      "sha256": "57f705db0760ffd89621e504945330b27f60a9571a9db75584427462fe2ea6a4",
+      "size": 13333
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/TRANSPILER_AUDIT_BEADS.md",
+      "role": "docs-definition",
+      "sha256": "db80150ca7b4f4ead7a6a0288dfa3803a8a5ddbc3c67ceffbaa73b4c76a034a5",
+      "size": 5567
+    },
+    {
+      "mode": 420,
+      "path": "planning/archive/docs/TRANSPILER_CODE_AUDIT_2025-12-15.md",
+      "role": "docs-definition",
+      "sha256": "c8957e2e244b9e4824a596bea6f69d86dc06eb5c322c8f0e12e77027046b7de7",
+      "size": 20397
+    },
+    {
+      "mode": 420,
+      "path": "planning/compiler_module_boundaries.md",
+      "role": "docs-definition",
+      "sha256": "09a1f2db059ddecf8a7e9b50d46687553f294ca41f8b9257d90667e55b225ba3",
+      "size": 3193
+    },
+    {
+      "mode": 420,
+      "path": "planning/safety_guidelines.md",
+      "role": "docs-definition",
+      "sha256": "c91a71c09e897382e218522262ffc022cd2dcb7cbb28d7b68450a8b9b118ba68",
+      "size": 2109
+    },
+    {
+      "mode": 420,
+      "path": "planning/transpiler_refactoring_plan.md",
+      "role": "docs-definition",
+      "sha256": "7a9ac3b3abf31b6cead6631c7d806f268c34059afe019be86586602877160128",
+      "size": 6200
+    },
+    {
+      "mode": 420,
+      "path": "playground/README.md",
+      "role": "source",
+      "sha256": "5d83aeda774d7e2b2008a274973852eb23a4b9c6528a496a13d45d1299244fa7",
+      "size": 1901
+    },
+    {
+      "mode": 420,
+      "path": "playground/index.html",
+      "role": "source",
+      "sha256": "416506d18b9901640041c34a862bfb51c64051ab243d8fbbbad257aba5d69b06",
+      "size": 17655
+    },
+    {
+      "mode": 420,
+      "path": "playground/server.mjs",
+      "role": "source",
+      "sha256": "707f20f575d9b76a4ff7cd096e17dff2f703bc81aff9f69b57da670f57725f10",
+      "size": 2643
+    },
+    {
+      "mode": 420,
       "path": "schema/compiler_schema.json",
       "role": "source",
       "sha256": "53085853a72a1644c8a0623d3b955653876b8ac670a7717e487158c64ef6b203",
@@ -608657,8 +612351,8 @@
       "mode": 420,
       "path": "scripts/litai_retained_author.py",
       "role": "build-definition",
-      "sha256": "46e2fedd98f4c6d139796565326ca6a734ab24623745f86193a9fb8ec95a7342",
-      "size": 11501
+      "sha256": "4b72c6e1a576d84ba0131954e32d31809e5136a589a109d9d35d55d6e29d15aa",
+      "size": 13574
     },
     {
       "mode": 493,
@@ -608939,6 +612633,167 @@
       "role": "build-definition",
       "sha256": "e842bdc4b16f71c4b5b69a10597c3f7fa0a1c159974cc1e4d41562acef2cd282",
       "size": 6682
+    },
+    {
+      "mode": 420,
+      "path": "settings.json",
+      "role": "build-definition",
+      "sha256": "dd1b39a95bcc54968b47ee5eeddc3b6a9dab4f047ea8ace251c2470d9b5e1846",
+      "size": 468
+    },
+    {
+      "mode": 420,
+      "path": "skills/README.md",
+      "role": "build-definition",
+      "sha256": "19a31720a3139a21453893d9c63f2c43ec8134d4e3774e233d20e0127971582e",
+      "size": 2526
+    },
+    {
+      "mode": 420,
+      "path": "skills/github-issue-tracking/SKILL.md",
+      "role": "build-definition",
+      "sha256": "ac82e135f800ca227f90dadda21d621fbee8e1c883ca5fd21a4253ddbf35d94d",
+      "size": 2727
+    },
+    {
+      "mode": 420,
+      "path": "skills/nanovm-opcode-debugging/SKILL.md",
+      "role": "build-definition",
+      "sha256": "7dc7b0abea33dd920b6eb0e18d8fa79f92f7136be09012cb08b0d01cca0d7b16",
+      "size": 2337
+    },
+    {
+      "mode": 420,
+      "path": "skills/reading-nanolang/SKILL.md",
+      "role": "build-definition",
+      "sha256": "52e9c60347f3f6a75bb67a37224084a7bb13d08377b5ecafc40258862ad4d489",
+      "size": 3212
+    },
+    {
+      "mode": 420,
+      "path": "skills/release-readiness/SKILL.md",
+      "role": "build-definition",
+      "sha256": "fa2e341cc0d9436bebb3ce0875cb4a83c8c11d5335908be78440876428495651",
+      "size": 2437
+    },
+    {
+      "mode": 420,
+      "path": "skills/releasing/SKILL.md",
+      "role": "build-definition",
+      "sha256": "c97c25a2f51b64d470900aed73ac3e64e3c8db16b846436fda9201d0756bdd35",
+      "size": 5046
+    },
+    {
+      "mode": 420,
+      "path": "skills/releasing/__init__.py",
+      "role": "build-definition",
+      "sha256": "34306c12d2d7765faa5e2c94e7cb2a0861b311c64d49cc9f516cb5c5fca2794c",
+      "size": 78
+    },
+    {
+      "mode": 420,
+      "path": "skills/releasing/documentation/SKILL.md",
+      "role": "build-definition",
+      "sha256": "1f0635984a514c3b92d9aca58eea1ef64fec62d5908b295f77c9f95fe95a76e7",
+      "size": 2457
+    },
+    {
+      "mode": 420,
+      "path": "skills/releasing/documentation/__init__.py",
+      "role": "build-definition",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "mode": 420,
+      "path": "skills/releasing/documentation/check_documentation.py",
+      "role": "build-definition",
+      "sha256": "a8de07479bbbcd6d0be8352ac8ddf8b0ddff7016fd379b8e847ba1a6d0f936fa",
+      "size": 2939
+    },
+    {
+      "mode": 420,
+      "path": "skills/releasing/lib/__init__.py",
+      "role": "build-definition",
+      "sha256": "fcccc7f9ec2a365e6611ae0cb7707bc6aa3193c2684eed44759972de725a8daf",
+      "size": 279
+    },
+    {
+      "mode": 420,
+      "path": "skills/releasing/lib/repo.py",
+      "role": "build-definition",
+      "sha256": "3a7793be521c5166c678d5b9548b0d9e20e382c1043072c88de326380a452559",
+      "size": 4231
+    },
+    {
+      "mode": 420,
+      "path": "skills/releasing/lib/report.py",
+      "role": "build-definition",
+      "sha256": "2e7e22602038579d63961ae569d11beee54d00f29b3bee3c4dec8ea6875b22ad",
+      "size": 2442
+    },
+    {
+      "mode": 420,
+      "path": "skills/releasing/lib/staleness.py",
+      "role": "build-definition",
+      "sha256": "9e7e0fd78cc6893ecc56fb31b2c1581741cc1b7a62fd0e6fee1de102391715f8",
+      "size": 2251
+    },
+    {
+      "mode": 420,
+      "path": "skills/releasing/presentation/SKILL.md",
+      "role": "build-definition",
+      "sha256": "4799ab6a4f5576756326127ad0204c591a27697bcc2de4645dd61bc7d1672be1",
+      "size": 2932
+    },
+    {
+      "mode": 420,
+      "path": "skills/releasing/presentation/__init__.py",
+      "role": "build-definition",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "mode": 420,
+      "path": "skills/releasing/presentation/check_presentation.py",
+      "role": "build-definition",
+      "sha256": "6e78088a4527becf76f5c692fe9d6778fa61a2be7173868231c2bfe5fb3ca71a",
+      "size": 3676
+    },
+    {
+      "mode": 420,
+      "path": "skills/roadmap-execution/SKILL.md",
+      "role": "build-definition",
+      "sha256": "f2d942b9e76df76c8de10a733ad1f07b8690fa282811d157e300c6972a45b455",
+      "size": 2623
+    },
+    {
+      "mode": 420,
+      "path": "skills/session-completion/SKILL.md",
+      "role": "build-definition",
+      "sha256": "797eee606f9a70c6da236c08ea88a40f0749149b523e6471eea6d0af3adb1875",
+      "size": 2318
+    },
+    {
+      "mode": 420,
+      "path": "spec.json",
+      "role": "source",
+      "sha256": "75ed2abc781a309786e6f61b98eb1717d8714ee69a547c6f16e5111b79194c38",
+      "size": 42715
+    },
+    {
+      "mode": 420,
+      "path": "spec/nanoisa.yaml",
+      "role": "source",
+      "sha256": "5a629313b053ea8292d3e28b4a728539dc75eaecd4872249f613ade245258e53",
+      "size": 33881
+    },
+    {
+      "mode": 420,
+      "path": "spec/purity_intrinsics.json",
+      "role": "source",
+      "sha256": "6bc21bbbb593e4078c94cfa6b9c8e5660a725d7de41aa944915e9d603e4f4765",
+      "size": 2259
     },
     {
       "mode": 420,
@@ -628570,6 +632425,188 @@
     },
     {
       "mode": 420,
+      "path": "tools/README.md",
+      "role": "build-definition",
+      "sha256": "237abf49c52e50c32766c1e61a60243a661c00f64f097705235363a20d6a3396",
+      "size": 1684
+    },
+    {
+      "mode": 420,
+      "path": "tools/audit_module_packages.py",
+      "role": "build-definition",
+      "sha256": "337bc8724c389580bca42aca0d09efed1431e97549015cf2d12478673db2e69c",
+      "size": 2568
+    },
+    {
+      "mode": 493,
+      "path": "tools/check_feature_parity.sh",
+      "role": "build-definition",
+      "sha256": "427f4343c5ab6ac39dccd650d65ab40c76cd6695dd2838a355586596b84f9e85",
+      "size": 5959
+    },
+    {
+      "mode": 420,
+      "path": "tools/create_shadow_report.py",
+      "role": "build-definition",
+      "sha256": "af5f901976dbb7faf02c3780e501dfe77ecc7c62190ebd1361ede09600b4f311",
+      "size": 8813
+    },
+    {
+      "mode": 493,
+      "path": "tools/differential_test.sh",
+      "role": "build-definition",
+      "sha256": "46d52e998c3f785eeb99b02f1bbf96a198bd856e65b2bc1d3c4d6370363a0be2",
+      "size": 5474
+    },
+    {
+      "mode": 420,
+      "path": "tools/estimate_feature_cost.nano",
+      "role": "build-definition",
+      "sha256": "9c0d8ebbf5c71ffb46e0438508c21d9c89e4d98e47e85c9947f1a12e68a159ee",
+      "size": 2287
+    },
+    {
+      "mode": 420,
+      "path": "tools/extract-docs.py",
+      "role": "build-definition",
+      "sha256": "49a0ada64e6eec613cf4a197b7a2dde6bfff5e2fb14c964a40a5507761612239",
+      "size": 13438
+    },
+    {
+      "mode": 420,
+      "path": "tools/extract_spec.py",
+      "role": "build-definition",
+      "sha256": "a4c0e5c51ca54e15b5032f40362df081c8a4e1d8c0b832890a1665a0bf570ca3",
+      "size": 23522
+    },
+    {
+      "mode": 420,
+      "path": "tools/gen_ringbuf.py",
+      "role": "build-definition",
+      "sha256": "5efbae4d5688043bd1749ebaeb7500d85f51a27787672baa136a54838d9d9c23",
+      "size": 6647
+    },
+    {
+      "mode": 420,
+      "path": "tools/generate_module_index.c",
+      "role": "build-definition",
+      "sha256": "377e3d3a3b4c0795039872d39329f8d4ed6816c0f262b9080eac39e98b3fe334",
+      "size": 4759
+    },
+    {
+      "mode": 420,
+      "path": "tools/generate_module_index.nano",
+      "role": "build-definition",
+      "sha256": "b84bdc49adc84e642db041a79984ccd40b85fb2e0150f13e2333956bcd4dd501",
+      "size": 5110
+    },
+    {
+      "mode": 420,
+      "path": "tools/merge_imports.nano",
+      "role": "build-definition",
+      "sha256": "1c045dd425e10e659022c343be535137884a1f2b1417e79e7704b750a86a5799",
+      "size": 1561
+    },
+    {
+      "mode": 493,
+      "path": "tools/nano-registry-server.mjs",
+      "role": "build-definition",
+      "sha256": "9e50d665395970d2eb1727f2e7f5b59bef83054cfe4f1bfbf3ea632d8e9e2136",
+      "size": 15532
+    },
+    {
+      "mode": 420,
+      "path": "tools/nano_highlight.nano",
+      "role": "build-definition",
+      "sha256": "56f174d37c9f99611f33a9e26661b7e3d41a8001e7c456d79ba00a4498c03fb7",
+      "size": 446
+    },
+    {
+      "mode": 420,
+      "path": "tools/nano_lint.nano",
+      "role": "build-definition",
+      "sha256": "62ca2dd571b9e1a642ab3bfe43721842419936d42c5c36c7692b19dd2bca932e",
+      "size": 2351
+    },
+    {
+      "mode": 420,
+      "path": "tools/nano_registry.mjs",
+      "role": "build-definition",
+      "sha256": "1f3e0158cbd799d16a4f6a77ae31e89c4261af66a8975be60fc71031ff58b6ac",
+      "size": 16217
+    },
+    {
+      "mode": 420,
+      "path": "tools/nanocore_ref/Makefile",
+      "role": "build-definition",
+      "sha256": "98b254fa67f520e358ebc98a2d06a6d58cdbd46f95817c1d1c08438e5191f32c",
+      "size": 1464
+    },
+    {
+      "mode": 420,
+      "path": "tools/nanocore_ref/main.ml",
+      "role": "build-definition",
+      "sha256": "79a9d00bca8520c6088890115a5bdba3a9aa96efc1253b0f37fc103670e11c16",
+      "size": 11119
+    },
+    {
+      "mode": 420,
+      "path": "tools/nanodoc.mjs",
+      "role": "build-definition",
+      "sha256": "93b216ccbb71667459d1745edc6097e669b3dae90ab253a23f8afef56b84fb64",
+      "size": 22129
+    },
+    {
+      "mode": 420,
+      "path": "tools/nanolang_pybridge.py",
+      "role": "build-definition",
+      "sha256": "8f4c1c2dcffced53560aad873fea5d1f04df2a471f7b266e39c5186e2ada991c",
+      "size": 28724
+    },
+    {
+      "mode": 493,
+      "path": "tools/validate_schema_sync.py",
+      "role": "build-definition",
+      "sha256": "b1e2d93ae524a2301018722536e761213148b6d09483f68c145b7a9b25a3000c",
+      "size": 12732
+    },
+    {
+      "mode": 420,
+      "path": "tools/vscode-nanolang/README.md",
+      "role": "build-definition",
+      "sha256": "7a282c42c4f4bb53dec17dc018b5d5e1f09983d7aa245fc8f0cb5fb959b03dec",
+      "size": 4488
+    },
+    {
+      "mode": 420,
+      "path": "tools/vscode-nanolang/language-configuration.json",
+      "role": "build-definition",
+      "sha256": "1fb9f3ad63884b17c3458779d40a57f4a46660e7a09943f0e4cc9c234142cb28",
+      "size": 885
+    },
+    {
+      "mode": 420,
+      "path": "tools/vscode-nanolang/package.json",
+      "role": "build-definition",
+      "sha256": "38056d24990e38ce452c58e8095d3936eaa1eaa2afa0289206da4371fcd23b34",
+      "size": 1587
+    },
+    {
+      "mode": 420,
+      "path": "tools/vscode-nanolang/snippets/nanolang.json",
+      "role": "build-definition",
+      "sha256": "1a70efac60f3a75df6b4df213d7e4bb887c6edde122056568d3376ef060adb51",
+      "size": 3949
+    },
+    {
+      "mode": 420,
+      "path": "tools/vscode-nanolang/syntaxes/nanolang.tmLanguage.json",
+      "role": "build-definition",
+      "sha256": "c7561f2ae041cda599399644505a1207661d06d0aab158de4e3bf9068d016c65",
+      "size": 4892
+    },
+    {
+      "mode": 420,
       "path": "userguide/01_getting_started.md",
       "role": "docs-definition",
       "sha256": "40108efeac2e792721bb1e298966061237c76b6ade252621a0d75b564d5c73d3",
@@ -629617,13 +633654,107 @@
       "role": "docs-definition",
       "sha256": "d4f3e59618532284297793a66fb945cf9dfb9a9989bc7250c613ce7b1d43775e",
       "size": 333
+    },
+    {
+      "mode": 420,
+      "path": "vscode/.vscodeignore",
+      "role": "source",
+      "sha256": "9a3343aafb599274ba727e839f496a96547efb7cbb80d902b84f99b8ca6a7302",
+      "size": 100
+    },
+    {
+      "mode": 420,
+      "path": "vscode/README.md",
+      "role": "source",
+      "sha256": "f6a16c770b10548844086c2f6745a4158e938231c03694e1f94ca83e80dc70a8",
+      "size": 2257
+    },
+    {
+      "mode": 420,
+      "path": "vscode/language-configuration.json",
+      "role": "source",
+      "sha256": "fea1051910fc08b1f42bfed2f45a286a2cf8aeed50151cb7d13fe36a476b6b14",
+      "size": 713
+    },
+    {
+      "mode": 420,
+      "path": "vscode/out/extension.js",
+      "role": "source",
+      "sha256": "25369a57d89b0a5258a11e1d6f9329b93e557c82323d5e82887eb42f307ec152",
+      "size": 6822
+    },
+    {
+      "mode": 420,
+      "path": "vscode/out/extension.js.map",
+      "role": "source",
+      "sha256": "0d422d26ce4ec4c9b89ca948948504e1462b98d50170dbc39a9e21184d62efed",
+      "size": 1016
+    },
+    {
+      "mode": 420,
+      "path": "vscode/package-lock.json",
+      "role": "source",
+      "sha256": "4c130e4cea1855f89099657a534ea96a3811bc1f43432f60cab325b2817682f4",
+      "size": 5059
+    },
+    {
+      "mode": 420,
+      "path": "vscode/package.json",
+      "role": "source",
+      "sha256": "db3f85667d65f30e396f8da7476acb3cd3c0118438cd95d6ad26650458966cc5",
+      "size": 3060
+    },
+    {
+      "mode": 420,
+      "path": "vscode/src/extension.ts",
+      "role": "source",
+      "sha256": "7e548d2e311c523cf7497d26b069d85b1e7e2b1e245b73feb521acb401e9d863",
+      "size": 5755
+    },
+    {
+      "mode": 420,
+      "path": "vscode/syntaxes/nanolang.tmLanguage.json",
+      "role": "source",
+      "sha256": "daa4d059634406b3e13b817eed551f41b2c7c263c581e3115506050cbbc0c8f1",
+      "size": 3967
+    },
+    {
+      "mode": 420,
+      "path": "vscode/tsconfig.json",
+      "role": "source",
+      "sha256": "36fdbaf9e8151d875fccbd77a83c1dc6f401e1c3f273a4078a29ef9ec32358fc",
+      "size": 322
     }
   ],
   "roots": [
+    ".claude",
+    ".codex",
+    ".cursor",
+    ".cursorrules",
+    ".factory",
+    ".gitattributes",
+    ".github",
+    ".gitignore",
+    ".mac",
+    ".mcp.json",
+    ".vscode",
+    "AGENTS.md",
+    "C-samples",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "CONTRIBUTING.md",
+    "CONTRIBUTORS.md",
     "GNUmakefile",
+    "LICENSE",
+    "MEMORY.md",
     "Makefile",
     "Makefile.gnu",
+    "PROJECT.md",
     "README.md",
+    "SKILL.md",
+    "SPEC_AUDIT.md",
+    "agents",
+    "bench",
     "catalogs",
     "docs/ACTOR.md",
     "docs/AFFINE_FULL_SUITE_RESUMPTION.md",
@@ -632053,15 +636184,27 @@
     "docs/stdlib",
     "docs/superpowers",
     "docs/tutorials",
+    "editors",
+    "examples",
     "formal",
+    "githooks",
     "include",
     "literate.release.json",
     "literate/retained/profile.json",
     "literate/retained/test-policy.json",
     "literate/retained/tools",
+    "mkdocs.yml",
     "modules",
+    "package.json",
+    "packages.json",
+    "planning",
+    "playground",
     "schema",
     "scripts",
+    "settings.json",
+    "skills",
+    "spec",
+    "spec.json",
     "src",
     "src_nano",
     "std",
@@ -633224,7 +637367,9 @@
     "tests/websocket_safety.nano",
     "tests/websocket_transport_probe.c",
     "tests/websocket_values_probe.c",
-    "userguide"
+    "tools",
+    "userguide",
+    "vscode"
   ],
   "schema": "literate-ai/retained-project-manifest@1"
 }
