@@ -92,6 +92,10 @@ int main(int argc, char **argv) {
         return EXIT_PIN;
     }
     setenv("PATH", path_value, 1);
+    /* The framework strips the environment. The repository's own CI runs with this shadow budget (ci.yml and the
+     * qualification workflow set 120); the 10 second default fails a loaded host, so a busy host must not read as
+     * a compiler defect. */
+    setenv("NANO_SHADOW_TIMEOUT_SECONDS", "120", 1);
 
     if (strcmp(name, "host-make") == 0) {
         char *args[argc + 2];
@@ -116,7 +120,7 @@ int main(int argc, char **argv) {
         char *writable[] = {"/bin/chmod", "-R", "u+w", ".", NULL};
         code = run(writable);
         if (code != 0) return code;
-        char *make[] = {"/usr/bin/make", "build", NULL};
+        char *make[] = {"/usr/bin/make", "build", "CMD_TIMEOUT=1800", NULL};
         code = run(make);
         if (code != 0) return code;
         snprintf(destination, sizeof destination, "%s/bin", argv[2]);
