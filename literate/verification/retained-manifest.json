@@ -608221,7 +608221,7 @@
       "mode": 420,
       "path": "literate/retained/profile.json",
       "role": "build-definition",
-      "sha256": "bb2ef94d12846092fc6a5a2e9b7864fb8669efb5edd427bf660d7c62f4ff6ce9",
+      "sha256": "2a99ee4fe5cad26919fa2ce191e707dad344dc9e33980562654b1683e40394c9",
       "size": 19822
     },
     {
@@ -608235,14 +608235,14 @@
       "mode": 493,
       "path": "literate/retained/tools/build-native",
       "role": "toolchain",
-      "sha256": "0fb1f3bce2ec7f7d2dedc47f048c2e9a373710a2d216c97025ba9a46d15b4cf5",
+      "sha256": "f5636565266dbef218120a08a1466f2865caf794d5f3aa1134656aa495967824",
       "size": 34928
     },
     {
       "mode": 493,
       "path": "literate/retained/tools/host-make",
       "role": "toolchain",
-      "sha256": "0fb1f3bce2ec7f7d2dedc47f048c2e9a373710a2d216c97025ba9a46d15b4cf5",
+      "sha256": "f5636565266dbef218120a08a1466f2865caf794d5f3aa1134656aa495967824",
       "size": 34928
     },
     {
@@ -608256,7 +608256,7 @@
       "mode": 493,
       "path": "literate/retained/tools/run-cases",
       "role": "toolchain",
-      "sha256": "0fb1f3bce2ec7f7d2dedc47f048c2e9a373710a2d216c97025ba9a46d15b4cf5",
+      "sha256": "f5636565266dbef218120a08a1466f2865caf794d5f3aa1134656aa495967824",
       "size": 34928
     },
     {
@@ -608270,8 +608270,8 @@
       "mode": 420,
       "path": "literate/retained/tools/src/retained_launcher.c",
       "role": "toolchain",
-      "sha256": "6bc7206199ef07c85bd7b23a25059115e82aa18e6901a746f12e7315d0065842",
-      "size": 5501
+      "sha256": "8cc9e4425f54ad09abbc31830f4476115c24b767171557e405fdd7722aca9866",
+      "size": 5832
     },
     {
       "mode": 420,
