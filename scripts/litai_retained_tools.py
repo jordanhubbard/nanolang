@@ -36,7 +36,7 @@ def discover():
     env = {**os.environ, 'PATH': path}
     python = subprocess.run(['sh', '-c', 'command -v python3'], env=env, capture_output=True, text=True).stdout.strip()
     sdk = out('xcrun', '--show-sdk-path')
-    files = {'/usr/bin/make', '/usr/bin/cc', '/usr/bin/clang', '/usr/bin/xcrun', '/bin/sh', '/bin/cp', '/bin/chmod', python,
+    files = {'/usr/bin/make', '/usr/bin/cc', '/usr/bin/clang', '/usr/bin/xcrun', '/bin/sh', '/bin/cp', '/bin/chmod', '/bin/rm', '/usr/bin/find', python,
              f'{sdk}/SDKSettings.json'}
     for tool in ('make', 'cc', 'clang', 'ld', 'ar', 'ranlib', 'python3'):
         found = subprocess.run(['xcrun', '-f', tool], capture_output=True, text=True).stdout.strip()

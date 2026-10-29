@@ -126,7 +126,12 @@ int main(int argc, char **argv) {
         snprintf(destination, sizeof destination, "%s/bin", argv[2]);
         /* -L: the framework refuses links in a sealed output, and bin/nanoc is a symlink to nanoc_c. */
         char *copy_out[] = {"/bin/cp", "-RL", "bin", destination, NULL};
-        return run(copy_out);
+        code = run(copy_out);
+        if (code != 0) return code;
+        /* dSYM bundles hold debug-symbol Mach-O files that are not loadable images; dyld_info rejects them, and
+         * they are not build products the package needs. */
+        char *prune[] = {"/usr/bin/find", destination, "-name", "*.dSYM", "-prune", "-exec", "/bin/rm", "-rf", "{}", "+", NULL};
+        return run(prune);
     }
     if (strcmp(name, "run-cases") == 0) {
         char script[PATH_MAX];
