@@ -605052,8 +605052,8 @@
       "mode": 420,
       "path": "literate/retained/profile.json",
       "role": "build-definition",
-      "sha256": "ce22dd140a57d5aa97303fda68472206636c62f6815835812994a290ac04157f",
-      "size": 19787
+      "sha256": "7462b3434168292ed269144c0d91dbd3af7f5b93ee032cc02ab1d88ea02a5c38",
+      "size": 19811
     },
     {
       "mode": 420,
@@ -605066,28 +605066,28 @@
       "mode": 493,
       "path": "literate/retained/tools/build-native",
       "role": "toolchain",
-      "sha256": "c2a8a8879c323c3cd50c4e0d2d95c3d74c46fad5539222c385ef07918b68db38",
+      "sha256": "7d3b211f791a75349982d9d25e3ef272b78f69fa0aa39755cef32cdac4cd587c",
       "size": 34928
     },
     {
       "mode": 493,
       "path": "literate/retained/tools/host-make",
       "role": "toolchain",
-      "sha256": "c2a8a8879c323c3cd50c4e0d2d95c3d74c46fad5539222c385ef07918b68db38",
+      "sha256": "7d3b211f791a75349982d9d25e3ef272b78f69fa0aa39755cef32cdac4cd587c",
       "size": 34928
     },
     {
       "mode": 420,
       "path": "literate/retained/tools/pins.txt",
       "role": "toolchain",
-      "sha256": "4195e803e448db8adbb4f5111ba86ac31e29ab32899f042cd0f258aec9cdb34a",
-      "size": 1894
+      "sha256": "b4508e43c61fde3bbee830cfad3fe63f801fe10634a7088ee7c8087744bdb8ee",
+      "size": 1970
     },
     {
       "mode": 493,
       "path": "literate/retained/tools/run-cases",
       "role": "toolchain",
-      "sha256": "c2a8a8879c323c3cd50c4e0d2d95c3d74c46fad5539222c385ef07918b68db38",
+      "sha256": "7d3b211f791a75349982d9d25e3ef272b78f69fa0aa39755cef32cdac4cd587c",
       "size": 34928
     },
     {
@@ -605101,8 +605101,8 @@
       "mode": 420,
       "path": "literate/retained/tools/src/retained_launcher.c",
       "role": "toolchain",
-      "sha256": "861d86cb0cdaab380122635584d9a2346ce8664d2b64e66c11e4eff1cb026413",
-      "size": 4725
+      "sha256": "89a97a39441fd7be43f5f7e0f472ab010915451054fb5116934c22fea1ff95d8",
+      "size": 5395
     },
     {
       "mode": 420,
@@ -608657,15 +608657,15 @@
       "mode": 420,
       "path": "scripts/litai_retained_author.py",
       "role": "build-definition",
-      "sha256": "4615985082ce959ae0c834fd63d1f34ca5009b865f429e24486b03ab1dc21372",
-      "size": 11486
+      "sha256": "46e2fedd98f4c6d139796565326ca6a734ab24623745f86193a9fb8ec95a7342",
+      "size": 11501
     },
     {
       "mode": 493,
       "path": "scripts/litai_retained_tools.py",
       "role": "build-definition",
-      "sha256": "774751f81b1d27d060080839ffb6c4b4bfaac7fb9e6eb4745642368aef484fad",
-      "size": 3015
+      "sha256": "24fabe08c5caec36b8d2c2596e5f37713746e8db566ddfbff28df15ac2b4345c",
+      "size": 3029
     },
     {
       "mode": 420,

@@ -3,6 +3,7 @@
   "actions": [
     {
       "argv": [
+        "{input_root}",
         "{output_root}"
       ],
       "id": "build",
@@ -565,20 +566,20 @@
   "schema": "literate-ai/retained-project-profile@1",
   "target": "host",
   "test_policy_identity": "sha256:130819184eb5c3edf66b72e60211ae594e78c9642236b9ca906b80cb3df2fc1e",
-  "toolchain_identity": "sha256:2ab432c05ca524f65f38933f64ab50ec929d91ff2ef0d3a438936ab5e068380f",
+  "toolchain_identity": "sha256:811bef07157991249d3fc3da18617d02965e6c036f6978ffa4aa6e18fdd4c208",
   "tools": [
     {
-      "identity": "sha256:c2a8a8879c323c3cd50c4e0d2d95c3d74c46fad5539222c385ef07918b68db38",
+      "identity": "sha256:7d3b211f791a75349982d9d25e3ef272b78f69fa0aa39755cef32cdac4cd587c",
       "name": "build-native",
       "path": "literate/retained/tools/build-native"
     },
     {
-      "identity": "sha256:c2a8a8879c323c3cd50c4e0d2d95c3d74c46fad5539222c385ef07918b68db38",
+      "identity": "sha256:7d3b211f791a75349982d9d25e3ef272b78f69fa0aa39755cef32cdac4cd587c",
       "name": "host-make",
       "path": "literate/retained/tools/host-make"
     },
     {
-      "identity": "sha256:c2a8a8879c323c3cd50c4e0d2d95c3d74c46fad5539222c385ef07918b68db38",
+      "identity": "sha256:7d3b211f791a75349982d9d25e3ef272b78f69fa0aa39755cef32cdac4cd587c",
       "name": "run-cases",
       "path": "literate/retained/tools/run-cases"
     }
