@@ -38,10 +38,12 @@ ACCEPTANCE = 'verification/retained-project-acceptance.json'
 # Built executables whose exact exit, stdout and stderr I record. I only pick output that carries no build
 # time, absolute path or argv[0]: `nanoc_c --version` embeds a build timestamp, so it cannot be a case.
 ACCEPTANCE_CASES = (
-    ('nano-vm-rejects-unknown-option', 'bin/nano_vm', ('--bogus',)),
+    # Only binaries that `make build` itself produces: the framework seals build outputs and refuses a case whose
+    # executable is absent from them (bin/nano_vm and bin/nvm2c come from test targets, so they cannot be cases).
+    ('nano-rejects-unknown-input', 'bin/nano', ('--bogus',)),
     ('nanoisa-emitter-entry-assertions', 'bin/nanoisa_emitter', ()),
     ('parser-entry-assertions', 'bin/parser', ()),
-    ('nvm2c-usage', 'bin/nvm2c', ()),
+    ('typecheck-entry-assertions', 'bin/typecheck', ()),
 )
 TOOLS = ('build-native', 'host-make', 'run-cases')
 # Roots and the ownership role each carries. Everything under a root takes its role.
