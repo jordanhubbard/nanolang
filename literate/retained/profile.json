@@ -1,5 +1,5 @@
 {
-  "acceptance_policy_identity": "sha256:b4c976872f43fc60bc7fe717939795ecaadfa5514dbe4a690cab4506e98bece3",
+  "acceptance_policy_identity": "sha256:ff4c514473a2d80b1ce654d2f1015bd1c17fd24eda190b9cebbf9d1f5fe26e37",
   "actions": [
     {
       "argv": [
@@ -542,10 +542,10 @@
       ],
       "id": "accept",
       "inventory": [
-        "nano-vm-rejects-unknown-option",
+        "nano-rejects-unknown-input",
         "nanoisa-emitter-entry-assertions",
         "parser-entry-assertions",
-        "nvm2c-usage"
+        "typecheck-entry-assertions"
       ],
       "outputs": [],
       "requires": [

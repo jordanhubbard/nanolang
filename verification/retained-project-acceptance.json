@@ -5,11 +5,11 @@
       "argv": [
         "--bogus"
       ],
-      "executable": "bin/nano_vm",
+      "executable": "bin/nano",
       "expected_exit": 1,
-      "expected_stderr": "VW5rbm93biBvcHRpb246IC0tYm9ndXMK",
+      "expected_stderr": "bmFubzogY2Fubm90IG9wZW4gJy0tYm9ndXMnOiBObyBzdWNoIGZpbGUgb3IgZGlyZWN0b3J5Cg==",
       "expected_stdout": "",
-      "id": "nano-vm-rejects-unknown-option",
+      "id": "nano-rejects-unknown-input",
       "stdin": "",
       "timeout_seconds": 60
     },
@@ -38,11 +38,11 @@
     {
       "action": "accept",
       "argv": [],
-      "executable": "bin/nvm2c",
-      "expected_exit": 2,
-      "expected_stderr": "SSB0cmFuc2xhdGUgYSB2ZXJpZmllZCBOYW5vSVNBIG1vZHVsZSB0byBzdHJ1Y3R1cmVkIEMxMS4KSSBkbyBub3QgZW1iZWQgbmFub192bS4gSSBhbSBub3QgYSBOYW5vTGFuZyBjb21waWxlciBwaGFzZS4KVXNhZ2U6IG52bTJjIDxmaWxlLm52bT4gWy1vIG91dC5jXQogICAgICAgbnZtMmMgLS1maWxlLXRlbXBvcmFyeSAtLWVudHJ5LW5hbWUgSURFTlQgPGZpbGUubnZtPiBbLW8gb3V0LmNdCiAgICAgICBudm0yYyAtLWZpbGUtdGVtcG9yYXJ5IC0tZmlsZS1pbmRpcmVjdCAtLWVudHJ5LW5hbWUgSURFTlQgPGZpbGUubnZtPiBbLW8gb3V0LmNdCiAgICAgICBudm0yYyAtLWZpbGUtdGVtcG9yYXJ5IC0tZmlsZS1jeWNsaWMgLS1lbnRyeS1uYW1lIElERU5UIDxmaWxlLm52bT4gWy1vIG91dC5jXQogICAgICAgbnZtMmMgLS13ZWJzb2NrZXQgLS1lbnRyeS1uYW1lIElERU5UIDxmaWxlLm52bT4gWy1vIG91dC5jXQogICAgICAgbnZtMmMgLS1zb2NrZXQtdGNwIC0tZW50cnktbmFtZSBJREVOVCA8ZmlsZS5udm0+IFstbyBvdXQuY10KICAgICAgIG52bTJjIC0tc2VydmljZXMgLS1lbnRyeS1uYW1lIElERU5UIDxmaWxlLm52bT4gWy1vIG91dC5jXQogICAgICAgbnZtMmMgLS1oZWxwCldpdGhvdXQgLW8gSSB3cml0ZSBDIHRvIHN0ZG91dC4KRm9yIG5hdGl2ZSBhcnJheS9HQyBhcnRpZmFjdCBpbXBvcnRzLCBsaW5rIGJpbi9uYW5vX2FvdF9ydW50aW1lLm8KZnJvbSBtYWtlIG52bTJjLXJ1bnRpbWU7IHNlZSBkb2NzL0FPVF9SVU5USU1FLm1kIGZvciBob3N0IGV4cG9ydCBmbGFncy4KRm9yIC0tZmlsZS10ZW1wb3JhcnksIGxpbmsgdGhlIGluc3RhbGxlZCBsaWJuYW5vX2ZpbGVfcnVudGltZS5hIGFuZCBwYXNzIGFuIGV4cGxpY2l0IGhvc3QgZ3JhbnQuClNlZSBkb2NzL0ZJTEVfSE9TVF9BUEkubWQgZm9yIHRoZSBib3VuZGVkIEZpbGUgcGFja2FnZS4K",
-      "expected_stdout": "",
-      "id": "nvm2c-usage",
+      "executable": "bin/typecheck",
+      "expected_exit": 0,
+      "expected_stderr": "",
+      "expected_stdout": "SSBwYXNzZWQgbXkgY2hlY2tlciBlbnRyeSBhc3NlcnRpb25zLgo=",
+      "id": "typecheck-entry-assertions",
       "stdin": "",
       "timeout_seconds": 60
     }
