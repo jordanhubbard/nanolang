@@ -604987,7 +604987,7 @@
       "mode": 420,
       "path": "docs/literate-ai/ADOPTION.md",
       "role": "docs-definition",
-      "sha256": "8352ccebc04121a451e8089d0e75927fdd033f6e4e89f53f0bf8e871e847157d",
+      "sha256": "f9977a47910f4d32190b56020cee1754e6d92be59e53d80b1eb1f0f4529b46fa",
       "size": 9372
     },
     {
@@ -608221,14 +608221,14 @@
       "mode": 420,
       "path": "literate/retained/profile.json",
       "role": "build-definition",
-      "sha256": "64ff571420a714605e27aaf30a8a9e8ff15fcc264467c052d1c57bad3b1996b4",
+      "sha256": "78ce0352c3250c133016c07ab6fba04f9177045fa4d45f0ca19acd343df9edc1",
       "size": 19822
     },
     {
       "mode": 420,
       "path": "literate/retained/test-policy.json",
       "role": "test-policy",
-      "sha256": "130819184eb5c3edf66b72e60211ae594e78c9642236b9ca906b80cb3df2fc1e",
+      "sha256": "c858a4c34eb4e061c71d2598c0ed689321ba341b2feb5e663bdb698e7fdfa5b6",
       "size": 50176
     },
     {
@@ -608263,8 +608263,8 @@
       "mode": 493,
       "path": "literate/retained/tools/run-cases.py",
       "role": "toolchain",
-      "sha256": "39a592895a12b7efc7298de164c8767766ca2c5d14be0426ea84c720fd964031",
-      "size": 2005
+      "sha256": "8b2e8a3769a4d5f206078605ce2545dd314312d5d900173bab1932d85afff109",
+      "size": 2631
     },
     {
       "mode": 420,

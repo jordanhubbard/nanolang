@@ -565,8 +565,8 @@
   "release_policy_identity": "sha256:50b8a890093a5d478472d8fb4445181e269fd7761a04cc4857ac525b99765cdd",
   "schema": "literate-ai/retained-project-profile@1",
   "target": "host",
-  "test_policy_identity": "sha256:130819184eb5c3edf66b72e60211ae594e78c9642236b9ca906b80cb3df2fc1e",
-  "toolchain_identity": "sha256:032aedf44e92fa9516365f84bfb40e80d8a6a4b19933bbe788a12803427588f6",
+  "test_policy_identity": "sha256:c858a4c34eb4e061c71d2598c0ed689321ba341b2feb5e663bdb698e7fdfa5b6",
+  "toolchain_identity": "sha256:12cd0aa45ec3b42767d884260cc017544f756c1cdc0dd8483a30f9901b956a4c",
   "tools": [
     {
       "identity": "sha256:9799c01ce02ce79544214c8deeabf74c8592c4b79315f19daf9938ebca6c36b3",
