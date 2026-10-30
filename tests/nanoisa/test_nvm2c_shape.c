@@ -356,6 +356,43 @@ static void test_finite_variant_integer_array(void) {
     nvm_shape_destroy(&g);
 }
 
+/* I widen inferred join storage without rewriting exact scalar producers. */
+static void test_late_optional_scalar_join(void) {
+    const NvmShapeKind kinds[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL,
+        NVM_SHAPE_STRING, NVM_SHAPE_FLOAT};
+    for (size_t i = 0; i < sizeof kinds / sizeof *kinds; ++i) {
+        for (int exact = 0; exact < 2; ++exact) {
+            for (int mismatch = 0; mismatch < 2; ++mismatch) {
+                NvmShapeGraph g = {0};
+                NvmShapeId scalar = nvm_shape_new(&g, kinds[i]);
+                NvmShapeId destination = nvm_shape_new(&g,
+                    exact ? kinds[i] : NVM_SHAPE_UNKNOWN);
+                CHECK(nvm_shape_convert(&g, scalar, destination));
+                CHECK(nvm_shape_solve_conversions(&g));
+                CHECK(nvm_shape_kind(&g, destination) == kinds[i]);
+                NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+                NvmShapeKind payload_kind = mismatch ?
+                    (kinds[i] == NVM_SHAPE_INT ? NVM_SHAPE_FLOAT : NVM_SHAPE_INT) : kinds[i];
+                CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, optional, 0),
+                    nvm_shape_new(&g, payload_kind)));
+                CHECK(nvm_shape_convert(&g, optional, destination));
+                CHECK(nvm_shape_solve_conversions(&g) == (!exact && !mismatch));
+                if (!exact && !mismatch && !g.error) {
+                    CHECK(nvm_shape_kind(&g, scalar) == kinds[i]);
+                    CHECK(nvm_shape_kind(&g, nvm_shape_child(&g, optional, 0)) == payload_kind);
+                    CHECK(nvm_shape_kind(&g, destination) == NVM_SHAPE_OPTIONAL);
+                    CHECK(nvm_shape_kind(&g, nvm_shape_child(&g, destination, 0)) == kinds[i]);
+                    CHECK(nvm_shape_root(&g, scalar) != nvm_shape_root(&g, destination));
+                    size_t count = g.count, conversions = g.conversion_count;
+                    CHECK(nvm_shape_solve_conversions(&g));
+                    CHECK(g.count == count && g.conversion_count == conversions);
+                } else CHECK(g.error != NULL);
+                nvm_shape_destroy(&g);
+            }
+        }
+    }
+}
+
 static void test_deferred_array_reads(void) {
     const NvmShapeKind kinds[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_STRING, NVM_SHAPE_FUNCTION};
     for (size_t i = 0; i < sizeof kinds / sizeof *kinds; ++i) {
@@ -780,6 +817,7 @@ int main(void) {
     test_array_write_alias_cycle();
     test_nested_array_write_facts();
     test_function_targets();
+    test_late_optional_scalar_join();
     test_deferred_array_reads();
     test_map_shapes();
     test_lookup_without_constraints();

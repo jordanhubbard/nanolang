@@ -1,0 +1,16 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-6o18u9c2
+test_defensive_profile_refusals (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_defensive_profile_refusals) ... ok
+test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) ... ok
+test_existing_exclusive_fixture (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_existing_exclusive_fixture) ... ok
+test_generated_consistency_shadow_execution (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_generated_consistency_shadow_execution) ... ok
+test_original_verifier_rejects_malformed_references_atomically (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_original_verifier_rejects_malformed_references_atomically) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-b6q95yav
+test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) ... ok
+test_exact_shared_profile_refusals (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_exact_shared_profile_refusals) ... ok
+test_extra_generated_nano_helper_refuses_without_narrowing_c (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_extra_generated_nano_helper_refuses_without_narrowing_c) ... ok
+test_original_verifier_rejects_malformed_references_atomically (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_original_verifier_rejects_malformed_references_atomically) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 62.649s
+
+OK

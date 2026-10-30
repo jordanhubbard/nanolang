@@ -1,0 +1,60 @@
+test_captured_local_shadows_imported_alias (tests.test_imported_globals.ImportedGlobals.test_captured_local_shadows_imported_alias) ... ok
+test_conflicting_aliases_preserve_output (tests.test_imported_globals.ImportedGlobals.test_conflicting_aliases_preserve_output) ... ok
+test_diamond_initialization_runs_once (tests.test_imported_globals.ImportedGlobals.test_diamond_initialization_runs_once) ... ok
+test_immutable_public_value_in_pure_function (tests.test_imported_globals.ImportedGlobals.test_immutable_public_value_in_pure_function) ... ok
+test_imported_call_snapshot_before_argument (tests.test_imported_globals.ImportedGlobals.test_imported_call_snapshot_before_argument) ... ok
+test_imported_callable_globals (tests.test_imported_globals.ImportedGlobals.test_imported_callable_globals) ... ok
+test_imported_closure_global_capture (tests.test_imported_globals.ImportedGlobals.test_imported_closure_global_capture) ... ok
+test_imported_integer_arrays (tests.test_imported_globals.ImportedGlobals.test_imported_integer_arrays) ... ok
+test_imported_qualified_map (tests.test_imported_globals.ImportedGlobals.test_imported_qualified_map) ... ok
+test_imported_qualified_record (tests.test_imported_globals.ImportedGlobals.test_imported_qualified_record) ... ok
+test_imported_qualified_string_array (tests.test_imported_globals.ImportedGlobals.test_imported_qualified_string_array) ... ok
+test_imported_record_module_identity (tests.test_imported_globals.ImportedGlobals.test_imported_record_module_identity) ... ok
+test_imported_selective_map (tests.test_imported_globals.ImportedGlobals.test_imported_selective_map) ... ok
+test_imported_selective_record (tests.test_imported_globals.ImportedGlobals.test_imported_selective_record) ... ok
+test_imported_selective_string_array (tests.test_imported_globals.ImportedGlobals.test_imported_selective_string_array) ... ok
+test_initializers_keep_owner_and_locals_keep_lexical_priority (tests.test_imported_globals.ImportedGlobals.test_initializers_keep_owner_and_locals_keep_lexical_priority) ... ok
+test_legacy_plain_import_keeps_immutable_constants (tests.test_imported_globals.ImportedGlobals.test_legacy_plain_import_keeps_immutable_constants) ... ok
+test_mutable_aliases_share_storage (tests.test_imported_globals.ImportedGlobals.test_mutable_aliases_share_storage) ... ok
+test_private_missing_wrong_type_and_immutable_write_preserve_output (tests.test_imported_globals.ImportedGlobals.test_private_missing_wrong_type_and_immutable_write_preserve_output) ... ok
+test_qualified_distinct_types_and_dependency_shadows (tests.test_imported_globals.ImportedGlobals.test_qualified_distinct_types_and_dependency_shadows) ... ok
+test_qualified_map_type_refusals (tests.test_imported_globals.ImportedGlobals.test_qualified_map_type_refusals) ... ok
+test_qualified_write_refusals_preserve_output (tests.test_imported_globals.ImportedGlobals.test_qualified_write_refusals_preserve_output) ... ok
+test_qualified_writes_share_alias_storage (tests.test_imported_globals.ImportedGlobals.test_qualified_writes_share_alias_storage) ... ok
+test_relative_spellings_share_canonical_storage (tests.test_imported_globals.ImportedGlobals.test_relative_spellings_share_canonical_storage) ... ok
+test_repeated_alias_keeps_identity (tests.test_imported_globals.ImportedGlobals.test_repeated_alias_keeps_identity) ... ok
+test_resource_bearing_globals_preserve_output (tests.test_imported_globals.ImportedGlobals.test_resource_bearing_globals_preserve_output) ... ok
+test_selective_aliases_and_lexical_shadowing (tests.test_imported_globals.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) ... ok
+test_transitive_selective_import_keeps_declaring_context (tests.test_imported_globals.ImportedGlobals.test_transitive_selective_import_keeps_declaring_context) ... ok
+test_wildcard_public_globals (tests.test_imported_globals.ImportedGlobals.test_wildcard_public_globals) ... ok
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-s1pu02pt
+test_actual_conditional_reads_preserve_shared_record_fields (tests.test_optional_record_join.OptionalRecordJoin.test_actual_conditional_reads_preserve_shared_record_fields) ... ok
+test_float_bool_string_conditional_record_fields (tests.test_optional_record_join.OptionalRecordJoin.test_float_bool_string_conditional_record_fields) ... ok
+test_missing_raw_reads_do_not_become_integer_zero (tests.test_optional_record_join.OptionalRecordJoin.test_missing_raw_reads_do_not_become_integer_zero) ... ok
+test_actual_checker_epoch_and_raw_boundary (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_checker_epoch_and_raw_boundary) ... ok
+test_actual_observe_consume_and_advisory_independence (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_observe_consume_and_advisory_independence) ... ok
+test_borrowed_resource_misuse_preserves_output (tests.test_affine_use_metadata.AffineUseMetadata.test_borrowed_resource_misuse_preserves_output) ... ok
+test_borrowed_resource_roots_observe_without_consuming (tests.test_affine_use_metadata.AffineUseMetadata.test_borrowed_resource_roots_observe_without_consuming) ... ok
+test_invalid_resource_uses_preserve_output (tests.test_affine_use_metadata.AffineUseMetadata.test_invalid_resource_uses_preserve_output) ... ok
+I retain producer build evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-producers-v78t2263
+test_bound_imports (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_bound_imports) ... ok
+test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) ... ok
+test_existing_array_result_without_array_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_existing_array_result_without_array_fields) ... ok
+test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) ... ok
+test_foreign_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_foreign_module_omits_optional_envelope) ... ok
+test_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_forward_record_dag) ... ok
+test_generic_direct_tail_calls_publish_proved_array_profile (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_generic_direct_tail_calls_publish_proved_array_profile) ... ok
+test_large_closed_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_large_closed_module_omits_optional_envelope) ... ok
+test_nested_aliases_empty_fields_and_generic_forwarder (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_aliases_empty_fields_and_generic_forwarder) ... ok
+test_nested_bound_import (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_bound_import) ... ok
+test_nested_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_forward_record_dag) ... ok
+test_nested_int_arrays_publish_exact_authority (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_int_arrays_publish_exact_authority) ... ok
+test_query_status_and_host_interfaces (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_query_status_and_host_interfaces) ... ok
+test_recursive_tail_calls_keep_optional_array_authority_absent (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_recursive_tail_calls_keep_optional_array_authority_absent) ... ok
+test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) ... ok
+test_unsupported_nested_descriptors_stay_optional (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_unsupported_nested_descriptors_stay_optional) ... ok
+
+----------------------------------------------------------------------
+Ran 53 tests in 677.142s
+
+OK

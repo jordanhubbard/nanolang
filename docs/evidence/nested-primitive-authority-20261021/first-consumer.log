@@ -1,0 +1,42 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-hv1vyb1g
+test_complete_origin_and_allocation_controls (tests.test_record_array_origins.RecordArrayOrigins.test_complete_origin_and_allocation_controls) ... I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 1262 record-array origin checks; no runtime admission
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+I measured 41 allocation positions and 65034 peak payload bytes; every refusal recovered
+PASS 1780 record-array origin checks; no runtime admission
+ok
+test_public_primitive_consumers (tests.test_record_array_nested_primitive.RecordArrayNestedPrimitive.test_public_primitive_consumers) ... I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-kfak_i7k
+
+  test_public_primitive_consumers (tests.test_record_array_nested_primitive.RecordArrayNestedPrimitive.test_public_primitive_consumers) (leaf='TAG_U8') ... FAIL
+
+======================================================================
+FAIL: test_public_primitive_consumers (tests.test_record_array_nested_primitive.RecordArrayNestedPrimitive.test_public_primitive_consumers) (leaf='TAG_U8')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_record_array_nested_primitive.py", line 12, in test_public_primitive_consumers
+    self.qualify(False, leaf)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_record_array_nested.py", line 54, in qualify
+    run('public-nested', [str(exe), str(artifacts)])
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_record_array_nested.py", line 27, in run
+    self.assertEqual(result.returncode, 0, result.stdout.decode(errors='replace') + result.stderr.decode(errors='replace'))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I failed nested native emission: I require the matching scalar shape at this array write
+I failed line 142: native
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 14.143s
+
+FAILED (failures=1)

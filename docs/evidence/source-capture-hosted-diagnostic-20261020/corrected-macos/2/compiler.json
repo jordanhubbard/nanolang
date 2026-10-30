@@ -1,0 +1,5 @@
+{
+  "selected": "/opt/homebrew/opt/llvm/bin/clang",
+  "resolved": "/opt/homebrew/Cellar/llvm/23.1.0/bin/clang-23",
+  "sha256": "2562143125f133005a4505f7ffd463a2e52e9a24dbae58cc425374bcbb0ea44f"
+}

@@ -1,0 +1,7 @@
+65376d0feff4f2e4158f734d6e9922736dab847c947f2d3884498a7142c192f1  /private/tmp/nanolang-nested-consumer-full.log
+7d7d9f5d31ee6a819ecaf766bc609bf5053245d1dd2cce387c980a89ad2afae1  /private/tmp/nanolang-nested-source-expanded.log
+156ae9da221219a0d1e034d7799f359b626adbf02a93bd5c275111b57f858c6a  /private/tmp/nanolang-nested-regressions.log
+d5cbf4544d88297f0c21fe0ec5da58706ad78dbd910b15ff9ec743d63e8e096d  /private/tmp/nanolang-nested-tail-debug.log
+97850c98c7846049e7a8e8cea611524c4e476ed3feb8b11b1cddae0c14e88d8a  /private/tmp/nanolang-nested-final-regressions.log
+e8ebabdcf28d3890c22e464b2a104c3089ece79658cbca185bd45df224cc7d61  /private/tmp/nanolang-nested-canonical-build.log
+d61fc060d132c7fa9f003029626920025751c25d920f63ec22d01b3d593bf754  /private/tmp/nanolang-nested-final-publication.log

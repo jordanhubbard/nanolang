@@ -1,0 +1,9 @@
+# I complete the finite wrapper input qualification
+
+At aggregate e51b3219b I qualify all three unchanged temporary-argument, transitive-wrapper and nested-owner-result source fixtures. Each original is emitted by seed, Stage1 and Stage2; a fourth input is the separately pinned C-hosted selected-original-shadow module. Each original verifies, executes with exact stdout, and executes through nvm2c native O0/O2 ASan/UBSan. Each reconstructed C output executes at both optimization levels, and each reconstructed Nano output regenerates through all three producers with exact stdout, nominal layouts, verification and native execution. All three methods pass in60.842s; all recorded providers remain unchanged.
+
+I retain actual function/local counts in final.log. Existing scalar ADD helpers are inserted among output functions and estimates are conservative; for example nested-result ordinary estimates18/4/30/3/49 yield actual12/6/4/30/3/43. I enforce the unchanged128 bound without treating positional estimates as exact source function identities. Expected output is ABCABCABC, ABAB and ABAB respectively.
+
+The first run retained here failed only its new positional-count assertion. Its direct imported TestCase also accidentally enrolled the source producer suite setup; I interrupted only my own process group and corrected the import to a module alias. That interrupted run is not reported as a complete test terminal. No production change was made. The final suite contains only the three intended methods.
+
+The first and final command bundles preserve each numbered command JSON verbatim with SHA256 and hash remaining artifacts. Independent-shadow origin and exact source equality are recorded in ../owned-wrapper-complete-inputs-20261020. These shadows are not claimed to have been separately emitted by all three current producers. This closes the finite wrapper evidence gap locally; exact hosted candidate/platform qualification remains open.

@@ -1,0 +1,44 @@
+I retain actual public map evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-public-ov86cp43
+test_public_allocation_prefixes (tests.test_record_map_public.RecordMapPublic.test_public_allocation_prefixes) ... I checked public transport operation0 at 67 positions with prior-output and retry.
+I checked public transport operation1 at 155 positions with prior-output and retry.
+I checked public transport operation2 at 83 positions with prior-output and retry.
+I checked 195 public native compiler positions with independent retry.
+I checked 70 public invocation allocation positions, transient/persistent and retry.
+PASS 20320695 actual public allocation checks; peak 16873065 payload bytes.
+
+ok
+test_public_goto (tests.test_record_map_public.RecordMapPublic.test_public_goto) ... I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public transport and consumers qualified.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/seed.nvm.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/c-hosted-nano.nvm.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage1.nvm.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm.
+I executed exact source U8/map input /private/tmp/nanolang-map-borrowed-20261022/u8-seed.nvm.
+I executed exact source U8/map input /private/tmp/nanolang-map-borrowed-20261022/u8-c-hosted.nvm.
+I executed exact source U8/map input /private/tmp/nanolang-map-borrowed-20261022/u8-stage1.nvm.
+I executed exact source U8/map input /private/tmp/nanolang-map-borrowed-20261022/u8-stage2.nvm.
+PASS 1560 actual public map consumer checks
+
+ok
+test_public_switch_and_native (tests.test_record_map_public.RecordMapPublic.test_public_switch_and_native) ... I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public transport and consumers qualified.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/seed.nvm.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/c-hosted-nano.nvm.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage1.nvm.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm.
+I executed exact source U8/map input /private/tmp/nanolang-map-borrowed-20261022/u8-seed.nvm.
+I executed exact source U8/map input /private/tmp/nanolang-map-borrowed-20261022/u8-c-hosted.nvm.
+I executed exact source U8/map input /private/tmp/nanolang-map-borrowed-20261022/u8-stage1.nvm.
+I executed exact source U8/map input /private/tmp/nanolang-map-borrowed-20261022/u8-stage2.nvm.
+PASS 1560 actual public map consumer checks
+
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 67.584s
+
+OK

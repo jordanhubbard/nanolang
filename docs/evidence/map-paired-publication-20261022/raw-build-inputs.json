@@ -1,0 +1,9 @@
+{
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_c": "a7b28c79a4118eaa477627bc0a0df8b573b980c9b32870ca2c5bbb3ed08d831a",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o": "ba2af3b6b612558643e407f9d67860aaae7d38817781e8ed8ba2e31e07a24016",
+  "/Users/jkh/Src/nanolang-51-harness/lib/libnano_services_runtime.a": "0baf1af0cf7cc9e2da741632e40db0f6a07a5ab0f1a8ba576d42af57c22b5ceb",
+  "/Users/jkh/Src/nanolang-51-harness/lib/libnano_socket_runtime.a": "597a40d079829a49a90b5abf8f999ec92b516d26c08cfc384ae997ac294aa2fb",
+  "/Users/jkh/Src/nanolang-51-harness/lib/libnano_file_runtime.a": "55fd7d4a933da9978b0295cb3e67eb520b769eb061dce13aa13ba5fd67267b4d",
+  "/Users/jkh/Src/nanolang-51-harness/lib/libnano_websocket_runtime.a": "97fa28447118fe06a5c67eab4ed230cd451bc37c9d77ab926bd07f111e51c457",
+  "/Users/jkh/Src/nanolang-51-harness/lib/libnano_compiler_inputs.a": "4a9721464350d9fb205061d9dd7da6dc2a8a9346331307ed12b8e3e96813ff88"
+}

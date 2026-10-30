@@ -1,0 +1,11 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-pmjmjq58
+PASS 59 union declaration checks; no execution authority
+original /private/tmp/nanolang-union-field-baseline-20261022/seed.nvm origins=2 functions=1 reserved=16963686 work=1447026
+original /private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm origins=2 functions=3 reserved=16974232 work=1545592
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm origins=2 functions=1 reserved=16963011 work=1443878
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm origins=2 functions=3 reserved=16973588 work=1705579
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm origins=2 functions=1 reserved=16963011 work=1443817
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm origins=2 functions=3 reserved=16973588 work=1705518
+PASS 338 union proof checks; public execution remains refused
+sizes analysis=39840 value=16 wrapper=16 context=1096 owner=72 row=40 retained=282 peak=60685 reserved=16943517 work=1183046 prefixes=37
+PASS 393 union proof allocation checks

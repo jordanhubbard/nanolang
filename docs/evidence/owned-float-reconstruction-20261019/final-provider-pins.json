@@ -1,0 +1,14 @@
+{
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "78b3578f6b90d364203cd960e45ff95235b91be1b7dc67c0c4ce2b17d984e070",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "7044052b5c2ba71435d76abd9e5860e5aa2a2724551c8ffc4b38a8e7c95f0718",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "f7ebdb2c585cdcbf92ec39cc2a75e90ff84ec7b3671927364bd3be9e3e3f295f",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "72da879f9fa8a913eb50d69f4eb9fbcd65ab61b2aa79145dbfe7b54ebfd98f68",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "98b1b76099b9cd22970d0773895ba2147b025b851139b4720495972b0eed80a8",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts": "68e9ca3fea7bfd10b385a7b0a535074cde8863a1d316376a367fbf1b1520042e",
+  "/private/tmp/owned-string-baseline-20261019/shadow_driver": "c23774c828833a8213e51c7cf16185d55902fe1706f383e6b4084570b15db571",
+  "/private/tmp/owned-float-private-stages-20261019/stage1": "bb34a6565d5036be6eb9c80b7ce60e19eaad0ca5f5c87c0a6552e35d60a04672",
+  "/private/tmp/owned-float-private-stages-20261019/stage2": "70dc0e5a096eed34cb96a98cc168845a0c8c3c8e86d7a991f483e4d1dfa6d10e",
+  "/private/tmp/owned-float-private-stages-20261019/libnanoisa.dylib": "a90c065dcbceb51a08f365f1c7b6de831e62af291a94fb4811a085363cab1b09",
+  "/private/tmp/owned-float-baseline-20261019/float-facts": "501b1a0a58faa0d8c66be0e2a7cbda7a7936c310332cfa9284e3c2ca583da798",
+  "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nvm2hl": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c"
+}

@@ -1,0 +1,63 @@
+FFF
+======================================================================
+FAIL: test_actual_calls_preserve_exact_signatures_order_and_results (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_actual_calls_preserve_exact_signatures_order_and_results) (compiler='/Users/jkh/Src/nanolang-owned-calls/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-calls/tests/test_owned_call_reconstruction.py", line 72, in test_actual_calls_preserve_exact_signatures_order_and_results
+    module = self.source_module(work, compiler)
+  File "/Users/jkh/Src/nanolang-owned-calls/tests/test_owned_call_reconstruction.py", line 63, in source_module
+    self.command([compiler or ROOT/'bin/nano_virt', path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-calls/tests/test_owned_reconstruction.py", line 37, in command
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 7, column 46: Unused variable 'yes'
+Warning at line 12, column 2: Unused variable 'yes'
+Warning at line 14, column 2: Unused variable 'yes'
+Warning at line 18, column 33: Unused variable 'value'
+I could not compile shadows at line 22: I require at most eight emitted functions including shadow entry in my source borrow profile
+
+
+======================================================================
+FAIL: test_corrupt_call_transfers_refuse_atomically (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_corrupt_call_transfers_refuse_atomically)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-calls/tests/test_owned_call_reconstruction.py", line 119, in test_corrupt_call_transfers_refuse_atomically
+    module = self.source_module(work)
+  File "/Users/jkh/Src/nanolang-owned-calls/tests/test_owned_call_reconstruction.py", line 63, in source_module
+    self.command([compiler or ROOT/'bin/nano_virt', path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-calls/tests/test_owned_reconstruction.py", line 37, in command
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 7, column 46: Unused variable 'yes'
+Warning at line 12, column 2: Unused variable 'yes'
+Warning at line 14, column 2: Unused variable 'yes'
+Warning at line 18, column 33: Unused variable 'value'
+I could not compile shadows at line 22: I require at most eight emitted functions including shadow entry in my source borrow profile
+
+
+======================================================================
+FAIL: test_scalar_suffix_cannot_copy_or_consume_staged_owner (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_scalar_suffix_cannot_copy_or_consume_staged_owner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-calls/tests/test_owned_call_reconstruction.py", line 106, in test_scalar_suffix_cannot_copy_or_consume_staged_owner
+    facts = self.facts(self.source_module(Path(tmp)))
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-calls/tests/test_owned_call_reconstruction.py", line 63, in source_module
+    self.command([compiler or ROOT/'bin/nano_virt', path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-calls/tests/test_owned_reconstruction.py", line 37, in command
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 7, column 46: Unused variable 'yes'
+Warning at line 12, column 2: Unused variable 'yes'
+Warning at line 14, column 2: Unused variable 'yes'
+Warning at line 18, column 33: Unused variable 'value'
+I could not compile shadows at line 22: I require at most eight emitted functions including shadow entry in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.017s
+
+FAILED (failures=3)

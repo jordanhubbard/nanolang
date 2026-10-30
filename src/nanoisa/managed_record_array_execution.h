@@ -13,7 +13,7 @@ typedef enum {
     NVM_RA_ROOT_BRANCH, NVM_RA_ROOT_CALL, NVM_RA_ROOT_RETURN,
     NVM_RA_ROOT_STRING, NVM_RA_ROOT_CONSTRUCT, NVM_RA_ROOT_GET,
     NVM_RA_ROOT_SET, NVM_RA_ROOT_ARRAY_PUSH, NVM_RA_ROOT_ARRAY_POP,
-    NVM_RA_ROOT_ARRAY_COPY
+    NVM_RA_ROOT_ARRAY_COPY, NVM_RA_ROOT_TAIL
 } NvmRecordArrayRootRecipe;
 enum {
     /* I require these runtime checks; I do not claim them statically discharged. */

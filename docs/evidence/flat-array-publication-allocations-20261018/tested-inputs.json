@@ -1,0 +1,63 @@
+{
+  "base": "378fcecbf4a99e626744aad9c13e14c6ef45d769",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "sources": {
+    "src/nanovirt/codegen.c": "a198d1251c35449f6a71746b2200f26f42519e482cb1906b40a6c76273f17e98",
+    "src/nanovirt/ordinary_authority.inc": "76e144a80965192762288e0fa685a91118104dd73194c73d098947f728a08183",
+    "src/nanovirt/main.c": "2d7d1a44228ec595406c6d40ba4c77f9802408d1c361babf1d5afe45c125ddf7",
+    "tests/nanoisa/publication_alloc.h": "d7240b56b42529692eeb15ec546bb334106694031dd5bb07895648ed5b36be67",
+    "tests/nanoisa/publication_alloc.c": "6635159369bb6a9f9c6363496e8449cf9f469c04a7498785ac37ddd52530f1d9",
+    "tests/nanoisa/test_publication_allocation.c": "cc4e7c143e0341851a947f964b28121149db95b3fa1683f9830f441b27e7ea35",
+    "tests/test_publication_allocation.py": "366a74d83f591bdb8d7ff3347eaffb7b1cde023b8b56d1ff48a521d7260803b3",
+    "src/nanoisa/assembler.c": "e7fb6b9a630e76b51edd44987feb17561ba897aaec112002a700ec25ebe7a07d",
+    "src/nanoisa/nvm_format.c": "bed43931f33824a627b86e4fafe3a5a1c0134af7dc7105543381c18fbcb037fe",
+    "modules/nanoisa/nanoisa.c": "8235ef470d7cd1b05187a06fff1065d1e0f355181a883e85ec7d73e6d8d89cdb",
+    "src/nanoisa/managed_array_shapes.c": "50e73e09ccdbb895a764adcbb18e2e1ee7d33440db2936b929b788965b2ad0eb",
+    "src/nanoisa/verifier.c": "02c9f5f1a11f73ef10dde1125427cb0ce750c466365ccf1cf5b60957571af942",
+    "src/nanoisa/verifier_types.c": "4a28dbdf96dada1ce7f849d360faaef08f37a20f4f7c0a6d4361a1ba3294df17",
+    "src/nanovm/vm_decode.c": "f1010e77efcfddb827fb1cdf4716a3f0c9cfa68d9a18b6b25164f114d0974671",
+    "src/nanoisa/ownership_contracts.c": "e43ca306645223097abe5852a709d97bb21f920f565c9a4c6c6fffdfb336f1b3",
+    "src/nanoisa/nvm_v2_layouts.c": "f158f79c7a99b54b3d3eb5e584f00a55bc5a6ec0fa71c4ae1e02f96d69253710",
+    "src/nanoisa/retained_layouts.c": "a44a3327e9301c32683ea16a4ed8a39fdd61bde25550d79de977e5bd1ac61a5d",
+    "src/nanoisa/nvm_v2_module.c": "38f2b694c39f16ee9814be00741c1dfaa6175ed69faf1a9902fbc86c7c4b2b74",
+    "src/nanoisa/nvm_v2_convert.c": "75383616846fdda2f2186216c452d403d36fc83ce387c3253330b6b0752c8b51",
+    "src/nanoisa/nvm_v2_constants.c": "2645c1a4e5773088158353f71461f2865a02436c9cd8b4b88bca3344947b07ae",
+    "src/nanoisa/nvm_v2_signatures.c": "7f1bee030349ac740c74bdbe30851def005d95915a43ea821dd619b8f4a727f8",
+    "src/nanoisa/nvm_v2_functions.c": "1e361492ba68833f9d4621b1423188f7789c136ea0af2bced4eeb3180bab5df7",
+    "src/nanoisa/nvm_v2_imports.c": "ebf9789e3e1a8c744e2a98bccd83f386e5424ce78cf3f299a12ed5f108a1fc13"
+  },
+  "allocation_providers": [
+    "src/nanoisa/assembler.c",
+    "src/nanoisa/nvm_format.c",
+    "modules/nanoisa/nanoisa.c",
+    "src/nanoisa/managed_array_shapes.c",
+    "src/nanoisa/verifier.c",
+    "src/nanoisa/verifier_types.c",
+    "src/nanovm/vm_decode.c",
+    "src/nanoisa/ownership_contracts.c",
+    "src/nanoisa/nvm_v2_layouts.c",
+    "src/nanoisa/retained_layouts.c"
+  ],
+  "cleanup_only_providers": [
+    "src/nanoisa/nvm_v2_module.c",
+    "src/nanoisa/nvm_v2_convert.c",
+    "src/nanoisa/nvm_v2_constants.c",
+    "src/nanoisa/nvm_v2_signatures.c",
+    "src/nanoisa/nvm_v2_functions.c",
+    "src/nanoisa/nvm_v2_imports.c"
+  ],
+  "raw_log_count": 2102,
+  "raw_logs_digest": "9bd7c0be575dc6fbe69d4ec8d0eccb25ac5565f5b887f5c05f4e159a94757118",
+  "instrumented_executable_sha256": "4f7403bf137eb7a6b3aeaecde1f12c5af99194f21b120e0d9922ca18f89b1281",
+  "publisher_positions": 260,
+  "query_positions": 251,
+  "modes": [
+    "transient",
+    "persistent"
+  ],
+  "growth_controls": [
+    "query",
+    "atomic-save"
+  ],
+  "adjacent_nanoisa_passed": 3018
+}

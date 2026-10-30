@@ -1,0 +1,95 @@
+test_original_goto (tests.test_record_map_borrowed.RecordMapBorrowed.test_original_goto) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-0x9pf__z
+I checked 96 complete invocation allocation positions in both denial modes.
+I measured borrowed reservation 84068462 bytes / 16980536 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225966 bytes / 16915222 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+I measured borrowed reservation 84058690 bytes / 16959922 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67216194 bytes / 16895020 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/seed.nvm.
+I measured borrowed reservation 84058518 bytes / 16959431 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67216022 bytes / 16894529 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/c-hosted-nano.nvm.
+I measured borrowed reservation 84058518 bytes / 16959431 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67216022 bytes / 16894529 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage1.nvm.
+I measured borrowed reservation 84058518 bytes / 16959431 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67216022 bytes / 16894529 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm.
+I checked 1836 borrowed map execution assertions; public admission remains refused.
+
+ok
+test_original_switch (tests.test_record_map_borrowed.RecordMapBorrowed.test_original_switch) ... I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-rlj5o5ug
+I checked 96 complete invocation allocation positions in both denial modes.
+I measured borrowed reservation 84068462 bytes / 16980536 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225966 bytes / 16915222 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I measured borrowed reservation 84068161 bytes / 16979892 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67225665 bytes / 16914578 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+I measured borrowed reservation 84058690 bytes / 16959922 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67216194 bytes / 16895020 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/seed.nvm.
+I measured borrowed reservation 84058518 bytes / 16959431 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67216022 bytes / 16894529 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/c-hosted-nano.nvm.
+I measured borrowed reservation 84058518 bytes / 16959431 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67216022 bytes / 16894529 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage1.nvm.
+I measured borrowed reservation 84058518 bytes / 16959431 work; view 40, owner 14512.
+I executed repeat0 at stack capacity1048576 with ordinary GC policy.
+I measured borrowed reservation 67216022 bytes / 16894529 work; view 40, owner 14512.
+I executed repeat1 at stack capacity1048576 with ordinary GC policy.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm.
+I checked 1836 borrowed map execution assertions; public admission remains refused.
+
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 16.213s
+
+OK

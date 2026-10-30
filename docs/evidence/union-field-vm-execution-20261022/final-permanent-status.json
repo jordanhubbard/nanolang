@@ -1,0 +1,1 @@
+{"command": ["python3", "-m", "unittest", "-f", "-v", "tests.test_union_field_vm"], "exit": 0, "seconds": 34.50216724991333}

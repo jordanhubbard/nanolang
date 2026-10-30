@@ -1,0 +1,7 @@
+tests/nanoisa/test_record_map_string.c:145:13: error: redefinition of 'string_fixture'
+  145 | static void string_fixture(Input *c,bool bad,bool fail){string_fixture_mode(c,bad,fail,false);}
+      |             ^
+tests/nanoisa/test_record_map_string.c:92:13: note: previous definition is here
+   92 | static void string_fixture(Input *c,bool bad,bool fail){string_fixture_mode(c,bad,fail,false);}
+      |             ^
+1 error generated.

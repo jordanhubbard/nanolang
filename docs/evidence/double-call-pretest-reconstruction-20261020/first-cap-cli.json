@@ -1,0 +1,6 @@
+{
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "I limit generated exclusive Nano functions to 128 local slots\nI did not publish reconstructed source\n",
+  "sentinel": "prior verified source"
+}

@@ -1,0 +1,61 @@
+resource struct Leaf { value: int, active: bool }
+resource struct Pair { left: Leaf, right: Leaf }
+fn combine(target: &mut Leaf, source: &Leaf) -> int {
+ let first: Leaf = Leaf { value: 100, active: true }
+ assert (== first.value 100)
+ assert (== source.value 4)
+ set target.value (+ target.value source.value)
+ assert (== first.value 100)
+ let second: Leaf = Leaf { value: 8, active: false }
+ let tree: Pair = Pair { right: second, left: first }
+ assert (== tree.left.value 100)
+ assert (== tree.right.value 8)
+ assert (== source.value 4)
+ let Pair { right, left } = tree
+ if true {
+  let source: Leaf = Leaf { value: 1, active: false }
+  assert (== source.value 1)
+  let Leaf { value, active } = source
+  assert (== value 1) assert (not active)
+ } else {
+  let source: Leaf = Leaf { value: 2, active: true }
+  let Leaf { value, active } = source
+  assert (== value 2) assert active
+ }
+ assert (== source.value 4)
+ let mut index: int = 0
+ while (< index 2) {
+  let item: Leaf = Leaf { value: index, active: true }
+  assert (== item.value index)
+  let Leaf { value, active } = item
+  assert (== value index) assert active
+  set index (+ index 1)
+ }
+ let Leaf { value, active } = right
+ assert (== value 8) assert (not active)
+ let Leaf { value, active } = left
+ assert (== value 100) assert active
+ return target.value
+}
+shadow combine {
+ let mut target: Leaf = Leaf { value: 3, active: true }
+ let source: Leaf = Leaf { value: 4, active: false }
+ assert (== (combine &mut target &source) 7)
+ assert (== (combine &mut target &source) 11)
+ let Leaf { value, active } = target
+ assert (== value 11) assert active
+ let Leaf { value, active } = source
+ assert (== value 4) assert (not active)
+}
+fn main() -> int {
+ let mut target: Leaf = Leaf { value: 3, active: true }
+ let source: Leaf = Leaf { value: 4, active: false }
+ assert (== (combine &mut target &source) 7)
+ assert (== (combine &mut target &source) 11)
+ let Leaf { value, active } = target
+ assert (== value 11) assert active
+ let Leaf { value, active } = source
+ assert (== value 4) assert (not active)
+ return 0
+}
+shadow main { assert true }

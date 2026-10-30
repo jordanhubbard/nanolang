@@ -1,0 +1,13 @@
+{
+  "args": [
+    "/Users/jkh/.local/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads",
+    "tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery"
+  ],
+  "exit": 0,
+  "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk",
+  "developer_dir": "/Applications/Xcode.app/Contents/Developer"
+}

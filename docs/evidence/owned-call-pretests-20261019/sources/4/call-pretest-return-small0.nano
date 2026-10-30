@@ -1,0 +1,36 @@
+resource struct Counter { value: int }
+resource struct Flag { enabled: bool }
+resource struct Tree { first: Counter, second: Counter, amount: Flag }
+fn change(first: &mut Counter, second: &mut Counter, amount: &Flag) -> int {
+ set first.value (+ first.value 1)
+ set second.value (- second.value 1)
+ assert amount.enabled
+ return (- first.value second.value)
+}
+shadow change {
+ let mut a: Counter = Counter { value: 1 }
+ let mut b: Counter = Counter { value: 4 }
+ let c: Flag = Flag { enabled: true }
+ assert (== (change &mut a &mut b &c) -1)
+ let Counter { value } = a assert (== value 2)
+ let Counter { value } = b assert (== value 3)
+ let Flag { enabled } = c assert enabled
+}
+fn main() -> int {
+ let a: Counter = Counter { value: 1 }
+ let b: Counter = Counter { value: 4 }
+ let c: Flag = Flag { enabled: true }
+ let mut root: Tree = Tree { first: a, second: b, amount: c }
+ assert (== (change &mut root.first &mut root.second &root.amount) -1)
+ while (< (change &mut root.first &mut root.second &root.amount) 0) { let Tree { first, second, amount } = root
+ let Counter { value } = first assert (== value 3)
+ let Counter { value } = second assert (== value 2)
+ let Flag { enabled } = amount assert enabled
+ return 0 }
+ let Tree { first, second, amount } = root
+ let Counter { value } = first assert (== value 3)
+ let Counter { value } = second assert (== value 2)
+ let Flag { enabled } = amount assert enabled
+ return 0
+}
+shadow main { assert true }

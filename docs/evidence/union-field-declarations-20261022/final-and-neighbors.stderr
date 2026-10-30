@@ -1,0 +1,9 @@
+test_owned_declarations_and_failures (tests.test_union_field_declarations.UnionFieldDeclarations.test_owned_declarations_and_failures) ... ok
+test_owned_declarations_and_failures (tests.test_ownership_declaration_projection.OwnershipDeclarationProjection.test_owned_declarations_and_failures) ... ok
+test_owned_declarations_and_failures (tests.test_ordinary_array_authority.OrdinaryArrayAuthority.test_owned_declarations_and_failures) ... ok
+test_map_declarations_and_failures (tests.test_map_declarations.MapDeclarations.test_map_declarations_and_failures) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 9.262s
+
+OK

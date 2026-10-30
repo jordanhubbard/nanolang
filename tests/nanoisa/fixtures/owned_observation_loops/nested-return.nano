@@ -1,0 +1,18 @@
+resource struct Box { value: int, flag: bool }
+fn pick(owner: Box, count: int) -> int {
+ let mut i: int = 0
+ while (and owner.flag (< i count)) {
+  let mut j: int = 0
+  while (and owner.flag (< j 2)) { set j (+ j 1) }
+  set i (+ i 1)
+  if (== i 2) { let Box { value, flag } = owner return (+ value (+ i j)) }
+ }
+ let Box { value, flag } = owner
+ return (+ value i)
+}
+shadow pick { assert (== (main) 26) }
+fn main() -> int {
+ return (+ (pick Box { value: 7, flag: true } 0)
+           (+ (pick Box { value: 7, flag: true } 1) (pick Box { value: 7, flag: true } 5)))
+}
+shadow main { assert (== (main) 26) }

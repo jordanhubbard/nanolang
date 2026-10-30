@@ -1,0 +1,13 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gpl964yq
+test_actual_local_boundary_preserves_output (tests.test_single_exclusive_helper_local_reconstruction.SingleExclusiveHelperLocalReconstruction.test_actual_local_boundary_preserves_output) ... ok
+test_descriptor_and_unsupported_helper_controls (tests.test_single_exclusive_helper_local_reconstruction.SingleExclusiveHelperLocalReconstruction.test_descriptor_and_unsupported_helper_controls) ... ok
+test_origin_proofs_and_caller_only_plan (tests.test_single_exclusive_helper_local_reconstruction.SingleExclusiveHelperLocalReconstruction.test_origin_proofs_and_caller_only_plan) ... ok
+test_original_and_generated_shadows (tests.test_single_exclusive_helper_local_reconstruction.SingleExclusiveHelperLocalReconstruction.test_original_and_generated_shadows) ... ok
+test_original_verifier_formal_and_consumption_refusals (tests.test_single_exclusive_helper_local_reconstruction.SingleExclusiveHelperLocalReconstruction.test_original_verifier_formal_and_consumption_refusals) ... ok
+test_unchanged_source_and_native_roundtrips (tests.test_single_exclusive_helper_local_reconstruction.SingleExclusiveHelperLocalReconstruction.test_unchanged_source_and_native_roundtrips) ... ok
+test_valid_caller_reassignment_remains_separate (tests.test_single_exclusive_helper_local_reconstruction.SingleExclusiveHelperLocalReconstruction.test_valid_caller_reassignment_remains_separate) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 39.911s
+
+OK

@@ -1,0 +1,7 @@
+test_instrumented_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_instrumented_preparation) ... ok
+test_linked_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_linked_preparation) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 16.529s
+
+OK

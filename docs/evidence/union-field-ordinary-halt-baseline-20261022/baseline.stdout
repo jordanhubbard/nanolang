@@ -1,0 +1,49 @@
+CASE return assemble=0 
+VERIFY return ok=1 message=
+FIRST return public=1 result=0 trap=-1 error=0 message= stack=1 frames=0 fn=0 ip=10 floor=0 refs=0 callee_refs=0 globals=0 capacity=0 objects=1
+STACK return 0 tag=1 int=7
+DESTROY return objects=0 allocated=29 freed=29 intern=0 frames=0
+CASE root-halt assemble=0 
+VERIFY root-halt ok=1 message=
+FIRST root-halt public=1 result=0 trap=-1 error=0 message= stack=2 frames=1 fn=0 ip=22 floor=0 refs=0 callee_refs=0 globals=0 capacity=0 objects=1
+STACK root-halt 0 tag=1 int=9
+STACK root-halt 1 tag=1 int=11
+DESTROY root-halt objects=0 allocated=29 freed=29 intern=0 frames=0
+CASE call-halt assemble=0 
+VERIFY call-halt ok=1 message=
+FIRST call-halt public=1 result=0 trap=-1 error=0 message= stack=1 frames=2 fn=1 ip=16 floor=0 refs=0 callee_refs=0 globals=0 capacity=0 objects=2
+STACK call-halt 0 tag=1 int=12
+DESTROY call-halt objects=0 allocated=60 freed=60 intern=0 frames=0
+CASE tail-halt assemble=0 
+VERIFY tail-halt ok=1 message=
+FIRST tail-halt public=1 result=0 trap=-1 error=0 message= stack=1 frames=1 fn=1 ip=15 floor=0 refs=0 callee_refs=0 globals=0 capacity=0 objects=2
+STACK tail-halt 0 tag=1 int=13
+DESTROY tail-halt objects=0 allocated=60 freed=60 intern=0 frames=0
+CASE assert-halt assemble=0 
+VERIFY assert-halt ok=1 message=
+FIRST assert-halt public=1 result=0 trap=-1 error=0 message= stack=1 frames=1 fn=0 ip=13 floor=0 refs=0 callee_refs=0 globals=0 capacity=0 objects=1
+STACK assert-halt 0 tag=1 int=14
+DESTROY assert-halt objects=0 allocated=29 freed=29 intern=0 frames=0
+CASE false-assert assemble=0 
+VERIFY false-assert ok=1 message=
+FIRST false-assert public=1 result=8 trap=-1 error=8 message=Assertion failed stack=0 frames=1 fn=0 ip=3 floor=0 refs=0 callee_refs=0 globals=0 capacity=0 objects=1
+DESTROY false-assert objects=0 allocated=29 freed=29 intern=0 frames=0
+CASE init-halt assemble=0 
+VERIFY init-halt ok=1 message=
+FIRST init-halt public=1 result=0 trap=-1 error=0 message= stack=2 frames=1 fn=0 ip=24 floor=0 refs=0 callee_refs=0 globals=1 capacity=1 objects=2
+STACK init-halt 0 tag=1 int=16
+STACK init-halt 1 tag=1 int=7
+GLOBAL init-halt 0 tag=1 int=99
+DESTROY init-halt objects=0 allocated=62 freed=62 intern=0 frames=0
+CASE init-return assemble=0 
+VERIFY init-return ok=1 message=
+FIRST init-return public=1 result=0 trap=-1 error=0 message= stack=2 frames=0 fn=0 ip=24 floor=0 refs=0 callee_refs=0 globals=1 capacity=1 objects=2
+STACK init-return 0 tag=1 int=16
+STACK init-return 1 tag=1 int=7
+GLOBAL init-return 0 tag=1 int=99
+DESTROY init-return objects=0 allocated=62 freed=62 intern=0 frames=0
+CASE core-halt assemble=0 
+VERIFY core-halt ok=1 message=
+FIRST core-halt public=0 result=0 trap=4 error=0 message= stack=1 frames=1 fn=0 ip=10 floor=0 refs=0 callee_refs=0 globals=0 capacity=0 objects=1
+STACK core-halt 0 tag=1 int=17
+DESTROY core-halt objects=0 allocated=29 freed=29 intern=0 frames=0

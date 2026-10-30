@@ -1,0 +1,5 @@
+resource struct Counter { value: int }
+fn read(view: &Counter) -> int { return 7 }
+shadow read { let owner: Counter = Counter { value: 1 } assert (== (read &owner) 7) let Counter { value } = owner assert (== value 1) }
+fn main() -> int { let owner: Counter = Counter { value: 9 } assert (== (read &owner) 7) let Counter { value } = owner assert (== value 9) return 0 }
+shadow main { assert true }

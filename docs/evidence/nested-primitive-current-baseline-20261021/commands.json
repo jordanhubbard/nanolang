@@ -1,0 +1,713 @@
+[
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x19\\x00\\x00\\x00>\\x00\\x00\\x00entries\"\n.string \"nano.source_file\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 2\n.metadata 6 7\n.metadata 8 5\n\n.types 1 0 0\n\n.flag debug_info\n\n.debug 0 2 20\n.debug 25 3 2\n.debug 52 3 38\n\n.entry 0\n\n.function main 0 1 0 int 1\n  PUSH_BOOL 0\n  PUSH_BOOL 1\n  ARR_LITERAL 4 2\n  ARR_LITERAL 7 1\n  AGG_PACK 0 0 0 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  ARR_GET\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano_virt.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano_virt.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano_virt.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x19\\x00\\x00\\x00>\\x00\\x00\\x00entries\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 2\n.metadata 5 6\n\n.types 1 0 0\n\n.entry 0\n\n.function main 0 1 0 int 1\n  PUSH_BOOL 0\n  PUSH_BOOL 1\n  ARR_LITERAL 4 2\n  ARR_LITERAL 7 1\n  AGG_PACK 0 0 0 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  ARR_GET\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage1.nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage1.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage1.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage1.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage1.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x19\\x00\\x00\\x00>\\x00\\x00\\x00entries\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 2\n.metadata 5 6\n\n.types 1 0 0\n\n.entry 0\n\n.function main 0 1 0 int 1\n  PUSH_BOOL 0\n  PUSH_BOOL 1\n  ARR_LITERAL 4 2\n  ARR_LITERAL 7 1\n  AGG_PACK 0 0 0 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  ARR_GET\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage2.nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage2.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage2.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-nested-primitive-current-baseline/bool-original.nanoc_stage2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"floating_rows\"\n.string \"integer_rows\"\n.string \"float_box\"\n.string \"int_box\"\n.string \"main\"\n.string \"__init__\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"\\x02\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"\\x03\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"\\x04\\x00\\x00\\x00\\x02\\x00\\x00\\x00\"\n.string \"/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano\"\n.string \"nano.local.v1\"\n.string \"\\x04\\x00\\x00\\x00\\x0c\\x00\\x00\\x00\\n\\x02\\x00\\x00^\\x02\\x00\\x00integer\"\n.string \"\\x04\\x00\\x00\\x00\\x0b\\x00\\x00\\x00\\x02\\x02\\x00\\x00^\\x02\\x00\\x00floating\"\n.string \"\\x04\\x00\\x00\\x00\\n\\x00\\x00\\x00\\x98\\x01\\x00\\x00^\\x02\\x00\\x00integers\"\n.string \"\\x04\\x00\\x00\\x00\\x05\\x00\\x00\\x00,\\x01\\x00\\x00^\\x02\\x00\\x00floats\"\n.string \"\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x14\\x00\\x00\\x00^\\x02\\x00\\x00inferred\"\n.string \"nano.source_file\"\n\n.metadata 6 7\n.metadata 8 7\n.metadata 9 7\n.metadata 6 10\n.metadata 8 10\n.metadata 9 10\n.metadata 6 11\n.metadata 8 11\n.metadata 9 11\n.metadata 6 12\n.metadata 8 12\n.metadata 9 12\n.metadata 6 13\n.metadata 8 13\n.metadata 9 14\n.metadata 16 17\n.metadata 16 18\n.metadata 16 19\n.metadata 16 20\n.metadata 16 21\n.metadata 22 15\n\n.types 2 0 0\n\n.flag debug_info\n\n.debug 0 6 45\n.debug 18 9 42\n.debug 36 12 31\n.debug 64 18 27\n.debug 92 25 5\n.debug 112 26 5\n.debug 147 27 5\n.debug 183 28 5\n.debug 212 29 5\n.debug 248 30 5\n.debug 284 31 5\n.debug 392 32 5\n.debug 500 33 5\n.debug 515 34 5\n.debug 549 35 5\n.debug 564 36 5\n.debug 598 37 5\n.debug 606 38 5\n.debug 614 39 5\n.debug 651 40 5\n.debug 688 41 5\n\n.entry 4\n\n.function floating_rows 0 0 0 array 1\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  ARR_LITERAL 7 1\n  RET\n.end\n\n.function integer_rows 0 0 0 array 1\n  PUSH_I64 1\n  ARR_LITERAL 1 1\n  ARR_LITERAL 7 1\n  RET\n.end\n\n.function float_box 0 0 0 struct 1\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  ARR_LITERAL 7 1\n  AGG_PACK 0 0 0 1\n  RET\n.end\n\n.function int_box 0 0 0 struct 1\n  PUSH_I64 1\n  ARR_LITERAL 1 1\n  ARR_LITERAL 7 1\n  AGG_PACK 0 1 0 1\n  RET\n.end\n\n.function main 0 13 0 int 1\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  ARR_LITERAL 7 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  CAST_FLOAT\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  LOAD_GLOBAL 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  PUSH_I64 1\n  ARR_LITERAL 1 1\n  ARR_LITERAL 7 1\n  ARR_LEN\n  PUSH_I64 1\n  I64_EQ\n  ASSERT\n  CALL 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  CALL 1\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  I64_EQ\n  ASSERT\n  PUSH_I64 2\n  STORE_LOCAL 1\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  STORE_LOCAL 2\n  LOAD_LOCAL 1\n  PUSH_I64 0\n  I64_GE_S\n  ASSERT\n  ARR_NEW 7\n  STORE_LOCAL 3\n  PUSH_I64 0\n  STORE_LOCAL 4\nL1:\n  LOAD_LOCAL 4\n  LOAD_LOCAL 1\n  LT\n  JMP_FALSE L0\n  LOAD_LOCAL 3\n  LOAD_LOCAL 2\n  ARR_PUSH\n  STORE_LOCAL 3\n  LOAD_LOCAL 4\n  PUSH_I64 1\n  I64_ADD\n  STORE_LOCAL 4\n  JMP L1\nL0:\n  LOAD_LOCAL 3\n  STORE_LOCAL 5\n  PUSH_I64 2\n  STORE_LOCAL 6\n  PUSH_I64 1\n  ARR_LITERAL 1 1\n  STORE_LOCAL 7\n  LOAD_LOCAL 6\n  PUSH_I64 0\n  I64_GE_S\n  ASSERT\n  ARR_NEW 7\n  STORE_LOCAL 8\n  PUSH_I64 0\n  STORE_LOCAL 9\nL3:\n  LOAD_LOCAL 9\n  LOAD_LOCAL 6\n  LT\n  JMP_FALSE L2\n  LOAD_LOCAL 8\n  LOAD_LOCAL 7\n  ARR_PUSH\n  STORE_LOCAL 8\n  LOAD_LOCAL 9\n  PUSH_I64 1\n  I64_ADD\n  STORE_LOCAL 9\n  JMP L3\nL2:\n  LOAD_LOCAL 8\n  STORE_LOCAL 10\n  LOAD_LOCAL 5\n  ARR_LEN\n  PUSH_I64 2\n  I64_EQ\n  ASSERT\n  LOAD_LOCAL 5\n  PUSH_I64 1\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  LOAD_LOCAL 10\n  ARR_LEN\n  PUSH_I64 2\n  I64_EQ\n  ASSERT\n  LOAD_LOCAL 10\n  PUSH_I64 1\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  I64_EQ\n  ASSERT\n  CALL 2\n  STORE_LOCAL 11\n  CALL 3\n  STORE_LOCAL 12\n  LOAD_LOCAL 11\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  LOAD_LOCAL 12\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  I64_EQ\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n.function __init__ 0 0 0 void 0\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  ARR_LITERAL 7 1\n  STORE_GLOBAL 0\n  RET\n.end\n\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano_virt.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano_virt.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano_virt.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x14\\x00\\x00\\x00]\\x02\\x00\\x00inferred\"\n.string \"\\x00\\x00\\x00\\x00\\x05\\x00\\x00\\x00+\\x01\\x00\\x00]\\x02\\x00\\x00floats\"\n.string \"\\x00\\x00\\x00\\x00\\n\\x00\\x00\\x00\\x97\\x01\\x00\\x00]\\x02\\x00\\x00integers\"\n.string \"\\x00\\x00\\x00\\x00\\x0b\\x00\\x00\\x00\\x01\\x02\\x00\\x00]\\x02\\x00\\x00floating\"\n.string \"\\x00\\x00\\x00\\x00\\x0c\\x00\\x00\\x00\\t\\x02\\x00\\x00]\\x02\\x00\\x00integer\"\n.string \"floating_rows\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"integer_rows\"\n.string \"\\x02\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"float_box\"\n.string \"\\x03\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"int_box\"\n.string \"\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"__init__\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 5\n.metadata 6 7\n.metadata 6 8\n.metadata 6 9\n.metadata 6 10\n.metadata 6 11\n.metadata 1 13\n.metadata 3 13\n.metadata 4 13\n.metadata 1 15\n.metadata 3 15\n.metadata 4 15\n.metadata 1 17\n.metadata 3 17\n.metadata 4 17\n.metadata 1 19\n.metadata 3 19\n.metadata 4 19\n\n.types 2 0 0\n\n.entry 0\n\n.function main 0 13 0 int 1\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  ARR_LITERAL 7 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  LOAD_GLOBAL 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  PUSH_I64 1\n  ARR_LITERAL 1 1\n  ARR_LITERAL 7 1\n  ARR_LEN\n  PUSH_I64 1\n  I64_EQ\n  ASSERT\n  CALL 1\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  CALL 2\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  I64_EQ\n  ASSERT\n  PUSH_I64 2\n  STORE_LOCAL 1\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  STORE_LOCAL 2\n  LOAD_LOCAL 1\n  PUSH_I64 0\n  I64_GE_S\n  ASSERT\n  ARR_NEW 7\n  STORE_LOCAL 3\n  PUSH_I64 0\n  STORE_LOCAL 4\nL1:\n  LOAD_LOCAL 4\n  LOAD_LOCAL 1\n  LT\n  JMP_FALSE L0\n  LOAD_LOCAL 3\n  LOAD_LOCAL 2\n  ARR_PUSH\n  STORE_LOCAL 3\n  LOAD_LOCAL 4\n  PUSH_I64 1\n  I64_ADD\n  STORE_LOCAL 4\n  JMP L1\nL0:\n  LOAD_LOCAL 3\n  STORE_LOCAL 5\n  PUSH_I64 2\n  STORE_LOCAL 6\n  PUSH_I64 1\n  ARR_LITERAL 1 1\n  STORE_LOCAL 7\n  LOAD_LOCAL 6\n  PUSH_I64 0\n  I64_GE_S\n  ASSERT\n  ARR_NEW 7\n  STORE_LOCAL 8\n  PUSH_I64 0\n  STORE_LOCAL 9\nL3:\n  LOAD_LOCAL 9\n  LOAD_LOCAL 6\n  LT\n  JMP_FALSE L2\n  LOAD_LOCAL 8\n  LOAD_LOCAL 7\n  ARR_PUSH\n  STORE_LOCAL 8\n  LOAD_LOCAL 9\n  PUSH_I64 1\n  I64_ADD\n  STORE_LOCAL 9\n  JMP L3\nL2:\n  LOAD_LOCAL 8\n  STORE_LOCAL 10\n  LOAD_LOCAL 5\n  ARR_LEN\n  PUSH_I64 2\n  I64_EQ\n  ASSERT\n  LOAD_LOCAL 5\n  PUSH_I64 1\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  LOAD_LOCAL 10\n  ARR_LEN\n  PUSH_I64 2\n  I64_EQ\n  ASSERT\n  LOAD_LOCAL 10\n  PUSH_I64 1\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  I64_EQ\n  ASSERT\n  CALL 3\n  STORE_LOCAL 11\n  CALL 4\n  STORE_LOCAL 12\n  LOAD_LOCAL 11\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  LOAD_LOCAL 12\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  I64_EQ\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n.function floating_rows 0 0 0 array 1\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  ARR_LITERAL 7 1\n  RET\n.end\n\n.function integer_rows 0 0 0 array 1\n  PUSH_I64 1\n  ARR_LITERAL 1 1\n  ARR_LITERAL 7 1\n  RET\n.end\n\n.function float_box 0 0 0 struct 1\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  ARR_LITERAL 7 1\n  AGG_PACK 0 0 0 1\n  RET\n.end\n\n.function int_box 0 0 0 struct 1\n  PUSH_I64 1\n  ARR_LITERAL 1 1\n  ARR_LITERAL 7 1\n  AGG_PACK 0 1 0 1\n  RET\n.end\n\n.function __init__ 0 0 0 void 0\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  ARR_LITERAL 7 1\n  STORE_GLOBAL 0\n  RET\n.end\n\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage1.nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage1.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage1.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage1.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage1.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x14\\x00\\x00\\x00]\\x02\\x00\\x00inferred\"\n.string \"\\x00\\x00\\x00\\x00\\x05\\x00\\x00\\x00+\\x01\\x00\\x00]\\x02\\x00\\x00floats\"\n.string \"\\x00\\x00\\x00\\x00\\n\\x00\\x00\\x00\\x97\\x01\\x00\\x00]\\x02\\x00\\x00integers\"\n.string \"\\x00\\x00\\x00\\x00\\x0b\\x00\\x00\\x00\\x01\\x02\\x00\\x00]\\x02\\x00\\x00floating\"\n.string \"\\x00\\x00\\x00\\x00\\x0c\\x00\\x00\\x00\\t\\x02\\x00\\x00]\\x02\\x00\\x00integer\"\n.string \"floating_rows\"\n.string \"\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"integer_rows\"\n.string \"\\x02\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"float_box\"\n.string \"\\x03\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"int_box\"\n.string \"\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"__init__\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 5\n.metadata 6 7\n.metadata 6 8\n.metadata 6 9\n.metadata 6 10\n.metadata 6 11\n.metadata 1 13\n.metadata 3 13\n.metadata 4 13\n.metadata 1 15\n.metadata 3 15\n.metadata 4 15\n.metadata 1 17\n.metadata 3 17\n.metadata 4 17\n.metadata 1 19\n.metadata 3 19\n.metadata 4 19\n\n.types 2 0 0\n\n.entry 0\n\n.function main 0 13 0 int 1\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  ARR_LITERAL 7 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  LOAD_GLOBAL 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  PUSH_I64 1\n  ARR_LITERAL 1 1\n  ARR_LITERAL 7 1\n  ARR_LEN\n  PUSH_I64 1\n  I64_EQ\n  ASSERT\n  CALL 1\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  CALL 2\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  I64_EQ\n  ASSERT\n  PUSH_I64 2\n  STORE_LOCAL 1\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  STORE_LOCAL 2\n  LOAD_LOCAL 1\n  PUSH_I64 0\n  I64_GE_S\n  ASSERT\n  ARR_NEW 7\n  STORE_LOCAL 3\n  PUSH_I64 0\n  STORE_LOCAL 4\nL1:\n  LOAD_LOCAL 4\n  LOAD_LOCAL 1\n  LT\n  JMP_FALSE L0\n  LOAD_LOCAL 3\n  LOAD_LOCAL 2\n  ARR_PUSH\n  STORE_LOCAL 3\n  LOAD_LOCAL 4\n  PUSH_I64 1\n  I64_ADD\n  STORE_LOCAL 4\n  JMP L1\nL0:\n  LOAD_LOCAL 3\n  STORE_LOCAL 5\n  PUSH_I64 2\n  STORE_LOCAL 6\n  PUSH_I64 1\n  ARR_LITERAL 1 1\n  STORE_LOCAL 7\n  LOAD_LOCAL 6\n  PUSH_I64 0\n  I64_GE_S\n  ASSERT\n  ARR_NEW 7\n  STORE_LOCAL 8\n  PUSH_I64 0\n  STORE_LOCAL 9\nL3:\n  LOAD_LOCAL 9\n  LOAD_LOCAL 6\n  LT\n  JMP_FALSE L2\n  LOAD_LOCAL 8\n  LOAD_LOCAL 7\n  ARR_PUSH\n  STORE_LOCAL 8\n  LOAD_LOCAL 9\n  PUSH_I64 1\n  I64_ADD\n  STORE_LOCAL 9\n  JMP L3\nL2:\n  LOAD_LOCAL 8\n  STORE_LOCAL 10\n  LOAD_LOCAL 5\n  ARR_LEN\n  PUSH_I64 2\n  I64_EQ\n  ASSERT\n  LOAD_LOCAL 5\n  PUSH_I64 1\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  LOAD_LOCAL 10\n  ARR_LEN\n  PUSH_I64 2\n  I64_EQ\n  ASSERT\n  LOAD_LOCAL 10\n  PUSH_I64 1\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  I64_EQ\n  ASSERT\n  CALL 3\n  STORE_LOCAL 11\n  CALL 4\n  STORE_LOCAL 12\n  LOAD_LOCAL 11\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_F64 bits:3ff8000000000000\n  F64_EQ\n  ASSERT\n  LOAD_LOCAL 12\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  I64_EQ\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n.function floating_rows 0 0 0 array 1\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  ARR_LITERAL 7 1\n  RET\n.end\n\n.function integer_rows 0 0 0 array 1\n  PUSH_I64 1\n  ARR_LITERAL 1 1\n  ARR_LITERAL 7 1\n  RET\n.end\n\n.function float_box 0 0 0 struct 1\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  ARR_LITERAL 7 1\n  AGG_PACK 0 0 0 1\n  RET\n.end\n\n.function int_box 0 0 0 struct 1\n  PUSH_I64 1\n  ARR_LITERAL 1 1\n  ARR_LITERAL 7 1\n  AGG_PACK 0 1 0 1\n  RET\n.end\n\n.function __init__ 0 0 0 void 0\n  PUSH_F64 bits:3ff8000000000000\n  ARR_LITERAL 3 1\n  ARR_LITERAL 7 1\n  STORE_GLOBAL 0\n  RET\n.end\n\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage2.nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage2.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage2.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-nested-primitive-current-baseline/float-original.nanoc_stage2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\\"\\x00\\x00\\x00n\\x00\\x00\\x00entries\"\n.string \"nano.source_file\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 2\n.metadata 6 7\n.metadata 8 5\n\n.types 1 0 0\n\n.flag debug_info\n\n.debug 0 2 20\n.debug 34 3 2\n.debug 72 4 2\n.debug 100 4 53\n\n.entry 0\n\n.function main 0 1 0 int 1\n  PUSH_I64 300\n  ARR_LITERAL 2 1\n  ARR_LITERAL 2 0\n  ARR_LITERAL 7 2\n  AGG_PACK 0 0 0 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  CAST_INT\n  PUSH_I64 44\n  EQ\n  ASSERT\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 1\n  ARR_GET\n  ARR_LEN\n  PUSH_I64 0\n  I64_EQ\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano_virt.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano_virt.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano_virt.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\\"\\x00\\x00\\x00n\\x00\\x00\\x00entries\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 2\n.metadata 5 6\n\n.types 1 0 0\n\n.entry 0\n\n.function main 0 1 0 int 1\n  PUSH_I64 300\n  ARR_LITERAL 2 1\n  ARR_LITERAL 2 0\n  ARR_LITERAL 7 2\n  AGG_PACK 0 0 0 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  CAST_INT\n  PUSH_I64 44\n  I64_EQ\n  ASSERT\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 1\n  ARR_GET\n  ARR_LEN\n  PUSH_I64 0\n  I64_EQ\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage1.nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage1.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage1.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage1.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage1.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\\"\\x00\\x00\\x00n\\x00\\x00\\x00entries\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 2\n.metadata 5 6\n\n.types 1 0 0\n\n.entry 0\n\n.function main 0 1 0 int 1\n  PUSH_I64 300\n  ARR_LITERAL 2 1\n  ARR_LITERAL 2 0\n  ARR_LITERAL 7 2\n  AGG_PACK 0 0 0 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  CAST_INT\n  PUSH_I64 44\n  I64_EQ\n  ASSERT\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 1\n  ARR_GET\n  ARR_LEN\n  PUSH_I64 0\n  I64_EQ\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage2.nvm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage2.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage2.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-nested-primitive-current-baseline/u8-record-probe.nanoc_stage2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

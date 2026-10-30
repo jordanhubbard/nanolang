@@ -123,7 +123,15 @@ static void malformed(void){
     BAD(c.m.passive_data=(void *)(uintptr_t)1,NVM_DECL_UNKNOWN);BAD(c.m.passive_size=1,NVM_DECL_UNKNOWN);
     BAD(c.m.import_count=1;c.o[c.type+1]=1,NVM_DECL_INVALID);
     BAD(c.m.service_size=1;c.o[c.variant[0]+6]=2,NVM_DECL_INVALID);
-    BAD(c.o[c.type]=TAG_ARRAY;patch(c.o,c.type+4,1),NVM_DECL_UNKNOWN);
+    /* Existing nested-array declarations retain their exact child reference. */
+    mixed_make(&c,false);c.o[c.type]=TAG_ARRAY;patch(c.o,c.type+4,1);
+    NvmOwnershipDeclarationPlan *nested=NULL;
+    CHECK(nvm_prepare_ownership_declarations(&c.m,&nested).status==NVM_DECL_PREPARED);
+    NvmOrdinaryArrayType parent_type,child_type;NvmOrdinaryArrayBinding nested_binding;
+    CHECK(nvm_ownership_declarations_type(nested,0,&parent_type)&&parent_type.tag==TAG_ARRAY&&parent_type.referent==1);
+    CHECK(nvm_ownership_declarations_type(nested,1,&child_type)&&child_type.tag==TAG_U8&&child_type.referent==UINT32_MAX);
+    CHECK(nvm_ownership_declarations_binding(nested,0,&nested_binding)&&nested_binding.layout==1&&nested_binding.field==0&&nested_binding.element_type==0);
+    nvm_ownership_declarations_free(nested);
     BAD(c.o[c.type]=TAG_STRUCT;patch(c.o,c.type+4,2),NVM_DECL_UNKNOWN);
     BAD(c.o[c.type]=TAG_ARRAY;patch(c.o,c.type+4,0),NVM_DECL_INVALID);
     BAD(c.m.layout_size=16777217,NVM_DECL_LIMIT);BAD(c.m.ownership_size=16777217,NVM_DECL_LIMIT);

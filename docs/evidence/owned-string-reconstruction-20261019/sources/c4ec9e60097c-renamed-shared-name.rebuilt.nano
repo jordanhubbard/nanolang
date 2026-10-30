@@ -1,0 +1,32 @@
+resource struct NlrOwned0 { f0: int }
+# I reconstruct ordered resource transfers; original shadows are not retained.
+fn main() -> int {
+    let nlr_t5: NlrOwned0 = (nlr_f1_owned_1 "main")
+    let nlr_l0: NlrOwned0 = nlr_t5
+    let nlr_t13: NlrOwned0 = nlr_l0
+    (nlr_f2_owned_2 nlr_t13)
+    return 0
+}
+fn nlr_f1_owned_1(nlr_a0: string) -> NlrOwned0 {
+    let mut nlr_l1: int = 0
+    (println nlr_a0)
+    set nlr_l1 42
+    let nlr_t16: int = nlr_l1
+    let nlr_t19: NlrOwned0 = NlrOwned0 { f0: nlr_t16 }
+    return nlr_t19
+}
+fn nlr_f2_owned_2(nlr_a0: NlrOwned0) -> void {
+    let mut nlr_l2: int = 0
+    let nlr_l0: NlrOwned0 = nlr_a0
+    let nlr_t0: NlrOwned0 = nlr_l0
+    let nlr_l1: NlrOwned0 = nlr_t0
+    let nlr_t12: int = nlr_l1.f0
+    set nlr_l2 nlr_t12
+    let nlr_t21: int = nlr_l2
+    let nlr_t33: bool = (> nlr_t21 0)
+    assert nlr_t33
+    (println "resource closed")
+    let NlrOwned0 { f0 } = nlr_l1
+    let nlr_t41_0: int = f0
+    return
+}

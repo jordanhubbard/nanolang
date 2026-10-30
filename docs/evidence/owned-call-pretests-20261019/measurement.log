@@ -1,0 +1,7 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-w3g3i_kv
+test_actual_path_call_pretest_preserves_false_path_mutation (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_actual_path_call_pretest_preserves_false_path_mutation) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 11.658s
+
+OK

@@ -1,0 +1,7 @@
+test_instrumented_private_vm (tests.test_record_array_vm.RecordArrayVm.test_instrumented_private_vm) ... ok
+test_linked_private_vm (tests.test_record_array_vm.RecordArrayVm.test_linked_private_vm) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 30.146s
+
+OK

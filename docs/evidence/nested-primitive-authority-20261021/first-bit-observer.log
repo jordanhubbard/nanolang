@@ -1,0 +1,98 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-i7ohcebv
+test_complete_origin_and_allocation_controls (tests.test_record_array_origins.RecordArrayOrigins.test_complete_origin_and_allocation_controls) ... I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 2659 record-array origin checks; no runtime admission
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+I measured 41 allocation positions and 65034 peak payload bytes; every refusal recovered
+PASS 3177 record-array origin checks; no runtime admission
+ok
+test_private_primitive_consumers (tests.test_record_array_nested_primitive.RecordArrayNestedPrimitive.test_private_primitive_consumers) ... I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-527e77kz
+I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-qb3s8zzg
+
+  test_private_primitive_consumers (tests.test_record_array_nested_primitive.RecordArrayNestedPrimitive.test_private_primitive_consumers) (leaf='TAG_FLOAT') ... FAIL
+
+======================================================================
+FAIL: test_private_primitive_consumers (tests.test_record_array_nested_primitive.RecordArrayNestedPrimitive.test_private_primitive_consumers) (leaf='TAG_FLOAT')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_record_array_nested_primitive.py", line 17, in test_private_primitive_consumers
+    self.qualify(True, leaf)
+    ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_record_array_nested.py", line 64, in qualify
+    run(name + '-execute', [str(native)])
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_record_array_nested.py", line 27, in run
+    self.assertEqual(result.returncode, 0, result.stdout.decode(errors='replace') + result.stderr.decode(errors='replace'))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : =================================================================
+==77825==ERROR: AddressSanitizer: heap-use-after-free on address 0x611000000040 at pc 0x000103f8ed94 bp 0x00016d8e73d0 sp 0x00016d8e6b80
+READ of size 96 at 0x611000000040 thread T0
+    #0 0x000103f8ed90 in __asan_memcpy+0x400 (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x3ed90)
+    #1 0x000102515390 in nvalue_require_record+0x310 (nested-100O0:arm64+0x100001390)
+    #2 0x00010252d600 in main+0x258 (nested-100O0:arm64+0x100019600)
+    #3 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+0x611000000040 is located 0 bytes inside of 224-byte region [0x611000000040,0x611000000120)
+freed by thread T0 here:
+    #0 0x000103f91368 in free+0x7c (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x41368)
+    #1 0x00010252caec in nrec_release_snapshots+0x100 (nested-100O0:arm64+0x100018aec)
+    #2 0x000102514998 in fixture_main+0x18 (nested-100O0:arm64+0x100000998)
+    #3 0x00010252d564 in main+0x1bc (nested-100O0:arm64+0x100019564)
+    #4 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+previously allocated by thread T0 here:
+    #0 0x000103f91560 in calloc+0x80 (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x41560)
+    #1 0x000102537fd0 in nrec_create+0xe0 (nested-100O0:arm64+0x100023fd0)
+    #2 0x00010251631c in nl_main+0xb5c (nested-100O0:arm64+0x10000231c)
+    #3 0x00010251498c in fixture_main+0xc (nested-100O0:arm64+0x10000098c)
+    #4 0x00010252d564 in main+0x1bc (nested-100O0:arm64+0x100019564)
+    #5 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+SUMMARY: AddressSanitizer: heap-use-after-free (nested-100O0:arm64+0x100001390) in nvalue_require_record+0x310
+Shadow bytes around the buggy address:
+  0x610ffffffd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x610ffffffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x610ffffffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x610fffffff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x610fffffff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x611000000000: fa fa fa fa fa fa fa fa[fd]fd fd fd fd fd fd fd
+  0x611000000080: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x611000000100: fd fd fd fd fa fa fa fa fa fa fa fa fa fa fa fa
+  0x611000000180: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x611000000200: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x611000000280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==77825==ABORTING
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 35.990s
+
+FAILED (failures=1)

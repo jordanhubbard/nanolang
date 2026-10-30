@@ -1,0 +1,9 @@
+# I preserve map removal through checked Nano lowering
+
+I repaired the existing Nano producer omission demonstrated by the unchanged `tests/unit/test_map_field_operations.nano` baseline in `../record-map-baseline-20261021/`. The seed already emitted HM_DELETE followed by POP; the Nano producer previously refused undefined map_remove. I now use the same VOID result contract, evaluate receiver/key once in order, consume the returned map once, and suppress an extra statement POP. I do not add map_delete, selected map authority, or map declaration publication.
+
+I built a fresh C-hosted canonical compiler in 157.475s with all imported/root helper shadows. The paired two-method gate passed in 7.442s using the retained seed and that fresh compiler. I exercised the unchanged STRING map, INT values, alias removal, one side-effecting key evaluation, missing-key removal, exact VM verification/execution and O0/O2 ASan/UBSan native execution. Wrong arity, wrong key and using the VOID result preserve prior output. The complete five-method neighbor corpus passed in 18.886s, including imported receivers and all existing scalar-pair/nested-receiver controls.
+
+I added the actual map-field gate to compiler-contract retirement with the existing three-producer selector. Local evidence is C-hosted; I still require fresh raw generations and exact Linux/Darwin qualification. I retain the initial workflow-test import failure (system Python lacked yaml) and the successful ten-method run under the existing qualification environment; no product or test assertion changed for that prerequisite.
+
+I retain source/tool hashes, exact build command, logs and the original baseline reference. The isolated module cache and compiler temporary directory were `/private/tmp/nanolang-map-remove-20261021/{module-cache,compiler-tmp}`; CC and NANO_CC selected `/opt/homebrew/opt/llvm/bin/clang`. No installed stage or shared provider was replaced.

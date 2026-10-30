@@ -1,0 +1,65 @@
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct { int64_t f0; bool f1; } NlrOwned0;
+typedef struct { int64_t f0; bool f1; } NlrOwned1;
+#include <stdint.h>
+#include <stdbool.h>
+#include <inttypes.h>
+int64_t nlr_f0_owned_0(void);
+int64_t nlr_f1_owned_1(const NlrOwned0 * nlr_a0);
+int64_t nlr_f0_owned_0(void) {
+    int64_t nlr_l0 = 0;
+    (void)nlr_l0;
+    bool nlr_l1 = false;
+    (void)nlr_l1;
+    int64_t nlr_l4 = 0;
+    (void)nlr_l4;
+    bool nlr_l5 = false;
+    (void)nlr_l5;
+    nlr_l0 = INT64_C(12);
+    nlr_l1 = false;
+    int64_t nlr_t17 = nlr_l0;
+    (void)nlr_t17;
+    bool nlr_t20 = nlr_l1;
+    (void)nlr_t20;
+    NlrOwned0 nlr_t23 = (NlrOwned0){.f0 = nlr_t17, .f1 = nlr_t20};
+    NlrOwned0 nlr_l2 = nlr_t23;
+    int64_t nlr_t37 = nlr_f1_owned_1(&nlr_l2);
+    (void)nlr_t37;
+    bool nlr_t54 = (nlr_t37 == INT64_C(12));
+    (void)nlr_t54;
+    if (!(nlr_t54)) { fputs("Assertion failed\n", stderr); abort(); }
+    NlrOwned0 nlr_t56 = nlr_l2;
+    NlrOwned0 nlr_l3 = nlr_t56;
+    int64_t nlr_t68 = nlr_l3.f0;
+    (void)nlr_t68;
+    nlr_l4 = nlr_t68;
+    bool nlr_t83 = nlr_l3.f1;
+    (void)nlr_t83;
+    nlr_l5 = nlr_t83;
+    int64_t nlr_t92 = nlr_l4;
+    (void)nlr_t92;
+    bool nlr_t104 = (nlr_t92 == INT64_C(12));
+    (void)nlr_t104;
+    if (!(nlr_t104)) { fputs("Assertion failed\n", stderr); abort(); }
+    bool nlr_t106 = nlr_l5;
+    (void)nlr_t106;
+    bool nlr_t109 = (!nlr_t106);
+    (void)nlr_t109;
+    if (!(nlr_t109)) { fputs("Assertion failed\n", stderr); abort(); }
+    int64_t nlr_t120_0 = nlr_l3.f0;
+    (void)nlr_t120_0;
+    bool nlr_t120_1 = nlr_l3.f1;
+    (void)nlr_t120_1;
+    return INT64_C(0);
+}
+int64_t nlr_f1_owned_1(const NlrOwned0 * nlr_a0) {
+    int64_t nlr_t0 = nlr_a0->f0;
+    (void)nlr_t0;
+    return nlr_t0;
+}
+int main(void) {
+    return (int)nlr_f0_owned_0();
+}

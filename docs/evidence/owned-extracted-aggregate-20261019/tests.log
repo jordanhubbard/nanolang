@@ -1,0 +1,20 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-9ajdcobg
+test_actual_extracted_leaf_roundtrips (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_actual_extracted_leaf_roundtrips) ... ok
+test_actual_multiple_reference_fixture_stays_outside_profile (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_actual_multiple_reference_fixture_stays_outside_profile) ... ok
+test_borrowed_parent_parameter_fails_closed (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_borrowed_parent_parameter_fails_closed) ... ok
+test_consumed_parent_cannot_be_reused (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_consumed_parent_cannot_be_reused) ... ok
+test_live_parent_path_remains_outside_reconstruction (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_live_parent_path_remains_outside_reconstruction) ... ok
+test_nested_generated_local_boundary_preserves_output (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_nested_generated_local_boundary_preserves_output) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-iuhk32s4
+test_actual_nested_pack_unpack_calls_returns_and_branches (tests.test_owned_nested_reconstruction.OwnedNestedReconstruction.test_actual_nested_pack_unpack_calls_returns_and_branches) ... ok
+test_crc_valid_child_identity_and_loss_refuse_original_admission (tests.test_owned_nested_reconstruction.OwnedNestedReconstruction.test_crc_valid_child_identity_and_loss_refuse_original_admission) ... ok
+test_field_descriptors_and_child_tokens_refuse (tests.test_owned_nested_reconstruction.OwnedNestedReconstruction.test_field_descriptors_and_child_tokens_refuse) ... ok
+test_verified_deeper_layouts_refuse_atomically (tests.test_owned_nested_reconstruction.OwnedNestedReconstruction.test_verified_deeper_layouts_refuse_atomically) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-wp5swxxh
+test_generated_local_boundary_is_checked_before_publication (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_generated_local_boundary_is_checked_before_publication) ... ok
+test_shared_output_is_byte_identical (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_shared_output_is_byte_identical) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 107.020s
+
+OK

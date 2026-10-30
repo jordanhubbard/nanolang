@@ -1,0 +1,15 @@
+I retain owned STRING evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-string-reconstruction-6lnzuty9
+test_assert_failure_prefix_and_no_later_print (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_assert_failure_prefix_and_no_later_print) ... ok
+test_canonical_roundtrip_and_stripped_advisory_names (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_canonical_roundtrip_and_stripped_advisory_names) ... ok
+test_defensive_string_table_and_parameter_refusals (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_defensive_string_table_and_parameter_refusals) ... ok
+test_exact_bytes_forwarding_and_positional_owners (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_exact_bytes_forwarding_and_positional_owners) ... ok
+test_independent_original_shadow_executable (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_independent_original_shadow_executable) ... ok
+test_invalid_utf8_is_target_specific (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_invalid_utf8_is_target_specific) ... ok
+test_literal_payload_bound_and_atomic_overlimit (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_literal_payload_bound_and_atomic_overlimit) ... ok
+test_original_verifier_rejects_wrong_print_argument_and_constant (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_original_verifier_rejects_wrong_print_argument_and_constant) ... ok
+test_unchanged_ordinary_example (tests.test_owned_string_reconstruction.OwnedStringReconstruction.test_unchanged_ordinary_example) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 54.982s
+
+OK

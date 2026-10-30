@@ -1,0 +1,7 @@
+{
+  "Makefile.gnu": "403466a0eef0355b155667f23f76fa845e34ec077f8c4c48c2299d855a9bb216",
+  "src/nanoisa/hl_owned_facts.inc": "b4cc28c15bfcf8b67d6468d438b2f8285d4aeaa1f52d08747cb9fa78baba1768",
+  "scripts/nanoisa_owned_reconstruction.py": "257093cf961727c3de5f65dfd992b7506e0117c690e5a11fe57fad5272fd1a71",
+  "scripts/nanoisa_owned_strings.py": "eea45169b4439e55bbe098096fa541aeadc311fa5d6ad47fa2f5c3d52eec1e5c",
+  "tests/test_owned_string_reconstruction.py": "6dc5852e4057407e1e29ab90ef5d8708652fc35f86c9a4e1eb12287cf70f1abf"
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "operations",
+    "status": 0,
+    "seconds": 9.11403125000652
+  },
+  {
+    "name": "old-bytes",
+    "status": 0,
+    "seconds": 2.509559875004925
+  },
+  {
+    "name": "strict",
+    "status": 0,
+    "seconds": 0.6972747080144472
+  }
+]

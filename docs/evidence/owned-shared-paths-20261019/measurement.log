@@ -1,0 +1,9 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-0l_5juqe
+test_original_anchor_generated_loop_and_exact_storage (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_original_anchor_generated_loop_and_exact_storage) ... I measure shared-path storage {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "original_locals": [25, 2], "estimated_locals": [83, 39], "estimated_shadow_locals": 74}
+I measure shared-path storage {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "original_locals": [25, 2], "estimated_locals": [83, 39], "estimated_shadow_locals": 74}
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.836s
+
+OK

@@ -1,0 +1,4 @@
+module "left.nano" as left
+module "right.nano" as right
+fn main()->int {assert (== (left.run) 14) assert (== (right.run) 18) return 0}
+shadow main {assert (== (main) 0)}

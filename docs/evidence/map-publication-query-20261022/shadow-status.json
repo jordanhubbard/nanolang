@@ -1,0 +1,57 @@
+[
+  {
+    "name": "original-shadow-emission",
+    "argv": [
+      "/private/tmp/owned-string-baseline-20261019/shadow_driver",
+      "/Users/jkh/Src/nanolang-51-platform-qualification/tests/nanoisa/fixtures/map_record_fields.nano",
+      "0",
+      "raw"
+    ],
+    "status": 0
+  },
+  {
+    "name": "original-shadow-assemble",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-map-publication-query-20261022/original-shadow.nasm",
+      "-o",
+      "/private/tmp/nanolang-map-publication-query-20261022/original-shadow.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "original-shadow-verify",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-map-publication-query-20261022/original-shadow.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "original-shadow-vm",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-map-publication-query-20261022/original-shadow.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "original-shadow-dump",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-map-publication-query-20261022/original-shadow.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "original-shadow-query",
+    "argv": [
+      "/private/tmp/nanolang-map-publication-query-20261022/module-closure",
+      "/private/tmp/nanolang-map-publication-query-20261022/original-shadow.nvm"
+    ],
+    "status": 0
+  }
+]

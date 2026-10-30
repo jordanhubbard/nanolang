@@ -1,0 +1,16 @@
+{
+  "nano_vm_decoded_baseline": {
+    "sha256": "605ff1d103230423924170045a7842cf420808c0e96db5073851ba070e7df808",
+    "dynamic_libraries": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_baseline:\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1359.0.0)\n\t/opt/homebrew/opt/openssl@4/lib/libcrypto.4.dylib (compatibility version 4.0.0, current version 4.0.0)\n\t/usr/lib/libffi.dylib (compatibility version 1.0.0, current version 40.0.0)\n\t@rpath/libclang_rt.asan_osx_dynamic.dylib (compatibility version 0.0.0, current version 0.0.0)\n"
+  },
+  "nano_vm_decoded_view": {
+    "sha256": "0822966876650fca2e249f8a345b47118d35f3493ac17d4a9e8b3f0621a139f0",
+    "dynamic_libraries": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_view:\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1359.0.0)\n\t/opt/homebrew/opt/openssl@4/lib/libcrypto.4.dylib (compatibility version 4.0.0, current version 4.0.0)\n\t/usr/lib/libffi.dylib (compatibility version 1.0.0, current version 40.0.0)\n\t@rpath/libclang_rt.asan_osx_dynamic.dylib (compatibility version 0.0.0, current version 0.0.0)\n"
+  },
+  "nano_vm": {
+    "sha256": "843a6bdc2d1defcb5ba8c5af424c31f4dc64a2877293bdebd7aadb2a957726b6",
+    "dynamic_libraries": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm:\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1359.0.0)\n\t/opt/homebrew/opt/openssl@4/lib/libcrypto.4.dylib (compatibility version 4.0.0, current version 4.0.0)\n\t/usr/lib/libffi.dylib (compatibility version 1.0.0, current version 40.0.0)\n\t/opt/homebrew/opt/llvm/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib (compatibility version 0.0.0, current version 0.0.0)\n"
+  },
+  "apple_compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "homebrew_compiler": "Homebrew clang version 23.1.2\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /opt/homebrew/Cellar/llvm/23.1.2/bin\nConfiguration file: /opt/homebrew/Cellar/llvm/23.1.2/etc/clang/arm64-apple-darwin27.cfg\n"
+}

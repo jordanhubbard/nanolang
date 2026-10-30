@@ -1,0 +1,7 @@
+tests/nanoisa/test_record_map_import.c:215:43: error: too many arguments to function call, expected 3, have 4
+  215 |             vm_array_set(&vm.heap,array,0,val_array(array));
+      |             ~~~~~~~~~~~~                  ^~~~~~~~~~~~~~~~
+tests/nanoisa/../../src/nanovm/heap.h:228:6: note: 'vm_array_set' declared here
+  228 | void vm_array_set(VmArray *a, uint32_t index, NanoValue v);
+      |      ^            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

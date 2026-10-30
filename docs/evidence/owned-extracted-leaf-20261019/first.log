@@ -1,0 +1,56 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-uv0fdjhp
+test_actual_extracted_leaf_roundtrips (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_actual_extracted_leaf_roundtrips) ... 
+  test_actual_extracted_leaf_roundtrips (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_actual_extracted_leaf_roundtrips) (case='exclusive', compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt') ... FAIL
+  test_actual_extracted_leaf_roundtrips (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_actual_extracted_leaf_roundtrips) (case='exclusive', compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context') ... FAIL
+test_borrowed_parent_parameter_fails_closed (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_borrowed_parent_parameter_fails_closed) ... ok
+test_consumed_parent_cannot_be_reused (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_consumed_parent_cannot_be_reused) ... ok
+test_live_parent_path_remains_outside_reconstruction (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_live_parent_path_remains_outside_reconstruction) ... ok
+
+======================================================================
+FAIL: test_actual_extracted_leaf_roundtrips (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_actual_extracted_leaf_roundtrips) (case='exclusive', compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_extracted_reconstruction.py", line 49, in test_actual_extracted_leaf_roundtrips
+    self.assertEqual([fn['locals'] for fn in regenerated['functions']],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     [emitter.nano_local_cost(fn) for fn in functions])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [109, 12] != [105, 12]
+
+First differing element 0:
+109
+105
+
+- [109, 12]
+?    ^
+
++ [105, 12]
+?    ^
+
+
+======================================================================
+FAIL: test_actual_extracted_leaf_roundtrips (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_actual_extracted_leaf_roundtrips) (case='exclusive', compiler='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_extracted_reconstruction.py", line 49, in test_actual_extracted_leaf_roundtrips
+    self.assertEqual([fn['locals'] for fn in regenerated['functions']],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     [emitter.nano_local_cost(fn) for fn in functions])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [109, 12] != [105, 12]
+
+First differing element 0:
+109
+105
+
+- [109, 12]
+?    ^
+
++ [105, 12]
+?    ^
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 11.375s
+
+FAILED (failures=2)

@@ -1,0 +1,13 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-43wdcgmc
+test_actual_128_129_publication (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_actual_128_129_publication) ... ok
+test_immutable_proof_and_exact_rendering (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_immutable_proof_and_exact_rendering) ... ok
+test_later_false_helper_assertion_stays_runtime_failure (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_later_false_helper_assertion_stays_runtime_failure) ... ok
+test_original_and_generated_shadow (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_original_and_generated_shadow) ... ok
+test_signed_multiplication_endpoints (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_signed_multiplication_endpoints) ... ok
+test_typed_identity_and_first_snapshot_refusals (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_typed_identity_and_first_snapshot_refusals) ... ok
+test_unchanged_all_producers_and_native (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_unchanged_all_producers_and_native) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 219.085s
+
+OK

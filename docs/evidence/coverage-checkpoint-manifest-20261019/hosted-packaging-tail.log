@@ -1,0 +1,63 @@
+ci_bootstrap_checkpoint.py pack "$RUNNER_TEMP/coverage-bootstrap.tar.gz" --phase stage2
+2026-10-19T14:49:55.9624676Z python3 scripts/ci_bootstrap_checkpoint.py pack "$RUNNER_TEMP/coverage-bootstrap.tar.gz" --phase stage2
+2026-10-19T14:49:55.9702085Z shell: /usr/bin/bash -e {0}
+2026-10-19T14:49:55.9702304Z env:
+2026-10-19T14:49:55.9702531Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-19T14:49:55.9702813Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-19T14:49:55.9703017Z   NANO_SHADOW_TRACE: 1
+2026-10-19T14:49:55.9703200Z   BOOTSTRAP_NANOISA_TIMEOUT: 5400
+2026-10-19T14:49:55.9703564Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage
+2026-10-19T14:49:55.9704239Z   LDFLAGS: -lm -lcrypto -fprofile-arcs -ftest-coverage
+2026-10-19T14:49:55.9704481Z ##[endgroup]
+2026-10-19T14:55:00.9950326Z I require a bounded regular checkpoint manifest
+2026-10-19T14:55:01.0364322Z ##[error]Process completed with exit code 1.
+2026-10-19T14:55:01.0435889Z ##[group]Run actions/upload-artifact@v4
+2026-10-19T14:55:01.0436113Z with:
+2026-10-19T14:55:01.0436298Z   name: verifier-corpus-coverage-bootstrap
+2026-10-19T14:55:01.0436623Z   path: obj/bootstrap-nanoisa/**/*.log
+obj/bootstrap-nanoisa/**/manifest.json
+
+2026-10-19T14:55:01.0436934Z   include-hidden-files: true
+2026-10-19T14:55:01.0437132Z   if-no-files-found: ignore
+2026-10-19T14:55:01.0437319Z   retention-days: 7
+2026-10-19T14:55:01.0437490Z   compression-level: 6
+2026-10-19T14:55:01.0437664Z   overwrite: false
+2026-10-19T14:55:01.0437819Z env:
+2026-10-19T14:55:01.0438014Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-19T14:55:01.0438276Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-19T14:55:01.0438488Z   NANO_SHADOW_TRACE: 1
+2026-10-19T14:55:01.0438663Z   BOOTSTRAP_NANOISA_TIMEOUT: 5400
+2026-10-19T14:55:01.0439004Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage
+2026-10-19T14:55:01.0448322Z   LDFLAGS: -lm -lcrypto -fprofile-arcs -ftest-coverage
+2026-10-19T14:55:01.0448636Z ##[endgroup]
+2026-10-19T14:55:01.2690712Z (node:67389) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-19T14:55:01.2691702Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-19T14:55:01.2808139Z With the provided path, there will be 19 files uploaded
+2026-10-19T14:55:01.2808699Z Artifact name is valid!
+2026-10-19T14:55:01.2808992Z Root directory input is valid!
+2026-10-19T14:55:01.6202849Z Beginning upload of artifact content to blob storage
+2026-10-19T14:55:01.6568624Z (node:67389) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-19T14:55:01.9490939Z Uploaded bytes 89266
+2026-10-19T14:55:02.0070009Z Finished uploading artifact content to blob storage!
+2026-10-19T14:55:02.0070813Z SHA256 digest of uploaded artifact zip is 5c8a86f2cffd8aedc6453de71035096923957937404571fabd8415b12bc9d441
+2026-10-19T14:55:02.0071719Z Finalizing artifact upload
+2026-10-19T14:55:02.3208648Z Artifact verifier-corpus-coverage-bootstrap.zip successfully finalized. Artifact ID 12195604136
+2026-10-19T14:55:02.3209703Z Artifact verifier-corpus-coverage-bootstrap has been successfully uploaded! Final size is 89266 bytes. Artifact ID is 12195604136
+2026-10-19T14:55:02.3215417Z Artifact download URL: https://github.com/jordanhubbard/nanolang/actions/runs/39261195595/artifacts/12195604136
+2026-10-19T14:55:02.3400301Z Post job cleanup.
+2026-10-19T14:55:02.4159766Z [command]/usr/bin/git version
+2026-10-19T14:55:02.4197787Z git version 2.55.0
+2026-10-19T14:55:02.4230528Z Temporarily overriding HOME='/home/runner/work/_temp/f16a8104-bfb4-4e37-aaeb-a3dae1a3e0a2' before making global git config changes
+2026-10-19T14:55:02.4231522Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-19T14:55:02.4236257Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/nanolang/nanolang
+2026-10-19T14:55:02.4277738Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-19T14:55:02.4314472Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-19T14:55:02.4614198Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-19T14:55:02.4642310Z http.https://github.com/.extraheader
+2026-10-19T14:55:02.4652407Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-19T14:55:02.4694934Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-19T14:55:02.4956816Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-19T14:55:02.4995147Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-19T14:55:02.5375539Z Evaluate and set job outputs
+2026-10-19T14:55:02.5382011Z Cleaning up orphan processes
+2026-10-19T14:55:02.5725578Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

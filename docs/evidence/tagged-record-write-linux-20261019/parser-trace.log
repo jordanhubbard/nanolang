@@ -1,0 +1,2 @@
+TRACE boxer line=5441 kind=4 slot=16
+I cannot translate '/private/tmp/nanolang-linux-native-repro/parser.nvm': I require a tagged or scalar array element

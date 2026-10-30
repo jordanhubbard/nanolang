@@ -1,0 +1,14 @@
+[
+  {
+    "path": "tests/nanovm/ffi_artifact_fixture.c",
+    "sha256": "9691c2e7c95d85ab842501db258f154d4ad9c5f791a45b16898e4828535245ac"
+  },
+  {
+    "path": "tests/nanovm/ffi_artifact_identity_fixture.c",
+    "sha256": "a52345f56b2c575f3ccc20ce55190c48058274143b9bb881ab4398926fb34423"
+  },
+  {
+    "path": "tests/nanovm/test_artifact_load.c",
+    "sha256": "a7b9da4ce34ca84d345828aa89d464d16c52ee4fe3bcad9fb465532a1aa403b8"
+  }
+]

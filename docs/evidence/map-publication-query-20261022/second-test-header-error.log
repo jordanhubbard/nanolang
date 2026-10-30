@@ -1,0 +1,10 @@
+tests/nanoisa/test_record_map_publication.c:38:11: error: call to undeclared function 'nvm_record_map_admit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   38 |     CHECK(nvm_record_map_admit(&c.m,&p).status==NVM_ARRAY_ELIGIBLE);
+      |           ^
+tests/nanoisa/test_record_map_publication.c:38:40: error: member reference base type 'int' is not a structure or union
+   38 |     CHECK(nvm_record_map_admit(&c.m,&p).status==NVM_ARRAY_ELIGIBLE);
+      |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~
+tests/nanoisa/test_record_array_origins.c:23:36: note: expanded from macro 'CHECK'
+   23 | #define CHECK(x) do {checks++;if(!(x)){fprintf(stderr,"I failed line %u: %s\n",__LINE__,#x);exit(1);}} while(0)
+      |                                    ^
+2 errors generated.

@@ -1,0 +1,44 @@
+resource struct NlrOwned0 { f0: int }
+resource struct NlrOwned1 { f0: NlrOwned0 }
+resource struct NlrOwned2 { f0: NlrOwned1 }
+# I reconstruct ordered resource transfers; original shadows are not retained.
+fn main() -> int {
+    let mut nlr_l0: int = 0
+    let mut nlr_l13: int = 0
+    set nlr_l0 7
+    let nlr_t12: int = nlr_l0
+    let nlr_t15: NlrOwned0 = NlrOwned0 { f0: nlr_t12 }
+    let nlr_l1: NlrOwned0 = nlr_t15
+    let nlr_t23: NlrOwned0 = nlr_l1
+    let nlr_l2: NlrOwned0 = nlr_t23
+    let nlr_t29: NlrOwned0 = nlr_l2
+    let nlr_t32: NlrOwned1 = NlrOwned1 { f0: nlr_t29 }
+    let nlr_l3: NlrOwned1 = nlr_t32
+    let nlr_t40: NlrOwned1 = nlr_l3
+    let nlr_l4: NlrOwned1 = nlr_t40
+    let nlr_t46: NlrOwned1 = nlr_l4
+    let nlr_t49: NlrOwned2 = NlrOwned2 { f0: nlr_t46 }
+    let nlr_l5: NlrOwned2 = nlr_t49
+    let nlr_t57: NlrOwned2 = nlr_l5
+    let nlr_l6: NlrOwned2 = nlr_t57
+    let NlrOwned2 { f0 } = nlr_l6
+    let nlr_t63_0: NlrOwned1 = f0
+    let nlr_l7: NlrOwned1 = nlr_t63_0
+    let nlr_t69: NlrOwned1 = nlr_l7
+    let nlr_l8: NlrOwned1 = nlr_t69
+    let nlr_t75: NlrOwned1 = nlr_l8
+    let nlr_l9: NlrOwned1 = nlr_t75
+    let NlrOwned1 { f0 } = nlr_l9
+    let nlr_t81_0: NlrOwned0 = f0
+    let nlr_l10: NlrOwned0 = nlr_t81_0
+    let nlr_t87: NlrOwned0 = nlr_l10
+    let nlr_l11: NlrOwned0 = nlr_t87
+    let nlr_t93: NlrOwned0 = nlr_l11
+    let nlr_l12: NlrOwned0 = nlr_t93
+    let nlr_t105: int = nlr_l12.f0
+    set nlr_l13 nlr_t105
+    let nlr_t114: int = nlr_l13
+    let NlrOwned0 { f0 } = nlr_l12
+    let nlr_t117_0: int = f0
+    return nlr_t114
+}

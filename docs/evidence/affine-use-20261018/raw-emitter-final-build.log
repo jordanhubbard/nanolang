@@ -1,0 +1,26 @@
+I cannot define an enum twice in one module: Shade
+I cannot define a record twice in one module: Handle
+I require a visible declared effect for perform: E
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I lower a pinned integer and string subset to NanoISA assembly.
+Usage: nanoisa_emit <file.nano> [--emit-nvm] [-o output]
+clang: error: no such file or directory: '/Users/jkh/Src/nanolang-51-affine-use-facts/bin/nano_aot_runtime.o'
+I could not compile translated C to native output
+I could not publish the requested product: 

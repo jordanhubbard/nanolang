@@ -1,0 +1,51 @@
+python3 scripts/embed_binary64_parser.py --check
+NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/Users/jkh/Src/nanolang-51-harness/obj/module_cache perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' bin/nanoc_c src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 6500, column 9: Unused variable 'checked_body'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 3202, column 9: Unused variable 'rejected'
+Warning at line 3511, column 9: Unused variable 'rejected'
+Warning at line 3515, column 9: Unused variable 'rejected'
+Warning at line 3519, column 9: Unused variable 'rejected'
+Warning at line 3523, column 9: Unused variable 'rejected'
+Warning at line 3530, column 13: Unused variable 'rejected'
+Warning at line 3679, column 9: Unused variable 'rejected'
+Warning at line 3683, column 9: Unused variable 'rejected'
+Warning at line 3690, column 13: Unused variable 'rejected'
+Warning at line 8224, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 6500, column 9: Unused variable 'checked_body'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 6500, column 9: Unused variable 'checked_body'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 3202, column 9: Unused variable 'rejected'
+Warning at line 3511, column 9: Unused variable 'rejected'
+Warning at line 3515, column 9: Unused variable 'rejected'
+Warning at line 3519, column 9: Unused variable 'rejected'
+Warning at line 3523, column 9: Unused variable 'rejected'
+Warning at line 3530, column 13: Unused variable 'rejected'
+Warning at line 3679, column 9: Unused variable 'rejected'
+Warning at line 3683, column 9: Unused variable 'rejected'
+Warning at line 3690, column 13: Unused variable 'rejected'
+Warning at line 8224, column 17: Unused variable 'imported'
+python3 -m unittest -v tests.test_checked_borrow_metadata tests.test_source_borrow_emission.AffineComparisonIsolation
+test_actual_checker_context_raw_recheck_and_descriptor_lifetime (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_actual_checker_context_raw_recheck_and_descriptor_lifetime) ... ok
+test_actual_root_and_nested_events (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_actual_root_and_nested_events) ... ok
+test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) ... ok
+test_imported_helper_existing_producer_boundary (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_imported_helper_existing_producer_boundary) ... ok
+test_later_argument_and_runtime_shadow_failure_preserve_output (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_later_argument_and_runtime_shadow_failure_preserve_output) ... ok
+test_multi_helper_import_profile_remains_refused (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_multi_helper_import_profile_remains_refused) ... ok
+test_borrow_suffix_preserves_code_authority_and_references (tests.test_source_borrow_emission.AffineComparisonIsolation.test_borrow_suffix_preserves_code_authority_and_references) ... ok
+test_only_advisory_difference_is_normalized (tests.test_source_borrow_emission.AffineComparisonIsolation.test_only_advisory_difference_is_normalized) ... ok
+test_shared_or_untrusted_facts_refuse_normalization (tests.test_source_borrow_emission.AffineComparisonIsolation.test_shared_or_untrusted_facts_refuse_normalization) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 79.576s
+
+OK

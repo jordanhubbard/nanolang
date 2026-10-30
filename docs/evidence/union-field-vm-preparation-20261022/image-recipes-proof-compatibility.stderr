@@ -1,0 +1,8 @@
+test_complete_origin_and_allocation_controls (tests.test_union_field_image.UnionFieldImage.test_complete_origin_and_allocation_controls) ... ok
+test_complete_origin_and_allocation_controls (tests.test_union_field_execution.UnionFieldExecution.test_complete_origin_and_allocation_controls) ... ok
+test_complete_origin_and_allocation_controls (tests.test_union_field_proof.UnionFieldProof.test_complete_origin_and_allocation_controls) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 25.072s
+
+OK

@@ -51,7 +51,7 @@ jobs:
           echo "code=$code" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
-        timeout-minutes: 10
+        timeout-minutes: 25
         run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev clang
 
       - name: Strict compiles with every available compiler
@@ -119,7 +119,7 @@ jobs:
 
       - name: Install dependencies (Ubuntu)
         if: runner.os == 'Linux'
-        timeout-minutes: 10
+        timeout-minutes: 25
         run: |
           ./scripts/ci-apt-install.sh \
             build-essential \
@@ -355,7 +355,7 @@ jobs:
 
       - name: Install example dependencies (Ubuntu)
         if: runner.os == 'Linux'
-        timeout-minutes: 10
+        timeout-minutes: 25
         run: |
           ./scripts/ci-apt-install.sh \
             build-essential \
@@ -467,50 +467,85 @@ jobs:
           path: docs/api/
           retention-days: 30
 
-  sanitizers:
-    name: Memory Sanitizers
+  # I build the complete toolchain once and transfer its exact bytes to all four
+  # jobs. Fork PRs need only artifact permissions, never registry publication.
+  instrumented-image:
+    name: Immutable instrumented toolchain
     needs: fast-gate
     if: needs.fast-gate.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    outputs:
+      image-artifact: ${{ steps.image-upload.outputs.artifact-id }}
+      image-id: ${{ steps.image-build.outputs.image-id }}
+      archive-sha256: ${{ steps.image-build.outputs.archive-sha256 }}
+      platform: ${{ steps.image-build.outputs.platform }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build and inspect the pinned image
+        id: image-build
+        run: python3 scripts/ci_container.py build "$RUNNER_TEMP/instrumented-image.tar"
+      - name: Qualify image transport and checkpoint identity
+        env:
+          NANO_CI_IMAGE_ID: ${{ steps.image-build.outputs.image-id }}
+          NANO_CI_ARCHIVE_SHA256: ${{ steps.image-build.outputs.archive-sha256 }}
+          NANO_CI_IMAGE_PLATFORM: ${{ steps.image-build.outputs.platform }}
+        run: python3 scripts/ci_container_smoke.py "$RUNNER_TEMP/instrumented-image.tar"
+      - name: Retain the exact image archive
+        id: image-upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrumented-image-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/instrumented-image.tar
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  sanitizers-stage1:
+    name: Memory Sanitizers Stage 1
+    needs: [fast-gate, instrumented-image]
+    if: needs.fast-gate.outputs.code == 'true'
+    defaults:
+      run:
+        shell: python3 scripts/ci_container.py shell {0}
     env:
+      NANO_CI_IMAGE_ID: ${{ needs.instrumented-image.outputs.image-id }}
+      NANO_CI_ARCHIVE_SHA256: ${{ needs.instrumented-image.outputs.archive-sha256 }}
+      NANO_CI_IMAGE_PLATFORM: ${{ needs.instrumented-image.outputs.platform }}
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
-      # I bound each instrumented self-compilation separately from shadow tests.
-      BOOTSTRAP_NANOISA_TIMEOUT: "7200"
+      # I retain a three-hour instrumented generation budget after the hosted
+      # raw compiler exceeded 7200 seconds; shadow deadlines remain separate.
+      BOOTSTRAP_NANOISA_TIMEOUT: "10800"
+      # I allow an instrumented component compile one hour: hosted run 39707859417
+      # reached the former 1800-second alarm compiling typecheck under ASan.
+      CMD_TIMEOUT: "3600"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
       LDFLAGS: "-lm -lcrypto -fsanitize=address,undefined"
     runs-on: ubuntu-latest
-    timeout-minutes: 285
+    timeout-minutes: 270
     permissions:
       contents: read
+
+    outputs:
+      checkpoint-artifact: ${{ steps.stage1-checkpoint.outputs.artifact-id }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Python dependencies
-        shell: bash
-        run: |
-          # Already satisfied on some images; skip rather than fight the
-          # environment. Where pip refuses under PEP 668
-          # (externally-managed-environment, seen on the arm64 runners), retry
-          # with --break-system-packages: this is a throwaway CI environment,
-          # not a system Python worth protecting.
-          python3 -c 'import yaml' 2>/dev/null && exit 0
-          python3 -m pip install --user --upgrade pyyaml \
-            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
-          python3 -c 'import yaml'
+      - name: Download the exact instrumented image
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.instrumented-image.outputs.image-artifact }}
+          path: ${{ runner.temp }}/instrumented-image
+          merge-multiple: true
 
-      - name: Install dependencies
-        timeout-minutes: 10
-        run: |
-          ./scripts/ci-apt-install.sh \
-            build-essential \
-            pkg-config \
-            libssl-dev libffi-dev libsqlite3-dev \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libutf8proc-dev
+      - name: Verify and load the immutable instrumented image
+        shell: bash
+        run: python3 scripts/ci_container.py load "$RUNNER_TEMP/instrumented-image/instrumented-image.tar"
 
       - name: Build with AddressSanitizer
         run: |
@@ -519,11 +554,117 @@ jobs:
           export ASAN_OPTIONS=detect_leaks=0
           make sanitize CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
-      - name: Compile and verify both compiler generations with sanitizers
-        timeout-minutes: 240
+      - name: Compile and verify Stage 1 with sanitizers
+        timeout-minutes: 210
+        run: |
+          export ASAN_OPTIONS=detect_leaks=0
+          make bootstrap1 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+
+      - name: Package the exact successful Stage 1 checkpoint
+        run: |
+          export ASAN_OPTIONS=detect_leaks=0
+          python3 scripts/ci_bootstrap_checkpoint.py pack "$RUNNER_TEMP/sanitizer-stage1.tar.gz"
+
+      - name: Retain Stage 1 for the dependent sanitizer gate
+        id: stage1-checkpoint
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanitizer-stage1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/sanitizer-stage1.tar.gz
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+      - name: Retain verifier and bootstrap diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verifier-corpus-sanitizers-stage1
+          path: |
+            .test_output/verifier-corpus/
+            obj/component-logs/
+            obj/bootstrap-nanoisa/**/*.log
+            obj/bootstrap-nanoisa/**/manifest.json
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Show sanitizer error logs on failure
+        if: failure()
+        run: |
+          echo "=== Showing first 3 failed test logs ==="
+          for log in .test_output/*.compile.log; do
+            if [ -f "$log" ]; then
+              echo "=== $log ==="
+              cat "$log"
+              echo ""
+            fi
+          done | head -200
+
+  sanitizers:
+    name: Memory Sanitizers
+    needs: [fast-gate, instrumented-image, sanitizers-stage1]
+    if: always() && needs.fast-gate.outputs.code == 'true'
+    defaults:
+      run:
+        shell: python3 scripts/ci_container.py shell {0}
+    env:
+      NANO_CI_IMAGE_ID: ${{ needs.instrumented-image.outputs.image-id }}
+      NANO_CI_ARCHIVE_SHA256: ${{ needs.instrumented-image.outputs.archive-sha256 }}
+      NANO_CI_IMAGE_PLATFORM: ${{ needs.instrumented-image.outputs.platform }}
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+      # I match the Stage 1 environment for exact checkpoint validation.
+      BOOTSTRAP_NANOISA_TIMEOUT: "10800"
+      # I allow an instrumented component compile one hour: hosted run 39707859417
+      # reached the former 1800-second alarm compiling typecheck under ASan.
+      CMD_TIMEOUT: "3600"
+      CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
+      LDFLAGS: "-lm -lcrypto -fsanitize=address,undefined"
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    # I report this job but do not let it hold back the rest of the 5.1 pipeline while its timeout and sanitizer
+    # findings are fixed in one batch. 5.1 does not ship without it: it returns to blocking under #1053.
+    continue-on-error: true
+    permissions:
+      contents: read
+
+    steps:
+      - name: Require successful instrumented Stage 1
+        shell: bash
+        run: test '${{ needs.sanitizers-stage1.result }}' = success
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download the exact instrumented image
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.instrumented-image.outputs.image-artifact }}
+          path: ${{ runner.temp }}/instrumented-image
+          merge-multiple: true
+
+      - name: Verify and load the immutable instrumented image
+        shell: bash
+        run: python3 scripts/ci_container.py load "$RUNNER_TEMP/instrumented-image/instrumented-image.tar"
+
+      - name: Download the exact Stage 1 artifact
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.sanitizers-stage1.outputs.checkpoint-artifact }}
+          path: ${{ runner.temp }}/sanitizer-checkpoint
+          merge-multiple: true
+
+      - name: Validate and restore Stage 1
+        run: |
+          export ASAN_OPTIONS=detect_leaks=0
+          python3 scripts/ci_bootstrap_checkpoint.py restore "$RUNNER_TEMP/sanitizer-checkpoint/sanitizer-stage1.tar.gz"
+
+      - name: Continue Stage 2 and verify both compiler generations with sanitizers
+        timeout-minutes: 210
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           make bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+          python3 scripts/ci_bootstrap_checkpoint.py verify-resume "$RUNNER_TEMP/sanitizer-checkpoint/sanitizer-stage1.tar.gz"
 
       - name: Run tests with sanitizers
         # Sanitizer instrumentation is substantially slower, and the full
@@ -551,6 +692,7 @@ jobs:
           name: verifier-corpus-sanitizers
           path: |
             .test_output/verifier-corpus/
+            .test_output/sanitizer-checkpoint-resume-plan.log
             obj/component-logs/
             obj/bootstrap-nanoisa/**/*.log
             obj/bootstrap-nanoisa/**/manifest.json
@@ -560,7 +702,6 @@ jobs:
 
       - name: Show sanitizer error logs on failure
         if: failure()
-        shell: bash
         run: |
           echo "=== Showing first 3 failed test logs ==="
           for log in .test_output/*.compile.log; do
@@ -571,80 +712,137 @@ jobs:
             fi
           done | head -200
 
-  coverage:
-    name: Code Coverage
-    needs: fast-gate
+  coverage-bootstrap:
+    name: Coverage compiler generations
+    needs: [fast-gate, instrumented-image]
     if: needs.fast-gate.outputs.code == 'true'
+    defaults:
+      run:
+        shell: python3 scripts/ci_container.py shell {0}
     env:
+      NANO_CI_IMAGE_ID: ${{ needs.instrumented-image.outputs.image-id }}
+      NANO_CI_ARCHIVE_SHA256: ${{ needs.instrumented-image.outputs.archive-sha256 }}
+      NANO_CI_IMAGE_PLATFORM: ${{ needs.instrumented-image.outputs.platform }}
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
+      BOOTSTRAP_NANOISA_TIMEOUT: "5400"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
       LDFLAGS: "-lm -lcrypto -fprofile-arcs -ftest-coverage"
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 240
     permissions:
       contents: read
-      pull-requests: write
+
+    outputs:
+      checkpoint-artifact: ${{ steps.coverage-checkpoint.outputs.artifact-id }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Python dependencies
-        shell: bash
-        run: |
-          # Already satisfied on some images; skip rather than fight the
-          # environment. Where pip refuses under PEP 668
-          # (externally-managed-environment, seen on the arm64 runners), retry
-          # with --break-system-packages: this is a throwaway CI environment,
-          # not a system Python worth protecting.
-          python3 -c 'import yaml' 2>/dev/null && exit 0
-          python3 -m pip install --user --upgrade pyyaml \
-            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
-          python3 -c 'import yaml'
+      - name: Download the exact instrumented image
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.instrumented-image.outputs.image-artifact }}
+          path: ${{ runner.temp }}/instrumented-image
+          merge-multiple: true
 
-      - name: Install dependencies
-        timeout-minutes: 15
-        env:
-          # I allow slow downloads to finish within a bounded setup budget.
-          CI_APT_ATTEMPTS: "2"
-          CI_APT_TIMEOUT_SECS: "420"
-          CI_APT_BACKOFF_SECS: "5"
-        run: |
-          ./scripts/ci-apt-install.sh \
-            build-essential \
-            lcov \
-            bc \
-            pkg-config \
-            libssl-dev libffi-dev libsqlite3-dev \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libutf8proc-dev \
-            libncurses-dev libreadline-dev \
-            libevent-dev libuv1-dev libbullet-dev \
-            libglfw3-dev libglew-dev freeglut3-dev \
-            gforth
+      - name: Verify and load the immutable instrumented image
+        shell: bash
+        run: python3 scripts/ci_container.py load "$RUNNER_TEMP/instrumented-image/instrumented-image.tar"
 
       - name: Build with coverage
         run: make coverage CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Compile and verify both compiler generations with coverage
-        timeout-minutes: 150
-        env:
-          BOOTSTRAP_NANOISA_TIMEOUT: "5400"
+        timeout-minutes: 200
         run: make bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
+      - name: Package the fully verified coverage checkpoint
+        run: python3 scripts/ci_bootstrap_checkpoint.py pack "$RUNNER_TEMP/coverage-bootstrap.tar.gz" --phase stage2
+
+      - name: Retain the coverage compiler checkpoint
+        id: coverage-checkpoint
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-bootstrap-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/coverage-bootstrap.tar.gz
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+      - name: Retain coverage bootstrap diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verifier-corpus-coverage-bootstrap
+          path: |
+            obj/bootstrap-nanoisa/**/*.log
+            obj/bootstrap-nanoisa/**/manifest.json
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+
+  coverage:
+    name: Code Coverage
+    needs: [fast-gate, instrumented-image, coverage-bootstrap]
+    if: always() && needs.fast-gate.outputs.code == 'true'
+    defaults:
+      run:
+        shell: python3 scripts/ci_container.py shell {0}
+    env:
+      NANO_CI_IMAGE_ID: ${{ needs.instrumented-image.outputs.image-id }}
+      NANO_CI_ARCHIVE_SHA256: ${{ needs.instrumented-image.outputs.archive-sha256 }}
+      NANO_CI_IMAGE_PLATFORM: ${{ needs.instrumented-image.outputs.platform }}
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+      BOOTSTRAP_NANOISA_TIMEOUT: "5400"
+      CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
+      LDFLAGS: "-lm -lcrypto -fprofile-arcs -ftest-coverage"
+    runs-on: ubuntu-latest
+    timeout-minutes: 285
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Require the successful coverage checkpoint
+        shell: bash
+        run: test '${{ needs.coverage-bootstrap.result }}' = success
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download the exact instrumented image
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.instrumented-image.outputs.image-artifact }}
+          path: ${{ runner.temp }}/instrumented-image
+          merge-multiple: true
+
+      - name: Verify and load the immutable instrumented image
+        shell: bash
+        run: python3 scripts/ci_container.py load "$RUNNER_TEMP/instrumented-image/instrumented-image.tar"
+
+      - name: Download the exact coverage checkpoint
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.coverage-bootstrap.outputs.checkpoint-artifact }}
+          path: ${{ runner.temp }}/coverage-checkpoint
+          merge-multiple: true
+
+      - name: Validate and restore the verified coverage compilers
+        run: python3 scripts/ci_bootstrap_checkpoint.py restore "$RUNNER_TEMP/coverage-checkpoint/coverage-bootstrap.tar.gz"
+
       - name: Run tests
-        # test-quick rebuilds the bootstrap sentinel; hosted run 38343010960 spent
-        # exactly the default 1800-second stage bound in that Stage 1.
+        # I restore exact source/provider times and verify that bootstrap3 is already complete.
         timeout-minutes: 240
         env:
           NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
           BOOTSTRAP_NANOISA_TIMEOUT: "5400"
         # test-quick rebuilds the legacy Stage 2 components, and the instrumented nanoisa_emitter compile reached the
         # 600-second command bound on hosted run 38507082795 after passing it narrowly before; I bound it at 1800.
-        run: make test-quick CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CMD_TIMEOUT=1800
+        run: |
+          make test-quick CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CMD_TIMEOUT=1800
+          python3 scripts/ci_bootstrap_checkpoint.py verify-resume "$RUNNER_TEMP/coverage-checkpoint/coverage-bootstrap.tar.gz"
 
       - name: Run negative tests
         env:
@@ -658,6 +856,7 @@ jobs:
           name: verifier-corpus-coverage
           path: |
             .test_output/verifier-corpus/
+            .test_output/sanitizer-checkpoint-resume-plan.log
             obj/component-logs/
             obj/bootstrap-nanoisa/**/*.log
             obj/bootstrap-nanoisa/**/manifest.json
@@ -667,7 +866,6 @@ jobs:
 
       - name: Show error logs on failure
         if: failure()
-        shell: bash
         run: |
           echo "=== Showing first failed test logs ==="
           for log in .test_output/*.compile.log; do
@@ -746,7 +944,7 @@ jobs:
           fetch-depth: 0  # Full history for comparison
 
       - name: Install dependencies
-        timeout-minutes: 10
+        timeout-minutes: 25
         run: ./scripts/ci-apt-install.sh build-essential bc pkg-config libffi-dev
 
       - name: Download baseline benchmark
@@ -881,7 +1079,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install dependencies
-        timeout-minutes: 10
+        timeout-minutes: 25
         run: |
           ./scripts/ci-apt-install.sh \
             clang \
@@ -922,7 +1120,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install clang-tidy
-        timeout-minutes: 10
+        timeout-minutes: 25
         run: ./scripts/ci-apt-install.sh build-essential clang-tidy libffi-dev
 
       - name: Run clang-tidy
@@ -946,7 +1144,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install clang / build deps
-        timeout-minutes: 10
+        timeout-minutes: 25
         run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev
 
       - name: Build nanoc

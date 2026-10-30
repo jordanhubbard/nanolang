@@ -682,7 +682,17 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
         const char *name = array->as.call.name;
         bool builtin_push = !strcmp(name, "array_push") &&
             env_array_push_is_builtin(env, array->line, array->column);
-        if (((builtin_push || !strcmp(env_array_operation(env, array), "filter")) && array->as.call.arg_count == 2) ||
+        if (builtin_push && array->as.call.arg_count == 2) {
+            ASTNode *receiver = array->as.call.args[0];
+            const char *stored_name = get_struct_type_name(array->as.call.args[1], env);
+            if (receiver->type == AST_ARRAY_LITERAL && receiver->as.array_literal.element_count == 0)
+                return stored_name;
+            const char *receiver_name = array_record_name(receiver, env);
+            StructDef *expected = receiver_name ? env_get_struct(env, receiver_name) : NULL;
+            StructDef *actual = stored_name ? env_get_struct(env, stored_name) : NULL;
+            return expected && expected != actual ? NULL : receiver_name;
+        }
+        if ((!strcmp(env_array_operation(env, array), "filter") && array->as.call.arg_count == 2) ||
             (!strcmp(name, "array_slice") && array->as.call.arg_count == 3))
             return array_record_name(array->as.call.args[0], env);
         if (!strcmp(name, "array_new") && array->as.call.arg_count == 2)
@@ -1150,7 +1160,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             
             /* Special handling for generic list get functions: List_TypeName_get */
             const char *func_name = expr->as.call.name;
-            if (func_name && strncmp(func_name, "List_", 5) == 0) {
+            if (func_name && (!strncmp(func_name, "List_", 5) || !strncmp(func_name, "list_", 5))) {
                 const char *func_suffix = strrchr(func_name, '_');
                 if (func_suffix && strcmp(func_suffix, "_get") == 0) {
                     /* Extract type name: "List_MyToken_get" -> "MyToken" */
@@ -1164,10 +1174,9 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                         /* Check if this type name exists as a struct */
                         StructDef *sdef = env_get_struct(env, type_name);
                         if (sdef) {
-                            /* Return a copy that will be used by the caller */
-                            char *result = strdup(type_name);
+                            /* I borrow the registered identity like other resolver paths. */
                             free(type_name);
-                            return result;
+                            return sdef->name;
                         }
                         free(type_name);
                     }
@@ -1680,6 +1689,7 @@ static bool match_pattern_names_variant(const char *pattern, const char *variant
 static void check_match_totality(ASTNode *matched, Environment *env,
                                  const char *union_base_name,
                                  MatchDomain domain) {
+    matched->as.match_expr.checked_coverage = 0;
     bool has_unconditional_wildcard = false;
     int unconditional_wildcard = -1;
     for (int i = 0; i < matched->as.match_expr.arm_count; ++i) {
@@ -1717,10 +1727,14 @@ static void check_match_totality(ASTNode *matched, Environment *env,
             );
             if (active_statement_checker) active_statement_checker->has_error = true;
         }
+        if (has_unconditional_wildcard) matched->as.match_expr.checked_coverage = 1;
         return;
     }
 
-    if (has_unconditional_wildcard) return;
+    if (has_unconditional_wildcard) {
+        matched->as.match_expr.checked_coverage = 2;
+        return;
+    }
 
     UnionDef *union_def = union_base_name ? env_get_union(env, union_base_name) : NULL;
     if (!union_def) {
@@ -1789,6 +1803,7 @@ static void check_match_totality(ASTNode *matched, Environment *env,
         );
         if (active_statement_checker) active_statement_checker->has_error = true;
     }
+    if (!missing_count) matched->as.match_expr.checked_coverage = 2;
 }
 
 /* I borrow declared signatures; the parser/environment owns their storage. */
@@ -3131,6 +3146,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 ASTNode *array = expr->as.call.args[0];
                 check_expression(array, env);
                 TypeInfo *info = try_get_expr_type_info(array, env);
+                ASTNode *stored = expr->as.call.args[stored_index];
+                /* I carry exact nested storage through builtin mutation,
+                 * without treating a declared or lexical function as a builtin. */
+                if ((!func || (!func->body && !func->is_extern)) &&
+                    !env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column) &&
+                    info && info->base_type == TYPE_ARRAY &&
+                    info->element_type && info->element_type->base_type == TYPE_ARRAY)
+                    check_concrete_union_arrays(env, info->element_type, stored, 0);
                 if (info && info->base_type == TYPE_ARRAY && info->element_type &&
                     info->element_type->base_type == TYPE_FUNCTION &&
                     !indirect_argument_matches(expr->as.call.args[stored_index], env,
@@ -4468,6 +4491,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
             
+            bool byte_fields = false;
+            for (int i = 0; i < sdef->field_count; ++i)
+                if (sdef->field_types[i] == TYPE_U8) byte_fields = true;
+            if (byte_fields) {
+                for (int i = 0; i < expr->as.struct_literal.field_count; ++i)
+                    for (int j = 0; j < i; ++j)
+                        if (!strcmp(expr->as.struct_literal.field_names[i], expr->as.struct_literal.field_names[j])) {
+                            emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column, 1,
+                                "I require distinct byte record fields.", "Supply each field at most once.");
+                            return TYPE_UNKNOWN;
+                        }
+            }
             /* Check each field */
             for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
                 const char *field_name = expr->as.struct_literal.field_names[i];
@@ -4517,6 +4552,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             sdef->field_element_types[field_index],
                             sdef->field_type_names ? sdef->field_type_names[field_index] : NULL))
                         return TYPE_UNKNOWN;
+                }
+                /* I retain raw INT types and validate the exact byte destination. */
+                if (sdef->field_types[field_index] == TYPE_U8) {
+                    if ((field_type != TYPE_INT && field_type != TYPE_U8) ||
+                        (field_value->type == AST_NUMBER &&
+                         (field_value->as.number < 0 || field_value->as.number > 255))) {
+                        emit_context_error("E001 TYPE MISMATCH", field_value->line,
+                            field_value->column, 1,
+                            "I require a byte literal in 0..255 or a checked INT/U8 field value.",
+                            "Computed integers convert modulo 256 at the declared byte field.");
+                        return TYPE_UNKNOWN;
+                    }
                 }
                 if (!types_match(field_type, sdef->field_types[field_index])) {
                     char message[256];
@@ -4881,6 +4928,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return expr->as.match_expr.result_type;
             expr->as.match_expr.checked_scrutinee_type = TYPE_UNKNOWN;
             expr->as.match_expr.scrutinee_type_checked = false;
+            expr->as.match_expr.checked_coverage = 0;
             /* Check the expression being matched */
             Type match_type = check_expression(expr->as.match_expr.expr, env);
             bool has_int_patterns_expr;
@@ -5587,6 +5635,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     isym->def_line = stmt->line;
                     isym->def_column = stmt->column;
                     if (stmt->as.let.type_name) {
+                        free(isym->struct_type_name);
                         isym->struct_type_name = strdup(stmt->as.let.type_name);
                     }
                 }
@@ -5892,6 +5941,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 /* Infer struct type name from the value expression */
                 const char *struct_name = get_struct_type_name(stmt->as.let.value, tc->env);
                 if (struct_name) {
+                    free(sym->struct_type_name);
                     sym->struct_type_name = strdup(struct_name);
                 }
             }
@@ -6093,6 +6143,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 loop_var_sym->def_line = stmt->line;
                 loop_var_sym->def_column = stmt->column;
                 if (loop_var_struct_name) {
+                    free(loop_var_sym->struct_type_name);
                     loop_var_sym->struct_type_name = strdup(loop_var_struct_name);
                 }
             }
@@ -6426,6 +6477,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             */
             stmt->as.match_expr.checked_scrutinee_type = TYPE_UNKNOWN;
             stmt->as.match_expr.scrutinee_type_checked = false;
+            stmt->as.match_expr.checked_coverage = 0;
             Type match_type = check_expression(stmt->as.match_expr.expr, tc->env);
             bool has_int_patterns_stmt;
             bool has_variant_patterns_stmt;
@@ -9077,10 +9129,12 @@ register_function_pass1:;
 
                     if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_ENUM || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
                         item->as.function.params[j].struct_type_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
                     }
                     /* For generic unions with TypeInfo, use the generic_name as struct_type_name */
                     else if (param_type == TYPE_UNION && param_type_info && param_type_info->generic_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(param_type_info->generic_name);
                     }
                 }
@@ -9879,10 +9933,12 @@ register_function_pass2:;
 
                     if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_ENUM || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
                         item->as.function.params[j].struct_type_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
                     }
                     /* For generic unions with TypeInfo, use the generic_name as struct_type_name */
                     else if (param_type == TYPE_UNION && param_type_info && param_type_info->generic_name) {
+                        free(param_sym->struct_type_name);
                         param_sym->struct_type_name = strdup(param_type_info->generic_name);
                     }
                 }

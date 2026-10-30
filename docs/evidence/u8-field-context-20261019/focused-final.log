@@ -1,0 +1,22 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-hcex89n7
+test_checked_imports_keep_distinct_record_identity (tests.test_u8_field_context.U8FieldContext.test_checked_imports_keep_distinct_record_identity) ... ok
+test_checked_registry_identity (tests.test_u8_field_context.U8FieldContext.test_checked_registry_identity) ... ok
+test_field_refusals_preserve_output (tests.test_u8_field_context.U8FieldContext.test_field_refusals_preserve_output) ... ok
+test_native_c_profiles (tests.test_u8_field_context.U8FieldContext.test_native_c_profiles) ... ok
+test_nested_and_call_argument_contexts (tests.test_u8_field_context.U8FieldContext.test_nested_and_call_argument_contexts) ... ok
+test_ordered_exact_field_context (tests.test_u8_field_context.U8FieldContext.test_ordered_exact_field_context) ... ok
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-a7tgi5no
+test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) ... ok
+test_direct_nested_and_list_fields (tests.test_u8_record_fields.U8RecordFields.test_direct_nested_and_list_fields) ... ok
+test_exact_u8_layout (tests.test_u8_record_fields.U8RecordFields.test_exact_u8_layout) ... ok
+test_literal_field_range_refusal_is_preserved (tests.test_u8_record_fields.U8RecordFields.test_literal_field_range_refusal_is_preserved) ... ok
+test_out_of_range_byte_literal_preserves_output (tests.test_u8_record_fields.U8RecordFields.test_out_of_range_byte_literal_preserves_output) ... ok
+test_unconsumed_resource_stays_rejected (tests.test_u8_record_fields.U8RecordFields.test_unconsumed_resource_stays_rejected) ... ok
+test_wrong_field_types_preserve_output (tests.test_u8_record_fields.U8RecordFields.test_wrong_field_types_preserve_output) ... ok
+test_contextual_conversion_execution_and_exact_tags (tests.test_computed_u8_context.ComputedU8Context.test_contextual_conversion_execution_and_exact_tags) ... ok
+test_literal_and_definite_wrong_type_refusals_preserve_output (tests.test_computed_u8_context.ComputedU8Context.test_literal_and_definite_wrong_type_refusals_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 24.379s
+
+OK

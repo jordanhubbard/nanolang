@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+    "/Users/jkh/Src/nanolang-51-harness/tests/token_value_bytes.nano",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage1",
+    "--keep-c"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-harness",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "timeout_seconds": 1800
+}

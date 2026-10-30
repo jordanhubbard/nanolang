@@ -1,0 +1,5 @@
+I retain mixed declaration artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-ownership-declaration-ay2fdspe
+I retain private layout artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-ownership-layouts-1t55x9wv
+PASS 42 private layout structure checks; no array authority
+I checked 5 allocating sites in both failure modes.
+PASS 486 private layout structure checks; no array authority

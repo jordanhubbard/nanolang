@@ -1,0 +1,5 @@
+# I retain exact consumed-owner reassignment baseline evidence
+
+I derive both unchanged source variants by executing the original source test generator statements before its variant loop, then applying that loop's exact true/0 and false/2 replacements. The retained NanoVirt and Nano producers compile all four combinations; original verification and VM execution pass. Facts retain66 entry locals and1 helper local. Current557 reconstruction refuses both C and Nano with `I require a fresh declared owner destination` in every case. This is exact analyzer API refusal, not a new CLI atomic-publication test. I retain sources, facts, command outputs, provider/source hashes and original module hashes in `results.json`.
+
+I run no native compiler or provider rebuild. Facts admission reveals no earlier profile obstacle, but reconstructed local expansion and selected-shadow counts remain unmeasured. I do not infer ordinary128-local success from original66-local input. This receipt establishes the actual original executable source gap before production edits; broader required #999 and fresh aggregate/platform qualification remain open.

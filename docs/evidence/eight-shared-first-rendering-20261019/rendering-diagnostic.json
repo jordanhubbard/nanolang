@@ -1,0 +1,86 @@
+[
+  {
+    "index": 0,
+    "receipt": {
+      "patterns": {
+        "scalar_constructor_bundle": 8,
+        "pack_store": 8,
+        "move_own_store": 8,
+        "read_store": 16,
+        "snapshot_assert": 8,
+        "unused_unpack_copies": 16
+      },
+      "removed_slots": [
+        0,
+        1,
+        3,
+        4,
+        6,
+        7,
+        9,
+        10,
+        12,
+        13,
+        15,
+        16,
+        18,
+        19,
+        21,
+        22
+      ],
+      "covered_statements": 151,
+      "original_statements": 151
+    },
+    "original_cost": 180,
+    "planned_cost": 92,
+    "original_counts": {
+      "store": 32,
+      "let": 42,
+      "own_pack": 8,
+      "own_store": 16,
+      "multi_borrow_call": 2,
+      "assert": 18,
+      "own_move": 8,
+      "own_read": 16,
+      "own_unpack": 8,
+      "return": 1
+    },
+    "planned_counts": {
+      "own_pack_store": 8,
+      "multi_borrow_call": 2,
+      "let": 18,
+      "assert": 18,
+      "own_move_store": 8,
+      "own_read_store": 16,
+      "own_unpack_pruned": 8,
+      "return": 1
+    },
+    "planned_existing_scratch_cost": 97
+  },
+  {
+    "index": 1,
+    "receipt": {
+      "patterns": {},
+      "removed_slots": [],
+      "covered_statements": 28,
+      "original_statements": 28
+    },
+    "original_cost": 284,
+    "planned_cost": 284,
+    "original_counts": {
+      "multi_borrow_read": 9,
+      "let": 16,
+      "store": 1,
+      "assert": 1,
+      "return": 1
+    },
+    "planned_counts": {
+      "multi_borrow_read": 9,
+      "let": 16,
+      "store": 1,
+      "assert": 1,
+      "return": 1
+    },
+    "planned_existing_scratch_cost": 247
+  }
+]

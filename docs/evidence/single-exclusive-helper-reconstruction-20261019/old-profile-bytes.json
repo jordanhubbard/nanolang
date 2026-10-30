@@ -1,0 +1,26 @@
+[
+  {
+    "input": "/private/tmp/owned-helper-locals-baseline-20261019/nano_virt.nvm",
+    "language": "c",
+    "sha256": "4ae218a396ecb4dbbca92f6bf5706ae97bbea8c4ff4230dd10072be1ab1050b6",
+    "identical": true
+  },
+  {
+    "input": "/private/tmp/owned-helper-locals-baseline-20261019/nano_virt.nvm",
+    "language": "nano",
+    "sha256": "d57f05070a8ffe7e22f4b5dcc52c3093c0d82f3a98d345a0adabbfc41668596c",
+    "identical": true
+  },
+  {
+    "input": "/private/tmp/owned-helper-locals-baseline-20261019/original-shadows.nvm",
+    "language": "c",
+    "sha256": "b22681e040fa3149d9850ea63faea9e104c71938f3e7d15de78b436ed16bdc0f",
+    "identical": true
+  },
+  {
+    "input": "/private/tmp/owned-helper-locals-baseline-20261019/original-shadows.nvm",
+    "language": "nano",
+    "sha256": "259f2c8b32586d2de68b17046f350ab79803d10c385bd92964a8a5879c059eb1",
+    "identical": true
+  }
+]

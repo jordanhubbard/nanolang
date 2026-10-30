@@ -1,5 +1,6 @@
 """I execute concrete union fields without confusing classification with layout."""
 import unittest
+import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -12,7 +13,7 @@ class NativeGenericRecordLayout(unittest.TestCase):
     def check(self, source, accepted=True, modules=None):
         generic.GenericAffineIdentity.check(self, source, accepted, modules)
 
-    def reject_type(self, source):
+    def reject_type(self, source, checked_diagnostic=None):
         for compiler in generic.COMPILERS:
             with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix='nano-record-field-type-') as directory:
                 path, output = Path(directory)/'input.nano', Path(directory)/'output'
@@ -23,7 +24,10 @@ class NativeGenericRecordLayout(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0, diagnostic)
                 self.assertEqual(output.read_text(), 'prior artifact')
                 self.assertNotIn('C compilation failed', diagnostic)
-                self.assertRegex(diagnostic, '(?i)(type mismatch|expected.*type)')
+                pattern = '(?i)(type mismatch|expected.*type)'
+                if checked_diagnostic is not None:
+                    pattern += '|' + re.escape(checked_diagnostic)
+                self.assertRegex(diagnostic, pattern)
 
     def test_direct_field_match_executes(self):
         self.check(BOX + """struct Outer { boxed: Box<int> }
@@ -49,6 +53,22 @@ struct Outer { boxed: Box<int> }
 fn main() -> int { let outer: Outer = Outer { boxed: Box.Some { value: 42 } }
  let wrong: Other<int> = outer.boxed return 0
 }""" + SHADOW)
+
+    def test_wrong_record_constructor_context_rejected(self):
+        prefix = BOX + 'union Other<T> { Some { value: T }, None {} }\nstruct Outer { boxed: Box<int> }\n'
+        cases = (
+            ('Box.Some { value: "bad" }',
+             '[E0010] I require a declared union variant with each payload field exactly once and matching concrete types.'),
+            ('Other.Some { value: 42 }',
+             '[E0001] I require the complete declared callback storage signature.'),
+            ('Box<string>.None {}',
+             "[E0010] I require the constructor's explicit generic arguments to match the declared union context."),
+        )
+        for constructor, diagnostic in cases:
+            with self.subTest(constructor=constructor):
+                self.reject_type(prefix + 'fn main() -> int { let outer: Outer = Outer { boxed: '
+                                 + constructor + ' } return 0 }' + SHADOW,
+                                 checked_diagnostic=diagnostic)
 
     def test_empty_inline_field_executes(self):
         self.check(BOX + 'struct Outer { boxed: Box<int> }\nfn main() -> int { let outer: Outer = Outer { boxed: Box.None {} } return 0 }' + SHADOW)

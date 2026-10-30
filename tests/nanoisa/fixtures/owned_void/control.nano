@@ -1,0 +1,28 @@
+resource struct Box { value: int }
+fn check(owner: Box, expected: int) -> bool {
+ let Box { value } = owner
+ return (== value expected)
+}
+shadow check { assert (check Box { value: 3 } 3) }
+fn consume(owner: Box, expected: int) -> void {
+ assert (check owner expected)
+ return
+}
+shadow consume { (consume Box { value: 4 } 4) }
+fn route(owner: Box, yes: bool) -> void {
+ if yes { (consume owner 9) return }
+ else { (consume owner 10) return }
+}
+shadow route { (route Box { value: 9 } true) (route Box { value: 10 } false) }
+fn main() -> int {
+ (route Box { value: 9 } true)
+ (route Box { value: 10 } false)
+ let mut i: int = 0
+ while (< i 3) {
+  let fresh: Box = Box { value: i }
+  (consume fresh i)
+  set i (+ i 1)
+ }
+ return i
+}
+shadow main { assert (== (main) 3) }

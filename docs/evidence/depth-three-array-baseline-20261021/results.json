@@ -1,0 +1,35 @@
+[
+  {
+    "source": "bool-depth3-original",
+    "compiler": "nano_virt",
+    "compile": 0,
+    "verify": 0,
+    "vm": 0,
+    "authority_present": false,
+    "native_emit": 0,
+    "native_build": 0,
+    "native_run": 0
+  },
+  {
+    "source": "bool-depth3-original",
+    "compiler": "nanoc_stage1",
+    "compile": 0,
+    "verify": 0,
+    "vm": 0,
+    "authority_present": false,
+    "native_emit": 0,
+    "native_build": 0,
+    "native_run": 0
+  },
+  {
+    "source": "bool-depth3-original",
+    "compiler": "nanoc_stage2",
+    "compile": 0,
+    "verify": 0,
+    "vm": 0,
+    "authority_present": false,
+    "native_emit": 0,
+    "native_build": 0,
+    "native_run": 0
+  }
+]

@@ -1,0 +1,17 @@
+I retain producer build evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-producers-cgr8vfmx
+test_nested_primitive_exact_leaves (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_primitive_exact_leaves) ... 
+  test_nested_primitive_exact_leaves (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_primitive_exact_leaves) (compiler='/private/tmp/nanolang-primitive-provider/nano_virt', leaf='u8') ... ERROR
+
+======================================================================
+ERROR: test_nested_primitive_exact_leaves (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_primitive_exact_leaves) (compiler='/private/tmp/nanolang-primitive-provider/nano_virt', leaf='u8')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_flat_array_source_publication.py", line 83, in exercise
+    self.assertEqual(struct.unpack_from('<II',facts),(3,layout_count))
+                     ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+struct.error: unpack_from requires a buffer of at least 8 bytes for unpacking 8 bytes at offset 0 (actual buffer size is 0)
+
+----------------------------------------------------------------------
+Ran 1 test in 8.056s
+
+FAILED (errors=1)

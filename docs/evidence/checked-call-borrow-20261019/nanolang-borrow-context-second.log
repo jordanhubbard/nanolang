@@ -1,0 +1,6 @@
+test_actual_checker_context_raw_recheck_and_descriptor_lifetime (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_actual_checker_context_raw_recheck_and_descriptor_lifetime) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 71.371s
+
+OK

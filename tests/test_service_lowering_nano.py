@@ -41,14 +41,14 @@ class ServiceLoweringNano(corpus.ServiceLowering):
             cls.command([ROOT/'bin/nvm2c', module, '-o', generated])
             cls.command([*cls.compiler, '-std=c11', '-O1', '-g', '-fsanitize=address,undefined',
                          '-fno-sanitize-recover=all', generated, '-o', native, '-lm',
-                         *(['-ldl'] if sys.platform.startswith('linux') else [])])
+                         *(['-ldl'] if sys.platform.startswith('linux') else [])], build=True)
             cls.probes.extend([[ROOT/'bin/nano_vm', module, '--'], [native]])
         consumer = cls.work/'consumer.c'
         consumer.write_text(CONSUMER)
         cls.consumer = cls.work/'consumer'
         cls.command([*cls.compiler, '-std=c11', '-O2', '-g', '-fsanitize=address,undefined',
                      '-fno-sanitize-recover=all', '-Isrc', consumer, ROOT/'lib/libnano_file_runtime.a',
-                     '-o', cls.consumer, '-lm'])
+                     '-o', cls.consumer, '-lm'], build=True)
 
     def lower(self, path, selection='main', expected=0, dependencies=()):
         outputs = []
@@ -78,7 +78,7 @@ class ServiceLoweringNano(corpus.ServiceLowering):
                       'source', module, '-o', native_c])
         self.command([*self.compiler, '-std=c11', '-O2', '-g', '-fsanitize=address,undefined',
                       '-fno-sanitize-recover=all', '-I'+str(self.work), '-Isrc', native_c,
-                      self.work/'wrapper.c', ROOT/'lib/libnano_file_runtime.a', '-o', native, '-lm'])
+                      self.work/'wrapper.c', ROOT/'lib/libnano_file_runtime.a', '-o', native, '-lm'], build=True)
         actual = self.command([native])
         pattern = r'EXEC (\d+) VALUE (-?\d+)'
         self.assertEqual(re.search(pattern, vm).groups(), re.search(pattern, actual).groups())
@@ -108,7 +108,7 @@ class ServiceLoweringNano(corpus.ServiceLowering):
             self.assertEqual(wire, Path(str(generated)+'.nvm').read_bytes())
             native = self.work/f'{label}.native'
             self.command([*self.compiler, '-std=c99', '-O2', '-g', '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
-                          '-I'+str(self.work), '-Isrc', generated, wrapper_path, ROOT/'lib/libnano_socket_runtime.a', '-o', native, '-lm'])
+                          '-I'+str(self.work), '-Isrc', generated, wrapper_path, ROOT/'lib/libnano_socket_runtime.a', '-o', native, '-lm'], build=True)
             self.assertIn(f'EXEC {status} VALUE {expected}', report)
             self.assertIn(f'EXEC {status} VALUE {expected}', self.command([native]))
 
@@ -225,7 +225,7 @@ shadow main {assert (== (main) 90)}
                 self.assertEqual(wire,Path(str(generated)+'.nvm').read_bytes())
                 native=path.with_suffix('.native')
                 self.command([*self.compiler,'-std=c99','-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all',
-                    '-I'+str(self.work),'-Isrc',generated,wrapper,ROOT/'lib/libnano_services_runtime.a','-o',native,'-lm'])
+                    '-I'+str(self.work),'-Isrc',generated,wrapper,ROOT/'lib/libnano_services_runtime.a','-o',native,'-lm'], build=True)
                 expected=0 if selection=='shadow' else 90
                 self.assertIn(f'EXEC 0 VALUE {expected}',report)
                 self.assertIn(f'EXEC 0 VALUE {expected}',self.command([native]))

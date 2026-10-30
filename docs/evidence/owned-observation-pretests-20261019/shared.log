@@ -1,0 +1,10 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-d8zravjc
+test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) ... ok
+test_exact_shared_profile_refusals (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_exact_shared_profile_refusals) ... ok
+test_extra_generated_nano_helper_refuses_without_narrowing_c (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_extra_generated_nano_helper_refuses_without_narrowing_c) ... ok
+test_original_verifier_rejects_malformed_references_atomically (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_original_verifier_rejects_malformed_references_atomically) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 19.542s
+
+OK

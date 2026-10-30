@@ -1,0 +1,11 @@
+{
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "149bdb09c814f0d4dc3d879e485442bec1649800383dadc5123337696350baa7",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "7b6eb0544759a77354429057c9992fe0f3221aa78e90ff66781358e0234edc02",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "04d298b66904d549cd1693abadc757e328a7af9643c826dd8f22f9e807f04afa",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "4fecc999c1ded9ab24b5f98411aa8dbf6aaf82a614587fc66a2db16031fa1935",
+  "/Users/jkh/Src/nanolang-51-harness/obj/borrow_shadow_names": "0dd5a467fc6ebd6d4004e1acb7efe223a17241109cb3f7c0dbe0e76832ab172d",
+  "/private/tmp/nanolang-map-string-publication-20261022/canonical": "a07c7ad3f8d32fea8227ec20591bdc3495b87e36ed2c5ea6e5622ef28b8b791f",
+  "/private/tmp/nanolang-map-string-publication-20261022/raw": "55923145a08f46f92938d2e0b4290a6c82c0b46b5bd424596fee80cc820b82b8",
+  "/opt/homebrew/opt/llvm/bin/clang": "5b3adae66bf3e36a0aa2e90db47e3456d31bf5f992124fd09ae9119b076e00be",
+  "/private/tmp/nanolang-map-string-publication-20261022/module-cache/v2-0842312f8f57cde82e7c60b7381d7f1e316042b165997bce16116400637a520d/.nano-gen-dyZOfq/libnanoisa.dylib": "d12828558bb92b591050bd85839e7a2ac17ff1ac212895157a1cd09f32668608"
+}

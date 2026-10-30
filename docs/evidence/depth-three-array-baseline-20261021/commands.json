@@ -1,0 +1,239 @@
+[
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x1d\\x00\\x00\\x00L\\x00\\x00\\x00entries\"\n.string \"nano.source_file\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 2\n.metadata 6 7\n.metadata 8 5\n\n.types 1 0 0\n\n.flag debug_info\n\n.debug 0 2 20\n.debug 29 3 2\n.debug 66 3 45\n\n.entry 0\n\n.function main 0 1 0 int 1\n  PUSH_BOOL 0\n  PUSH_BOOL 1\n  ARR_LITERAL 4 2\n  ARR_LITERAL 7 1\n  ARR_LITERAL 7 1\n  AGG_PACK 0 0 0 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  ARR_GET\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano_virt.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano_virt.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano_virt.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x1d\\x00\\x00\\x00L\\x00\\x00\\x00entries\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 2\n.metadata 5 6\n\n.types 1 0 0\n\n.entry 0\n\n.function main 0 1 0 int 1\n  PUSH_BOOL 0\n  PUSH_BOOL 1\n  ARR_LITERAL 4 2\n  ARR_LITERAL 7 1\n  ARR_LITERAL 7 1\n  AGG_PACK 0 0 0 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  ARR_GET\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage1.nvm",
+      "-o",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage1.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage1.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage1.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage1.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "dump",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": ".string \"main\"\n.string \"nano.purity.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"\n.string \"nano.affine.v1\"\n.string \"nano.effects.v1\"\n.string \"nano.local.v1\"\n.string \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x1d\\x00\\x00\\x00L\\x00\\x00\\x00entries\"\n\n.metadata 1 2\n.metadata 3 2\n.metadata 4 2\n.metadata 5 6\n\n.types 1 0 0\n\n.entry 0\n\n.function main 0 1 0 int 1\n  PUSH_BOOL 0\n  PUSH_BOOL 1\n  ARR_LITERAL 4 2\n  ARR_LITERAL 7 1\n  ARR_LITERAL 7 1\n  AGG_PACK 0 0 0 1\n  STORE_LOCAL 0\n  LOAD_LOCAL 0\n  AGG_GET 0\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 0\n  ARR_GET\n  PUSH_I64 1\n  ARR_GET\n  ASSERT\n  PUSH_I64 0\n  RET\n.end\n\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage2.nvm",
+      "-o",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage2.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage2.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-depth-three-array-baseline/bool-depth3-original.nanoc_stage2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

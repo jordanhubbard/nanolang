@@ -59,7 +59,7 @@ class WebSocketSourceLowering(unittest.TestCase):
         generated=module.with_suffix('.c');native=module.with_suffix('.native')
         cls.command([ROOT/'bin/nvm2c',module,'-o',generated])
         cls.command([*cls.compiler,'-std=c11','-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all',
-            generated,'-o',native,'-lm',*(['-ldl'] if sys.platform.startswith('linux') else [])])
+            generated,'-o',native,'-lm',*(['-ldl'] if sys.platform.startswith('linux') else [])], build=True)
         cls.probes=[[ROOT/'bin/nano_vm',module,'--'],[native]]
 
     def test_exact_wire_and_vm_native_results(self):
@@ -78,7 +78,7 @@ class WebSocketSourceLowering(unittest.TestCase):
                     native=self.work/'source.native'
                     self.command([*self.compiler,'-std=c11','-O2','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all',
                         '-I'+str(self.work),generated,self.work/'wrapper.c',ROOT/'lib/libnano_websocket_runtime.a',
-                        *shlex.split(self.command(['pkg-config','--libs','libcrypto'])),'-lm','-o',native])
+                        *shlex.split(self.command(['pkg-config','--libs','libcrypto'])),'-lm','-o',native], build=True)
                     self.assertIn(f'EXEC 0 VALUE {expected}',self.command([native]))
 
     def test_preserved_tcp_record_and_wire(self):

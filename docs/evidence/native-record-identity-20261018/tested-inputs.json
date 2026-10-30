@@ -1,0 +1,11 @@
+{
+  "base": "819b1ae78fdc7b43820cf71b27fedfdd76199ed2",
+  "sha256": {
+    "src/nanoisa/nvm2c.c": "25e5471ddfc750c1e1770c733b73496f2c1d1e63d4e9fc0982838e8f13b37f43",
+    "src/nanoisa/nvm2c_record_identity.inc": "aedd4d4dd237332948f7abc166801928f23ac5ebcdc2484e1c81ac41864a327d",
+    "src/nanoisa/nvm2c_map_roots.inc": "8dc20dcfd21f6f8b912a1cadd226c2b464617f853917f4e26e904a28e44f226b",
+    "tests/nanoisa/test_record_array_public.c": "21196324498f39c0defa6ce9b8d3137466f027e827376962aae8841d2fab5b11",
+    "tests/test_record_array_public.py": "1d81b11b14d6b9f185601eeab8f8d895dc60eba99ebccb0fc7d973650fcc43a9",
+    "tests/native_record_identity_probe.c": "2ffef613c2693a8c74a3655efd93f40e6be6feab81940afd19fea3f7c97a5efe"
+  }
+}

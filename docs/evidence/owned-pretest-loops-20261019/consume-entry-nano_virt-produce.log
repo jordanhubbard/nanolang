@@ -1,0 +1,5 @@
+I cannot verify affine ownership at line 2, column 52: loop changes ownership of an outer resource — owner
+I cannot verify affine ownership at line 2, column 112: resource remains live at scope exit — owner
+Warning at line 2, column 71: Unused variable 'value'
+Warning at line 2, column 71: Unused variable 'flag'
+error: type check failed

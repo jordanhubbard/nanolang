@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "make",
+    "-n",
+    "-f",
+    "Makefile.gnu",
+    "-j1",
+    "CC=/opt/homebrew/opt/llvm/bin/clang",
+    "nvm2hl"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-harness"
+}

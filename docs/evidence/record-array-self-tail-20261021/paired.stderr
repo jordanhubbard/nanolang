@@ -1,0 +1,10 @@
+test_self_tail_calls_publish_proved_array_authority (__main__.CurrentPublication.test_self_tail_calls_publish_proved_array_authority) ... ok
+test_generic_direct_tail_calls_publish_proved_array_profile (__main__.CurrentPublication.test_generic_direct_tail_calls_publish_proved_array_profile) ... ok
+test_depth_three_exact_leaves (__main__.CurrentPublication.test_depth_three_exact_leaves) ... ok
+test_nested_primitive_exact_leaves (__main__.CurrentPublication.test_nested_primitive_exact_leaves) ... ok
+test_five_scalar_elements (__main__.CurrentPublication.test_five_scalar_elements) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 24.520s
+
+OK

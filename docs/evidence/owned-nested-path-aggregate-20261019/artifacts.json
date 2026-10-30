@@ -1,0 +1,1714 @@
+{
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nano_virt.nanoc_stage1.nvm": {
+    "size": 22780,
+    "sha256": "f7543599eab1adf5c583460a410edb1ce50e8c0c6af77953dfa6718cda5ad1f9"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nano_virt.nano_virt.nvm": {
+    "size": 22780,
+    "sha256": "3e204d39770bd2ce7143baf9be6825069b2421956d58956676003fb1697be408"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage2.c": {
+    "size": 7909,
+    "sha256": "2cf4d7eb79a48954dc6751602544524b5989ebe927d7890f8fefbf46d61e186f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nano_virt.nanoc_stage1.c": {
+    "size": 70670,
+    "sha256": "80465460b358d35f6f77d0f22e86aebedc25b5830b4764c5a92983909a679b24"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nano_virt.nanoc_stage2.nvm": {
+    "size": 22344,
+    "sha256": "8a16948f5551e49d3348e1706e868072bb509319c30f6e9b68d3dbf9ea6ad1f1"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage2.c": {
+    "size": 8222,
+    "sha256": "cb7d2be437e2310fecf5161a4d7a5b232ab69383588b3aa5ecae964297f35cad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage1.nvm": {
+    "size": 8036,
+    "sha256": "fe11a1fef6963920229d7400df8f0b465601d20dfecd3c3ace5c43984f603f57"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nano_virt.original.c": {
+    "size": 27910,
+    "sha256": "ab112b6b204cb8907257f8cc0b1f6c818b0815974ec00aea9f826020ebfd49d9"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-index.nvm": {
+    "size": 6972,
+    "sha256": "bf0c16665179e53b696416f1d11720108212fa69e6d1a7aa95a3fe71f3c56b19"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nano_virt.nanoc_stage2.nvm": {
+    "size": 22780,
+    "sha256": "f7543599eab1adf5c583460a410edb1ce50e8c0c6af77953dfa6718cda5ad1f9"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-call-pretest.nano": {
+    "size": 2396,
+    "sha256": "f46c0c90e977250e51ef06454f44820ed86084f6bd21aa22bc24aba859349635"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/shadow-diagnostic-nano_virt.nano": {
+    "size": 8913,
+    "sha256": "246158a70c5a067f688841cc9dfc809d4b046f68228b12b243d16ab5a22fd63a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nano_virt.nanoc_stage1.nvm": {
+    "size": 22344,
+    "sha256": "8a16948f5551e49d3348e1706e868072bb509319c30f6e9b68d3dbf9ea6ad1f1"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage1.nano_virt.c": {
+    "size": 70553,
+    "sha256": "9d4b446873c4360e26c8d38b8d527b8c6eaf19108d1eceae562c408b6220d16b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage2.nvm": {
+    "size": 8036,
+    "sha256": "fe11a1fef6963920229d7400df8f0b465601d20dfecd3c3ace5c43984f603f57"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/selected-tree-shadow-nano_virt.c": {
+    "size": 64353,
+    "sha256": "e1c9fa536cfa1bb79d935893b06d690e628d4e2e96629e0fd18580f3e6a6e200"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage1.nanoc_stage1.nvm": {
+    "size": 22652,
+    "sha256": "361ef7c172dcab3d8669e3224cdb4b1536950c1b8df602849efed5adf30240b0"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/tree-shadow-bound2-nanoc_stage1.nvm": {
+    "size": 7808,
+    "sha256": "4297fd86304d2b87cca97415bed573f240b4def204d80a170dec1d494e22faa7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage1.nanoc_stage1.nvm": {
+    "size": 23520,
+    "sha256": "9d832199579f0502f404d8e6c4b22602df1e9a19e9fa0ce9bc7dc86bb3e3ef13"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nano_virt.nanoc_stage1.c": {
+    "size": 68411,
+    "sha256": "df53e4586af4d3d0bc3721d17bd5b05a7945523cec3f60f55fd0b39a470d819b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/entry-diagnostic-nanoc_stage1.nano": {
+    "size": 10606,
+    "sha256": "0a22040e22cac13bf5e1450424b8c2ba36c0180e32238f2ada2761499d9eb88c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/tree-shadow-bound3-nanoc_stage1.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-call-pretest-nanoc_stage2.c": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nano_virt.nano_virt.nvm": {
+    "size": 22344,
+    "sha256": "c98d5b2f0d92a2a0b08bcec6cf1b5bb5f6f2ba53ee38d9d887ae7ba90c8a38ab"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nano_virt.nanoc_stage2.c": {
+    "size": 70553,
+    "sha256": "bc79f7d9c4c88664063c35f734628751f681ed56f9f3f9535cfd0568941e6890"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage1.nanoc_stage2.nvm": {
+    "size": 22652,
+    "sha256": "361ef7c172dcab3d8669e3224cdb4b1536950c1b8df602849efed5adf30240b0"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/tree-shadow-bound2-nanoc_stage2.nvm": {
+    "size": 7808,
+    "sha256": "4297fd86304d2b87cca97415bed573f240b4def204d80a170dec1d494e22faa7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage1.nanoc_stage2.nvm": {
+    "size": 23520,
+    "sha256": "9d832199579f0502f404d8e6c4b22602df1e9a19e9fa0ce9bc7dc86bb3e3ef13"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch.nano": {
+    "size": 2355,
+    "sha256": "dd1afd6eee4473580e0195bc1720a97cf849c907c238a0acd2a90fb9c3c67200"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-call-pretest-nano_virt.nvm": {
+    "size": 7524,
+    "sha256": "9a2202617c6066273281d9dd67da57db3e3b68c8aaef153a1971f314c9bc142f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nano_virt.c": {
+    "size": 8222,
+    "sha256": "cb7d2be437e2310fecf5161a4d7a5b232ab69383588b3aa5ecae964297f35cad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage2.nanoc_stage1.c": {
+    "size": 70553,
+    "sha256": "9d4b446873c4360e26c8d38b8d527b8c6eaf19108d1eceae562c408b6220d16b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage2.nano": {
+    "size": 10763,
+    "sha256": "0907dbde5c7c43401158cc132a16e0ee8137daf418bdcf3c20e03ea1a190bf25"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage1.nanoc_stage2.c": {
+    "size": 70553,
+    "sha256": "9d4b446873c4360e26c8d38b8d527b8c6eaf19108d1eceae562c408b6220d16b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage2.c": {
+    "size": 8167,
+    "sha256": "f5e05a62e75135e1d90253f2a60eafa9738131dcbded8c0ce05ef52bdc7a9daa"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/tree-shadow-bound2-nano_virt.nvm": {
+    "size": 7808,
+    "sha256": "a6d49e12dacf4e33027ec036053ad27c5e88467c554c7885385ba7cb66f45fe5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nano_virt.nanoc_stage2.c": {
+    "size": 70670,
+    "sha256": "80465460b358d35f6f77d0f22e86aebedc25b5830b4764c5a92983909a679b24"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nano_virt.c": {
+    "size": 8273,
+    "sha256": "a79ee38bdded3ec6ce4a6a3d60ce8a1f787229c95d781bf49f91596c69c3c746"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nano_virt.nanoc_stage1.nvm": {
+    "size": 22684,
+    "sha256": "e9fee9ebc64dc0b76a7369491667a5a79525287f942d2472b1c522e91d902b81"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage1.nanoc_stage1.nvm": {
+    "size": 22940,
+    "sha256": "fa1c21253b209e0bc0f9b814327a9c862ad5b8f45b737fd3d2590407ab92dbd3"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-call-pretest-nano_virt.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage1.c": {
+    "size": 8222,
+    "sha256": "cb7d2be437e2310fecf5161a4d7a5b232ab69383588b3aa5ecae964297f35cad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/entry-diagnostic-nanoc_stage2.nvm": {
+    "size": 22992,
+    "sha256": "4443ae3cf7d4d8dafcaaa76835b8dfa2ee18d7bdf8f20b081623c506da17e40e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/shadow-diagnostic-nanoc_stage2.nvm": {
+    "size": 17052,
+    "sha256": "9afc05ff03048df31e56cebc2c5459c3899c4ba5f1664a0574aeed279a204e16"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage2.original.c": {
+    "size": 27910,
+    "sha256": "ab112b6b204cb8907257f8cc0b1f6c818b0815974ec00aea9f826020ebfd49d9"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage2.nano": {
+    "size": 10584,
+    "sha256": "3ec532a97004ca0f9bdeb791f9cee100bfa5be0003f97a642558de8b30ef4cd3"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage1.c": {
+    "size": 7909,
+    "sha256": "2cf4d7eb79a48954dc6751602544524b5989ebe927d7890f8fefbf46d61e186f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/prior.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nano_virt.nano_virt.c": {
+    "size": 70553,
+    "sha256": "bc79f7d9c4c88664063c35f734628751f681ed56f9f3f9535cfd0568941e6890"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nano_virt.nano_virt.c": {
+    "size": 68411,
+    "sha256": "df53e4586af4d3d0bc3721d17bd5b05a7945523cec3f60f55fd0b39a470d819b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nano_virt.nanoc_stage2.nvm": {
+    "size": 22684,
+    "sha256": "e9fee9ebc64dc0b76a7369491667a5a79525287f942d2472b1c522e91d902b81"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/tree-shadow-bound3.nano": {
+    "size": 2540,
+    "sha256": "e400d7c1e50533e56e162020f066c9d5a7e7e296f7211ff0dd58ded3ef553147"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nano_virt.nano": {
+    "size": 10763,
+    "sha256": "0907dbde5c7c43401158cc132a16e0ee8137daf418bdcf3c20e03ea1a190bf25"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nano_virt.nano_virt.c": {
+    "size": 70670,
+    "sha256": "80465460b358d35f6f77d0f22e86aebedc25b5830b4764c5a92983909a679b24"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage1.nanoc_stage2.nvm": {
+    "size": 22940,
+    "sha256": "fa1c21253b209e0bc0f9b814327a9c862ad5b8f45b737fd3d2590407ab92dbd3"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/entry-diagnostic-nanoc_stage1.nvm": {
+    "size": 22992,
+    "sha256": "8089a9be5e8f2b331cd05513fc541c4ccc61342ca83379c55ac76c48f0b40af0"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/diagnostic-tree-shadow2-nano_virt.nvm": {
+    "size": 17260,
+    "sha256": "8e7faa509bfce49b0d8c1a6d2a467170c81464248130f17116059f7a28474e64"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/shadow-diagnostic-nanoc_stage1.nvm": {
+    "size": 17052,
+    "sha256": "9a24f8a9ab6899193d68ef360a6efc2d66700f47ac84fcc664c288037306a0ef"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage1.nano": {
+    "size": 10606,
+    "sha256": "0a22040e22cac13bf5e1450424b8c2ba36c0180e32238f2ada2761499d9eb88c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nano_virt.nvm": {
+    "size": 6972,
+    "sha256": "6fc82c9c139ab5f46a2731cf585f0a5676fdcc7ef7ed74562b3a12830e79cd28"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/selected-tree-shadow.nano": {
+    "size": 8913,
+    "sha256": "246158a70c5a067f688841cc9dfc809d4b046f68228b12b243d16ab5a22fd63a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nano_virt.nano": {
+    "size": 10558,
+    "sha256": "a37184287fff5fce15749992dfab7d0098e74c03293f8fc3db4ed53cb8eb46e5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-call-pretest-nanoc_stage1.c": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/wrong-root.nvm": {
+    "size": 6972,
+    "sha256": "b3ada8dbdd808d9a1f3f0ac382fd276ade45fd2238f0bde7c4091cd42121a95d"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage2.nano_virt.c": {
+    "size": 70553,
+    "sha256": "9d4b446873c4360e26c8d38b8d527b8c6eaf19108d1eceae562c408b6220d16b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage1.nano": {
+    "size": 10558,
+    "sha256": "a37184287fff5fce15749992dfab7d0098e74c03293f8fc3db4ed53cb8eb46e5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nano_virt.nanoc_stage2.nvm": {
+    "size": 23340,
+    "sha256": "c8c0a1205f60603ff30d17006cd6328697c0dc8563e5573eb9b469663fe2ee96"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/false-tree-witness.nano": {
+    "size": 2382,
+    "sha256": "082229d405ba3c1465f3c4e6f2833eb3e7203a0b064d70a07f7ad8d21c75e6cc"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nano_virt.nano": {
+    "size": 10584,
+    "sha256": "3ec532a97004ca0f9bdeb791f9cee100bfa5be0003f97a642558de8b30ef4cd3"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/tree-shadow-bound3-nanoc_stage1.nvm": {
+    "size": 7924,
+    "sha256": "15ab9971d8038cd3c07c0a10e99b427ba45c96cd8f3e765c38b92dcaae156bff"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage1.nvm": {
+    "size": 7780,
+    "sha256": "4995df8548f1a5b35ebeca8e4df11f89fec79b3f1e7703272c672d7d51f7471a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nano_virt.nanoc_stage2.c": {
+    "size": 68411,
+    "sha256": "df53e4586af4d3d0bc3721d17bd5b05a7945523cec3f60f55fd0b39a470d819b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/tree-shadow-bound2.nano": {
+    "size": 2487,
+    "sha256": "bb9abd7811241163ed76df1b1dc6855f58bcf02bbf0cc465c614f28b24fda668"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/shadow-diagnostic-nanoc_stage1.nano": {
+    "size": 8913,
+    "sha256": "246158a70c5a067f688841cc9dfc809d4b046f68228b12b243d16ab5a22fd63a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage1.nanoc_stage1.nvm": {
+    "size": 23092,
+    "sha256": "bfd32dd64e77532406cec8bbf795b7b81f49c94a8e2f19b987c0e64dd9f6bda5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage2.nanoc_stage2.c": {
+    "size": 70553,
+    "sha256": "9d4b446873c4360e26c8d38b8d527b8c6eaf19108d1eceae562c408b6220d16b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nano_virt.nvm": {
+    "size": 7436,
+    "sha256": "562d9117175c6c06cf4da307afa40257341408f524d6954fc925ec8e295f8c74"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests.nano": {
+    "size": 2390,
+    "sha256": "5d0955aa1f1e880c644c282fba4e49ba8b98ead52e06cff52d57cd07710e56f3"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage1.nanoc_stage1.c": {
+    "size": 70553,
+    "sha256": "9d4b446873c4360e26c8d38b8d527b8c6eaf19108d1eceae562c408b6220d16b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage1.c": {
+    "size": 8167,
+    "sha256": "f5e05a62e75135e1d90253f2a60eafa9738131dcbded8c0ce05ef52bdc7a9daa"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/tree-shadow-bound3-nano_virt.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nano_virt.nanoc_stage1.nvm": {
+    "size": 23340,
+    "sha256": "c8c0a1205f60603ff30d17006cd6328697c0dc8563e5573eb9b469663fe2ee96"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-call-pretest-nanoc_stage2.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nano_virt.nanoc_stage1.c": {
+    "size": 70553,
+    "sha256": "bc79f7d9c4c88664063c35f734628751f681ed56f9f3f9535cfd0568941e6890"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage2.nvm": {
+    "size": 7780,
+    "sha256": "4995df8548f1a5b35ebeca8e4df11f89fec79b3f1e7703272c672d7d51f7471a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/tree-shadow-bound3-nanoc_stage2.nvm": {
+    "size": 7924,
+    "sha256": "15ab9971d8038cd3c07c0a10e99b427ba45c96cd8f3e765c38b92dcaae156bff"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nano_virt.nvm": {
+    "size": 7780,
+    "sha256": "b4198ed6d641cef02da368188455e38f51a401de30be5a868112dc964daa7135"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage1.nanoc_stage2.nvm": {
+    "size": 23092,
+    "sha256": "bfd32dd64e77532406cec8bbf795b7b81f49c94a8e2f19b987c0e64dd9f6bda5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage2.nanoc_stage2.nvm": {
+    "size": 22940,
+    "sha256": "ae8c22625a039f2152034e46881a5310bd834afbd2914be80a8a66ed098f5553"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nano_virt.nano_virt.nvm": {
+    "size": 23340,
+    "sha256": "93cee6d80d4bc20d27d489f49b935cdbc0077e7380130d529853df946c04067f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nano_virt.nanoc_stage2.c": {
+    "size": 70553,
+    "sha256": "9d4b446873c4360e26c8d38b8d527b8c6eaf19108d1eceae562c408b6220d16b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage1.nanoc_stage1.c": {
+    "size": 70670,
+    "sha256": "80465460b358d35f6f77d0f22e86aebedc25b5830b4764c5a92983909a679b24"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/diagnostic-tree-shadow2-nanoc_stage2.nvm": {
+    "size": 17260,
+    "sha256": "2e9cc318b56788ae90e14507524f3fd1450cd9ed16806327f4c5b1cdc9ef49bb"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage2.nanoc_stage2.c": {
+    "size": 70670,
+    "sha256": "80465460b358d35f6f77d0f22e86aebedc25b5830b4764c5a92983909a679b24"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage2.nano_virt.c": {
+    "size": 68411,
+    "sha256": "df53e4586af4d3d0bc3721d17bd5b05a7945523cec3f60f55fd0b39a470d819b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-call-pretest-nanoc_stage1.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/false-tree-witness-nanoc_stage2.nvm": {
+    "size": 7576,
+    "sha256": "80b9a454c4e55f749460c9cee51fe686a0699080860a9e2ee1e8f84c9055fbed"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/equal-exclusive.nvm": {
+    "size": 6972,
+    "sha256": "352a9b860ffea8f41fefc67455058f7ac60f2c025ccdb4beaa1b99f62a2761d6"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/prior.c": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/selected-tree-shadow-nanoc_stage1.nvm": {
+    "size": 16560,
+    "sha256": "5621e1760fea49db50cfa0f6292e9e39db3c62212dbd433df07309e5531a7059"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nano_virt.c": {
+    "size": 8167,
+    "sha256": "f5e05a62e75135e1d90253f2a60eafa9738131dcbded8c0ce05ef52bdc7a9daa"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage2.nanoc_stage1.nvm": {
+    "size": 22940,
+    "sha256": "ae8c22625a039f2152034e46881a5310bd834afbd2914be80a8a66ed098f5553"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/diagnostic-tree-shadow2-nanoc_stage1.nvm": {
+    "size": 17260,
+    "sha256": "2e9cc318b56788ae90e14507524f3fd1450cd9ed16806327f4c5b1cdc9ef49bb"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage2.nano_virt.nvm": {
+    "size": 22940,
+    "sha256": "fe8419f41ca5a0f8d3c289f39ae66264370a9006dc86c7bdb0996a71fdbee0b0"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage1.c": {
+    "size": 8273,
+    "sha256": "a79ee38bdded3ec6ce4a6a3d60ce8a1f787229c95d781bf49f91596c69c3c746"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage2.nano": {
+    "size": 10558,
+    "sha256": "a37184287fff5fce15749992dfab7d0098e74c03293f8fc3db4ed53cb8eb46e5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage2.nanoc_stage1.c": {
+    "size": 68411,
+    "sha256": "df53e4586af4d3d0bc3721d17bd5b05a7945523cec3f60f55fd0b39a470d819b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/false-tree-witness-nanoc_stage1.nvm": {
+    "size": 7576,
+    "sha256": "80b9a454c4e55f749460c9cee51fe686a0699080860a9e2ee1e8f84c9055fbed"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage1.nano_virt.nvm": {
+    "size": 23520,
+    "sha256": "e2f175ad3b655073693078553d9dd2e34f49f5b8a477f14c6747db1e0473dc43"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage1.nanoc_stage2.c": {
+    "size": 68411,
+    "sha256": "df53e4586af4d3d0bc3721d17bd5b05a7945523cec3f60f55fd0b39a470d819b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/shadow-diagnostic-nanoc_stage2.nano": {
+    "size": 8913,
+    "sha256": "246158a70c5a067f688841cc9dfc809d4b046f68228b12b243d16ab5a22fd63a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/selected-tree-shadow-nanoc_stage2.nvm": {
+    "size": 16560,
+    "sha256": "5621e1760fea49db50cfa0f6292e9e39db3c62212dbd433df07309e5531a7059"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage1.nanoc_stage2.c": {
+    "size": 70553,
+    "sha256": "bc79f7d9c4c88664063c35f734628751f681ed56f9f3f9535cfd0568941e6890"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage2.nvm": {
+    "size": 6972,
+    "sha256": "22c02095bde4028bdefe4a7b9f1050e3eee04783bb61936f991fd6f0a7cd7a14"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage2.nano_virt.c": {
+    "size": 70670,
+    "sha256": "80465460b358d35f6f77d0f22e86aebedc25b5830b4764c5a92983909a679b24"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage1.original.c": {
+    "size": 27910,
+    "sha256": "ab112b6b204cb8907257f8cc0b1f6c818b0815974ec00aea9f826020ebfd49d9"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-call-pretest-nanoc_stage1.nvm": {
+    "size": 7524,
+    "sha256": "a7cb46d3a8997166ee7bf43c6f0fb2288dcdb3528350f891e6be990858cc85e5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage2.nanoc_stage1.c": {
+    "size": 70553,
+    "sha256": "bc79f7d9c4c88664063c35f734628751f681ed56f9f3f9535cfd0568941e6890"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage1.nvm": {
+    "size": 7436,
+    "sha256": "826623c06775e6e2fabd2d9bfa388e3831e9a26ecced293943538329f4d6b841"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage1.nano_virt.nvm": {
+    "size": 22940,
+    "sha256": "2b991a82b030bf45645ecad37d162b5392cd11aeb4eeef1fc72fd6b96bd1bbb9"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage1.nano_virt.c": {
+    "size": 70553,
+    "sha256": "bc79f7d9c4c88664063c35f734628751f681ed56f9f3f9535cfd0568941e6890"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage2.nano": {
+    "size": 10606,
+    "sha256": "0a22040e22cac13bf5e1450424b8c2ba36c0180e32238f2ada2761499d9eb88c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage2.nanoc_stage2.nvm": {
+    "size": 23092,
+    "sha256": "7b2c56dc1dd1f19b5d24dd2b816ab3d47300446095e7c5cee3a7d6589dafa5d5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/shadow-diagnostic-nano_virt.nvm": {
+    "size": 16832,
+    "sha256": "37a581876dc94e5919602f622fc51c9b594c4c34143f357aed6a1f33a8519db3"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/tree-shadow-bound3-nano_virt.nvm": {
+    "size": 7924,
+    "sha256": "79c4cda50489e08c23463951591776ff78af02f1ab11aa4e9a4f4a5f744de0c7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/selected-tree-shadow-nano_virt.nvm": {
+    "size": 16560,
+    "sha256": "dd3e73785907165200491c9d85be4487184d582171bc235bc9d8094a02ca1a07"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage2.nano_virt.nvm": {
+    "size": 23520,
+    "sha256": "bdaf44830852878b038a17c32664b5495deb18b82e207e5d1a052c3fb72d9da2"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nano_virt.nano": {
+    "size": 10606,
+    "sha256": "0a22040e22cac13bf5e1450424b8c2ba36c0180e32238f2ada2761499d9eb88c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/selected-tree-shadow-nanoc_stage2.c": {
+    "size": 64353,
+    "sha256": "e1c9fa536cfa1bb79d935893b06d690e628d4e2e96629e0fd18580f3e6a6e200"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path.nano": {
+    "size": 2321,
+    "sha256": "ef0d3a6c2cc514658f9855a98b5f6b4d0b4ae945460c75e5478ff3c7be6ee359"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage1.nvm": {
+    "size": 6972,
+    "sha256": "22c02095bde4028bdefe4a7b9f1050e3eee04783bb61936f991fd6f0a7cd7a14"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-call-pretest-nanoc_stage2.nvm": {
+    "size": 7524,
+    "sha256": "a7cb46d3a8997166ee7bf43c6f0fb2288dcdb3528350f891e6be990858cc85e5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nanoc_stage2.nvm": {
+    "size": 7436,
+    "sha256": "826623c06775e6e2fabd2d9bfa388e3831e9a26ecced293943538329f4d6b841"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/diagnostic-tree-shadow3-nano_virt.nvm": {
+    "size": 17584,
+    "sha256": "d4d1e134e0b7d30390ed75ecb7fc15ea7f889005d0eb7c44a50bf7532a915722"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage1.nano": {
+    "size": 10584,
+    "sha256": "3ec532a97004ca0f9bdeb791f9cee100bfa5be0003f97a642558de8b30ef4cd3"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage2.nanoc_stage1.nvm": {
+    "size": 23092,
+    "sha256": "7b2c56dc1dd1f19b5d24dd2b816ab3d47300446095e7c5cee3a7d6589dafa5d5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nano_virt.nvm": {
+    "size": 8036,
+    "sha256": "0e7503a6cde42bdcc784baccd8cc7a9bd4440ebd93fbe5034bbbd332b153de29"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage1.nanoc_stage2.c": {
+    "size": 70670,
+    "sha256": "80465460b358d35f6f77d0f22e86aebedc25b5830b4764c5a92983909a679b24"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nano_virt.nanoc_stage1.c": {
+    "size": 70553,
+    "sha256": "9d4b446873c4360e26c8d38b8d527b8c6eaf19108d1eceae562c408b6220d16b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage2.nano_virt.nvm": {
+    "size": 22652,
+    "sha256": "3716fa806796eb14f68a935dd695814f5ebec732f2909452b39d41a082b2a090"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/diagnostic-tree-shadow3-nanoc_stage2.nvm": {
+    "size": 17584,
+    "sha256": "ea492bcffffb844fd15b533680a5e9abb9b592fc83402e164cf9ee5d4b766f6f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage1.nano": {
+    "size": 10763,
+    "sha256": "0907dbde5c7c43401158cc132a16e0ee8137daf418bdcf3c20e03ea1a190bf25"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage2.nanoc_stage1.c": {
+    "size": 70670,
+    "sha256": "80465460b358d35f6f77d0f22e86aebedc25b5830b4764c5a92983909a679b24"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage2.nanoc_stage2.c": {
+    "size": 68411,
+    "sha256": "df53e4586af4d3d0bc3721d17bd5b05a7945523cec3f60f55fd0b39a470d819b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage1.nanoc_stage1.c": {
+    "size": 68411,
+    "sha256": "df53e4586af4d3d0bc3721d17bd5b05a7945523cec3f60f55fd0b39a470d819b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nano_virt.nano_virt.c": {
+    "size": 70553,
+    "sha256": "9d4b446873c4360e26c8d38b8d527b8c6eaf19108d1eceae562c408b6220d16b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage2.nano_virt.nvm": {
+    "size": 23092,
+    "sha256": "a6cfd1805c60b0c22cedfb98d638a13ffcc1fcbdc2064029ae76748e104b65b5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/entry-diagnostic-nanoc_stage2.nano": {
+    "size": 10606,
+    "sha256": "0a22040e22cac13bf5e1450424b8c2ba36c0180e32238f2ada2761499d9eb88c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/diagnostic-tree-shadow2.nano": {
+    "size": 9475,
+    "sha256": "7b080123fbb81c43afc001ab787b1ff4cb44565fa45a2ec1174ee36187c8a38f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/tree-shadow-bound3-nanoc_stage2.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage2.nano_virt.c": {
+    "size": 70553,
+    "sha256": "bc79f7d9c4c88664063c35f734628751f681ed56f9f3f9535cfd0568941e6890"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage1.nano_virt.c": {
+    "size": 70670,
+    "sha256": "80465460b358d35f6f77d0f22e86aebedc25b5830b4764c5a92983909a679b24"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/diagnostic-tree-shadow3-nanoc_stage1.nvm": {
+    "size": 17584,
+    "sha256": "ea492bcffffb844fd15b533680a5e9abb9b592fc83402e164cf9ee5d4b766f6f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage2.c": {
+    "size": 8273,
+    "sha256": "a79ee38bdded3ec6ce4a6a3d60ce8a1f787229c95d781bf49f91596c69c3c746"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage2.nanoc_stage2.nvm": {
+    "size": 22652,
+    "sha256": "b959a54cba514f6d3ef8eeac58ed171cf52995c2c55d3afec0af92131b24134e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage2.nanoc_stage2.nvm": {
+    "size": 23520,
+    "sha256": "a26a119683e35400b6ce50b7ede687bd9b77cff4783ac2bbe76d613f2b06bfed"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/later-false-path-nano_virt.nano_virt.nvm": {
+    "size": 22684,
+    "sha256": "c6d4cdabccf6239ce209122d393e23f4fdbf3fee748616cdf0c7ef53ebe8019d"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage1.nano_virt.nvm": {
+    "size": 23092,
+    "sha256": "a9f7e5a79e654862d4d9cf96547cf95b14e9dbd2e6c3503744f0baf5eb572069"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-call-pretest-nano_virt.c": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage1.nanoc_stage1.c": {
+    "size": 70553,
+    "sha256": "bc79f7d9c4c88664063c35f734628751f681ed56f9f3f9535cfd0568941e6890"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/diagnostic-tree-shadow3.nano": {
+    "size": 9756,
+    "sha256": "60ddf5e6c5a2252a54b5ee6264d109bc37891e94cff26370487d75902da4a040"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/entry-diagnostic-nano_virt.nano": {
+    "size": 10606,
+    "sha256": "0a22040e22cac13bf5e1450424b8c2ba36c0180e32238f2ada2761499d9eb88c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage2.nanoc_stage2.c": {
+    "size": 70553,
+    "sha256": "bc79f7d9c4c88664063c35f734628751f681ed56f9f3f9535cfd0568941e6890"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nano_virt.c": {
+    "size": 7909,
+    "sha256": "2cf4d7eb79a48954dc6751602544524b5989ebe927d7890f8fefbf46d61e186f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage2.nanoc_stage1.nvm": {
+    "size": 22652,
+    "sha256": "b959a54cba514f6d3ef8eeac58ed171cf52995c2c55d3afec0af92131b24134e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-pretests-nanoc_stage2.nanoc_stage1.nvm": {
+    "size": 23520,
+    "sha256": "a26a119683e35400b6ce50b7ede687bd9b77cff4783ac2bbe76d613f2b06bfed"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/entry-diagnostic-nano_virt.nvm": {
+    "size": 22736,
+    "sha256": "6d44fe3926acfbf7b81b7939bf1bfdc29d0cfd1ec25b57277d3571b78011f83c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/reference-gap.nvm": {
+    "size": 6972,
+    "sha256": "22bb7f5afe6940dc7099dee22e50c236ea9047b026de71d94efaeaf6279149f3"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/path-branch-nanoc_stage1.nano_virt.c": {
+    "size": 68411,
+    "sha256": "df53e4586af4d3d0bc3721d17bd5b05a7945523cec3f60f55fd0b39a470d819b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/selected-tree-shadow-nanoc_stage1.c": {
+    "size": 64353,
+    "sha256": "e1c9fa536cfa1bb79d935893b06d690e628d4e2e96629e0fd18580f3e6a6e200"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/false-tree-witness-nano_virt.nvm": {
+    "size": 7576,
+    "sha256": "59b8d84b1adca557858398cda90b648314e1783c0c44e0cc22674d58e0a7e535"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5/nested-path-nanoc_stage1.nano_virt.nvm": {
+    "size": 22652,
+    "sha256": "b10b52923e965c82590a8bb4925238f58ce2aeda72b48f1e62ec77ea49c03ae5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage2.nanoc_stage2.c": {
+    "size": 66749,
+    "sha256": "da813ba708bb558b35390b1e6e5b6412832838676032beab9c9761469ae5b359"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nano_virt.nvm": {
+    "size": 5396,
+    "sha256": "f6bb72cbea83aa5e31f24faa9c0e8d3a1612b85e9d27783355ddca14d9e11d79"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-bound-nano_virt.nvm": {
+    "size": 23968,
+    "sha256": "ce13d84e363ff8e9b630d601255aed8f5b8ff5bf4fc302c17f84541e282570ea"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nano_virt.nano": {
+    "size": 8296,
+    "sha256": "6f78c34cde0367a32b397fd877657939d4bf95bba587ff1e40ae678f93b88aa2"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage1.nanoc_stage1.c": {
+    "size": 136776,
+    "sha256": "f056157716c877940862dca09c6a8e0db2d8370fba8e179faee56aace45a6b86"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nano_virt.nano_virt.nvm": {
+    "size": 22744,
+    "sha256": "1b3f381e2e894cfb5435ef8c2392a1874ba03d00aaf40aaef6075b6b7b137d5c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage2.nano_virt.c": {
+    "size": 60592,
+    "sha256": "f059437a168f2e17f841cb9c50cf1b95fbdf9ca6c8a89a8e288f015c412819ab"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0.nano": {
+    "size": 1995,
+    "sha256": "c76bb4581ecb945d55300b943ef41cce1a757a631ff81ea7f9c57c14eacba414"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage1.nanoc_stage1.c": {
+    "size": 66749,
+    "sha256": "da813ba708bb558b35390b1e6e5b6412832838676032beab9c9761469ae5b359"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage2.nano": {
+    "size": 7631,
+    "sha256": "6b42347fb84ace481791080ff3267e3edc797ae8925891bd7af8eaed64c2cd96"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/overlap.nvm": {
+    "size": 5396,
+    "sha256": "c17365466012dd2d9b2cac5d2da01ce80c445285be5e469020240ad7d0761452"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage2.nanoc_stage2.c": {
+    "size": 136776,
+    "sha256": "f056157716c877940862dca09c6a8e0db2d8370fba8e179faee56aace45a6b86"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage2.nano_virt.c": {
+    "size": 63475,
+    "sha256": "2e78a966f8f50a584524ea637711f61ee9f46e03f6d3fe516c72b2b5eea3ceea"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/transformed-assert-nanoc_stage1.nvm": {
+    "size": 5892,
+    "sha256": "77be99ddaef222ab66a9c654ad0a3fad6ed6227d7be92cb59e5c9c5c9f5373c4"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound12-nanoc_stage2.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nano_virt.nano_virt.nvm": {
+    "size": 15876,
+    "sha256": "65dc2a5dd486ae2885583e02ccbe7fa78021628af68a6960e41d9ede1fe47295"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage2.nano_virt.nvm": {
+    "size": 15256,
+    "sha256": "b3fd1f2be407a01f0402195e238a5465a6681516579cf7e2ab3fe1f1d668a459"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage2.nanoc_stage2.nvm": {
+    "size": 15256,
+    "sha256": "7424144519e2562dd993b362d1b5c7b98543dfbb3fdc752007550959a4241e01"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound12-nano_virt.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/transformed-assert-nanoc_stage2.nvm": {
+    "size": 5892,
+    "sha256": "77be99ddaef222ab66a9c654ad0a3fad6ed6227d7be92cb59e5c9c5c9f5373c4"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage1.nanoc_stage1.c": {
+    "size": 60592,
+    "sha256": "f059437a168f2e17f841cb9c50cf1b95fbdf9ca6c8a89a8e288f015c412819ab"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nano_virt.nano_virt.nvm": {
+    "size": 15416,
+    "sha256": "a6044f621698d18ee6220419c38cf16c05daa0dff143888249ffc8d0e2913056"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nano_virt.nanoc_stage1.c": {
+    "size": 75364,
+    "sha256": "9eabd0e5958001332cad8555d518e293e973433159310fbc8228efbb6056cb38"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nano_virt.nvm": {
+    "size": 5676,
+    "sha256": "35a9491500852d9a4042d3b2e85a4dff7b6cf6dce7ea05287babda9368f47f1d"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage2.nanoc_stage2.c": {
+    "size": 60592,
+    "sha256": "f059437a168f2e17f841cb9c50cf1b95fbdf9ca6c8a89a8e288f015c412819ab"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage2.nanoc_stage1.nvm": {
+    "size": 15256,
+    "sha256": "7424144519e2562dd993b362d1b5c7b98543dfbb3fdc752007550959a4241e01"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-bound-nanoc_stage2.nano": {
+    "size": 16836,
+    "sha256": "bd140ac06a002652dd2cb275d1adacc0b5f59a17cc11a126d585af1ca720a218"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage2.nanoc_stage2.nvm": {
+    "size": 22920,
+    "sha256": "1f104bd5943945eee23a34dce9a64c64fa2be09bc5e61a1614dbdb90c2479705"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage2.nvm": {
+    "size": 5696,
+    "sha256": "7737605c7decf6cee62da9ec3218884f82e09bf5e66ccfd71a40382cd251f1dc"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/shadow-bound1-nano_virt.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nano_virt.nanoc_stage1.nvm": {
+    "size": 22744,
+    "sha256": "7906ffed77ef50af4c3209f410d1aba22992c47160f534b06a570b8e9aac6bd2"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage1.c": {
+    "size": 6976,
+    "sha256": "c029309af0469a58f7a9129e576994a7188018f5f63b4dbb1fcfd6eab7bbb4ca"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nano_virt.nanoc_stage1.c": {
+    "size": 136776,
+    "sha256": "f056157716c877940862dca09c6a8e0db2d8370fba8e179faee56aace45a6b86"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage2.nano": {
+    "size": 8296,
+    "sha256": "6f78c34cde0367a32b397fd877657939d4bf95bba587ff1e40ae678f93b88aa2"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage1.nano": {
+    "size": 8017,
+    "sha256": "4e36c64610134f1466eeed4272f54ea27a2bafb54cf7fe60366299d8c761b5de"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage1.nanoc_stage1.nvm": {
+    "size": 14012,
+    "sha256": "20d26298004fb6208e1fc0a373281ea83b39671f811f8c7ce9393239f7bbc8c0"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nano_virt.nanoc_stage2.nvm": {
+    "size": 15416,
+    "sha256": "e9f96585b6537389e8670fa61d404c0e371e61e1031b41be402a3389501be1aa"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nano_virt.nanoc_stage1.c": {
+    "size": 66749,
+    "sha256": "da813ba708bb558b35390b1e6e5b6412832838676032beab9c9761469ae5b359"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/selected-shadow-nano_virt.c": {
+    "size": 52283,
+    "sha256": "d151f85400483f48aab03ab48c10de7590f18f778a194d75a31cd68f4ba7dbad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage1.nanoc_stage1.nvm": {
+    "size": 15476,
+    "sha256": "1732ee383921e5a6fcb3c0b58e5ebf9337ffa46c9c1569b1f311af89ef6035d9"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nano_virt.nanoc_stage2.c": {
+    "size": 60446,
+    "sha256": "86827cc0abb966de5219fcc810aff9620e5f51a5ef4a718b8025af6c8e5c7421"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage2.c": {
+    "size": 6206,
+    "sha256": "f36bfd144590bb63de99ce882421896ad321f6b6666b2e2e20ebd2cae23ad401"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nano_virt.nvm": {
+    "size": 5696,
+    "sha256": "28f1097512176ca479e16a6a2e4441b3a2d45605fb2b803aeec845234d361e1c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/false-witness.nano": {
+    "size": 1666,
+    "sha256": "a92f5753435317394651e9fc11330a709c90a048f783a57600833c9b6ee5ed19"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/shadow-bound1-nanoc_stage1.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage2.nanoc_stage1.nvm": {
+    "size": 22920,
+    "sha256": "1f104bd5943945eee23a34dce9a64c64fa2be09bc5e61a1614dbdb90c2479705"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/shadow-bound0-nano_virt.nvm": {
+    "size": 5996,
+    "sha256": "9be48105f5e813da5b80cdcc1e4ba856eb687aa525fcebc6bbbf071cba81f200"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage1.nvm": {
+    "size": 5696,
+    "sha256": "7737605c7decf6cee62da9ec3218884f82e09bf5e66ccfd71a40382cd251f1dc"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nano_virt.c": {
+    "size": 6229,
+    "sha256": "f5cac66444526c78c9c49b19258f68dbf9cc59902c73dbf0a749502ae3bb851e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nano_virt.nanoc_stage2.nvm": {
+    "size": 22744,
+    "sha256": "7906ffed77ef50af4c3209f410d1aba22992c47160f534b06a570b8e9aac6bd2"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/selected-shadow-nano_virt.nvm": {
+    "size": 9496,
+    "sha256": "e1b8e0969e67e56558c6b04972eeaaa543d68bca24eebeaf53d44b6d96f60df8"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/computed-owner.nano": {
+    "size": 1671,
+    "sha256": "c2731f92bd10658172d2984f3e5e439ae75be6ad1ca4021bc31bde7fa524c742"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-shadow128.nano": {
+    "size": 10102,
+    "sha256": "d13c9957f9e7f73682993c30ac044ea2498a690bfe79f50d1d5ffd357870e6c2"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/parameter-nominal.nvm": {
+    "size": 5396,
+    "sha256": "10c5076bf9361e73709c624837375a9e8c88f6258ae39695cb59abf64aa58ad5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nano_virt.nanoc_stage1.nvm": {
+    "size": 15416,
+    "sha256": "e9f96585b6537389e8670fa61d404c0e371e61e1031b41be402a3389501be1aa"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage2.c": {
+    "size": 7719,
+    "sha256": "585437bcb34dfc2952a3864c6138cd380bac6c84c4570a446b85b62ec3f42e63"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage1.nanoc_stage2.nvm": {
+    "size": 14012,
+    "sha256": "20d26298004fb6208e1fc0a373281ea83b39671f811f8c7ce9393239f7bbc8c0"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage1.nanoc_stage2.nvm": {
+    "size": 15476,
+    "sha256": "1732ee383921e5a6fcb3c0b58e5ebf9337ffa46c9c1569b1f311af89ef6035d9"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nano_virt.nanoc_stage2.c": {
+    "size": 75326,
+    "sha256": "3ff4df935eeeb3963813e178600ec0f626f63c7eca311ff71784068437496a8e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1.nano": {
+    "size": 1999,
+    "sha256": "51acade8dfa210c7e7d3ff8699d02eebd753f40af09ca42e73a509893d30227f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound12.nano": {
+    "size": 1957,
+    "sha256": "ed1c95e25596daa2d5c27b384264f0bab4e7ddb524b216de23ca6984cf87ea94"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage1.nano_virt.nvm": {
+    "size": 15256,
+    "sha256": "de434d070fdf909ba64d7445da8e0bc567996d0458281a3cb0710244d4d945ea"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nano_virt.nano": {
+    "size": 7647,
+    "sha256": "b5de4d7e4e2290a9e4856be1358477f65036596b1370c3a63c9288e2f60fce4a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage2.nanoc_stage1.nvm": {
+    "size": 15256,
+    "sha256": "5878bdb1b483ca83a04ded0c84defbe172b53c8779afc077f79ab36a1f36a793"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/computed-owner-nano_virt.nvm": {
+    "size": 5796,
+    "sha256": "a45683367f2ff4dd5a61c477899e36658629d4fce5847e82e42b2728b0b61110"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage2.nano": {
+    "size": 9396,
+    "sha256": "14ba60a1fc42799216d9112d1a725fecf784de1c46cb864bd9e6e77a85df3c26"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage1.nano": {
+    "size": 7647,
+    "sha256": "b5de4d7e4e2290a9e4856be1358477f65036596b1370c3a63c9288e2f60fce4a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage2.nanoc_stage1.c": {
+    "size": 66749,
+    "sha256": "da813ba708bb558b35390b1e6e5b6412832838676032beab9c9761469ae5b359"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage1.nanoc_stage2.c": {
+    "size": 136776,
+    "sha256": "f056157716c877940862dca09c6a8e0db2d8370fba8e179faee56aace45a6b86"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage1.nanoc_stage2.c": {
+    "size": 66749,
+    "sha256": "da813ba708bb558b35390b1e6e5b6412832838676032beab9c9761469ae5b359"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nano_virt.c": {
+    "size": 6530,
+    "sha256": "4f27bd22e420b33a4b9f56beb94d6c90cc5042e670389d6c57d2e94b92ceb792"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage2.nanoc_stage1.c": {
+    "size": 136776,
+    "sha256": "f056157716c877940862dca09c6a8e0db2d8370fba8e179faee56aace45a6b86"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/prior.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage1.nanoc_stage2.c": {
+    "size": 60592,
+    "sha256": "f059437a168f2e17f841cb9c50cf1b95fbdf9ca6c8a89a8e288f015c412819ab"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nano_virt.nano_virt.c": {
+    "size": 60592,
+    "sha256": "f059437a168f2e17f841cb9c50cf1b95fbdf9ca6c8a89a8e288f015c412819ab"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage2.nanoc_stage2.nvm": {
+    "size": 15256,
+    "sha256": "5878bdb1b483ca83a04ded0c84defbe172b53c8779afc077f79ab36a1f36a793"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-shadow128-nano_virt.nvm": {
+    "size": 13828,
+    "sha256": "c42dbb47ad084c408b014d2ee99b2b806d27e3cff4c16af81a05a413be3bc0a5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nano_virt.nano": {
+    "size": 15958,
+    "sha256": "dfe8ef2b147ae6014fb82c20f27e6bb6c6aa6517df5ccc5a6de1dd98a4f460f0"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nano_virt.nano_virt.nvm": {
+    "size": 13692,
+    "sha256": "806da7456fd381d6b74f92537ce06b46d9f81acc5f7ba29d1c1e5c0e729bece7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nano_virt.nanoc_stage2.c": {
+    "size": 75364,
+    "sha256": "9eabd0e5958001332cad8555d518e293e973433159310fbc8228efbb6056cb38"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage2.nanoc_stage1.c": {
+    "size": 60592,
+    "sha256": "f059437a168f2e17f841cb9c50cf1b95fbdf9ca6c8a89a8e288f015c412819ab"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nano_virt.nvm": {
+    "size": 7544,
+    "sha256": "06564ab16be0452de91e2f062741900ae6826779793118272b62058bc176220c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage1.nano_virt.nvm": {
+    "size": 15256,
+    "sha256": "92435b257bdd85adc8f3ef4512ce3411f866b49de00ac3dee0044daaf054e427"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/single-golden.nano": {
+    "size": 688,
+    "sha256": "557193a62357d1d1898942cf7d29e08fae0ffa49abd92d36c5811c178fe5c031"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nano_virt.nano_virt.nvm": {
+    "size": 15128,
+    "sha256": "0767555820024a44f45f9fefb0315ab4a2dbeb69440d95bfd915536cd6327422"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nano_virt.nanoc_stage2.c": {
+    "size": 66749,
+    "sha256": "da813ba708bb558b35390b1e6e5b6412832838676032beab9c9761469ae5b359"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/false-witness-nanoc_stage2.nvm": {
+    "size": 5756,
+    "sha256": "6a28b09311b4189554b34094f9020b1f416903661c9ee004240d0a89475293a1"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false.nano": {
+    "size": 1743,
+    "sha256": "32e29c32cdbc5989f37f9422ade29480a7a6eefe93bce2887da934ee28ff91ab"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage2.nanoc_stage2.nvm": {
+    "size": 13820,
+    "sha256": "1da6a12c621e640a6a43cee20599bacdb6ff1e5d0eab8910ca0843fefb673e04"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nano_virt.nanoc_stage2.nvm": {
+    "size": 13884,
+    "sha256": "57e0b8b3e8204ff5a57c7ce79cc30a7c0322245b7c5e97a59d499879f7a2a80b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage2.nano": {
+    "size": 9400,
+    "sha256": "4ad7ed329bbca395b621483305f244a48fcdf8f805099e78e56d585b9d216b3c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nano_virt.nanoc_stage1.c": {
+    "size": 60446,
+    "sha256": "86827cc0abb966de5219fcc810aff9620e5f51a5ef4a718b8025af6c8e5c7421"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage2.nanoc_stage2.nvm": {
+    "size": 16064,
+    "sha256": "859b31e9123ac996720a6707fdcb0fcff077eec8907e6fc98cd5537185dc4f30"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound12-nanoc_stage2.nvm": {
+    "size": 7848,
+    "sha256": "559a509ada7ee25cc04f7313e81d4b1ec970e89298a9b70e3cd4891792b9681a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage1.c": {
+    "size": 6206,
+    "sha256": "f36bfd144590bb63de99ce882421896ad321f6b6666b2e2e20ebd2cae23ad401"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nano_virt.nanoc_stage1.nvm": {
+    "size": 15876,
+    "sha256": "af2b37b28dcb30eca6875486bb5b833f3d0638ae78d7d2333e3b88d802358ee6"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage2.nano_virt.nvm": {
+    "size": 15256,
+    "sha256": "a33ba6521f54275ce0cb7fc9271dc05cf6a9c165e161204c4a1323fa0113ab1f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound12-nano_virt.nvm": {
+    "size": 7848,
+    "sha256": "e7e98ce33c5468aeb70cdba7f712d960ea204f7ace0f1b80aa17802c9daa3cd7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage2.nvm": {
+    "size": 5696,
+    "sha256": "fc8ea24ab6b346637a104ffda36946efca1e1ed1c0f28cea9d9a576bcd62521a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage2.nano": {
+    "size": 15958,
+    "sha256": "dfe8ef2b147ae6014fb82c20f27e6bb6c6aa6517df5ccc5a6de1dd98a4f460f0"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nano_virt.nanoc_stage2.c": {
+    "size": 136776,
+    "sha256": "f056157716c877940862dca09c6a8e0db2d8370fba8e179faee56aace45a6b86"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nano_virt.c": {
+    "size": 6976,
+    "sha256": "c029309af0469a58f7a9129e576994a7188018f5f63b4dbb1fcfd6eab7bbb4ca"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage2.c": {
+    "size": 6976,
+    "sha256": "c029309af0469a58f7a9129e576994a7188018f5f63b4dbb1fcfd6eab7bbb4ca"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nano_virt.nanoc_stage2.nvm": {
+    "size": 13692,
+    "sha256": "be42771e095caab1e716c4afb1ec8f30d9d4162fce8424050fbea4decdb83af9"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-shadow134-nanoc_stage2.nvm": {
+    "size": 14140,
+    "sha256": "7bd47d1ebebd935141b637383e2eb282ebf97c4b5fae8b187600ecd837f8ee2d"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-shadow134.nano": {
+    "size": 10391,
+    "sha256": "ac28f2f03f1d0275d39b397908cbff93b44f0a01cfbb2ddff7df64cf6d9382c0"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/false-witness-nanoc_stage1.nvm": {
+    "size": 5756,
+    "sha256": "6a28b09311b4189554b34094f9020b1f416903661c9ee004240d0a89475293a1"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage1.c": {
+    "size": 7719,
+    "sha256": "585437bcb34dfc2952a3864c6138cd380bac6c84c4570a446b85b62ec3f42e63"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nano_virt.nanoc_stage1.c": {
+    "size": 75326,
+    "sha256": "3ff4df935eeeb3963813e178600ec0f626f63c7eca311ff71784068437496a8e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nano_virt.nanoc_stage1.nvm": {
+    "size": 13884,
+    "sha256": "57e0b8b3e8204ff5a57c7ce79cc30a7c0322245b7c5e97a59d499879f7a2a80b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage2.nanoc_stage1.nvm": {
+    "size": 13820,
+    "sha256": "1da6a12c621e640a6a43cee20599bacdb6ff1e5d0eab8910ca0843fefb673e04"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound12-nanoc_stage1.nvm": {
+    "size": 7848,
+    "sha256": "559a509ada7ee25cc04f7313e81d4b1ec970e89298a9b70e3cd4891792b9681a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage2.nanoc_stage1.nvm": {
+    "size": 16064,
+    "sha256": "859b31e9123ac996720a6707fdcb0fcff077eec8907e6fc98cd5537185dc4f30"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nano_virt.nanoc_stage2.nvm": {
+    "size": 15876,
+    "sha256": "af2b37b28dcb30eca6875486bb5b833f3d0638ae78d7d2333e3b88d802358ee6"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nano_virt.nano_virt.c": {
+    "size": 75326,
+    "sha256": "3ff4df935eeeb3963813e178600ec0f626f63c7eca311ff71784068437496a8e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage1.nano_virt.c": {
+    "size": 63475,
+    "sha256": "2e78a966f8f50a584524ea637711f61ee9f46e03f6d3fe516c72b2b5eea3ceea"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/false-witness-nano_virt.nvm": {
+    "size": 5756,
+    "sha256": "0227a86fc61a4a781d99d8f16801a7f72fd8e4ba3a17e8ec338386b0ef5ba53a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage1.nvm": {
+    "size": 5696,
+    "sha256": "fc8ea24ab6b346637a104ffda36946efca1e1ed1c0f28cea9d9a576bcd62521a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nano_virt.nanoc_stage1.nvm": {
+    "size": 13692,
+    "sha256": "be42771e095caab1e716c4afb1ec8f30d9d4162fce8424050fbea4decdb83af9"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage1.nano_virt.c": {
+    "size": 60592,
+    "sha256": "f059437a168f2e17f841cb9c50cf1b95fbdf9ca6c8a89a8e288f015c412819ab"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-shadow134-nanoc_stage1.nvm": {
+    "size": 14140,
+    "sha256": "7bd47d1ebebd935141b637383e2eb282ebf97c4b5fae8b187600ecd837f8ee2d"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage1.nanoc_stage2.nvm": {
+    "size": 15256,
+    "sha256": "b35c03fe0881f19162436fc31fc75509e975cfebcd1bc80031ecdc26b33cd3f8"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage1.nano_virt.nvm": {
+    "size": 16064,
+    "sha256": "677ee21e17a96dc5b488808ab60a323012008b22458c0c8979bd8dd5ecf9b324"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage2.nano_virt.c": {
+    "size": 66749,
+    "sha256": "da813ba708bb558b35390b1e6e5b6412832838676032beab9c9761469ae5b359"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nano_virt.nano_virt.c": {
+    "size": 63475,
+    "sha256": "2e78a966f8f50a584524ea637711f61ee9f46e03f6d3fe516c72b2b5eea3ceea"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/selected-shadow-nanoc_stage2.c": {
+    "size": 52283,
+    "sha256": "d151f85400483f48aab03ab48c10de7590f18f778a194d75a31cd68f4ba7dbad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage2.nvm": {
+    "size": 6832,
+    "sha256": "25836ede7b4e47e98106b677b7f45cd984ef61256a4e6aeb63b6ed7e160d4925"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage2.nano_virt.c": {
+    "size": 136776,
+    "sha256": "f056157716c877940862dca09c6a8e0db2d8370fba8e179faee56aace45a6b86"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage2.c": {
+    "size": 6528,
+    "sha256": "2e459b8dadc50c7321889662b1ae2b9e34e5540c45a36815b849c87a921ac196"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nano_virt.nano_virt.c": {
+    "size": 136776,
+    "sha256": "f056157716c877940862dca09c6a8e0db2d8370fba8e179faee56aace45a6b86"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/prior.c": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nano_virt.nano": {
+    "size": 8017,
+    "sha256": "4e36c64610134f1466eeed4272f54ea27a2bafb54cf7fe60366299d8c761b5de"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage1.nanoc_stage1.nvm": {
+    "size": 15256,
+    "sha256": "b35c03fe0881f19162436fc31fc75509e975cfebcd1bc80031ecdc26b33cd3f8"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage1.nano_virt.nvm": {
+    "size": 14012,
+    "sha256": "e71a4d37392b97197e2ced1150b6c6493c1df60384e0c671bd33981af75ce3f8"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nano_virt.nano_virt.c": {
+    "size": 60446,
+    "sha256": "86827cc0abb966de5219fcc810aff9620e5f51a5ef4a718b8025af6c8e5c7421"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nano_virt.nano": {
+    "size": 7631,
+    "sha256": "6b42347fb84ace481791080ff3267e3edc797ae8925891bd7af8eaed64c2cd96"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage1.nanoc_stage1.c": {
+    "size": 63475,
+    "sha256": "2e78a966f8f50a584524ea637711f61ee9f46e03f6d3fe516c72b2b5eea3ceea"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/gap.nvm": {
+    "size": 5396,
+    "sha256": "a55dd85a0dbaa68b890f74cab0998f2028565a8a86b05b315b813757118b6867"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage1.nano": {
+    "size": 9400,
+    "sha256": "4ad7ed329bbca395b621483305f244a48fcdf8f805099e78e56d585b9d216b3c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nano_virt.nano_virt.nvm": {
+    "size": 13884,
+    "sha256": "f8d7568fa51ef16f75450622a78f419af332cf0bfe7d2e1cea9e0ecfb56f4bbb"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage1.nvm": {
+    "size": 6832,
+    "sha256": "25836ede7b4e47e98106b677b7f45cd984ef61256a4e6aeb63b6ed7e160d4925"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage2.nanoc_stage2.c": {
+    "size": 63475,
+    "sha256": "2e78a966f8f50a584524ea637711f61ee9f46e03f6d3fe516c72b2b5eea3ceea"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage1.nano_virt.nvm": {
+    "size": 13820,
+    "sha256": "ff5aec3ef6874f7a94f49e67669c6925b6986dc2a84909f8548e2eb45d44bc84"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/selected-shadow.nano": {
+    "size": 6261,
+    "sha256": "34ab117549eb29a0a1910b1d3fc144e86c0cd86c6414210bc767540403cad814"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage1.nano": {
+    "size": 15958,
+    "sha256": "dfe8ef2b147ae6014fb82c20f27e6bb6c6aa6517df5ccc5a6de1dd98a4f460f0"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nano_virt.c": {
+    "size": 7719,
+    "sha256": "585437bcb34dfc2952a3864c6138cd380bac6c84c4570a446b85b62ec3f42e63"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control.nano": {
+    "size": 1812,
+    "sha256": "c90975076b1c4999ccfa1aa45f8ca3d896ede925afad4df643f788064c570703"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage1.nanoc_stage2.c": {
+    "size": 75364,
+    "sha256": "9eabd0e5958001332cad8555d518e293e973433159310fbc8228efbb6056cb38"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage2.nano_virt.nvm": {
+    "size": 14012,
+    "sha256": "8fe13456a1527edd9428b4c1808a41d148be5392e32037e30f40cd38bb361849"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-shadow128-nanoc_stage1.nvm": {
+    "size": 13828,
+    "sha256": "cf2b7f22b27bb22e28b803e48d1a19598e2d984656c9897302892c03a5d52cda"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage1.nano_virt.c": {
+    "size": 75326,
+    "sha256": "3ff4df935eeeb3963813e178600ec0f626f63c7eca311ff71784068437496a8e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage2.nanoc_stage1.c": {
+    "size": 75364,
+    "sha256": "9eabd0e5958001332cad8555d518e293e973433159310fbc8228efbb6056cb38"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage1.nanoc_stage1.nvm": {
+    "size": 16064,
+    "sha256": "e86f93268462803eb7592160f2606cc798ee3b292904636438e1df7903993d6a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage1.nvm": {
+    "size": 7544,
+    "sha256": "c041f370f919969aa60f09aa16006383e5fdb1c8bbdcf096f6f5ec2ebad10616"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage1.nanoc_stage1.nvm": {
+    "size": 13820,
+    "sha256": "ad64125f78b245c3a2a0fa672a65826518c69b6b0caa8115fbf10081ff9608fa"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nano_virt.nano_virt.c": {
+    "size": 66749,
+    "sha256": "da813ba708bb558b35390b1e6e5b6412832838676032beab9c9761469ae5b359"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/base.nvm": {
+    "size": 5396,
+    "sha256": "7db31241bef43154301756771adfae0da0598f691e2778afb0e9ed9a44bbf771"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage2.nanoc_stage2.c": {
+    "size": 60446,
+    "sha256": "86827cc0abb966de5219fcc810aff9620e5f51a5ef4a718b8025af6c8e5c7421"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage1.c": {
+    "size": 6724,
+    "sha256": "cb5d23812d8da79f3112ffb893e95183045e510e35f984ba9da24574b2275f56"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nano_virt.nanoc_stage1.c": {
+    "size": 63475,
+    "sha256": "2e78a966f8f50a584524ea637711f61ee9f46e03f6d3fe516c72b2b5eea3ceea"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage2.nano_virt.nvm": {
+    "size": 13820,
+    "sha256": "62d9cec62ba26ed773de2aa255e1afdd9c689cf563d16a2dd0736509d3051227"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nano_virt.nanoc_stage2.nvm": {
+    "size": 15128,
+    "sha256": "c2269a8011aba5704895a6119bbc905e81d8ce5945c8566b4392bf1901265d7a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/computed-owner-nanoc_stage1.nvm": {
+    "size": 5796,
+    "sha256": "2ba02fd6a0993a289468427286ff67f35b53f9c06755e7059e0ca024afb0975f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/shadow-bound0-nanoc_stage1.nvm": {
+    "size": 5996,
+    "sha256": "f8aaaedc14b434c6629476bd240da55541fae55783096d488d546e15d7c31ec8"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nano_virt.nanoc_stage1.c": {
+    "size": 60592,
+    "sha256": "f059437a168f2e17f841cb9c50cf1b95fbdf9ca6c8a89a8e288f015c412819ab"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage1.nanoc_stage1.c": {
+    "size": 60446,
+    "sha256": "86827cc0abb966de5219fcc810aff9620e5f51a5ef4a718b8025af6c8e5c7421"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage2.nano_virt.c": {
+    "size": 75364,
+    "sha256": "9eabd0e5958001332cad8555d518e293e973433159310fbc8228efbb6056cb38"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage2.nano_virt.nvm": {
+    "size": 16064,
+    "sha256": "6ed1ce2e36dd9f428aa23c9a89dfc44d6146c242bf4d6e00347729de1467f069"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage2.c": {
+    "size": 6530,
+    "sha256": "4f27bd22e420b33a4b9f56beb94d6c90cc5042e670389d6c57d2e94b92ceb792"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-shadow128-nanoc_stage2.nvm": {
+    "size": 13828,
+    "sha256": "cf2b7f22b27bb22e28b803e48d1a19598e2d984656c9897302892c03a5d52cda"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nano_virt.nvm": {
+    "size": 6832,
+    "sha256": "1afe45a25545fcc1768eef232e622b0435b7c28ef0bc4e0cfa8becb4080f12df"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage1.nano": {
+    "size": 9396,
+    "sha256": "14ba60a1fc42799216d9112d1a725fecf784de1c46cb864bd9e6e77a85df3c26"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage1.nano_virt.c": {
+    "size": 60446,
+    "sha256": "86827cc0abb966de5219fcc810aff9620e5f51a5ef4a718b8025af6c8e5c7421"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage2.nvm": {
+    "size": 7544,
+    "sha256": "c041f370f919969aa60f09aa16006383e5fdb1c8bbdcf096f6f5ec2ebad10616"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage1.nanoc_stage2.nvm": {
+    "size": 16064,
+    "sha256": "e86f93268462803eb7592160f2606cc798ee3b292904636438e1df7903993d6a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage1.c": {
+    "size": 6229,
+    "sha256": "f5cac66444526c78c9c49b19258f68dbf9cc59902c73dbf0a749502ae3bb851e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage1.nanoc_stage2.nvm": {
+    "size": 13820,
+    "sha256": "ad64125f78b245c3a2a0fa672a65826518c69b6b0caa8115fbf10081ff9608fa"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage2.nano": {
+    "size": 7647,
+    "sha256": "b5de4d7e4e2290a9e4856be1358477f65036596b1370c3a63c9288e2f60fce4a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nano_virt.c": {
+    "size": 6724,
+    "sha256": "cb5d23812d8da79f3112ffb893e95183045e510e35f984ba9da24574b2275f56"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage1.nanoc_stage1.c": {
+    "size": 75326,
+    "sha256": "3ff4df935eeeb3963813e178600ec0f626f63c7eca311ff71784068437496a8e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/parameter-mode.nvm": {
+    "size": 5396,
+    "sha256": "37d5274ea67f84f48b2226ac2f1d2e11e1b0e41f4691e42c0c2263fb0444a023"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage2.nanoc_stage2.c": {
+    "size": 75326,
+    "sha256": "3ff4df935eeeb3963813e178600ec0f626f63c7eca311ff71784068437496a8e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/computed-owner-nanoc_stage2.nvm": {
+    "size": 5796,
+    "sha256": "2ba02fd6a0993a289468427286ff67f35b53f9c06755e7059e0ca024afb0975f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nano_virt.nanoc_stage1.nvm": {
+    "size": 15128,
+    "sha256": "c2269a8011aba5704895a6119bbc905e81d8ce5945c8566b4392bf1901265d7a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/shadow-bound0-nanoc_stage2.nvm": {
+    "size": 5996,
+    "sha256": "f8aaaedc14b434c6629476bd240da55541fae55783096d488d546e15d7c31ec8"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage1.c": {
+    "size": 6528,
+    "sha256": "2e459b8dadc50c7321889662b1ae2b9e34e5540c45a36815b849c87a921ac196"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/shadow-bound1-nanoc_stage2.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nano_virt.nvm": {
+    "size": 5696,
+    "sha256": "9ce1cce6faa98f818a564a47c4537bbc4f38d03af65e2799427fee5f4d9fb8e3"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-shadow134-nano_virt.nvm": {
+    "size": 14140,
+    "sha256": "e43964f1a7ce75b4004671950c72f9eed2a65b4e4f98e5384fbdb4171dc7cd92"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage1.nano_virt.nvm": {
+    "size": 22920,
+    "sha256": "4e2245c14a7552febec145839650b62896ab8b31c3a3bae03fd87b37d36579ce"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nano_virt.nanoc_stage2.nvm": {
+    "size": 15128,
+    "sha256": "cd992fb976ecf82745a533ca633dbe639a90cc8c30c65a4146725e029f50e0dd"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage2.nano_virt.c": {
+    "size": 60446,
+    "sha256": "86827cc0abb966de5219fcc810aff9620e5f51a5ef4a718b8025af6c8e5c7421"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage2.nvm": {
+    "size": 5396,
+    "sha256": "d40a249b9ca33d0c754a465ace4ba2e8f0e111f875a93fae22ec84466fdcd6ac"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/transformed-assert.nano": {
+    "size": 1677,
+    "sha256": "bbae9f08b00387af4292a757846e90aa912bdb5fde92f6bcd0f7ff2d0bc657c2"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2.nano": {
+    "size": 1685,
+    "sha256": "e87f0a34ceee682996428f9a8751f47ff7dfc66d3bcf073057270fb45363ac76"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-bound-nanoc_stage1.nvm": {
+    "size": 24176,
+    "sha256": "972bae452b1c7fdf86219f4e35359575f27046fc5b708456f96da2a7e53ce32f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage1.nanoc_stage1.nvm": {
+    "size": 15256,
+    "sha256": "86f17481eb0bc0a58ff3b2d4bf3d2e27dceb53960fd3c0062b661779d8949479"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage1.nano_virt.c": {
+    "size": 75364,
+    "sha256": "9eabd0e5958001332cad8555d518e293e973433159310fbc8228efbb6056cb38"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11.nano": {
+    "size": 1911,
+    "sha256": "0bef88512c140361fa696fb8f2ec7a28dbb479ce70a17eeaeb44060a70b1265c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/selected-shadow-nanoc_stage1.c": {
+    "size": 52283,
+    "sha256": "d151f85400483f48aab03ab48c10de7590f18f778a194d75a31cd68f4ba7dbad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-bound-nanoc_stage1.nano": {
+    "size": 16836,
+    "sha256": "bd140ac06a002652dd2cb275d1adacc0b5f59a17cc11a126d585af1ca720a218"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/shadow-bound1.nano": {
+    "size": 2186,
+    "sha256": "a4d8e318f91965d562aaec5aa0146e2199907822619e6920f2b5602814a8983a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage1.nano": {
+    "size": 8296,
+    "sha256": "6f78c34cde0367a32b397fd877657939d4bf95bba587ff1e40ae678f93b88aa2"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage2.nano": {
+    "size": 8017,
+    "sha256": "4e36c64610134f1466eeed4272f54ea27a2bafb54cf7fe60366299d8c761b5de"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nano_virt.nanoc_stage1.nvm": {
+    "size": 15128,
+    "sha256": "cd992fb976ecf82745a533ca633dbe639a90cc8c30c65a4146725e029f50e0dd"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage1.nvm": {
+    "size": 5396,
+    "sha256": "d40a249b9ca33d0c754a465ace4ba2e8f0e111f875a93fae22ec84466fdcd6ac"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage1.nanoc_stage2.c": {
+    "size": 63475,
+    "sha256": "2e78a966f8f50a584524ea637711f61ee9f46e03f6d3fe516c72b2b5eea3ceea"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-bound-nanoc_stage2.nvm": {
+    "size": 24176,
+    "sha256": "a9e2aef592996a0dd969f012a90fab93a87a2966f8b4d11c046789e5fc919303"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage1.nanoc_stage2.nvm": {
+    "size": 15256,
+    "sha256": "86f17481eb0bc0a58ff3b2d4bf3d2e27dceb53960fd3c0062b661779d8949479"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage1.nano_virt.nvm": {
+    "size": 15476,
+    "sha256": "2ee2eb4e4ce3b6b18b7809254aa1ec59170a05d7c2f5d95815cf32d2759833e2"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nano_virt.nvm": {
+    "size": 6068,
+    "sha256": "f503def0896740fbd25479fe7b71fbc26f4d18053e4d2e7088fa9f3df95a25e5"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage2.nanoc_stage1.c": {
+    "size": 63475,
+    "sha256": "2e78a966f8f50a584524ea637711f61ee9f46e03f6d3fe516c72b2b5eea3ceea"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage2.nano_virt.c": {
+    "size": 75326,
+    "sha256": "3ff4df935eeeb3963813e178600ec0f626f63c7eca311ff71784068437496a8e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nano_virt.nano": {
+    "size": 9400,
+    "sha256": "4ad7ed329bbca395b621483305f244a48fcdf8f805099e78e56d585b9d216b3c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/shadow-bound1-nano_virt.nvm": {
+    "size": 6112,
+    "sha256": "ebea0df26c7810b66d700cffc4fbfd9e7472af1b82beae0385d3e9f82abe82bf"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage1.nvm": {
+    "size": 5676,
+    "sha256": "111728dda0680542a20bbe41bac94863bede08ff2671c3549c6896bbd6fa61b4"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nano_virt.c": {
+    "size": 6206,
+    "sha256": "f36bfd144590bb63de99ce882421896ad321f6b6666b2e2e20ebd2cae23ad401"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/selected-shadow-nanoc_stage2.nvm": {
+    "size": 9496,
+    "sha256": "ad0cd500ec5f4d0c8c3eb8f2614a9c7877c815ac1fa2ece8e4da3de187738b7c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage1.nanoc_stage1.nvm": {
+    "size": 22920,
+    "sha256": "587b15e0e716ab4195e2f497b9b910a22e87f286dff2eeb01041919cfa51ca0f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nano_virt.nanoc_stage2.c": {
+    "size": 63475,
+    "sha256": "2e78a966f8f50a584524ea637711f61ee9f46e03f6d3fe516c72b2b5eea3ceea"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage2.c": {
+    "size": 6724,
+    "sha256": "cb5d23812d8da79f3112ffb893e95183045e510e35f984ba9da24574b2275f56"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage2.nanoc_stage1.c": {
+    "size": 60446,
+    "sha256": "86827cc0abb966de5219fcc810aff9620e5f51a5ef4a718b8025af6c8e5c7421"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/shadow-bound1-nanoc_stage1.nvm": {
+    "size": 6112,
+    "sha256": "ca5f88ee14da3113a8744af002bd49227bf91c4f71c79e9206e14c2d5abc9410"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/transformed-assert-nano_virt.nvm": {
+    "size": 5892,
+    "sha256": "8f6d4790f7449cb398c56994628a1463135a7a17a963c639f3a28f90b3535a14"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nano_virt.nano": {
+    "size": 9396,
+    "sha256": "14ba60a1fc42799216d9112d1a725fecf784de1c46cb864bd9e6e77a85df3c26"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/single-golden-nano_virt.nvm": {
+    "size": 2096,
+    "sha256": "d0bdbb6d4ffb89cd40730a2824685f6fac68b6654d93d9a6a7cc065991278110"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/multi-nanoc_stage1.nanoc_stage2.c": {
+    "size": 60446,
+    "sha256": "86827cc0abb966de5219fcc810aff9620e5f51a5ef4a718b8025af6c8e5c7421"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nano_virt.nanoc_stage2.c": {
+    "size": 60592,
+    "sha256": "f059437a168f2e17f841cb9c50cf1b95fbdf9ca6c8a89a8e288f015c412819ab"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nano_virt.nano_virt.nvm": {
+    "size": 15128,
+    "sha256": "d760f5e15f244ceabebb0c5c6526867230133668784974e229e439ae792c5f4f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage2.nvm": {
+    "size": 6068,
+    "sha256": "082050fe3351a761aa936ffcaa105a3b82455884eae66ee2c220bb4533004669"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage1.nanoc_stage1.c": {
+    "size": 75364,
+    "sha256": "9eabd0e5958001332cad8555d518e293e973433159310fbc8228efbb6056cb38"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage2.nanoc_stage2.nvm": {
+    "size": 15476,
+    "sha256": "9b1e3120a5fc2e423c847c320e4352c02f1cf84532fe6e285cb00b6eb3313b8c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage2.nanoc_stage2.nvm": {
+    "size": 14012,
+    "sha256": "348bfef34decfd96b985279158d13641ad770a945fb711313572792acda38ddc"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/shadow-bound0.nano": {
+    "size": 2135,
+    "sha256": "2b8eb1fdbec4e6c715ba4238560c2ac92b43c5a402388b535bd19868ab1828d4"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage2.nanoc_stage2.c": {
+    "size": 75364,
+    "sha256": "9eabd0e5958001332cad8555d518e293e973433159310fbc8228efbb6056cb38"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage2.nano_virt.nvm": {
+    "size": 15476,
+    "sha256": "be20fd0c5aad91f9afbfbeee99d3fcdf98896603356dd51e160be03e9e6e8a0a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nano_virt.nano_virt.c": {
+    "size": 75364,
+    "sha256": "9eabd0e5958001332cad8555d518e293e973433159310fbc8228efbb6056cb38"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage1.nanoc_stage2.c": {
+    "size": 75326,
+    "sha256": "3ff4df935eeeb3963813e178600ec0f626f63c7eca311ff71784068437496a8e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage2.nvm": {
+    "size": 5676,
+    "sha256": "111728dda0680542a20bbe41bac94863bede08ff2671c3549c6896bbd6fa61b4"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage1.nanoc_stage2.nvm": {
+    "size": 22920,
+    "sha256": "587b15e0e716ab4195e2f497b9b910a22e87f286dff2eeb01041919cfa51ca0f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/selected-shadow-nanoc_stage1.nvm": {
+    "size": 9496,
+    "sha256": "ad0cd500ec5f4d0c8c3eb8f2614a9c7877c815ac1fa2ece8e4da3de187738b7c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/shadow-bound1-nanoc_stage2.nvm": {
+    "size": 6112,
+    "sha256": "ca5f88ee14da3113a8744af002bd49227bf91c4f71c79e9206e14c2d5abc9410"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nano_virt.c": {
+    "size": 6528,
+    "sha256": "2e459b8dadc50c7321889662b1ae2b9e34e5540c45a36815b849c87a921ac196"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage1.nano": {
+    "size": 7631,
+    "sha256": "6b42347fb84ace481791080ff3267e3edc797ae8925891bd7af8eaed64c2cd96"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage2.nano_virt.nvm": {
+    "size": 22920,
+    "sha256": "8a969f3f643234bfb289a93e9e7395937a8d352a8ac9562cb40ccb18f95d1973"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint0-nanoc_stage2.nanoc_stage1.c": {
+    "size": 75326,
+    "sha256": "3ff4df935eeeb3963813e178600ec0f626f63c7eca311ff71784068437496a8e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound11-nanoc_stage1.nano_virt.c": {
+    "size": 136776,
+    "sha256": "f056157716c877940862dca09c6a8e0db2d8370fba8e179faee56aace45a6b86"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage1.nvm": {
+    "size": 6068,
+    "sha256": "082050fe3351a761aa936ffcaa105a3b82455884eae66ee2c220bb4533004669"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/later-false-nanoc_stage1.nano_virt.c": {
+    "size": 66749,
+    "sha256": "da813ba708bb558b35390b1e6e5b6412832838676032beab9c9761469ae5b359"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/caller-control-nanoc_stage2.nanoc_stage1.nvm": {
+    "size": 15476,
+    "sha256": "9b1e3120a5fc2e423c847c320e4352c02f1cf84532fe6e285cb00b6eb3313b8c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage2.nanoc_stage1.nvm": {
+    "size": 14012,
+    "sha256": "348bfef34decfd96b985279158d13641ad770a945fb711313572792acda38ddc"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint1-nanoc_stage1.c": {
+    "size": 6530,
+    "sha256": "4f27bd22e420b33a4b9f56beb94d6c90cc5042e670389d6c57d2e94b92ceb792"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/local-bound12-nanoc_stage1.nano": {
+    "size": 20,
+    "sha256": "e63c9fcc1860320d7b84bb8eae5e915e8cb63ecb00e2185c36f44a931809cdad"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/endpoint2-nanoc_stage2.c": {
+    "size": 6229,
+    "sha256": "f5cac66444526c78c9c49b19258f68dbf9cc59902c73dbf0a749502ae3bb851e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo/diagnostic-bound-nano_virt.nano": {
+    "size": 16836,
+    "sha256": "bd140ac06a002652dd2cb275d1adacc0b5f59a17cc11a126d585af1ca720a218"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-k4mf88bn/shared-unchanged.nvm": {
+    "size": 1612,
+    "sha256": "721ecbb3af947f85b9b23fe3b71178c326fdc94b1bcca9d4deea8fecfee4adee"
+  }
+}

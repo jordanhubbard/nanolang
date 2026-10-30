@@ -1,0 +1,1592 @@
+[
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/env-build-command.json",
+    "name": "env-build-command.json",
+    "original_sha256": "b307373a475c1f908760b26d6194899718c751a8cbe8ae5f4988cb02a549cb83",
+    "retained_sha256": "b307373a475c1f908760b26d6194899718c751a8cbe8ae5f4988cb02a549cb83"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/env-build-status.json",
+    "name": "env-build-status.json",
+    "original_sha256": "d4e90553bccda344b22291abae7d64a2563c49d6e0c183d073ec53cdcebc8b97",
+    "retained_sha256": "d4e90553bccda344b22291abae7d64a2563c49d6e0c183d073ec53cdcebc8b97"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/env-build.stderr",
+    "name": "env-build.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/env-build.stdout",
+    "name": "env-build.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/eval-build-command.json",
+    "name": "eval-build-command.json",
+    "original_sha256": "b396a6e3eab1518eb9e257139c67b204d7b5ad9e8b8987fa63a502b3b5904605",
+    "retained_sha256": "b396a6e3eab1518eb9e257139c67b204d7b5ad9e8b8987fa63a502b3b5904605"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/eval-build-status.json",
+    "name": "eval-build-status.json",
+    "original_sha256": "da17d87cf4aedf3e26c18afa160782ffe4fb267f58b05514a462b9cb47dc62df",
+    "retained_sha256": "da17d87cf4aedf3e26c18afa160782ffe4fb267f58b05514a462b9cb47dc62df"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/eval-build.stderr",
+    "name": "eval-build.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/eval-build.stdout",
+    "name": "eval-build.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/fresh-providers.json",
+    "name": "fresh-providers.json",
+    "original_sha256": "11cb6ed9c6900bb7721436b9b076a6a95075fbcc1dc6e50aae275b5128b01e18",
+    "retained_sha256": "11cb6ed9c6900bb7721436b9b076a6a95075fbcc1dc6e50aae275b5128b01e18"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-expected-selection.json",
+    "name": "gen_compiler_schema-expected-selection.json",
+    "original_sha256": "9a57c884d5dc86e4f4b44ab44d030da6edfb82c74e16f3b0f4daf0bbd100bda3",
+    "retained_sha256": "9a57c884d5dc86e4f4b44ab44d030da6edfb82c74e16f3b0f4daf0bbd100bda3"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_c-build-command.json",
+    "name": "gen_compiler_schema-nanoc_c-build-command.json",
+    "original_sha256": "4f712a565f97370f7f2915fa10a596bbc74699cae4134a653334399739d17eae",
+    "retained_sha256": "4f712a565f97370f7f2915fa10a596bbc74699cae4134a653334399739d17eae"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_c-build-status.json",
+    "name": "gen_compiler_schema-nanoc_c-build-status.json",
+    "original_sha256": "2ba047ae1544f0731349b94e8134722557bb9124f4e6dff9d414cc969235714c",
+    "retained_sha256": "2ba047ae1544f0731349b94e8134722557bb9124f4e6dff9d414cc969235714c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_c-build.stderr",
+    "name": "gen_compiler_schema-nanoc_c-build.stderr",
+    "original_sha256": "3c0aabb2de07d4b6fc5f13ee1b52412db21c8a4faaeec8e78b3a07306ca9d674",
+    "retained_sha256": "3c0aabb2de07d4b6fc5f13ee1b52412db21c8a4faaeec8e78b3a07306ca9d674"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_c-build.stdout",
+    "name": "gen_compiler_schema-nanoc_c-build.stdout",
+    "original_sha256": "60f74e9a7f4abb60cbd21a8a60b0d3d012007549477a5ae9ba0d13aa955e011e",
+    "retained_sha256": "60f74e9a7f4abb60cbd21a8a60b0d3d012007549477a5ae9ba0d13aa955e011e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_c-generate-command.json",
+    "name": "gen_compiler_schema-nanoc_c-generate-command.json",
+    "original_sha256": "bdca8442a52d62097f5dae28a47f9384a82a031b80547427a65202a10c74f8be",
+    "retained_sha256": "bdca8442a52d62097f5dae28a47f9384a82a031b80547427a65202a10c74f8be"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_c-generate-status.json",
+    "name": "gen_compiler_schema-nanoc_c-generate-status.json",
+    "original_sha256": "2f3ab05eaa8e328d0f59e33b16865dec87054e982d3eadab4fe792a5ed14ecc9",
+    "retained_sha256": "2f3ab05eaa8e328d0f59e33b16865dec87054e982d3eadab4fe792a5ed14ecc9"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_c-generate.stderr",
+    "name": "gen_compiler_schema-nanoc_c-generate.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_c-generate.stdout",
+    "name": "gen_compiler_schema-nanoc_c-generate.stdout",
+    "original_sha256": "698f633382137f2f3b76f43b9a095a14247486655cf54c7e327f42e4f939fb12",
+    "retained_sha256": "698f633382137f2f3b76f43b9a095a14247486655cf54c7e327f42e4f939fb12"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_c-generation.json",
+    "name": "gen_compiler_schema-nanoc_c-generation.json",
+    "original_sha256": "64f4cb90fab7b4b34cd7e6faf789c555bec24b88ecc06b4b5dd0c168d51fbe0d",
+    "retained_sha256": "64f4cb90fab7b4b34cd7e6faf789c555bec24b88ecc06b4b5dd0c168d51fbe0d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_c-retention.json",
+    "name": "gen_compiler_schema-nanoc_c-retention.json",
+    "original_sha256": "2a9ec6d138b167af29d135f570a79f1ef9925cc8be8b26fbc187f60380ff2f1b",
+    "retained_sha256": "2a9ec6d138b167af29d135f570a79f1ef9925cc8be8b26fbc187f60380ff2f1b"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_c-selection.json",
+    "name": "gen_compiler_schema-nanoc_c-selection.json",
+    "original_sha256": "a0adf34846734fe356ed540a8f9c7e6a6a2d347bcd711b17f8ffcc53d5ee99bf",
+    "retained_sha256": "a0adf34846734fe356ed540a8f9c7e6a6a2d347bcd711b17f8ffcc53d5ee99bf"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_c-shadows.json",
+    "name": "gen_compiler_schema-nanoc_c-shadows.json",
+    "original_sha256": "e7f466120750a774e9c1c9f049f878d1e92b17ab7b5654c7f6abc505c7689143",
+    "retained_sha256": "5fb0b8271a4e9835ad98d282bd170481f126208dac17ac2a3e9ba0ba6f77ece4"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage1-build-command.json",
+    "name": "gen_compiler_schema-nanoc_stage1-build-command.json",
+    "original_sha256": "dbe3f7dfaf1fd1a5ebb30c83b9f9ab5986aadcf14385da0864ab550243845614",
+    "retained_sha256": "dbe3f7dfaf1fd1a5ebb30c83b9f9ab5986aadcf14385da0864ab550243845614"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage1-build-status.json",
+    "name": "gen_compiler_schema-nanoc_stage1-build-status.json",
+    "original_sha256": "0e2069cc18d4d29a37cd515ab212b7443fdb5ba4300d1165982641f5a52ff27c",
+    "retained_sha256": "0e2069cc18d4d29a37cd515ab212b7443fdb5ba4300d1165982641f5a52ff27c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage1-build.stderr",
+    "name": "gen_compiler_schema-nanoc_stage1-build.stderr",
+    "original_sha256": "2c1cb53b80f632f43563c9fcf3ecae5ca7e174ad9f3a60be96faf9ee599f55fe",
+    "retained_sha256": "2c1cb53b80f632f43563c9fcf3ecae5ca7e174ad9f3a60be96faf9ee599f55fe"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage1-build.stdout",
+    "name": "gen_compiler_schema-nanoc_stage1-build.stdout",
+    "original_sha256": "7c80ee9f28e28a61a42bf92b2b2b3cabdde76871b84858b26e22708bc6b2b7c5",
+    "retained_sha256": "7c80ee9f28e28a61a42bf92b2b2b3cabdde76871b84858b26e22708bc6b2b7c5"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage1-generate-command.json",
+    "name": "gen_compiler_schema-nanoc_stage1-generate-command.json",
+    "original_sha256": "4e6f6cf1bd4ee7c8afc8a73fc5dc76eb4c270c068d01544d274817eddb38107b",
+    "retained_sha256": "4e6f6cf1bd4ee7c8afc8a73fc5dc76eb4c270c068d01544d274817eddb38107b"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage1-generate-status.json",
+    "name": "gen_compiler_schema-nanoc_stage1-generate-status.json",
+    "original_sha256": "90ba0faa8853d388e85336e6334915a6d5a2cd322920a4cafe051615a1d7dc14",
+    "retained_sha256": "90ba0faa8853d388e85336e6334915a6d5a2cd322920a4cafe051615a1d7dc14"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage1-generate.stderr",
+    "name": "gen_compiler_schema-nanoc_stage1-generate.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage1-generate.stdout",
+    "name": "gen_compiler_schema-nanoc_stage1-generate.stdout",
+    "original_sha256": "698f633382137f2f3b76f43b9a095a14247486655cf54c7e327f42e4f939fb12",
+    "retained_sha256": "698f633382137f2f3b76f43b9a095a14247486655cf54c7e327f42e4f939fb12"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage1-generation.json",
+    "name": "gen_compiler_schema-nanoc_stage1-generation.json",
+    "original_sha256": "64f4cb90fab7b4b34cd7e6faf789c555bec24b88ecc06b4b5dd0c168d51fbe0d",
+    "retained_sha256": "64f4cb90fab7b4b34cd7e6faf789c555bec24b88ecc06b4b5dd0c168d51fbe0d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage1-retention.json",
+    "name": "gen_compiler_schema-nanoc_stage1-retention.json",
+    "original_sha256": "91125030e8fe65c275239dc01c8ac5a1ec7f0cbcbfc628b2c996329dbdef1640",
+    "retained_sha256": "91125030e8fe65c275239dc01c8ac5a1ec7f0cbcbfc628b2c996329dbdef1640"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage1-selection.json",
+    "name": "gen_compiler_schema-nanoc_stage1-selection.json",
+    "original_sha256": "7bd696c67406a798b634e7b2b69a99589b9de64f70d0d29ecb7ac275267a19fe",
+    "retained_sha256": "7bd696c67406a798b634e7b2b69a99589b9de64f70d0d29ecb7ac275267a19fe"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage2-build-command.json",
+    "name": "gen_compiler_schema-nanoc_stage2-build-command.json",
+    "original_sha256": "ea6e786d0dc92296093c60e649448ebd4877f2557f833be0e42663c87f2596d2",
+    "retained_sha256": "ea6e786d0dc92296093c60e649448ebd4877f2557f833be0e42663c87f2596d2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage2-build-status.json",
+    "name": "gen_compiler_schema-nanoc_stage2-build-status.json",
+    "original_sha256": "7606188a561bf3092e610c1bd281cf6653c6085519b17d6f227dd16a78dd2727",
+    "retained_sha256": "7606188a561bf3092e610c1bd281cf6653c6085519b17d6f227dd16a78dd2727"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage2-build.stderr",
+    "name": "gen_compiler_schema-nanoc_stage2-build.stderr",
+    "original_sha256": "2c1cb53b80f632f43563c9fcf3ecae5ca7e174ad9f3a60be96faf9ee599f55fe",
+    "retained_sha256": "2c1cb53b80f632f43563c9fcf3ecae5ca7e174ad9f3a60be96faf9ee599f55fe"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage2-build.stdout",
+    "name": "gen_compiler_schema-nanoc_stage2-build.stdout",
+    "original_sha256": "f6252872f67bc65c88ccc9b554b440c3220a184be22cfa1074c240f053c3ff61",
+    "retained_sha256": "f6252872f67bc65c88ccc9b554b440c3220a184be22cfa1074c240f053c3ff61"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage2-generate-command.json",
+    "name": "gen_compiler_schema-nanoc_stage2-generate-command.json",
+    "original_sha256": "9043f79189ef4b0e962ada3a02655f8c7761f02733d4c8b6b762f4bfd2866d91",
+    "retained_sha256": "9043f79189ef4b0e962ada3a02655f8c7761f02733d4c8b6b762f4bfd2866d91"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage2-generate-status.json",
+    "name": "gen_compiler_schema-nanoc_stage2-generate-status.json",
+    "original_sha256": "0fb22286fed888f51df48c2c8a3e243972056ab00aef500d0974e81527ac3ff6",
+    "retained_sha256": "0fb22286fed888f51df48c2c8a3e243972056ab00aef500d0974e81527ac3ff6"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage2-generate.stderr",
+    "name": "gen_compiler_schema-nanoc_stage2-generate.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage2-generate.stdout",
+    "name": "gen_compiler_schema-nanoc_stage2-generate.stdout",
+    "original_sha256": "698f633382137f2f3b76f43b9a095a14247486655cf54c7e327f42e4f939fb12",
+    "retained_sha256": "698f633382137f2f3b76f43b9a095a14247486655cf54c7e327f42e4f939fb12"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage2-generation.json",
+    "name": "gen_compiler_schema-nanoc_stage2-generation.json",
+    "original_sha256": "64f4cb90fab7b4b34cd7e6faf789c555bec24b88ecc06b4b5dd0c168d51fbe0d",
+    "retained_sha256": "64f4cb90fab7b4b34cd7e6faf789c555bec24b88ecc06b4b5dd0c168d51fbe0d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage2-retention.json",
+    "name": "gen_compiler_schema-nanoc_stage2-retention.json",
+    "original_sha256": "604e14e496ee72b239a2f68c434327d2921670e38368241f7f6ffbe596909830",
+    "retained_sha256": "604e14e496ee72b239a2f68c434327d2921670e38368241f7f6ffbe596909830"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/gen_compiler_schema-nanoc_stage2-selection.json",
+    "name": "gen_compiler_schema-nanoc_stage2-selection.json",
+    "original_sha256": "7bd696c67406a798b634e7b2b69a99589b9de64f70d0d29ecb7ac275267a19fe",
+    "retained_sha256": "7bd696c67406a798b634e7b2b69a99589b9de64f70d0d29ecb7ac275267a19fe"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/lexer-build-command.json",
+    "name": "lexer-build-command.json",
+    "original_sha256": "26bcb1f9ef6b038821cc2e449b972696b294d45f175a3f818e73f700fece5fa4",
+    "retained_sha256": "26bcb1f9ef6b038821cc2e449b972696b294d45f175a3f818e73f700fece5fa4"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/lexer-build-status.json",
+    "name": "lexer-build-status.json",
+    "original_sha256": "8342a1b4ca985c5a36c835fc7c3b2581f596a8b6f11d48be0544afe9c6c00a54",
+    "retained_sha256": "8342a1b4ca985c5a36c835fc7c3b2581f596a8b6f11d48be0544afe9c6c00a54"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/lexer-build.stderr",
+    "name": "lexer-build.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/lexer-build.stdout",
+    "name": "lexer-build.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_c-refusal-command.json",
+    "name": "malformed-nanoc_c-refusal-command.json",
+    "original_sha256": "aed27bc44a90aa1c4166f3286077dcb1484c3439fcd10f2d39d50528e3ed1d05",
+    "retained_sha256": "aed27bc44a90aa1c4166f3286077dcb1484c3439fcd10f2d39d50528e3ed1d05"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_c-refusal-status.json",
+    "name": "malformed-nanoc_c-refusal-status.json",
+    "original_sha256": "f5248e655f48bba3ac2b4901cfc2cbc0476c9d5833e02904e522cbfd601cec30",
+    "retained_sha256": "f5248e655f48bba3ac2b4901cfc2cbc0476c9d5833e02904e522cbfd601cec30"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_c-refusal.json",
+    "name": "malformed-nanoc_c-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_c-refusal.stderr",
+    "name": "malformed-nanoc_c-refusal.stderr",
+    "original_sha256": "0fc435fec712bd78a4675b487291ec5976f406def48775555803d6c0b37d5248",
+    "retained_sha256": "0fc435fec712bd78a4675b487291ec5976f406def48775555803d6c0b37d5248"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_c-refusal.stdout",
+    "name": "malformed-nanoc_c-refusal.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_stage1-refusal-command.json",
+    "name": "malformed-nanoc_stage1-refusal-command.json",
+    "original_sha256": "39d0e878ccc3926d863e2a4a44a1d44650baac0f6f1c7d9c2f41560a4305fde9",
+    "retained_sha256": "39d0e878ccc3926d863e2a4a44a1d44650baac0f6f1c7d9c2f41560a4305fde9"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_stage1-refusal-status.json",
+    "name": "malformed-nanoc_stage1-refusal-status.json",
+    "original_sha256": "8b3b6168c3c58fbb6fccb318f71ac668ce70e94ab6b64a54cc748aff77b7c51e",
+    "retained_sha256": "8b3b6168c3c58fbb6fccb318f71ac668ce70e94ab6b64a54cc748aff77b7c51e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_stage1-refusal.json",
+    "name": "malformed-nanoc_stage1-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_stage1-refusal.stderr",
+    "name": "malformed-nanoc_stage1-refusal.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_stage1-refusal.stdout",
+    "name": "malformed-nanoc_stage1-refusal.stdout",
+    "original_sha256": "6ac9efa6199571d8e831e50c6ddd04292c32a1d9c203669745b127fdb5750ddb",
+    "retained_sha256": "6ac9efa6199571d8e831e50c6ddd04292c32a1d9c203669745b127fdb5750ddb"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_stage2-refusal-command.json",
+    "name": "malformed-nanoc_stage2-refusal-command.json",
+    "original_sha256": "cfba74f8184ea39ccde52e6df9f30c4ad2d89e00c5a9babd8e021bc1534b3b3c",
+    "retained_sha256": "cfba74f8184ea39ccde52e6df9f30c4ad2d89e00c5a9babd8e021bc1534b3b3c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_stage2-refusal-status.json",
+    "name": "malformed-nanoc_stage2-refusal-status.json",
+    "original_sha256": "144467639cfcc16759702af58b753766cc31d6a31108b82db5cac434e41adfe0",
+    "retained_sha256": "144467639cfcc16759702af58b753766cc31d6a31108b82db5cac434e41adfe0"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_stage2-refusal.json",
+    "name": "malformed-nanoc_stage2-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_stage2-refusal.stderr",
+    "name": "malformed-nanoc_stage2-refusal.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/malformed-nanoc_stage2-refusal.stdout",
+    "name": "malformed-nanoc_stage2-refusal.stdout",
+    "original_sha256": "6ac9efa6199571d8e831e50c6ddd04292c32a1d9c203669745b127fdb5750ddb",
+    "retained_sha256": "6ac9efa6199571d8e831e50c6ddd04292c32a1d9c203669745b127fdb5750ddb"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_c-build-command.json",
+    "name": "named-discard-nanoc_c-build-command.json",
+    "original_sha256": "519b2294f99abfa3069ab7dd0009c63061b1714ec1781c3fd18291634aaf1660",
+    "retained_sha256": "519b2294f99abfa3069ab7dd0009c63061b1714ec1781c3fd18291634aaf1660"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_c-build-status.json",
+    "name": "named-discard-nanoc_c-build-status.json",
+    "original_sha256": "e2e9196bdb0a853ce5317ee0336926799034c73542f45a4158b3c633620b6a55",
+    "retained_sha256": "e2e9196bdb0a853ce5317ee0336926799034c73542f45a4158b3c633620b6a55"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_c-build.stderr",
+    "name": "named-discard-nanoc_c-build.stderr",
+    "original_sha256": "f9d81ce742419f6bddd6a7716342ff404baff4bbab7615d455e4edd55926acc1",
+    "retained_sha256": "f9d81ce742419f6bddd6a7716342ff404baff4bbab7615d455e4edd55926acc1"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_c-build.stdout",
+    "name": "named-discard-nanoc_c-build.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_c-run-command.json",
+    "name": "named-discard-nanoc_c-run-command.json",
+    "original_sha256": "8501a7574faaf26253c59f08a17f5944f898b2e79bf3d91563f7844603dacda1",
+    "retained_sha256": "8501a7574faaf26253c59f08a17f5944f898b2e79bf3d91563f7844603dacda1"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_c-run-status.json",
+    "name": "named-discard-nanoc_c-run-status.json",
+    "original_sha256": "a8ce5a71e02e601900531eecb2f890cf55375b6a7542ef7f8fdbb3ca1f8cb863",
+    "retained_sha256": "a8ce5a71e02e601900531eecb2f890cf55375b6a7542ef7f8fdbb3ca1f8cb863"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_c-run.json",
+    "name": "named-discard-nanoc_c-run.json",
+    "original_sha256": "0fc03c2a9dae3423987e49d71d408c75716d2c0590d3d5a4472ee5ab86bdd4c8",
+    "retained_sha256": "3d082c34ec5b7e76d96788005152759943c00320c6923c4e5e647902c06c22e9"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_c-run.stderr",
+    "name": "named-discard-nanoc_c-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_c-run.stdout",
+    "name": "named-discard-nanoc_c-run.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage1-build-command.json",
+    "name": "named-discard-nanoc_stage1-build-command.json",
+    "original_sha256": "cb83f690ec7ea875ace6c0281b878498d207837c44ac358982e5e31a67dd3b46",
+    "retained_sha256": "cb83f690ec7ea875ace6c0281b878498d207837c44ac358982e5e31a67dd3b46"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage1-build-status.json",
+    "name": "named-discard-nanoc_stage1-build-status.json",
+    "original_sha256": "abfbae7e70fd57c9822cd5dd15b9ec81b8cf96b5decf859fc0aa99d29472cdb5",
+    "retained_sha256": "abfbae7e70fd57c9822cd5dd15b9ec81b8cf96b5decf859fc0aa99d29472cdb5"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage1-build.stderr",
+    "name": "named-discard-nanoc_stage1-build.stderr",
+    "original_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3",
+    "retained_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage1-build.stdout",
+    "name": "named-discard-nanoc_stage1-build.stdout",
+    "original_sha256": "be10897850cfbdebdcc4750b5f6f3855c76d884a27b19b543812415e99fa7033",
+    "retained_sha256": "be10897850cfbdebdcc4750b5f6f3855c76d884a27b19b543812415e99fa7033"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage1-run-command.json",
+    "name": "named-discard-nanoc_stage1-run-command.json",
+    "original_sha256": "2af426142ee8d354ec8c49229b1acb91487f3babc302e35394e24bacaf9dce57",
+    "retained_sha256": "2af426142ee8d354ec8c49229b1acb91487f3babc302e35394e24bacaf9dce57"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage1-run-status.json",
+    "name": "named-discard-nanoc_stage1-run-status.json",
+    "original_sha256": "21668dac4a3bf0db200a8e6d221ccd93d5f37945f3c362e523bab602b40e4245",
+    "retained_sha256": "21668dac4a3bf0db200a8e6d221ccd93d5f37945f3c362e523bab602b40e4245"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage1-run.json",
+    "name": "named-discard-nanoc_stage1-run.json",
+    "original_sha256": "0fc03c2a9dae3423987e49d71d408c75716d2c0590d3d5a4472ee5ab86bdd4c8",
+    "retained_sha256": "3d082c34ec5b7e76d96788005152759943c00320c6923c4e5e647902c06c22e9"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage1-run.stderr",
+    "name": "named-discard-nanoc_stage1-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage1-run.stdout",
+    "name": "named-discard-nanoc_stage1-run.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage2-build-command.json",
+    "name": "named-discard-nanoc_stage2-build-command.json",
+    "original_sha256": "2fc8b592248be1badc774029dc3ec2229c267bffcce0f4ff1b4f6d4d944c74d4",
+    "retained_sha256": "2fc8b592248be1badc774029dc3ec2229c267bffcce0f4ff1b4f6d4d944c74d4"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage2-build-status.json",
+    "name": "named-discard-nanoc_stage2-build-status.json",
+    "original_sha256": "7c9ddab5918eceb6fe471cbaf6e3aad9c4fdf9a6856af952109471a0a09067b7",
+    "retained_sha256": "7c9ddab5918eceb6fe471cbaf6e3aad9c4fdf9a6856af952109471a0a09067b7"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage2-build.stderr",
+    "name": "named-discard-nanoc_stage2-build.stderr",
+    "original_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3",
+    "retained_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage2-build.stdout",
+    "name": "named-discard-nanoc_stage2-build.stdout",
+    "original_sha256": "d4ca9846684c0def750f1276414bc5bf239cd1df5ab89a1cb4c21203a20c9bb3",
+    "retained_sha256": "d4ca9846684c0def750f1276414bc5bf239cd1df5ab89a1cb4c21203a20c9bb3"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage2-run-command.json",
+    "name": "named-discard-nanoc_stage2-run-command.json",
+    "original_sha256": "a5bcc059c381878491424b0330cb5dab562228ba1038d18db26f8e9c674a907a",
+    "retained_sha256": "a5bcc059c381878491424b0330cb5dab562228ba1038d18db26f8e9c674a907a"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage2-run-status.json",
+    "name": "named-discard-nanoc_stage2-run-status.json",
+    "original_sha256": "96ea534994681ae2a9c7f6b53c26c0888ca910cd5b1830c7aa386802b238903a",
+    "retained_sha256": "96ea534994681ae2a9c7f6b53c26c0888ca910cd5b1830c7aa386802b238903a"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage2-run.json",
+    "name": "named-discard-nanoc_stage2-run.json",
+    "original_sha256": "0fc03c2a9dae3423987e49d71d408c75716d2c0590d3d5a4472ee5ab86bdd4c8",
+    "retained_sha256": "3d082c34ec5b7e76d96788005152759943c00320c6923c4e5e647902c06c22e9"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage2-run.stderr",
+    "name": "named-discard-nanoc_stage2-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/named-discard-nanoc_stage2-run.stdout",
+    "name": "named-discard-nanoc_stage2-run.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nano_virt-consumer-refusal-command.json",
+    "name": "nano_virt-consumer-refusal-command.json",
+    "original_sha256": "80c678af53ec04c1f87e80b19a801c70e7010498ca2baab827e6a55144543b92",
+    "retained_sha256": "80c678af53ec04c1f87e80b19a801c70e7010498ca2baab827e6a55144543b92"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nano_virt-consumer-refusal-status.json",
+    "name": "nano_virt-consumer-refusal-status.json",
+    "original_sha256": "0f9f3e7ee4baa528dbee5d6d77f754867fdec0ea58112a37a9f60caea7ba5df8",
+    "retained_sha256": "0f9f3e7ee4baa528dbee5d6d77f754867fdec0ea58112a37a9f60caea7ba5df8"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nano_virt-consumer-refusal.stderr",
+    "name": "nano_virt-consumer-refusal.stderr",
+    "original_sha256": "628bf455c24a3b6d912dc191b1c3c9c7f6eee27f25494a04c0b60c04efe515ac",
+    "retained_sha256": "628bf455c24a3b6d912dc191b1c3c9c7f6eee27f25494a04c0b60c04efe515ac"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nano_virt-consumer-refusal.stdout",
+    "name": "nano_virt-consumer-refusal.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nano_virt-refusal.json",
+    "name": "nano_virt-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-build-command.json",
+    "name": "nanoc_c-build-command.json",
+    "original_sha256": "f4553ecca20d352a7b85e72675cb499e1adf093faf6b8f348e854ce23723a88f",
+    "retained_sha256": "f4553ecca20d352a7b85e72675cb499e1adf093faf6b8f348e854ce23723a88f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-build-status.json",
+    "name": "nanoc_c-build-status.json",
+    "original_sha256": "14499547a337656b0f1eba77d04f01382c129690f967e0e2d9326eeab412d0e9",
+    "retained_sha256": "14499547a337656b0f1eba77d04f01382c129690f967e0e2d9326eeab412d0e9"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-build.stderr",
+    "name": "nanoc_c-build.stderr",
+    "original_sha256": "6a3b0ae2a2f44c572ad675dc9385de6760353acf1c611ecedc79b67343a789da",
+    "retained_sha256": "6a3b0ae2a2f44c572ad675dc9385de6760353acf1c611ecedc79b67343a789da"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-build.stdout",
+    "name": "nanoc_c-build.stdout",
+    "original_sha256": "6b7c0d5de9475bea627eff0697af1f87a2f94101e515b8b2a0df2747e0e7f36b",
+    "retained_sha256": "6b7c0d5de9475bea627eff0697af1f87a2f94101e515b8b2a0df2747e0e7f36b"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-consumer-refusal-command.json",
+    "name": "nanoc_c-consumer-refusal-command.json",
+    "original_sha256": "7c9595d5f40df62388edd2819979210e97a543f6f7c2efe279e2b2036994c2c9",
+    "retained_sha256": "7c9595d5f40df62388edd2819979210e97a543f6f7c2efe279e2b2036994c2c9"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-consumer-refusal-status.json",
+    "name": "nanoc_c-consumer-refusal-status.json",
+    "original_sha256": "0f2c028f24c23af05f5b930c1e298f88b8e63ef96f7949b4ad63df5bca917bf4",
+    "retained_sha256": "0f2c028f24c23af05f5b930c1e298f88b8e63ef96f7949b4ad63df5bca917bf4"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-consumer-refusal.stderr",
+    "name": "nanoc_c-consumer-refusal.stderr",
+    "original_sha256": "628bf455c24a3b6d912dc191b1c3c9c7f6eee27f25494a04c0b60c04efe515ac",
+    "retained_sha256": "628bf455c24a3b6d912dc191b1c3c9c7f6eee27f25494a04c0b60c04efe515ac"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-consumer-refusal.stdout",
+    "name": "nanoc_c-consumer-refusal.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-refusal.json",
+    "name": "nanoc_c-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-run-command.json",
+    "name": "nanoc_c-run-command.json",
+    "original_sha256": "16873ebe09bdd92e3811d81230b392441406b5b76830c118311cb9d1f8597daa",
+    "retained_sha256": "16873ebe09bdd92e3811d81230b392441406b5b76830c118311cb9d1f8597daa"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-run-status.json",
+    "name": "nanoc_c-run-status.json",
+    "original_sha256": "7138ceb70122be8cf41584c1203931ea6c144cc5cfabe5486c9b32b7af12e92f",
+    "retained_sha256": "7138ceb70122be8cf41584c1203931ea6c144cc5cfabe5486c9b32b7af12e92f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-run.stderr",
+    "name": "nanoc_c-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-run.stdout",
+    "name": "nanoc_c-run.stdout",
+    "original_sha256": "3719eaade41d2ad4d08aeb3045df89762442c42cb03bcabe9537ede6d115b09b",
+    "retained_sha256": "3719eaade41d2ad4d08aeb3045df89762442c42cb03bcabe9537ede6d115b09b"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-selection.json",
+    "name": "nanoc_c-selection.json",
+    "original_sha256": "b33dc15432328de43e347fafa66107f9be758b3fe9012f8d235f892e6522d2ed",
+    "retained_sha256": "b33dc15432328de43e347fafa66107f9be758b3fe9012f8d235f892e6522d2ed"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_c-shadows.json",
+    "name": "nanoc_c-shadows.json",
+    "original_sha256": "69fccb122ae5803868802365f863dca10266c9c0bacf638aa3b41ae7d0bec844",
+    "retained_sha256": "ae7f5182f724d006f9d66503626e938b07b6524a395106945f12c76e4491e2bf"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-build-command.json",
+    "name": "nanoc_stage1-build-command.json",
+    "original_sha256": "212050271f9e29d381304b569a0ad7f3506de73bd469ae6af4e30fb80fd96d5d",
+    "retained_sha256": "212050271f9e29d381304b569a0ad7f3506de73bd469ae6af4e30fb80fd96d5d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-build-status.json",
+    "name": "nanoc_stage1-build-status.json",
+    "original_sha256": "c340ab2db7cb14540d9df76d3910d6d5ae1eb2f2fbcb3f4d9a2d676c5c26d090",
+    "retained_sha256": "c340ab2db7cb14540d9df76d3910d6d5ae1eb2f2fbcb3f4d9a2d676c5c26d090"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-build.stderr",
+    "name": "nanoc_stage1-build.stderr",
+    "original_sha256": "de64ebc4c6cc3e177227d71bdd6371ac3f656850712e646125ae8f06f92e6227",
+    "retained_sha256": "de64ebc4c6cc3e177227d71bdd6371ac3f656850712e646125ae8f06f92e6227"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-build.stdout",
+    "name": "nanoc_stage1-build.stdout",
+    "original_sha256": "b7a0637131bfe2d31f05dd19ce1c6c8b705a31906c7ad31f2bebf5788d8a3c4c",
+    "retained_sha256": "b7a0637131bfe2d31f05dd19ce1c6c8b705a31906c7ad31f2bebf5788d8a3c4c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-consumer-refusal-command.json",
+    "name": "nanoc_stage1-consumer-refusal-command.json",
+    "original_sha256": "09cb2816146b37fab25d899802a02c47b1c47890b37afce5fcb5714e680750ca",
+    "retained_sha256": "09cb2816146b37fab25d899802a02c47b1c47890b37afce5fcb5714e680750ca"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-consumer-refusal-status.json",
+    "name": "nanoc_stage1-consumer-refusal-status.json",
+    "original_sha256": "3b92a621d9ba0379a1e77f6d1e3f13467de4f6ae200a775ef3515332cfcc2bee",
+    "retained_sha256": "3b92a621d9ba0379a1e77f6d1e3f13467de4f6ae200a775ef3515332cfcc2bee"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-consumer-refusal.stderr",
+    "name": "nanoc_stage1-consumer-refusal.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-consumer-refusal.stdout",
+    "name": "nanoc_stage1-consumer-refusal.stdout",
+    "original_sha256": "0032e6347f3fd4d80852a01b8e6f355ecf04e95261da3bc6036174fa918577a6",
+    "retained_sha256": "0032e6347f3fd4d80852a01b8e6f355ecf04e95261da3bc6036174fa918577a6"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-refusal.json",
+    "name": "nanoc_stage1-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-run-command.json",
+    "name": "nanoc_stage1-run-command.json",
+    "original_sha256": "fe84684cc7d3a4f52f71755698b24e62d3a01b980e68afeb22ab67b3981c7315",
+    "retained_sha256": "fe84684cc7d3a4f52f71755698b24e62d3a01b980e68afeb22ab67b3981c7315"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-run-status.json",
+    "name": "nanoc_stage1-run-status.json",
+    "original_sha256": "750af70d0e35c7df84d02a81180236ad8c5359365ec0494ad3e113665a48266a",
+    "retained_sha256": "750af70d0e35c7df84d02a81180236ad8c5359365ec0494ad3e113665a48266a"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-run.stderr",
+    "name": "nanoc_stage1-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-run.stdout",
+    "name": "nanoc_stage1-run.stdout",
+    "original_sha256": "3719eaade41d2ad4d08aeb3045df89762442c42cb03bcabe9537ede6d115b09b",
+    "retained_sha256": "3719eaade41d2ad4d08aeb3045df89762442c42cb03bcabe9537ede6d115b09b"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage1-selection.json",
+    "name": "nanoc_stage1-selection.json",
+    "original_sha256": "f3faebad152e7d8ed2ca07f27105374d1d41ff2c8b5635531db00194a09c3693",
+    "retained_sha256": "f3faebad152e7d8ed2ca07f27105374d1d41ff2c8b5635531db00194a09c3693"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-build-command.json",
+    "name": "nanoc_stage2-build-command.json",
+    "original_sha256": "3dbddb67e071bf92f4eaa6c23ca33ea475f42db4171524c50a9ace63dc25c416",
+    "retained_sha256": "3dbddb67e071bf92f4eaa6c23ca33ea475f42db4171524c50a9ace63dc25c416"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-build-status.json",
+    "name": "nanoc_stage2-build-status.json",
+    "original_sha256": "2ad374e3160d8395689fe7dedd928cc9c60fef0b07494e6557e25c196c2d5c4e",
+    "retained_sha256": "2ad374e3160d8395689fe7dedd928cc9c60fef0b07494e6557e25c196c2d5c4e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-build.stderr",
+    "name": "nanoc_stage2-build.stderr",
+    "original_sha256": "de64ebc4c6cc3e177227d71bdd6371ac3f656850712e646125ae8f06f92e6227",
+    "retained_sha256": "de64ebc4c6cc3e177227d71bdd6371ac3f656850712e646125ae8f06f92e6227"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-build.stdout",
+    "name": "nanoc_stage2-build.stdout",
+    "original_sha256": "90ac820750bf0f95477915d13dd420b7ca845d49ab29b81ba696301cdd4fb2be",
+    "retained_sha256": "90ac820750bf0f95477915d13dd420b7ca845d49ab29b81ba696301cdd4fb2be"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-consumer-refusal-command.json",
+    "name": "nanoc_stage2-consumer-refusal-command.json",
+    "original_sha256": "4887d1e07aaf8bf92f6ca8adfcde19d4bcbbd06d43706ff83a26a3552bdc9d58",
+    "retained_sha256": "4887d1e07aaf8bf92f6ca8adfcde19d4bcbbd06d43706ff83a26a3552bdc9d58"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-consumer-refusal-status.json",
+    "name": "nanoc_stage2-consumer-refusal-status.json",
+    "original_sha256": "268ae130f74344064f3b2d93cee0360c47c1451a3ba2ae5e069256a9571fcaf7",
+    "retained_sha256": "268ae130f74344064f3b2d93cee0360c47c1451a3ba2ae5e069256a9571fcaf7"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-consumer-refusal.stderr",
+    "name": "nanoc_stage2-consumer-refusal.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-consumer-refusal.stdout",
+    "name": "nanoc_stage2-consumer-refusal.stdout",
+    "original_sha256": "0032e6347f3fd4d80852a01b8e6f355ecf04e95261da3bc6036174fa918577a6",
+    "retained_sha256": "0032e6347f3fd4d80852a01b8e6f355ecf04e95261da3bc6036174fa918577a6"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-refusal.json",
+    "name": "nanoc_stage2-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-run-command.json",
+    "name": "nanoc_stage2-run-command.json",
+    "original_sha256": "63d3607ab7377558e9a4a76b4a940c89f609431376aeaa59950fcffbbc3d70be",
+    "retained_sha256": "63d3607ab7377558e9a4a76b4a940c89f609431376aeaa59950fcffbbc3d70be"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-run-status.json",
+    "name": "nanoc_stage2-run-status.json",
+    "original_sha256": "ece8afe923dfb5e83e75f4d0649ce6f1e8fea5e3b3cc814e7a9ee4cbcf339143",
+    "retained_sha256": "ece8afe923dfb5e83e75f4d0649ce6f1e8fea5e3b3cc814e7a9ee4cbcf339143"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-run.stderr",
+    "name": "nanoc_stage2-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-run.stdout",
+    "name": "nanoc_stage2-run.stdout",
+    "original_sha256": "3719eaade41d2ad4d08aeb3045df89762442c42cb03bcabe9537ede6d115b09b",
+    "retained_sha256": "3719eaade41d2ad4d08aeb3045df89762442c42cb03bcabe9537ede6d115b09b"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nanoc_stage2-selection.json",
+    "name": "nanoc_stage2-selection.json",
+    "original_sha256": "f3faebad152e7d8ed2ca07f27105374d1d41ff2c8b5635531db00194a09c3693",
+    "retained_sha256": "f3faebad152e7d8ed2ca07f27105374d1d41ff2c8b5635531db00194a09c3693"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nominal_types-build-command.json",
+    "name": "nominal_types-build-command.json",
+    "original_sha256": "3f9c88c91ca46cba4c3682d0098e7ae686c57fdec0edc1dedd23917911e5a66d",
+    "retained_sha256": "3f9c88c91ca46cba4c3682d0098e7ae686c57fdec0edc1dedd23917911e5a66d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nominal_types-build-status.json",
+    "name": "nominal_types-build-status.json",
+    "original_sha256": "e724f659a8d51cda6f1fdedb05d836cf364db44bd63b8764e401fc304cc41f4e",
+    "retained_sha256": "e724f659a8d51cda6f1fdedb05d836cf364db44bd63b8764e401fc304cc41f4e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nominal_types-build.stderr",
+    "name": "nominal_types-build.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/nominal_types-build.stdout",
+    "name": "nominal_types-build.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/ordinary-providers-after.json",
+    "name": "ordinary-providers-after.json",
+    "original_sha256": "b18f4386066e5314a0ea272d4055e6f7848fa8d1ecf7b7d3234438fd2c9baf7a",
+    "retained_sha256": "b18f4386066e5314a0ea272d4055e6f7848fa8d1ecf7b7d3234438fd2c9baf7a"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/ordinary-providers-before.json",
+    "name": "ordinary-providers-before.json",
+    "original_sha256": "b18f4386066e5314a0ea272d4055e6f7848fa8d1ecf7b7d3234438fd2c9baf7a",
+    "retained_sha256": "b18f4386066e5314a0ea272d4055e6f7848fa8d1ecf7b7d3234438fd2c9baf7a"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/parser-c-build-command.json",
+    "name": "parser-c-build-command.json",
+    "original_sha256": "54e5f2bfc8af9879c608b4f8a4b8938bf029474ffad5b8fce64a7b6ea86dbe28",
+    "retained_sha256": "54e5f2bfc8af9879c608b4f8a4b8938bf029474ffad5b8fce64a7b6ea86dbe28"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/parser-c-build-status.json",
+    "name": "parser-c-build-status.json",
+    "original_sha256": "6418441adbae45b56cd0d7a6687c571b25a117c09afe87466e636eee1f9eca5e",
+    "retained_sha256": "6418441adbae45b56cd0d7a6687c571b25a117c09afe87466e636eee1f9eca5e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/parser-c-build.stderr",
+    "name": "parser-c-build.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/parser-c-build.stdout",
+    "name": "parser-c-build.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/parser-c-run-command.json",
+    "name": "parser-c-run-command.json",
+    "original_sha256": "8026fc016986e6da0cf6843f54c32f64d8f2cfa6aab0531752632d7ab15c976e",
+    "retained_sha256": "8026fc016986e6da0cf6843f54c32f64d8f2cfa6aab0531752632d7ab15c976e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/parser-c-run-status.json",
+    "name": "parser-c-run-status.json",
+    "original_sha256": "968dc3e360a4bbeb54ae7c2a506b5f95fc705febcf1e9d4c0c160b1c127cdfcb",
+    "retained_sha256": "968dc3e360a4bbeb54ae7c2a506b5f95fc705febcf1e9d4c0c160b1c127cdfcb"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/parser-c-run.stderr",
+    "name": "parser-c-run.stderr",
+    "original_sha256": "b7de906b566ff9607c00b5e529d11045f3c5ef13217ac3c9df2dd64e0a21e3f3",
+    "retained_sha256": "b7de906b566ff9607c00b5e529d11045f3c5ef13217ac3c9df2dd64e0a21e3f3"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/parser-c-run.stdout",
+    "name": "parser-c-run.stdout",
+    "original_sha256": "a0e980132dc2a333b53d1eae9d1a48ab972f4bf7da713f647f0ecf771cfcd6fd",
+    "retained_sha256": "a0e980132dc2a333b53d1eae9d1a48ab972f4bf7da713f647f0ecf771cfcd6fd"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/parser-expected-selection.json",
+    "name": "parser-expected-selection.json",
+    "original_sha256": "c3666aa09dd9ba7b2b5f3060898e888a6ce1516321a060f6f3e8d4ff2382594b",
+    "retained_sha256": "c3666aa09dd9ba7b2b5f3060898e888a6ce1516321a060f6f3e8d4ff2382594b"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_c-refusal-command.json",
+    "name": "payload-omitted-nanoc_c-refusal-command.json",
+    "original_sha256": "1214ebd4db6b6c7a720ab972e3c0b208f6dc40620aacc86d08ad3734f3ec1ad0",
+    "retained_sha256": "1214ebd4db6b6c7a720ab972e3c0b208f6dc40620aacc86d08ad3734f3ec1ad0"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_c-refusal-status.json",
+    "name": "payload-omitted-nanoc_c-refusal-status.json",
+    "original_sha256": "6dfe19cba282c91a175263f90c7b72bd0955bbf095464b4cdb02702ed6ece2dc",
+    "retained_sha256": "6dfe19cba282c91a175263f90c7b72bd0955bbf095464b4cdb02702ed6ece2dc"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_c-refusal.json",
+    "name": "payload-omitted-nanoc_c-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_c-refusal.stderr",
+    "name": "payload-omitted-nanoc_c-refusal.stderr",
+    "original_sha256": "e8ac0be67fbee7c472e8ad4b68b05ee30d85155499d82ff7503fdf4b92027b3e",
+    "retained_sha256": "e8ac0be67fbee7c472e8ad4b68b05ee30d85155499d82ff7503fdf4b92027b3e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_c-refusal.stdout",
+    "name": "payload-omitted-nanoc_c-refusal.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_stage1-refusal-command.json",
+    "name": "payload-omitted-nanoc_stage1-refusal-command.json",
+    "original_sha256": "82f4bb2ef4ba8b923ee16ff4992a0a9189d83da51666e9830ea7415634a0491a",
+    "retained_sha256": "82f4bb2ef4ba8b923ee16ff4992a0a9189d83da51666e9830ea7415634a0491a"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_stage1-refusal-status.json",
+    "name": "payload-omitted-nanoc_stage1-refusal-status.json",
+    "original_sha256": "06c5e6f27da5914a077cc78dd41056283219ecb242e499f0d71eeed9c3196f58",
+    "retained_sha256": "06c5e6f27da5914a077cc78dd41056283219ecb242e499f0d71eeed9c3196f58"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_stage1-refusal.json",
+    "name": "payload-omitted-nanoc_stage1-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_stage1-refusal.stderr",
+    "name": "payload-omitted-nanoc_stage1-refusal.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_stage1-refusal.stdout",
+    "name": "payload-omitted-nanoc_stage1-refusal.stdout",
+    "original_sha256": "ac11fb0f0cc8c81b2ebf0073b669b089963daf718b78d6f1f806eb39f57fb91d",
+    "retained_sha256": "ac11fb0f0cc8c81b2ebf0073b669b089963daf718b78d6f1f806eb39f57fb91d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_stage2-refusal-command.json",
+    "name": "payload-omitted-nanoc_stage2-refusal-command.json",
+    "original_sha256": "f2bdba85faeabb18236765097f50be880f42a8010c35637958067d69a6fc4b76",
+    "retained_sha256": "f2bdba85faeabb18236765097f50be880f42a8010c35637958067d69a6fc4b76"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_stage2-refusal-status.json",
+    "name": "payload-omitted-nanoc_stage2-refusal-status.json",
+    "original_sha256": "eeaafaba8221bf89fa737409bc817b2851340c9656bafb9688f869d4e24a7f5f",
+    "retained_sha256": "eeaafaba8221bf89fa737409bc817b2851340c9656bafb9688f869d4e24a7f5f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_stage2-refusal.json",
+    "name": "payload-omitted-nanoc_stage2-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_stage2-refusal.stderr",
+    "name": "payload-omitted-nanoc_stage2-refusal.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/payload-omitted-nanoc_stage2-refusal.stdout",
+    "name": "payload-omitted-nanoc_stage2-refusal.stdout",
+    "original_sha256": "ac11fb0f0cc8c81b2ebf0073b669b089963daf718b78d6f1f806eb39f57fb91d",
+    "retained_sha256": "ac11fb0f0cc8c81b2ebf0073b669b089963daf718b78d6f1f806eb39f57fb91d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/publish-command.json",
+    "name": "publish-command.json",
+    "original_sha256": "3ca8991a8cf74dfc427a90c9e535de062a6226c07497f0b2a77cb15d16c020da",
+    "retained_sha256": "3ca8991a8cf74dfc427a90c9e535de062a6226c07497f0b2a77cb15d16c020da"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/publish-status.json",
+    "name": "publish-status.json",
+    "original_sha256": "3eedf10fca85ce7726bd4b5d12c2167be35fbd53ece17fbbdd593ae6bbf35b84",
+    "retained_sha256": "3eedf10fca85ce7726bd4b5d12c2167be35fbd53ece17fbbdd593ae6bbf35b84"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/publish.stderr",
+    "name": "publish.stderr",
+    "original_sha256": "1b04d8f705cc68f9624854593199e1f690eec733000bede28529e70d9b9d5b16",
+    "retained_sha256": "1b04d8f705cc68f9624854593199e1f690eec733000bede28529e70d9b9d5b16"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/publish.stdout",
+    "name": "publish.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/publisher-make-command.json",
+    "name": "publisher-make-command.json",
+    "original_sha256": "0899f69143c06f402291d3b03558376148d4ace1f75b968fa1448afd4a1413b1",
+    "retained_sha256": "0899f69143c06f402291d3b03558376148d4ace1f75b968fa1448afd4a1413b1"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/publisher-make-status.json",
+    "name": "publisher-make-status.json",
+    "original_sha256": "21aa1774b2ab34de5a56fb44b4bdc8010d161f430f35039c4fd15d483e002158",
+    "retained_sha256": "21aa1774b2ab34de5a56fb44b4bdc8010d161f430f35039c4fd15d483e002158"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/publisher-make.stderr",
+    "name": "publisher-make.stderr",
+    "original_sha256": "2780187a47b9626210952088d3d3844a306e2f6dbd959fa89369a61fa656e9ba",
+    "retained_sha256": "2780187a47b9626210952088d3d3844a306e2f6dbd959fa89369a61fa656e9ba"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/publisher-make.stdout",
+    "name": "publisher-make.stdout",
+    "original_sha256": "4cd9f8f12805d276944bba9b5237736f5d54bbe0d3f005c1cb808b6dd986a870",
+    "retained_sha256": "4cd9f8f12805d276944bba9b5237736f5d54bbe0d3f005c1cb808b6dd986a870"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/python-generator-generation.json",
+    "name": "python-generator-generation.json",
+    "original_sha256": "64f4cb90fab7b4b34cd7e6faf789c555bec24b88ecc06b4b5dd0c168d51fbe0d",
+    "retained_sha256": "64f4cb90fab7b4b34cd7e6faf789c555bec24b88ecc06b4b5dd0c168d51fbe0d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/python-generator-run-command.json",
+    "name": "python-generator-run-command.json",
+    "original_sha256": "812db4ea0109cb077ea6d4c6490a86e674d8eff615987cd1f9d915bb1b66af7d",
+    "retained_sha256": "812db4ea0109cb077ea6d4c6490a86e674d8eff615987cd1f9d915bb1b66af7d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/python-generator-run-status.json",
+    "name": "python-generator-run-status.json",
+    "original_sha256": "f25dd98c1a12c66ccd9506daa796b5ba47d47047b39c4514243dd92326828ab9",
+    "retained_sha256": "f25dd98c1a12c66ccd9506daa796b5ba47d47047b39c4514243dd92326828ab9"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/python-generator-run.stderr",
+    "name": "python-generator-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/python-generator-run.stdout",
+    "name": "python-generator-run.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/scope.json",
+    "name": "scope.json",
+    "original_sha256": "22edc712c6efe70e188d9f5b50f53fe07a9ec668bbd3a76693ea6b9be1c361b4",
+    "retained_sha256": "22edc712c6efe70e188d9f5b50f53fe07a9ec668bbd3a76693ea6b9be1c361b4"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-expected-selection.json",
+    "name": "token_value_bytes-expected-selection.json",
+    "original_sha256": "bc37e649c472bbc9f829c8b5e607f3c91ededddadfe29287fe154eee927f0f36",
+    "retained_sha256": "bc37e649c472bbc9f829c8b5e607f3c91ededddadfe29287fe154eee927f0f36"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_c-build-command.json",
+    "name": "token_value_bytes-nanoc_c-build-command.json",
+    "original_sha256": "502c28e547c1195556e883543ad9e70b89e392f0df2e16dad02fd68c1714fbee",
+    "retained_sha256": "502c28e547c1195556e883543ad9e70b89e392f0df2e16dad02fd68c1714fbee"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_c-build-status.json",
+    "name": "token_value_bytes-nanoc_c-build-status.json",
+    "original_sha256": "2c46a484562ea97a7af20d59fde3313775f34513dccbda1898ae283b6dc2eb3e",
+    "retained_sha256": "2c46a484562ea97a7af20d59fde3313775f34513dccbda1898ae283b6dc2eb3e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_c-build.stderr",
+    "name": "token_value_bytes-nanoc_c-build.stderr",
+    "original_sha256": "e0ecc7360b54205446bedf74d9d0ad9361d0bdbb51148cc4ff103c5b505693e4",
+    "retained_sha256": "e0ecc7360b54205446bedf74d9d0ad9361d0bdbb51148cc4ff103c5b505693e4"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_c-build.stdout",
+    "name": "token_value_bytes-nanoc_c-build.stdout",
+    "original_sha256": "8eff9774d6ece2f42e0d8d4131c79bd1b7054dd8f48dc83e170c6dc76fe5f867",
+    "retained_sha256": "8eff9774d6ece2f42e0d8d4131c79bd1b7054dd8f48dc83e170c6dc76fe5f867"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_c-retention.json",
+    "name": "token_value_bytes-nanoc_c-retention.json",
+    "original_sha256": "d6e5ff9320390328d037c742231e8a20387daa56c905f5a18fc7e85d14962dd1",
+    "retained_sha256": "d6e5ff9320390328d037c742231e8a20387daa56c905f5a18fc7e85d14962dd1"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_c-run-command.json",
+    "name": "token_value_bytes-nanoc_c-run-command.json",
+    "original_sha256": "8bd9bc79f5711c197cacebfec05c4692403b3c73cc1f05f6abfe5fa0f99be4c2",
+    "retained_sha256": "8bd9bc79f5711c197cacebfec05c4692403b3c73cc1f05f6abfe5fa0f99be4c2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_c-run-status.json",
+    "name": "token_value_bytes-nanoc_c-run-status.json",
+    "original_sha256": "7e840e0e305f64df8a00d2b85a0fec2a9e15258a18bb34053445fe18953a6d7c",
+    "retained_sha256": "7e840e0e305f64df8a00d2b85a0fec2a9e15258a18bb34053445fe18953a6d7c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_c-run.stderr",
+    "name": "token_value_bytes-nanoc_c-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_c-run.stdout",
+    "name": "token_value_bytes-nanoc_c-run.stdout",
+    "original_sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b",
+    "retained_sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_c-selection.json",
+    "name": "token_value_bytes-nanoc_c-selection.json",
+    "original_sha256": "c13b2ccc58745679d63e854e3d7a08d051549c09546bfe9cc383e72c745feb5e",
+    "retained_sha256": "c13b2ccc58745679d63e854e3d7a08d051549c09546bfe9cc383e72c745feb5e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_c-shadows.json",
+    "name": "token_value_bytes-nanoc_c-shadows.json",
+    "original_sha256": "9d61fffe406d43865858adb8fd10e52e3f3ad8a8b0018d200b816cc6c5ef362c",
+    "retained_sha256": "0f340d2b5e476e2821d65be5a71cd9a15aab71d08a6eeba85d3543a4ba611c0e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage1-build-command.json",
+    "name": "token_value_bytes-nanoc_stage1-build-command.json",
+    "original_sha256": "3fd386787a8a4f8dc5196f0475ebec303f33925501f1262b47bea6e2cf13aa6d",
+    "retained_sha256": "3fd386787a8a4f8dc5196f0475ebec303f33925501f1262b47bea6e2cf13aa6d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage1-build-status.json",
+    "name": "token_value_bytes-nanoc_stage1-build-status.json",
+    "original_sha256": "d6bfa78c16cdb368330c5dbd0d7ebc35ffb9a89aa7138c56e3fbf44ae4a1a303",
+    "retained_sha256": "d6bfa78c16cdb368330c5dbd0d7ebc35ffb9a89aa7138c56e3fbf44ae4a1a303"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage1-build.stderr",
+    "name": "token_value_bytes-nanoc_stage1-build.stderr",
+    "original_sha256": "d1ee23797e4378f2663470aca7d25572360d945883082d10be55192513cfd7dd",
+    "retained_sha256": "d1ee23797e4378f2663470aca7d25572360d945883082d10be55192513cfd7dd"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage1-build.stdout",
+    "name": "token_value_bytes-nanoc_stage1-build.stdout",
+    "original_sha256": "d2eb9f39d9f43e315a01042c2101e51a5d57a3f914836f0447d900fbf2a03a26",
+    "retained_sha256": "d2eb9f39d9f43e315a01042c2101e51a5d57a3f914836f0447d900fbf2a03a26"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage1-retention.json",
+    "name": "token_value_bytes-nanoc_stage1-retention.json",
+    "original_sha256": "6cce919f7984e365ba43dfd47253d044a90dfc80c36384372038b915837c119f",
+    "retained_sha256": "6cce919f7984e365ba43dfd47253d044a90dfc80c36384372038b915837c119f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage1-run-command.json",
+    "name": "token_value_bytes-nanoc_stage1-run-command.json",
+    "original_sha256": "e3151ca52f543e76ec458d0172600794acb08e6eda65d19fd005ebac272caf42",
+    "retained_sha256": "e3151ca52f543e76ec458d0172600794acb08e6eda65d19fd005ebac272caf42"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage1-run-status.json",
+    "name": "token_value_bytes-nanoc_stage1-run-status.json",
+    "original_sha256": "1099078b6eaa3aa689edf75c67add7050413a72b2995658e809df0b65f470868",
+    "retained_sha256": "1099078b6eaa3aa689edf75c67add7050413a72b2995658e809df0b65f470868"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage1-run.stderr",
+    "name": "token_value_bytes-nanoc_stage1-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage1-run.stdout",
+    "name": "token_value_bytes-nanoc_stage1-run.stdout",
+    "original_sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b",
+    "retained_sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage1-selection.json",
+    "name": "token_value_bytes-nanoc_stage1-selection.json",
+    "original_sha256": "f5c1ab96f154091dbb360384b8650ff02357de71dc59efb404802a68f16e7853",
+    "retained_sha256": "f5c1ab96f154091dbb360384b8650ff02357de71dc59efb404802a68f16e7853"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage2-build-command.json",
+    "name": "token_value_bytes-nanoc_stage2-build-command.json",
+    "original_sha256": "8a601e4995bc6c57d9fe9fcd7ede96a42c5dbbcb131520239780a4c5a8d7f9b4",
+    "retained_sha256": "8a601e4995bc6c57d9fe9fcd7ede96a42c5dbbcb131520239780a4c5a8d7f9b4"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage2-build-status.json",
+    "name": "token_value_bytes-nanoc_stage2-build-status.json",
+    "original_sha256": "abc84c78dc54f164f55411e31826e32609199047aa0b5d744332656fbdf1b50a",
+    "retained_sha256": "abc84c78dc54f164f55411e31826e32609199047aa0b5d744332656fbdf1b50a"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage2-build.stderr",
+    "name": "token_value_bytes-nanoc_stage2-build.stderr",
+    "original_sha256": "d1ee23797e4378f2663470aca7d25572360d945883082d10be55192513cfd7dd",
+    "retained_sha256": "d1ee23797e4378f2663470aca7d25572360d945883082d10be55192513cfd7dd"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage2-build.stdout",
+    "name": "token_value_bytes-nanoc_stage2-build.stdout",
+    "original_sha256": "663164a185710a812d803af9d4e2b9a1cce22f98f479500878fa02324b2f0aef",
+    "retained_sha256": "663164a185710a812d803af9d4e2b9a1cce22f98f479500878fa02324b2f0aef"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage2-retention.json",
+    "name": "token_value_bytes-nanoc_stage2-retention.json",
+    "original_sha256": "80147530e64bcd11ac7ee617121d1bb0f99fa111fc071625b78497d1ea2a19d2",
+    "retained_sha256": "80147530e64bcd11ac7ee617121d1bb0f99fa111fc071625b78497d1ea2a19d2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage2-run-command.json",
+    "name": "token_value_bytes-nanoc_stage2-run-command.json",
+    "original_sha256": "8931485d03ab9590f70e95fd74c3e63f379895efa217f505af610e7498d3091d",
+    "retained_sha256": "8931485d03ab9590f70e95fd74c3e63f379895efa217f505af610e7498d3091d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage2-run-status.json",
+    "name": "token_value_bytes-nanoc_stage2-run-status.json",
+    "original_sha256": "2eecadf4ec174ee387adeacfbf25aa9a196bed18156bea4f5b99c527c18e3bed",
+    "retained_sha256": "2eecadf4ec174ee387adeacfbf25aa9a196bed18156bea4f5b99c527c18e3bed"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage2-run.stderr",
+    "name": "token_value_bytes-nanoc_stage2-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage2-run.stdout",
+    "name": "token_value_bytes-nanoc_stage2-run.stdout",
+    "original_sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b",
+    "retained_sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/token_value_bytes-nanoc_stage2-selection.json",
+    "name": "token_value_bytes-nanoc_stage2-selection.json",
+    "original_sha256": "f5c1ab96f154091dbb360384b8650ff02357de71dc59efb404802a68f16e7853",
+    "retained_sha256": "f5c1ab96f154091dbb360384b8650ff02357de71dc59efb404802a68f16e7853"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/transpiler-build-command.json",
+    "name": "transpiler-build-command.json",
+    "original_sha256": "49e43d3e6b4d19a74328b3fe13404b44a44b7df7d51e94163b39671dd5b33efe",
+    "retained_sha256": "49e43d3e6b4d19a74328b3fe13404b44a44b7df7d51e94163b39671dd5b33efe"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/transpiler-build-status.json",
+    "name": "transpiler-build-status.json",
+    "original_sha256": "1e1851144116566a0191a952f699279e5dcf3c32f1d0cea427212c07daf3ec45",
+    "retained_sha256": "1e1851144116566a0191a952f699279e5dcf3c32f1d0cea427212c07daf3ec45"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/transpiler-build.stderr",
+    "name": "transpiler-build.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/transpiler-build.stdout",
+    "name": "transpiler-build.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_c-refusal-command.json",
+    "name": "unknown-nanoc_c-refusal-command.json",
+    "original_sha256": "9f8def86232ab20a83be2df3513fd313a8cf9dba369d64b9c0e913da16b5ecce",
+    "retained_sha256": "9f8def86232ab20a83be2df3513fd313a8cf9dba369d64b9c0e913da16b5ecce"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_c-refusal-status.json",
+    "name": "unknown-nanoc_c-refusal-status.json",
+    "original_sha256": "6c081294421948fb8d555af92ccc5061945359a8bcb9970bd46923ed26ecb51c",
+    "retained_sha256": "6c081294421948fb8d555af92ccc5061945359a8bcb9970bd46923ed26ecb51c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_c-refusal.json",
+    "name": "unknown-nanoc_c-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_c-refusal.stderr",
+    "name": "unknown-nanoc_c-refusal.stderr",
+    "original_sha256": "d467cf99a931506cf0eb863d29e44c9eadfaaa65da2f62f384b0b75d955308a2",
+    "retained_sha256": "d467cf99a931506cf0eb863d29e44c9eadfaaa65da2f62f384b0b75d955308a2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_c-refusal.stdout",
+    "name": "unknown-nanoc_c-refusal.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_stage1-refusal-command.json",
+    "name": "unknown-nanoc_stage1-refusal-command.json",
+    "original_sha256": "686dea61dd9f821b3fb25a5123c7116e4fce332ad14a54196eb33706b37cd9ba",
+    "retained_sha256": "686dea61dd9f821b3fb25a5123c7116e4fce332ad14a54196eb33706b37cd9ba"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_stage1-refusal-status.json",
+    "name": "unknown-nanoc_stage1-refusal-status.json",
+    "original_sha256": "e4c1ccddcb29ebaa2d83f46fa7e2be397e9225e4cf599aac48b7800844929f09",
+    "retained_sha256": "e4c1ccddcb29ebaa2d83f46fa7e2be397e9225e4cf599aac48b7800844929f09"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_stage1-refusal.json",
+    "name": "unknown-nanoc_stage1-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_stage1-refusal.stderr",
+    "name": "unknown-nanoc_stage1-refusal.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_stage1-refusal.stdout",
+    "name": "unknown-nanoc_stage1-refusal.stdout",
+    "original_sha256": "d1d8cd2da56b014f318467e5d545421504819896d516bff9e08f440d49a388b0",
+    "retained_sha256": "d1d8cd2da56b014f318467e5d545421504819896d516bff9e08f440d49a388b0"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_stage2-refusal-command.json",
+    "name": "unknown-nanoc_stage2-refusal-command.json",
+    "original_sha256": "43cb761890a92e160f903f70ce018caaaf57c2b438df18d344197f07ce3f2816",
+    "retained_sha256": "43cb761890a92e160f903f70ce018caaaf57c2b438df18d344197f07ce3f2816"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_stage2-refusal-status.json",
+    "name": "unknown-nanoc_stage2-refusal-status.json",
+    "original_sha256": "901ab8e3342b7c238915f54dbf63afe3b39b350c761bca4998fb19a4ee1191d1",
+    "retained_sha256": "901ab8e3342b7c238915f54dbf63afe3b39b350c761bca4998fb19a4ee1191d1"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_stage2-refusal.json",
+    "name": "unknown-nanoc_stage2-refusal.json",
+    "original_sha256": "64a1526b099d75eed9d9da41a5562dcc164b6ffddeb729dd371c4496bbcded05",
+    "retained_sha256": "8869ca5e7f3ae989b151917c32f706ea8b83fd8d2ab5fd425117c4860c4e595f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_stage2-refusal.stderr",
+    "name": "unknown-nanoc_stage2-refusal.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/unknown-nanoc_stage2-refusal.stdout",
+    "name": "unknown-nanoc_stage2-refusal.stdout",
+    "original_sha256": "d1d8cd2da56b014f318467e5d545421504819896d516bff9e08f440d49a388b0",
+    "retained_sha256": "d1d8cd2da56b014f318467e5d545421504819896d516bff9e08f440d49a388b0"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/utf8-build-command.json",
+    "name": "utf8-build-command.json",
+    "original_sha256": "7f78552ea8f697298a16c088c84135a7662fd9286eaf070e06673b6efca02e1e",
+    "retained_sha256": "7f78552ea8f697298a16c088c84135a7662fd9286eaf070e06673b6efca02e1e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/utf8-build-status.json",
+    "name": "utf8-build-status.json",
+    "original_sha256": "abe510a685bdf2651c1fdde9817d1e4049d4072ea1856ba8782d3f32981ae24c",
+    "retained_sha256": "abe510a685bdf2651c1fdde9817d1e4049d4072ea1856ba8782d3f32981ae24c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/utf8-build.stderr",
+    "name": "utf8-build.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/utf8-build.stdout",
+    "name": "utf8-build.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_c-build-command.json",
+    "name": "zero-nanoc_c-build-command.json",
+    "original_sha256": "1ec5730cf43bcaa65219704683ca1ae85e6483c0cba5d0c1ee1cda3f4e57cf7d",
+    "retained_sha256": "1ec5730cf43bcaa65219704683ca1ae85e6483c0cba5d0c1ee1cda3f4e57cf7d"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_c-build-status.json",
+    "name": "zero-nanoc_c-build-status.json",
+    "original_sha256": "acdb393f29ed69df57e04a930b101624850db339a2ebe06ebdcd4697ef7862ca",
+    "retained_sha256": "acdb393f29ed69df57e04a930b101624850db339a2ebe06ebdcd4697ef7862ca"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_c-build.stderr",
+    "name": "zero-nanoc_c-build.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_c-build.stdout",
+    "name": "zero-nanoc_c-build.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_c-run-command.json",
+    "name": "zero-nanoc_c-run-command.json",
+    "original_sha256": "8a1e054a28560d61f61cabc5f52b7740160a5ac34ae5cf90f2365e97816a9084",
+    "retained_sha256": "8a1e054a28560d61f61cabc5f52b7740160a5ac34ae5cf90f2365e97816a9084"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_c-run-status.json",
+    "name": "zero-nanoc_c-run-status.json",
+    "original_sha256": "0c8e1e08c92d00a150b2f0b8cf941d1113b635f7e7d0160582bfcccfdbd7d562",
+    "retained_sha256": "0c8e1e08c92d00a150b2f0b8cf941d1113b635f7e7d0160582bfcccfdbd7d562"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_c-run.json",
+    "name": "zero-nanoc_c-run.json",
+    "original_sha256": "0fc03c2a9dae3423987e49d71d408c75716d2c0590d3d5a4472ee5ab86bdd4c8",
+    "retained_sha256": "3d082c34ec5b7e76d96788005152759943c00320c6923c4e5e647902c06c22e9"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_c-run.stderr",
+    "name": "zero-nanoc_c-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_c-run.stdout",
+    "name": "zero-nanoc_c-run.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage1-build-command.json",
+    "name": "zero-nanoc_stage1-build-command.json",
+    "original_sha256": "bb9424932047ffcc6b69c9855450c4298217489faf7439a9f25a9a9062d09e86",
+    "retained_sha256": "bb9424932047ffcc6b69c9855450c4298217489faf7439a9f25a9a9062d09e86"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage1-build-status.json",
+    "name": "zero-nanoc_stage1-build-status.json",
+    "original_sha256": "f2273ffa37c5f922308dd4266807913764330ccce3e7f34126adbbf60814379c",
+    "retained_sha256": "f2273ffa37c5f922308dd4266807913764330ccce3e7f34126adbbf60814379c"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage1-build.stderr",
+    "name": "zero-nanoc_stage1-build.stderr",
+    "original_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3",
+    "retained_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage1-build.stdout",
+    "name": "zero-nanoc_stage1-build.stdout",
+    "original_sha256": "d75c254517f445e62945f9521b18c512ed20e8cfd0dc5917f868e07c3e876cd5",
+    "retained_sha256": "d75c254517f445e62945f9521b18c512ed20e8cfd0dc5917f868e07c3e876cd5"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage1-run-command.json",
+    "name": "zero-nanoc_stage1-run-command.json",
+    "original_sha256": "9ff6b25baefb77c14581ea8819034325aa7cbf0a3ea38f2ea9eb248edc1bd23f",
+    "retained_sha256": "9ff6b25baefb77c14581ea8819034325aa7cbf0a3ea38f2ea9eb248edc1bd23f"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage1-run-status.json",
+    "name": "zero-nanoc_stage1-run-status.json",
+    "original_sha256": "355bcdbe5d413abd2f964af08df45eff90123503afd90b89d0165118fe9f08c2",
+    "retained_sha256": "355bcdbe5d413abd2f964af08df45eff90123503afd90b89d0165118fe9f08c2"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage1-run.json",
+    "name": "zero-nanoc_stage1-run.json",
+    "original_sha256": "0fc03c2a9dae3423987e49d71d408c75716d2c0590d3d5a4472ee5ab86bdd4c8",
+    "retained_sha256": "3d082c34ec5b7e76d96788005152759943c00320c6923c4e5e647902c06c22e9"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage1-run.stderr",
+    "name": "zero-nanoc_stage1-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage1-run.stdout",
+    "name": "zero-nanoc_stage1-run.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage2-build-command.json",
+    "name": "zero-nanoc_stage2-build-command.json",
+    "original_sha256": "2382c11917b0a04afbe4a1c2f8948593f79e7805b29ae04e9641f0b5e91aaabb",
+    "retained_sha256": "2382c11917b0a04afbe4a1c2f8948593f79e7805b29ae04e9641f0b5e91aaabb"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage2-build-status.json",
+    "name": "zero-nanoc_stage2-build-status.json",
+    "original_sha256": "cce24298045c3571c5f5f3b27ba75dfb658b2d381e390357436b15e39b092b0e",
+    "retained_sha256": "cce24298045c3571c5f5f3b27ba75dfb658b2d381e390357436b15e39b092b0e"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage2-build.stderr",
+    "name": "zero-nanoc_stage2-build.stderr",
+    "original_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3",
+    "retained_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage2-build.stdout",
+    "name": "zero-nanoc_stage2-build.stdout",
+    "original_sha256": "8f0582df765ed26e45d50dae7fef452a9555e2b885c803efec84ffb7f630acc1",
+    "retained_sha256": "8f0582df765ed26e45d50dae7fef452a9555e2b885c803efec84ffb7f630acc1"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage2-run-command.json",
+    "name": "zero-nanoc_stage2-run-command.json",
+    "original_sha256": "ea7dec5a22cca0899f1dfbdeca0387e4f8284a317216e145abc32925ca210564",
+    "retained_sha256": "ea7dec5a22cca0899f1dfbdeca0387e4f8284a317216e145abc32925ca210564"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage2-run-status.json",
+    "name": "zero-nanoc_stage2-run-status.json",
+    "original_sha256": "68e8927b5569132d49a47fffba3662dddb385552f049c2d385e475fccdbec015",
+    "retained_sha256": "68e8927b5569132d49a47fffba3662dddb385552f049c2d385e475fccdbec015"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage2-run.json",
+    "name": "zero-nanoc_stage2-run.json",
+    "original_sha256": "0fc03c2a9dae3423987e49d71d408c75716d2c0590d3d5a4472ee5ab86bdd4c8",
+    "retained_sha256": "3d082c34ec5b7e76d96788005152759943c00320c6923c4e5e647902c06c22e9"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage2-run.stderr",
+    "name": "zero-nanoc_stage2-run.stderr",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-7w2487so/zero-nanoc_stage2-run.stdout",
+    "name": "zero-nanoc_stage2-run.stdout",
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/private/tmp/nanolang-16eb-full-parser.log",
+    "name": "gate.log",
+    "original_sha256": "29822fb44c01b5ee5aa8bd67398fbda506d4010137ea12316493903507fe8a8b",
+    "retained_sha256": "29822fb44c01b5ee5aa8bd67398fbda506d4010137ea12316493903507fe8a8b"
+  }
+]

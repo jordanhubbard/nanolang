@@ -1,0 +1,55 @@
+[
+  {
+    "name": "nanoc_c",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_c",
+      "/private/tmp/nanolang-generic-record-field-20261021/unchanged-direct.nano",
+      "-o",
+      "/private/tmp/nanolang-generic-record-field-20261021/nanoc_c-native"
+    ],
+    "exit": 0,
+    "seconds": 0.9777557909837924,
+    "prior_preserved": false,
+    "sha256": "a7b28c79a4118eaa477627bc0a0df8b573b980c9b32870ca2c5bbb3ed08d831a",
+    "native_exit": 0
+  },
+  {
+    "name": "nanoc_stage1",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/private/tmp/nanolang-generic-record-field-20261021/unchanged-direct.nano",
+      "-o",
+      "/private/tmp/nanolang-generic-record-field-20261021/nanoc_stage1-native"
+    ],
+    "exit": 1,
+    "seconds": 0.03670779202366248,
+    "prior_preserved": true,
+    "sha256": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94"
+  },
+  {
+    "name": "nanoc_stage2",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/private/tmp/nanolang-generic-record-field-20261021/unchanged-direct.nano",
+      "-o",
+      "/private/tmp/nanolang-generic-record-field-20261021/nanoc_stage2-native"
+    ],
+    "exit": 1,
+    "seconds": 0.03139508399181068,
+    "prior_preserved": true,
+    "sha256": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917"
+  },
+  {
+    "name": "current-c-hosted",
+    "argv": [
+      "/private/tmp/nanolang-map-remove-20261021/canonical",
+      "/private/tmp/nanolang-generic-record-field-20261021/unchanged-direct.nano",
+      "-o",
+      "/private/tmp/nanolang-generic-record-field-20261021/current-c-hosted-native"
+    ],
+    "exit": 1,
+    "seconds": 0.041558667027857155,
+    "prior_preserved": true,
+    "sha256": "a1a8059821dae28867eb047806013d747cc68cd599b4f7d124dd8613f4198e85"
+  }
+]

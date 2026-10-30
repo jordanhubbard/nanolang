@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c",
+    "/private/tmp/nanolang-map-paired-publication-20261022/raw_driver.nano",
+    "-o",
+    "/private/tmp/nanolang-map-paired-publication-20261022/raw_driver"
+  ],
+  "exit": 0,
+  "seconds": 72.74282762501389,
+  "timeout": 900,
+  "environment": {
+    "TMPDIR": "/private/tmp/nanolang-map-paired-publication-20261022/compiler-tmp",
+    "NANO_BUILD_CACHE": "/private/tmp/nanolang-map-paired-publication-20261022/module-cache"
+  }
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "name": "expanded-retry-images",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_union_field_image"
+    ],
+    "status": 1,
+    "seconds": 8.85016579204239
+  }
+]

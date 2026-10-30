@@ -1,0 +1,8 @@
+/private/tmp/platform-qualification-20261020/gcc-before.c: In function 'main':
+/private/tmp/platform-qualification-20261020/gcc-before.c:3:5: error: this 'if' clause does not guard... [-Werror=misleading-indentation]
+    3 |     if (collections < 2) abort(); return result; }
+      |     ^~
+/private/tmp/platform-qualification-20261020/gcc-before.c:3:35: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+    3 |     if (collections < 2) abort(); return result; }
+      |                                   ^~~~~~
+cc1: all warnings being treated as errors

@@ -1,0 +1,5 @@
+{
+  "tests/native_process.py": "af6961fc670fd4815ca6dae828ac1bf2bca9baf2eb39017b17ab8581c747c380",
+  "tests/test_native_process.py": "f2042c1f2a83691dca6e0c86ca051ad290e14e7edc515dde14d451e32de56135",
+  "tests/test_publication_allocation.py": "c47fd0327c4107c35fca29f9ac5cbe0723dae80f7acdc27f4a657bce8da690a6"
+}

@@ -1,0 +1,1 @@
+ld: warning: ignoring duplicate libraries: '-lcrypto', 'lib/libnano_compiler_inputs.a'

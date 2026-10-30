@@ -1,0 +1,28 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-fypswtt_
+test_checked_imports_keep_distinct_record_identity (tests.test_u8_field_context.U8FieldContext.test_checked_imports_keep_distinct_record_identity) ... ok
+test_checked_registry_identity (tests.test_u8_field_context.U8FieldContext.test_checked_registry_identity) ... ok
+test_field_refusals_preserve_output (tests.test_u8_field_context.U8FieldContext.test_field_refusals_preserve_output) ... ok
+test_native_c_profiles (tests.test_u8_field_context.U8FieldContext.test_native_c_profiles) ... ok
+test_ordered_exact_field_context (tests.test_u8_field_context.U8FieldContext.test_ordered_exact_field_context) ... ok
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-hqi33l89
+test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) ... ok
+test_direct_nested_and_list_fields (tests.test_u8_record_fields.U8RecordFields.test_direct_nested_and_list_fields) ... ok
+test_exact_u8_layout (tests.test_u8_record_fields.U8RecordFields.test_exact_u8_layout) ... FAIL
+test_literal_field_range_refusal_is_preserved (tests.test_u8_record_fields.U8RecordFields.test_literal_field_range_refusal_is_preserved) ... ok
+test_out_of_range_byte_literal_preserves_output (tests.test_u8_record_fields.U8RecordFields.test_out_of_range_byte_literal_preserves_output) ... ok
+test_unconsumed_resource_stays_rejected (tests.test_u8_record_fields.U8RecordFields.test_unconsumed_resource_stays_rejected) ... ok
+test_wrong_field_types_preserve_output (tests.test_u8_record_fields.U8RecordFields.test_wrong_field_types_preserve_output) ... ok
+
+======================================================================
+FAIL: test_exact_u8_layout (tests.test_u8_record_fields.U8RecordFields.test_exact_u8_layout)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_u8_record_fields.py", line 81, in test_exact_u8_layout
+    self.assertEqual(len(layouts),36)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 36
+
+----------------------------------------------------------------------
+Ran 12 tests in 19.796s
+
+FAILED (failures=1)

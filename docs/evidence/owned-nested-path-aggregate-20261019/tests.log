@@ -1,0 +1,36 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-x133irv5
+test_actual_path_call_pretest_refuses_atomically (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_actual_path_call_pretest_refuses_atomically) ... ok
+test_adjacent_assertion_folding_is_narrow_and_cloned (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_adjacent_assertion_folding_is_narrow_and_cloned) ... ok
+test_defensive_path_identity_overlap_and_scope_refusals (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_defensive_path_identity_overlap_and_scope_refusals) ... ok
+test_false_first_tree_witness_refuses_both_outputs (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_false_first_tree_witness_refuses_both_outputs) ... ok
+test_full_tree_shadow_near_boundary_is_measured (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_full_tree_shadow_near_boundary_is_measured) ... ok
+test_later_false_projected_shared_flag_keeps_runtime_assertion (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_later_false_projected_shared_flag_keeps_runtime_assertion) ... ok
+test_original_anchor_and_selected_shadow_local_measurement (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_original_anchor_and_selected_shadow_local_measurement) ... I measure nested-path storage {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt", "original_locals": [37, 3], "estimated_locals": [127, 31], "estimated_shadow_locals": 108}
+I measure nested-path storage {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1", "original_locals": [37, 3], "estimated_locals": [127, 31], "estimated_shadow_locals": 108}
+I measure nested-path storage {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2", "original_locals": [37, 3], "estimated_locals": [127, 31], "estimated_shadow_locals": 108}
+ok
+test_original_verifier_rejects_path_operand_corruption (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_original_verifier_rejects_path_operand_corruption) ... ok
+test_projected_calls_in_both_caller_branch_arms (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_projected_calls_in_both_caller_branch_arms) ... ok
+test_selected_full_tree_shadows_native (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_selected_full_tree_shadows_native) ... ok
+test_shared_path_pretests_retain_zero_and_final_false_reads (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_shared_path_pretests_retain_zero_and_final_false_reads) ... ok
+test_unchanged_anchor_native_and_paired_roundtrips (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_unchanged_anchor_native_and_paired_roundtrips) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-1d3cycwo
+test_actual_computed_witness_and_transformed_assert_refuse (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_actual_computed_witness_and_transformed_assert_refuse) ... ok
+test_defensive_exact_reference_and_witness_controls (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_defensive_exact_reference_and_witness_controls) ... ok
+test_endpoints_distinct_nominals_and_unequal_fields (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_endpoints_distinct_nominals_and_unequal_fields) ... ok
+test_existing_caller_branches_and_loops_preserve_holds (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_existing_caller_branches_and_loops_preserve_holds) ... ok
+test_existing_source_roundtrips (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_existing_source_roundtrips) ... ok
+test_false_first_witness_refuses_atomically (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_false_first_witness_refuses_atomically) ... ok
+test_generated_local_boundary_precedes_publication (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_generated_local_boundary_precedes_publication) ... ok
+test_generated_shadow_is_direct_and_consumes_witness (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_generated_shadow_is_direct_and_consumes_witness) ... ok
+test_later_false_call_retains_runtime_assertion (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_later_false_call_retains_runtime_assertion) ... ok
+test_original_verifier_rejects_reference_corruption (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_original_verifier_rejects_reference_corruption) ... ok
+test_shadow_local_budget_has_actual_boundary (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_shadow_local_budget_has_actual_boundary) ... ok
+test_single_exclusive_output_is_byte_identical (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_single_exclusive_output_is_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-k4mf88bn
+test_shared_output_is_byte_identical (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_shared_output_is_byte_identical) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 259.411s
+
+OK

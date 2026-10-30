@@ -1,0 +1,10 @@
+struct Holder { values: HashMap<string,int> }
+let mut state: Holder = Holder { values: (map_new) }
+fn main() -> int {
+    let alias: Holder = state
+    (map_set alias.values "count" 7)
+    assert (== (map_get state.values "count") 7)
+    assert (== (map_length state.values) 1)
+    return 0
+}
+shadow main { assert (== (main) 0) }

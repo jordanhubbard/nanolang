@@ -1,0 +1,73 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-shv6kuha
+test_mixed_descriptors_and_child_scalar_operations_refuse (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_descriptors_and_child_scalar_operations_refuse) ... FAIL
+test_mixed_order_observations_calls_branches_and_loop (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_order_observations_calls_branches_and_loop) ... 
+  test_mixed_order_observations_calls_branches_and_loop (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_order_observations_calls_branches_and_loop) (case='order', producer='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt') ... FAIL
+  test_mixed_order_observations_calls_branches_and_loop (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_order_observations_calls_branches_and_loop) (case='order', producer='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context') ... FAIL
+test_raw_aggregate_read_and_scalar_child_confusion_refuse_atomically (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_raw_aggregate_read_and_scalar_child_confusion_refuse_atomically) ... FAIL
+test_written_assertion_precedes_declaration_order_division (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_written_assertion_precedes_declaration_order_division) ... ok
+
+======================================================================
+FAIL: test_mixed_descriptors_and_child_scalar_operations_refuse (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_descriptors_and_child_scalar_operations_refuse)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_mixed_reconstruction.py", line 82, in test_mixed_descriptors_and_child_scalar_operations_refuse
+    original=self.facts(self.module())
+                        ~~~~~~~~~~~^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_mixed_reconstruction.py", line 27, in module
+    self.command([compiler,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 10: I require a scalar field of a leaf resource record in my source borrow profile
+
+
+======================================================================
+FAIL: test_mixed_order_observations_calls_branches_and_loop (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_order_observations_calls_branches_and_loop) (case='order', producer='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_mixed_reconstruction.py", line 34, in test_mixed_order_observations_calls_branches_and_loop
+    module=self.module(case,compiler)
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_mixed_reconstruction.py", line 27, in module
+    self.command([compiler,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 10: I require a scalar field of a leaf resource record in my source borrow profile
+
+
+======================================================================
+FAIL: test_mixed_order_observations_calls_branches_and_loop (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_order_observations_calls_branches_and_loop) (case='order', producer='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_mixed_reconstruction.py", line 34, in test_mixed_order_observations_calls_branches_and_loop
+    module=self.module(case,compiler)
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_mixed_reconstruction.py", line 27, in module
+    self.command([compiler,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a scalar field of a leaf resource record in my source borrow profile
+
+
+======================================================================
+FAIL: test_raw_aggregate_read_and_scalar_child_confusion_refuse_atomically (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_raw_aggregate_read_and_scalar_child_confusion_refuse_atomically)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_mixed_reconstruction.py", line 98, in test_raw_aggregate_read_and_scalar_child_confusion_refuse_atomically
+    module=self.module();facts=self.facts(module);raw=module.read_bytes()
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_mixed_reconstruction.py", line 27, in module
+    self.command([compiler,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 10: I require a scalar field of a leaf resource record in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 21.697s
+
+FAILED (failures=4)

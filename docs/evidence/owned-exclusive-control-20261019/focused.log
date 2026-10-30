@@ -1,0 +1,13 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-c5p37dpd
+test_rank_zero_one_three_and_returning_arm_sources (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_rank_zero_one_three_and_returning_arm_sources) ... ok
+test_return_caller_variants_preserve_complete_owner_consumption (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_return_caller_variants_preserve_complete_owner_consumption) ... ok
+test_actual_unproved_rank_and_work_limit_refuse_atomically (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_actual_unproved_rank_and_work_limit_refuse_atomically) ... ok
+test_generated_local_cap_remains_atomic_after_folding (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_generated_local_cap_remains_atomic_after_folding) ... I retain exclusive cap {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "actual": [130, 21]}
+I retain exclusive cap {"provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "actual": [130, 21]}
+ok
+test_original_reference_verifier_and_defensive_control_refusals (tests.test_owned_exclusive_control_reconstruction.OwnedExclusiveControlReconstruction.test_original_reference_verifier_and_defensive_control_refusals) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 99.216s
+
+OK

@@ -1,0 +1,13 @@
+test_selected_clang_assembler_report_boundaries (tests.test_source_snapshots.SourceSnapshots.test_selected_clang_assembler_report_boundaries) ... ok
+test_integrated_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_integrated_native_unit_post_capture_reads) ... ok
+test_integrated_native_unit_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_integrated_native_unit_failure_recovery) ... ok
+test_integrated_units_preserve_c_assembler_search (tests.test_source_snapshots.SourceSnapshots.test_integrated_units_preserve_c_assembler_search) ... ok
+test_integrated_native_unit_debug_identity (tests.test_source_snapshots.SourceSnapshots.test_integrated_native_unit_debug_identity) ... ok
+test_integrated_instruction_and_location_provenance (tests.test_source_snapshots.SourceSnapshots.test_integrated_instruction_and_location_provenance) ... ok
+test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) ... ok
+test_apple_native_unit_capture_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 593.318s
+
+OK

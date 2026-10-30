@@ -59,8 +59,8 @@ static NvmOrdinaryArrayStatus oaa_preflight(const NvmModule *m,uint32_t *work,bo
     if(m->union_count>(OAA_STEPS-used)/union_work)return NVM_OAA_LIMIT;
     used+=m->union_count*union_work;*work=used;return NVM_OAA_DESCRIBED;
 }
-static NvmOrdinaryArrayResult oaa_prepare(
-        const NvmModule *m,NvmOrdinaryArrayAuthority **out,OwnershipProjection *projection) {
+static NvmOrdinaryArrayResult oaa_prepare_map(
+        const NvmModule *m,NvmOrdinaryArrayAuthority **out,OwnershipProjection *projection,NvmMapDeclarationPlan *map) {
     if(!m||!out||(!m->layout_data != !m->layout_size)||
        (!m->ownership_data != !m->ownership_size))return oaa_result(NVM_OAA_INVALID);
     if(!m->layout_size || !m->ownership_size)return oaa_result(NVM_OAA_UNKNOWN);
@@ -70,7 +70,8 @@ static NvmOrdinaryArrayResult oaa_prepare(
     if(!p)return oaa_result(NVM_OAA_MEMORY);
     p->failure=NVM_OAA_INVALID;p->steps=work;
     bool allocation_failed=false;
-    NvmV2Result r=projection?
+    NvmV2Result r=map?
+        nvm_ownership_map_layouts_private_decode_detailed(m->layout_data,m->layout_size,&p->layouts,&allocation_failed):projection?
         nvm_ownership_mixed_layouts_private_decode_detailed(m->layout_data,m->layout_size,&p->layouts,&allocation_failed):
         nvm_ownership_layouts_private_decode(m->layout_data,m->layout_size,&p->layouts);
     if(r!=NVM_V2_OK){status=allocation_failed?NVM_OAA_MEMORY:r==NVM_V2_ERR_TRUNCATED?NVM_OAA_UNKNOWN:NVM_OAA_INVALID;goto fail;}
@@ -91,12 +92,13 @@ static NvmOrdinaryArrayResult oaa_prepare(
                 if(ref>=p->layouts.count || p->layouts.items[ref].kind!=NVM_V2_LAYOUT_ENUM){status=NVM_OAA_INVALID;goto fail;}
             } else if(ref!=NVM_V2_NO_INDEX){status=NVM_OAA_INVALID;goto fail;}
             if(!scalar(field->type_tag) && field->type_tag!=TAG_STRING &&
-               field->type_tag!=TAG_STRUCT && field->type_tag!=TAG_ARRAY)p->unknown=true;
+               field->type_tag!=TAG_STRUCT && field->type_tag!=TAG_ARRAY &&
+               !(map && field->type_tag==TAG_HASHMAP))p->unknown=true;
         }
     }
     if(records!=m->struct_count || enums!=m->enum_count || unions!=m->union_count){status=NVM_OAA_INVALID;goto fail;}
     bool needs=false;
-    r=ownership_validate_owned(m,&p->layouts,&needs,p,projection);
+    r=ownership_validate_owned(m,&p->layouts,&needs,p,projection,map);
     if(r!=NVM_V2_OK){status=p->failure;goto fail;}
     if((needs && !projection) || (projection && projection->ambiguous) || m->import_count || m->module_ref_count || m->service_size || m->service_data ||
        m->passive_size || m->passive_data)p->unknown=true;
@@ -112,6 +114,10 @@ static NvmOrdinaryArrayResult oaa_prepare(
     *out=p;return oaa_result(NVM_OAA_DESCRIBED);
 fail:
     nvm_ordinary_array_authority_free(p);return oaa_result(status);
+}
+
+static NvmOrdinaryArrayResult oaa_prepare(const NvmModule *m,NvmOrdinaryArrayAuthority **out,OwnershipProjection *projection) {
+    return oaa_prepare_map(m,out,projection,NULL);
 }
 
 NvmOrdinaryArrayResult nvm_describe_ordinary_array_authority(

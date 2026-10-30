@@ -1,0 +1,22 @@
+[
+  {
+    "path": "bin/nano_virt",
+    "sha256": "7eed7b22c956dd7384fd42aedcea9141d9ab3fbb5cb51ad2add69826916019f7"
+  },
+  {
+    "path": "bin/nanoc_stage1",
+    "sha256": "73d6ff5eed8089c404791610be6790e360eccb2feaa3a87b4087bd8c1b37da77"
+  },
+  {
+    "path": "bin/nanoc_stage2",
+    "sha256": "15ccc30607f5f814e786a777c08eb2b931cfcccdf11d76593c33575e56d10e35"
+  },
+  {
+    "path": "bin/nanoisa_hl_facts",
+    "sha256": "dfaf9d8f20f9ae12f32531526b653563a350808693b8627a8be332cf536bb20c"
+  },
+  {
+    "path": "scripts/nanoisa_owned_reconstruction.py",
+    "sha256": "d41f9449005969c3ebd5670dec1c1333a3f8b01667acf459bb0aba3bf6fd2137"
+  }
+]

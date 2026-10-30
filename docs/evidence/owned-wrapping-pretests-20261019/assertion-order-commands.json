@@ -1,0 +1,1290 @@
+[
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/owned_mixed/trap-order.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1],\"field_types\":[[1,4294967295]]},{\"identity\":1,\"resource\":true,\"fields\":[8,1],\"field_types\":[[8,0],[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":10,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[8,0],[8,1],[8,1],[8,0],[1,4294967295],[8,0],[1,4294967295],[8,0],[1,4294967295]],\"size\":101,\"code\":[{\"pc\":0,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":2,\"op\":\"CALL\",\"arg\":1,\"args\":[1],\"target\":1},{\"pc\":7,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":10,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":19,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":2},{\"pc\":24,\"op\":\"OWN_STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":27,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":30,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":33,\"op\":\"OWN_PACK\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":38,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":41,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":44,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":47,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":50,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":53,\"op\":\"OWN_STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":56,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":59,\"op\":\"OWN_STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":62,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":65,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":68,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":71,\"op\":\"OWN_STORE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":74,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":75,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,8],\"target\":4294967295},{\"pc\":80,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":85,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":86,\"op\":\"STORE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":89,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":92,\"op\":\"LOAD_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":95,\"op\":\"ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":96,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":99,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":100,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[4,4294967295]],\"param_modes\":[0],\"names\":[\"\"],\"local_types\":[[4,4294967295]],\"size\":14,\"code\":[{\"pc\":0,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":3,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":4,\"op\":\"PUSH_I64\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":13,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_2\",\"locals\":3,\"result_type\":[8,0],\"result\":8,\"result_count\":1,\"params\":[[1,4294967295]],\"param_modes\":[0],\"names\":[\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[1,4294967295],[1,4294967295]],\"size\":31,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":9,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"DIV\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":13,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":16,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":19,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":22,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":25,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":30,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.O0.exe"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.O0NDEBUG.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.O0NDEBUG.exe"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.O2.exe"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.O2NDEBUG.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.O2NDEBUG.exe"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Warning at line 69, column 5: Unused variable 'nlr_t96_0'\nWarning: Function 'nlr_f1_owned_1' is missing a shadow test\nWarning: Function 'nlr_f2_owned_2' is missing a shadow test\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.O0.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.O0NDEBUG.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.O0NDEBUG.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.O2.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.O2NDEBUG.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.O2NDEBUG.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.status.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.status.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.status.O0.exe"
+    ],
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "owned status=2\n"
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.status.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.status.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano_virt.status.O2.exe"
+    ],
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "owned status=2\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.O0NDEBUG.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.O0NDEBUG.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.O2NDEBUG.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.O2NDEBUG.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.status.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.status.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.status.O0.exe"
+    ],
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "owned status=2\n"
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.status.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.status.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nano_virt.nanoc_u8_context.status.O2.exe"
+    ],
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "owned status=2\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/owned_mixed/trap-order.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1],\"field_types\":[[1,4294967295]]},{\"identity\":1,\"resource\":true,\"fields\":[8,1],\"field_types\":[[8,0],[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":10,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[8,0],[8,1],[8,1],[8,0],[1,4294967295],[8,0],[1,4294967295],[8,0],[1,4294967295]],\"size\":101,\"code\":[{\"pc\":0,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":2,\"op\":\"CALL\",\"arg\":1,\"args\":[1],\"target\":1},{\"pc\":7,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":10,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":19,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":2},{\"pc\":24,\"op\":\"OWN_STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":27,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":30,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":33,\"op\":\"OWN_PACK\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":38,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":41,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":44,\"op\":\"OWN_STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":47,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":50,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":53,\"op\":\"OWN_STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":56,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":59,\"op\":\"OWN_STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":62,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":65,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":68,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":71,\"op\":\"OWN_STORE_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":74,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":75,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,8],\"target\":4294967295},{\"pc\":80,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":85,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":86,\"op\":\"STORE_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":89,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":92,\"op\":\"LOAD_LOCAL\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":95,\"op\":\"ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":96,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":99,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":100,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[4,4294967295]],\"param_modes\":[0],\"names\":[\"\"],\"local_types\":[[4,4294967295]],\"size\":14,\"code\":[{\"pc\":0,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":3,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":4,\"op\":\"PUSH_I64\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":13,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_2\",\"locals\":3,\"result_type\":[8,0],\"result\":8,\"result_count\":1,\"params\":[[1,4294967295]],\"param_modes\":[0],\"names\":[\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[1,4294967295],[1,4294967295]],\"size\":31,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":9,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"DIV\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":13,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":16,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":19,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":22,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":25,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":30,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.O0.exe"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.O0NDEBUG.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.O0NDEBUG.exe"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.O2.exe"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.O2NDEBUG.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.O2NDEBUG.exe"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Warning at line 69, column 5: Unused variable 'nlr_t96_0'\nWarning: Function 'nlr_f1_owned_1' is missing a shadow test\nWarning: Function 'nlr_f2_owned_2' is missing a shadow test\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.O0.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.O0NDEBUG.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.O0NDEBUG.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.O2.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.O2NDEBUG.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.O2NDEBUG.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.status.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.status.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.status.O0.exe"
+    ],
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "owned status=2\n"
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.status.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.status.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano_virt.status.O2.exe"
+    ],
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "owned status=2\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.O0.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.O0NDEBUG.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.O0NDEBUG.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.O2.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.O2NDEBUG.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/.local/bin/python3",
+      "-c",
+      "import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.O2NDEBUG.exe"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.status.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.status.O0.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.status.O0.exe"
+    ],
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "owned status=2\n"
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O2",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.status.c",
+      "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.status.O2.exe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-gc5n1c0n/trap-order-nanoc_u8_context.nanoc_u8_context.status.O2.exe"
+    ],
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "owned status=2\n"
+  }
+]

@@ -9,7 +9,7 @@
 /* usleep(), kill(), fork(), pipe(), exec*() need _GNU_SOURCE */
 
 #include "../nanoisa/service_bindings_module.h"
-#include "vm_ffi.h"
+#include "vm_ffi_private.h"
 #include "vm_ffi_arrays.h"
 #include "module_builder.h"
 #include "runtime/dyn_array.h"
@@ -620,7 +620,16 @@ static bool vm_ffi_call_checked(const NvmModule *module, uint32_t import_idx,
 bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
                     NanoValue *args, int arg_count, NanoValue *result,
                     char *error_msg, size_t error_msg_size) {
-    if (nvm_service_execution_pending(module)) return false;
+    return vm_ffi_call_vm_classified(vm, module, import_idx, args, arg_count,
+                                    result, error_msg, error_msg_size, NULL);
+}
+
+bool vm_ffi_call_vm_classified(VmState *vm, const NvmModule *module,
+                    uint32_t import_idx, NanoValue *args, int arg_count,
+                    NanoValue *result, char *error_msg, size_t error_msg_size,
+                    const NvmServiceClassification *facts) {
+    if (nvm_service_bindings_present(module) ||
+        nvm_service_pending_classified(module, facts)) return false;
     if (!vm || !pthread_equal(vm->owner_thread, pthread_self())) return false;
     if (!module || !result) {
         snprintf(error_msg, error_msg_size, "I require a module and result storage for native dispatch");

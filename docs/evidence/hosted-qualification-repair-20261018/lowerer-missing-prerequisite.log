@@ -1,0 +1,33 @@
+I retain source lowering artifacts at /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-service-lowering-np4sr9cc
+test_paired_source_bytes (tests.test_mixed_websocket_source.MixedWebSocketLowering.test_paired_source_bytes) ... ERROR
+
+======================================================================
+ERROR: test_paired_source_bytes (tests.test_mixed_websocket_source.MixedWebSocketLowering.test_paired_source_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_mixed_websocket_source.py", line 167, in test_paired_source_bytes
+    report=self.command([ROOT/'obj/test_service_lowering',source,'main',native])
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_service_lowering.py", line 60, in command
+    process=subprocess.Popen(list(map(str,args)),cwd=ROOT,stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE,text=True,start_new_session=True)
+  File "/Users/jkh/Src/nanolang-51-harness/tests/__init__.py", line 29, in _platform_leak_policy_init
+    _original_init(self, *args, **kwargs)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jkh/Src/nanolang-51-harness/obj/test_service_lowering'
+
+----------------------------------------------------------------------
+Ran 1 test in 144.690s
+
+FAILED (errors=1)

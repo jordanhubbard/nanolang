@@ -1,0 +1,18 @@
+{
+  "base": "5f2f7c0b392c10bcf18cf176c1b04196c59d844d",
+  "artifact_directory": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-public-nyklg2_j",
+  "cc": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "sources": {
+    "Makefile.gnu": "96fc85b0df8d8b32c8ece2f171722eb420025eeccdcd0284d3933290a77b4c42",
+    "src/nanoisa/managed_array_shapes.c": "50e73e09ccdbb895a764adcbb18e2e1ee7d33440db2936b929b788965b2ad0eb",
+    "src/nanoisa/nvm2c.c": "692f5463e86fe22002315bba034523346232703444b8314aed4df1e9b25ebf48",
+    "src/nanoisa/nvm_v2_convert.c": "75383616846fdda2f2186216c452d403d36fc83ce387c3253330b6b0752c8b51",
+    "src/nanoisa/nvm_v2_module.c": "38f2b694c39f16ee9814be00741c1dfaa6175ed69faf1a9902fbc86c7c4b2b74",
+    "src/nanoisa/verifier.c": "02c9f5f1a11f73ef10dde1125427cb0ce750c466365ccf1cf5b60957571af942",
+    "src/nanovm/vm.c": "6f7498c53acabfd99663ef13ffad5097db748eeff94cfd39c19c251be26d48fa",
+    "src/nanoisa/record_array_admission.h": "e95a3fb7ccdc86fb95f1622db7c8af8f8660604eeed81bc0f207eebd2d9bced3",
+    "src/nanoisa/record_array_admission.inc": "8538bef30d5f13119690bcbc164259caa680a629e031fa6c2089607035feeb08",
+    "tests/nanoisa/test_record_array_public.c": "4b83e4adf4efc7ba68d9ca5a6f47a24f32aa34bffc36e519b3c2f2328dfaf796",
+    "tests/test_record_array_public.py": "f8b2ac1587413f0cc6f66901cf12e3de42e5c6fa466cbab34cf50dabf24cf110"
+  }
+}

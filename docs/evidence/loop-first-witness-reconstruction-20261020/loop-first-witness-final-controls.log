@@ -1,0 +1,11 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-v3v96mq5
+test_no_body_or_after_loop_or_prefix_assertion_witness (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_no_body_or_after_loop_or_prefix_assertion_witness) ... ok
+test_false_initial_shared_bool_refuses_atomically (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_false_initial_shared_bool_refuses_atomically) ... ok
+test_unchanged_original_anchor (tests.test_owned_loop_first_witness_reconstruction.OwnedLoopFirstWitness.test_unchanged_original_anchor) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5wbaw37h
+test_assertion_before_loop_first_witness_refuses_atomically (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_assertion_before_loop_first_witness_refuses_atomically) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 19.406s
+
+OK

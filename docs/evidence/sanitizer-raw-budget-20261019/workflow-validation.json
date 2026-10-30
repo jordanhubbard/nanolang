@@ -1,0 +1,17 @@
+{
+  "changes": {
+    "sanitizers-stage1": {
+      "job_minutes": 270,
+      "generation_step_minutes": 210,
+      "raw_command_seconds": 10800
+    },
+    "sanitizers": {
+      "job_minutes": 360,
+      "generation_step_minutes": 210,
+      "raw_command_seconds": 10800
+    }
+  },
+  "unchanged_tests_commands_flags_and_dependencies": true,
+  "identical_checkpoint_environments": true,
+  "other_jobs_unchanged": true
+}

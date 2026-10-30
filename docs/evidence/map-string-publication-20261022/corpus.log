@@ -1,0 +1,17 @@
+I retain paired map publisher evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-ee8_j057
+ test_exact_integer_delete (tests.test_map_field_publication.MapFieldPublication.test_exact_integer_delete) ... ok
+test_independent_shadow_omission (tests.test_map_field_publication.MapFieldPublication.test_independent_shadow_omission) ... ok
+test_malformed_wire_preserves_output (tests.test_map_field_publication.MapFieldPublication.test_malformed_wire_preserves_output) ... ok
+test_map_only_multiple_fields_forward_record (tests.test_map_field_publication.MapFieldPublication.test_map_only_multiple_fields_forward_record) ... ok
+test_mixed_omission (tests.test_map_field_publication.MapFieldPublication.test_mixed_omission) ... ok
+test_nested_u8 (tests.test_map_field_publication.MapFieldPublication.test_nested_u8) ... ok
+test_raw_declaration_mismatch_has_no_authority (tests.test_map_field_publication.MapFieldPublication.test_raw_declaration_mismatch_has_no_authority) ... ok
+test_string_array_and_mixed_pair_omission (tests.test_map_field_publication.MapFieldPublication.test_string_array_and_mixed_pair_omission) ... ok
+test_unchanged_and_concat (tests.test_map_field_publication.MapFieldPublication.test_unchanged_and_concat) ... ok
+test_unchanged_string_delete_and_concat (tests.test_map_field_publication.MapFieldPublication.test_unchanged_string_delete_and_concat) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 96.383s
+
+OK
+

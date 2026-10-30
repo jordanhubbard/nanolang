@@ -35,6 +35,17 @@ typedef struct {
     ASTNode *current_source;
     ASTNode **programs;
     unsigned program_count;
+    ModuleList *source_modules;
+    const char *root_file;
+    bool affine_synthetic, checked_borrows;
+    struct BorrowPlaceUse { const CheckedBorrowEvent *event; uint32_t function; } *borrow_places;
+    size_t borrow_place_count, borrow_place_capacity;
+    struct FieldReadUse { const CheckedFieldReadEvent *event; uint32_t function; } *field_reads;
+    size_t field_read_count, field_read_capacity;
+    struct FieldWriteUse { const CheckedFieldWriteEvent *event; uint32_t function; } *field_writes;
+    size_t field_write_count, field_write_capacity;
+    struct BorrowAffineUse { ASTNode *node; uint32_t function; const char *path; } *affine_uses;
+    size_t affine_use_count, affine_use_capacity;
     ASTNode *current_program;
     ASTNode *records[MAX_STRUCT_DEFS], *helper, *functions[8];
     BorrowUnion unions[256];
@@ -71,6 +82,97 @@ typedef struct {
 
 static void borrow_error(BorrowCG *b, ASTNode *n, const char *message) {
     cg_error(b->cg,n?n->line:0,"I require %s in my source borrow profile",message);
+}
+/* I retain only exact identifier nodes encountered while lowering a checked body.
+ * Advisory strings are appended after executable constants, preserving code indexes. */
+static void borrow_affine_use(BorrowCG *b, ASTNode *node) {
+    ASTNode *owner=b->current_source;
+    if(!node || node->type!=AST_IDENTIFIER || !owner || owner->type!=AST_FUNCTION ||
+       b->affine_synthetic || b->cg->had_error || b->cg->generic_active ||
+       cg_generic_declaration(b->cg,owner) || !owner->as.function.checked_affine ||
+       !owner->as.function.affine_check_epoch ||
+       owner->as.function.affine_check_epoch==UINT64_MAX ||
+       owner->as.function.affine_completed_epoch!=owner->as.function.affine_check_epoch ||
+       node->affine_use_owner!=owner || node->affine_use_epoch!=owner->as.function.affine_check_epoch ||
+       node->checked_affine_use<1 || node->checked_affine_use>2)return;
+    for(size_t i=0;i<b->affine_use_count;i++)
+        if(b->affine_uses[i].node==node && b->affine_uses[i].function==b->current_function)return;
+    const char *path=b->root_file?b->root_file:"";
+    for(unsigned i=0;i+1<b->program_count;i++)
+        if(b->programs[i]==b->current_program && b->source_modules)path=b->source_modules->module_paths[i];
+    if(b->affine_use_count==b->affine_use_capacity) {
+        size_t capacity=b->affine_use_capacity?b->affine_use_capacity*2:32;
+        if(capacity<b->affine_use_capacity || capacity>SIZE_MAX/sizeof(*b->affine_uses)) {
+            borrow_error(b,node,"bounded affine source fact storage");return;
+        }
+        void *next=realloc(b->affine_uses,capacity*sizeof(*b->affine_uses));
+        if(!next){borrow_error(b,node,"available affine source fact storage");return;}
+        b->affine_uses=next;b->affine_use_capacity=capacity;
+    }
+    b->affine_uses[b->affine_use_count++]=(struct BorrowAffineUse){node,b->current_function,path};
+}
+static void borrow_checked_place(BorrowCG *b, ASTNode *call, ASTNode *argument, unsigned ordinal) {
+    if(!b->checked_borrows || b->affine_synthetic || b->cg->had_error || b->cg->generic_active ||
+       !b->current_source || cg_generic_declaration(b->cg,b->current_source))return;
+    const CheckedBorrowEvent *event=checked_borrow_lookup(b->env,b->current_source,call,argument,ordinal);
+    if(!event)return;
+    for(size_t i=0;i<b->borrow_place_count;i++)
+        if(b->borrow_places[i].event==event && b->borrow_places[i].function==b->current_function)return;
+    if(b->borrow_place_count+b->field_read_count+b->field_write_count>=4096) {
+        b->checked_borrows=false;b->borrow_place_count=b->field_read_count=b->field_write_count=0;return;
+    }
+    if(b->borrow_place_count==b->borrow_place_capacity) {
+        size_t capacity=b->borrow_place_capacity?b->borrow_place_capacity*2:16;
+        if(capacity>4096 || capacity>SIZE_MAX/sizeof(*b->borrow_places)) {
+            b->checked_borrows=false;b->borrow_place_count=b->field_read_count=b->field_write_count=0;return;
+        }
+        void *next=realloc(b->borrow_places,capacity*sizeof(*b->borrow_places));
+        if(!next){borrow_error(b,argument,"available checked borrow emission");return;}
+        b->borrow_places=next;b->borrow_place_capacity=capacity;
+    }
+    b->borrow_places[b->borrow_place_count++]=(struct BorrowPlaceUse){event,b->current_function};
+}
+static void borrow_checked_read(BorrowCG *b,ASTNode *field) {
+    if(!b->checked_borrows || b->affine_synthetic || b->cg->had_error || b->cg->generic_active ||
+       !b->current_source || cg_generic_declaration(b->cg,b->current_source))return;
+    const CheckedFieldReadEvent *event=checked_field_read_lookup(b->env,b->current_source,field);
+    if(!event)return;
+    for(size_t i=0;i<b->field_read_count;i++)
+        if(b->field_reads[i].event==event && b->field_reads[i].function==b->current_function)return;
+    if(b->borrow_place_count+b->field_read_count+b->field_write_count>=4096) {
+        b->checked_borrows=false;b->borrow_place_count=b->field_read_count=b->field_write_count=0;return;
+    }
+    if(b->field_read_count==b->field_read_capacity) {
+        size_t capacity=b->field_read_capacity?b->field_read_capacity*2:16;
+        if(capacity>4096 || capacity>SIZE_MAX/sizeof(*b->field_reads)) {
+            b->checked_borrows=false;b->borrow_place_count=b->field_read_count=b->field_write_count=0;return;
+        }
+        void *next=realloc(b->field_reads,capacity*sizeof(*b->field_reads));
+        if(!next){borrow_error(b,field,"available checked field-read emission");return;}
+        b->field_reads=next;b->field_read_capacity=capacity;
+    }
+    b->field_reads[b->field_read_count++]=(struct FieldReadUse){event,b->current_function};
+}
+static void borrow_checked_write(BorrowCG *b,ASTNode *assignment) {
+    if(!b->checked_borrows || b->affine_synthetic || b->cg->had_error || b->cg->generic_active ||
+       !b->current_source || cg_generic_declaration(b->cg,b->current_source))return;
+    const CheckedFieldWriteEvent *event=checked_field_write_lookup(b->env,b->current_source,assignment);
+    if(!event)return;
+    for(size_t i=0;i<b->field_write_count;i++)
+        if(b->field_writes[i].event==event && b->field_writes[i].function==b->current_function)return;
+    if(b->borrow_place_count+b->field_read_count+b->field_write_count>=4096) {
+        b->checked_borrows=false;b->borrow_place_count=b->field_read_count=b->field_write_count=0;return;
+    }
+    if(b->field_write_count==b->field_write_capacity) {
+        size_t capacity=b->field_write_capacity?b->field_write_capacity*2:16;
+        if(capacity>4096 || capacity>SIZE_MAX/sizeof(*b->field_writes)) {
+            b->checked_borrows=false;b->borrow_place_count=b->field_read_count=b->field_write_count=0;return;
+        }
+        void *next=realloc(b->field_writes,capacity*sizeof(*b->field_writes));
+        if(!next){borrow_error(b,assignment,"available checked field-write emission");return;}
+        b->field_writes=next;b->field_write_capacity=capacity;
+    }
+    b->field_writes[b->field_write_count++]=(struct FieldWriteUse){event,b->current_function};
 }
 static uint8_t borrow_tag(Type type) {
     return type==TYPE_INT?TAG_INT:type==TYPE_BOOL?TAG_BOOL:TAG_VOID;
@@ -318,6 +420,7 @@ static int borrow_layout_field(BorrowCG *b,unsigned layout,const char *name,ASTN
 }
 typedef struct { int root;unsigned layout,length;uint16_t fields[32]; } BorrowPlace;
 static bool borrow_place(BorrowCG *b,ASTNode *n,BorrowPlace *place) {
+    borrow_affine_use(b,n);
     if(!n || b->cg->had_error)return false;
     if(n->type==AST_IDENTIFIER) {
         int local=borrow_local(b,n->as.identifier);
@@ -601,6 +704,7 @@ static int borrow_ordinary_receiver(BorrowCG *b,ASTNode *n) {
     return -1;
 }
 static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
+    borrow_affine_use(b,n);
     CG *cg=b->cg;if(cg->had_error || !n)return TAG_VOID;
     if(n->type==AST_HANDLE_EXPR || n->type==AST_EFFECT_HANDLER || n->type==AST_EFFECT_OP)return borrow_effect_expr(b,n);
     ASTNode normalized;char owner[4096];
@@ -695,10 +799,10 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
             }
             emit_op(cg,OP_LOAD_LOCAL,place.root);
             for(unsigned i=0;i<place.length;i++)emit_op(cg,OP_AGG_GET,place.fields[i]);
-            emit_op(cg,OP_AGG_GET,field);return tag;
+            emit_op(cg,OP_AGG_GET,field);borrow_checked_read(b,n);return tag;
         }
         if(tag==TAG_STRING && b->value_graph && !place.length && !b->modes[place.root]) {
-            emit_op(cg,OP_LOAD_LOCAL,place.root);emit_op(cg,OP_AGG_GET,field);return TAG_STRING;
+            emit_op(cg,OP_LOAD_LOCAL,place.root);emit_op(cg,OP_AGG_GET,field);borrow_checked_read(b,n);return TAG_STRING;
         }
         if(!tag || !borrow_leaf(b,place.layout)){borrow_error(b,n,"a scalar field of a leaf resource record");return TAG_VOID;}
         /* I keep temporary local observations after inherited helper formals. */
@@ -707,6 +811,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         if(!b->modes[place.root]) { emit_op(cg,OP_REGION_BEGIN);borrow_reference(b,&place,reference,1); }
         emit_op(cg,OP_REF_GET,reference,field);
         if(!b->modes[place.root])emit_op(cg,OP_REGION_END);
+        borrow_checked_read(b,n);
         return tag;
     }
     if(n->type==AST_PREFIX_OP) {
@@ -830,6 +935,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         }
         for(int i=0;i<n->as.call.arg_count && !cg->had_error;i++) {
             Parameter *p=&function->as.function.params[i];ASTNode *argument=n->as.call.args[i];
+            borrow_affine_use(b,argument);
             int union_instance=borrow_named_union_instance(b,p->type_info,p->struct_type_name);
             if(union_instance>=0) {
                 if(borrow_union_expr(b,argument,union_instance)!=TAG_UNION)return TAG_VOID;
@@ -898,6 +1004,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
                 borrow_error(b,n,"disjoint places for every exclusive argument");return TAG_VOID;
             }
             places[i]=place;modes[i]=mode;
+            borrow_checked_place(b,n,arg,(unsigned)i);
             borrow_reference(b,&place,(unsigned)i,mode);
         }
         emit_op(cg,OP_CALL_REF,(uint32_t)1,0);emit_op(cg,OP_REGION_END);
@@ -906,6 +1013,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
     borrow_error(b,n,"straight-line scalar expressions and one borrowed helper");return TAG_VOID;
 }
 static bool borrow_owner(BorrowCG *b,ASTNode *value,unsigned layout) {
+    borrow_affine_use(b,value);
     if(layout>=b->record_count || b->ordinary[layout]) {borrow_error(b,value,"a resource layout for owner transfer");return false;}
     CG *cg=b->cg;
     if(!value || cg->had_error)return false;
@@ -1423,6 +1531,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 if(borrow_expr(b,n->as.set.value)!=borrow_tag(b->records[b->layouts[local]]->as.struct_def.field_types[field]))
                     borrow_error(b,n,"an exact scalar field value");
                 emit_op(cg,OP_REF_SET,local,field);
+                if(!cg->had_error)borrow_checked_write(b,n);
             } else {
                 if(!b->mutable[local] || b->tags[local]==TAG_STRUCT || borrow_expr(b,n->as.set.value)!=b->tags[local]) {
                     borrow_error(b,n,"a mutable scalar assignment of the same type");break;
@@ -1463,7 +1572,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
 static void borrow_function(BorrowCG *b,ASTNode *function,bool shadows,unsigned index) {
     CG *cg=b->cg;b->count=0;b->control_depth=0;b->handler_depth=0;b->returned=false;b->transferred=false;b->loop=NULL;b->helper_body=index!=0;
     b->current_program=borrow_defining_program(b,function);
-    b->current_function=index;b->current_source=function;if(b->value_graph)b->helper=function;
+    b->current_function=index;b->current_source=function;b->affine_synthetic=shadows;if(b->value_graph)b->helper=function;
     b->result=index?borrow_result_tag(b,function):TAG_INT;
     b->result_layout=b->result==TAG_STRUCT?(uint32_t)borrow_record(b,function->as.function.return_struct_type_name):
         b->result==TAG_UNION?(uint32_t)borrow_named_union_instance(b,function->as.function.return_type_info,function->as.function.return_struct_type_name):
@@ -1711,10 +1820,10 @@ static bool borrow_source_uses_owner(ASTNode *n,Environment *env) {
     }
     return false;
 }
-static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,ModuleList *modules,bool shadows) {
+static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,ModuleList *modules,bool shadows,bool checked_borrows) {
     CodegenResult out={0};CG *cg=calloc(1,sizeof(*cg));BorrowCG *b=calloc(1,sizeof(*b));
     if(!cg || !b){free(cg);free(b);snprintf(out.error_msg,sizeof(out.error_msg),"I cannot allocate my source borrow compiler");return out;}
-    b->cg=cg;b->env=env;cg->env=env;cg->module=nvm_module_new();cg->code=malloc(CODE_INITIAL);cg->code_cap=CODE_INITIAL;
+    b->cg=cg;b->env=env;b->checked_borrows=checked_borrows;b->source_modules=modules;b->root_file=env_current_file(env);cg->env=env;cg->module=nvm_module_new();cg->code=malloc(CODE_INITIAL);cg->code_cap=CODE_INITIAL;
     ASTNode *entry=NULL,*declared[8];unsigned declared_count=0;bool has_borrow=false;
     if(!cg->module || !cg->code)borrow_error(b,NULL,"available module storage");
     unsigned module_count=modules && modules->count>0?(unsigned)modules->count:0;
@@ -1885,7 +1994,7 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
         if(borrow_function_index(b,shadow_name)>=0)borrow_error(b,NULL,"an available synthetic entry name");
         for(unsigned i=0;i<b->function_count && !cg->had_error;i++) {
             ASTNode *source=b->functions[i];const char *name=i || !shadows?source->as.function.name:shadow_name;
-            NvmFunctionEntry f={0};f.name_idx=nvm_add_string(cg->module,name,(uint32_t)strlen(name));
+            NvmFunctionEntry f={0};f.name_idx=imported_wire_name(cg,name,source?source->line:0);
             if(f.name_idx==UINT32_MAX){borrow_error(b,NULL,"available function-name storage");break;}
             f.arity=i?(uint16_t)source->as.function.param_count:0;
             f.result_tag=i?borrow_result_tag(b,source):TAG_INT;f.result_count=f.result_tag!=TAG_VOID;
@@ -1956,6 +2065,43 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
                 if(b->effect_count)borrow_effect_contracts(b);
             }
         }
+        for(unsigned i=0;i<b->function_count && !cg->had_error;i++) {
+            ASTNode *source=b->functions[i];
+            if(!nvm_add_function_affine(cg->module,i,
+                source && !(shadows && !i) ? source->as.function.checked_affine : 0))
+                borrow_error(b,NULL,"available affine completion storage");
+        }
+        for(size_t i=0;i<b->affine_use_count && !cg->had_error;i++) {
+            struct BorrowAffineUse *fact=&b->affine_uses[i];
+            ASTNode *node=fact->node;
+            if(!nvm_add_affine_use(cg->module,fact->function,(uint32_t)node->line,
+                (uint32_t)node->column,node->checked_affine_use,1,fact->path,node->as.identifier))
+                borrow_error(b,node,"unambiguous affine source fact storage");
+        }
+        for(size_t i=0;i<b->borrow_place_count && !cg->had_error;i++) {
+            const CheckedBorrowEvent *e=b->borrow_places[i].event;
+            if(checked_borrow_lookup(b->env,e->function,e->call,e->argument,e->ordinal)!=e)continue;
+            NvmBorrowPlace fact={b->borrow_places[i].function,e->call_line,e->call_column,
+                e->argument_line,e->argument_column,e->ordinal,e->mode,1,e->source_path,e->root,e->projection,
+                (uint32_t)strlen(e->source_path),(uint32_t)strlen(e->root),(uint32_t)strlen(e->projection)};
+            if(!nvm_add_borrow_place(cg->module,&fact))borrow_error(b,NULL,"unambiguous checked borrow facts");
+        }
+        for(size_t i=0;i<b->field_read_count && !cg->had_error;i++) {
+            const CheckedFieldReadEvent *e=b->field_reads[i].event;
+            if(checked_field_read_lookup(b->env,e->function,e->field)!=e)continue;
+            NvmFieldRead fact={b->field_reads[i].function,e->line,e->column,e->category,1,
+                e->source_path,e->root,e->projection,(uint32_t)strlen(e->source_path),
+                (uint32_t)strlen(e->root),(uint32_t)strlen(e->projection)};
+            if(!nvm_add_field_read(cg->module,&fact))borrow_error(b,NULL,"unambiguous checked field-read facts");
+        }
+        for(size_t i=0;i<b->field_write_count && !cg->had_error;i++) {
+            const CheckedFieldWriteEvent *e=b->field_writes[i].event;
+            if(checked_field_write_lookup(b->env,e->function,e->assignment)!=e)continue;
+            NvmFieldWrite fact={b->field_writes[i].function,e->line,e->column,1,1,
+                e->source_path,e->root,e->projection,(uint32_t)strlen(e->source_path),
+                (uint32_t)strlen(e->root),(uint32_t)strlen(e->projection)};
+            if(!nvm_add_field_write(cg->module,&fact))borrow_error(b,NULL,"unambiguous checked field-write facts");
+        }
         if(!cg->had_error) {
             cg->module->ownership_data=b->contracts;b->contracts=NULL;cg->module->ownership_size=(uint32_t)b->contract_size;
             cg->module->header.flags|=NVM_FLAG_HAS_MAIN;cg->module->header.entry_point=0;
@@ -1984,5 +2130,5 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
     out.ok=!cg->had_error;out.error_line=cg->error_line;snprintf(out.error_msg,sizeof(out.error_msg),"%s",cg->error_msg);
     if(out.ok)out.module=cg->module;else if(cg->module)nvm_module_free(cg->module);
     nvm_v2_layouts_free(&layouts);for(unsigned i=0;i<b->union_count;i++){free(b->unions[i].name);free_payload_type_info(b->unions[i].arguments);}
-    free(b->contracts);free(b->programs);free(cg->code);free(cg);free(b);return out;
+    free(b->field_writes);free(b->field_reads);free(b->borrow_places);free(b->affine_uses);free(b->contracts);free(b->programs);free(cg->code);free(cg);free(b);return out;
 }

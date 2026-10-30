@@ -1,0 +1,48 @@
+[
+  {
+    "input": "nano_virt",
+    "proof": {
+      "work": 437,
+      "calls": 2,
+      "owned_declarations": 16
+    },
+    "locals": [
+      180,
+      284
+    ],
+    "shadow_estimate": 130,
+    "c": {
+      "returncode": 0,
+      "stderr": "",
+      "sentinel_preserved": false
+    },
+    "nano": {
+      "returncode": 1,
+      "stderr": "I limit generated exclusive Nano functions to 128 local slots\nI did not publish reconstructed source\n",
+      "sentinel_preserved": true
+    }
+  },
+  {
+    "input": "original-shadows",
+    "proof": {
+      "work": 439,
+      "calls": 2,
+      "owned_declarations": 16
+    },
+    "locals": [
+      180,
+      284
+    ],
+    "shadow_estimate": 130,
+    "c": {
+      "returncode": 0,
+      "stderr": "",
+      "sentinel_preserved": false
+    },
+    "nano": {
+      "returncode": 1,
+      "stderr": "I limit generated exclusive Nano functions to 128 local slots\nI did not publish reconstructed source\n",
+      "sentinel_preserved": true
+    }
+  }
+]

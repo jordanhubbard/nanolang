@@ -1,0 +1,30 @@
+[
+  {
+    "argv": [
+      "/private/tmp/nanolang-map-string-value-baseline-20261022/schema",
+      "/private/tmp/nanolang-map-string-value-baseline-20261022/seed-selected.nasm"
+    ],
+    "status": 0
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-map-string-value-baseline-20261022/schema",
+      "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical-selected.nasm"
+    ],
+    "status": 0
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-map-string-value-baseline-20261022/schema",
+      "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow-selected.nasm"
+    ],
+    "status": 0
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-map-string-value-baseline-20261022/schema",
+      "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow-selected.nasm"
+    ],
+    "status": 0
+  }
+]

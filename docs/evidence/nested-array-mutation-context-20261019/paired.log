@@ -1,0 +1,10 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-qyuiibbv
+test_declared_mutation_names_keep_their_own_signatures (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_declared_mutation_names_keep_their_own_signatures) ... ok
+test_empty_replacement_and_append_retain_storage (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_empty_replacement_and_append_retain_storage) ... ok
+test_receiver_index_and_value_execute_once_in_order (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_receiver_index_and_value_execute_once_in_order) ... ok
+test_wrong_literal_and_nonliteral_storage_preserve_output (tests.test_nested_array_mutation_context.NestedArrayMutationContext.test_wrong_literal_and_nonliteral_storage_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 11.762s
+
+OK

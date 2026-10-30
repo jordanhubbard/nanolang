@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+    "--verify-only",
+    "/private/tmp/borrowed-float-local-planned-20261020/original-shadows-rebuilt.nvm"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-owned-float-design"
+}

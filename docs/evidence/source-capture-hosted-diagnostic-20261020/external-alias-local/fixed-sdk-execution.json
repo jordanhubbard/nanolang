@@ -1,0 +1,8 @@
+{
+  "capture_exit": 0,
+  "library": "/private/tmp/platform-qualification-20261020/external-local-trace/cache-fixed-sdk/v2-1ac38efa8c383b3f1dd49864479c977c3063f142e53e559dc7a1b60fcb5aed87/.nano-gen-kCed7D/libanswer_native.dylib",
+  "library_sha256": "cb63149331c22c6ad0a41c92422e85906849a4f3a5773ac86f87216c724ae695",
+  "execute_exit": 0,
+  "stdout": "42\n",
+  "stderr": ""
+}

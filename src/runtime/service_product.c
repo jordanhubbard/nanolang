@@ -242,6 +242,9 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
             char *qsource=module_quote_path(source),*qproduct=module_quote_path(product);
             char *qinclude=module_quote_path(directory),*qarchive=module_quote_path(archive);
             char *command=NULL;
+            /* I inherit build instrumentation unless my caller explicitly overrides it. */
+            const char *ldflags=options->ldflags;
+            if(!ldflags)ldflags=getenv("LDFLAGS");
             bool ready=qsource&&qproduct&&qinclude&&qarchive;
             if(ready)ready=module_append_fragment(&command,options->compiler?options->compiler:"cc") &&
                 module_append_fragment(&command,"-std=c11") &&
@@ -250,7 +253,7 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
                 module_append_fragment(&command,qsource) && module_append_fragment(&command,qarchive) &&
                 module_append_fragment(&command,"-lm") &&
                 (!(websocket || mixed) || module_append_fragment(&command,"$(pkg-config --libs libcrypto)")) &&
-                module_append_fragment(&command,options->ldflags?options->ldflags:"") &&
+                module_append_fragment(&command,ldflags?ldflags:"") &&
                 module_append_fragment(&command,"-o") && module_append_fragment(&command,qproduct);
             bool compiled=ready && compile_native(command);
             free(command);free(qsource);free(qproduct);free(qinclude);free(qarchive);

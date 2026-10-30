@@ -1,0 +1,14 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-g33u5qeo
+.......F....
+======================================================================
+FAIL: test_verified_control_path_outside_slice_refuses (tests.test_owned_reconstruction.OwnedReconstruction.test_verified_control_path_outside_slice_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_owned_reconstruction.py", line 154, in test_verified_control_path_outside_slice_refuses
+    rebuilt = work/'rebuilt.nvm'
+AssertionError: 0 == 0
+
+----------------------------------------------------------------------
+Ran 12 tests in 157.612s
+
+FAILED (failures=1)

@@ -1,0 +1,26 @@
+{
+  "src/generated/compiler_schema.h": {
+    "actual_sha256": "27263b7a47f0203e82292c950f2dcd3e29ca49285f0890f556dc322e0883eaa2",
+    "committed_sha256": "27263b7a47f0203e82292c950f2dcd3e29ca49285f0890f556dc322e0883eaa2",
+    "actual_bytes": 25988,
+    "committed_bytes": 25988
+  },
+  "src_nano/generated/compiler_schema.nano": {
+    "actual_sha256": "1b043a43cf22f18b8df6433a1b3c84b36bdde2231f860b8d0e3e882d2058f2ea",
+    "committed_sha256": "1b043a43cf22f18b8df6433a1b3c84b36bdde2231f860b8d0e3e882d2058f2ea",
+    "actual_bytes": 3224,
+    "committed_bytes": 3224
+  },
+  "src_nano/generated/compiler_ast.nano": {
+    "actual_sha256": "f13c64c355f35ac0e968dffe2f0208c9cf9a44d4efec1f6cf4f334f2111b63f0",
+    "committed_sha256": "f13c64c355f35ac0e968dffe2f0208c9cf9a44d4efec1f6cf4f334f2111b63f0",
+    "actual_bytes": 9913,
+    "committed_bytes": 9913
+  },
+  "src_nano/generated/compiler_contracts.nano": {
+    "actual_sha256": "2e0a537b8e69e04d48d948dd9e75f27c03ad002a7f2585cf00380cee6cfb5d0b",
+    "committed_sha256": "2e0a537b8e69e04d48d948dd9e75f27c03ad002a7f2585cf00380cee6cfb5d0b",
+    "actual_bytes": 1626,
+    "committed_bytes": 1626
+  }
+}

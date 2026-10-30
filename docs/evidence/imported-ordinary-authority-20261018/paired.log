@@ -1,0 +1,10 @@
+test_array_schema_retains_existing_unknown_boundary (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_array_schema_retains_existing_unknown_boundary) ... ok
+test_distinct_equal_shape_and_forward_ordinals (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_distinct_equal_shape_and_forward_ordinals) ... ok
+test_imported_field_identity_preserves_distinct_same_spelling (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_imported_field_identity_preserves_distinct_same_spelling) ... ok
+test_repeated_direct_and_transitive_import_retains_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_repeated_direct_and_transitive_import_retains_authority) ... ok
+test_same_spelling_in_distinct_imports_retains_distinct_authority (tests.test_ordinary_declaration_provenance.OrdinaryDeclarationProvenance.test_same_spelling_in_distinct_imports_retains_distinct_authority) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.026s
+
+OK

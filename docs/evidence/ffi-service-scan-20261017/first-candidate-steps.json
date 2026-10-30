@@ -1,0 +1,129 @@
+{
+  "source": "c27a63594",
+  "steps": [
+    {
+      "label": "seed",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-release/bin/nano_virt",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/seed.nvm"
+      ],
+      "log": "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/00-seed.log",
+      "exit_code": 0,
+      "elapsed_seconds": 55.44413854100276,
+      "log_sha256": "d321c2ecb86cf951d7add81e53566836d4e72c89ee9e99856ac30b1624445ee2"
+    },
+    {
+      "label": "seed-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-release/bin/nano_vm",
+        "--verify-only",
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/seed.nvm"
+      ],
+      "log": "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/01-seed-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.38281924999319017,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-release/bin/nano_vm",
+        "/Users/jkh/Src/nanolang-51-release/bin/nanoc_seed.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/stage1.nvm"
+      ],
+      "log": "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/02-stage1.log",
+      "exit_code": 0,
+      "elapsed_seconds": 528.8348450000049,
+      "log_sha256": "f71fe1bbcda728b440146c447f5f30bc92a7167d72b3ce76a0072398f552c91c"
+    },
+    {
+      "label": "stage1-verify",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-release/bin/nano_vm",
+        "--verify-only",
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/stage1.nvm"
+      ],
+      "log": "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/03-stage1-verify.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.1465595830231905,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-translate",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-release/bin/nvm2c",
+        "/Users/jkh/Src/nanolang-51-release/bin/nanoc_stage1.nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/stage1.c"
+      ],
+      "log": "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/04-stage1-translate.log",
+      "exit_code": 0,
+      "elapsed_seconds": 20.648121709004045,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-native",
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-O1",
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/stage1.c",
+        "/Users/jkh/Src/nanolang-51-release/bin/nano_aot_runtime.o",
+        "-lm",
+        "-o",
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/stage1"
+      ],
+      "log": "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/05-stage1-native.log",
+      "exit_code": 0,
+      "elapsed_seconds": 28.565138834004756,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-hello-compile",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/stage1",
+        "examples/language/nl_hello.nano",
+        "-o",
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/stage1-hello"
+      ],
+      "log": "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/06-stage1-hello-compile.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.41762054097489454,
+      "log_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    {
+      "label": "stage1-hello-execute",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/stage1-hello"
+      ],
+      "log": "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/07-stage1-hello-execute.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.22760174999712035,
+      "log_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    {
+      "label": "stage2",
+      "argv": [
+        "/Users/jkh/Src/nanolang-51-release/bin/nano_vm",
+        "/Users/jkh/Src/nanolang-51-release/bin/nanoc_stage1.nvm",
+        "--",
+        "src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/stage2.nvm"
+      ],
+      "log": "/Users/jkh/Src/nanolang-51-release/obj/bootstrap-nanoisa/run-pk804oaw/08-stage2.log",
+      "interrupted_or_timed_out": true,
+      "elapsed_seconds": 108.99406749999616
+    }
+  ],
+  "note": "Stage1 completes. I deliberately interrupt Stage2 after review identifies supported active code mutation; this receipt does not qualify the corrected revision guard."
+}

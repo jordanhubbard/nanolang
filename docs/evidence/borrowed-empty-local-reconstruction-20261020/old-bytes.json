@@ -1,0 +1,67 @@
+[
+  {
+    "module": "/private/tmp/owned-string-baseline-20261019/nano_virt.nvm",
+    "kind": "facts",
+    "sha256": "79b8e955bc57e32087a643bd6797220ec79de614a0ac35513715256c0cd53a20"
+  },
+  {
+    "module": "/private/tmp/owned-string-baseline-20261019/nano_virt.nvm",
+    "kind": "c",
+    "sha256": "51fc43ea107fc75bb0a402b6795a8baac460fabbff07963362d50365eace2f34"
+  },
+  {
+    "module": "/private/tmp/owned-string-baseline-20261019/nano_virt.nvm",
+    "kind": "nano",
+    "sha256": "87c10171b099bb1dcca4ba61e44ecdaf3f1855811b406407a67ec73e0ae3f7e6"
+  },
+  {
+    "module": "/private/tmp/owned-float-baseline-20261019/nano_virt.nvm",
+    "kind": "facts",
+    "sha256": "c15dc58088ef8446759208e2ed2cfcb24f4f0c226106dd231f2cfae7b0f2490e"
+  },
+  {
+    "module": "/private/tmp/owned-float-baseline-20261019/nano_virt.nvm",
+    "kind": "c",
+    "sha256": "4600e7b0da6ec736c4bdc1bb61c4ee080e61f1e273041cc70c482ea26875965d"
+  },
+  {
+    "module": "/private/tmp/owned-float-baseline-20261019/nano_virt.nvm",
+    "kind": "nano",
+    "sha256": "2e3dbddaceacd06e1f582e3dfb4536efcfebc5683f5b5c7edf1f3b735fb0059f"
+  },
+  {
+    "module": "/private/tmp/borrowed-empty-local-first-20261020/old-empty.nvm",
+    "kind": "facts",
+    "sha256": "d755691fc1979c23328f072cc6242a1fe02d5eb13159a665d7b4fe878e200d34"
+  },
+  {
+    "module": "/private/tmp/borrowed-empty-local-first-20261020/old-empty.nvm",
+    "kind": "c",
+    "sha256": "0eaef8b12ccccccb79172181ef19c420b52982fbdfb4a2b1184aead97466364b"
+  },
+  {
+    "module": "/private/tmp/borrowed-empty-local-first-20261020/old-empty.nvm",
+    "kind": "nano",
+    "sha256": "8036063078f4cb7cde1a0278b436b9fd46b993b29977b925ad8888c7ec92bed6"
+  },
+  {
+    "facts": "/Users/jkh/Src/nanolang-51-harness/docs/evidence/owned-loop-exits-baseline-20261019/source_borrow_loop_exits-nano_virt-facts.json",
+    "kind": "c",
+    "sha256": "b9aab95895bfde30f8c91bc6538ee32faebd25307b3166a5818bbe23ad992734"
+  },
+  {
+    "facts": "/Users/jkh/Src/nanolang-51-harness/docs/evidence/owned-loop-exits-baseline-20261019/source_borrow_loop_exits-nano_virt-facts.json",
+    "kind": "nano",
+    "sha256": "49ab18473fd7666fb0c19e148ab1fd5026532163809a981d7ded3c852593863b"
+  },
+  {
+    "facts": "/Users/jkh/Src/nanolang-51-harness/docs/evidence/owned-loop-exits-baseline-20261019/source_borrow_range_for-nano_virt-facts.json",
+    "kind": "c",
+    "sha256": "8562e939f096b66b82e5893304bbbb312727559e2a6bd111eb96032e5685128b"
+  },
+  {
+    "facts": "/Users/jkh/Src/nanolang-51-harness/docs/evidence/owned-loop-exits-baseline-20261019/source_borrow_range_for-nano_virt-facts.json",
+    "kind": "nano",
+    "sha256": "b92046b3c98db47717716ba6c70395410784fd8b8b0f74d0c3553c9ca0cdf508"
+  }
+]

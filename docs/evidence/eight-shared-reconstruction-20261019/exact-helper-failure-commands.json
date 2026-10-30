@@ -1,0 +1,338 @@
+[
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nanoc_stage1.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nanoc_stage1-nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nanoc_stage2.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nanoc_stage2-nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "cc",
+      "-std=c11",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-O0",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage2.out.c",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage2.out.c-O0"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nano_virt.out.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nano_virt-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nano_virt-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nanoc_stage2-nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nanoc_stage1-nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nano_virt.out.c-O0"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage1.out.c-O0"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "cc",
+      "-std=c11",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-O2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage1.out.c",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage1.out.c-O2"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "cc",
+      "-std=c11",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-O2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nano_virt.out.c",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nano_virt.out.c-O2"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage1.out.c-O2"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nano_virt.out.c-O2"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage1.out.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage2.out.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "command": [
+      "cc",
+      "-std=c11",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-O0",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage1.out.c",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage1.out.c-O0"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage2.out.c-O2"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nano_virt.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nanoc_stage1-nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nanoc_stage2-nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nano_virt.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nano_virt-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "cc",
+      "-std=c11",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-O2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage2.out.c",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage2.out.c-O2"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage2.out.c-O0"
+    ],
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nano_virt-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nanoc_stage2-nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage1.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-no-helper-assert-nanoc_stage1-nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "cc",
+      "-std=c11",
+      "-DNDEBUG",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-O0",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nano_virt.out.c",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nano_virt.out.c-O0"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_haeebmf/eight-false-nanoc_stage2.nvm"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  }
+]

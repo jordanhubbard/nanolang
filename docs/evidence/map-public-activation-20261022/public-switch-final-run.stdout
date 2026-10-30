@@ -1,0 +1,13 @@
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public transport and consumers qualified.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/seed.nvm.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/c-hosted-nano.nvm.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage1.nvm.
+I checked real source-global input /private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm.
+I executed exact source U8/map input /private/tmp/nanolang-map-borrowed-20261022/u8-seed.nvm.
+I executed exact source U8/map input /private/tmp/nanolang-map-borrowed-20261022/u8-c-hosted.nvm.
+I executed exact source U8/map input /private/tmp/nanolang-map-borrowed-20261022/u8-stage1.nvm.
+I executed exact source U8/map input /private/tmp/nanolang-map-borrowed-20261022/u8-stage2.nvm.
+PASS 1604 actual public map consumer checks

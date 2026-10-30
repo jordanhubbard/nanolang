@@ -1,0 +1,12 @@
+test_body_budget_does_not_become_closed_empty (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_body_budget_does_not_become_closed_empty) ... ok
+test_callback_is_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_callback_is_unknown) ... ok
+test_checked_global_context_and_local_shadowing (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_checked_global_context_and_local_shadowing) ... ok
+test_closed_calls_io_mutation_and_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_closed_calls_io_mutation_and_unknown) ... ok
+test_failed_check_and_shadow_preserve_prior_output (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_failed_check_and_shadow_preserve_prior_output) ... ok
+test_imported_globals_keep_bound_identity (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_imported_globals_keep_bound_identity) ... ok
+test_module_budget_is_explicit_unknown (tests.test_function_effects_metadata.FunctionEffectsMetadata.test_module_budget_is_explicit_unknown) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 3.429s
+
+OK

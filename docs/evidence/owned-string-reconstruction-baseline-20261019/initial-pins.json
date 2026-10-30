@@ -1,0 +1,18 @@
+{
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/nanoisa/fixtures/shadow_module_driver.nano.txt": "21b48fd47c1e28e2f852657f9e1f533641eb25aaf0cc97d1ae71f1db5eb2d5d4",
+  "/private/tmp/owned-string-baseline-20261019/shadow_driver.nano": "21b48fd47c1e28e2f852657f9e1f533641eb25aaf0cc97d1ae71f1db5eb2d5d4",
+  "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_c": "3ac71b97e5cf933d1615b154c60583ddf460951487a8460c95ce50782f4344de",
+  "/private/tmp/owned-string-baseline-20261019/nanoc_c": "3ac71b97e5cf933d1615b154c60583ddf460951487a8460c95ce50782f4344de",
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt": "04269be440ea6826fe401d1f9265c2cb012709a8bbed00cf3118a26556402731",
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context": "d7c3c1369042dfa16c8a54decdb7a96b5a43166ba2cee604f495f2302eb8977e",
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm": "843a6bdc2d1defcb5ba8c5af424c31f4dc64a2877293bdebd7aadb2a957726b6",
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa": "66c5e8e6305adfd51ad1c9c2382cb397ae12d2eb1b368166cada603f42a1a27a",
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts": "205cd6d4b3459ebf4e6dd188ffed61d60af82f9f5f0049b0ea42e5b27a246617",
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/examples/language/nl_affine_resource_demo.nano": "f9cd44a9bd4112913cc36f01b09b34db544a5e7b4323bf242d29dea6e888ef64",
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_string_baseline": "3ac71b97e5cf933d1615b154c60583ddf460951487a8460c95ce50782f4344de",
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c",
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/scripts/nvm2hl.py": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c",
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/scripts/nanoisa_owned_reconstruction.py": "2b9d4a7af7bfe01ebb2b85b39c5764badbde0865ee843b6260f9cd5baba7be29",
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/scripts/nanoisa_reconstruction.py": "a3e60685718069ac4b18335e9885e0c79e0d76224fce46b03a25dd8cf7f98776",
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_file_source_plan.py": "e30e5cbda4388ea809735d25bbe53dddc26ba78861ddfa53e2d40bb800feaba7"
+}

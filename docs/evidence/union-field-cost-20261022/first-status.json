@@ -1,0 +1,145 @@
+[
+  {
+    "name": "clang-managed_array_shapes",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-fsyntax-only",
+      "src/nanoisa/managed_array_shapes.c"
+    ],
+    "status": 0,
+    "seconds": 0.28589012497104704
+  },
+  {
+    "name": "clang-ownership_contracts",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-fsyntax-only",
+      "src/nanoisa/ownership_contracts.c"
+    ],
+    "status": 0,
+    "seconds": 0.05526620801538229
+  },
+  {
+    "name": "clang-test_union_field_execution",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_execution.c"
+    ],
+    "status": 0,
+    "seconds": 0.049685249920003116
+  },
+  {
+    "name": "clang-test_union_field_execution-observed",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-DUFP_ALLOC",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_execution.c"
+    ],
+    "status": 0,
+    "seconds": 0.06789154198486358
+  },
+  {
+    "name": "gcc-16-managed_array_shapes",
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-fsyntax-only",
+      "src/nanoisa/managed_array_shapes.c"
+    ],
+    "status": 0,
+    "seconds": 0.18113974994048476
+  },
+  {
+    "name": "gcc-16-ownership_contracts",
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-fsyntax-only",
+      "src/nanoisa/ownership_contracts.c"
+    ],
+    "status": 0,
+    "seconds": 0.04589766694698483
+  },
+  {
+    "name": "gcc-16-test_union_field_execution",
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_execution.c"
+    ],
+    "status": 0,
+    "seconds": 0.04374524997547269
+  },
+  {
+    "name": "gcc-16-test_union_field_execution-observed",
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-DUFP_ALLOC",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_execution.c"
+    ],
+    "status": 0,
+    "seconds": 0.0635579579975456
+  },
+  {
+    "name": "first-recipes",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_union_field_execution"
+    ],
+    "status": 0,
+    "seconds": 8.890816500061192
+  }
+]

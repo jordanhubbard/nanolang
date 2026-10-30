@@ -1,0 +1,40 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ctyr8ced
+test_conditional_byte_fields (tests.test_u8_record_fields.U8RecordFields.test_conditional_byte_fields) ... ok
+test_direct_nested_and_list_fields (tests.test_u8_record_fields.U8RecordFields.test_direct_nested_and_list_fields) ... ok
+test_exact_u8_layout (tests.test_u8_record_fields.U8RecordFields.test_exact_u8_layout) ... ok
+test_literal_field_range_refusal_is_preserved (tests.test_u8_record_fields.U8RecordFields.test_literal_field_range_refusal_is_preserved) ... ok
+test_out_of_range_byte_literal_preserves_output (tests.test_u8_record_fields.U8RecordFields.test_out_of_range_byte_literal_preserves_output) ... ok
+test_unconsumed_resource_stays_rejected (tests.test_u8_record_fields.U8RecordFields.test_unconsumed_resource_stays_rejected) ... ok
+test_wrong_field_types_preserve_output (tests.test_u8_record_fields.U8RecordFields.test_wrong_field_types_preserve_output) ... ok
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-b1pe83sj
+test_checked_imports_keep_distinct_record_identity (tests.test_u8_field_context.U8FieldContext.test_checked_imports_keep_distinct_record_identity) ... ok
+test_checked_registry_identity (tests.test_u8_field_context.U8FieldContext.test_checked_registry_identity) ... ok
+test_field_refusals_preserve_output (tests.test_u8_field_context.U8FieldContext.test_field_refusals_preserve_output) ... ok
+test_native_c_profiles (tests.test_u8_field_context.U8FieldContext.test_native_c_profiles) ... ok
+test_nested_and_call_argument_contexts (tests.test_u8_field_context.U8FieldContext.test_nested_and_call_argument_contexts) ... ok
+test_ordered_exact_field_context (tests.test_u8_field_context.U8FieldContext.test_ordered_exact_field_context) ... ok
+I retain producer build evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-producers-3ubcdjpq
+test_bound_imports (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_bound_imports) ... ok
+test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) ... ok
+test_existing_array_result_without_array_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_existing_array_result_without_array_fields) ... ok
+test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) ... ok
+test_foreign_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_foreign_module_omits_optional_envelope) ... ok
+test_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_forward_record_dag) ... ok
+test_generic_direct_tail_calls_publish_proved_array_profile (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_generic_direct_tail_calls_publish_proved_array_profile) ... ok
+test_large_closed_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_large_closed_module_omits_optional_envelope) ... ok
+test_nested_aliases_empty_fields_and_generic_forwarder (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_aliases_empty_fields_and_generic_forwarder) ... ok
+test_nested_bound_import (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_bound_import) ... ok
+test_nested_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_forward_record_dag) ... ok
+test_nested_int_arrays_publish_exact_authority (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_int_arrays_publish_exact_authority) ... ok
+test_nested_string_alias_refill_and_mixed_leaves (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_string_alias_refill_and_mixed_leaves) ... ok
+test_nested_string_bound_import (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_string_bound_import) ... ok
+test_nested_string_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_string_forward_record_dag) ... ok
+test_query_status_and_host_interfaces (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_query_status_and_host_interfaces) ... ok
+test_recursive_tail_calls_keep_optional_array_authority_absent (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_recursive_tail_calls_keep_optional_array_authority_absent) ... ok
+test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) ... ok
+test_unsupported_nested_descriptors_stay_optional (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_unsupported_nested_descriptors_stay_optional) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 68.040s
+
+OK

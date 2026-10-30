@@ -1,0 +1,26 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-z0qsr9n_
+test_actual_computed_witness_and_transformed_assert_refuse (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_actual_computed_witness_and_transformed_assert_refuse) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-anspxpo5
+test_assertion_after_mutation_is_not_successful_cleanup (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_assertion_after_mutation_is_not_successful_cleanup) ... ok
+test_defensive_profile_refusals (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_defensive_profile_refusals) ... ok
+test_endpoints_and_sequential_mutation (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_endpoints_and_sequential_mutation) ... ok
+test_existing_exclusive_fixture (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_existing_exclusive_fixture) ... ok
+test_generated_consistency_shadow_execution (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_generated_consistency_shadow_execution) ... ok
+test_generated_local_boundary_is_checked_before_publication (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_generated_local_boundary_is_checked_before_publication) ... ok
+test_inline_placement_and_unchanged_helper (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_inline_placement_and_unchanged_helper) ... ok
+test_original_verifier_rejects_malformed_references_atomically (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_original_verifier_rejects_malformed_references_atomically) ... ok
+test_overlapping_reference_holds_refuse_before_publication (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_overlapping_reference_holds_refuse_before_publication) ... ok
+test_shared_output_is_byte_identical (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_shared_output_is_byte_identical) ... ok
+test_two_function_budget_refusal_preserves_output (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_two_function_budget_refusal_preserves_output) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-41sjwmlb
+test_actual_source_and_structured_roundtrips (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_actual_source_and_structured_roundtrips) ... ok
+test_exact_shared_profile_refusals (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_exact_shared_profile_refusals) ... ok
+test_extra_generated_nano_helper_refuses_without_narrowing_c (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_extra_generated_nano_helper_refuses_without_narrowing_c) ... ok
+test_original_verifier_rejects_malformed_references_atomically (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_original_verifier_rejects_malformed_references_atomically) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-dw9hw07b
+test_actual_multiple_reference_fixture_has_explicit_witness (tests.test_owned_extracted_reconstruction.OwnedExtractedReconstruction.test_actual_multiple_reference_fixture_has_explicit_witness) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 92.671s
+
+OK

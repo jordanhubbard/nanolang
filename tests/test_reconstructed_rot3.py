@@ -28,7 +28,8 @@ class ScalarRot3(unittest.TestCase):
         result=wide.WideMultiply.checked(self,args,expected)
         if self.inspect_call and Path(args[0]).name=='nvm2hl':
             source=Path(args[-1]).read_text()
-            calls=re.findall(r'nlr_f1_identity\(nlr_t\d+\)|\(nlr_f1_identity nlr_t\d+\)',source)
+            # I count the call itself even when its immutable argument is inlined.
+            calls=re.findall(r'=\s*nlr_f1_identity\(|\(nlr_f1_identity\s+',source)
             self.assertEqual(len(calls),1)
         return result
 

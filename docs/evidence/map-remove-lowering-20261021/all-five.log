@@ -1,0 +1,10 @@
+test_imported_record_receiver (tests.test_map_field_operations.MapFieldOperations.test_imported_record_receiver) ... ok
+test_paired_map_remove_preserves_void_and_aliases (tests.test_map_field_operations.MapFieldOperations.test_paired_map_remove_preserves_void_and_aliases) ... ok
+test_paired_map_remove_refusals_preserve_output (tests.test_map_field_operations.MapFieldOperations.test_paired_map_remove_refusals_preserve_output) ... ok
+test_scalar_pairs_and_nested_receivers (tests.test_map_field_operations.MapFieldOperations.test_scalar_pairs_and_nested_receivers) ... ok
+test_wrong_field_map_types_preserve_prior_output (tests.test_map_field_operations.MapFieldOperations.test_wrong_field_map_types_preserve_prior_output) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 18.886s
+
+OK

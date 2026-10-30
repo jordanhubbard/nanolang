@@ -1,0 +1,7 @@
+# I retain my combined field-write bootstrap
+
+I pass all 17 guarded bootstrap steps at source `282d7a9f1` on Darwin. Both raw generations have SHA-256 `18e46f065f5743499943d08b413f86a53460da76886c80376ae8f2c614462f05`. Raw Stage 1 takes 648.925s and raw Stage 2 takes 654.640s. Both native compilers pass hello compilation/execution, and the installed compiler succeeds with the C seed removed.
+
+I integrate field-write ledger/result shapes with the already qualified field-read shapes and preserve exact raw fixed-point evidence. The same source pin includes reference-call pretests and shared conditional-helper reconstruction; their fresh-producer qualification follows separately.
+
+I retain the complete manifest and logs. My ledger and actual Environment cleanup pass; all 13 checked metadata/comparator methods pass in 94.779s and all 54 neighboring metadata/declared-purity methods pass in 228.019s. NanoVirt and both fresh stages are selected explicitly for the artifact-producing suites. Actual raw-checker helpers retain their C-hosted default. All 40 call-pretest/shared-control/shared-path/nested-path reconstruction methods pass in 599.935s through NanoVirt and both fresh stages. All eight compiler/runtime hashes remain unchanged after the complete qualification. I retain the exact qualification script and terminals; I do not claim hosted Linux/Darwin completion or full release acceptance. The separate exclusive-helper control component is not part of this frozen compiler source pin.

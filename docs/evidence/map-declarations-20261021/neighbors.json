@@ -1,0 +1,15 @@
+[
+  {
+    "name": "declaration-neighbors",
+    "argv": [
+      "/Users/jkh/.local/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_ownership_declaration_projection",
+      "tests.test_ownership_layouts_private"
+    ],
+    "exit": 1,
+    "seconds": 2.665451666980516
+  }
+]

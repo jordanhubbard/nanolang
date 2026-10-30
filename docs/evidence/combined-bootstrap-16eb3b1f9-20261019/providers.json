@@ -1,0 +1,17 @@
+{
+  "source": "16eb3b1f9544a0d9ee3eb4c91eaf40c6199d898e",
+  "providers": {
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_c": "bae3b71271027a427ec850659fa4ca93c682f26ab72152d2e8814174f68354be",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt": "5f79f32cc86812dd943e2cf89062e02b3a6c3e4b91656c9029d2802345d8a242",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm": "e276f5a37e379d3da08801608d7262704df287c001defaf9fae1745080e5ddcf",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1": "b07896f8a84457b62e13111d0ff2b71635a567c0a80a2c8e03d4e87a0870f5a3",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2": "4e7ac7aed1df4814271e646fc37f7bc28fb6fe505369c3fa8abae2a18e5243d8",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa": "516d3c1434951205658e5b3948c1c0816f4a8b0aaf21644518b389892f0afb44",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c": "4ac9e35c283d8c8643f3df287bf64ae49c33cddb72bb4bfd9c65953bfc65711f",
+    "/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o": "d48980563f3c31ce8eb4b0b1a3309a7dbc17749fd9a42f445bca4c42ff487863"
+  },
+  "raw": {
+    "nanoc_stage1.nvm": "03f6b51b37909a9c9aa6b7a26e69efecc11303f7776029dc56771fd648f769bb",
+    "nanoc_stage2.nvm": "03f6b51b37909a9c9aa6b7a26e69efecc11303f7776029dc56771fd648f769bb"
+  }
+}

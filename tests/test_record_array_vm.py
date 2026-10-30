@@ -1,4 +1,5 @@
 """I qualify the distinct private mixed VM; generated/public routes stay closed."""
+from tests.native_process import objects_before_archives
 import json
 import os
 from pathlib import Path
@@ -32,6 +33,7 @@ class RecordArrayVm(unittest.TestCase):
         names = {Path(source).stem for source in PROVIDERS}
         cls.objects = [obj for obj in shlex.split(os.environ['RECORD_ARRAY_VM_OBJECTS'])
                        if Path(obj).stem not in names]
+        cls.objects = objects_before_archives(cls.objects)
         cls.ldflags = shlex.split(os.environ.get('RECORD_ARRAY_VM_LDFLAGS', '-lm -lcrypto -lffi -pthread'))
         os.environ['LSAN_OPTIONS'] = ''
         (cls.artifacts / 'selection.json').write_text(json.dumps({
@@ -69,7 +71,7 @@ class RecordArrayVm(unittest.TestCase):
             output = self.command(mode + '-run', [str(exe)])
             self.assertIn(b'private mixed VM checks; no public or generated consumer admission', output)
             if observed:
-                self.assertIn(b'I retired all 93 recipes and checked all 256 opcode decisions', output)
+                self.assertIn(b'I retired all 94 recipes and checked all 256 opcode decisions', output)
                 self.assertIn(b'allocation positions in both modes with independent recovery', output)
             print(output.decode(errors='replace').strip(), flush=True)
 

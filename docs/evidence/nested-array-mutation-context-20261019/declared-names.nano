@@ -1,0 +1,9 @@
+fn array_push(rows:array<array<string>>, value:array<bool>)->int {return (array_length value)}
+shadow array_push {assert (== (array_push [["kept"]] [false]) 1)}
+fn main()->int {
+ let rows:array<array<string>> = [["kept"]]
+ assert (== (array_push rows [false]) 1)
+ assert (== (at (at rows 0) 0) "kept")
+ return 0
+}
+shadow main {assert (== (main) 0)}

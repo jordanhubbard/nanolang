@@ -1,0 +1,31 @@
+resource struct Leaf { value: int, active: bool }
+resource struct Other { value: int, active: bool }
+resource struct Pair { stamp: int, first: Leaf, enabled: bool, second: Other }
+fn update(view: &mut Leaf) -> int {
+ set view.value (+ view.value 3)
+ set view.active (not view.active)
+ return view.value
+}
+shadow update {
+ let mut leaf: Leaf = Leaf { value: 7, active: false }
+ assert (== (update &mut leaf) 10)
+ let Leaf { value, active } = leaf
+ assert (== value 10) assert active
+}
+fn main() -> int {
+ let leaf: Leaf = Leaf { value: 7, active: false }
+ let other: Other = Other { value: 20, active: false }
+ let parent: Pair = Pair { second: other, enabled: true, first: leaf, stamp: 5 }
+ let Pair { stamp, first, enabled, second } = parent
+ let lost: Pair = parent
+ let mut current: Leaf = first
+ assert (== (update &mut current) 10)
+ assert current.active
+ let Leaf { value, active } = current
+ assert active
+ let answer: int = (+ stamp value)
+ let Other { value, active } = second
+ assert (not active) assert enabled
+ return (+ answer value)
+}
+shadow main { assert true }

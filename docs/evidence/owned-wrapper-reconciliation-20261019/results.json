@@ -1,0 +1,188 @@
+[
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Warning at line 17, column 5: Unused variable 'index'\nABCABCABC"
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nvm"
+    ],
+    "exit": 0,
+    "stdout": "ABCABCABC",
+    "stderr": ""
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nvm",
+      "--language",
+      "c",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.reconstructed.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "fixture": "temporary_owner_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.nvm",
+      "--language",
+      "nano",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/temporary_owner_fixture.reconstructed.nano"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Warning at line 15, column 5: Unused variable 'index'\nABAB"
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nvm"
+    ],
+    "exit": 0,
+    "stdout": "ABAB",
+    "stderr": ""
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nvm",
+      "--language",
+      "c",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.reconstructed.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "fixture": "transitive_wrapper_fixture",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.nvm",
+      "--language",
+      "nano",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/transitive_wrapper_fixture.reconstructed.nano"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "ABAB"
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nvm"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nvm"
+    ],
+    "exit": 0,
+    "stdout": "ABAB",
+    "stderr": ""
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nvm",
+      "--language",
+      "c",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.reconstructed.c"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "fixture": "nested_owner_result_source",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.nvm",
+      "--language",
+      "nano",
+      "-o",
+      "/private/tmp/nanolang-wrapper-reconstruction-map-20261019/nested_owner_result_source.reconstructed.nano"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

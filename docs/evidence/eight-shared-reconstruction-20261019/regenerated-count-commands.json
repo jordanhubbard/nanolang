@@ -1,0 +1,126 @@
+[
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/eight-shared-baseline-20261019/nano_virt-first.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/eight-shared-baseline-20261019/nano_virt-first.rebuilt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Warning at line 90, column 5: Unused variable 'f0'\nWarning at line 90, column 5: Unused variable 'f1'\nWarning at line 91, column 5: Unused variable 'f0'\nWarning at line 91, column 5: Unused variable 'f1'\nWarning at line 92, column 5: Unused variable 'f0'\nWarning at line 92, column 5: Unused variable 'f1'\nWarning at line 93, column 5: Unused variable 'f0'\nWarning at line 93, column 5: Unused variable 'f1'\nWarning at line 94, column 5: Unused variable 'f0'\nWarning at line 94, column 5: Unused variable 'f1'\nWarning at line 95, column 5: Unused variable 'f0'\nWarning at line 95, column 5: Unused variable 'f1'\nWarning at line 96, column 5: Unused variable 'f0'\nWarning at line 96, column 5: Unused variable 'f1'\nWarning at line 97, column 5: Unused variable 'f0'\nWarning at line 97, column 5: Unused variable 'f1'\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/eight-shared-baseline-20261019/nano_virt-first.rebuilt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/eight-shared-baseline-20261019/nano_virt-first.rebuilt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/eight-shared-baseline-20261019/nano_virt-selected.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/eight-shared-baseline-20261019/nano_virt-selected.rebuilt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/eight-shared-baseline-20261019/nano_virt-selected.rebuilt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/eight-shared-baseline-20261019/nano_virt-selected.rebuilt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/eight-shared-baseline-20261019/original-shadows-first.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/eight-shared-baseline-20261019/original-shadows-first.rebuilt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Warning at line 90, column 5: Unused variable 'f0'\nWarning at line 90, column 5: Unused variable 'f1'\nWarning at line 91, column 5: Unused variable 'f0'\nWarning at line 91, column 5: Unused variable 'f1'\nWarning at line 92, column 5: Unused variable 'f0'\nWarning at line 92, column 5: Unused variable 'f1'\nWarning at line 93, column 5: Unused variable 'f0'\nWarning at line 93, column 5: Unused variable 'f1'\nWarning at line 94, column 5: Unused variable 'f0'\nWarning at line 94, column 5: Unused variable 'f1'\nWarning at line 95, column 5: Unused variable 'f0'\nWarning at line 95, column 5: Unused variable 'f1'\nWarning at line 96, column 5: Unused variable 'f0'\nWarning at line 96, column 5: Unused variable 'f1'\nWarning at line 97, column 5: Unused variable 'f0'\nWarning at line 97, column 5: Unused variable 'f1'\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/eight-shared-baseline-20261019/original-shadows-first.rebuilt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/eight-shared-baseline-20261019/original-shadows-first.rebuilt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/eight-shared-baseline-20261019/original-shadows-selected.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/eight-shared-baseline-20261019/original-shadows-selected.rebuilt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/eight-shared-baseline-20261019/original-shadows-selected.rebuilt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "/private/tmp/eight-shared-baseline-20261019/original-shadows-selected.rebuilt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

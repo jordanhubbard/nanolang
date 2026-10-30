@@ -1,0 +1,9 @@
+I retain map declaration artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-declaration-14lto_ph
+PASS 468 ordinary array declaration checks; no execution authority
+I passed 131818 exact map declaration checks; public admission stays refused.
+I covered 8 allocation positions in both failure modes
+PASS 2402 ordinary array declaration checks; no execution authority
+I retained map maximum bytes787873 work3607975 scratch128.
+I retained exact map byte/work boundaries 1258/252 and one-below refusal.
+I retained 12 map allocation positions and independent retries.
+I passed 135297 exact map declaration checks; public admission stays refused.

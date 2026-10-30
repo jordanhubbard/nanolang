@@ -1,0 +1,9 @@
+{
+  "bin/nano_virt": "18a870082df7f6f1522b3706e82a794db4b1c12410fc1a415303b3b51898a2cc",
+  "bin/nanoc_stage1": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+  "bin/nanoc_stage2": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+  "bin/nano_vm": "420014efed1644e6ce93661d661d828b1981861012654e64deec93596b66ef9b",
+  "bin/nvm2hl": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c",
+  "scripts/nanoisa_owned_reconstruction.py": "378095b5a5b9b55599606ffddf25106cc040192c9710de898ef150476e260255",
+  "tests/test_source_borrow_emission.py": "e228fed45d0b494397578f82c52052030c1627ee7d1f4894972f281649ed0437"
+}

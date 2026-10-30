@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-51-platform-qualification/bin/nanoc_c",
+    "src_nano/nanoisa_emit.nano",
+    "-o",
+    "/private/tmp/nanolang-self-tail-proof-20261021/emitter"
+  ],
+  "env": {
+    "NANO_BUILD_CACHE": "/private/tmp/nanolang-self-tail-proof-20261021/module-cache",
+    "TMPDIR": "/private/tmp/nanolang-self-tail-proof-20261021/compiler-tmp",
+    "CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_CC": "/opt/homebrew/opt/llvm/bin/clang"
+  },
+  "exit": 0,
+  "seconds": 87.77976041700458
+}

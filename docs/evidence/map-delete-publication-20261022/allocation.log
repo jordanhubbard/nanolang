@@ -1,0 +1,12 @@
+I retain publication allocation evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-20861n33
+publisher allocation positions: 723
+I qualified publisher: 723 transient/persistent positions
+query allocation positions: 508
+I qualified query: 508 transient/persistent positions
+ test_map_delete_publisher_and_query_prefixes (tests.test_publication_allocation.PublicationAllocation.test_map_delete_publisher_and_query_prefixes) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 389.984s
+
+OK
+

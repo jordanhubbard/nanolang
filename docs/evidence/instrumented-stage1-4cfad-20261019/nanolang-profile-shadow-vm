@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+import os, shutil, sys
+from pathlib import Path
+if len(sys.argv) == 3 and sys.argv[1] == '--check-shadows':
+    shutil.copyfile(sys.argv[2], '/private/tmp/nanolang-asan-provisioned-shadows.nvm')
+os.environ['NANO_SHADOW_TIMEOUT_SECONDS'] = '300'
+os.execv('/private/tmp/nanolang-asan-profile-4cfad3737/bin/nano_vm', ['nano_vm'] + sys.argv[1:])

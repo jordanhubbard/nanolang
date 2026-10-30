@@ -1,0 +1,64 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-6zfh8a5e
+test_defensive_split_region_and_reference_slot_refuse (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_defensive_split_region_and_reference_slot_refuse) ... ok
+test_original_verified_inverted_exit (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_original_verified_inverted_exit) ... ok
+test_output_local_limit_is_measured_and_atomic (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_output_local_limit_is_measured_and_atomic) ... ok
+test_pretest_helper_assertion_remains_runtime_failure (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_pretest_helper_assertion_remains_runtime_failure) ... ok
+test_return_body_and_zero_body_keep_complete_owner_consumption (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_return_body_and_zero_body_keep_complete_owner_consumption) ... ok
+test_second_call_and_missing_top_level_witness_refuse_atomically (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_second_call_and_missing_top_level_witness_refuse_atomically) ... ok
+test_zero_one_multiple_iterations_retain_last_false_update (tests.test_owned_call_pretest_reconstruction.OwnedCallPretestReconstruction.test_zero_one_multiple_iterations_retain_last_false_update) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-24tw4zf7
+test_actual_helper_effects_and_loops_remain_atomic_refusals (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_actual_helper_effects_and_loops_remain_atomic_refusals) ... ok
+test_caller_inline_add_exact_endpoints (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_caller_inline_add_exact_endpoints) ... ok
+test_constant_helper_keeps_exact_unused_shared_parameter (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_constant_helper_keeps_exact_unused_shared_parameter) ... ok
+test_defensive_modes_effects_and_total_shadow_boundary (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_defensive_modes_effects_and_total_shadow_boundary) ... ok
+test_generated_caller_local_boundary_preserves_output (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_generated_caller_local_boundary_preserves_output) ... I measure shared control bound {"count": 3, "provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt", "costs": [127, 5]}
+I measure shared control bound {"count": 3, "provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1", "costs": [127, 5]}
+I measure shared control bound {"count": 3, "provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2", "costs": [127, 5]}
+I measure shared control bound {"count": 4, "provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt", "costs": [135, 5]}
+I measure shared control bound {"count": 4, "provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1", "costs": [135, 5]}
+I measure shared control bound {"count": 4, "provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2", "costs": [135, 5]}
+ok
+test_old_two_shared_path_outputs_remain_byte_identical (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_old_two_shared_path_outputs_remain_byte_identical) ... ok
+test_original_verifier_corruption_preserves_prior_outputs (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_original_verifier_corruption_preserves_prior_outputs) ... ok
+test_single_shared_call_pretest_stays_separate (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_single_shared_call_pretest_stays_separate) ... ok
+test_total_bool_diamonds_preserve_both_paths (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_total_bool_diamonds_preserve_both_paths) ... ok
+test_unchanged_anchor_and_whole_tree_shadow_measurement (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_unchanged_anchor_and_whole_tree_shadow_measurement) ... I measure shared control {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt", "original": [23, 2], "generated": [101, 5], "shadow": 60}
+I measure shared control {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1", "original": [23, 2], "generated": [101, 5], "shadow": 60}
+I measure shared control {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2", "original": [23, 2], "generated": [101, 5], "shadow": 60}
+ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-cpyuq5_b
+test_defensive_modes_paths_fields_and_inline_placement (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_defensive_modes_paths_fields_and_inline_placement) ... ok
+test_distinct_nominal_endpoints_and_unequal_leaf_fields (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_distinct_nominal_endpoints_and_unequal_leaf_fields) ... ok
+test_either_shared_parameter_supplies_assertion_provenance (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_either_shared_parameter_supplies_assertion_provenance) ... ok
+test_false_first_and_later_shared_assertions (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_false_first_and_later_shared_assertions) ... ok
+test_generated_whole_tree_shadow_native (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_generated_whole_tree_shadow_native) ... ok
+test_original_anchor_generated_loop_and_exact_storage (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_original_anchor_generated_loop_and_exact_storage) ... I measure shared-path storage {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt", "original_locals": [25, 2], "estimated_locals": [83, 39], "estimated_shadow_locals": 74}
+I measure shared-path storage {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1", "original_locals": [25, 2], "estimated_locals": [83, 39], "estimated_shadow_locals": 74}
+I measure shared-path storage {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2", "original_locals": [25, 2], "estimated_locals": [83, 39], "estimated_shadow_locals": 74}
+ok
+test_original_verifier_rejects_reference_corruption (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_original_verifier_rejects_reference_corruption) ... ok
+test_repeated_mul_generated_local_boundary (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_repeated_mul_generated_local_boundary) ... ok
+test_total_mul_endpoints_preserve_original_results (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_total_mul_endpoints_preserve_original_results) ... ok
+test_unchanged_alias_and_swapped_paths_native_roundtrips (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_unchanged_alias_and_swapped_paths_native_roundtrips) ... ok
+test_v2_exclusive_outputs_remain_byte_identical (tests.test_owned_shared_path_reconstruction.OwnedSharedPathReconstruction.test_v2_exclusive_outputs_remain_byte_identical) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-xkm5zn21
+test_actual_path_call_pretest_preserves_false_path_mutation (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_actual_path_call_pretest_preserves_false_path_mutation) ... ok
+test_adjacent_assertion_folding_is_narrow_and_cloned (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_adjacent_assertion_folding_is_narrow_and_cloned) ... ok
+test_defensive_path_identity_overlap_and_scope_refusals (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_defensive_path_identity_overlap_and_scope_refusals) ... ok
+test_false_first_tree_witness_refuses_both_outputs (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_false_first_tree_witness_refuses_both_outputs) ... ok
+test_full_tree_shadow_near_boundary_is_measured (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_full_tree_shadow_near_boundary_is_measured) ... ok
+test_later_false_projected_shared_flag_keeps_runtime_assertion (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_later_false_projected_shared_flag_keeps_runtime_assertion) ... ok
+test_original_anchor_and_selected_shadow_local_measurement (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_original_anchor_and_selected_shadow_local_measurement) ... I measure nested-path storage {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt", "original_locals": [37, 3], "estimated_locals": [127, 31], "estimated_shadow_locals": 108}
+I measure nested-path storage {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1", "original_locals": [37, 3], "estimated_locals": [127, 31], "estimated_shadow_locals": 108}
+I measure nested-path storage {"provider": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2", "original_locals": [37, 3], "estimated_locals": [127, 31], "estimated_shadow_locals": 108}
+ok
+test_original_verifier_rejects_path_operand_corruption (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_original_verifier_rejects_path_operand_corruption) ... ok
+test_projected_calls_in_both_caller_branch_arms (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_projected_calls_in_both_caller_branch_arms) ... ok
+test_selected_full_tree_shadows_native (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_selected_full_tree_shadows_native) ... ok
+test_shared_path_pretests_retain_zero_and_final_false_reads (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_shared_path_pretests_retain_zero_and_final_false_reads) ... ok
+test_unchanged_anchor_native_and_paired_roundtrips (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_unchanged_anchor_native_and_paired_roundtrips) ... ok
+
+----------------------------------------------------------------------
+Ran 40 tests in 599.935s
+
+OK

@@ -1,0 +1,4 @@
+nano_virt three-producer reconstructed VM plus strict sanitized C O0/O2 passed
+nanoc_stage1 three-producer reconstructed VM plus strict sanitized C O0/O2 passed
+nanoc_stage2 three-producer reconstructed VM plus strict sanitized C O0/O2 passed
+shadow three-producer reconstructed VM plus strict sanitized C O0/O2 passed

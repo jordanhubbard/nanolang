@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+    "--language",
+    "nano",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/cycle.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/prior.nano"
+  ],
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "I cannot load this module: Invalid NVM v2 module: index-out-of-range\nI did not publish reconstructed source\n"
+}

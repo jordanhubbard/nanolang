@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/private/tmp/eight-shared-baseline-20261019/first-gate.py", line 12, in <module>
+    emitter=OwnedEmit(functions,'nano',facts['layouts'])
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 717, in __init__
+    self.witness = (self.eight_shared_witness(functions, layouts) if self.eight_shared else
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_reconstruction.py", line 782, in eight_shared_witness
+    witness, self.eight_shared_proof = prove_eight_shared(functions, layouts)
+                                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_owned_eight_shared.py", line 115, in prove_eight_shared
+    require(False, 'require straight-line eight-shared caller transfers')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nanoisa_reconstruction.py", line 12, in require
+    raise Refusal('I ' + message)
+nanoisa_reconstruction.Refusal: I require straight-line eight-shared caller transfers

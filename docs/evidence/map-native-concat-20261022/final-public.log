@@ -1,0 +1,11 @@
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/unchanged-seed.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/unchanged-c-hosted.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage1.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/unchanged-stage2.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-seed.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-c-hosted.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-stage1.nvm; public transport and consumers qualified.
+I copied original fixture proof from /private/tmp/nanolang-map-concat-baseline-20261022/concat-stage2.nvm; public transport and consumers qualified.
+PASS 1032 annotated baseline checks
+
+PASS actual public boundaries, 8 raw byte goldens, 4 selected old byte goldens, strict4

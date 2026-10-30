@@ -1,0 +1,21 @@
+python3 -m unittest -v tests.test_resource_generic_records
+test_retained_classification_matrix (tests.test_resource_generic_records.ResourceGenericRecords.test_retained_classification_matrix) ... FAIL
+
+======================================================================
+FAIL: test_retained_classification_matrix (tests.test_resource_generic_records.ResourceGenericRecords.test_retained_classification_matrix)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_resource_generic_records.py", line 70, in test_retained_classification_matrix
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- [E0038] TYPE LAYOUT ---- <record-generic-classification>
+I cannot admit cyclic by-value type layouts.
+
+generic_cycle: accepted=0 owned=0 collection=0
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.607s
+
+FAILED (failures=1)
+make: *** [test-resource-generic-records] Error 1

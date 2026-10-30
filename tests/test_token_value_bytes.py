@@ -10,8 +10,21 @@ import sys
 import difflib
 import tempfile
 import unittest
+from tests.native_process import native_compile_timeout
 from tests import test_file_source_plan as retained_runner
 ROOT=Path(__file__).resolve().parents[1]
+
+def shadow_trace_names(output):
+    # I parse complete structured records even when buffered progress text
+    # shares their line. I retain duplicates for exact selection comparison.
+    text=output.decode('utf-8',errors='replace');decoder=json.JSONDecoder();names=[]
+    for match in re.finditer(r'\{"event":"shadow-start"',text):
+        event,_=decoder.raw_decode(text[match.start():])
+        name=event['name']
+        if not isinstance(name,str) or not re.fullmatch(r'[A-Za-z_][A-Za-z_0-9]*',name):
+            raise AssertionError('I require an exact shadow-start identifier')
+        names.append(name.encode('ascii'))
+    return names
 
 class TokenValueBytes(unittest.TestCase):
     command=classmethod(retained_runner.FileSourcePlan.command.__func__)
@@ -91,12 +104,12 @@ class TokenValueBytes(unittest.TestCase):
                 args=[ROOT/'bin'/compiler,source,'-o',exe,'--keep-c']
                 (self.work/(label+'-'+compiler+'-retention.json')).write_text(json.dumps({'keep_c':True,'TMPDIR':str(temp)},indent=2)+'\n')
                 if compiler=='nanoc_c':args+=['--llm-shadow-json',shadow,'--verbose']
-                out,err=self.command(label+'-'+compiler+'-build',args,timeout=900,extra={'NANO_SHADOW_TRACE':'1','TMPDIR':str(temp)})
+                out,err=self.command(label+'-'+compiler+'-build',args,timeout=native_compile_timeout(default=900),extra={'NANO_SHADOW_TRACE':'1','TMPDIR':str(temp)})
                 if compiler=='nanoc_c':
                     report=json.loads(shadow.read_text())
                     self.assertTrue(report['completed'] and report['success'])
                     self.assertEqual(report['test_count'],len(expected));self.assertEqual(report['failures'],[])
-                    raw=re.findall(rb'^Testing ([A-Za-z_][A-Za-z_0-9]*)\.\.\. ',out+b'\n'+err,re.M)
+                    raw=shadow_trace_names(out+b'\n'+err)
                 else:raw=re.findall(rb'^I am testing shadow ([A-Za-z_][A-Za-z_0-9]*)$',err,re.M)
                 names=[re.sub(r'^__nano_module_+[0-9]+_','',p.decode('ascii')) for p in raw]
                 (self.work/(label+'-'+compiler+'-selection.json')).write_text(json.dumps({'raw':[p.decode('ascii') for p in raw],'normalized':names,'expected':expected},indent=2)+'\n')

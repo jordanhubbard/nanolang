@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+    "--language",
+    "c",
+    "/private/tmp/eight-shared-baseline-20261019/nano_virt.nvm",
+    "-o",
+    "/private/tmp/eight-shared-baseline-20261019/nano_virt.refused.c"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-harness",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "timeout_seconds": 180
+}

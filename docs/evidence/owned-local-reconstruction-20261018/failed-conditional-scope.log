@@ -1,0 +1,3 @@
+I cannot verify affine ownership at line 6, column 2: branches disagree on resource ownership — moved
+Warning at line 7, column 4: Unused variable 'yes'
+error: type check failed

@@ -1,0 +1,938 @@
+[
+  {
+    "file": "command-1-command.json",
+    "sha256": "4836d82150ba54ca3c2a45595b8b1f1d6fb2425688d87e0b2f083ae2c0174f06",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoisa\",\n    \"asm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nasm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-1-status.json",
+    "sha256": "3068c4959b9fc10062ab540c6dc713899a1128d2336ca44094bdfb0d137bed63",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010307374992407858,\n  \"pid\": 99115,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-1.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-1.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-10-command.json",
+    "sha256": "12e8fb857410b5d6eb3a99bff2dc92a08665fb3eb0aa9ce6087eaaa7800615c1",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O0\",\n    \"-DNDEBUG\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-10-status.json",
+    "sha256": "72bd277ed489e3c64da3df344973c5af1375d2790e4f854e00957761e4d5d970",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.077419875015039,\n  \"pid\": 99132,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-10.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-10.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-11-command.json",
+    "sha256": "61eada28586ddf4cf75987e7b36b6f9440744f6a5097d4340e13eb953ad78ea9",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/.local/bin/python3\",\n    \"-c\",\n    \"import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-11-status.json",
+    "sha256": "35bde60edf0a00a3635ffc31f59a025a3934723fc71b02f69770f1da18797834",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": -6,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.2808335419977084,\n  \"pid\": 99135,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": -6\n}\n"
+  },
+  {
+    "file": "command-11.stderr",
+    "sha256": "eefa076026f3ad10fa39a5d8a16b2df51ad7a56bf62e81755e66f5936c2893a3",
+    "encoding": "utf8",
+    "content": "Assertion failed\n"
+  },
+  {
+    "file": "command-11.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-12-command.json",
+    "sha256": "03b9d1f60ea79d3eae76934845329a1d2df307117342f23b7ca1b3166d9e4fd7",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O2\",\n    \"-DNDEBUG\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-12-status.json",
+    "sha256": "2ce492e11ed0c9c420d9cad0d3e88990287d49a0cec0e2c69a0a9532100f24b0",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.12519454199355096,\n  \"pid\": 99138,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-12.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-12.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-13-command.json",
+    "sha256": "d4d0bc765367551aa8a20c08c1c04ee394bd91745c65ea76783d2b10f3b122c7",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/.local/bin/python3\",\n    \"-c\",\n    \"import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-13-status.json",
+    "sha256": "b4557374d5dc049dee3acf68343555cb482edef1062b4e04fd59e179f8bb5bfa",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": -6,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.2745265410048887,\n  \"pid\": 99142,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": -6\n}\n"
+  },
+  {
+    "file": "command-13.stderr",
+    "sha256": "eefa076026f3ad10fa39a5d8a16b2df51ad7a56bf62e81755e66f5936c2893a3",
+    "encoding": "utf8",
+    "content": "Assertion failed\n"
+  },
+  {
+    "file": "command-13.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-14-command.json",
+    "sha256": "6593086b838b09a47478e8f5c2d3de54bdda3f5128f72a48875eb4de76682191",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_virt\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano_virt.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-14-status.json",
+    "sha256": "6566653a8034bd353cfc88cc012a9a24fc06da4f09d5af0a9861c710ef666986",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.039048834005370736,\n  \"pid\": 99144,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-14.stderr",
+    "sha256": "09edd56237f0817534df6e9b0687ee0e6515f55fca7752196bc1f9f9cd20e409",
+    "encoding": "utf8",
+    "content": "Warning at line 49, column 5: Unused variable 'nlr_t24_0'\nWarning: Function 'nlr_f1_owned_1' is missing a shadow test\nWarning: Function 'nlr_f2_owned_2' is missing a shadow test\n"
+  },
+  {
+    "file": "command-14.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-15-command.json",
+    "sha256": "3b8d463698f668397f7784f9ddcbb246ec6056d69012596bc897bd03deb2ffcf",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano_virt.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-15-status.json",
+    "sha256": "d735410214b3785b71d23fc073b7ebb03b2ae1e638b437ec1ed808ba6b235706",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010783417033962905,\n  \"pid\": 99146,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-15.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-15.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-16-command.json",
+    "sha256": "181675c44fc51e5010ba2af794fe0a9f57015f1100ecbffd308c5e2c7992e24d",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano_virt.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-16-status.json",
+    "sha256": "322f851c6b6a95b263337553f5398cdfcc6c1e615d44622b416e7c47166242b9",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 1,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.02005133399507031,\n  \"pid\": 99147,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 1\n}\n"
+  },
+  {
+    "file": "command-16.stderr",
+    "sha256": "4ee42a4444817d39549beef0b5fde4ecd570cd862094fa4d8ea98ca6a2b939ea",
+    "encoding": "utf8",
+    "content": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "file": "command-16.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-17-command.json",
+    "sha256": "96f9462221ee7cf70a0229575f169dded07f9004bbaa1cf8346114545dd39cbc",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nvm2c\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano_virt.nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano_virt.c\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-17-status.json",
+    "sha256": "b24e88a4654d3a488483ebebf9a23c76c89c13723f49ece5a27521da371e5c33",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009602958976756781,\n  \"pid\": 99148,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-17.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-17.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-18-command.json",
+    "sha256": "b6e6916cf1274e3b822eb1c21d6369c6fd336048987ba8ab35f5118cb4b88f83",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O0\",\n    \"-DNDEBUG\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano_virt.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano_virt.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-18-status.json",
+    "sha256": "04160c6ffb98c4a1766a2b9fec07e5455bb9ac99038627261867f8e8944807fe",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.17312779201893136,\n  \"pid\": 99149,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-18.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-18.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-19-command.json",
+    "sha256": "7ca7745f36ddcafbbd4209a09a58f9417b8b9b8a8c207d406b8d53384f330c68",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/.local/bin/python3\",\n    \"-c\",\n    \"import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano_virt.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-19-status.json",
+    "sha256": "37b505d43d3a625d4c79d6b65a2019634ef1c882b36d1345ec3016840f830c0c",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 1,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.23096254101255909,\n  \"pid\": 99152,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 1\n}\n"
+  },
+  {
+    "file": "command-19.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-19.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-2-command.json",
+    "sha256": "b3de4c8f449269a9178a8940c6e3941118d1da42eb07dab2753844fbe1d81f11",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-2-status.json",
+    "sha256": "04880d4efd482ce31208c6e6b8eae2e2f2abb207d9c74099a2523e97a8f3cb35",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009808750008232892,\n  \"pid\": 99116,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-2.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-2.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-20-command.json",
+    "sha256": "6884c7ae3b0a4b206efbe82439585a0825123a1e275ccb74b633ed1fbba69105",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O2\",\n    \"-DNDEBUG\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano_virt.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano_virt.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-20-status.json",
+    "sha256": "e4756fb9cf83e8e0edc4f08e5d169bd37d9ed13ea9d025dae5120de1b4ebfdd4",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.27867066697217524,\n  \"pid\": 99154,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-20.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-20.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-21-command.json",
+    "sha256": "9f34c83df95f958ec6c2d586fc104394daa3e750294eda5c2536d5ae246531ed",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/.local/bin/python3\",\n    \"-c\",\n    \"import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano_virt.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-21-status.json",
+    "sha256": "699b0ca228119a1b38fa5e4d5649bc61da0468b4ebb739971229b2a3c2488462",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 1,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22781120898434892,\n  \"pid\": 99158,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 1\n}\n"
+  },
+  {
+    "file": "command-21.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-21.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-22-command.json",
+    "sha256": "b95229afb94b301eb03c401628e1c3ba4584c42e5438680eec0af2aff5c62224",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage1.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-22-status.json",
+    "sha256": "83cd344ab59be28c573eea985357f75bebb36268dc5375a6c369d5f0ed7ba221",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22225054202135652,\n  \"pid\": 99159,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-22.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-22.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-23-command.json",
+    "sha256": "46c45aacd7171c3574772821b1f4cdcffc6052682afabde21c7aaa61c45a9a8d",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage1.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-23-status.json",
+    "sha256": "64c69b81906cf82fd8b836ba354bacae2248982ff1a4a3a854b76a948e957a47",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010706165980082005,\n  \"pid\": 99162,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-23.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-23.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-24-command.json",
+    "sha256": "c21cf6d700577dc189eae583a12e718e12b8a94b8719b3f616f53c891246e60b",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage1.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-24-status.json",
+    "sha256": "a0ff5e77d5bf588adc1f99be1368ec4e9e833e0f08d0b06d0d63ed7342e006d2",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 1,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010298667009919882,\n  \"pid\": 99163,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 1\n}\n"
+  },
+  {
+    "file": "command-24.stderr",
+    "sha256": "4ee42a4444817d39549beef0b5fde4ecd570cd862094fa4d8ea98ca6a2b939ea",
+    "encoding": "utf8",
+    "content": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "file": "command-24.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-25-command.json",
+    "sha256": "3712332e69f2ce06541ab6152ef56556880a4ea611e90db10685440aea783d48",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nvm2c\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage1.nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage1.c\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-25-status.json",
+    "sha256": "9042be0788d992b041fc9828c7ebffaf82ff7943df576e9393240c629bb0e54e",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.010802833014167845,\n  \"pid\": 99164,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-25.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-25.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-26-command.json",
+    "sha256": "f9ed552c2582b3e54d9e90bc78c6b1eb2ad9880777c3ab9d863e27fc39e12ea9",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O0\",\n    \"-DNDEBUG\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage1.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage1.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-26-status.json",
+    "sha256": "37539ee4b8dd029be610a6f73f7252dbe7ec0fddb42a46503c0718d5f96b0e19",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.16848987498087808,\n  \"pid\": 99165,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-26.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-26.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-27-command.json",
+    "sha256": "426814bdb1944aa23bffd69234660640d65b6af24850cef731f738bb4bd8e683",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/.local/bin/python3\",\n    \"-c\",\n    \"import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage1.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-27-status.json",
+    "sha256": "6f2ce06beee7022dc5d46fee7d4ece4857aadbee35cfbf0d45b5bb718ad8d7fb",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 1,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22709529200801626,\n  \"pid\": 99168,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 1\n}\n"
+  },
+  {
+    "file": "command-27.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-27.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-28-command.json",
+    "sha256": "d321e9f3ad6fe366f2e227d2237e699cf0425c14431e2421596ac59ec7fc77d4",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O2\",\n    \"-DNDEBUG\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage1.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage1.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-28-status.json",
+    "sha256": "63728d920edf662b9d388f616e07cfa47f391d3e6589ce221e42ac274925f5b5",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.2808701250469312,\n  \"pid\": 99170,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-28.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-28.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-29-command.json",
+    "sha256": "d23b52bed66a5be99a193addbb7ba09428efa49e0fb216603a956214feeb5fd6",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/.local/bin/python3\",\n    \"-c\",\n    \"import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage1.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-29-status.json",
+    "sha256": "4504af8f4a568620a19f98a0e94dc1a973c51d8e74a4a78134fcfc4089377966",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 1,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22919870796613395,\n  \"pid\": 99173,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 1\n}\n"
+  },
+  {
+    "file": "command-29.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-29.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-3-command.json",
+    "sha256": "36e43fd297215cadb1e755cd70a491f573bcf05b947b173d84106deee915a0c0",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-3-status.json",
+    "sha256": "92457c021f538b1b673ace5b24a5a3a7a5345aa635ad0ab5a8211cbf88f73df2",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 1,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009271332994103432,\n  \"pid\": 99117,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 1\n}\n"
+  },
+  {
+    "file": "command-3.stderr",
+    "sha256": "4ee42a4444817d39549beef0b5fde4ecd570cd862094fa4d8ea98ca6a2b939ea",
+    "encoding": "utf8",
+    "content": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "file": "command-3.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-30-command.json",
+    "sha256": "044dd86dc02e458d5668632f25596687624c698bb929ae954feda5cc8188e7a5",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nano\",\n    \"--emit-nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage2.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-30-status.json",
+    "sha256": "615cc57646462015c797c87721235a41ab6173ae5e91e36b9d5256fbd3b5bdb9",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22252008301438764,\n  \"pid\": 99175,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-30.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-30.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-31-command.json",
+    "sha256": "ed83ed265e8b8b1e3c42c9d3a026009182aab7d1e77eeb15bb98e0de3e64a744",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"--verify-only\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage2.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-31-status.json",
+    "sha256": "1d2e293ecc2e908358d30834c40b89a7f6a05b31769c1eaa545a204e561dea36",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009731999947689474,\n  \"pid\": 99178,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-31.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-31.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-32-command.json",
+    "sha256": "59f67ea4abdfcce0b0255348213f396290d2c519e42aa212ae5de957fca30436",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage2.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-32-status.json",
+    "sha256": "3f0d781ddeae28f5c3c32f54f1742356556ecab317734556673b17ad8fa32491",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 1,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.018029916973318905,\n  \"pid\": 99179,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 1\n}\n"
+  },
+  {
+    "file": "command-32.stderr",
+    "sha256": "4ee42a4444817d39549beef0b5fde4ecd570cd862094fa4d8ea98ca6a2b939ea",
+    "encoding": "utf8",
+    "content": "I could not execute the module: Assertion failed\n  Assertion failed\n"
+  },
+  {
+    "file": "command-32.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-33-command.json",
+    "sha256": "fb4480651e8e52e001085d685f79a834e06993b2c339ee2f7c7e89b1202020ba",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nvm2c\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage2.nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage2.c\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-33-status.json",
+    "sha256": "2c6453d4e10bd76e5e9c3e41fb2e4f80f486d21e37dda24e4345de2502ce52ca",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009490958007518202,\n  \"pid\": 99180,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-33.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-33.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-34-command.json",
+    "sha256": "6f8c550483734c8230f72a184199edab36614bd7bd5d739adee2d875ba90ba7c",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O0\",\n    \"-DNDEBUG\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage2.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage2.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-34-status.json",
+    "sha256": "c06cddb71babd650fcd1e4ecace931cc68c89ff3e6a7c629e83a442ad978893e",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.1763141670380719,\n  \"pid\": 99181,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-34.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-34.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-35-command.json",
+    "sha256": "4c35d383102d745b8577e22a6b836a01e63ee54f25272686a0752f0d3b0eac85",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/.local/bin/python3\",\n    \"-c\",\n    \"import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage2.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-35-status.json",
+    "sha256": "171c3355895e6962458b62adeee4ef6c974d49f93e9e41925ede00b86c9b86f4",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 1,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22667012497549877,\n  \"pid\": 99184,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 1\n}\n"
+  },
+  {
+    "file": "command-35.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-35.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-36-command.json",
+    "sha256": "62a54429ad5ad253997b764b8213d16046453368f477709d38614b2b05bb1af5",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O2\",\n    \"-DNDEBUG\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage2.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage2.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-36-status.json",
+    "sha256": "df253f4d7054a05c0112f7c59518c5bba7a571949c8d642658b8e889e9c6c072",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.33004274999257177,\n  \"pid\": 99186,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-36.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-36.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-37-command.json",
+    "sha256": "ae30a8fbdfc8dcfac5a2a805351637f173ad0ec90fd4609bba661f333dfdea92",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/.local/bin/python3\",\n    \"-c\",\n    \"import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nanoc_stage2.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-37-status.json",
+    "sha256": "52d66d1823618b459f3c546c461813a10222bce99f9bb374af7fd49ca5bb107b",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 1,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.22654379199957475,\n  \"pid\": 99189,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 1\n}\n"
+  },
+  {
+    "file": "command-37.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-37.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-38-command.json",
+    "sha256": "b71e72e1a2a6256089df00bb0990ff160c20cd8ca94a41677312410da05cc12c",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoisa\",\n    \"asm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/causality.nasm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/causality.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-38-status.json",
+    "sha256": "6f88683758acea191ba0f73083a8a61621f142681f1209a876f1f1c4958bce6a",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.013060416968073696,\n  \"pid\": 99190,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-38.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-38.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-39-command.json",
+    "sha256": "56a409d0ee2a9d78d718c9190e84547372c162115008a4e94b2c11452085418d",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_vm\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/causality.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-39-status.json",
+    "sha256": "a07724d8d554f995712a0858eba8004fbd418f7a17cc7854e2499be33f880531",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.009852625022176653,\n  \"pid\": 99191,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-39.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-39.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-4-command.json",
+    "sha256": "38e63d9c7fa4a405a6bd0d90cf3cd6d26edf6dc47b038963e3da08b02dff63bd",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nanoisa_hl_facts\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nvm\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-4-status.json",
+    "sha256": "f8020e0f02084e34b00b28df7cb129a90126e743982156fc60bae457bc3bd097",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.01071274996502325,\n  \"pid\": 99118,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-4.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-4.stdout",
+    "sha256": "d764bc2160cd7008940c5b773d0a8af288216db9d3ebf85647431fc24353327b",
+    "encoding": "utf8",
+    "content": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1],\"field_types\":[[1,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":2,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\"],\"local_types\":[[1,4294967295],[1,4294967295]],\"size\":86,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":15,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":22,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":2},{\"pc\":27,\"op\":\"PUSH_I64\",\"arg\":8,\"args\":[8],\"target\":4294967295},{\"pc\":36,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":37,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":38,\"op\":\"PUSH_I64\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":47,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":50,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":53,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":58,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":60,\"op\":\"CALL\",\"arg\":2,\"args\":[2],\"target\":2},{\"pc\":65,\"op\":\"PUSH_I64\",\"arg\":9,\"args\":[9],\"target\":4294967295},{\"pc\":74,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":75,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":76,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":85,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":3,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[0],\"names\":[\"\",\"\",\"\"],\"local_types\":[[8,0],[8,0],[1,4294967295]],\"size\":29,\"code\":[{\"pc\":0,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":3,\"op\":\"OWN_STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":6,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":7,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":1,\"args\":[1,1],\"target\":4294967295},{\"pc\":12,\"op\":\"REF_GET\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":17,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":18,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":21,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":24,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":27,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":28,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_2\",\"locals\":8,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0],[4,4294967295]],\"param_modes\":[0,0],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[8,0],[4,4294967295],[3,4294967295],[3,4294967295],[1,4294967295],[3,4294967295],[3,4294967295],[3,4294967295]],\"size\":326,\"code\":[{\"pc\":0,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":12,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":15,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":18,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"JMP_FALSE\",\"arg\":22,\"args\":[22],\"target\":42},{\"pc\":25,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4058c00000000000\"},{\"pc\":34,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":37,\"op\":\"JMP\",\"arg\":-19,\"args\":[-19],\"target\":18},{\"pc\":42,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":51,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":54,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":57,\"op\":\"PUSH_I64\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":66,\"op\":\"LT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":67,\"op\":\"JMP_FALSE\",\"arg\":55,\"args\":[55],\"target\":122},{\"pc\":72,\"op\":\"LOAD_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":75,\"op\":\"PUSH_I64\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":84,\"op\":\"ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":85,\"op\":\"STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":88,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":91,\"op\":\"JMP_FALSE\",\"arg\":10,\"args\":[10],\"target\":101},{\"pc\":96,\"op\":\"JMP\",\"arg\":26,\"args\":[26],\"target\":122},{\"pc\":101,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":104,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":113,\"op\":\"F64_ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":114,\"op\":\"STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":117,\"op\":\"JMP\",\"arg\":-63,\"args\":[-63],\"target\":54},{\"pc\":122,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":125,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":134,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":135,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":136,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":139,\"op\":\"JMP_FALSE\",\"arg\":24,\"args\":[24],\"target\":163},{\"pc\":144,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":147,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff8000000000000\"},{\"pc\":156,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":157,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":158,\"op\":\"JMP\",\"arg\":19,\"args\":[19],\"target\":177},{\"pc\":163,\"op\":\"LOAD_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":166,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4012000000000000\"},{\"pc\":175,\"op\":\"F64_EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":176,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":177,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4004000000000000\"},{\"pc\":186,\"op\":\"F64_NEG\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":187,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":190,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":193,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"0000000000000000\"},{\"pc\":202,\"op\":\"F64_LT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":203,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":204,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"4202a05f20000000\"},{\"pc\":213,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":216,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":219,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":222,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":223,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":226,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":229,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":232,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":233,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":236,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":239,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":242,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":243,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":246,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":249,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":252,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":253,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":256,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":259,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":262,\"op\":\"F64_MUL\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":263,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":266,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":269,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":272,\"op\":\"F64_SUB\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":273,\"op\":\"STORE_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":276,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":279,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":282,\"op\":\"F64_NE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":283,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":284,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":287,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":296,\"op\":\"F64_LE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":297,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":298,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":299,\"op\":\"LOAD_LOCAL\",\"arg\":7,\"args\":[7],\"target\":4294967295},{\"pc\":302,\"op\":\"PUSH_F64\",\"arg\":0,\"args\":[0],\"target\":4294967295,\"f64_bits\":\"3ff0000000000000\"},{\"pc\":311,\"op\":\"F64_GE\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":312,\"op\":\"NOT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":313,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":314,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":317,\"op\":\"CALL\",\"arg\":1,\"args\":[1],\"target\":4294967182},{\"pc\":322,\"op\":\"PUSH_BOOL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":324,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":325,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n"
+  },
+  {
+    "file": "command-5-command.json",
+    "sha256": "0e6c06dce3413585842273cee812558ee0c88d50e1bbd8d442e4ebe85be3139e",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nvm2c\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.nvm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.original.c\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-5-status.json",
+    "sha256": "5c979f7df36fbd12f7f06eb264b24904dd56a8c20506f304a171cc25fec6b786",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.01009012496797368,\n  \"pid\": 99119,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-5.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-5.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-6-command.json",
+    "sha256": "49a552ebced1c9337e22c2b3648eb648c5613b0cdfb5533272c57b819c56975f",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O0\",\n    \"-DNDEBUG\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.original.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.original.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-6-status.json",
+    "sha256": "f9d5449c32ea986f2e8e5e6029a2344415a35f6e6936db3462d858e29c4a0abe",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.12479675002396107,\n  \"pid\": 99120,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-6.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-6.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-7-command.json",
+    "sha256": "45c804459dc54d32d62a4e8a45b8f1f044f3dc810b996fc8bb055174cabcf8bc",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/.local/bin/python3\",\n    \"-c\",\n    \"import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.original.O0.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-7-status.json",
+    "sha256": "0f47b89228ff195a8607d5c139192bdf05414add46592c2510c42f9cc81827f1",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 1,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.4409194169566035,\n  \"pid\": 99123,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 1\n}\n"
+  },
+  {
+    "file": "command-7.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-7.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-8-command.json",
+    "sha256": "13a225f2b2be9fb88621b3aeb48a4fd5a907b73f17520fd8494db2d05b67f603",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"cc\",\n    \"-std=c11\",\n    \"-O2\",\n    \"-DNDEBUG\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Werror\",\n    \"-fsanitize=address,undefined\",\n    \"-fno-sanitize-recover=all\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.original.c\",\n    \"/Users/jkh/Src/nanolang-51-harness/bin/nano_aot_runtime.o\",\n    \"-lm\",\n    \"-o\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.original.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-8-status.json",
+    "sha256": "b07549f3f22ba181fc7d6b047811b39f367f427ebcf3e33e908b0ac8055ddb85",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 0,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.17186658299760893,\n  \"pid\": 99128,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 0\n}\n"
+  },
+  {
+    "file": "command-8.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-8.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-9-command.json",
+    "sha256": "1bc45c3d9e44629bcc2eb6c2b047d74b51ecab1ff751b295565ec590ab5f1dd3",
+    "encoding": "utf8",
+    "content": "{\n  \"argv\": [\n    \"/Users/jkh/.local/bin/python3\",\n    \"-c\",\n    \"import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); os.execv(sys.argv[1],sys.argv[1:])\",\n    \"/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/owned-float-reconstruction-6urv4bjz/later-failure.original.O2.exe\"\n  ],\n  \"cwd\": \"/Users/jkh/Src/nanolang-51-owned-float-design\",\n  \"ASAN_OPTIONS\": \"halt_on_error=1\",\n  \"UBSAN_OPTIONS\": \"halt_on_error=1:print_stacktrace=1\",\n  \"LSAN_OPTIONS\": \"\",\n  \"timeout_seconds\": 180\n}\n"
+  },
+  {
+    "file": "command-9-status.json",
+    "sha256": "a497600a7593197bfdc6b388b6ae8235c95bc42b9955b286d117fd7e943f8463",
+    "encoding": "utf8",
+    "content": "{\n  \"returncode\": 1,\n  \"timeout\": false,\n  \"cleanup_errors\": [],\n  \"group_absent\": true,\n  \"timeout_seconds\": 180,\n  \"elapsed_seconds\": 0.28063629200914875,\n  \"pid\": 99131,\n  \"first_terminal\": \"exit\",\n  \"remaining_group_killed\": false,\n  \"child_returncode\": 1\n}\n"
+  },
+  {
+    "file": "command-9.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  },
+  {
+    "file": "command-9.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "encoding": "utf8",
+    "content": ""
+  }
+]

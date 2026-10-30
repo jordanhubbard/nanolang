@@ -1,0 +1,31 @@
+tests/nanoisa/test_record_map_string.c:186:33: error: member reference base type 'void' is not a structure or union
+  186 |         uint32_t refs=key.as.obj->ref_count;key.as.obj->ref_count=UINT32_MAX;
+      |                       ~~~~~~~~~~^ ~~~~~~~~~
+tests/nanoisa/test_record_map_string.c:186:55: error: member reference base type 'void' is not a structure or union
+  186 |         uint32_t refs=key.as.obj->ref_count;key.as.obj->ref_count=UINT32_MAX;
+      |                                             ~~~~~~~~~~^ ~~~~~~~~~
+tests/nanoisa/test_record_map_string.c:191:65: error: member reference base type 'void' is not a structure or union
+  191 |         CHECK(vm->stack_size==(ordinary?2u:0u));CHECK(key.as.obj->ref_count==(ordinary?UINT32_MAX:UINT32_MAX-1));
+      |                                                       ~~~~~~~~~~^ ~~~~~~~~~
+tests/nanoisa/test_record_array_origins.c:23:36: note: expanded from macro 'CHECK'
+   23 | #define CHECK(x) do {checks++;if(!(x)){fprintf(stderr,"I failed line %u: %s\n",__LINE__,#x);exit(1);}} while(0)
+      |                                    ^
+tests/nanoisa/test_record_map_string.c:192:19: error: member reference base type 'void' is not a structure or union
+  192 |         key.as.obj->ref_count=ordinary?refs:refs-1;
+      |         ~~~~~~~~~~^ ~~~~~~~~~
+tests/nanoisa/test_record_map_string.c:221:93: error: member reference base type 'void' is not a structure or union
+  221 |         CHECK(stored.tag==TAG_STRING&&stored.as.obj!=key.as.obj);uint32_t refs=stored.as.obj->ref_count,size=vm->stack_size,ip=vm->ip;
+      |                                                                                ~~~~~~~~~~~~~^ ~~~~~~~~~
+tests/nanoisa/test_record_map_string.c:224:22: error: member reference base type 'void' is not a structure or union
+  224 |         stored.as.obj->ref_count=UINT32_MAX;
+      |         ~~~~~~~~~~~~~^ ~~~~~~~~~
+tests/nanoisa/test_record_map_string.c:227:28: error: member reference base type 'void' is not a structure or union
+  227 |         CHECK(stored.as.obj->ref_count==UINT32_MAX&&vm->globals[0].as.sval->fields[0].as.obj==map.as.obj);stored.as.obj->ref_count=refs;
+      |               ~~~~~~~~~~~~~^ ~~~~~~~~~
+tests/nanoisa/test_record_array_origins.c:23:36: note: expanded from macro 'CHECK'
+   23 | #define CHECK(x) do {checks++;if(!(x)){fprintf(stderr,"I failed line %u: %s\n",__LINE__,#x);exit(1);}} while(0)
+      |                                    ^
+tests/nanoisa/test_record_map_string.c:227:120: error: member reference base type 'void' is not a structure or union
+  227 |         CHECK(stored.as.obj->ref_count==UINT32_MAX&&vm->globals[0].as.sval->fields[0].as.obj==map.as.obj);stored.as.obj->ref_count=refs;
+      |                                                                                                           ~~~~~~~~~~~~~^ ~~~~~~~~~
+8 errors generated.

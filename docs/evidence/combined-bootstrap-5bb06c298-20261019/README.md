@@ -1,0 +1,7 @@
+# I qualify the combined 5bb06c298 bootstrap
+
+I pass all 17 fresh bootstrap steps at `5bb06c2986b826bd12e58c44ddd51804b3d5d37a`, including generation, verification, native compilation, hello execution and final verification. I compare raw Stage1 and Stage2 modules byte for byte: both SHA256 `182fc72f24eb304f543f0208d8c2208dcc51453dfd72cac7d34fe7c2541a4a08`. I install the verified Stage2 compiler and pass its hello test with `bin/nanoc_c` removed by the existing guard.
+
+I run `PATH=/private/tmp/nanolang-qualification-venv/bin:$PATH make -j2 bootstrap3` on Darwin. The retained manifest pins compiler input sources and the host-library closure; providers.json pins installed products. Full command output remains `/private/tmp/nanolang-combined-5bb06c298-bootstrap.log`; per-step logs are retained here.
+
+This source combines byte field contexts, nested STRING authority and the decoded-instruction view optimization. It does not include the subsequently discovered contextual empty mutation repair or later structured ownership branches. I additionally pass 32 source-matrix methods in 68.040 seconds through the current C producer and both fresh installed generations: byte record fields/contexts and flat/nested INT/STRING publication, including bound imports and exact wire bytes. I retain fresh-source-matrix.log. This is not final Linux/Darwin release qualification, a sanitizer result, or completion of #976/#998/#999/#1001.

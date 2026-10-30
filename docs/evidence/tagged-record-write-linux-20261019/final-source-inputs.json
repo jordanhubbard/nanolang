@@ -1,0 +1,6 @@
+{
+  "src/nanoisa/nvm2c.c": "0ff4c821a211628a3bf901dc67cd297c8a890077dfe017128cb3105041129c2f",
+  "tests/test_native_scalar_joins.py": "6cba0a3c287b575483b41304de8521f4d097b9f42d6f034fa5fb074e0319a52a",
+  "tests/test_public_global_declarations.py": "393521d4836a0ace3b5fa547eb916faa1c0c3be6f098bf6a331159b06e658e91",
+  "tests/fixtures/tagged_record_array_update.nano": "ded8076700deb1fadae49e1038813461d649ff01f709eb587ff8e52c6bded13e"
+}

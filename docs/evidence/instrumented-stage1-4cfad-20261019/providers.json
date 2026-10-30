@@ -1,0 +1,21 @@
+{
+  "source": "4cfad37372f8a1b71d3d29771f914e40e4561c90",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "providers": {
+    "/private/tmp/nanolang-asan-profile-4cfad3737/bin/nano_vm": "9065635ec71045447910a02d968793cdf918371479e15b9c9ec89c9af65ac1af",
+    "/private/tmp/nanolang-asan-profile-4cfad3737/bin/nanoc_seed.nvm": "070ae40404ad429d1bbbb8973532f8bf6361033863d2b3ab5a828911bdd8ca86",
+    "/private/tmp/nanolang-asan-profile-4cfad3737/bin/nanoc_c": "34b492a030afcf22e02c99b4d13d334a910e88186573e2e18d3f29f37a668287",
+    "/private/tmp/nanolang-asan-profile-4cfad3737/bin/nano_aot_runtime.o": "076a9ae43784b135cbc9f65e6fbe7cf8c514afe19aa15acfa170bbd3305da6fc",
+    "/private/tmp/nanolang-asan-provisioned-stage1.nvm": "a73ef9a980bfea624e124b30ed52470f0eb519186dcfabd915d356d546aa87d4",
+    "/private/tmp/nanolang-asan-provisioned-shadows.nvm": "8fd0cb69495a70d889449783bc47562f913b4f4c0a85154ac8cb9246b4922ec2"
+  },
+  "verification": {
+    "command": [
+      "/private/tmp/nanolang-asan-profile-4cfad3737/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-asan-provisioned-stage1.nvm"
+    ],
+    "exit_code": 0
+  },
+  "scope": "Darwin Apple Clang O3 ASan/UBSan Stage1 generation; not full bootstrap or Linux qualification"
+}

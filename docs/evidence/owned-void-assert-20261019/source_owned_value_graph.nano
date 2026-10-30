@@ -1,0 +1,18 @@
+resource struct Handle { value: int }
+fn make_handle() -> Handle { return Handle { value: 42 } }
+shadow make_handle { let h: Handle = (make_handle) (consume h) }
+fn forward(n: int, h: Handle, yes: bool) -> Handle {
+    assert (== n 7)
+    assert yes
+    return h
+}
+shadow forward { let h: Handle = (make_handle) let k: Handle = (forward 7 h true) (consume k) }
+fn consume(h: Handle) -> void { let Handle { value } = h assert (== value 42) }
+shadow consume { let h: Handle = Handle { value: 42 } (consume h) }
+fn main() -> int {
+    let h: Handle = (make_handle)
+    let k: Handle = (forward 7 h true)
+    (consume k)
+    return 0
+}
+shadow main { assert (== (main) 0) }

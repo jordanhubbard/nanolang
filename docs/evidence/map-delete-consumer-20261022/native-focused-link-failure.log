@@ -1,0 +1,23 @@
+test_native_semantics_and_allocation_prefixes (__main__.Focused.test_native_semantics_and_allocation_prefixes) ... I retain private native evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-jvr4lko8
+FAIL
+
+======================================================================
+FAIL: test_native_semantics_and_allocation_prefixes (__main__.Focused.test_native_semantics_and_allocation_prefixes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_native.py", line 99, in test_native_semantics_and_allocation_prefixes
+    exe = self.driver()
+  File "/private/tmp/nanolang-map-delete-consumer-20261022/native_focused.py", line 17, in driver
+    self.command('driver-build',self.cc+self.flags+['-DMAP_NATIVE_WHITEBOX','tests/nanoisa/test_record_map_native.c','tests/nanoisa/record_array_alloc.c',str(obj),*objects,*self.ldflags,'-o',str(exe)],build=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_native.py", line 54, in command
+    self.assertEqual(p.returncode, 0, p.stderr.decode())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ld: library 'crypto' not found
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 5.108s
+
+FAILED (failures=1)

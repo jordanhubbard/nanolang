@@ -1,0 +1,10 @@
+{
+  "src/nanoisa/managed_array_shapes.c": "161bee007d87c465541e09c4ef95435448e883f3e277ecb803f255b0d43ad72e",
+  "src/nanoisa/managed_record_array_origins.h": "f689c90490d847002190b368ed04acb247751f6b44287c27108d891b8a613709",
+  "src/nanoisa/nvm2c.c": "27d4662df446c34bc07bf71ef9e4337bb8736288a9468f64f400f1530147f2cf",
+  "src/nanoisa/ownership_array_fields.inc": "1900897b95e19696804f21542c2e6e9a4a90f556fb4a7d4dbe5d4003c666f3ff",
+  "src/nanoisa/record_array_origins.inc": "f79e17fa4893adc627aaea3c1e47cdcb16436e5903575565fa54f405d96f4f67",
+  "src/nanovirt/ordinary_authority.inc": "e99e65f627d2547654d1da1d165848365d036953fd230cb6bf106b44a04c1c32",
+  "src/nanovm/record_array_vm_prepare.inc": "ca51c28bd86f41fa2f18af2ba8f4fc03162a96f331e5c99e35f4773383d05f77",
+  "src_nano/compiler/nanoisa_codegen.nano": "96885c4e34937d3721dd77727023afb7de3ae60042a94747e4915c2443f7464f"
+}

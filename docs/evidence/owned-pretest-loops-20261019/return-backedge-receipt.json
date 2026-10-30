@@ -1,0 +1,46 @@
+[
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-owned-loop-map-20261019/return-backedge.nasm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/return-backedge.nvm"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-owned-loop-map-20261019/return-backedge.nvm"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm",
+      "/private/tmp/nanolang-owned-loop-map-20261019/return-backedge.nvm"
+    ],
+    "status": 15,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/private/tmp/nanolang-owned-loop-map-20261019/return-backedge.nvm",
+      "-o",
+      "/private/tmp/nanolang-owned-loop-map-20261019/return-backedge.nano"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

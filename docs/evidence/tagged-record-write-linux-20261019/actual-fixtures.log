@@ -1,0 +1,48 @@
+test_parser_visibility_survives_storage_and_type_backfill (tests.test_public_global_declarations.PublicGlobalDeclarations.test_parser_visibility_survives_storage_and_type_backfill) ... FAIL
+test_vm_native_semantics_and_no_per_lookup_map (tests.test_field_metadata_lookup.FieldMetadataLookup.test_vm_native_semantics_and_no_per_lookup_map) ... FAIL
+
+======================================================================
+FAIL: test_parser_visibility_survives_storage_and_type_backfill (tests.test_public_global_declarations.PublicGlobalDeclarations.test_parser_visibility_survives_storage_and_type_backfill)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_public_global_declarations.py", line 32, in test_parser_visibility_survives_storage_and_type_backfill
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-public-global-parser-71mjs1x9/parser.c:82788:54: error: no member named 'string' in 'nmap_value'
+ 82788 |     if (v[0].kind != 7 || v[0].integer != 6 || !v[0].string) NVM2C_ABORT();
+       |                                                 ~~~~ ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-public-global-parser-71mjs1x9/parser.c:82789:27: error: no member named 'string' in 'nmap_value'
+ 82789 |     ra[0] = (nrarr_t)v[0].string;
+       |                      ~~~~ ^
+2 errors generated.
+
+
+======================================================================
+FAIL: test_vm_native_semantics_and_no_per_lookup_map (tests.test_field_metadata_lookup.FieldMetadataLookup.test_vm_native_semantics_and_no_per_lookup_map)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_field_metadata_lookup.py", line 71, in test_vm_native_semantics_and_no_per_lookup_map
+    self.run_checked([cc, "-std=c11", "-O0", "-Wall", "-Wextra", "-Werror",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      native_c, ROOT / "bin/nano_aot_runtime.o", "-lm", "-o", binary,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      *native_link_flags()], build=True)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_field_metadata_lookup.py", line 37, in run_checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-field-lookup-0skh974r/lookup.c:135355:54: error: no member named 'string' in 'nmap_value'
+ 135355 |     if (v[1].kind != 7 || v[1].integer != 6 || !v[1].string) NVM2C_ABORT();
+        |                                                 ~~~~ ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-field-lookup-0skh974r/lookup.c:135356:27: error: no member named 'string' in 'nmap_value'
+ 135356 |     ra[0] = (nrarr_t)v[1].string;
+        |                      ~~~~ ^
+2 errors generated.
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 42.264s
+
+FAILED (failures=2)

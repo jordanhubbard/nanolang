@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/Users/jkh/.local/bin/python3",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_map_field_publication"
+  ],
+  "status": 0,
+  "seconds": 58.51437504199566,
+  "selectors": {
+    "NANO_VM": "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm",
+    "MAP_PUBLICATION_NANOISA": "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa",
+    "MAP_PUBLICATION_NANO_VM": "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm",
+    "MAP_PUBLICATION_NVM2C": "/private/tmp/nanolang-map-delete-consumer-20261022/nvm2c",
+    "MAP_PUBLICATION_NANO_VIRT": "/private/tmp/nanolang-map-delete-publication-20261022/nano_virt",
+    "MAP_PUBLICATION_C_SHADOW": "/private/tmp/nanolang-map-delete-publication-20261022/c-shadow",
+    "MAP_PUBLICATION_COMPILERS": "/private/tmp/nanolang-map-delete-publication-20261022/canonical",
+    "MAP_PUBLICATION_RAW_DRIVERS": "/private/tmp/nanolang-map-delete-publication-20261022/raw",
+    "MAP_PUBLICATION_CC": "/opt/homebrew/opt/llvm/bin/clang"
+  }
+}

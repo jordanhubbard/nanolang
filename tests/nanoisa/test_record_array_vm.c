@@ -394,7 +394,7 @@ static const struct {uint8_t opcode,recipe;uint16_t flags;} operations[]={
     SPEC(LOAD_LOCAL,LOAD,BASE|KEEP),SPEC(LOAD_GLOBAL,LOAD,BASE|KEEP),SPEC(STORE_LOCAL,STORE,BASE|KEEP),SPEC(STORE_GLOBAL,STORE,BASE|KEEP),
     SPEC(DUP,DUP,BASE|KEEP),SPEC(SWAP,SWAP,BASE),SPEC(POP,DROP,BASE),SPEC(ASSERT,DROP,BASE),
     SPEC(JMP,BRANCH,BASE),SPEC(JMP_TRUE,BRANCH,BASE),SPEC(JMP_FALSE,BRANCH,BASE),
-    SPEC(CALL,CALL,BASE|NVM_RA_STAGE_OPERANDS),SPEC(RET,RETURN,BASE|NVM_RA_STAGE_OPERANDS),
+    SPEC(CALL,CALL,BASE|NVM_RA_STAGE_OPERANDS),SPEC(TAIL_CALL,TAIL,BASE|NVM_RA_STAGE_OPERANDS|KEEP),SPEC(RET,RETURN,BASE|NVM_RA_STAGE_OPERANDS),
     SPEC(STRUCT_NEW,CONSTRUCT,BASE|NOM|SAFE),SPEC(STRUCT_LITERAL,CONSTRUCT,BASE|NOM|SAFE),SPEC(AGG_PACK,CONSTRUCT,BASE|NOM|SAFE),
     SPEC(ARR_NEW,CONSTRUCT,BASE|SAFE),SPEC(ARR_LITERAL,CONSTRUCT,BASE|SAFE),
     SPEC(STRUCT_GET,GET,BASE|NOM|BOUND|KEEP),SPEC(AGG_GET,GET,BASE|NOM|BOUND|KEEP),SPEC(ARR_GET,GET,BASE|BOUND|KEEP),
@@ -408,8 +408,8 @@ static const struct {uint8_t opcode,recipe;uint16_t flags;} operations[]={
 #undef BOUND
 #undef NOM
 static void recipe_and_dispatch_agreement(void) {
-    bool listed[256]={false};CHECK(sizeof operations/sizeof operations[0]==93);
-    for(unsigned i=0;i<93;i++) {
+    bool listed[256]={false};CHECK(sizeof operations/sizeof operations[0]==94);
+    for(unsigned i=0;i<94;i++) {
         NvmRecordArrayExecutionInstruction row={0};uint8_t opcode=operations[i].opcode;
         CHECK(!listed[opcode]);listed[opcode]=true;
         CHECK(vm_ra_recipe(opcode,&row)&&row.recipe==operations[i].recipe&&row.obligations==operations[i].flags);
@@ -441,7 +441,7 @@ static void recipe_and_dispatch_agreement(void) {
     uint32_t next=body->instructions[1].next_index;body->instructions[1].next_index=NO;
     CHECK(!vm_ra_coverage(p));body->instructions[1].next_index=next;p->work=work;
     CHECK(vm_ra_coverage(p));p->work=work;dispose(p);
-    printf("I retired all 93 recipes and checked all 256 opcode decisions and independent maps.\n");
+    printf("I retired all 94 recipes and checked all 256 opcode decisions and independent maps.\n");
 }
 static void private_bounds_and_busy(void) {
     Input c;graph_program(&c,TAG_STRING);VmRecordArrayPrivate *p=instance(&c);
@@ -553,6 +553,95 @@ static void boxed_partial_copy_cleanup(void) {
     CHECK(heap->stats.num_objects==objects&&heap->stats.allocated-heap->stats.freed==bytes);
     dispose(p);CHECK(!ra_live&&!ra_bytes);
 }
+static void tail_staging_failure_prefixes(void) {
+    Input c;init(&c,TAG_STRING,false);array(&c,TAG_STRING);record(&c,0);arg16(&c,OP_STORE_LOCAL,0);
+    for(unsigned i=0;i<17;i++)arg16(&c,OP_LOAD_LOCAL,0);
+    arg32(&c,OP_TAIL_CALL,1);c.fn[0].code_length=(uint32_t)c.n;c.m.function_count=2;
+    c.fn[1].name_idx=2;c.fn[1].code_offset=(uint32_t)c.n;
+    c.fn[1].arity=17;c.fn[1].local_count=19;c.fn[1].result_count=1;c.fn[1].result_tag=TAG_INT;
+    uint8_t parameters[17];memset(parameters,TAG_STRUCT,sizeof parameters);
+    c.param_rows[1]=parameters;c.m.function_param_types=c.param_rows;
+    op(&c,OP_PUSH_BOOL);b8(c.code,&c.n,1);op(&c,OP_ASSERT);
+    integer(&c,37);op(&c,OP_RET);c.fn[1].code_length=(uint32_t)c.n-c.fn[1].code_offset;authority(&c);
+    VmRecordArrayPrivate *p=instance(&c);CHECK(vm_record_array_private_run(p)==VM_OK);
+    ra_calls=0;CHECK(vm_record_array_private_run(p)==VM_OK);size_t total=ra_calls;dispose(p);
+    CHECK(total && !ra_live && !ra_bytes);
+    for(int persistent=0;persistent<2;persistent++)for(size_t fail=0;fail<total;fail++) {
+        p=instance(&c);CHECK(vm_record_array_private_run(p)==VM_OK);
+        VmRecordArrayPrivateStats before=idle(p,VM_OK);
+        ra_calls=0;ra_fail=fail;ra_persistent=persistent;
+        CHECK(vm_record_array_private_run(p)==VM_ERR_MEMORY && ra_calls>fail);
+        ra_fail=SIZE_MAX;ra_persistent=0;VmRecordArrayPrivateStats after=idle(p,VM_ERR_MEMORY);
+        CHECK(after.maximum_frames==1 && after.heap_objects==before.heap_objects && after.heap_live_bytes==before.heap_live_bytes);
+        CHECK(observe(p,VM_RA_RESULT,0,NULL,0).scalar_bits==37);
+        CHECK(vm_record_array_private_run(p)==VM_OK);dispose(p);CHECK(!ra_live && !ra_bytes);
+    }
+    printf("I checked %zu tail staging/runtime allocation positions with prior result preservation.\n",total);
+}
+static void public_tail_duplicate_headroom(void) {
+    Input c;init(&c,TAG_INT,false);array(&c,TAG_INT);
+    op(&c,OP_AGG_PACK);b8(c.code,&c.n,AGG_RECORD);b32(c.code,&c.n,0);b16(c.code,&c.n,0);b16(c.code,&c.n,1);
+    op(&c,OP_DUP);op(&c,OP_PUSH_BOOL);b8(c.code,&c.n,1);op(&c,OP_ASSERT);
+    uint32_t tail=(uint32_t)c.n;arg32(&c,OP_TAIL_CALL,1);
+    c.fn[0].code_length=(uint32_t)c.n;c.m.function_count=2;
+    c.fn[1].name_idx=2;c.fn[1].code_offset=(uint32_t)c.n;
+    c.fn[1].arity=c.fn[1].local_count=2;c.fn[1].result_count=1;c.fn[1].result_tag=TAG_INT;
+    c.params[0]=c.params[1]=TAG_STRUCT;c.param_rows[1]=c.params;c.m.function_param_types=c.param_rows;
+    integer(&c,37);op(&c,OP_RET);c.fn[1].code_length=(uint32_t)c.n-c.fn[1].code_offset;authority(&c);
+    CHECK(nvm_verify(&c.m).ok);VmState vm;vm_init(&vm,&c.m);
+    CHECK(vm_call_function(&vm,1,NULL,0)==VM_ERR_TYPE_ERROR);
+    uint32_t active=0;VmOwnedInvocationProof proof={0};
+    proof.module=&c.m;proof.ordinary_arrays=true;proof.ordinary_active_root=&active;
+    VmCallFrame *frame=&vm.frames[0];memset(frame,0,sizeof *frame);
+    frame->module=&c.m;frame->local_count=c.fn[0].local_count;frame->owned_callable=val_void();
+    for(uint16_t i=0;i<frame->local_count;i++)vm.stack[vm.stack_size++]=val_void();
+    vm.frame_count=1;vm.current_fn=0;vm.ip=0;
+    VmTrap trap=vm_core_execute_scoped(&vm,&proof,NULL,NULL);CHECK(trap.type==TRAP_ASSERT);
+    vm_release(&vm.heap,trap.data.assert_check.condition);
+    NanoValue value=stack_peek(&vm,0);CHECK(value.tag==TAG_STRUCT && value.as.obj==stack_peek(&vm,1).as.obj);
+    VmHeapHeader *owner=(VmHeapHeader *)value.as.obj;uint32_t refs=owner->ref_count;
+    owner->ref_count=UINT32_MAX-1;
+    trap=vm_core_execute_scoped(&vm,&proof,NULL,NULL);
+    CHECK(trap.type==TRAP_ERROR && trap.data.error.code==VM_ERR_MEMORY);
+    CHECK(active==0 && vm.current_fn==0 && frame->fn_idx==0 && vm.frame_count==1);
+    CHECK(vm.stack_size==frame->local_count+2u && owner->ref_count==UINT32_MAX-1);
+    owner->ref_count=refs;vm.ip=tail;
+    trap=vm_core_execute_scoped(&vm,&proof,NULL,NULL);CHECK(trap.type==TRAP_NONE);
+    CHECK(active==1 && !vm.frame_count && vm.stack_size==1 && vm.stack[0].as.i64==37);
+    vm_destroy(&vm);CHECK(!ra_live && !ra_bytes);
+    vm_init(&vm,&c.m);CHECK(vm_execute(&vm)==VM_OK);vm_destroy(&vm);CHECK(!ra_live && !ra_bytes);
+}
+static void tail_duplicate_headroom(void) {
+    Input c;init(&c,TAG_INT,false);array(&c,TAG_INT);record(&c,0);op(&c,OP_DUP);
+    op(&c,OP_PUSH_BOOL);b8(c.code,&c.n,1);op(&c,OP_ASSERT);
+    arg32(&c,OP_TAIL_CALL,1);c.fn[0].code_length=(uint32_t)c.n;c.m.function_count=2;
+    c.fn[1].name_idx=2;c.fn[1].code_offset=(uint32_t)c.n;
+    c.fn[1].arity=c.fn[1].local_count=2;c.fn[1].result_count=1;c.fn[1].result_tag=TAG_INT;
+    c.params[0]=c.params[1]=TAG_STRUCT;c.param_rows[1]=c.params;c.m.function_param_types=c.param_rows;
+    integer(&c,37);op(&c,OP_RET);c.fn[1].code_length=(uint32_t)c.n-c.fn[1].code_offset;authority(&c);
+    VmRecordArrayPrivate *p=instance(&c);CHECK(vm_record_array_private_run(p)==VM_OK);
+    CHECK(observe(p,VM_RA_RESULT,0,NULL,0).scalar_bits==37);
+    VmState *vm=&p->vm;p->busy=true;
+    VmCallFrame *frame=&vm->frames[0];memset(frame,0,sizeof *frame);
+    frame->module=vm->module;frame->local_count=c.fn[0].local_count;frame->owned_callable=val_void();
+    for(uint16_t i=0;i<frame->local_count;i++)vm->stack[vm->stack_size++]=val_void();
+    vm->frame_count=1;vm->current_fn=0;vm->ip=0;
+    VmTrap trap=vm_core_execute_scoped(vm,NULL,NULL,p);CHECK(trap.type==TRAP_ASSERT);
+    vm_release(&vm->heap,trap.data.assert_check.condition);
+    CHECK(vm->stack_size==frame->local_count+2u && vm->frame_count==1);
+    NanoValue value=stack_peek(vm,0);CHECK(value.tag==TAG_STRUCT && value.as.obj==stack_peek(vm,1).as.obj);
+    VmHeapHeader *owner=(VmHeapHeader *)value.as.obj;uint32_t refs=owner->ref_count;
+    const VmDispatchInstruction *tail=&vm->dispatch_module.functions[0].instructions[p->functions[0].instruction_count-1];
+    owner->ref_count=UINT32_MAX-1;
+    CHECK(vm_ra_preflight(p,tail)==VM_ERR_MEMORY && owner->ref_count==UINT32_MAX-1);
+    CHECK(vm->stack_size==frame->local_count+2u && vm->frame_count==1);
+    owner->ref_count=UINT32_MAX-2;CHECK(vm_ra_preflight(p,tail)==VM_OK);
+    owner->ref_count=refs;
+    trap=vm_core_execute_scoped(vm,NULL,NULL,p);CHECK(trap.type==TRAP_NONE);
+    CHECK(!vm->frame_count && vm->stack_size==1 && vm->stack[0].as.i64==37);
+    vm_ra_unwind(p);p->busy=false;CHECK(vm_record_array_private_run(p)==VM_OK);
+    dispose(p);CHECK(!ra_live && !ra_bytes);
+}
 static void affinity_and_retain_overflow(void) {
     Input c;graph_program(&c,TAG_STRING);VmRecordArrayPrivate *p=instance(&c);
     pthread_t thread;CHECK(!pthread_create(&thread,NULL,wrong_thread,p));CHECK(!pthread_join(thread,NULL));
@@ -594,15 +683,26 @@ static void heap_result_alias_and_call(void) {
     /* Root ownership is preserved. Alias mutation is deliberately not rolled back. */
     dispose(p);
 }
+static void direct_tail_frame(void) {
+    Input c;init(&c,TAG_INT,false);array(&c,TAG_INT);record(&c,0);op(&c,OP_POP);
+    arg32(&c,OP_TAIL_CALL,1);c.fn[0].code_length=(uint32_t)c.n;c.m.function_count=2;
+    c.fn[1].name_idx=2;c.fn[1].code_offset=(uint32_t)c.n;c.fn[1].local_count=7;
+    c.fn[1].result_count=1;c.fn[1].result_tag=TAG_INT;
+    integer(&c,73);op(&c,OP_RET);c.fn[1].code_length=(uint32_t)c.n-c.fn[1].code_offset;
+    authority(&c);VmRecordArrayPrivate *p=instance(&c);
+    CHECK(vm_record_array_private_run(p)==VM_OK);
+    VmRecordArrayPrivateStats after=idle(p,VM_OK);CHECK(after.maximum_frames==1);
+    CHECK(observe(p,VM_RA_RESULT,0,NULL,0).tag==TAG_INT);dispose(p);
+}
 int main(void) {
     setvbuf(stdout,NULL,_IONBF,0);
 #define CASE(name) do {printf("I begin %s\n",#name);name();} while(0)
-    CASE(graph_aliases_and_independent_copies);CASE(wrong_tag_cleanup);
+    CASE(direct_tail_frame);CASE(graph_aliases_and_independent_copies);CASE(wrong_tag_cleanup);
     CASE(retained_result_and_globals);CASE(heap_result_alias_and_call);CASE(initializer_prefix);CASE(scalar_handlers);
     CASE(frame_boundaries);CASE(string_handlers);CASE(mutation_handlers);
     CASE(zero_field_constructor);CASE(nominal_dag_and_release);CASE(entry_result_controls);
 #ifdef VM_RA_WHITEBOX
-    CASE(private_bounds_and_busy);CASE(affinity_and_retain_overflow);CASE(boxed_partial_copy_cleanup);
+    CASE(tail_staging_failure_prefixes);CASE(public_tail_duplicate_headroom);CASE(tail_duplicate_headroom);CASE(private_bounds_and_busy);CASE(affinity_and_retain_overflow);CASE(boxed_partial_copy_cleanup);
     CASE(recipe_and_dispatch_agreement);CASE(allocation_prefixes);
     CHECK(!ra_live&&!ra_bytes);
 #endif

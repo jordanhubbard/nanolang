@@ -1,0 +1,5 @@
+checked field reads: 22 growth allocation prefixes and independent recovery passed
+checked field reads: exact topology/category, shared limits, allocation failures and recovery passed
+checked field writes: topology, all-family limits, 24 reached allocation prefixes and recovery passed
+actual Environment teardown: active scope, failures and recovery passed
+checked borrow ledger: lifecycle, invalidation, limits and allocation recovery passed

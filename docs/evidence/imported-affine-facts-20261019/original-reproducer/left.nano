@@ -1,0 +1,5 @@
+resource struct Handle { payload:int }
+fn take(value:Handle)->int {let observed:int=value.payload let Handle{payload}=value return (+ observed payload)}
+shadow take {assert (== (take Handle{payload:7}) 14)}
+pub fn run()->int {let value:Handle=Handle{payload:7} return (take value)}
+shadow run {assert (== (run) 14)}

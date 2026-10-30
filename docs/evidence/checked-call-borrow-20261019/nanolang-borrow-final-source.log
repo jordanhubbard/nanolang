@@ -1,0 +1,14 @@
+test_actual_checker_context_raw_recheck_and_descriptor_lifetime (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_actual_checker_context_raw_recheck_and_descriptor_lifetime) ... ok
+test_actual_root_and_nested_events (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_actual_root_and_nested_events) ... ok
+test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) ... ok
+test_imported_helper_existing_producer_boundary (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_imported_helper_existing_producer_boundary) ... ok
+test_later_argument_and_runtime_shadow_failure_preserve_output (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_later_argument_and_runtime_shadow_failure_preserve_output) ... ok
+test_multi_helper_import_profile_remains_refused (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_multi_helper_import_profile_remains_refused) ... ok
+test_borrow_suffix_preserves_code_authority_and_references (tests.test_source_borrow_emission.AffineComparisonIsolation.test_borrow_suffix_preserves_code_authority_and_references) ... ok
+test_only_advisory_difference_is_normalized (tests.test_source_borrow_emission.AffineComparisonIsolation.test_only_advisory_difference_is_normalized) ... ok
+test_shared_or_untrusted_facts_refuse_normalization (tests.test_source_borrow_emission.AffineComparisonIsolation.test_shared_or_untrusted_facts_refuse_normalization) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 77.384s
+
+OK

@@ -1,0 +1,18 @@
+test_actual_observe_consume_and_advisory_independence (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_observe_consume_and_advisory_independence) ... 
+  test_actual_observe_consume_and_advisory_independence (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_observe_consume_and_advisory_independence) (driver=PosixPath('/private/tmp/nanoc-affine-use')) ... FAIL
+test_invalid_resource_uses_preserve_output (tests.test_affine_use_metadata.AffineUseMetadata.test_invalid_resource_uses_preserve_output) ... ok
+
+======================================================================
+FAIL: test_actual_observe_consume_and_advisory_independence (tests.test_affine_use_metadata.AffineUseMetadata.test_actual_observe_consume_and_advisory_independence) (driver=PosixPath('/private/tmp/nanoc-affine-use'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-affine-use-facts/tests/test_affine_use_metadata.py", line 56, in test_actual_observe_consume_and_advisory_independence
+    self.assertEqual(observed['take'],{('x',1),('x',2)})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the second set but not the first:
+('x', 1)
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.326s
+
+FAILED (failures=1)

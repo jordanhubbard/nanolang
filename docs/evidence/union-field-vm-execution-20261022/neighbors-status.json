@@ -1,0 +1,1 @@
+{"command": ["python3", "-m", "unittest", "-f", "-v", "tests.test_union_field_preparation", "tests.test_record_array_vm", "tests.test_record_map_runtime"], "exit": 0, "seconds": 101.1801839589607}

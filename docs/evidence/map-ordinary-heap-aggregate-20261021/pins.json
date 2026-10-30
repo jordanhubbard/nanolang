@@ -1,0 +1,8 @@
+{
+  "src/nanovm/record_map_heap.inc": "f78a3de45a2d19a07714d04f074b68a7f99efc11da9791dff932d2f53756644c",
+  "src/nanovm/record_map_heap_private.h": "2d56a791309da9a671cb6ab3208c1be04b0921f51cc4c23d5f6c15cfeeafe194",
+  "tests/test_record_map_ordinary_heap.py": "6df0e28363d5c796272971b6e231030583ab49812a344e4a251d9f0a4b8facac",
+  "tests/nanovm/test_record_map_ordinary_heap.c": "ff3a62884765e67214034ceeebf16f97f684b6af8cdb85b52888f2a2547d05ea",
+  "Makefile.gnu": "f11fd4538555089f6bd66a4f24a243c77994fb51ef96f9864eb33dcee5822d35",
+  ".github/workflows/retirement-qualification.yml": "b82dc214ff5dc4b68e0a9c9e872355aa0de78645ed8a91bb7fef7f0ec7c943f9"
+}

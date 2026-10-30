@@ -1,0 +1,7 @@
+I retain producer build evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-producers-c8tqwi5u
+test_unchanged_nested_float_contexts_publish (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_unchanged_nested_float_contexts_publish) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.769s
+
+OK

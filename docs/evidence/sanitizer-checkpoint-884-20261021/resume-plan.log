@@ -1,0 +1,13 @@
+python3 scripts/embed_binary64_parser.py --check
+rm -f .bootstrap2.built .bootstrap3.built
+NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/workspace/obj/module_cache python3 scripts/bootstrap_nanoisa.py stage2 --timeout 10800
+touch .bootstrap2.built
+rm -f .bootstrap3.built
+NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/workspace/obj/module_cache python3 scripts/bootstrap_nanoisa.py verify --timeout 10800
+set -e; \
+ln -sf nanoc_stage2 bin/nanoc; \
+echo "I installed bin/nanoc from the verified Stage 2 module."; \
+perl -e 'alarm 1800; exec @ARGV; die "I cannot execute the requested command: $!\n"' bin/nanoc examples/language/nl_hello.nano -o /tmp/bootstrap_installed_test; \
+perl -e 'alarm 1800; exec @ARGV; die "I cannot execute the requested command: $!\n"' /tmp/bootstrap_installed_test >/dev/null; \
+perl -e 'alarm 1800; exec @ARGV; die "I cannot execute the requested command: $!\n"' scripts/verify_no_nanoc_c.sh bin/nanoc bin/nanoc_c examples/language/nl_hello.nano; \
+touch .bootstrap3.built
