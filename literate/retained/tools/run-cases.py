@@ -5,7 +5,8 @@ usage: run-cases POLICY REPORT_PATH ACTION_ID. A case passes only when its make 
 I reproduce what `make test` does around its cases: point bin/nanoc at the C reference compiler, hand that
 compiler to every case as NANOLANG_COMPILER, bound each case by TEST_TIMEOUT, and restore the bootstrap link.
 make's own CMD_TIMEOUT default (600s) kills the self-hosted compile when the host is loaded, so I raise it to the
-case bound; the case bound still limits every case."""
+case bound; the case bound still limits every case. The framework caps a tool's output, so each case writes its
+make output to test-logs/CASE.log and I echo only the tail of a failing case."""
 import json
 import os
 import subprocess
@@ -29,15 +30,24 @@ def restore():
     point_at("nanoc_stage2" if staged else "nanoc_c")
 
 
+TAIL_BYTES = 4096
+os.makedirs("test-logs", exist_ok=True)
 results = []
 point_at("nanoc_c")
 try:
     for case in cases:
+        log_path = os.path.join("test-logs", case + ".log")
         try:
-            code = subprocess.run(["make", case, f"NANOLANG_COMPILER={reference}", f"CMD_TIMEOUT={TEST_TIMEOUT}"], timeout=TEST_TIMEOUT).returncode
+            with open(log_path, "wb") as log:
+                code = subprocess.run(["make", case, f"NANOLANG_COMPILER={reference}", f"CMD_TIMEOUT={TEST_TIMEOUT}"], stdout=log, stderr=subprocess.STDOUT, timeout=TEST_TIMEOUT).returncode
             reason = None if code == 0 else f"make {case} exited {code}"
         except subprocess.TimeoutExpired:
             code, reason = 124, f"make {case} exceeded {TEST_TIMEOUT}s"
+        if code != 0:
+            with open(log_path, "rb") as log:
+                log.seek(0, os.SEEK_END)
+                log.seek(max(0, log.tell() - TAIL_BYTES))
+                sys.stderr.write(f"--- {case} (exit {code}) ---\n" + log.read().decode("utf-8", "replace") + "\n")
         results.append({"id": case, "outcome": "passed" if code == 0 else "failed", "reason": reason})
 finally:
     restore()
