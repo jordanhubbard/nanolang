@@ -120,4 +120,4 @@ My `run-cases` runner reproduces `make test`'s compiler swap (`bin/nanoc` to the
 per-case `TEST_TIMEOUT`) and deviates in one place: it passes `CMD_TIMEOUT=1800` so a loaded host does not kill
 the self-hosted compile at make's 600s default. Load-induced timeouts in a run are not compiler evidence.
 
-<!-- literate-ai:authority-reviewed sha256:9a70f6f12d52bffd0c3916020428c2e03c0fb1a2bfc08c07a757c94f858b2eff -->
+<!-- literate-ai:authority-reviewed sha256:3454018d9aeb9d0c22fa9c76566ca1e89959f979fa11188ff856ff03aa445c32 -->
