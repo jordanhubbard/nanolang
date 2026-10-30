@@ -1,0 +1,54 @@
+{
+  "schema": "nanolang/source-preservation-policy@1",
+  "baseline_commit": "37dfd59df4b30ce331f6111a56258e151301d108",
+  "purpose": "Original Git path/mode/blob preservation ownership; not native producer or SBOM admission",
+  "owners": {
+    "isa": [
+      "src/nanoisa/"
+    ],
+    "vm": [
+      "src/nanovm/"
+    ],
+    "frontend": [
+      "src/",
+      "src_nano/"
+    ],
+    "libraries": [
+      "modules/",
+      "std/",
+      "stdlib/"
+    ],
+    "bootstrap": [
+      "scripts/",
+      "Makefile.gnu",
+      "GNUmakefile",
+      "Makefile"
+    ],
+    "distribution": [
+      "editors/",
+      ".github/"
+    ],
+    "qualification": [
+      "tests/",
+      "formal/",
+      "docs/"
+    ],
+    "native": [
+      "src/nanoisa/nvm2c",
+      "src/c_backend"
+    ]
+  },
+  "fallback_owner": "distribution",
+  "selection": "longest matching path/prefix; equal specificity across owners is an error",
+  "reviewed_metadata_changes": [
+    "AGENTS.md",
+    "docs/ROADMAP.md",
+    "docs/RELEASE_5.1_SCOPE.md",
+    "docs/RELEASE_5.1_STATUS.md",
+    "CLAUDE.md"
+  ],
+  "file_prefixes": [
+    "src/nanoisa/nvm2c",
+    "src/c_backend"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "urn:literate-ai:schema:v2:project-definition",
+  "project_id": "nanolang",
+  "version": "5.1.0",
+  "profile": "canonical",
+  "agent_skill": "SKILL.md",
+  "component_roots": [
+    "literate/components"
+  ],
+  "flavor_roots": [],
+  "skill_roots": [
+    "literate/skills"
+  ],
+  "workflow_roots": [
+    "literate/workflows"
+  ],
+  "routing_roots": [
+    "literate/routing"
+  ],
+  "documentation_roots": [
+    "docs/literate-ai"
+  ],
+  "source_intelligence": {
+    "schema": "urn:literate-ai:schema:v1:project-source-intelligence-policy",
+    "provider_id": "none",
+    "command": null,
+    "minimum_version": null,
+    "artifact_path": null,
+    "stages": {
+      "project-maintenance": "off",
+      "source-generation": "off",
+      "cache-consumption": "off",
+      "source-to-specification": "off",
+      "repository-source-admission": "off",
+      "structural-review": "off"
+    },
+    "artifact_publication": "metadata-only"
+  },
+  "test_receipt": "literate/verification/current.json",
+  "default_flavor_selectors": []
+}

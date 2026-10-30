@@ -1,0 +1,4 @@
+interface:
+  display_name: "NanoLang Literate AI adoption"
+  short_description: "Preserve my native compiler while adopting verified authority"
+  default_prompt: "Use $literate-ai and SKILL.md to review my original-source adoption; preserve existing source, native entry points and release gates."

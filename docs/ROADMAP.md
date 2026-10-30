@@ -1,5 +1,21 @@
 # My Roadmap
 
+## LITAI-001: My 5.1 Literate AI adoption
+
+I track this additional user-required 5.1 work in [#1039](https://github.com/jordanhubbard/nanolang/issues/1039).
+My original 67 scope rows and their existing blockers stay in force; adoption adds one requirement.
+I own this work on `feat/5.1-litai-adoption`, based on `37dfd59df4b30ce331f6111a56258e151301d108`
+and stacked above #1038 and #995. I keep original source as my implementation and release authority.
+
+- [x] LITAI-001.1: Inventory original paths, modes, native entry points, historical evidence and current runtime; commit recovery and exact preservation checks before any adoption mutation.
+- [x] LITAI-001.1 review correction: I retain the isolated false-success case for reviewed metadata deletion, constrain exemptions to content edits only, and qualify dirty/committed deletion, symlink and executable-mode refusal. Original scope rows and native source remain unchanged.
+- [x] LITAI-001.2: Author and validate my Component/interface/acceptance contracts and locks; bind clean authority with the supported in-place `project adopt-original` protocol. Preserve existing agent instructions. This establishes original-source metadata, not native conversion or execution admission.
+- [ ] LITAI-001.3: Resolve actual retained native units, mixed C/Nano sources, generated headers, include/source closure, public exports, ABI/toolchain identities and exclusive output ownership. Replace broad integration boundaries with a complete typed native graph before claiming native conversion.
+- [ ] LITAI-001.4: Declare finite build, test, documentation and independent acceptance actions with case-level report ownership. Review retained-project manifest/profile and receipt policy before execution; publish current verifier-owned receipts, never copied or hand-written success assertions.
+- [ ] LITAI-001.5: Qualify unchanged raw Stage 1/2 equality, C-seed/Nano frontends, VM/C-AOT equivalence/refusal, stdlib/FFI, isolated-PREFIX installation and native packaging on exact Linux and Darwin candidates. Check invalidation, recovery, concurrency and output custody. Run no duplicate bootstrap against shared outputs.
+- [ ] LITAI-001.6: Integrate exact-head CI and all existing 5.1 gates with the adoption requirement. Review authority cutover separately; metadata, locks and original adoption alone cannot close this gate or authorize release publication.
+- [ ] LITAI-001.7: Record the framework inspector defect: dependency-only root `package.json` causes unsupported `npm test/start/pack` proposals despite native Make ownership. Preserve the inspect result; do not apply quarantine or execute guessed commands. Track upstream correction without changing my native gate semantics.
+
 - [ ] Under #976 I repair the private map preparation harness link ordering from hosted39693111839/job119543866810: I retain GCC strict syntax success and object/archive symbol dependencies, keep every selected input/flag while placing COMMON archives after ordinary users, qualify an actual single-pass link control and the preparation harness, then require exact hosted confirmation. [My local preparation and GNU single-pass controls](evidence/map-harness-link-order-20261021/README.md) pass; hosted confirmation remains pending. I own `fix/5.1-map-harness-link-order` from5188d6214; no frontend rebuild or runtime admission changes.
 
 - [ ] Under #1001 I own the design-only singleton self-tail record-array continuation on `design/5.1-record-array-self-tail` from241bb60be. My [contract](NANOISA_RECORD_ARRAY_SELF_TAIL_DESIGN.md) anchors the existing executed Box/repeat omission, preserves old profiles and budgets, and requires independent proof/transport/public/private/native lifetime qualification before publication. I retain the [unchanged ordinary three-producer and separate original-shadow baseline](evidence/record-array-self-tail-baseline-20261021/receipt.json): verifier/VM/native pass with absent authority and eight unchanged provider hashes. A minimal graph/proof-test source checkpoint is pending review; I have not executed new admission.
