@@ -1,0 +1,7 @@
+I retain these exact diagnostic lines from PR995 run40527688607/job122356428817 at b7c20ea901a930d211612ec9d6cc4bdda9d8bcdb.
+
+2026-10-27T22:11:24.3029600Z     inlined from ‘large_symbol_and_branch_tables’ at tests/nanoisa/test_disasm_roundtrip.c:141:25:
+2026-10-27T22:11:24.3030771Z /usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: error: null destination pointer [-Werror=format-overflow=]
+2026-10-27T22:11:24.3037071Z     inlined from ‘large_symbol_and_branch_tables’ at tests/nanoisa/test_disasm_roundtrip.c:144:25:
+2026-10-27T22:11:24.3038361Z /usr/include/x86_64-linux-gnu/bits/stdio2.h:30:10: error: null destination pointer [-Werror=format-overflow=]
+2026-10-27T22:11:24.4118982Z make: *** [Makefile.gnu:2037: test-disasm-roundtrip] Error 1

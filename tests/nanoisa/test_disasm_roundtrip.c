@@ -11,6 +11,7 @@
  */
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include "nvm_format.h"
@@ -109,7 +110,10 @@ static void quoted_string_boundaries(void) {
         char *text = malloc(length + 128);
         CHECK(text != NULL, "allocate long string fixture");
         if (!text) continue;
-        size_t prefix = (size_t)sprintf(text, ".string long ");
+        int written = snprintf(text, length + 128, ".string long ");
+        CHECK(written >= 0 && (size_t)written < length + 128, "long fixture prefix fits");
+        if (written < 0 || (size_t)written >= length + 128) { free(text); continue; }
+        size_t prefix = (size_t)written;
         text[prefix++] = '"';
         memset(text + prefix, 'x', length);
         strcpy(text + prefix + length, "\"\n.function main 0 0 0 int 1\n PUSH_I64 0\n RET\n.end\n");
@@ -131,19 +135,54 @@ static void quoted_string_boundaries(void) {
     }
 }
 
+/* A fixture refusal must not continue with a truncated or absent buffer. */
+static bool fixture_append(char *text, size_t capacity, size_t *used,
+                           const char *format, ...) {
+    if (!text || !used || *used >= capacity) return false;
+    va_list args;
+    va_start(args, format);
+    int written = vsnprintf(text + *used, capacity - *used, format, args);
+    va_end(args);
+    if (written < 0 || (size_t)written >= capacity - *used) return false;
+    *used += (size_t)written;
+    return true;
+}
+
+static void fixture_bounds(void) {
+    char text[5];
+    size_t used = 0;
+    CHECK(!fixture_append(NULL, sizeof(text), &used, "x"),
+          "absent fixture allocation refuses");
+    CHECK(!fixture_append(text, sizeof(text), NULL, "x"),
+          "absent fixture length refuses");
+    CHECK(fixture_append(text, sizeof(text), &used, "%s", "four")
+          && used == 4 && strcmp(text, "four") == 0, "exact fit retains terminator");
+    CHECK(!fixture_append(text, sizeof(text), &used, "x") && used == 4,
+          "truncation refuses without advancing length");
+    used = sizeof(text);
+    CHECK(!fixture_append(text, sizeof(text), &used, "x"), "exhausted fixture refuses");
+    used = 0;
+    CHECK(fixture_append(text, sizeof(text), &used, "%s", "ok")
+          && used == 2 && strcmp(text, "ok") == 0, "fixture construction recovers");
+}
+
 static void large_symbol_and_branch_tables(void) {
     const uint32_t count = 2200;
-    const size_t capacity = 200000;
-    char *text = malloc(capacity);
+    char *text = malloc(200000);
     CHECK(text != NULL, "allocate many-symbol fixture");
     if (!text) return;
     size_t used = 0;
-    for (uint32_t i = 0; i < count; i++)
-        used += (size_t)snprintf(text + used, capacity - used, ".string s%u \"same\"\n", i);
-    used += (size_t)snprintf(text + used, capacity - used, ".function main 0 0 0 int 1\n");
-    for (uint32_t i = 0; i < count; i++)
-        used += (size_t)snprintf(text + used, capacity - used, " JMP label%u\nlabel%u:\n", i, i);
-    snprintf(text + used, capacity - used, " PUSH_I64 37\n RET\n.end\n");
+    bool complete = true;
+    for (uint32_t i = 0; i < count && complete; i++)
+        complete = fixture_append(text, 200000, &used, ".string s%u \"same\"\n", i);
+    if (complete)
+        complete = fixture_append(text, 200000, &used, ".function main 0 0 0 int 1\n");
+    for (uint32_t i = 0; i < count && complete; i++)
+        complete = fixture_append(text, 200000, &used, " JMP label%u\nlabel%u:\n", i, i);
+    if (complete)
+        complete = fixture_append(text, 200000, &used, " PUSH_I64 37\n RET\n.end\n");
+    CHECK(complete, "complete many-symbol fixture fits allocated buffer");
+    if (!complete) { free(text); return; }
     AsmResult result;
     NvmModule *module = asm_assemble(text, &result);
     CHECK(module != NULL, "large symbol label and patch tables assemble");
@@ -173,6 +212,7 @@ static void large_symbol_and_branch_tables(void) {
 
 int main(void) {
     printf("\n[disasm_roundtrip] canonical disassembly is lossless...\n\n");
+    fixture_bounds();
     quoted_string_boundaries();
     large_symbol_and_branch_tables();
 
