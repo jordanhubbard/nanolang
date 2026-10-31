@@ -96,6 +96,10 @@ int main(int argc, char **argv) {
      * qualification workflow set 120); the 10 second default fails a loaded host, so a busy host must not read as
      * a compiler defect. */
     setenv("NANO_SHADOW_TIMEOUT_SECONDS", "120", 1);
+    /* Several test cases link with a bare -lcrypto and no -L, so the Homebrew prefix must be on the linker's and
+     * compiler's search paths, as it is on a developer host. */
+    setenv("LIBRARY_PATH", "/opt/homebrew/lib", 1);
+    setenv("CPATH", "/opt/homebrew/include", 1);
 
     if (strcmp(name, "host-make") == 0) {
         char *args[argc + 2];

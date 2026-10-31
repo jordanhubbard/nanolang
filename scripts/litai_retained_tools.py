@@ -32,7 +32,7 @@ def discover():
     if sys.platform != 'darwin':
         sys.exit('litai_retained_tools.py supports Darwin only; Linux needs its own launcher and pins')
     developer = out('xcode-select', '-p')
-    path = ':'.join([f'{developer}/usr/bin', SYSTEM_PATH, '/opt/homebrew/bin'])
+    path = ':'.join([f'{developer}/usr/bin', SYSTEM_PATH, '/opt/homebrew/bin', '/opt/homebrew/opt/llvm/bin'])
     env = {**os.environ, 'PATH': path}
     python = subprocess.run(['sh', '-c', 'command -v python3'], env=env, capture_output=True, text=True).stdout.strip()
     sdk = out('xcrun', '--show-sdk-path')
@@ -42,6 +42,9 @@ def discover():
         found = subprocess.run(['xcrun', '-f', tool], capture_output=True, text=True).stdout.strip()
         if found:
             files.add(found)
+    opt = Path('/opt/homebrew/opt/llvm/bin/opt')
+    if opt.is_file():
+        files.add(str(opt.resolve()))
     openssl = sorted(Path('/opt/homebrew/Cellar').glob('openssl@4/*/lib/libcrypto*.dylib'))
     if not openssl:
         sys.exit('no Homebrew openssl@4 libcrypto found; the Makefile links -lcrypto from there')

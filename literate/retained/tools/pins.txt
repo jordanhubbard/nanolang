@@ -1,4 +1,4 @@
-PATH	/Applications/Xcode.app/Contents/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin
+PATH	/Applications/Xcode.app/Contents/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin:/opt/homebrew/opt/llvm/bin
 7b93ad7e534cc4b31c6a4e39d19b5e0288acf2168c2649479a796d1cb51939fb	/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/SDKSettings.json
 85d15bd3999895f659e8a483b17ea9ab44b924c8e0b3026abfe359f2de02cbd7	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar
 1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc
@@ -11,6 +11,7 @@ dff595035109e19c43c4b3e73ee08b5f4651e719f25f8b4713f819d28964dc19	/Applications/X
 d7e1aa741105cfce82c6e7b2ea1359c715a570f86ce711e492c41315632ea182	/bin/cp
 a28fd10330466ee02c66cdbc4e2b0af23c236b773b1a8a3b210ff9613d9319d8	/bin/rm
 84ca7f9b83021621e16059a1c7850df72a462d879e8239d566236ca6ddd00953	/bin/sh
+354e6ac16e95ce03aa0d8472d9bf10ba6084613d3e4320bc8d4713ddeb42efe3	/opt/homebrew/Cellar/llvm/23.1.4/bin/opt
 efb00fbd817f6f81d59427129d191cc5cfd408671b59c715569e5ebafc81454e	/opt/homebrew/Cellar/openssl@4/4.1.0/lib/libcrypto.4.dylib
 34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2	/usr/bin/cc
 34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2	/usr/bin/clang
