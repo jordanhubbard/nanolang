@@ -608221,7 +608221,7 @@
       "mode": 420,
       "path": "literate/retained/profile.json",
       "role": "build-definition",
-      "sha256": "78ce0352c3250c133016c07ab6fba04f9177045fa4d45f0ca19acd343df9edc1",
+      "sha256": "845b21759e509cec9f2e3c2ccac73a88251dff5a5190e23f4bc53541276d129b",
       "size": 19822
     },
     {
@@ -608235,28 +608235,28 @@
       "mode": 493,
       "path": "literate/retained/tools/build-native",
       "role": "toolchain",
-      "sha256": "9799c01ce02ce79544214c8deeabf74c8592c4b79315f19daf9938ebca6c36b3",
+      "sha256": "4d7b6b627c8ffbe33ef6bdf8239cb0e03490db34878dfdad938bca2f34ef9a03",
       "size": 34928
     },
     {
       "mode": 493,
       "path": "literate/retained/tools/host-make",
       "role": "toolchain",
-      "sha256": "9799c01ce02ce79544214c8deeabf74c8592c4b79315f19daf9938ebca6c36b3",
+      "sha256": "4d7b6b627c8ffbe33ef6bdf8239cb0e03490db34878dfdad938bca2f34ef9a03",
       "size": 34928
     },
     {
       "mode": 420,
       "path": "literate/retained/tools/pins.txt",
       "role": "toolchain",
-      "sha256": "47756c77a7b967c9a277f302caf955026fe5a1e8fba67aae8cf91931a4ae2235",
-      "size": 2122
+      "sha256": "be6842ef6e8f35b10fe799d4c8860bda1ae62236c0fccbf547c4f1bb1d2e89f2",
+      "size": 2255
     },
     {
       "mode": 493,
       "path": "literate/retained/tools/run-cases",
       "role": "toolchain",
-      "sha256": "9799c01ce02ce79544214c8deeabf74c8592c4b79315f19daf9938ebca6c36b3",
+      "sha256": "4d7b6b627c8ffbe33ef6bdf8239cb0e03490db34878dfdad938bca2f34ef9a03",
       "size": 34928
     },
     {
@@ -608270,8 +608270,8 @@
       "mode": 420,
       "path": "literate/retained/tools/src/retained_launcher.c",
       "role": "toolchain",
-      "sha256": "e4695a5f6bf6510622d9bd6f19020dba0966d9145dc307887a4bdc6e5886fa0d",
-      "size": 6198
+      "sha256": "834f5afe55209e441dc6e3209af36a789d265c0edfb3d719981613e9e924f0a5",
+      "size": 6478
     },
     {
       "mode": 420,
@@ -612358,8 +612358,8 @@
       "mode": 493,
       "path": "scripts/litai_retained_tools.py",
       "role": "build-definition",
-      "sha256": "ff8a87860ce7741c3487e3974037e2303fb6dd21dcd4c1ada58f1fa730dd615b",
-      "size": 3057
+      "sha256": "713afa6417792b95ec89178fe6c2122545078da8b7e99c4dee391860f95df58d",
+      "size": 3196
     },
     {
       "mode": 420,
