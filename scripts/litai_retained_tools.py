@@ -32,7 +32,7 @@ def discover():
     if sys.platform != 'darwin':
         sys.exit('litai_retained_tools.py supports Darwin only; Linux needs its own launcher and pins')
     developer = out('xcode-select', '-p')
-    path = ':'.join([f'{developer}/usr/bin', SYSTEM_PATH, '/opt/homebrew/bin', '/opt/homebrew/opt/llvm/bin'])
+    path = ':'.join(['/opt/homebrew/bin', f'{developer}/usr/bin', SYSTEM_PATH, '/opt/homebrew/opt/llvm/bin'])
     env = {**os.environ, 'PATH': path}
     python = subprocess.run(['sh', '-c', 'command -v python3'], env=env, capture_output=True, text=True).stdout.strip()
     sdk = out('xcrun', '--show-sdk-path')
