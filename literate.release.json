@@ -1,0 +1,48 @@
+{
+  "schema": "literate-ai/release-policy@2",
+  "version_scheme": "semver",
+  "version_authority": {
+    "path": "literate.project.json",
+    "format": "json-pointer",
+    "selectors": [
+      "/version",
+      "/test_receipt_policy/suite_version"
+    ]
+  },
+  "version_mirrors": [
+    {
+      "path": "package.json",
+      "format": "json-pointer",
+      "selectors": [
+        "/version"
+      ]
+    }
+  ],
+  "allowed_transitions": [
+    "patch",
+    "minor",
+    "major",
+    "prerelease",
+    "explicit"
+  ],
+  "gate": {
+    "argv": [
+      "make",
+      "release-docs-check"
+    ],
+    "timeout_seconds": 7200
+  },
+  "changelog": {
+    "path": "CHANGELOG.md",
+    "unreleased_heading": "## [Unreleased]"
+  },
+  "tag": {
+    "prefix": "v",
+    "signed": false
+  },
+  "remote": "origin",
+  "provider": {
+    "kind": "github",
+    "repository": "jordanhubbard/nanolang"
+  }
+}

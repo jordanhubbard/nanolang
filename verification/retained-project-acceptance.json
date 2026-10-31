@@ -1,0 +1,61 @@
+{
+  "cases": [
+    {
+      "action": "accept",
+      "argv": [
+        "--bogus"
+      ],
+      "executable": "bin/nano",
+      "expected_exit": 1,
+      "expected_stderr": "bmFubzogY2Fubm90IG9wZW4gJy0tYm9ndXMnOiBObyBzdWNoIGZpbGUgb3IgZGlyZWN0b3J5Cg==",
+      "expected_stdout": "",
+      "id": "nano-rejects-unknown-input",
+      "stdin": "",
+      "timeout_seconds": 60
+    },
+    {
+      "action": "accept",
+      "argv": [],
+      "executable": "bin/nanoisa_emitter",
+      "expected_exit": 0,
+      "expected_stderr": "",
+      "expected_stdout": "SSBwYXNzZWQgbXkgTmFub0lTQSBlbWl0dGVyIGVudHJ5IGFzc2VydGlvbnMuCg==",
+      "id": "nanoisa-emitter-entry-assertions",
+      "stdin": "",
+      "timeout_seconds": 60
+    },
+    {
+      "action": "accept",
+      "argv": [],
+      "executable": "bin/parser",
+      "expected_exit": 0,
+      "expected_stderr": "",
+      "expected_stdout": "SSBwYXNzZWQgbXkgcGFyc2VyIGVudHJ5IGFzc2VydGlvbnMuCg==",
+      "id": "parser-entry-assertions",
+      "stdin": "",
+      "timeout_seconds": 60
+    },
+    {
+      "action": "accept",
+      "argv": [],
+      "executable": "bin/typecheck",
+      "expected_exit": 0,
+      "expected_stderr": "",
+      "expected_stdout": "SSBwYXNzZWQgbXkgY2hlY2tlciBlbnRyeSBhc3NlcnRpb25zLgo=",
+      "id": "typecheck-entry-assertions",
+      "stdin": "",
+      "timeout_seconds": 60
+    }
+  ],
+  "component_locks": [
+    "sha256:061f76a8f7ece3faeb354bd574ad43532f40d0b9237a8d439ada7c7958281b30",
+    "sha256:086c148223958a468e4d9ce9b5985f058886b3b8009d3c649da1d619e2156d05",
+    "sha256:0dfff8c5047b0ec0ac7b612bda20d7294d0927b611afe2486ae7965e67667a54",
+    "sha256:1863189cefb84976a458bf2e032bd01e886e173455d672d9e7dbeb1f8ae8bee5",
+    "sha256:41a3a1553c46dbc9aa1ba1d87478448d307b636f301e75fcaf2028c335e5eef9",
+    "sha256:5a8d1ba44188cb2f431ca41f09a055ff9a9541efbc9d7cd9958ea11cac24ea24",
+    "sha256:8133ec2de1724c7907f6fb0925b3837a9063473e2072b79fe608b5e2445ca89d",
+    "sha256:d8280d346909ec5d6dcf4957568ebcd26da0fc73c4a7c5fb070e69fad073ae13"
+  ],
+  "schema": "literate-ai/retained-project-acceptance-policy@1"
+}

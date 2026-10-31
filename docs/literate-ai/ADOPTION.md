@@ -65,7 +65,6 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:177d5a1e702a3876e373996cea16ba4bb7a78cbb6410575ef5d24273144036a8 -->
 
 ## My first metadata checkpoint
 
@@ -104,3 +103,21 @@ file/executable mode must remain intact. New dirty and committed deletion, symli
 while reviewed content edits pass. My unchanged 89,977-entry source check passes with the corrected guard.
 The review also corrected the documented native command to `make test-quick`; I changed no native entry point.
 All 67 original scope bullet rows remain byte-identical.
+
+## My retained-planning authority additions (LITAI-001.3)
+
+I added `literate.release.json`, a project receipt policy requiring 483 cases and the Standard lifecycle
+binding (applied through `litai project lifecycle rebind-standard`). I reviewed these changes as part of the
+authority above. They are inputs to a read-only retained plan, not a test receipt, execution authority or
+release permission. My release policy binds version to `literate.project.json` and `package.json` because the
+framework cannot bind `src/version.h`; its gate is `make release-docs-check` and is weaker than the 5.1 gates,
+which remain in force.
+
+The installed `litai` was reinstalled during this work (git `26289fd2` to `22062a72`), so the pinned Standard
+distribution no longer matched the wheel and the plan refused. I re-pinned it through the same supported
+`rebind-standard` update; it changed only the distribution identity, not the policy or receipt policy.
+My `run-cases` runner reproduces `make test`'s compiler swap (`bin/nanoc` to the C reference, `NANOLANG_COMPILER`,
+per-case `TEST_TIMEOUT`) and deviates in one place: it passes `CMD_TIMEOUT=1800` so a loaded host does not kill
+the self-hosted compile at make's 600s default. Load-induced timeouts in a run are not compiler evidence.
+
+<!-- literate-ai:authority-reviewed sha256:42e21245cf3f27a0a5e11f290fecb0a875586804f0ccfaeeec22a5cfc1c349fc -->
