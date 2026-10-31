@@ -274,7 +274,7 @@ const char *path_basename(const char *input) {
             '$(filter-out $(OBJ_DIR)/nanovm/vm_ffi.o,$(NANOVM_OBJECTS)) '
             '$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) '
             '$(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o '
-            '$(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS) -o '+str(binary)+'\n')
+            '$(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS) -o '+str(binary)+'\n')
         self.command(['make','-s','-f','Makefile.gnu','-f',makefile,'artifact-copy-failure'], cwd=ROOT)
         marker = self.work/'vm-copy-release'
         result = self.command([binary,module], success=False,

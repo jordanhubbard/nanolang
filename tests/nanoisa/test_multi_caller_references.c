@@ -56,7 +56,7 @@ int multi_runtime_cases(int argc,char **argv) {
     slot(different->ownership_data+176,TAG_STRUCT,2,2);
     execute_module(different,49,argv[1],11,TAG_INT);
     execute_module(eight_arguments_at(8),828,argv[1],12,TAG_INT);
-    const char *badhelpers[]={"LOAD_LOCAL 1\nAGG_GET 0\nRET","OWN_MOVE_LOCAL 1\nRET","PUSH_I64 1\nSTORE_LOCAL 1\nPUSH_I64 0\nRET","REGION_BEGIN\n" READ_BOTH};
+    const char *badhelpers[]={"LOAD_LOCAL 1\nAGG_GET 0\nRET","OWN_MOVE_LOCAL 1\nRET","PUSH_I64 1\nSTORE_LOCAL 1\nPUSH_I64 0\nRET",("REGION_BEGIN\n" READ_BOTH)};
     for(unsigned i=0;i<4;i++)refused(multi_fixture(TWO_ROOTS TWO_BORROWS "CALL_REF 1 0\nPOP\n" TWO_SUM,badhelpers[i],2,exclusive),argv[1],i);
     refused(multi_fixture(TWO_ROOTS TWO_BORROWS "CALL_REF 1 65535\nPOP\n" TWO_SUM,READ_BOTH,2,exclusive),argv[1],4);
     refused(multi_fixture(TWO_ROOTS TWO_BORROWS "CALL_REF 1 15\nPOP\n" TWO_SUM,READ_BOTH,2,exclusive),argv[1],5);
