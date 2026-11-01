@@ -12,6 +12,51 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / 'tests/nanoisa/fixtures'
 
 
+AFFINE_FACT_KEYS = (b'nano.affine.v1', b'nano.affine-use.v1')
+
+
+def without_affine_facts(dump):
+    """I drop only the advisory affine facts from a canonical dump.
+
+    The checked producers record function completion and per-use sites; the
+    raw Nano emitter leaves them UNKNOWN, and the C and self-hosted producers
+    tag the coordinates they report differently (original C versus flattened
+    Nano). docs/NANOISA_AFFINE_USE_FACTS.md keeps both differences explicit.
+    Comparing executable emission across producers must not depend on them;
+    tests/test_affine_use_metadata.py owns the records themselves.
+    """
+    lines = dump.splitlines()
+    strings = [ast.literal_eval(line[8:]).encode('latin1')
+               for line in lines if line.startswith('.string ')]
+    keys = {i for i, value in enumerate(strings) if value in AFFINE_FACT_KEYS}
+    entries = [(n, int(line.split()[1]), int(line.split()[2]))
+               for n, line in enumerate(lines) if line.startswith('.metadata ')]
+    dropped_lines = {n for n, key, _ in entries if key in keys}
+    kept_refs = {i for n, key, value in entries if n not in dropped_lines for i in (key, value)}
+    dropped = {i for n, key, value in entries if n in dropped_lines for i in (key, value)} - kept_refs
+    dropped |= keys - kept_refs
+    renumber, index = {}, 0
+    for i in range(len(strings)):
+        if i not in dropped:
+            renumber[i] = index
+            index += 1
+    kept, seen = [], 0
+    for n, line in enumerate(lines):
+        if line.startswith('.string '):
+            if seen not in dropped:
+                kept.append(line)
+            seen += 1
+        elif n in dropped_lines:
+            continue
+        elif line.startswith('.metadata '):
+            fields = line.split()
+            kept.append(' '.join(['.metadata', str(renumber[int(fields[1])]),
+                                  str(renumber[int(fields[2])]), *fields[3:]]))
+        else:
+            kept.append(line)
+    return '\n'.join(kept) + '\n'
+
+
 def native_test_compiler():
     return os.environ.get('NANO_NATIVE_TEST_CC') or os.environ.get('CC', 'cc')
 
@@ -1460,7 +1505,7 @@ shadow main { assert true }
         for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
             module = self.work / (compiler + '-graph.nvm')
             self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
-            actual = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+            actual = without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout)
             if baseline is None:
                 baseline = actual
             self.assertEqual(actual, baseline)
@@ -1469,7 +1514,7 @@ shadow main { assert true }
             assembly, module = self.work / 'graph.nasm', self.work / 'graph.nvm'
             self.command(emitter, source, '-o', assembly)
             self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-            self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+            self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), baseline)
             self.execute_pair(module, expected_output=expected_output)
         shadow_dump = None
         for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
@@ -1477,7 +1522,7 @@ shadow main { assert true }
             assembly, module = self.work / 'graph-shadow.nasm', self.work / 'graph-shadow.nvm'
             assembly.write_text(self.command(tool, *args).stdout)
             self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-            actual = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+            actual = without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout)
             if shadow_dump is None:
                 shadow_dump = actual
             self.assertEqual(actual, shadow_dump)
