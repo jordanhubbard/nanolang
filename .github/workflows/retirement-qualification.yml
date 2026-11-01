@@ -224,7 +224,7 @@ jobs:
             test-checked-borrow-ledger test-checked-borrow-environment test-checked-borrow-metadata \
             2>&1 | tee .test_output/retirement/metadata-effects.log
 
-      - name: Qualify module-derived compiler products and reconstruction
+      - name: Qualify module-derived compiler products
         if: matrix.corpus == 'contract-effects'
         timeout-minutes: 45
         run: |
@@ -234,6 +234,16 @@ jobs:
               make -f Makefile.gnu CC="${CC:-cc}" test-selfhost-product-derivation \
               2>&1 | tee ".test_output/retirement/product-stage${stage}.log"
           done
+
+      # The owned reconstruction suites run serially and exceeded a 45 minute
+      # budget on a hosted runner (run 41322323769): the test-owned-reconstruction
+      # target alone took more than 42 minutes while still passing. The budget is
+      # a measured lower bound, not a final value (#1050).
+      - name: Qualify module-derived reconstruction
+        if: matrix.corpus == 'contract-effects'
+        timeout-minutes: 150
+        run: |
+          set -o pipefail
           NANOLANG_OWNED_RECONSTRUCTION_COMPILERS="$PWD/bin/nanoc_stage1 $PWD/bin/nanoc_stage2" \
           make -f Makefile.gnu CC="${CC:-cc}" test-owned-reconstruction test-scalar-reconstruction \
             test-reconstruction-binary64-facts test-reconstruction-f64-transport \
