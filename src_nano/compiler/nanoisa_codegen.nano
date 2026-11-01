@@ -1587,7 +1587,7 @@ fn nisa_is_inline_call(name: string) -> bool {
     if (or (== name "float_from_bits") (== name "float_to_bits")) { return true }
     if (== name "str_trim") { return true }
     if (or (== name "abs") (nisa_functional_name name)) { return true }
-    if (== name "cast_int") { return true }
+    if (or (== name "cast_int") (== name "cast_bool")) { return true }
     if (== name "float_to_string") { return true }
     if (== name "string_to_int") { return true }
     if (== name "string_to_float") { return true }
@@ -1608,6 +1608,7 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "float_to_bits")
     assert (nisa_is_inline_call "str_trim")
     assert (nisa_is_inline_call "cast_int")
+    assert (nisa_is_inline_call "cast_bool")
     assert (nisa_is_inline_call "float_to_string")
     assert (nisa_is_inline_call "string_to_float")
     assert (nisa_is_inline_call "array_length")
@@ -4403,6 +4404,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             return (nisa_access_result parser call)
         }
         if (and (== target_name "cast_int") (< (nisa_call_index parser call) 0)) { return "int" }
+        if (and (== target_name "cast_bool") (< (nisa_call_index parser call) 0)) { return "bool" }
         if (and (== target_name "float_from_bits") (< (nisa_call_index parser call) 0)) { return "float" }
         if (and (== target_name "float_to_bits") (< (nisa_call_index parser call) 0)) { return "int" }
         if (== target_name "string_to_int") { return "int" }
@@ -6126,6 +6128,20 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
             return (nisa_fail "I require int, u8, float, bool or string for cast_int")
         }
         return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_INT"))
+    }
+    if (and (== function_name "cast_bool") (< declared_index 0)) {
+        if (!= call.arg_count 1) { return (nisa_fail "I require one scalar argument for cast_bool") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        let kind: string = (nisa_expr_type parser argument.node_id argument.node_type)
+        if (== kind "float") {
+            return (+ (+ (nisa_emit_call_args parser call) (nisa_line_imm "PUSH_F64" "0.0")) (nisa_line "F64_NE"))
+        }
+        if (not (or (== kind "int") (or (== kind "u8") (== kind "bool")))) {
+            return (nisa_fail "I require int, u8, float or bool for cast_bool")
+        }
+        let mut operand: string = (nisa_emit_call_args parser call)
+        if (== kind "u8") { set operand (+ operand (nisa_line "CAST_INT")) }
+        return (+ (+ operand (nisa_line_imm "PUSH_I64" "0")) (nisa_line "NE"))
     }
     if (and (or (== function_name "float_from_bits") (== function_name "float_to_bits")) (< declared_index 0)) {
         if (!= call.arg_count 1) { return (nisa_fail "I require one operand for binary64 bit transport") }
