@@ -5067,14 +5067,38 @@ fn check_functional_signature(parser: Parser, call: ASTCall, symbols: array<Symb
     let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
     let mut arity: int = 2
     if reducing { set arity 3 }
+    let mapping: bool = (and (not reducing) (not filtering))
     if (!= call.arg_count arity) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the exact functional array argument count." location))
+        if mapping {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a source array and one transform in map." location))
+        } else {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the exact functional array argument count." location))
+        }
         return ""
     }
     let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
     let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start (- arity 1)))
     let source_type: NSType = (check_expr_node parser source.node_id source.node_type symbols diags file_name)
     let callback_type: NSType = (check_expr_node parser callback.node_id callback.node_type symbols diags file_name)
+    if mapping {
+        if (!= source_type.kind TypeKind.TYPE_ARRAY) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require an array source in map." location))
+            return ""
+        }
+        if (!= callback_type.kind TypeKind.TYPE_FUNCTION) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a function transform in map." location))
+            return ""
+        }
+        if (!= (array_length (fn_type_param_types callback_type.name)) 1) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a unary transform in map." location))
+            return ""
+        }
+        let transformed: NSType = (fn_type_return_type callback_type.name)
+        if (or (== transformed.kind TypeKind.TYPE_VOID) (== transformed.kind TypeKind.TYPE_UNKNOWN)) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a known value-producing transform in map." location))
+            return ""
+        }
+    }
     let mut element: string = ""
     let mut valid: bool = (and (== source_type.kind TypeKind.TYPE_ARRAY) (== callback_type.kind TypeKind.TYPE_FUNCTION))
     if (!= source_type.element_type_kind TypeKind.TYPE_UNKNOWN) {
@@ -5107,7 +5131,11 @@ fn check_functional_signature(parser: Parser, call: ASTCall, symbols: array<Symb
         }
     }
     if (not valid) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require exact functional callback, array element and accumulator types." location))
+        if (and mapping (!= source_type.element_type_kind TypeKind.TYPE_UNKNOWN)) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require map input elements to match the transform parameter." location))
+        } else {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require exact functional callback, array element and accumulator types." location))
+        }
         return ""
     }
     return signature
