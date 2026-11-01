@@ -48,9 +48,11 @@ class BorrowAnnotations(unittest.TestCase):
                             'extern fn nested(value: &&Handle) -> int',
                             'extern fn callback(value: fn(&Handle)->int) -> int',
                             'extern fn collection(value: array<&Handle>) -> int'):
+            # Callback signatures get their own refusal; the others share the generic one.
+            message = ('borrowed callback signatures' if 'fn(&Handle)' in declaration
+                       else 'borrow annotations only on named parameters')
             with self.subTest(declaration=declaration):
-                self.compile(PRELUDE + declaration + MAIN,
-                             'borrow annotations only on named parameters')
+                self.compile(PRELUDE + declaration + MAIN, message)
 
     def test_arguments_are_explicitly_unsupported(self):
         self.compile('fn observe(value: int) -> int { return value }\nshadow observe { assert true }\n'
