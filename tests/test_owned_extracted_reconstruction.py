@@ -1,4 +1,4 @@
-"""I borrow exact extracted leaves without borrowing through a live parent."""
+"""I borrow exact extracted leaves and reconstruct them with their original behavior."""
 import copy
 import struct
 import unittest
@@ -76,7 +76,10 @@ class OwnedExtractedReconstruction(unittest.TestCase):
                 self.assertNotEqual(self.command([ROOT/'bin/nvm2hl','--language',language,source,'-o',output],None).returncode,0)
                 self.assertEqual(output.read_text(),'prior checked source')
 
-    def test_live_parent_path_remains_outside_reconstruction(self):
+    def test_live_parent_path_reconstructs_with_exact_behavior(self):
+        # I admitted a single exclusive path call on one live root after this
+        # slice (b2634d342); a mutation through the live parent path now has
+        # to survive reconstruction with the original result, not be refused.
         original=(FIXTURES/'exclusive.nano').read_text()
         text=original.replace('let parent: Pair','let mut parent: Pair')
         text=text.replace(' let Pair { stamp, first, enabled, second } = parent',
@@ -86,10 +89,16 @@ class OwnedExtractedReconstruction(unittest.TestCase):
         for compiler in self.compilers:
             module=self.module('live-path',compiler,source)
             for language in ('c','nano'):
-                output=self.work/('path-prior.'+language);output.write_text('prior checked source')
-                result=self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output],None)
-                self.assertNotEqual(result.returncode,0)
-                self.assertEqual(output.read_text(),'prior checked source')
+                output=module.with_suffix('.'+language)
+                self.command([ROOT/'bin/nvm2hl','--language',language,module,'-o',output])
+                if language=='c':
+                    self.native(output,35)
+                    continue
+                for producer in self.compilers:
+                    rebuilt=output.with_suffix('.'+producer.name+'.nvm')
+                    self.command([producer,output,'--emit-nvm','-o',rebuilt])
+                    self.command([ROOT/'bin/nano_vm','--verify-only',rebuilt])
+                    self.command([ROOT/'bin/nano_vm',rebuilt],35)
 
     def test_consumed_parent_cannot_be_reused(self):
         original=(FIXTURES/'exclusive.nano').read_text()
