@@ -4699,6 +4699,15 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
             return (nisa_fail "I require the declared float value type")
         }
     }
+    if (and (str_starts_with expected "array<") (== node_type ParseNodeType.PNODE_CALL)) {
+        let functional: ASTCall = (parser_get_call parser node_id)
+        let functional_name: string = (nisa_call_name parser functional)
+        if (and (nisa_functional_name functional_name) (< (nisa_call_index parser functional) 0)) {
+            if (!= (nisa_expr_type parser node_id node_type) expected) {
+                return (nisa_fail "I require exact functional callback, array element and accumulator types")
+            }
+        }
+    }
     if (and (!= expected "") (!= node_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
         let actual: string = (nisa_expr_type parser node_id node_type)
         if (and (or (== expected "array<float>") (== actual "array<float>")) (!= actual expected)) {
