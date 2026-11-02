@@ -1,0 +1,23 @@
+test_instrumented_private_vm (tests.test_record_array_vm.RecordArrayVm.test_instrumented_private_vm) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_private_vm (tests.test_record_array_vm.RecordArrayVm.test_instrumented_private_vm)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_array_vm.py", line 80, in test_instrumented_private_vm
+    self.qualify(True)
+    ~~~~~~~~~~~~^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_array_vm.py", line 61, in qualify
+    self.command(f'{mode}-{Path(source).stem}-build',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        [*self.cc, *self.flags, *dispatch, *hooks, '-c', source, '-o', str(obj)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 3.528s
+
+FAILED (failures=1)

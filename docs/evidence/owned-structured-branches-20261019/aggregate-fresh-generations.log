@@ -1,0 +1,20 @@
+test_actual_producers_preserve_nominal_moves_fields_and_snapshots (tests.test_owned_reconstruction.OwnedReconstruction.test_actual_producers_preserve_nominal_moves_fields_and_snapshots) ... ok
+test_corrupt_ownership_and_regions_preserve_prior_output (tests.test_owned_reconstruction.OwnedReconstruction.test_corrupt_ownership_and_regions_preserve_prior_output) ... ok
+test_initializer_named_entry_refuses_atomically (tests.test_owned_reconstruction.OwnedReconstruction.test_initializer_named_entry_refuses_atomically) ... ok
+test_verified_loop_outside_slice_refuses (tests.test_owned_reconstruction.OwnedReconstruction.test_verified_loop_outside_slice_refuses) ... ok
+test_verified_scalar_branch_preserves_live_owner (tests.test_owned_reconstruction.OwnedReconstruction.test_verified_scalar_branch_preserves_live_owner) ... ok
+test_actual_calls_preserve_exact_signatures_order_and_results (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_actual_calls_preserve_exact_signatures_order_and_results) ... ok
+test_corrupt_call_transfers_refuse_atomically (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_corrupt_call_transfers_refuse_atomically) ... ok
+test_generated_function_budget_refuses_atomically (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_generated_function_budget_refuses_atomically) ... ok
+test_scalar_suffix_cannot_copy_or_consume_staged_owner (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_scalar_suffix_cannot_copy_or_consume_staged_owner) ... ok
+test_terminal_helper_branch_preserves_call_graph (tests.test_owned_call_reconstruction.OwnedCallReconstruction.test_terminal_helper_branch_preserves_call_graph) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-2wj72s90
+test_actual_producers_and_both_structured_outputs (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_actual_producers_and_both_structured_outputs) ... ok
+test_crc_valid_branch_mutations_refuse_atomically (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_crc_valid_branch_mutations_refuse_atomically) ... ok
+test_ephemeral_sequence_cannot_cross_region_end (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_ephemeral_sequence_cannot_cross_region_end) ... ok
+test_join_state_refusals_from_actual_facts (tests.test_owned_branch_reconstruction.OwnedBranchReconstruction.test_join_state_refusals_from_actual_facts) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 104.147s
+
+OK

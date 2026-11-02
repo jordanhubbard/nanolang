@@ -1,0 +1,16 @@
+resource struct Leaf { value: int }
+resource struct Mid { leaf: Leaf }
+resource struct Outer { mid: Mid }
+resource struct Shell { outer: Outer }
+fn main() -> int {
+ let leaf: Leaf = Leaf { value: 7 }
+ let mid: Mid = Mid { leaf: leaf }
+ let outer: Outer = Outer { mid: mid }
+ let shell: Shell = Shell { outer: outer }
+ let Shell { outer } = shell
+ let Outer { mid } = outer
+ let Mid { leaf } = mid
+ let Leaf { value } = leaf
+ return value
+}
+shadow main { assert true }

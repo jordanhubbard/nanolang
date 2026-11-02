@@ -1,0 +1,30 @@
+{
+  "kind": "Static emitted-body estimator on isolated draft, not regenerated producer count",
+  "total": 281,
+  "helper": 10,
+  "shadow": 60,
+  "breakdown": {
+    "original_scalar_declarations": 37,
+    "scalar_load_snapshots": 33,
+    "owner_packs": 27,
+    "first_owner_declarations": 29,
+    "owner_move_temporaries": 26,
+    "unpack_staging_and_results": 52,
+    "scalar_owner_observations": 18,
+    "guarded_add_expansions": 56,
+    "reference_call_results": 3
+  },
+  "ordinary_api_refusal": "I limit generated exclusive Nano functions to 128 local slots",
+  "c_api_rendered": true,
+  "candidates_not_implemented": {
+    "adjacent_pack_store": 9,
+    "adjacent_move_store": 18,
+    "adjacent_move_assign": 6,
+    "adjacent_local_snapshot_assert": 10,
+    "unused_scalar_unpack_result_copies": 18
+  },
+  "draft_sources": {
+    "scripts/nanoisa_owned_reconstruction.py": "e929631485b27ce2614271275a77d86d87ba3a0102f2f18f50d13b83b0c7d019",
+    "scripts/nanoisa_owned_origins.py": "40c79469bac2ab23c23c3e21a62763d664ce01e5e2a2f5cd8c52526e69177df3"
+  }
+}

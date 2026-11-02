@@ -1,0 +1,9 @@
+{
+  "returncode": 124,
+  "timeout": true,
+  "cleanup_errors": [],
+  "group_absent": true,
+  "first_terminal": "timeout",
+  "remaining_group_killed": true,
+  "child_returncode": -9
+}

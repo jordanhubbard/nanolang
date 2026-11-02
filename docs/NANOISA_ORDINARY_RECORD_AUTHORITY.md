@@ -180,3 +180,15 @@ graphs without reordering identities. Resource-bearing authority, owned
 execution and managed descriptor/field-origin admission keep their prior-only
 boundaries. The original import/generic/array/other nominal exclusions remain;
 this extension changes the forward-order exclusion only.
+
+## My C-seed declaration provenance prerequisite (#1001)
+
+I retain the exact AST declaration at each runtime record registration, rather
+than recover its source by a short-name lookup. Repeated registration of the
+same declaration preserves identity; distinct same-spelled declarations mark
+that ordinal ambiguous. My existing local publisher requires exact ordinal and
+declaration/name identity, the complete root declaration count and no ambiguity.
+I retain import/generic/array/foreign/resource guards and all existing wire rules.
+This prerequisite supplies no positive imported authority. My [focused evidence](evidence/ordinary-declaration-provenance-20261018/README.md)
+records C-seed source/VM/native preservation; fresh paired generations and full
+applicable platform acceptance remain required before broader admission.

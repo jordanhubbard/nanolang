@@ -1,0 +1,62 @@
+test_imported_checked_sites_keep_actual_owner_provenance (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_imported_checked_sites_keep_actual_owner_provenance) ... 
+  test_imported_checked_sites_keep_actual_owner_provenance (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_imported_checked_sites_keep_actual_owner_provenance) (driver=PosixPath('/private/tmp/nanolang-borrow-c-provider/nano_virt'), reverse=False) ... FAIL
+  test_imported_checked_sites_keep_actual_owner_provenance (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_imported_checked_sites_keep_actual_owner_provenance) (driver=PosixPath('/private/tmp/nanolang-borrow-c-provider/nano_virt'), reverse=True) ... FAIL
+  test_imported_checked_sites_keep_actual_owner_provenance (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_imported_checked_sites_keep_actual_owner_provenance) (driver=PosixPath('/private/tmp/nanolang-checked-borrow-compiler'), reverse=False) ... FAIL
+  test_imported_checked_sites_keep_actual_owner_provenance (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_imported_checked_sites_keep_actual_owner_provenance) (driver=PosixPath('/private/tmp/nanolang-checked-borrow-compiler'), reverse=True) ... FAIL
+
+======================================================================
+FAIL: test_imported_checked_sites_keep_actual_owner_provenance (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_imported_checked_sites_keep_actual_owner_provenance) (driver=PosixPath('/private/tmp/nanolang-borrow-c-provider/nano_virt'), reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 169, in test_imported_checked_sites_keep_actual_owner_provenance
+    self.command([driver,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 20, in command
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 0: I require exactly main and one borrowed helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_imported_checked_sites_keep_actual_owner_provenance (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_imported_checked_sites_keep_actual_owner_provenance) (driver=PosixPath('/private/tmp/nanolang-borrow-c-provider/nano_virt'), reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 169, in test_imported_checked_sites_keep_actual_owner_provenance
+    self.command([driver,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 20, in command
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 0: I require exactly main and one borrowed helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_imported_checked_sites_keep_actual_owner_provenance (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_imported_checked_sites_keep_actual_owner_provenance) (driver=PosixPath('/private/tmp/nanolang-checked-borrow-compiler'), reverse=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 169, in test_imported_checked_sites_keep_actual_owner_provenance
+    self.command([driver,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 20, in command
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require exactly main and one borrowed helper in my source borrow profile
+
+
+======================================================================
+FAIL: test_imported_checked_sites_keep_actual_owner_provenance (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_imported_checked_sites_keep_actual_owner_provenance) (driver=PosixPath('/private/tmp/nanolang-checked-borrow-compiler'), reverse=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 169, in test_imported_checked_sites_keep_actual_owner_provenance
+    self.command([driver,source,'--emit-nvm','-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-checked-effects/tests/test_checked_borrow_metadata.py", line 20, in command
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require exactly main and one borrowed helper in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.049s
+
+FAILED (failures=4)

@@ -1,0 +1,12 @@
+resource struct Box {value:int,flag:bool}
+fn pick(owner:Box,count:int)->int {let mut i:int=0 while (< i (* (- (+ count 0) 0) 1)) {set i (+ i 1)} let Box{value,flag}=owner return (+ value i)}
+shadow pick {assert (== (main) 17)}
+fn main()->int {return (+ (third Box{value:7,flag:true} 3) (third Box{value:7,flag:true} 0))}
+shadow main {assert (== (main) 17)}
+
+fn first(owner: Box, count: int) -> int { return (pick owner count) }
+shadow first { assert true }
+fn second(owner: Box, count: int) -> int { return (first owner count) }
+shadow second { assert true }
+fn third(owner: Box, count: int) -> int { return (second owner count) }
+shadow third { assert true }

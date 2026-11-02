@@ -1,0 +1,39 @@
+test_actual_publisher_and_query_prefixes (tests.test_publication_allocation.PublicationAllocation.test_actual_publisher_and_query_prefixes) ... I retain publication allocation evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-s5yvfuyh
+publisher allocation positions: 264
+I qualified publisher: 264 transient/persistent positions
+query allocation positions: 259
+I qualified query: 259 transient/persistent positions
+ok
+test_nested_primitive_publisher_and_query_prefixes (tests.test_publication_allocation.PublicationAllocation.test_nested_primitive_publisher_and_query_prefixes) ... I retain publication allocation evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-yt6wk2v5
+publisher allocation positions: 268
+I qualified publisher: 268 transient/persistent positions
+query allocation positions: 268
+I qualified query: 268 transient/persistent positions
+I retain publication allocation evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-k0n81r3a
+publisher allocation positions: 268
+I qualified publisher: 268 transient/persistent positions
+query allocation positions: 268
+I qualified query: 268 transient/persistent positions
+I retain publication allocation evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-ab68ct_9
+publisher allocation positions: 268
+I qualified publisher: 268 transient/persistent positions
+query allocation positions: 268
+I qualified query: 268 transient/persistent positions
+ok
+test_nested_publisher_and_query_prefixes (tests.test_publication_allocation.PublicationAllocation.test_nested_publisher_and_query_prefixes) ... I retain publication allocation evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-m93n92k3
+publisher allocation positions: 268
+I qualified publisher: 268 transient/persistent positions
+query allocation positions: 268
+I qualified query: 268 transient/persistent positions
+ok
+test_nested_string_publisher_and_query_prefixes (tests.test_publication_allocation.PublicationAllocation.test_nested_string_publisher_and_query_prefixes) ... I retain publication allocation evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-publication-allocation-io7hrg54
+publisher allocation positions: 280
+I qualified publisher: 280 transient/persistent positions
+query allocation positions: 282
+I qualified query: 282 transient/persistent positions
+ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 228.743s
+
+OK

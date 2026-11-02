@@ -1,0 +1,2 @@
+{"input": "nano_virt", "proof": {"work": 437, "calls": 2, "owned_declarations": 16}, "locals": [92, 103], "shadow_estimate": 98, "c": {"returncode": 0, "stderr": "", "sentinel_preserved": false}, "nano": {"returncode": 0, "stderr": "", "sentinel_preserved": false}}
+{"input": "original-shadows", "proof": {"work": 439, "calls": 2, "owned_declarations": 16}, "locals": [92, 103], "shadow_estimate": 98, "c": {"returncode": 0, "stderr": "", "sentinel_preserved": false}, "nano": {"returncode": 0, "stderr": "", "sentinel_preserved": false}}

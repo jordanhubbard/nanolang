@@ -1,0 +1,26 @@
+[
+  {
+    "path": "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_virt",
+    "sha256": "4e0868b3b1bbc6e6adbec6f479bb72ea087361c11c1cca713bc12bfddde6e145"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nanoc_c",
+    "sha256": "07261c89550f857d1b146225d1cd8beed803369878d81526111768f683221629"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_vm",
+    "sha256": "c35140369cc33e0c5e32e1ed50739b51013042dbd735bcf9e31e5c17b86facaf"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nvm2c",
+    "sha256": "d7e8c67d5233adef6edb71a6bde4dfec64f6ec79e856dc27852e6569377a4c11"
+  },
+  {
+    "path": "/Users/jkh/Src/nanolang-51-empty-array-context/bin/nano_aot_runtime.o",
+    "sha256": "4c8ab675e4569bfa30939ca3405023ff157c1565afd5a26b356b03dd950e1979"
+  },
+  {
+    "path": "/private/tmp/nanoc-empty-array-context",
+    "sha256": "fc9950274eaa938986de2b991f8f721ab7c9b141bef994e951c0c75785c4757c"
+  }
+]

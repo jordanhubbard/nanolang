@@ -1,0 +1,28 @@
+test_compiler_allocation_prefixes (tests.test_record_map_native.RecordMapNative.test_compiler_allocation_prefixes) ... I retain private native evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ylizsq8b
+FAIL
+
+======================================================================
+FAIL: test_compiler_allocation_prefixes (tests.test_record_map_native.RecordMapNative.test_compiler_allocation_prefixes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_native.py", line 91, in test_compiler_allocation_prefixes
+    exe = self.driver(allocator=True)
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_native.py", line 72, in driver
+    self.command('driver-build', self.cc+self.flags+flags+[source, 'tests/nanoisa/record_array_alloc.c']+
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 products+objects+self.ldflags+['-o', str(exe)], build=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_native.py", line 54, in command
+    self.assertEqual(p.returncode, 0, p.stderr.decode())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : In file included from tests/nanoisa/test_record_map_native_alloc.c:7:
+tests/nanoisa/../../src/nanoisa/nvm2c.c:20:10: fatal error: 'utf8.h' file not found
+   20 | #include "utf8.h"
+      |          ^~~~~~~~
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.655s
+
+FAILED (failures=1)

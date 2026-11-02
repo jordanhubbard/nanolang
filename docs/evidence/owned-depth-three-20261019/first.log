@@ -1,0 +1,10 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-sp58hae9
+test_actual_depth_four_and_borrowed_depth_three_refuse_atomically (tests.test_owned_depth_three_reconstruction.OwnedDepthThreeReconstruction.test_actual_depth_four_and_borrowed_depth_three_refuse_atomically) ... ok
+test_actual_depth_three_and_composed_calls_control_flow (tests.test_owned_depth_three_reconstruction.OwnedDepthThreeReconstruction.test_actual_depth_three_and_composed_calls_control_flow) ... ok
+test_crc_valid_child_identity_and_loss_refuse_original_admission (tests.test_owned_depth_three_reconstruction.OwnedDepthThreeReconstruction.test_crc_valid_child_identity_and_loss_refuse_original_admission) ... ok
+test_exact_depth_descriptors_and_nested_child_tokens (tests.test_owned_depth_three_reconstruction.OwnedDepthThreeReconstruction.test_exact_depth_descriptors_and_nested_child_tokens) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 17.636s
+
+OK

@@ -1,0 +1,8 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-9_r8oft0
+test_overlapping_reference_holds_refuse_before_publication (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_overlapping_reference_holds_refuse_before_publication) ... ok
+test_shared_output_is_byte_identical (tests.test_owned_exclusive_reconstruction.OwnedExclusiveReconstruction.test_shared_output_is_byte_identical) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.252s
+
+OK

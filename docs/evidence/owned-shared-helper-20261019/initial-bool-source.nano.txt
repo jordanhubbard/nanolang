@@ -1,0 +1,14 @@
+resource struct Flag { active: bool, count: int }
+fn read(view: &Flag) -> bool { let value: bool = view.active return (not (not value)) }
+shadow read { let owner: Flag = Flag { active: true, count: 7 } assert (read &owner) let Flag { active, count } = owner assert active assert (== count 7) }
+fn main() -> int {
+ let owner: Flag = Flag { active: true, count: 7 }
+ assert (read &owner)
+ if (read &owner) { assert (read &owner) } else { assert false }
+ let mut again: bool = true
+ while again { assert (read &owner) set again false }
+ let Flag { active, count } = owner
+ assert active
+ return count
+}
+shadow main { assert (== (main) 7) }

@@ -1,0 +1,105 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -MMD -MP -c src/nanovm/heap.c -o obj/nanovm/heap.o
+test_private_nested_consumers (tests.test_record_array_nested_string.RecordArrayNestedString.test_private_nested_consumers) ... I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-bs37j5i3
+ok
+test_public_nested_consumers (tests.test_record_array_nested_string.RecordArrayNestedString.test_public_nested_consumers) ... I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-0jz2r0qk
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 35.113s
+
+OK
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-5t_5sz7i
+test_complete_origin_and_allocation_controls (tests.test_record_array_origins.RecordArrayOrigins.test_complete_origin_and_allocation_controls) ... I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 977 record-array origin checks; no runtime admission
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+I measured 41 allocation positions and 65034 peak payload bytes; every refusal recovered
+PASS 1495 record-array origin checks; no runtime admission
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.249s
+
+OK
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+ld: warning: ignoring duplicate libraries: 'lib/libnano_compiler_inputs.a'
+		obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+		obj/nanovm/main.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.0.3/lib 
+ld: warning: ignoring duplicate libraries: 'lib/libnano_compiler_inputs.a'
+python3 scripts/embed_binary64_parser.py --check
+CC="cc" python3 -m unittest -v tests.test_flat_array_source_publication
+I retain producer build evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-producers-_st912dv
+test_bound_imports (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_bound_imports) ... ok
+test_concrete_generic_array_record_arguments_and_results (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_concrete_generic_array_record_arguments_and_results) ... ok
+test_existing_array_result_without_array_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_existing_array_result_without_array_fields) ... ok
+test_five_scalar_elements (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_five_scalar_elements) ... ok
+test_foreign_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_foreign_module_omits_optional_envelope) ... ok
+test_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_forward_record_dag) ... ok
+test_generic_direct_tail_calls_publish_proved_array_profile (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_generic_direct_tail_calls_publish_proved_array_profile) ... ok
+test_large_closed_module_omits_optional_envelope (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_large_closed_module_omits_optional_envelope) ... ok
+test_nested_aliases_empty_fields_and_generic_forwarder (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_aliases_empty_fields_and_generic_forwarder) ... ok
+test_nested_bound_import (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_bound_import) ... ok
+test_nested_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_forward_record_dag) ... ok
+test_nested_int_arrays_publish_exact_authority (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_int_arrays_publish_exact_authority) ... ok
+test_nested_string_alias_refill_and_mixed_leaves (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_string_alias_refill_and_mixed_leaves) ... 
+  test_nested_string_alias_refill_and_mixed_leaves (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_string_alias_refill_and_mixed_leaves) (compiler='/Users/jkh/Src/nanolang-51-nested-array/bin/nano_virt') ... FAIL
+  test_nested_string_alias_refill_and_mixed_leaves (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_string_alias_refill_and_mixed_leaves) (compiler='/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-producers-_st912dv/emitter') ... FAIL
+test_nested_string_bound_import (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_string_bound_import) ... ok
+test_nested_string_forward_record_dag (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_string_forward_record_dag) ... ok
+test_query_status_and_host_interfaces (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_query_status_and_host_interfaces) ... ok
+test_recursive_tail_calls_keep_optional_array_authority_absent (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_recursive_tail_calls_keep_optional_array_authority_absent) ... ok
+test_shared_and_empty_fields (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_shared_and_empty_fields) ... ok
+test_unsupported_nested_descriptors_stay_optional (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_unsupported_nested_descriptors_stay_optional) ... ok
+
+======================================================================
+FAIL: test_nested_string_alias_refill_and_mixed_leaves (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_string_alias_refill_and_mixed_leaves) (compiler='/Users/jkh/Src/nanolang-51-nested-array/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-nested-array/tests/test_flat_array_source_publication.py", line 70, in exercise
+    self.run_command(compiler, program, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-nested-array/tests/test_flat_array_source_publication.py", line 57, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-j5z9le1d/source.nano:11:2
+  #1   $shadow_1_main  /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-j5z9le1d/source.nano:14:15
+  #2   $shadow_entry  /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-j5z9le1d/source.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-j5z9le1d/source.nano:11:2
+  #1   $shadow_1_main  /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-j5z9le1d/source.nano:14:15
+  #2   $shadow_entry  /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-j5z9le1d/source.nano:?
+I will not publish output after failed shadow execution
+
+
+======================================================================
+FAIL: test_nested_string_alias_refill_and_mixed_leaves (tests.test_flat_array_source_publication.FlatArraySourcePublication.test_nested_string_alias_refill_and_mixed_leaves) (compiler='/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-producers-_st912dv/emitter')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-nested-array/tests/test_flat_array_source_publication.py", line 70, in exercise
+    self.run_command(compiler, program, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-nested-array/tests/test_flat_array_source_publication.py", line 57, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I refused that program: I require a replacement value matching the element type
+
+
+----------------------------------------------------------------------
+Ran 19 tests in 96.159s
+
+FAILED (failures=2)
+make: *** [test-flat-array-source-publication] Error 1

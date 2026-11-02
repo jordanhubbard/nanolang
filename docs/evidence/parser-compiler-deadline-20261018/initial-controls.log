@@ -1,0 +1,64 @@
+test_budget_default_override_and_invalid_values (tests.test_native_process.NativeProcess.test_budget_default_override_and_invalid_values) ... ok
+test_build_budget_is_explicit_and_guest_deadline_stays_short (tests.test_native_process.NativeProcess.test_build_budget_is_explicit_and_guest_deadline_stays_short) ... ok
+test_link_flags_inherit_and_preserve_explicit_empty_override (tests.test_native_process.NativeProcess.test_link_flags_inherit_and_preserve_explicit_empty_override) ... ok
+test_timeout_kills_descendant_and_reaps_driver (tests.test_native_process.NativeProcess.test_timeout_kills_descendant_and_reaps_driver) ... ok
+I retain descriptive-plan artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-source-plan-t4vqlhr6
+test_c_ownership_allocation_and_exact_budget (tests.test_file_source_plan.FileSourcePlan.test_c_ownership_allocation_and_exact_budget) ... ok
+test_paired_full_modules_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_full_modules_and_selected_shadows) ... FAIL
+test_paired_mixed_catalogs_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_mixed_catalogs_and_selected_shadows) ... FAIL
+test_paired_websocket_catalog_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_websocket_catalog_and_selected_shadows) ... FAIL
+test_timeout_retains_group_and_unchanged_deadline (tests.test_retained_process_evidence.RetainedProcessEvidence.test_timeout_retains_group_and_unchanged_deadline) ... ok
+test_unavailable_diagnostic_does_not_prevent_cleanup (tests.test_retained_process_evidence.RetainedProcessEvidence.test_unavailable_diagnostic_does_not_prevent_cleanup) ... ok
+
+======================================================================
+FAIL: test_paired_full_modules_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_full_modules_and_selected_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-parser-budget/tests/test_file_source_plan.py", line 140, in test_paired_full_modules_and_selected_shadows
+    self.paired(corpus(), False)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-parser-budget/tests/test_file_source_plan.py", line 172, in paired
+    build_out,trace=self.command(compiler+'-build',args,timeout=900,
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         extra={'NANO_SHADOW_TRACE':'1', 'NANO_SHADOW_TIMEOUT_SECONDS':'30'})
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-parser-budget/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('nanoc_c-build', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 900, 'elapsed_seconds': 0.0017695840215310454, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_paired_mixed_catalogs_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_mixed_catalogs_and_selected_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-parser-budget/tests/test_file_source_plan.py", line 143, in test_paired_mixed_catalogs_and_selected_shadows
+    self.paired(service_corpus(), True)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-parser-budget/tests/test_file_source_plan.py", line 172, in paired
+    build_out,trace=self.command(compiler+'-build',args,timeout=900,
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         extra={'NANO_SHADOW_TRACE':'1', 'NANO_SHADOW_TIMEOUT_SECONDS':'30'})
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-parser-budget/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('nanoc_c-build', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 900, 'elapsed_seconds': 0.0019395839772187173, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+======================================================================
+FAIL: test_paired_websocket_catalog_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_websocket_catalog_and_selected_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-parser-budget/tests/test_file_source_plan.py", line 146, in test_paired_websocket_catalog_and_selected_shadows
+    self.paired(websocket_corpus(), True)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-parser-budget/tests/test_file_source_plan.py", line 172, in paired
+    build_out,trace=self.command(compiler+'-build',args,timeout=900,
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         extra={'NANO_SHADOW_TRACE':'1', 'NANO_SHADOW_TIMEOUT_SECONDS':'30'})
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-parser-budget/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('nanoc_c-build', {'returncode': None, 'timeout': False, 'cleanup_errors': [], 'group_absent': False, 'timeout_seconds': 900, 'elapsed_seconds': 0.0017466249992139637, 'launch_or_wait_error': "FileNotFoundError(2, 'No such file or directory')", 'first_terminal': 'os_error'}, b'', b'')
+
+----------------------------------------------------------------------
+Ran 10 tests in 8.097s
+
+FAILED (failures=3)

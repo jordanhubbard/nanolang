@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_string_baseline",
+    "/private/tmp/owned-string-baseline-20261019/shadow_driver.nano",
+    "-o",
+    "/private/tmp/owned-string-baseline-20261019/shadow_driver"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-owned-nested-depth2",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": "",
+  "timeout_seconds": 900
+}

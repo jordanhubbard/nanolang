@@ -1,0 +1,483 @@
+{
+  "base": "200c4f850",
+  "providers": {
+    "/private/tmp/nanolang-map-delete-publication-20261022/nano_virt": "af90b461a2410647074c529756bffb093afe01ee3cba156d30558c3945c76888",
+    "/private/tmp/nanolang-map-delete-publication-20261022/canonical": "867e1320008995c87562323ef3788a885eda2cff64a2bcc375a10b79c7fea4b5",
+    "/private/tmp/nanolang-map-delete-publication-20261022/c-shadow": "b88f33f6a976ba8644bf3be5dcd4ea01b41d1398debd278a89cc88ae88623098",
+    "/private/tmp/nanolang-map-delete-publication-20261022/raw": "9a5565c9ac1d41440c8d8d8bec59b259ff84dc74cba752d7e5d75c714bcb3e67",
+    "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm": "06e1726b0594b0e3fbb2c6897fb5f245502aeb2d353b08921b187168ef71e9e9",
+    "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa": "ede47ac355dea0ed6616ddfc8b74f9da710a2ef2a11a02fbe740093d698db1ad",
+    "/private/tmp/nanolang-map-delete-consumer-20261022/nvm2c": "cfa0c9bcd4d1482b7709a20dbf2db9a6c9fc23465b4c37aeb74b0e7fe0193d91",
+    "/opt/homebrew/opt/llvm/bin/clang": "5b3adae66bf3e36a0aa2e90db47e3456d31bf5f992124fd09ae9119b076e00be"
+  },
+  "commands": [
+    {
+      "name": "seed-source",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-publication-20261022/nano_virt",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/unchanged.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-verify",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-vm",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-dump",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-native",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nvm2c",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed.c"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-build-O0",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-run-O0",
+      "argv": [
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-build-O2",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-run-O2",
+      "argv": [
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-selected-refusal",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed-selected.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/seed-prior.nvm"
+      ],
+      "status": 1
+    },
+    {
+      "name": "canonical-source",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-publication-20261022/canonical",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/unchanged.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-verify",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-vm",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-dump",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-native",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nvm2c",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical.c"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-build-O0",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-run-O0",
+      "argv": [
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-build-O2",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-run-O2",
+      "argv": [
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-selected-refusal",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical-selected.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/canonical-prior.nvm"
+      ],
+      "status": 1
+    },
+    {
+      "name": "c-shadow-source",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-publication-20261022/c-shadow",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/unchanged.nano"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-asm",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow.raw.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-verify",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-vm",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-dump",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-native",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nvm2c",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow.c"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-build-O0",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-run-O0",
+      "argv": [
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-build-O2",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-run-O2",
+      "argv": [
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-selected-refusal",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow-selected.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/c-shadow-prior.nvm"
+      ],
+      "status": 1
+    },
+    {
+      "name": "raw-shadow-source",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-publication-20261022/raw",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/unchanged.nano",
+        "0",
+        "raw"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-asm",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow.raw.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-verify",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-vm",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-dump",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-native",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nvm2c",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow.nvm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow.c"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-build-O0",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-run-O0",
+      "argv": [
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow-O0"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-build-O2",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow.c",
+        "-lm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-run-O2",
+      "argv": [
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow-O2"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-selected-refusal",
+      "argv": [
+        "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow-selected.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-string-value-baseline-20261022/raw-shadow-prior.nvm"
+      ],
+      "status": 1
+    }
+  ],
+  "source": "cdc01a4c0306ec8e6a322c871a6ad98bfa7ecca0002469593e2a53d0b83a7e0c",
+  "original_source": "cdc01a4c0306ec8e6a322c871a6ad98bfa7ecca0002469593e2a53d0b83a7e0c",
+  "modules": {
+    "seed": "9e706ab31f90218c2b3bd2d2a9d86b65fd8709005dcf24978cc07e5e51d96474",
+    "canonical": "c4b1acac4de049aa41e6fce70b83e8c055bf431cd3759802e816a79c80551dfc",
+    "c-shadow": "55cc31485c3cba3cf713d7d8fcd69da540d8487819126828792dc8f07a3a5aee",
+    "raw-shadow": "77353682879484880616b7e1d9d2d94ddbc8deb28184d7ab424a4851d781a34a"
+  },
+  "after": {
+    "/private/tmp/nanolang-map-delete-publication-20261022/nano_virt": "af90b461a2410647074c529756bffb093afe01ee3cba156d30558c3945c76888",
+    "/private/tmp/nanolang-map-delete-publication-20261022/canonical": "867e1320008995c87562323ef3788a885eda2cff64a2bcc375a10b79c7fea4b5",
+    "/private/tmp/nanolang-map-delete-publication-20261022/c-shadow": "b88f33f6a976ba8644bf3be5dcd4ea01b41d1398debd278a89cc88ae88623098",
+    "/private/tmp/nanolang-map-delete-publication-20261022/raw": "9a5565c9ac1d41440c8d8d8bec59b259ff84dc74cba752d7e5d75c714bcb3e67",
+    "/private/tmp/nanolang-map-delete-consumer-20261022/nano_vm": "06e1726b0594b0e3fbb2c6897fb5f245502aeb2d353b08921b187168ef71e9e9",
+    "/private/tmp/nanolang-map-delete-consumer-20261022/nanoisa": "ede47ac355dea0ed6616ddfc8b74f9da710a2ef2a11a02fbe740093d698db1ad",
+    "/private/tmp/nanolang-map-delete-consumer-20261022/nvm2c": "cfa0c9bcd4d1482b7709a20dbf2db9a6c9fc23465b4c37aeb74b0e7fe0193d91",
+    "/opt/homebrew/opt/llvm/bin/clang": "5b3adae66bf3e36a0aa2e90db47e3456d31bf5f992124fd09ae9119b076e00be"
+  }
+}

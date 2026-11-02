@@ -1,0 +1,17 @@
+{
+  "Makefile.gnu": "f6f3d7f4004ea69561f8fbff6b751aaa4cea32bcf69010b637b46e57653de2bf",
+  "docs/NANOISA_MAP_FIELDS_DECLARATION_DESIGN.md": "f4437c96de168ab802034958d0e3e4e4a1d891d7ca530ff6da1651f9d07952fa",
+  "docs/ROADMAP.md": "bbe7b6a7ddb9650b6461fce9faf45174df9b93290fe523c271cac0b0f0006610",
+  "src/nanoisa/nvm_v2_layouts.c": "b65339952b0b328b60a96f68b9f116686418afa09dc239434aceabb4390bea82",
+  "src/nanoisa/ordinary_array_authority.inc": "e49e74c35ff790c16b5e00b63fd7743fb0a5a64915c12e66af07a9752e3b458d",
+  "src/nanoisa/ownership_contracts.c": "be381cc7c78ef608a9857c97dbaeac076fe8b0e47318c1c3e183e8f7d39d47dc",
+  "src/nanoisa/ownership_contracts.h": "9b68c43572a511f8aefa16daa8c73ab36b50ce18740b338232a8e73533989741",
+  "src/nanoisa/ownership_declaration_projection.inc": "6549f9cc71e7325bd99c00a8b0424eb93835c425d088a81a0dcbed261ac6bb91",
+  "src/nanoisa/ownership_layouts_private.h": "6f2b5c8dc7ee4072cc7072df3f0ceae0f83d286c3fd0dcdae63f78dc168529f9",
+  "src/nanoisa/ownership_map_declarations.h": "4b6e2c1f44e25edc9d5de359de05ec45ed98a9aeef69eec3807f32f8ba568f27",
+  "src/nanoisa/ownership_map_declarations.inc": "7f344c74f046b1752cb587833c706a38029fc1a801d0e2057f55458b86e95628",
+  "src/nanoisa/ownership_map_fields.inc": "133335faf2e9fe9b5c7912047eaa3baff9f0f2bebad30bb40d7f61fb8ccd8024",
+  "tests/nanoisa/test_map_declarations.c": "8395d07ee8733bb5d823a476d4e7708703ad03d1579fcb027534d0cdef3d9a2d",
+  "tests/nanoisa/test_ownership_declaration_projection.c": "87c9a65280867941d8ce533b37966a97cc0fd5b7258f0dbb86947b0de0be30a5",
+  "tests/test_map_declarations.py": "d6c2f57f0f994edd27d07efaf3dcde2ecb281d11bfa9e014d53e0ba198c75ca5"
+}

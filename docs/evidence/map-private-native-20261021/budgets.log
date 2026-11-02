@@ -1,0 +1,9 @@
+analysis_size=39840
+mode=0 calls=38 actual_peak=64957 reserved_peak=16945941 work=1192267
+mode=1 calls=38 actual_peak=65550 reserved_peak=16946526 work=1261676
+mode=2 calls=39 actual_peak=65551 reserved_peak=16946527 work=1261678
+mode=3 calls=38 actual_peak=65550 reserved_peak=16946526 work=1261676
+mode=4 calls=38 actual_peak=65550 reserved_peak=16946526 work=1261676
+mode=5 calls=38 actual_peak=65550 reserved_peak=16946526 work=1261676
+
+EXACT SIX BUDGETS PASS

@@ -1,0 +1,7 @@
+Warning: Function 'nlr_f0_owned_0' is missing a shadow test
+Warning: Function 'nlr_f1_owned_1' is missing a shadow test
+Warning: Function 'nlr_f2_owned_2' is missing a shadow test
+Warning at line 65, column 5: Unused variable 'nlr_l4'
+Warning at line 77, column 5: Unused variable 'nlr_t43_0'
+Warning at line 78, column 5: Unused variable 'nlr_t43_1'
+Warning: Function 'nlr_f3_owned_3' is missing a shadow test

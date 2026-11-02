@@ -1,0 +1,11 @@
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==84208==ERROR: AddressSanitizer: stack-overflow on address 0x00016c6e7de8 (pc 0x000102f451a8 bp 0x00016c7ac4d0 sp 0x00016c6e7da0 T0)
+    #0 0x000102f451a8 in import_check test_record_map_import.c:17
+    #1 0x000102f44b8c in import_original test_record_map_import.c:42
+    #2 0x000102f1bcc8 in map_original_module test_record_map_origins.c:197
+    #3 0x000102f3b90c in main test_record_map_import.c:199
+    #4 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+SUMMARY: AddressSanitizer: stack-overflow test_record_map_import.c:17 in import_check
+==84208==ABORTING

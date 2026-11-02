@@ -1,0 +1,9 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-zd69tsss
+test_typed_identity_and_first_snapshot_refusals (tests.test_eight_shared_reconstruction.EightSharedReconstruction.test_typed_identity_and_first_snapshot_refusals) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-snf4ruav
+test_single_exclusive_output_is_byte_identical (tests.test_owned_multi_reference_reconstruction.OwnedMultiReferenceReconstruction.test_single_exclusive_output_is_byte_identical) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.106s
+
+OK

@@ -1,0 +1,20 @@
+resource struct Leaf { value: int }
+fn write(text: string, owner: Leaf, tail: string, number: int, yes: bool) -> void {
+    (print text)
+    (println tail)
+    let Leaf { value } = owner
+    assert (== value number)
+    assert yes
+}
+shadow write { assert true }
+fn forward(text: string, owner: Leaf) -> void {
+    (write text owner "" 7 true)
+}
+shadow forward { assert true }
+fn main() -> int {
+    let owner: Leaf = Leaf { value: 7 }
+    (forward "A\tB\rC\n\"\'\\0\q  café" owner)
+    (print "")
+    return 0
+}
+shadow main { assert (== (main) 0) }

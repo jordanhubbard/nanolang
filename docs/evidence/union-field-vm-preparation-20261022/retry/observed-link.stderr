@@ -1,0 +1,7 @@
+tests/nanoisa/test_union_field_preparation.c:34:60: error: no member named 'num_objects' in 'struct VmHeap'
+   34 |     CHECK(p->vm.heap.intern_bucket_count>=256&&!p->vm.heap.num_objects==!p->vm.module_constants.count);
+      |                                                 ~~~~~~~~~~ ^
+tests/nanoisa/test_union_field_declarations.c:8:36: note: expanded from macro 'CHECK'
+    8 | #define CHECK(x) do {checks++;if(!(x)){fprintf(stderr,"I failed line%u: %s\n",__LINE__,#x);exit(1);}}while(0)
+      |                                    ^
+1 error generated.

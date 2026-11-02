@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-float-anchor.py", line 15, in <module>
+    m=w/(name+'-via-'+producer+'.nvm');run([r/'bin'/producer,w/(name+'.float.nano'),'--emit-nvm','-o',m]);run([r/'bin/nano_vm','--verify-only',m]);run([r/'bin/nano_vm',m])
+                                       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-float-anchor.py", line 12, in run
+    return FileSourcePlan.command.__func__(Runner,'anchor-'+str(idx),args,timeout=180)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_file_source_plan.py", line 125, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('anchor-1', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'timeout_seconds': 180, 'elapsed_seconds': 0.03788808302488178, 'pid': 57448, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'', b"Warning at line 18, column 5: Unused variable 'nlr_t64_0'\nWarning at line 33, column 5: Unused variable 'nlr_t24_0'\nWarning: Function 'nlr_f1_owned_1' is missing a shadow test\nI could not compile shadows at line 4: I require an unshadowed direct non-entry value-call target in my source borrow profile\n")

@@ -1,0 +1,39 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ufj_en3_
+test_actual_conditional_reads_preserve_shared_record_fields (tests.test_optional_record_join.OptionalRecordJoin.test_actual_conditional_reads_preserve_shared_record_fields) ... ok
+test_float_bool_string_conditional_record_fields (tests.test_optional_record_join.OptionalRecordJoin.test_float_bool_string_conditional_record_fields) ... 
+  test_float_bool_string_conditional_record_fields (tests.test_optional_record_join.OptionalRecordJoin.test_float_bool_string_conditional_record_fields) (case='float-raw-missing', compiler='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt') ... FAIL
+  test_float_bool_string_conditional_record_fields (tests.test_optional_record_join.OptionalRecordJoin.test_float_bool_string_conditional_record_fields) (case='float-raw-missing', compiler='/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1') ... FAIL
+  test_float_bool_string_conditional_record_fields (tests.test_optional_record_join.OptionalRecordJoin.test_float_bool_string_conditional_record_fields) (case='float-raw-missing', compiler='/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2') ... FAIL
+test_missing_raw_reads_do_not_become_integer_zero (tests.test_optional_record_join.OptionalRecordJoin.test_missing_raw_reads_do_not_become_integer_zero) ... ok
+
+======================================================================
+FAIL: test_float_bool_string_conditional_record_fields (tests.test_optional_record_join.OptionalRecordJoin.test_float_bool_string_conditional_record_fields) (case='float-raw-missing', compiler='/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 111, in paired
+    self.assertIn(missing_error, vm.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Assertion failed' not found in '\nRuntime error: Type error\n  F64_EQ requires two floats\nStack trace (most recent call first):\n  #0   main  /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-ufj_en3_/float-raw-missing.nano:13:5\nI could not execute the module: Type error\n  F64_EQ requires two floats\n'
+
+======================================================================
+FAIL: test_float_bool_string_conditional_record_fields (tests.test_optional_record_join.OptionalRecordJoin.test_float_bool_string_conditional_record_fields) (case='float-raw-missing', compiler='/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 111, in paired
+    self.assertIn(missing_error, vm.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Assertion failed' not found in 'I could not execute the module: Type error\n  F64_EQ requires two floats\n'
+
+======================================================================
+FAIL: test_float_bool_string_conditional_record_fields (tests.test_optional_record_join.OptionalRecordJoin.test_float_bool_string_conditional_record_fields) (case='float-raw-missing', compiler='/Users/jkh/Src/nanolang-51-owned-reconstruction/bin/nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-affine-borrowed-roots/tests/test_optional_record_join.py", line 111, in paired
+    self.assertIn(missing_error, vm.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Assertion failed' not found in 'I could not execute the module: Type error\n  F64_EQ requires two floats\n'
+
+----------------------------------------------------------------------
+Ran 3 tests in 45.051s
+
+FAILED (failures=3)

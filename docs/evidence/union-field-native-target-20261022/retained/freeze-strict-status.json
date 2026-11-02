@@ -1,0 +1,142 @@
+[
+  {
+    "name": "clang-default",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "src/nanoisa/nvm2c.c"
+    ],
+    "code": 0,
+    "seconds": 0.28876083297654986
+  },
+  {
+    "name": "clang-private",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "-DNANO_UNION_FIELD_PRIVATE_NATIVE",
+      "src/nanoisa/nvm2c.c"
+    ],
+    "code": 0,
+    "seconds": 0.07504954095929861
+  },
+  {
+    "name": "clang-linked-test",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_native_target.c"
+    ],
+    "code": 0,
+    "seconds": 0.05067775002680719
+  },
+  {
+    "name": "clang-observed-test",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "-DUFP_ALLOC",
+      "tests/nanoisa/test_union_field_native_target.c"
+    ],
+    "code": 0,
+    "seconds": 0.07122354197781533
+  },
+  {
+    "name": "gcc-16-default",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "src/nanoisa/nvm2c.c"
+    ],
+    "code": 0,
+    "seconds": 0.18901391699910164
+  },
+  {
+    "name": "gcc-16-private",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "-DNANO_UNION_FIELD_PRIVATE_NATIVE",
+      "src/nanoisa/nvm2c.c"
+    ],
+    "code": 0,
+    "seconds": 0.06871208304073662
+  },
+  {
+    "name": "gcc-16-linked-test",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_native_target.c"
+    ],
+    "code": 0,
+    "seconds": 0.04372275003697723
+  },
+  {
+    "name": "gcc-16-observed-test",
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsyntax-only",
+      "-DUFP_ALLOC",
+      "tests/nanoisa/test_union_field_native_target.c"
+    ],
+    "code": 0,
+    "seconds": 0.06442766601685435
+  }
+]

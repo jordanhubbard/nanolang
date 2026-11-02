@@ -1,0 +1,90 @@
+2026-10-19T13:47:44.0233773Z env:
+2026-10-19T13:47:44.0234310Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-19T13:47:44.0234993Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-19T13:47:44.0235566Z   NANO_SHADOW_TRACE: 1
+2026-10-19T13:47:44.0236221Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T13:47:44.0236739Z   CMD_TIMEOUT: 1800
+2026-10-19T13:47:44.0237649Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-19T13:47:44.0238702Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-19T13:47:44.0239302Z ##[endgroup]
+2026-10-19T13:48:14.3987276Z env:
+2026-10-19T13:48:14.3987807Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-19T13:48:14.3988551Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-19T13:48:14.3989080Z   NANO_SHADOW_TRACE: 1
+2026-10-19T13:48:14.3989576Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T13:48:14.3990117Z   CMD_TIMEOUT: 1800
+2026-10-19T13:48:14.3991136Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-19T13:48:14.3992425Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-19T13:48:14.3993078Z ##[endgroup]
+2026-10-19T13:48:14.5509247Z env:
+2026-10-19T13:48:14.5509563Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-19T13:48:14.5509953Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-19T13:48:14.5510234Z   NANO_SHADOW_TRACE: 1
+2026-10-19T13:48:14.5510472Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T13:48:14.5510803Z   CMD_TIMEOUT: 1800
+2026-10-19T13:48:14.5511330Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-19T13:48:14.5511964Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-19T13:48:14.5512309Z ##[endgroup]
+2026-10-19T13:48:22.2473531Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 gir1.2-harfbuzz-0.0 amd64 8.3.0-2build2 [44.5 kB]
+2026-10-19T13:48:22.3237535Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libibus-1.0-5 amd64 1.5.29-2 [181 kB]
+2026-10-19T13:48:22.4164365Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 gir1.2-ibus-1.0 amd64 1.5.29-2 [86.3 kB]
+2026-10-19T13:48:22.4971355Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libasound2-dev amd64 1.2.11-1ubuntu0.3 [115 kB]
+2026-10-19T13:48:22.5807200Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libasyncns0 amd64 0.8-6build4 [11.3 kB]
+2026-10-19T13:48:22.6539467Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libbrotli-dev amd64 1.1.0-2build2 [353 kB]
+2026-10-19T13:48:22.7615242Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libbz2-dev amd64 1.0.8-5.1ubuntu0.1 [33.6 kB]
+2026-10-19T13:48:22.8362072Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libdbus-1-dev amd64 1.14.10-4ubuntu4.1 [190 kB]
+2026-10-19T13:48:22.9268734Z Get:27 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libdecor-0-0 amd64 0.2.2-1build2 [16.5 kB]
+2026-10-19T13:48:35.6754155Z Selecting previously unselected package libharfbuzz-gobject0:amd64.
+2026-10-19T13:48:35.6878922Z Preparing to unpack .../005-libharfbuzz-gobject0_8.3.0-2build2_amd64.deb ...
+2026-10-19T13:48:35.6885976Z Unpacking libharfbuzz-gobject0:amd64 (8.3.0-2build2) ...
+2026-10-19T13:48:35.7077779Z Selecting previously unselected package gir1.2-harfbuzz-0.0:amd64.
+2026-10-19T13:48:35.7200369Z Preparing to unpack .../006-gir1.2-harfbuzz-0.0_8.3.0-2build2_amd64.deb ...
+2026-10-19T13:48:35.7207088Z Unpacking gir1.2-harfbuzz-0.0:amd64 (8.3.0-2build2) ...
+2026-10-19T13:48:35.7407064Z Selecting previously unselected package libibus-1.0-5:amd64.
+2026-10-19T13:48:35.7530169Z Preparing to unpack .../007-libibus-1.0-5_1.5.29-2_amd64.deb ...
+2026-10-19T13:48:35.7537662Z Unpacking libibus-1.0-5:amd64 (1.5.29-2) ...
+2026-10-19T13:48:52.3398963Z env:
+2026-10-19T13:48:52.3399298Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-19T13:48:52.3399744Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-19T13:48:52.3400053Z   NANO_SHADOW_TRACE: 1
+2026-10-19T13:48:52.3400325Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T13:48:52.3400624Z   CMD_TIMEOUT: 1800
+2026-10-19T13:48:52.3401262Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-19T13:48:52.3401998Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-19T13:48:52.3402379Z ##[endgroup]
+2026-10-19T13:58:03.4242002Z env:
+2026-10-19T13:58:03.4242299Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-19T13:58:03.4242704Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-19T13:58:03.4242991Z   NANO_SHADOW_TRACE: 1
+2026-10-19T13:58:03.4243245Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T13:58:03.4243520Z   CMD_TIMEOUT: 1800
+2026-10-19T13:58:03.4244072Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-19T13:58:03.4244746Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-19T13:58:03.4245346Z ##[endgroup]
+2026-10-19T13:58:07.1173141Z python3 scripts/embed_binary64_parser.py --check
+2026-10-19T13:58:07.5969100Z I run seed; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-hl9ute_5/00-seed.log.
+2026-10-19T14:00:52.0025312Z I run seed-verify; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-hl9ute_5/01-seed-verify.log.
+2026-10-19T14:01:03.7292135Z I run stage1; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-hl9ute_5/02-stage1.log.
+2026-10-19T16:01:03.7884841Z Command '['/home/runner/work/nanolang/nanolang/bin/nano_vm', '/home/runner/work/nanolang/nanolang/bin/nanoc_seed.nvm', '--', 'src_nano/nanoc_v06.nano', '--emit-nvm', '-o', '/home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-hl9ute_5/stage1.nvm']' timed out after 7200 seconds
+2026-10-19T16:01:03.7952812Z make: *** [Makefile.gnu:3968: .bootstrap1.built] Error 1
+2026-10-19T16:01:03.7976216Z ##[error]Process completed with exit code 2.
+2026-10-19T16:01:03.8073993Z ##[group]Run actions/upload-artifact@v4
+2026-10-19T16:01:03.8074301Z with:
+2026-10-19T16:01:03.8077141Z env:
+2026-10-19T16:01:03.8077382Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-19T16:01:03.8077718Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-19T16:01:03.8077976Z   NANO_SHADOW_TRACE: 1
+2026-10-19T16:01:03.8078199Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T16:01:03.8078443Z   CMD_TIMEOUT: 1800
+2026-10-19T16:01:03.8078948Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-19T16:01:03.8079552Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-19T16:01:03.8079861Z ##[endgroup]
+2026-10-19T16:01:05.4835655Z env:
+2026-10-19T16:01:05.4836180Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+2026-10-19T16:01:05.4836600Z   NANO_SHADOW_TIMEOUT_SECONDS: 300
+2026-10-19T16:01:05.4836906Z   NANO_SHADOW_TRACE: 1
+2026-10-19T16:01:05.4837183Z   BOOTSTRAP_NANOISA_TIMEOUT: 7200
+2026-10-19T16:01:05.4837530Z   CMD_TIMEOUT: 1800
+2026-10-19T16:01:05.4838105Z   CFLAGS: -Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer
+2026-10-19T16:01:05.4838814Z   LDFLAGS: -lm -lcrypto -fsanitize=address,undefined
+2026-10-19T16:01:05.4839198Z ##[endgroup]

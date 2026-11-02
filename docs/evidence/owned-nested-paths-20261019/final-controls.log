@@ -1,0 +1,8 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-bxlr07tb
+test_unchanged_anchor_native_and_paired_roundtrips (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_unchanged_anchor_native_and_paired_roundtrips) ... ok
+test_projected_calls_in_both_caller_branch_arms (tests.test_owned_nested_path_reconstruction.OwnedNestedPathReconstruction.test_projected_calls_in_both_caller_branch_arms) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 27.564s
+
+OK

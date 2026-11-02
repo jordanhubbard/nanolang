@@ -1,0 +1,44 @@
+test_private_nested_consumers (tests.test_record_array_nested_string.RecordArrayNestedString.test_private_nested_consumers) ... I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-qf7td1n1
+FAIL
+test_public_nested_consumers (tests.test_record_array_nested_string.RecordArrayNestedString.test_public_nested_consumers) ... I retain nested qualification at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-nested-e02uessu
+FAIL
+
+======================================================================
+FAIL: test_private_nested_consumers (tests.test_record_array_nested_string.RecordArrayNestedString.test_private_nested_consumers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-nested-array/tests/test_record_array_nested_string.py", line 18, in test_private_nested_consumers
+    self.qualify(True)
+    ~~~~~~~~~~~~^^^^^^
+  File "/Users/jkh/Src/nanolang-51-nested-array/tests/test_record_array_nested_string.py", line 52, in qualify
+    run('public-nested', [str(exe), str(artifacts)])
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-nested-array/tests/test_record_array_nested_string.py", line 27, in run
+    self.assertEqual(result.returncode, 0, result.stdout.decode(errors='replace') + result.stderr.decode(errors='replace'))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I observed public concat pooled references wrap to 0 instead of refusing.
+I failed line 373: refused && observed==UINT32_MAX
+
+
+======================================================================
+FAIL: test_public_nested_consumers (tests.test_record_array_nested_string.RecordArrayNestedString.test_public_nested_consumers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-nested-array/tests/test_record_array_nested_string.py", line 15, in test_public_nested_consumers
+    self.qualify(False)
+    ~~~~~~~~~~~~^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-nested-array/tests/test_record_array_nested_string.py", line 52, in qualify
+    run('public-nested', [str(exe), str(artifacts)])
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-nested-array/tests/test_record_array_nested_string.py", line 27, in run
+    self.assertEqual(result.returncode, 0, result.stdout.decode(errors='replace') + result.stderr.decode(errors='replace'))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I observed public concat pooled references wrap to 0 instead of refusing.
+I failed line 373: refused && observed==UINT32_MAX
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 22.391s
+
+FAILED (failures=2)
+make: *** [test-record-array-nested-string] Error 1

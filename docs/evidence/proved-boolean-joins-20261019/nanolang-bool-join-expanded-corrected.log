@@ -1,0 +1,7 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-okoleih6
+test_proved_boolean_record_projection_short_circuit (tests.test_optional_record_join.OptionalRecordJoin.test_proved_boolean_record_projection_short_circuit) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 50.461s
+
+OK

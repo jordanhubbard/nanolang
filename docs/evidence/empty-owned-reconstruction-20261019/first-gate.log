@@ -1,0 +1,4 @@
+nano_virt all3 Nano and strictISO C O0/O2 PASS
+nanoc_stage1 all3 Nano and strictISO C O0/O2 PASS
+nanoc_stage2 all3 Nano and strictISO C O0/O2 PASS
+original-shadows all3 Nano and strictISO C O0/O2 PASS

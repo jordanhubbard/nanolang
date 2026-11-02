@@ -103,7 +103,7 @@ class ServiceInputs(unittest.TestCase):
                         elif mode.endswith("alias"):
                             self.assertIn("I will not overwrite a source file", text)
                         else:
-                            self.assertIn("I require --allow-temporary-files for selected File shadows or execution", text)
+                            self.assertIn("I require --allow-temporary-files for selected service shadows or execution", text)
                         self.assertEqual(output.read_bytes(), b"prior-output")
                         if before is not None: self.assertEqual(companion.read_bytes(), before)
 

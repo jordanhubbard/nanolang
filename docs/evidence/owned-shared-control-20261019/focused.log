@@ -1,0 +1,17 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-uvudzd6m
+test_constant_helper_keeps_exact_unused_shared_parameter (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_constant_helper_keeps_exact_unused_shared_parameter) ... ok
+test_total_bool_diamonds_preserve_both_paths (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_total_bool_diamonds_preserve_both_paths) ... ok
+test_caller_inline_add_exact_endpoints (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_caller_inline_add_exact_endpoints) ... ok
+test_actual_helper_effects_and_loops_remain_atomic_refusals (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_actual_helper_effects_and_loops_remain_atomic_refusals) ... ok
+test_generated_caller_local_boundary_preserves_output (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_generated_caller_local_boundary_preserves_output) ... I measure shared control bound {"count": 3, "provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "costs": [127, 5]}
+I measure shared control bound {"count": 3, "provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "costs": [127, 5]}
+I measure shared control bound {"count": 4, "provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt", "costs": [135, 5]}
+I measure shared control bound {"count": 4, "provider": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context", "costs": [135, 5]}
+ok
+test_original_verifier_corruption_preserves_prior_outputs (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_original_verifier_corruption_preserves_prior_outputs) ... ok
+test_defensive_modes_effects_and_total_shadow_boundary (tests.test_owned_shared_control_reconstruction.OwnedSharedControlReconstruction.test_defensive_modes_effects_and_total_shadow_boundary) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 50.824s
+
+OK

@@ -1,0 +1,18 @@
+{
+  "/Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": "784df96b97c9f606b92cedd700abde10bc5708e1d64d5761906e64f61a39fd86",
+  "/Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as": "20d8e922bb537ded2b5b6edb44f6f2a01bae2c698f367d25069f64dabdb0d829",
+  "/opt/homebrew/Cellar/llvm/23.1.0/bin/clang-23": "2562143125f133005a4505f7ffd463a2e52e9a24dbae58cc425374bcbb0ea44f",
+  "/usr/bin/as": "4016687c36d60a2bbcab1de3850ebdafdd0a95f9421ff7f05aaf4ca6a002a227",
+  "/Applications/Xcode_15.0.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": "72c39e01ce66d8e238cd28ea0b66da21c3535bd37beca0d59ac4d9986b7afbbe",
+  "/Applications/Xcode_15.0.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as": "093e46b0a5acc299250006f9055d01e12224a35308bf97fed53cfcdcca80ffeb",
+  "/Applications/Xcode_15.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": "ede87df18e157cc8acb99abec4f7897d44f9718674b8d82f171639ef0381e3f1",
+  "/Applications/Xcode_15.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as": "2f7a7ea503e878fe12e77d2640abc5002272afd0449252ac6dac9a3a600bdd6d",
+  "/Applications/Xcode_15.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": "86051fc5c41d7fb5f8998d0188a9730d0e5f6e1170aed3006fd719fc88f747f3",
+  "/Applications/Xcode_15.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as": "db31fa874d5629eff176ece769dcf502f07e85208c9f7ce27758c389fbf7cfc4",
+  "/Applications/Xcode_15.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": "693d5d0ba3e939d5bb32b62e253c443f8997c5bb118b9398844d0cbd47e890a4",
+  "/Applications/Xcode_15.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as": "62c511f3a02456171452e2ae178250b9de76449d6e1bb968f65b672335d85b9d",
+  "/Applications/Xcode_16.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": "6efd40fe24312f94a254e1204ae016b2c8e771d6f02c1a9fe1e2062d2734ae50",
+  "/Applications/Xcode_16.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as": "06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc",
+  "/Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": "60468f3efd513d53f6ce581ec8d00595855ebf5a31a496d685b91c104aee1ca0",
+  "/Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as": "06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc"
+}

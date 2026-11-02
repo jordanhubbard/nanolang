@@ -1,0 +1,35 @@
+return-assemble 0
+return-verify 0
+return-native 0
+return-build 0
+return-run 7
+root-halt-assemble 0
+root-halt-verify 0
+root-halt-native 0
+root-halt-build 0
+root-halt-run 11
+call-halt-assemble 0
+call-halt-verify 0
+call-halt-native 0
+call-halt-build 0
+call-halt-run 12
+tail-halt-assemble 0
+tail-halt-verify 0
+tail-halt-native 0
+tail-halt-build 0
+tail-halt-run 13
+assert-halt-assemble 0
+assert-halt-verify 0
+assert-halt-native 0
+assert-halt-build 0
+assert-halt-run 14
+false-assert-assemble 0
+false-assert-verify 0
+false-assert-native 0
+false-assert-build 0
+false-assert-run -6
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-union-native-baseline-20261022/contrast.py", line 10, in <module>
+    if n=='false-assert':assert p.returncode!=0 and b'assert' in p.stderr.lower()
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

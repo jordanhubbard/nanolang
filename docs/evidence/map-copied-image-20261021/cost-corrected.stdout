@@ -1,0 +1,19 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-image-61jjr7ho
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+PASS 1793 map origin checks; public admission remains refused
+PASS 1981 copied map recipe checks; public admission remains refused
+PASS 1981 retained map image cost checks; public admission remains refused
+I retained 45 allocation prefixes and independent recovery.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm; public admission remains refused.
+I copied original fixture proof from /private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm; public admission remains refused.
+PASS 2408 map origin checks; public admission remains refused
+I retained 45 stack/plan proof failure prefixes.
+I retained 60 recipe allocation prefixes; reserved 67191725 bytes/16863488 work.
+PASS 4126 copied map recipe checks; public admission remains refused
+I matched retained payload and exact logical work without allocations.
+PASS 4325 retained map image cost checks; public admission remains refused

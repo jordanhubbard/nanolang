@@ -1,0 +1,51 @@
+seed-verify 0
+seed-ordinary 0
+seed-native 0
+seed-build0 0
+seed-run0 0
+seed-build2 0
+seed-run2 0
+c-shadow-verify 0
+c-shadow-ordinary 0
+c-shadow-native 0
+c-shadow-build0 0
+c-shadow-run0 0
+c-shadow-build2 0
+c-shadow-run2 0
+canonical-verify 0
+canonical-ordinary 0
+canonical-native 0
+canonical-build0 0
+canonical-run0 0
+canonical-build2 0
+canonical-run2 0
+canonical-shadow-verify 0
+canonical-shadow-ordinary 0
+canonical-shadow-native 0
+canonical-shadow-build0 0
+canonical-shadow-run0 0
+canonical-shadow-build2 0
+canonical-shadow-run2 0
+raw-program-verify 0
+raw-program-ordinary 0
+raw-program-native 0
+raw-program-build0 0
+raw-program-run0 0
+raw-program-build2 0
+raw-program-run2 0
+raw-shadow-verify 0
+raw-shadow-ordinary 0
+raw-shadow-native 0
+raw-shadow-build0 0
+raw-shadow-run0 0
+raw-shadow-build2 0
+raw-shadow-run2 0
+return-verify 1
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-union-native-baseline-20261022/run.py", line 13, in <module>
+    m=halt/(n+'.nvm');run(n+'-verify',[tools['nano_vm'],'--verify-only',m]);run(n+'-native',[tools['nvm2c'],m,'-o',r/(n+'.c')]);exe=r/n;run(n+'-build',[tools['cc'],'-std=c11','-O1','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',r/(n+'.c'),'-lm','-o',exe]);p=run(n+'-run',[exe],None)
+                      ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-union-native-baseline-20261022/run.py", line 6, in run
+    if expect is not None:assert p.returncode==expect,(name,p.stderr)
+                                 ^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('return-verify', b"Error: Failed to load '/private/tmp/nanolang-union-halt-baseline-20261022/return.nvm': module was built for NanoISA v1 (NVM\\x01); rebuild it with nanoc 4.0 or later\n")

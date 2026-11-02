@@ -1,0 +1,78 @@
+{
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt": {
+    "sha256": "88288eee9c6743aca8d09d8e51ee0fa4227bbcb7a5331755d9f289af637984cf",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/helper_fresh_nanoc_stage1": {
+    "sha256": "2265bb33f9ec77c3905b84b70555d3b10ddf142c40cfacb472187776f5685c94",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/helper_fresh_nanoc_stage2": {
+    "sha256": "afbfa17237e0814057ad2aa0f137e82a73d68bb94ffb44cec600d99db8691917",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm": {
+    "sha256": "420014efed1644e6ce93661d661d828b1981861012654e64deec93596b66ef9b",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa": {
+    "sha256": "2387eaacf67eec87c7f049addf7e88c75add5764e9b11b3600477da40d7222b6",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2c": {
+    "sha256": "6f6a695a43fa84d613c48deab987a5466b2878f601da55c187ffaa108422ae77",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_aot_runtime.o": {
+    "sha256": "ba2af3b6b612558643e407f9d67860aaae7d38817781e8ed8ba2e31e07a24016",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-51-harness/modules/nanoisa/.build/.nano-gen-xS6H9K/libnanoisa.dylib": {
+    "sha256": "1157aaf12597fe7c2ac9486b5a015074d6459a55920ad923a40608736313f4e9",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-51-harness/modules/nanoisa/.build/.nano-gen-hD6WBu/libnanoisa.dylib": {
+    "sha256": "dfd86133764b47737310defa82f8ba3e015467d9b18c4378e96a8f020fd064b4",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-51-harness/modules/nanoisa/.build/.nano-gen-J7zFoT/libnanoisa.dylib": {
+    "sha256": "0733c8e18c4600c5c2d1df303d1b160384df46a080eb22eb52d731b37b8af0ef",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-51-harness/modules/nanoisa/.build/.nano-gen-Bijav3/libnanoisa.dylib": {
+    "sha256": "4c2827e99f99c5c7fec1f436d49d858a86861b6f4ff63b7c29d8cdf79a3b434a",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-51-harness/modules/nanoisa/.build/.nano-gen-NNUHYb/libnanoisa.dylib": {
+    "sha256": "fa70222bb936210b4a1733c5e5b7de3471ec9526dab275bb69866af848a5f2c8",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-51-harness/modules/nanoisa/.build/.nano-gen-Pc39Mp/libnanoisa.dylib": {
+    "sha256": "ecd11aee4e534310cedf7d6eb4432041c4cb7f0b0ea956b111f36e6806f2b5f5",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-51-harness/modules/nanoisa/.build/.nano-gen-1yr92d/libnanoisa.dylib": {
+    "sha256": "81720ba6c8212d99c95054001d9c9fb0c9679aec3c001c972476ad942b0ab312",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-51-harness/lib/libnano_services_runtime.a": {
+    "sha256": "3a25395c53af517492dc704016c4aa7fef344dfbd3166ef25f8aded757943308",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-51-harness/lib/libnano_socket_runtime.a": {
+    "sha256": "85355be8da9cb21ed18d87d9cbe81edfbe274afbfe928eafc6898d12603bdcd0",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-51-harness/lib/libnano_file_runtime.a": {
+    "sha256": "65b3abc1634040f8bd7aba9bbbd411e6998b272cce648a498e43ba62e65a2998",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-51-harness/lib/libnano_websocket_runtime.a": {
+    "sha256": "78282eb3f251ffa08fbcdb150eafbadd516b69cdb0143bcbd40d024e7de49203",
+    "unchanged": true
+  },
+  "/Users/jkh/Src/nanolang-51-harness/lib/libnano_compiler_inputs.a": {
+    "sha256": "07a33be03f4decc585906881430637b87bd006f9f7614c7133332f265bdb28c4",
+    "unchanged": true
+  }
+}

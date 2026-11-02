@@ -1,0 +1,12 @@
+test_callable_global (tests.test_native_global_types.NativeGlobalTypes.test_callable_global) ... ok
+test_enum_global (tests.test_native_global_types.NativeGlobalTypes.test_enum_global) ... ok
+test_generic_record_initializer (tests.test_native_global_types.NativeGlobalTypes.test_generic_record_initializer) ... ok
+test_incompatible_globals_preserve_output (tests.test_native_global_types.NativeGlobalTypes.test_incompatible_globals_preserve_output) ... ok
+test_record_global_and_mutation (tests.test_native_global_types.NativeGlobalTypes.test_record_global_and_mutation) ... ok
+test_record_receiver_shadows_import_alias (tests.test_native_global_types.NativeGlobalTypes.test_record_receiver_shadows_import_alias) ... ok
+test_tuple_global (tests.test_native_global_types.NativeGlobalTypes.test_tuple_global) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 8.003s
+
+OK

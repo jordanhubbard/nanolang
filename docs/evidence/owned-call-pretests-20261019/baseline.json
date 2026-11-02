@@ -1,0 +1,16 @@
+{
+  "original_module_sha256": "82dba92919305671c08684ae0f4616d291fd02fda61c4a2792f5f8ccf654a7be",
+  "analyzer_revision": "c76c77b72751f4a1bb90708e9ee931498f947a8b",
+  "analyzer_sha256": "fa0c091a3de0761b3689c8478f6644491b33f2bbc9fef904f4b6d8dde1a7c795",
+  "method": "retained analyzer reconstruct_owned on original verified actual-source facts",
+  "results": {
+    "c": {
+      "type": "Refusal",
+      "message": "I require a complete three-reference caller region"
+    },
+    "nano": {
+      "type": "Refusal",
+      "message": "I require a complete three-reference caller region"
+    }
+  }
+}

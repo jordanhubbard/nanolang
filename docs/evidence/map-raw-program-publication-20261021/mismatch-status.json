@@ -1,0 +1,48 @@
+[
+  {
+    "name": "mismatch-checked-0",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-bm53rvm2/declaration-mismatch.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-bm53rvm2/mismatch-checked-0.nvm"
+    ],
+    "status": 1,
+    "timeout": 180
+  },
+  {
+    "name": "mismatch-checked-1",
+    "argv": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/canonical",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-bm53rvm2/declaration-mismatch.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-bm53rvm2/mismatch-checked-1.nvm"
+    ],
+    "status": 1,
+    "timeout": 180
+  },
+  {
+    "name": "mismatch-raw-0-program",
+    "argv": [
+      "/private/tmp/nanolang-map-raw-program-20261021/driver",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-bm53rvm2/declaration-mismatch.nano",
+      "0",
+      "program"
+    ],
+    "status": 1,
+    "timeout": 180
+  },
+  {
+    "name": "mismatch-raw-0-raw",
+    "argv": [
+      "/private/tmp/nanolang-map-raw-program-20261021/driver",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-map-field-publication-bm53rvm2/declaration-mismatch.nano",
+      "0",
+      "raw"
+    ],
+    "status": 1,
+    "timeout": 180
+  }
+]

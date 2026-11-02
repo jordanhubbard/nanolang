@@ -1,0 +1,126 @@
+FAIL: test_nested_record_child (tests.test_native_nested_arrays.NativeNestedArrays.test_nested_record_child)
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3843182Z ----------------------------------------------------------------------
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3845424Z Traceback (most recent call last):
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3846456Z   File "/home/runner/work/nanolang/nanolang/tests/test_native_nested_arrays.py", line 44, in test_nested_record_child
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3847467Z     self.paired('record-child', body,
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3848345Z   File "/home/runner/work/nanolang/nanolang/tests/test_native_byte_arrays.py", line 47, in paired
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3849333Z     self.command(*shlex.split(os.environ.get('CC', 'clang')), '-std=c11',
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3850338Z   File "/home/runner/work/nanolang/nanolang/tests/test_native_byte_arrays.py", line 26, in command
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3851334Z     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3893301Z AssertionError: 1 != 0 : /tmp/nano-native-nested-arrays-ge5pop77/record-child.c: In function ‘main’:
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3900074Z /tmp/nano-native-nested-arrays-ge5pop77/record-child.c:1248:5: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3901546Z  1248 |     if (collections < 2) abort(); return result; }
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3902035Z       |     ^~
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3903612Z /tmp/nano-native-nested-arrays-ge5pop77/record-child.c:1248:35: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3904803Z  1248 |     if (collections < 2) abort(); return result; }
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3905309Z       |                                   ^~~~~~
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3905777Z cc1: all warnings being treated as errors
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3906080Z 
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3906086Z 
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3906272Z ======================================================================
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3907393Z FAIL: test_self_cycle_survives_collection_and_pop (tests.test_native_nested_arrays.NativeNestedArrays.test_self_cycle_survives_collection_and_pop)
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3908539Z ----------------------------------------------------------------------
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3909110Z Traceback (most recent call last):
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3910036Z   File "/home/runner/work/nanolang/nanolang/tests/test_native_nested_arrays.py", line 36, in test_self_cycle_survives_collection_and_pop
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3911049Z     self.paired('cycle', body, '.string a "a"\n.string b "b"\n' + CHURN,
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3911829Z   File "/home/runner/work/nanolang/nanolang/tests/test_native_byte_arrays.py", line 47, in paired
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3913180Z     self.command(*shlex.split(os.environ.get('CC', 'clang')), '-std=c11',
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3914099Z   File "/home/runner/work/nanolang/nanolang/tests/test_native_byte_arrays.py", line 26, in command
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3915029Z     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3916125Z AssertionError: 1 != 0 : /tmp/nano-native-nested-arrays-ge5pop77/cycle.c: In function ‘main’:
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3917519Z /tmp/nano-native-nested-arrays-ge5pop77/cycle.c:1228:5: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3918541Z  1228 |     if (collections < 2) abort(); return result; }
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3919033Z       |     ^~
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3920194Z /tmp/nano-native-nested-arrays-ge5pop77/cycle.c:1228:35: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3921352Z  1228 |     if (collections < 2) abort(); return result; }
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3921849Z       |                                   ^~~~~~
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3922306Z cc1: all warnings being treated as errors
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3922803Z 
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3922808Z 
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3922984Z ======================================================================
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3924368Z FAIL: test_slice_retains_children_after_outer_release (tests.test_native_nested_arrays.NativeNestedArrays.test_slice_retains_children_after_outer_release)
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3925521Z ----------------------------------------------------------------------
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3926084Z Traceback (most recent call last):
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3927042Z   File "/home/runner/work/nanolang/nanolang/tests/test_native_nested_arrays.py", line 27, in test_slice_retains_children_after_outer_release
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3928029Z     self.paired('retained', body,
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3928766Z   File "/home/runner/work/nanolang/nanolang/tests/test_native_byte_arrays.py", line 47, in paired
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3929664Z     self.command(*shlex.split(os.environ.get('CC', 'clang')), '-std=c11',
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3930555Z   File "/home/runner/work/nanolang/nanolang/tests/test_native_byte_arrays.py", line 26, in command
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3931463Z     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3932756Z AssertionError: 1 != 0 : /tmp/nano-native-nested-arrays-ge5pop77/retained.c: In function ‘main’:
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3934371Z /tmp/nano-native-nested-arrays-ge5pop77/retained.c:1298:5: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3935587Z  1298 |     if (collections < 2) abort(); return result; }
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3936069Z       |     ^~
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3937202Z /tmp/nano-native-nested-arrays-ge5pop77/retained.c:1298:35: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3938316Z  1298 |     if (collections < 2) abort(); return result; }
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3938808Z       |                                   ^~~~~~
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3939265Z cc1: all warnings being treated as errors
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3939567Z 
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3939573Z 
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3939850Z ----------------------------------------------------------------------
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3940354Z Ran 3 tests in 1.023s
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3940494Z 
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3940585Z FAILED (failures=3)
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.3962012Z make: *** [Makefile.gnu:6096: test-native-nested-arrays] Error 1
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.4600854Z ##[error]Process completed with exit code 2.
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.4837421Z ##[group]Run git diff --exit-code HEAD
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.4838051Z ^[[36;1mgit diff --exit-code HEAD^[[0m
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.4838747Z ^[[36;1mshasum -a 256 -c .test_output/retirement/providers-before.sha256 \^[[0m
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.4839549Z ^[[36;1m  > .test_output/retirement/providers-after.log^[[0m
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.5826445Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.5826997Z env:
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.5827292Z   CMD_TIMEOUT: 1800
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.5827664Z   BOOTSTRAP_NANOISA_TIMEOUT: 5400
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.5828129Z   NANO_SHADOW_TIMEOUT_SECONDS: 120
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.5828556Z   NANO_SHADOW_TRACE: 1
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:52.5828924Z ##[endgroup]
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4567999Z ##[group]Run actions/upload-artifact@v4
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4568466Z with:
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4568883Z   name: qualification-compiler-contracts-ubuntu-latest
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4569626Z   path: .test_output/retirement/
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	obj/bootstrap-nanoisa/**/manifest.json
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	obj/bootstrap-nanoisa/**/*.log
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4570320Z   include-hidden-files: true
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4570702Z   if-no-files-found: error
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4571045Z   retention-days: 30
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4571559Z   compression-level: 6
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4571908Z   overwrite: false
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4572284Z env:
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4572915Z   CMD_TIMEOUT: 1800
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4573303Z   BOOTSTRAP_NANOISA_TIMEOUT: 5400
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4573774Z   NANO_SHADOW_TIMEOUT_SECONDS: 120
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4574191Z   NANO_SHADOW_TRACE: 1
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.4574553Z ##[endgroup]
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.7108935Z (node:106683) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.7110734Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.7273856Z Multiple search paths detected. Calculating the least common ancestor of all paths
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.7291902Z The least common ancestor is /home/runner/work/nanolang/nanolang. This will be the root directory of the artifact
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.7293312Z With the provided path, there will be 27 files uploaded
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.7294354Z Artifact name is valid!
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.7294863Z Root directory input is valid!
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:54.9687208Z Beginning upload of artifact content to blob storage
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.1973899Z (node:106683) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.5535956Z Uploaded bytes 1953228
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.5954949Z Finished uploading artifact content to blob storage!
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.5956146Z SHA256 digest of uploaded artifact zip is e7eb68e568338d7fb7d66dff9aa591db96f51cc7d1bfa78e430ab1e080c79c6b
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.5957550Z Finalizing artifact upload
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.8687461Z Artifact qualification-compiler-contracts-ubuntu-latest.zip successfully finalized. Artifact ID 12237427763
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.8689366Z Artifact qualification-compiler-contracts-ubuntu-latest has been successfully uploaded! Final size is 1953228 bytes. Artifact ID is 12237427763
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.8694641Z Artifact download URL: https://github.com/jordanhubbard/nanolang/actions/runs/39330564592/artifacts/12237427763
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.8974934Z Post job cleanup.
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.9849645Z [command]/usr/bin/git version
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.9894965Z git version 2.55.0
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.9963121Z Temporarily overriding HOME='/home/runner/work/_temp/c4530af1-b402-42fa-8fe3-161c8d7a01ec' before making global git config changes
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.9964447Z Adding repository directory to the temporary git global config as a safe directory
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:55.9968063Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/nanolang/nanolang
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:56.0012952Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:56.0048078Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:56.0478966Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:56.0517970Z http.https://github.com/.extraheader
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:56.0538269Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:56.0572766Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:56.0904394Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:56.0946235Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:56.1417111Z Cleaning up orphan processes
+Qualification (compiler-contracts, ubuntu-latest)	UNKNOWN STEP	2026-10-20T03:04:56.1814572Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

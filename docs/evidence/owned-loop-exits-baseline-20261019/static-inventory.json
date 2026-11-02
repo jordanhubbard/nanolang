@@ -1,0 +1,809 @@
+{
+  "warning": "Diagnostic opcode inventory, NOT analyzed emitted cost or regenerated acceptance. Pure pretests, safe folds and compiler cleanup can change exact cost. New SUB/DIV/bank routing needs profile-specific approval.",
+  "modules": {
+    "source_borrow_range_for-nanoc_u8_context-facts.json": [
+      {
+        "function": 0,
+        "original_locals": 31,
+        "opcodes": {
+          "PUSH_I64": 42,
+          "STORE_LOCAL": 39,
+          "PUSH_BOOL": 4,
+          "LOAD_LOCAL": 53,
+          "OWN_PACK": 2,
+          "OWN_STORE_LOCAL": 4,
+          "LT": 8,
+          "JMP_FALSE": 11,
+          "OWN_MOVE_LOCAL": 2,
+          "REGION_BEGIN": 8,
+          "BORROW_LOCAL_SHARED": 5,
+          "REF_GET": 5,
+          "REGION_END": 8,
+          "EQ": 13,
+          "ASSERT": 14,
+          "OWN_UNPACK_LOCAL": 5,
+          "POP": 10,
+          "ADD": 15,
+          "JMP": 10,
+          "BORROW_LOCAL_EXCLUSIVE": 3,
+          "CALL_REF": 3,
+          "DIV": 1,
+          "RET": 2
+        },
+        "terms": {
+          "scalar_slots_and_ref_parameters": 27,
+          "load_snapshots_upper": 53,
+          "comparison_boolean_snapshots_upper": 21,
+          "guarded_add_separate": 105,
+          "guarded_sub_separate": 0,
+          "proposed_guarded_div": 4,
+          "owner_pack": 6,
+          "owner_store": 4,
+          "owner_move": 2,
+          "owner_unpack": 25,
+          "ref_reads": 5,
+          "ref_calls": 3
+        },
+        "all_loads_materialized_inventory": 255,
+        "hypothetical_existing_add_bank_inventory": 170,
+        "unoptimized_add_plus_scalar_floor": 132,
+        "jumps": [
+          {
+            "pc": 86,
+            "op": "JMP_FALSE",
+            "target": 391
+          },
+          {
+            "pc": 177,
+            "op": "JMP_FALSE",
+            "target": 208
+          },
+          {
+            "pc": 203,
+            "op": "JMP",
+            "target": 79
+          },
+          {
+            "pc": 221,
+            "op": "JMP_FALSE",
+            "target": 236
+          },
+          {
+            "pc": 231,
+            "op": "JMP",
+            "target": 391
+          },
+          {
+            "pc": 267,
+            "op": "JMP_FALSE",
+            "target": 326
+          },
+          {
+            "pc": 285,
+            "op": "JMP_FALSE",
+            "target": 311
+          },
+          {
+            "pc": 306,
+            "op": "JMP",
+            "target": 260
+          },
+          {
+            "pc": 321,
+            "op": "JMP",
+            "target": 326
+          },
+          {
+            "pc": 386,
+            "op": "JMP",
+            "target": 79
+          },
+          {
+            "pc": 456,
+            "op": "JMP_FALSE",
+            "target": 492
+          },
+          {
+            "pc": 487,
+            "op": "JMP",
+            "target": 449
+          },
+          {
+            "pc": 558,
+            "op": "JMP_FALSE",
+            "target": 594
+          },
+          {
+            "pc": 589,
+            "op": "JMP",
+            "target": 551
+          },
+          {
+            "pc": 653,
+            "op": "JMP_FALSE",
+            "target": 682
+          },
+          {
+            "pc": 677,
+            "op": "JMP",
+            "target": 646
+          },
+          {
+            "pc": 713,
+            "op": "JMP_FALSE",
+            "target": 742
+          },
+          {
+            "pc": 737,
+            "op": "JMP",
+            "target": 706
+          },
+          {
+            "pc": 785,
+            "op": "JMP_FALSE",
+            "target": 841
+          },
+          {
+            "pc": 836,
+            "op": "JMP",
+            "target": 778
+          },
+          {
+            "pc": 940,
+            "op": "JMP_FALSE",
+            "target": 960
+          }
+        ]
+      },
+      {
+        "function": 1,
+        "original_locals": 3,
+        "opcodes": {
+          "PUSH_I64": 5,
+          "STORE_LOCAL": 3,
+          "LOAD_LOCAL": 4,
+          "LT": 1,
+          "JMP_FALSE": 2,
+          "EQ": 1,
+          "ADD": 2,
+          "JMP": 2,
+          "REF_GET": 2,
+          "REF_SET": 1,
+          "RET": 1
+        },
+        "terms": {
+          "scalar_slots_and_ref_parameters": 3,
+          "load_snapshots_upper": 4,
+          "comparison_boolean_snapshots_upper": 2,
+          "guarded_add_separate": 14,
+          "guarded_sub_separate": 0,
+          "proposed_guarded_div": 0,
+          "owner_pack": 0,
+          "owner_store": 0,
+          "owner_move": 0,
+          "owner_unpack": 0,
+          "ref_reads": 2,
+          "ref_calls": 0
+        },
+        "all_loads_materialized_inventory": 25,
+        "hypothetical_existing_add_bank_inventory": 18,
+        "unoptimized_add_plus_scalar_floor": 17,
+        "jumps": [
+          {
+            "pc": 31,
+            "op": "JMP_FALSE",
+            "target": 100
+          },
+          {
+            "pc": 49,
+            "op": "JMP_FALSE",
+            "target": 75
+          },
+          {
+            "pc": 70,
+            "op": "JMP",
+            "target": 24
+          },
+          {
+            "pc": 95,
+            "op": "JMP",
+            "target": 100
+          }
+        ]
+      }
+    ],
+    "source_borrow_loop_exits-nanoc_u8_context-facts.json": [
+      {
+        "function": 0,
+        "original_locals": 14,
+        "opcodes": {
+          "PUSH_I64": 15,
+          "STORE_LOCAL": 12,
+          "PUSH_BOOL": 7,
+          "LOAD_LOCAL": 19,
+          "OWN_PACK": 2,
+          "OWN_STORE_LOCAL": 4,
+          "LT": 2,
+          "JMP_FALSE": 9,
+          "ADD": 2,
+          "OWN_MOVE_LOCAL": 2,
+          "REGION_BEGIN": 5,
+          "BORROW_LOCAL_SHARED": 4,
+          "REF_GET": 4,
+          "REGION_END": 5,
+          "EQ": 7,
+          "ASSERT": 7,
+          "OWN_UNPACK_LOCAL": 5,
+          "POP": 10,
+          "JMP": 8,
+          "BORROW_LOCAL_EXCLUSIVE": 1,
+          "CALL_REF": 1,
+          "SUB": 1,
+          "RET": 2
+        },
+        "terms": {
+          "scalar_slots_and_ref_parameters": 10,
+          "load_snapshots_upper": 19,
+          "comparison_boolean_snapshots_upper": 9,
+          "guarded_add_separate": 14,
+          "guarded_sub_separate": 7,
+          "proposed_guarded_div": 0,
+          "owner_pack": 6,
+          "owner_store": 4,
+          "owner_move": 2,
+          "owner_unpack": 25,
+          "ref_reads": 4,
+          "ref_calls": 1
+        },
+        "all_loads_materialized_inventory": 101,
+        "hypothetical_existing_add_bank_inventory": 94,
+        "unoptimized_add_plus_scalar_floor": 24,
+        "jumps": [
+          {
+            "pc": 56,
+            "op": "JMP_FALSE",
+            "target": 322
+          },
+          {
+            "pc": 163,
+            "op": "JMP_FALSE",
+            "target": 178
+          },
+          {
+            "pc": 173,
+            "op": "JMP",
+            "target": 43
+          },
+          {
+            "pc": 191,
+            "op": "JMP_FALSE",
+            "target": 206
+          },
+          {
+            "pc": 201,
+            "op": "JMP",
+            "target": 322
+          },
+          {
+            "pc": 231,
+            "op": "JMP_FALSE",
+            "target": 269
+          },
+          {
+            "pc": 254,
+            "op": "JMP_FALSE",
+            "target": 264
+          },
+          {
+            "pc": 259,
+            "op": "JMP",
+            "target": 269
+          },
+          {
+            "pc": 264,
+            "op": "JMP",
+            "target": 218
+          },
+          {
+            "pc": 317,
+            "op": "JMP",
+            "target": 43
+          },
+          {
+            "pc": 324,
+            "op": "JMP_FALSE",
+            "target": 334
+          },
+          {
+            "pc": 329,
+            "op": "JMP",
+            "target": 334
+          },
+          {
+            "pc": 336,
+            "op": "JMP_FALSE",
+            "target": 346
+          },
+          {
+            "pc": 341,
+            "op": "JMP",
+            "target": 334
+          },
+          {
+            "pc": 416,
+            "op": "JMP_FALSE",
+            "target": 448
+          },
+          {
+            "pc": 423,
+            "op": "JMP_FALSE",
+            "target": 443
+          },
+          {
+            "pc": 443,
+            "op": "JMP",
+            "target": 448
+          }
+        ]
+      },
+      {
+        "function": 1,
+        "original_locals": 2,
+        "opcodes": {
+          "PUSH_I64": 5,
+          "STORE_LOCAL": 2,
+          "LOAD_LOCAL": 3,
+          "LT": 1,
+          "JMP_FALSE": 2,
+          "ADD": 2,
+          "EQ": 1,
+          "JMP": 2,
+          "REF_GET": 2,
+          "REF_SET": 1,
+          "RET": 1
+        },
+        "terms": {
+          "scalar_slots_and_ref_parameters": 2,
+          "load_snapshots_upper": 3,
+          "comparison_boolean_snapshots_upper": 2,
+          "guarded_add_separate": 14,
+          "guarded_sub_separate": 0,
+          "proposed_guarded_div": 0,
+          "owner_pack": 0,
+          "owner_store": 0,
+          "owner_move": 0,
+          "owner_unpack": 0,
+          "ref_reads": 2,
+          "ref_calls": 0
+        },
+        "all_loads_materialized_inventory": 23,
+        "hypothetical_existing_add_bank_inventory": 16,
+        "unoptimized_add_plus_scalar_floor": 16,
+        "jumps": [
+          {
+            "pc": 25,
+            "op": "JMP_FALSE",
+            "target": 94
+          },
+          {
+            "pc": 59,
+            "op": "JMP_FALSE",
+            "target": 69
+          },
+          {
+            "pc": 64,
+            "op": "JMP",
+            "target": 12
+          },
+          {
+            "pc": 89,
+            "op": "JMP",
+            "target": 94
+          }
+        ]
+      }
+    ],
+    "source_borrow_range_for-nano_virt-facts.json": [
+      {
+        "function": 0,
+        "original_locals": 31,
+        "opcodes": {
+          "PUSH_I64": 42,
+          "STORE_LOCAL": 39,
+          "PUSH_BOOL": 4,
+          "LOAD_LOCAL": 53,
+          "OWN_PACK": 2,
+          "OWN_STORE_LOCAL": 4,
+          "LT": 8,
+          "JMP_FALSE": 11,
+          "OWN_MOVE_LOCAL": 2,
+          "REGION_BEGIN": 8,
+          "BORROW_LOCAL_SHARED": 5,
+          "REF_GET": 5,
+          "REGION_END": 8,
+          "EQ": 13,
+          "ASSERT": 14,
+          "OWN_UNPACK_LOCAL": 5,
+          "POP": 10,
+          "ADD": 15,
+          "JMP": 10,
+          "BORROW_LOCAL_EXCLUSIVE": 3,
+          "CALL_REF": 3,
+          "DIV": 1,
+          "RET": 2
+        },
+        "terms": {
+          "scalar_slots_and_ref_parameters": 27,
+          "load_snapshots_upper": 53,
+          "comparison_boolean_snapshots_upper": 21,
+          "guarded_add_separate": 105,
+          "guarded_sub_separate": 0,
+          "proposed_guarded_div": 4,
+          "owner_pack": 6,
+          "owner_store": 4,
+          "owner_move": 2,
+          "owner_unpack": 25,
+          "ref_reads": 5,
+          "ref_calls": 3
+        },
+        "all_loads_materialized_inventory": 255,
+        "hypothetical_existing_add_bank_inventory": 170,
+        "unoptimized_add_plus_scalar_floor": 132,
+        "jumps": [
+          {
+            "pc": 86,
+            "op": "JMP_FALSE",
+            "target": 391
+          },
+          {
+            "pc": 177,
+            "op": "JMP_FALSE",
+            "target": 208
+          },
+          {
+            "pc": 203,
+            "op": "JMP",
+            "target": 79
+          },
+          {
+            "pc": 221,
+            "op": "JMP_FALSE",
+            "target": 236
+          },
+          {
+            "pc": 231,
+            "op": "JMP",
+            "target": 391
+          },
+          {
+            "pc": 267,
+            "op": "JMP_FALSE",
+            "target": 326
+          },
+          {
+            "pc": 285,
+            "op": "JMP_FALSE",
+            "target": 311
+          },
+          {
+            "pc": 306,
+            "op": "JMP",
+            "target": 260
+          },
+          {
+            "pc": 321,
+            "op": "JMP",
+            "target": 326
+          },
+          {
+            "pc": 386,
+            "op": "JMP",
+            "target": 79
+          },
+          {
+            "pc": 456,
+            "op": "JMP_FALSE",
+            "target": 492
+          },
+          {
+            "pc": 487,
+            "op": "JMP",
+            "target": 449
+          },
+          {
+            "pc": 558,
+            "op": "JMP_FALSE",
+            "target": 594
+          },
+          {
+            "pc": 589,
+            "op": "JMP",
+            "target": 551
+          },
+          {
+            "pc": 653,
+            "op": "JMP_FALSE",
+            "target": 682
+          },
+          {
+            "pc": 677,
+            "op": "JMP",
+            "target": 646
+          },
+          {
+            "pc": 713,
+            "op": "JMP_FALSE",
+            "target": 742
+          },
+          {
+            "pc": 737,
+            "op": "JMP",
+            "target": 706
+          },
+          {
+            "pc": 785,
+            "op": "JMP_FALSE",
+            "target": 841
+          },
+          {
+            "pc": 836,
+            "op": "JMP",
+            "target": 778
+          },
+          {
+            "pc": 940,
+            "op": "JMP_FALSE",
+            "target": 960
+          }
+        ]
+      },
+      {
+        "function": 1,
+        "original_locals": 3,
+        "opcodes": {
+          "PUSH_I64": 5,
+          "STORE_LOCAL": 3,
+          "LOAD_LOCAL": 4,
+          "LT": 1,
+          "JMP_FALSE": 2,
+          "EQ": 1,
+          "ADD": 2,
+          "JMP": 2,
+          "REF_GET": 2,
+          "REF_SET": 1,
+          "RET": 1
+        },
+        "terms": {
+          "scalar_slots_and_ref_parameters": 3,
+          "load_snapshots_upper": 4,
+          "comparison_boolean_snapshots_upper": 2,
+          "guarded_add_separate": 14,
+          "guarded_sub_separate": 0,
+          "proposed_guarded_div": 0,
+          "owner_pack": 0,
+          "owner_store": 0,
+          "owner_move": 0,
+          "owner_unpack": 0,
+          "ref_reads": 2,
+          "ref_calls": 0
+        },
+        "all_loads_materialized_inventory": 25,
+        "hypothetical_existing_add_bank_inventory": 18,
+        "unoptimized_add_plus_scalar_floor": 17,
+        "jumps": [
+          {
+            "pc": 31,
+            "op": "JMP_FALSE",
+            "target": 100
+          },
+          {
+            "pc": 49,
+            "op": "JMP_FALSE",
+            "target": 75
+          },
+          {
+            "pc": 70,
+            "op": "JMP",
+            "target": 24
+          },
+          {
+            "pc": 95,
+            "op": "JMP",
+            "target": 100
+          }
+        ]
+      }
+    ],
+    "source_borrow_loop_exits-nano_virt-facts.json": [
+      {
+        "function": 0,
+        "original_locals": 14,
+        "opcodes": {
+          "PUSH_I64": 15,
+          "STORE_LOCAL": 12,
+          "PUSH_BOOL": 7,
+          "LOAD_LOCAL": 19,
+          "OWN_PACK": 2,
+          "OWN_STORE_LOCAL": 4,
+          "LT": 2,
+          "JMP_FALSE": 9,
+          "ADD": 2,
+          "OWN_MOVE_LOCAL": 2,
+          "REGION_BEGIN": 5,
+          "BORROW_LOCAL_SHARED": 4,
+          "REF_GET": 4,
+          "REGION_END": 5,
+          "EQ": 7,
+          "ASSERT": 7,
+          "OWN_UNPACK_LOCAL": 5,
+          "POP": 10,
+          "JMP": 8,
+          "BORROW_LOCAL_EXCLUSIVE": 1,
+          "CALL_REF": 1,
+          "SUB": 1,
+          "RET": 2
+        },
+        "terms": {
+          "scalar_slots_and_ref_parameters": 10,
+          "load_snapshots_upper": 19,
+          "comparison_boolean_snapshots_upper": 9,
+          "guarded_add_separate": 14,
+          "guarded_sub_separate": 7,
+          "proposed_guarded_div": 0,
+          "owner_pack": 6,
+          "owner_store": 4,
+          "owner_move": 2,
+          "owner_unpack": 25,
+          "ref_reads": 4,
+          "ref_calls": 1
+        },
+        "all_loads_materialized_inventory": 101,
+        "hypothetical_existing_add_bank_inventory": 94,
+        "unoptimized_add_plus_scalar_floor": 24,
+        "jumps": [
+          {
+            "pc": 56,
+            "op": "JMP_FALSE",
+            "target": 322
+          },
+          {
+            "pc": 163,
+            "op": "JMP_FALSE",
+            "target": 178
+          },
+          {
+            "pc": 173,
+            "op": "JMP",
+            "target": 43
+          },
+          {
+            "pc": 191,
+            "op": "JMP_FALSE",
+            "target": 206
+          },
+          {
+            "pc": 201,
+            "op": "JMP",
+            "target": 322
+          },
+          {
+            "pc": 231,
+            "op": "JMP_FALSE",
+            "target": 269
+          },
+          {
+            "pc": 254,
+            "op": "JMP_FALSE",
+            "target": 264
+          },
+          {
+            "pc": 259,
+            "op": "JMP",
+            "target": 269
+          },
+          {
+            "pc": 264,
+            "op": "JMP",
+            "target": 218
+          },
+          {
+            "pc": 317,
+            "op": "JMP",
+            "target": 43
+          },
+          {
+            "pc": 324,
+            "op": "JMP_FALSE",
+            "target": 334
+          },
+          {
+            "pc": 329,
+            "op": "JMP",
+            "target": 334
+          },
+          {
+            "pc": 336,
+            "op": "JMP_FALSE",
+            "target": 346
+          },
+          {
+            "pc": 341,
+            "op": "JMP",
+            "target": 334
+          },
+          {
+            "pc": 416,
+            "op": "JMP_FALSE",
+            "target": 448
+          },
+          {
+            "pc": 423,
+            "op": "JMP_FALSE",
+            "target": 443
+          },
+          {
+            "pc": 443,
+            "op": "JMP",
+            "target": 448
+          }
+        ]
+      },
+      {
+        "function": 1,
+        "original_locals": 2,
+        "opcodes": {
+          "PUSH_I64": 5,
+          "STORE_LOCAL": 2,
+          "LOAD_LOCAL": 3,
+          "LT": 1,
+          "JMP_FALSE": 2,
+          "ADD": 2,
+          "EQ": 1,
+          "JMP": 2,
+          "REF_GET": 2,
+          "REF_SET": 1,
+          "RET": 1
+        },
+        "terms": {
+          "scalar_slots_and_ref_parameters": 2,
+          "load_snapshots_upper": 3,
+          "comparison_boolean_snapshots_upper": 2,
+          "guarded_add_separate": 14,
+          "guarded_sub_separate": 0,
+          "proposed_guarded_div": 0,
+          "owner_pack": 0,
+          "owner_store": 0,
+          "owner_move": 0,
+          "owner_unpack": 0,
+          "ref_reads": 2,
+          "ref_calls": 0
+        },
+        "all_loads_materialized_inventory": 23,
+        "hypothetical_existing_add_bank_inventory": 16,
+        "unoptimized_add_plus_scalar_floor": 16,
+        "jumps": [
+          {
+            "pc": 25,
+            "op": "JMP_FALSE",
+            "target": 94
+          },
+          {
+            "pc": 59,
+            "op": "JMP_FALSE",
+            "target": 69
+          },
+          {
+            "pc": 64,
+            "op": "JMP",
+            "target": 12
+          },
+          {
+            "pc": 89,
+            "op": "JMP",
+            "target": 94
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+union preparation owner=807232 instruction=144 runtime=9267301/9273676 image=76471196/26134951 source=67189009/16859481 stack=524289
+union actual retained=9216651 peak=9216651 calls=127 allocations=43
+union independent image=14886 runtime=9201765 retained=9216651 peak=9216651 source_peak=74825 image_peak=89711
+union preparation prefixes=127 transient/persistent with valid retry
+union independent image=14930 runtime=9201815 retained=9216745 peak=9216745 source_peak=74869 image_peak=89799
+union independent image=14912 runtime=9201806 retained=9216718 peak=9216718 source_peak=74851 image_peak=89763
+union independent image=14918 runtime=9201809 retained=9216727 peak=9216727 source_peak=74857 image_peak=89775
+union independent image=14939 runtime=9201815 retained=9216754 peak=9216754 source_peak=74878 image_peak=89817
+union independent image=26388 runtime=9227411 retained=9253799 peak=9257034 source_peak=86327 image_peak=112715
+union growth constants=406 prefixes=1329 transient/persistent optional-growth-successes=2
+union image final-cap+1 dimension=0 reversible allocations=54
+union image final-cap+1 dimension=1 reversible allocations=55
+I passed 47345 union preparation checks; no execution admission.

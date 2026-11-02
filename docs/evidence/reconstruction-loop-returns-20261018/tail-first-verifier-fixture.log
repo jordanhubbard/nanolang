@@ -1,0 +1,27 @@
+test_acyclic_terminal_tail_calls (tests.test_scalar_reconstruction.ScalarReconstruction.test_acyclic_terminal_tail_calls) ... ok
+test_refusal_preserves_prior_outputs (tests.test_scalar_reconstruction.ScalarReconstruction.test_refusal_preserves_prior_outputs) ... 
+  test_refusal_preserves_prior_outputs (tests.test_scalar_reconstruction.ScalarReconstruction.test_refusal_preserves_prior_outputs) (name='tail_result_mismatch') ... FAIL
+
+======================================================================
+FAIL: test_refusal_preserves_prior_outputs (tests.test_scalar_reconstruction.ScalarReconstruction.test_refusal_preserves_prior_outputs) (name='tail_result_mismatch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 286, in test_refusal_preserves_prior_outputs
+    directory=Path(d);module=self.assemble(directory,text)
+                             ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 98, in assemble
+    self.checked([ROOT/'bin/nanoisa','asm',source,'-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-reconstruction/tests/test_scalar_reconstruction.py", line 91, in checked
+    self.assertEqual(p.returncode, expected,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     'I ran: '+shlex.join(argv)+'\n'+p.stdout+p.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I ran: /Users/jkh/Src/nanolang-51-reconstruction/bin/nanoisa asm /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-refusal-n3hxibub/input.nasm -o /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-refusal-n3hxibub/input.nvm
+I cannot assemble '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-reconstruct-refusal-n3hxibub/input.nasm': Assembled module failed verification: function[0] OP_TAIL_CALL at offset 0 has incompatible result signature
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 10.522s
+
+FAILED (failures=1)

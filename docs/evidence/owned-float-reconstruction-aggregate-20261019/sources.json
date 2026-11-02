@@ -1,0 +1,8 @@
+{
+  "src/nanoisa/assembler.c": "89bef8b5679072b29868e1bf86c350dc4cd83a2e58c859a0c3f3935525e6481f",
+  "src/nanoisa/hl_owned_facts.inc": "d80949049f39ec78a7e7e414375b828b4bec2e93f58ecea4c7a8389bcff622c3",
+  "scripts/nanoisa_owned_reconstruction.py": "08c18d858cb1137ad874b3035a0f70a2c61dc8d1f59b184bc4f998358a273891",
+  "tests/test_owned_float_reconstruction.py": "a5b28c6e00270d2eb792779e228c320f2f32d5dd6b8002a5786ed314e0aa519b",
+  "tests/test_owned_string_reconstruction.py": "6dc5852e4057407e1e29ab90ef5d8708652fc35f86c9a4e1eb12287cf70f1abf",
+  "Makefile.gnu": "4e74c03cd14602ee021772d6fb12a14439142a86f409ce2c5c801ecd92aca13b"
+}

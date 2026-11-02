@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "--check-shadows",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_bytecode_shadows_1792604691_0/shadows.nvm"
+  ],
+  "source": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano_bytecode_shadows_1792604691_0/shadows.nvm",
+  "destination": "/private/tmp/nanolang-map-paired-publication-20261022/ordinary-checked-shadow.nvm",
+  "sha256": "d8a321d30fcebf0cf8f5236a2981fad6b442e12b75138b8dc20f649d9221c4c8",
+  "vm_sha256": "c922172ae16e366ea86bd385f37ad36197d658e9d220a2debda541df97176e2f"
+}

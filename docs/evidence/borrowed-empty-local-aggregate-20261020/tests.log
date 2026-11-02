@@ -1,0 +1,15 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-zfom1zc3
+test_actual128_estimated129_preserves_prior_output (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_actual128_estimated129_preserves_prior_output) ... ok
+test_canonical_and_advisory_independence (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_canonical_and_advisory_independence) ... ok
+test_empty_nominal_leak_and_double_move_refuse (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_empty_nominal_leak_and_double_move_refuse) ... ok
+test_exact_profile_and_malformed_parameter_guards (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_exact_profile_and_malformed_parameter_guards) ... ok
+test_original_and_generated_shadows (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_original_and_generated_shadows) ... I retain empty-local selected-shadow counts [18, 12]
+I retain empty-local selected-shadow counts [18, 12]
+I retain empty-local selected-shadow counts [18, 12]
+ok
+test_unchanged_and_swapped_layout_order (tests.test_borrowed_empty_local_reconstruction.BorrowedEmptyLocal.test_unchanged_and_swapped_layout_order) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 38.645s
+
+OK

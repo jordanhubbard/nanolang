@@ -1,0 +1,5 @@
+# I retain my aggregate owned reconstruction qualification
+
+At aggregate `9c076ab62` I rebuild my facts extractor and pass all 23 local, direct-call, structured-branch, pure-pretest-loop and VOID/assert reconstruction methods in 229.816 seconds. I use NanoVirt and both unchanged fresh `16eb3b1f9` installed generations as source producers, with original VM execution, structured C/Nano roundtrips, sanitized native execution, exact nominal/owner state and atomic refusals retained by the suites. False assertion termination remains a trap, not a successful cleanup claim.
+
+My invocation sets `CMD_TIMEOUT=1800` and `NANOLANG_OWNED_RECONSTRUCTION_COMPILERS` to both installed stage paths, then runs the five modules wired by `test-owned-reconstruction`. I retain the exact facts build log, terminal, provider hashes and available branch/loop/VOID command receipts. These are Darwin aggregate tests; they do not qualify hosted Linux or complete the wider borrowed/heap/reconstruction obligations in #999.

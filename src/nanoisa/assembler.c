@@ -16,6 +16,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#include <math.h>
 
 /* ========================================================================
  * Label Table
@@ -91,6 +92,7 @@ typedef struct {
     uint8_t *fn_code;
     uint32_t fn_code_size;
     uint32_t fn_code_capacity;
+    bool fn_memory_failed;
 
     /* Structured producer markers resolve to the ordinary passive payload. */
     bool passive_structured, par_active, par_node_active;
@@ -123,9 +125,22 @@ static void asm_state_cleanup(AsmState *state) {
 }
 
 static void fn_emit(AsmState *state, const uint8_t *data, uint32_t size) {
-    while (state->fn_code_size + size > state->fn_code_capacity) {
-        state->fn_code_capacity *= 2;
-        state->fn_code = realloc(state->fn_code, state->fn_code_capacity);
+    if (state->fn_memory_failed) return;
+    if (size > UINT32_MAX - state->fn_code_size) {
+        state->fn_memory_failed = true;
+        return;
+    }
+    uint32_t required = state->fn_code_size + size;
+    if (required > state->fn_code_capacity) {
+        uint32_t capacity = state->fn_code_capacity;
+        while (capacity < required) {
+            if (capacity > UINT32_MAX / 2) { capacity = required; break; }
+            capacity *= 2;
+        }
+        uint8_t *grown = realloc(state->fn_code, capacity);
+        if (!grown) { state->fn_memory_failed = true; return; }
+        state->fn_code = grown;
+        state->fn_code_capacity = capacity;
     }
     memcpy(state->fn_code + state->fn_code_size, data, size);
     state->fn_code_size += size;
@@ -236,7 +251,8 @@ static bool parse_double(const char **p, double *val) {
     char *end;
     errno = 0;
     double v = strtod(*p, &end);
-    if (end == *p || errno != 0) return false;
+    if (end == *p || (errno != 0 &&
+        !(errno == ERANGE && fpclassify(v) == FP_SUBNORMAL))) return false;
     *val = v;
     *p = end;
     return true;
@@ -930,6 +946,125 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return true;
         }
 
+        if (strcmp(directive, "match_coverage") == 0) {
+            uint32_t line, column, coverage, coordinates;
+            if (!state->in_function || !parse_uint32(&p, &line) || !parse_uint32(&p, &column) ||
+                !parse_uint32(&p, &coverage) || !parse_uint32(&p, &coordinates))
+                return par_error(result, "I require match line, column, coverage and coordinate provenance inside a function.");
+            size_t capacity = strlen(p) + 1;
+            char *path = malloc(capacity);
+            uint32_t length = 0;
+            bool valid = path && parse_quoted_string(&p, path, capacity, &length) &&
+                strlen(path) == length && require_line_end(p, result) &&
+                nvm_add_match_coverage(state->mod, state->current_function, line, column,
+                                      coverage, coordinates, path);
+            free(path);
+            if (!valid) return par_error(result, "I require an unambiguous match coverage record with a quoted source path.");
+            return true;
+        }
+
+        if (strcmp(directive, "function_effects") == 0) {
+            uint16_t effects;
+            if (!state->in_function || !parse_uint16(&p, &effects) ||
+                effects > 63 || !require_line_end(p, result))
+                return par_error(result, "I require function_effects a mask from 0 through 63 inside a function.");
+            if (!nvm_add_function_effects(state->mod, state->current_function, effects))
+                return par_error(result, "I cannot retain an ambiguous function effect summary.");
+            return true;
+        }
+
+        if (strcmp(directive, "borrow_place") == 0) {
+            NvmBorrowPlace fact={0};uint32_t mode,coordinates;
+            if(state->in_function || !parse_uint32(&p,&fact.function) ||
+               !parse_uint32(&p,&fact.call_line) || !parse_uint32(&p,&fact.call_column) ||
+               !parse_uint32(&p,&fact.argument_line) || !parse_uint32(&p,&fact.argument_column) ||
+               !parse_uint32(&p,&fact.ordinal) || !parse_uint32(&p,&mode) || !parse_uint32(&p,&coordinates))
+                return par_error(result,"I require an indexed checked borrow source event outside a function.");
+            size_t capacity=strlen(p)+1;
+            char *path=malloc(capacity),*root=malloc(capacity),*projection=malloc(capacity);
+            fact.mode=mode;fact.coordinates=coordinates;fact.source_path=path;fact.root=root;fact.projection=projection;
+            bool valid=path && root && projection &&
+                parse_quoted_string(&p,path,capacity,&fact.source_path_length) &&
+                parse_quoted_string(&p,root,capacity,&fact.root_length) &&
+                parse_quoted_string(&p,projection,capacity,&fact.projection_length) &&
+                require_line_end(p,result) && nvm_add_borrow_place(state->mod,&fact);
+            free(path);free(root);free(projection);
+            if(!valid)return par_error(result,"I require an unambiguous checked borrow source event with valid counted strings.");
+            return true;
+        }
+
+        if (strcmp(directive, "field_read") == 0) {
+            NvmFieldRead fact={0};uint32_t category,coordinates;
+            if(state->in_function || !parse_uint32(&p,&fact.function) ||
+               !parse_uint32(&p,&fact.line) || !parse_uint32(&p,&fact.column) || !parse_uint32(&p,&category) || !parse_uint32(&p,&coordinates))
+                return par_error(result,"I require an indexed checked field-read source event outside a function.");
+            size_t capacity=strlen(p)+1;
+            char *path=malloc(capacity),*root=malloc(capacity),*projection=malloc(capacity);
+            fact.category=category;fact.coordinates=coordinates;fact.source_path=path;fact.root=root;fact.projection=projection;
+            bool valid=path && root && projection &&
+                parse_quoted_string(&p,path,capacity,&fact.source_path_length) &&
+                parse_quoted_string(&p,root,capacity,&fact.root_length) &&
+                parse_quoted_string(&p,projection,capacity,&fact.projection_length) &&
+                require_line_end(p,result) && nvm_add_field_read(state->mod,&fact);
+            free(path);free(root);free(projection);
+            if(!valid)return par_error(result,"I require an unambiguous checked field-read source event with valid counted strings.");
+            return true;
+        }
+        if (strcmp(directive, "field_write") == 0) {
+            NvmFieldWrite fact={0};uint32_t mode,coordinates;
+            if(state->in_function || !parse_uint32(&p,&fact.function) ||
+               !parse_uint32(&p,&fact.line) || !parse_uint32(&p,&fact.column) || !parse_uint32(&p,&mode) || !parse_uint32(&p,&coordinates))
+                return par_error(result,"I require an indexed checked field-write source event outside a function.");
+            size_t capacity=strlen(p)+1;
+            char *path=malloc(capacity),*root=malloc(capacity),*projection=malloc(capacity);
+            fact.mode=mode;fact.coordinates=coordinates;fact.source_path=path;fact.root=root;fact.projection=projection;
+            bool valid=path && root && projection &&
+                parse_quoted_string(&p,path,capacity,&fact.source_path_length) &&
+                parse_quoted_string(&p,root,capacity,&fact.root_length) &&
+                parse_quoted_string(&p,projection,capacity,&fact.projection_length) &&
+                require_line_end(p,result) && nvm_add_field_write(state->mod,&fact);
+            free(path);free(root);free(projection);
+            if(!valid)return par_error(result,"I require an unambiguous checked field-write source event with valid counted strings.");
+            return true;
+        }
+
+        if (strcmp(directive, "affine_use") == 0) {
+            uint32_t function, line, column, use, coordinates;
+            if (state->in_function || !parse_uint32(&p, &function) || !parse_uint32(&p, &line) ||
+                !parse_uint32(&p, &column) || !parse_uint32(&p, &use) || !parse_uint32(&p, &coordinates))
+                return par_error(result, "I require an indexed affine source use outside a function body.");
+            size_t capacity = strlen(p) + 1;
+            char *path = malloc(capacity), *binding = malloc(capacity);
+            uint32_t path_length = 0, binding_length = 0;
+            bool valid = path && binding && parse_quoted_string(&p, path, capacity, &path_length) &&
+                strlen(path) == path_length && parse_quoted_string(&p, binding, capacity, &binding_length) &&
+                strlen(binding) == binding_length && require_line_end(p, result) &&
+                nvm_add_affine_use(state->mod, function, line, column, use, coordinates, path, binding);
+            free(path); free(binding);
+            if (!valid) return par_error(result, "I require an unambiguous affine use with quoted source path and binding.");
+            return true;
+        }
+
+        if (strcmp(directive, "affine_completion") == 0) {
+            uint32_t function;
+            uint16_t affine;
+            if (state->in_function || !parse_uint32(&p, &function) ||
+                !parse_uint16(&p, &affine) || affine > 1 || !require_line_end(p, result) ||
+                !nvm_add_function_affine(state->mod, function, affine))
+                return par_error(result, "I require an unambiguous affine completion for an existing function outside its body.");
+            return true;
+        }
+
+        if (strcmp(directive, "function_affine") == 0) {
+            uint16_t affine;
+            if (!state->in_function || !parse_uint16(&p, &affine) ||
+                affine > 1 || !require_line_end(p, result))
+                return par_error(result, "I require function_affine 0 or 1 inside a function.");
+            if (!nvm_add_function_affine(state->mod, state->current_function, affine))
+                return par_error(result, "I cannot retain an ambiguous function affine completion fact.");
+            return true;
+        }
+
         if (strcmp(directive,"local_begin")==0 || strcmp(directive,"local_end")==0 || strcmp(directive,"upvalue_name")==0) {
             bool upvalue=strcmp(directive,"upvalue_name")==0;
             uint16_t slot;
@@ -1616,7 +1751,14 @@ static NvmModule *asm_assemble_impl(const char *source, AsmResult *result,
             line_buf[--len] = '\0';
         }
 
-        if (!process_line(&state, line_buf, result)) {
+        bool line_ok = process_line(&state, line_buf, result);
+        if (state.fn_memory_failed) {
+            result->error = ASM_ERR_MEMORY;
+            snprintf(result->message, sizeof(result->message),
+                     "I cannot grow my function code buffer.");
+            line_ok = false;
+        }
+        if (!line_ok) {
             result->line = state.line;
             free(line_buf);
             nvm_module_free(state.mod);

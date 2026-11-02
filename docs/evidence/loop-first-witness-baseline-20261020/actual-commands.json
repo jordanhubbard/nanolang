@@ -1,0 +1,173 @@
+[
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage1.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage1.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a straight-line literal tree witness prefix\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_virt",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "--verify-only",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage2.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nano_vm",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage1.nvm"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nano_virt.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a straight-line literal tree witness prefix\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage2.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage2.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a straight-line literal tree witness prefix\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage2.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage2.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a straight-line literal tree witness prefix\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nvm2hl",
+      "--language",
+      "nano",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nano_virt.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nano_virt.nano"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a straight-line literal tree witness prefix\nI did not publish reconstructed source\n"
+  },
+  {
+    "command": [
+      "/Users/jkh/Src/nanolang-51-owned-float-design/bin/nvm2hl",
+      "--language",
+      "c",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage1.nvm",
+      "-o",
+      "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-pujdzz7x/loop-first-nanoc_stage1.c"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "I require a straight-line literal tree witness prefix\nI did not publish reconstructed source\n"
+  }
+]

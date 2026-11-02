@@ -1,0 +1,6 @@
+{
+  "format": "JSON array of original path, SHA256, base64 bytes; gzip mtime0",
+  "files": 1025,
+  "sha256": "2cc057977827182a56a5a08df71e2175455f58e74e3a28fce2c511c7e78b0d64",
+  "bytes": 1314378
+}

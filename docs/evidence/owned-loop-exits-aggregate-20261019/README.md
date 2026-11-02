@@ -1,0 +1,9 @@
+# I qualify structured ownership loop exits through fresh stages
+
+At 1e13109d1 I pass all 19 aggregate methods in 150.996 seconds: fifteen new loop-exit methods and four exact prior-output byte controls. I explicitly select current NanoVirt and both fresh installed Stage1/Stage2 compilers from the completed 282d7a9f1 fixed-point bootstrap. All ten compiler/runtime/facts/wrapper providers remain byte-identical. This Python reconstruction change does not change the compiler frontend/runtime or claim another bootstrap.
+
+The unchanged loop-exit and range anchors measure 60/13 and 108/14 entry/helper locals, with selected whole-tree shadows 20/13 and 20/14. All original assertions remain. Each producer accepts the actual 128/14 output boundary and refuses 129/14 atomically. Original and reconstructed VM/native behavior, zero-trip state, exact abrupt-owner cleanup, every-backedge helper rank/work, single-backedge break routing, total DIV/SUB and once-only operand order pass. Native execution uses Homebrew Clang with ASan/UBSan. Defensive cached-fact controls remain distinct from original verifier admission evidence.
+
+I run `python3 -m unittest -v tests.test_owned_loop_exit_reconstruction` plus the four byte-control methods named in tests.log, with `NANOLANG_OWNED_RECONSTRUCTION_COMPILERS="$PWD/bin/nanoc_stage1 $PWD/bin/nanoc_stage2"` and `NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang`. The harness adds NanoVirt. Exact source/provider hashes are adjacent; the suite is attached to `test-owned-reconstruction`.
+
+The component receipt retains the initial static 168-local fixture hypothesis failure and the reproduced old-route refusal for a single final backedge with an internal break. Neither failure is hidden by changing the 128 limit or the unchanged anchors. Exact candidate Linux/Darwin hosted qualification and remaining STRING/printing, FLOAT-local and helper-owned composition families remain open under #999.

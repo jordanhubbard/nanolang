@@ -1,0 +1,5 @@
+2026-10-19T19:34:08.2203770Z FAIL: test_default_output_is_a_packaged_interpreter (tests.test_wrapper_packaged_interpreter.WrapperPackagedInterpreter.test_default_output_is_a_packaged_interpreter)
+2026-10-19T19:34:08.2267475Z /home/runner/work/nanolang/nanolang/src/env.c:488:(.text+0x7ad8): undefined reference to `checked_borrow_end'
+2026-10-19T19:34:08.2268897Z /home/runner/work/nanolang/nanolang/src/resource_flow.c:726:(.text+0x8d37): undefined reference to `checked_borrow_capture'
+2026-10-19T19:34:08.2270487Z /home/runner/work/nanolang/nanolang/src/resource_flow.c:1018:(.text+0x9fd1): undefined reference to `checked_borrow_function_begin'
+2026-10-19T19:34:08.2290128Z make[1]: *** [Makefile.gnu:1009: test-wrapper-packaged-interpreter] Error 1

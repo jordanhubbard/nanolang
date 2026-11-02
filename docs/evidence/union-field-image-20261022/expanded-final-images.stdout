@@ -1,0 +1,10 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-99se6tia
+original /private/tmp/nanolang-union-field-baseline-20261022/seed.nvm instructions=40 functions=1 reserved=67194647 work=16868329
+original /private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm instructions=48 functions=3 reserved=67196047 work=16870638
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm instructions=35 functions=1 reserved=67193730 work=16866891
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm instructions=44 functions=3 reserved=67195360 work=16869580
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm instructions=35 functions=1 reserved=67193669 work=16866769
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm instructions=44 functions=3 reserved=67195299 work=16869458
+PASS 2032 union image checks; no execution admission
+union image owner=32 source=14854 destination=14854 live=29740 peak=89711 reserved=67203895 work=16861275 prefixes=55
+PASS 6320 union image checks; no execution admission

@@ -1,0 +1,4 @@
+src/nanovm/vm_ffi.c:24:10: fatal error: 'ffi.h' file not found
+   24 | #include <ffi.h>
+      |          ^~~~~~~
+1 error generated.

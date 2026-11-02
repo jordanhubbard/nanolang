@@ -1,0 +1,46 @@
+[
+  {
+    "name": "seed",
+    "argv": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-map-delete-baseline-20261022/seed-schema-control.nasm",
+      "-o",
+      "/private/tmp/nanolang-map-delete-baseline-20261022/seed-schema-control.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "canonical",
+    "argv": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-map-delete-baseline-20261022/canonical-schema-control.nasm",
+      "-o",
+      "/private/tmp/nanolang-map-delete-baseline-20261022/canonical-schema-control.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "c-shadow",
+    "argv": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-map-delete-baseline-20261022/c-shadow-schema-control.nasm",
+      "-o",
+      "/private/tmp/nanolang-map-delete-baseline-20261022/c-shadow-schema-control.nvm"
+    ],
+    "status": 0
+  },
+  {
+    "name": "raw-shadow",
+    "argv": [
+      "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-map-delete-baseline-20261022/raw-shadow-schema-control.nasm",
+      "-o",
+      "/private/tmp/nanolang-map-delete-baseline-20261022/raw-shadow-schema-control.nvm"
+    ],
+    "status": 0
+  }
+]

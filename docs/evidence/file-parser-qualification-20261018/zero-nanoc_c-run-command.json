@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/Users/jkh/.local/bin/python3",
+    "-c",
+    "import subprocess,sys,json,pathlib; p=subprocess.run(sys.argv[2:],timeout=60); pathlib.Path(sys.argv[1]).write_text(json.dumps({'returncode':p.returncode})); sys.exit(0 if p.returncode==7 else 1)",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/zero-nanoc_c-run.json",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-service-parser-5kq90nrj/ordinary-zero-nanoc_c"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-harness",
+  "ASAN_OPTIONS": "halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

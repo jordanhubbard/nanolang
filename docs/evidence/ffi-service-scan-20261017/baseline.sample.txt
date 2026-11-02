@@ -1,0 +1,68 @@
+Call graph:
+    443 Thread_4029986   DispatchQueue_1: com.apple.main-thread  (serial)
+      443 start  (in dyld) + 6688  [0x19093be80]
+        443 run_standalone  (in nano_vm) + 984  [0x101028320]  main.c:308
+          443 vm_execute  (in nano_vm) + 256  [0x100e77754]  vm.c:5404
+            443 vm_call_function_scoped  (in nano_vm) + 516  [0x100e75a3c]  vm.c:5130
+              422 vm_call_function_impl  (in nano_vm) + 1560  [0x100e773d0]  vm.c:5027
+              + 422 vm_ffi_call_vm  (in nano_vm) + 88  [0x100e7af2c]  vm_ffi.c:623
+              +   422 nvm_file_instructions_present  (in nano_vm) + 128  [0x100ece6a8]  nvm_format.c:789
+              +     377 isa_code_has_file_instructions  (in nano_vm) + 76  [0x100ecb4b0]  isa.c:331
+              +     ! 137 isa_decode  (in nano_vm) + 292,304,...  [0x100ecb2e0,0x100ecb2ec,...]  isa.c:237
+              +     ! 71 isa_decode  (in nano_vm) + 376,144,...  [0x100ecb334,0x100ecb24c,...]  isa.c:0
+              +     ! 28 isa_decode  (in nano_vm) + 208,224  [0x100ecb28c,0x100ecb29c]  isa.c:232
+              +     ! 27 isa_decode  (in nano_vm) + 108,12  [0x100ecb228,0x100ecb1c8]  isa.c:221
+              +     ! 27 isa_decode  (in nano_vm) + 188,184  [0x100ecb278,0x100ecb274]  isa.c:231
+              +     ! 21 isa_decode  (in nano_vm) + 136  [0x100ecb244]  isa.c:228
+              +     ! 19 isa_decode  (in nano_vm) + 352  [0x100ecb31c]  isa.c:244
+              +     ! 15 isa_decode  (in nano_vm) + 380  [0x100ecb338]  isa.c:262
+              +     ! 13 isa_decode  (in nano_vm) + 0  [0x100ecb1bc]  isa.c:216
+              +     ! 11 isa_decode  (in nano_vm) + 340  [0x100ecb310]  isa.c:241
+              +     ! 5 isa_decode  (in nano_vm) + 228  [0x100ecb2a0]  isa.c:233
+              +     ! 1 isa_decode  (in nano_vm) + 4  [0x100ecb1c0]  isa.c:220
+              +     ! 1 isa_decode  (in nano_vm) + 124  [0x100ecb238]  isa.c:226
+              +     ! 1 isa_decode  (in nano_vm) + 128  [0x100ecb23c]  isa.c:227
+              +     22 isa_code_has_file_instructions  (in nano_vm) + 76  [0x100ecb4b0]  isa.c:331
+              +     11 isa_code_has_file_instructions  (in nano_vm) + 36  [0x100ecb488]  isa.c:328
+              +     8 isa_code_has_file_instructions  (in nano_vm) + 100,116  [0x100ecb4c8,0x100ecb4d8]  isa.c:0
+              +     4 isa_code_has_file_instructions  (in nano_vm) + 44  [0x100ecb490]  isa.c:329
+              21 vm_call_function_impl  (in nano_vm) + 1216  [0x100e77278]  vm.c:4976
+                3 vm_core_execute_scoped  (in nano_vm) + 7684,9108,...  [0x100e6d584,0x100e6db14,...]  vm.c:0
+                3 vm_core_execute_scoped  (in nano_vm) + 26028  [0x100e71d2c]  vm.c:4299
+                ! 2 vm_gc_collect_cycles  (in nano_vm) + 412  [0x100e679f8]  heap_cycles.c:382
+                ! : 1 for_each_child  (in nano_vm) + 272  [0x100e686a4]  heap_cycles.c:70
+                ! : | 1 for_each_child  (in nano_vm) + 400  [0x100e68724]  heap_cycles.c:76
+                ! : |   1 scan_black_child  (in nano_vm) + 72  [0x100e688dc]  heap_cycles.c:181
+                ! : 1 scan  (in nano_vm) + 704  [0x100e68014]  heap_cycles.c:210
+                ! 1 vm_gc_note_suspect  (in nano_vm) + 28  [0x100e67754]  heap_cycles.c:120
+                2 vm_core_execute_scoped  (in nano_vm) + 28000  [0x100e724e0]  vm.c:0
+                ! 1 vm_retain  (in nano_vm) + 44  [0x100e652dc]  heap.c:144
+                ! 1 vm_retain  (in nano_vm) + 68  [0x100e652f4]  heap.c:145
+                2 vm_core_execute_scoped  (in nano_vm) + 11772  [0x100e6e57c]  vm.c:4257
+                ! 2 stack_pop  (in nano_vm) + 0  [0x100e751c4]  vm.c:1141
+                1 vm_core_execute_scoped  (in nano_vm) + 15408  [0x100e6f3b0]  vm.c:0
+                ! 1 vm_gc_collect_cycles  (in nano_vm) + 352  [0x100e679bc]  heap_cycles.c:378
+                1 vm_core_execute_scoped  (in nano_vm) + 1044  [0x100e6bb94]  vm.c:1562
+                ! 1 vm_ownership_supported_scoped  (in nano_vm) + 96  [0x100e77c68]  vm.c:250
+                !   1 vm_module_ownership_supported  (in nano_vm) + 176  [0x100e79080]  vm.c:242
+                1 vm_core_execute_scoped  (in nano_vm) + 5484  [0x100e6ccec]  vm.c:1832
+                1 vm_core_execute_scoped  (in nano_vm) + 5516  [0x100e6cd0c]  vm.c:1833
+                1 vm_core_execute_scoped  (in nano_vm) + 5580  [0x100e6cd4c]  vm.c:1842
+                ! 1 vm_dispatch_advance  (in nano_vm) + 56  [0x100f12a68]  vm_dispatch.c:263
+                1 vm_core_execute_scoped  (in nano_vm) + 7508  [0x100e6d4d4]  vm.c:1905
+                1 vm_core_execute_scoped  (in nano_vm) + 8420  [0x100e6d864]  vm.c:1928
+                1 vm_core_execute_scoped  (in nano_vm) + 11388  [0x100e6e3fc]  vm.c:2946
+                ! 1 val_truthy  (in nano_vm) + 88  [0x100e65008]  value.c:227
+                1 vm_core_execute_scoped  (in nano_vm) + 30052  [0x100e72ce4]  vm.c:3094
+                1 vm_core_execute_scoped  (in nano_vm) + 11732  [0x100e6e554]  vm.c:4253
+                ! 1 vm_struct_new  (in nano_vm) + 88  [0x100e66948]  heap.c:754
+                !   1 _xzm_malloc_tc  (in libsystem_malloc.dylib) + 260  [0x190b33a94]
+                1 vm_gc_note_suspect  (in nano_vm) + 144  [0x100e677c8]  heap_cycles.c:144
+
+Total number in stack (recursive counted multiple, when >=5):
+
+Sort by top of stack, same collapsed (when >= 5):
+        isa_decode  (in nano_vm)        377
+        isa_code_has_file_instructions  (in nano_vm)        45
+        vm_core_execute_scoped  (in nano_vm)        8
+

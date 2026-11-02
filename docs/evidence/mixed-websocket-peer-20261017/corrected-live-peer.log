@@ -1,0 +1,6 @@
+test_required_live_peer (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_required_live_peer) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 63.990s
+
+OK

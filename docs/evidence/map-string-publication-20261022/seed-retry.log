@@ -1,0 +1,9 @@
+PASS 152 paired C publication declaration/ordinary/shadow/omission checks
+
+PASS 130 paired C publication declaration/ordinary/shadow/omission checks
+
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-map-string-publication-20261022/seed.py", line 28, in <module>
+    assert own.endswith(expected),(name,own.hex())
+           ~~~~~~~~~~~~^^^^^^^^^^
+AssertionError: ('seed', '030000000100000001000000020000000100000001000000ffffffff08000000')

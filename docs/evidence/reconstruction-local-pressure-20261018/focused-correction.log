@@ -1,0 +1,8 @@
+test_call_and_local_snapshots (tests.test_reconstructed_wide_multiply.WideMultiply.test_call_and_local_snapshots) ... ok
+test_mixed_constant_retains_calls_and_local_snapshot (tests.test_reconstructed_comparisons.ScalarComparisons.test_mixed_constant_retains_calls_and_local_snapshot) ... ok
+test_constants_locals_calls_branches_and_explicit_casts (tests.test_reconstructed_u8.U8Reconstruction.test_constants_locals_calls_branches_and_explicit_casts) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 8.325s
+
+OK

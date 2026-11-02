@@ -1,0 +1,66 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -UNDEBUG -o obj/test_checked_borrow_ledger tests/test_checked_borrow_ledger.c
+checked field reads: 22 growth allocation prefixes and independent recovery passed
+checked field reads: exact topology/category, shared limits, allocation failures and recovery passed
+checked field writes: topology, all-family limits, 24 reached allocation prefixes and recovery passed
+checked borrow ledger: lifecycle, invalidation, limits and allocation recovery passed
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@4/4.0.3/include -UNDEBUG -DCHECKED_BORROW_ENV_LINK -o obj/test_checked_borrow_environment tests/test_checked_borrow_ledger.c obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@4/4.0.3/lib
+checked field reads: 22 growth allocation prefixes and independent recovery passed
+checked field reads: exact topology/category, shared limits, allocation failures and recovery passed
+checked field writes: topology, all-family limits, 24 reached allocation prefixes and recovery passed
+actual Environment teardown: active scope, failures and recovery passed
+checked borrow ledger: lifecycle, invalidation, limits and allocation recovery passed
+python3 scripts/embed_binary64_parser.py --check
+NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/Users/jkh/Src/nanolang-51-harness/obj/module_cache perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' bin/nanoc_c src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 6510, column 9: Unused variable 'checked_body'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 3202, column 9: Unused variable 'rejected'
+Warning at line 3511, column 9: Unused variable 'rejected'
+Warning at line 3515, column 9: Unused variable 'rejected'
+Warning at line 3519, column 9: Unused variable 'rejected'
+Warning at line 3523, column 9: Unused variable 'rejected'
+Warning at line 3530, column 13: Unused variable 'rejected'
+Warning at line 3679, column 9: Unused variable 'rejected'
+Warning at line 3683, column 9: Unused variable 'rejected'
+Warning at line 3690, column 13: Unused variable 'rejected'
+Warning at line 8278, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 6510, column 9: Unused variable 'checked_body'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 6510, column 9: Unused variable 'checked_body'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 3202, column 9: Unused variable 'rejected'
+Warning at line 3511, column 9: Unused variable 'rejected'
+Warning at line 3515, column 9: Unused variable 'rejected'
+Warning at line 3519, column 9: Unused variable 'rejected'
+Warning at line 3523, column 9: Unused variable 'rejected'
+Warning at line 3530, column 13: Unused variable 'rejected'
+Warning at line 3679, column 9: Unused variable 'rejected'
+Warning at line 3683, column 9: Unused variable 'rejected'
+Warning at line 3690, column 13: Unused variable 'rejected'
+Warning at line 8278, column 17: Unused variable 'imported'
+python3 -m unittest -v tests.test_checked_borrow_metadata tests.test_source_borrow_emission.AffineComparisonIsolation
+test_actual_checker_context_raw_recheck_and_descriptor_lifetime (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_actual_checker_context_raw_recheck_and_descriptor_lifetime) ... ok
+test_actual_root_and_nested_events (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_actual_root_and_nested_events) ... ok
+test_checked_field_reads_keep_projection_and_root_category (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_checked_field_reads_keep_projection_and_root_category) ... ok
+test_four_raw_checked_contract_neighbors (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_four_raw_checked_contract_neighbors) ... ok
+test_imported_helper_existing_producer_boundary (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_imported_helper_existing_producer_boundary) ... ok
+test_later_argument_and_runtime_shadow_failure_preserve_output (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_later_argument_and_runtime_shadow_failure_preserve_output) ... ok
+test_multi_helper_import_profile_remains_refused (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_multi_helper_import_profile_remains_refused) ... ok
+test_write_rhs_order_and_later_failure (tests.test_checked_borrow_metadata.CheckedBorrowMetadata.test_write_rhs_order_and_later_failure) ... ok
+test_borrow_suffix_preserves_code_authority_and_references (tests.test_source_borrow_emission.AffineComparisonIsolation.test_borrow_suffix_preserves_code_authority_and_references) ... ok
+test_only_advisory_difference_is_normalized (tests.test_source_borrow_emission.AffineComparisonIsolation.test_only_advisory_difference_is_normalized) ... ok
+test_read_suffix_preserves_code_authority_and_references (tests.test_source_borrow_emission.AffineComparisonIsolation.test_read_suffix_preserves_code_authority_and_references) ... ok
+test_shared_or_untrusted_facts_refuse_normalization (tests.test_source_borrow_emission.AffineComparisonIsolation.test_shared_or_untrusted_facts_refuse_normalization) ... ok
+test_write_suffix_preserves_code_authority_and_references (tests.test_source_borrow_emission.AffineComparisonIsolation.test_write_suffix_preserves_code_authority_and_references) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 94.779s
+
+OK

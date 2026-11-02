@@ -1,0 +1,4 @@
+d3f836bd36adaebca02f494508d49c0ec4e5f3dd26a6ce1f6c3d7d704348f0f1  bin/nano_virt
+5f8d7873f365e2d47a12abace31b427c886f6e3e82ef0baeb46ec9530abc9a08  bin/nanoc_c
+65c85be04b06221a3c2186c13d20a30e891ddb3646d2bae182ce8d096ce55e16  /private/tmp/nanolang-nested-string-canonical
+a657425e55329e502e363c7caea0391d3f59627b81f6a3f33add1f1e975893d4  /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-flat-source-producers-_st912dv/emitter

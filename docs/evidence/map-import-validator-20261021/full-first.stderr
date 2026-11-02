@@ -1,0 +1,35 @@
+test_original_goto (tests.test_record_map_import.RecordMapImport.test_original_goto) ... FAIL
+test_original_switch (tests.test_record_map_import.RecordMapImport.test_original_switch) ... FAIL
+
+======================================================================
+FAIL: test_original_goto (tests.test_record_map_import.RecordMapImport.test_original_goto)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_runtime.py", line 20, in test_original_goto
+    self.runtime(True)
+    ~~~~~~~~~~~~^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_runtime.py", line 56, in runtime
+    output = self.command('runtime-run', [str(exe), *modules])
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+======================================================================
+FAIL: test_original_switch (tests.test_record_map_import.RecordMapImport.test_original_switch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_runtime.py", line 17, in test_original_switch
+    self.runtime(False)
+    ~~~~~~~~~~~~^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_runtime.py", line 56, in runtime
+    output = self.command('runtime-run', [str(exe), *modules])
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 2 tests in 15.590s
+
+FAILED (failures=2)

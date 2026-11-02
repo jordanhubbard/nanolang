@@ -1,0 +1,26 @@
+[
+  {
+    "producer": "nano_virt",
+    "module_sha256": "470fff0193d4c35133e56201e4d1e60390dd619722706aa65b1df6ce6b2c5fdd",
+    "locals": [
+      37,
+      3
+    ]
+  },
+  {
+    "producer": "nanoc_stage1",
+    "module_sha256": "68fd289b6b5cd2bebb7aa06a188e8d214bdebcbe2c13e9c44e6dee625706dbeb",
+    "locals": [
+      37,
+      3
+    ]
+  },
+  {
+    "producer": "nanoc_stage2",
+    "module_sha256": "68fd289b6b5cd2bebb7aa06a188e8d214bdebcbe2c13e9c44e6dee625706dbeb",
+    "locals": [
+      37,
+      3
+    ]
+  }
+]

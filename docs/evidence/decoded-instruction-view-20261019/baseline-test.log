@@ -1,0 +1,11 @@
+ld: warning: ignoring duplicate libraries: '-lcrypto', 'lib/libnano_compiler_inputs.a'
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==9826==ERROR: AddressSanitizer: stack-overflow on address 0x000167c13390 (pc 0x00010050cab4 bp 0x00016f8f2880 sp 0x000167c12500 T0)
+    #0 0x00010050cab4 in main test_vm.c:5909
+    #1 0x00019093be7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+SUMMARY: AddressSanitizer: stack-overflow test_vm.c:5909 in main
+==9826==ABORTING
+
+returncode=-6

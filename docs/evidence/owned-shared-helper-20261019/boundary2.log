@@ -1,0 +1,20 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-e5u009cg
+test_extra_generated_nano_helper_refuses_without_narrowing_c (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_extra_generated_nano_helper_refuses_without_narrowing_c) ... FAIL
+
+======================================================================
+FAIL: test_extra_generated_nano_helper_refuses_without_narrowing_c (tests.test_owned_shared_reconstruction.OwnedSharedReconstruction.test_extra_generated_nano_helper_refuses_without_narrowing_c)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-shared-helper/tests/test_owned_shared_reconstruction.py", line 141, in test_extra_generated_nano_helper_refuses_without_narrowing_c
+    self.command([ROOT/'bin/nanoisa','asm',source,'-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-shared-helper/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-e5u009cg/unsigned-helper.nasm': Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[0] at 37: I require checked caller authority and a non-escaping helper
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.032s
+
+FAILED (failures=1)

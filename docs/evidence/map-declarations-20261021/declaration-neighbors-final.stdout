@@ -1,0 +1,13 @@
+I retain mixed declaration artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-ownership-declaration-648nqg2v
+PASS 468 ordinary array declaration checks; no execution authority
+I begin complete mixed declaration controls
+PASS 1820 complete mixed declaration checks; no execution authority
+I covered 8 allocation positions in both failure modes
+PASS 2402 ordinary array declaration checks; no execution authority
+I begin complete mixed declaration controls
+I covered 13 mixed allocation positions in both failure modes; two query TUs instrumented
+PASS 10970 complete mixed declaration checks; no execution authority
+I retain private layout artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-ownership-layouts-dis_tifx
+PASS 42 private layout structure checks; no array authority
+I checked 5 allocating sites in both failure modes.
+PASS 486 private layout structure checks; no array authority

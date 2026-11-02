@@ -1,0 +1,135 @@
+[
+  {
+    "name": "final-strict-test-clangFalse",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-DUNION_EXECUTION_WHITEBOX",
+      "-DNANO_UNION_FIELD_PRIVATE_PREPARATION",
+      "-DNANO_NO_COMPUTED_GOTO",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_vm.c"
+    ],
+    "code": 0,
+    "seconds": 0.08870049996767193
+  },
+  {
+    "name": "final-strict-test-clangTrue",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-DUNION_EXECUTION_WHITEBOX",
+      "-DNANO_UNION_FIELD_PRIVATE_PREPARATION",
+      "-DNANO_NO_COMPUTED_GOTO",
+      "-DUNION_EXECUTION_ALLOC",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_vm.c"
+    ],
+    "code": 0,
+    "seconds": 0.08017462491989136
+  },
+  {
+    "name": "final-strict-test-gcc-16False",
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-DUNION_EXECUTION_WHITEBOX",
+      "-DNANO_UNION_FIELD_PRIVATE_PREPARATION",
+      "-DNANO_NO_COMPUTED_GOTO",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_vm.c"
+    ],
+    "code": 0,
+    "seconds": 1.0824518750887364
+  },
+  {
+    "name": "final-strict-test-gcc-16True",
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-DUNION_EXECUTION_WHITEBOX",
+      "-DNANO_UNION_FIELD_PRIVATE_PREPARATION",
+      "-DNANO_NO_COMPUTED_GOTO",
+      "-DUNION_EXECUTION_ALLOC",
+      "-fsyntax-only",
+      "tests/nanoisa/test_union_field_vm.c"
+    ],
+    "code": 0,
+    "seconds": 0.08515754202380776
+  },
+  {
+    "name": "default-symbol-provider",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "-DNANO_NO_COMPUTED_GOTO",
+      "src/nanovm/vm.c",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-c",
+      "-o",
+      "/private/tmp/nanolang-union-vm-execution-20261022/default-final-vm.o"
+    ],
+    "code": 0,
+    "seconds": 1.9823817500146106
+  },
+  {
+    "name": "default-symbols",
+    "command": [
+      "nm",
+      "/private/tmp/nanolang-union-vm-execution-20261022/default-final-vm.o"
+    ],
+    "code": 0,
+    "seconds": 0.032451999955810606
+  },
+  {
+    "name": "make-n",
+    "command": [
+      "make",
+      "-n",
+      "-f",
+      "Makefile.gnu",
+      "test-union-field-vm"
+    ],
+    "code": 0,
+    "seconds": 0.17118699999991804
+  }
+]

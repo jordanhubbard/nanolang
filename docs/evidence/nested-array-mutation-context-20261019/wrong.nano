@@ -1,0 +1,2 @@
+fn main()->int {let rows:array<array<string>> = [[]] let wrong:array<int> = [] (array_push rows wrong) return 0}
+shadow main {assert true}

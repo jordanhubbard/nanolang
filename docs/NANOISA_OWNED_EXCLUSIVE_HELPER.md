@@ -1,0 +1,22 @@
+# My bounded exclusive helper reconstruction
+
+I own this #999 slice on `fix/5.1-owned-exclusive-helper` from `5830c8ac6`. I preserve the actual accepted `tests/nanoisa/fixtures/source_borrow_exclusive.nano`, whose INT update adds three and whose BOOL update toggles its field. Historical source/VM/native qualification is retained in `evidence/source-borrow-emission.md`; new qualification will identify exact retained providers.
+
+I require original verifier admission before my facts/profile checks. I retain two functions: integer entry zero and helper one with one exact mode-two scalar-leaf resource parameter and INT/BOOL result. My helper is straight-line; I add only ADD and REF_SET to the existing scalar observation operations. REF_SET consumes exactly one scalar operand of the declared field type, after its evaluation, writes only reference slot zero, and leaves no result. Each read, ADD and write stays in bytecode order.
+
+I admit only the complete REGION_BEGIN, BORROW_LOCAL_EXCLUSIVE, CALL_REF, REGION_END caller sequence with exact reference, nominal owner layout, and parameter mode. I snapshot its scalar result once. The same live owner survives with updated fields; a later observation or consuming transfer sees those fields. Mutable Nano bindings change source mutability only: ownership maps, moves, branch joins and zero-iteration initialization remain unchanged. I reject overlapping aliases, reborrows, child paths, reference escape, mixed consuming graphs, shared writes and helper calls/control flow. Existing shared observation behavior remains unchanged.
+
+I retain the original two-function borrowed verifier limit. For this exclusive profile only, I materialize ADD into an inline Nano guarded statement using the exact existing add helper formulas, immutable operand snapshots and one fresh result. I preserve representable intermediates and mutually exclusive overflow/ordinary paths; I do not emit an early return or a third function. I keep existing scalar/shared arithmetic helper text byte-identical and test that regression explicitly. C retains its existing wrapping helper. All local/instruction/function limits remain unchanged; exceeding them refuses atomically with prior output preserved.
+
+My exclusive generated shadow constructs two independent zero/false owners, applies the helper once to each, consumes both and compares results and final fields. This checks deterministic consistency and ownership lifetime, not semantic equivalence. Actual original VM versus both reconstructed outputs is my semantic oracle. I do not claim original shadow recovery.
+
+- [x] I retain exact original fixture/source/provider hashes and current refusal.
+- [x] I implement exact modes, writes, caller mutation and inline ADD without changing verifier authority.
+- [x] I qualify the unchanged fixture, sequential calls, mutation after return, shared observation then consumption, wrapping endpoints and ordered read/write snapshots through original VM, regenerated Nano VM and O0/O2 sanitized C.
+- [x] I execute generated shadows; retain helper/local-budget refusals and byte-identical existing helper output.
+- [x] I distinguish original verifier malformed-reference/layout/mode/alias/trap controls from defensive facts/profile refusals, preserve both prior output files, and retain all first terminals.
+- [x] I obtain production review and record focused qualification before commit/push. Full #999 and required rows9538/10409 remain open.
+
+I preflight generated exclusive Nano local storage against my retained 128-slot profile limit, separately from the original producer's broader admission. I count initial locals and the reference parameter; each emitted scalar let/read/call/owner binding/move; all seven inline ADD declarations including both branch boundaries; constructor field staging; and destructuring's hidden owner, field projections and copied values. I sum both branch arms and each loop's syntax once. My fixed independent shadow uses at most `6 + 6 * fields <= 102` slots for 16 fields. I compare estimates with actual regenerated local counts, including repeated ADD at 122 slots and a diagnostic 130-slot output. Diagnostic bypass is test-only; normal publication refuses before replacing prior Nano output.
+
+I retain my focused terminal evidence and every corrected fixture failure in [my receipt](evidence/owned-exclusive-helper-20261019/README.md). Fresh aggregate qualification remains separate.

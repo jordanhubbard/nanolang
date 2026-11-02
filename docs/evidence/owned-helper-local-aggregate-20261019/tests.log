@@ -1,0 +1,27 @@
+test_actual_binding_boundary_without_preseeded_counters (tests.test_owned_helper_local_witness.HelperLocalWitness.test_actual_binding_boundary_without_preseeded_counters) ... ok
+test_actual_shared_literal_required (tests.test_owned_helper_local_witness.HelperLocalWitness.test_actual_shared_literal_required) ... ok
+test_allocation_and_traversal_caps_precede_mutation (tests.test_owned_helper_local_witness.HelperLocalWitness.test_allocation_and_traversal_caps_precede_mutation) ... ok
+test_exact_witness_literal_types_and_bounds (tests.test_owned_helper_local_witness.HelperLocalWitness.test_exact_witness_literal_types_and_bounds) ... ok
+test_field_generation_and_nominal_identity (tests.test_owned_helper_local_witness.HelperLocalWitness.test_field_generation_and_nominal_identity) ... ok
+test_helper_backedge_cannot_replace_same_layout_origin (tests.test_owned_helper_local_witness.HelperLocalWitness.test_helper_backedge_cannot_replace_same_layout_origin) ... ok
+test_immutable_preloop_snapshot_survives_invalidation (tests.test_owned_helper_local_witness.HelperLocalWitness.test_immutable_preloop_snapshot_survives_invalidation) ... ok
+test_literal_and_token_equality_only (tests.test_owned_helper_local_witness.HelperLocalWitness.test_literal_and_token_equality_only) ... ok
+test_loop_preinvalidates_every_nonrank_write (tests.test_owned_helper_local_witness.HelperLocalWitness.test_loop_preinvalidates_every_nonrank_write) ... ok
+test_merge_does_not_equate_unknown_or_distinct_facts (tests.test_owned_helper_local_witness.HelperLocalWitness.test_merge_does_not_equate_unknown_or_distinct_facts) ... ok
+test_same_iteration_owner_capture (tests.test_owned_helper_local_witness.HelperLocalWitness.test_same_iteration_owner_capture) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-f7mh5i76
+test_actual_generated_local_cap_preserves_original_input (tests.test_owned_helper_local_reconstruction.OwnedHelperLocalReconstruction.test_actual_generated_local_cap_preserves_original_input) ... ok
+test_defensive_descriptor_and_witness_refusals (tests.test_owned_helper_local_reconstruction.OwnedHelperLocalReconstruction.test_defensive_descriptor_and_witness_refusals) ... ok
+test_independent_original_shadow_input_and_generated_consistency_shadow (tests.test_owned_helper_local_reconstruction.OwnedHelperLocalReconstruction.test_independent_original_shadow_input_and_generated_consistency_shadow) ... I measure independent helper consistency shadow {"producer": "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt", "actual": [34, 120], "estimated": 38}
+I measure independent helper consistency shadow {"producer": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1", "actual": [34, 120], "estimated": 38}
+I measure independent helper consistency shadow {"producer": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2", "actual": [34, 120], "estimated": 38}
+ok
+test_later_different_shared_value_keeps_runtime_assertion (tests.test_owned_helper_local_reconstruction.OwnedHelperLocalReconstruction.test_later_different_shared_value_keeps_runtime_assertion) ... ok
+test_original_verifier_rejects_formal_descriptor_overwrite (tests.test_owned_helper_local_reconstruction.OwnedHelperLocalReconstruction.test_original_verifier_rejects_formal_descriptor_overwrite) ... ok
+test_unchanged_anchor_and_else_zero_paired_native (tests.test_owned_helper_local_reconstruction.OwnedHelperLocalReconstruction.test_unchanged_anchor_and_else_zero_paired_native) ... ok
+test_unchanged_origin_proof_and_exact_finite_plan (tests.test_owned_helper_local_reconstruction.OwnedHelperLocalReconstruction.test_unchanged_origin_proof_and_exact_finite_plan) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 92.550s
+
+OK

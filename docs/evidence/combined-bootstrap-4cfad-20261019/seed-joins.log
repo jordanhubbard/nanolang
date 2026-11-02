@@ -1,0 +1,9 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-249wio1n
+test_actual_conditional_reads_preserve_shared_record_fields (tests.test_optional_record_join.OptionalRecordJoin.test_actual_conditional_reads_preserve_shared_record_fields) ... ok
+test_float_bool_string_conditional_record_fields (tests.test_optional_record_join.OptionalRecordJoin.test_float_bool_string_conditional_record_fields) ... ok
+test_missing_raw_reads_do_not_become_integer_zero (tests.test_optional_record_join.OptionalRecordJoin.test_missing_raw_reads_do_not_become_integer_zero) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 15.918s
+
+OK

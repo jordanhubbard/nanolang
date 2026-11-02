@@ -9,6 +9,9 @@
 #include "service_bindings_module.h"
 #include "owned_array_admission.h"
 #include "nvm2c.h"
+#include "record_map_admission.h"
+#include "nvm2c_map_private.h"
+#include "record_map_snapshot_private.h"
 #include "../binary64_bits.h"
 #include "../binary64_format.h"
 #include "../binary64_arithmetic_source.h"
@@ -228,6 +231,8 @@ typedef struct {
     int has_record_array_getter;
     int has_owned_strings;
     int has_owned_aggregates;
+    bool canonical_records;
+    const NvmRecordMapExecutionPlan *map_plan;
     size_t global_count;
     size_t local_width;
     uint8_t *array_results;
@@ -467,6 +472,7 @@ static const Nvm2cHost artifact_adapters[] = {
     {"nl_nanoisa_load_pretty", "nhost_snapshot", 1, TAG_STRING, TAG_STRING},
     {"nl_nanoisa_last_error", "nhost_snapshot", 0, TAG_VOID, TAG_STRING},
     {"nl_nanoisa_assemble_save", "nhost_artifact", 2, TAG_STRING, TAG_INT},
+    {"nl_nanoisa_array_publication", "nhost_artifact", 1, TAG_STRING, TAG_INT},
     {"nl_nanoisa_assemble_text_save", "nhost_artifact", 2, TAG_STRING, TAG_INT},
     {"fs_walkdir", "nhost_walk", 1, TAG_STRING, TAG_ARRAY},
     {"nl_fs_list_files", "nhost_walk", 2, TAG_STRING, TAG_ARRAY},
@@ -961,6 +967,40 @@ static int shape_field_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
     return source && nvm_shape_convert(&b->shapes, source, id) && shape_ok(b);
 }
 
+/* This opt-in shape is backed by the independently proved image, not a tag guess. */
+static int private_map_shape(Nvm2cBuf *b, NvmShapeId shape, uint8_t map_value_tag) {
+    if (b->map_plan)
+        return shape_type(b, shape, NVM_SHAPE_MAP) &&
+               shape_type(b, shape_child(b, shape, 0), NVM_SHAPE_STRING) &&
+               (map_value_tag == TAG_INT || map_value_tag == TAG_STRING) &&
+               shape_type(b, shape_child(b, shape, 1), map_value_tag == TAG_STRING ? NVM_SHAPE_STRING : NVM_SHAPE_INT);
+    return 1;
+}
+static int private_map_enabled(const Nvm2cBuf *b) {
+    return b->map_plan != NULL;
+}
+static int private_map_pack_field(Nvm2cBuf *b, uint32_t ordinal,
+                                  uint16_t index, NvmShapeId shape, uint8_t map_value_tag) {
+    if (b->map_plan) {
+        NvmRecordArrayExecutionDescriptor descriptor; NvmV2LayoutField field;
+        if (!nvm_record_map_execution_descriptor(b->map_plan, ordinal, &descriptor) ||
+            descriptor.ordinal != ordinal || index >= descriptor.fields ||
+            !nvm_record_map_execution_field(b->map_plan, descriptor.layout, index, &field)) {
+            nvm2c_fail(b, "I require an exact copied native map field descriptor"); return 0;
+        }
+        if (field.type_tag == TAG_HASHMAP) {
+            uint8_t key, value;
+            if (!nvm_record_map_execution_map_field(b->map_plan, descriptor.layout, index, &key, &value) ||
+                key != TAG_STRING || value != map_value_tag) {
+                nvm2c_fail(b, map_value_tag == TAG_INT ? "I require the exact native STRING-to-INT field pair" :
+                    "I require the exact native STRING-to-STRING field pair"); return 0;
+            }
+            return private_map_shape(b, shape, map_value_tag);
+        }
+    }
+    return 1;
+}
+
 /* Returning a present scalar into optional record storage is a conversion,
  * not equality between the source scalar and an optional shape. */
 static int shape_record_return(Nvm2cBuf *b, NvmShapeId source, NvmShapeId result,
@@ -1114,11 +1154,22 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                 if (plan && plan->tags[i]) {
                     uint16_t tags = plan->tags[i] | stack[i].scalar_tags;
                     if (!optional_scalar_tags(tags) && !boxed_carrier_tags(tags)) {
-                        nvm2c_fail(b, "I require proved finite payload provenance at a boxed join (function %u, target %zu, slot %d)", idx, target, i);
-                        return 0;
+                        if (!facts->final && optional_scalar_tags(plan->tags[i]) &&
+                            (tags & NVM2C_SCALAR_UNKNOWN) &&
+                            optional_scalar_tags(tags & ~NVM2C_SCALAR_UNKNOWN)) {
+                            /* Discovery can widen a carried parameter after an
+                             * earlier optional-scalar plan. Recompute from the
+                             * current carrier; unknown is never finite proof. */
+                            plan->tags[i] = 0;
+                            facts->changed = 1;
+                        } else {
+                            nvm2c_fail(b, "I require proved finite payload provenance at a boxed join (function %u, target %zu, slot %d)", idx, target, i);
+                            return 0;
+                        }
+                    } else {
+                        join->slots[i].kind = NVM2C_VK_VALUE;
+                        join->slots[i].scalar_tags = tags;
                     }
-                    join->slots[i].kind = NVM2C_VK_VALUE;
-                    join->slots[i].scalar_tags = tags;
                 }
                 if (!b->track_shapes) continue;
                 uint8_t kind = join->slots[i].kind;
@@ -1132,11 +1183,14 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                     continue;
                 }
                 if (kind != NVM2C_VK_STR && kind != NVM2C_VK_INT &&
-                    kind != NVM2C_VK_BOOL && kind != NVM2C_VK_VALUE) continue;
-                /* Destination storage never rewrites the exact producer. */
+                    kind != NVM2C_VK_BOOL && kind != NVM2C_VK_VALUE &&
+                    kind != NVM2C_VK_UNK) continue;
+                /* Destination storage never rewrites the exact producer. An
+                 * unresolved array read may later become OPTIONAL; it must
+                 * not borrow the exact scalar shape of the other branch. */
                 NvmShapeId storage = 0;
                 storage = shape_variable(b, &storage);
-                if (!shape_field_kind(b, storage, kind) ||
+                if ((kind != NVM2C_VK_UNK && !shape_field_kind(b, storage, kind)) ||
                     (kind == NVM2C_VK_VALUE && boxed_carrier_tags(join->slots[i].scalar_tags) &&
                      !shape_carrier_box(b, storage, join->slots[i].scalar_tags)) ||
                     !nvm_shape_convert(&b->shapes, stack[i].shape, storage) || !shape_ok(b)) return 0;
@@ -1163,8 +1217,15 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         }
         int scalar_join = optional_scalar_tags(tags) || boxed_carrier_tags(tags);
         if (plan && plan->tags[i] && !scalar_join) {
-            nvm2c_fail(b, "I require proved finite payload provenance at a boxed join (function %u, target %zu, slot %d)", idx, target, i);
-            return 0;
+            if (!facts->final && optional_scalar_tags(plan->tags[i]) &&
+                (tags & NVM2C_SCALAR_UNKNOWN) &&
+                optional_scalar_tags(tags & ~NVM2C_SCALAR_UNKNOWN)) {
+                plan->tags[i] = 0;
+                facts->changed = 1;
+            } else {
+                nvm2c_fail(b, "I require proved finite payload provenance at a boxed join (function %u, target %zu, slot %d)", idx, target, i);
+                return 0;
+            }
         }
         if (scalar_join) {
             if (!plan) {
@@ -1215,7 +1276,9 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                                      stack[i].rec_k, fields)) return 0;
             join->slots[i].rec_k = fields;
         }
-        if (b->track_shapes && !record_join && !((optional_join || scalar_join)
+        /* I retain directed edges until late producer shapes resolve. */
+        int unresolved_join = join->slots[i].kind == NVM2C_VK_UNK || stack[i].kind == NVM2C_VK_UNK;
+        if (b->track_shapes && !record_join && !((optional_join || scalar_join || unresolved_join)
                 ? nvm_shape_convert(&b->shapes, stack[i].shape, join->slots[i].shape)
                 : nvm_shape_unify(&b->shapes, join->slots[i].shape, stack[i].shape))) {
             nvm2c_fail(b, "I found incompatible shapes at a join in function %u: %s", idx, b->shapes.error);
@@ -1224,7 +1287,10 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         join->slots[i].scalar_tags = tags;
         int origin = join->slots[i].origin == stack[i].origin ? stack[i].origin : -1;
         if (join->slots[i].kind == NVM2C_VK_UNK) {
+            /* Adopting a carrier kind does not replace the join storage. */
+            NvmShapeId storage = join->slots[i].shape;
             join->slots[i] = stack[i];
+            join->slots[i].shape = storage;
             join->slots[i].array_payload_kind = array_payload;
             join->slots[i].origin = origin;
             continue;
@@ -1395,6 +1461,17 @@ static int classify_direct_call(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     for (i = cf->arity; i > 0; i--) {
         Nvm2cSimSlot arg;
         if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
+        const uint8_t *declared=mod->function_param_types?mod->function_param_types[callee]:NULL;
+        if(arg.kind==NVM2C_VK_VALUE && arg.array_payload_kind && declared && declared[i-1]==TAG_ARRAY) {
+            /* I unbox a proved exact array-global payload at this checked call
+             * boundary, leaving the global carrier's other consumers intact. */
+            if(!shape_type(b,arg.shape,NVM_SHAPE_OPTIONAL))return 0;
+            arg.shape=shape_child(b,arg.shape,0);
+            arg.kind=arg.array_payload_kind;arg.scalar_tags=0;
+            int generic=b->shape_generic_array;b->shape_generic_array=0;
+            int valid=shape_kind(b,arg.shape,arg.kind);b->shape_generic_array=generic;
+            if(!valid)return 0;
+        }
         size_t at = (size_t)callee * b->local_width + i - 1;
         uint16_t tags = b->local_scalar_tags[at] |
             (arg.kind == NVM2C_VK_UNK ? 0 : arg.scalar_tags);
@@ -1534,7 +1611,7 @@ static int classify_direct_call(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
 static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                   uint8_t *local_kind, uint8_t *rec_fields,
                                   Nvm2cSimJoin *joins, const uint8_t *targets,
-                                  Nvm2cFacts *facts, Nvm2cSimSlot *stk) {
+                                  Nvm2cFacts *facts, Nvm2cSimSlot *stk, uint8_t map_value_tag) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     uint16_t nloc = fn->local_count;
     b->track_shapes = facts->final;
@@ -2155,7 +2232,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 NvmShapeId checked = 0;
                 map.shape = shape_variable(b, &checked);
             } else mark_origin(local_kind, nloc, map.origin, NVM2C_VK_MAP);
-            if (!shape_type(b, map.shape, NVM_SHAPE_MAP)) return 0;
+            if (!shape_type(b, map.shape, NVM_SHAPE_MAP) || !private_map_shape(b, map.shape, map_value_tag)) return 0;
             if (ins.opcode != OP_HM_LEN) {
                 if (key.kind != NVM2C_VK_STR && key.kind != NVM2C_VK_UNK && key.kind != NVM2C_VK_VALUE) {
                     nvm2c_fail(b, "I require a string hashmap key"); return 0;
@@ -2410,8 +2487,19 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
             if (arr.kind == NVM2C_VK_VALUE) {
-                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
-                stk[sp - 1].array_payload_kind = arr.array_payload_kind;
+                if (val.kind == NVM2C_VK_REC) {
+                    /* I constrain the array payload, not its tagged carrier.
+                     * Alias writes retain the existing record conversion proof. */
+                    NvmShapeId payload = checked_array_payload(b, &arr);
+                    if (!shape_type(b, payload, NVM_SHAPE_ARRAY) ||
+                        (b->track_shapes && !nvm_shape_array_write(&b->shapes, payload, val.shape)) ||
+                        !shape_equal(b, shape_variable(b, b->shape_current), arr.shape)) return 0;
+                    arr.origin = -1;
+                    if (!sim_push_slot(b, idx, stk, &sp, arr)) return 0;
+                } else {
+                    if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+                    stk[sp - 1].array_payload_kind = arr.array_payload_kind;
+                }
                 break;
             }
             if (arr.kind == NVM2C_VK_NARR) {
@@ -2467,6 +2555,23 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         }
                     }
                 }
+            }
+            if (b->canonical_records && arr.kind == NVM2C_VK_UNK &&
+                (val.kind == NVM2C_VK_ARR || val.kind == NVM2C_VK_SARR ||
+                 val.kind == NVM2C_VK_U8ARR || val.kind == NVM2C_VK_FARR ||
+                 val.kind == NVM2C_VK_BARR || val.kind == NVM2C_VK_NARR)) {
+                /* A closed nested primitive proof permits this array-valued write,
+                 * but a forward callee may not yet have a result carrier.
+                 * Preserve unknown storage until facts converge; never seed
+                 * an integer-array carrier from the child's carrier. */
+                Nvm2cSimSlot pushed = arr;
+                pushed.origin = -1;
+                if (!sim_push_slot(b, idx, stk, &sp, pushed) ||
+                    !shape_type(b, arr.shape, NVM_SHAPE_ARRAY) ||
+                    !shape_type(b, val.shape, NVM_SHAPE_ARRAY) ||
+                    !shape_equal(b, shape_child(b, arr.shape, 0), val.shape) ||
+                    !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
+                break;
             }
             if (arr.kind == NVM2C_VK_UNK && val.kind == NVM2C_VK_VALUE) {
                 /* A tagged element does not determine the array's storage.
@@ -2588,7 +2693,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             /* Record writes already carry a checked, directed array-write
              * constraint. Equating them here would constrain an unresolved
              * getter's return fields to a caller's exact constructor storage. */
-            if (!shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
+            if (!shape_equal(b, stk[sp - 1].shape, arr.shape) ||
+                !shape_equal(b, shape_variable(b, b->shape_current), stk[sp - 1].shape)) return 0;
             break;
         }
         case OP_AGG_PACK: {
@@ -2619,6 +2725,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             for (ai = 0; ai < count; ai++) {
                 Nvm2cSimSlot v;
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
+                if (b->canonical_records && v.kind == NVM2C_VK_VALUE && v.array_payload_kind) {
+                    v.shape = shape_child(b, v.shape, 0);
+                    v.kind = v.array_payload_kind; v.scalar_tags = 0;
+                    int generic = b->shape_generic_array; b->shape_generic_array = 0;
+                    int valid = shape_kind(b, v.shape, v.kind);
+                    b->shape_generic_array = generic;
+                    if (!valid) return 0;
+                }
                 if (v.kind != NVM2C_VK_INT && v.kind != NVM2C_VK_STR &&
                     !word_array_storage(v.kind) && v.kind != NVM2C_VK_SARR &&
                     v.kind != NVM2C_VK_RARR && v.kind != NVM2C_VK_REC && v.kind != NVM2C_VK_VALUE &&
@@ -2629,6 +2743,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     return 0;
                 }
                 NvmShapeId field = shape_child(b, packed.shape, count - 1 - ai);
+                if (!private_map_pack_field(b, ins.operands[1].u32,
+                        (uint16_t)(count - 1 - ai), field, map_value_tag)) return 0;
                 if (aggregate_kind == AGG_VARIANT && (variant_scalar_kind(v.kind) || v.kind == NVM2C_VK_ARR)) {
                     packed.rec_k[count - 1 - ai] = variant_field_for(v.kind);
                     /* This constructor records an integer-array member. The
@@ -2655,6 +2771,39 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!shape_type(b, shape_child(b, aggregate.shape, 0), NVM_SHAPE_RECORD)) return 0;
             } else mark_origin(local_kind, nloc, aggregate.origin, NVM2C_VK_REC);
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            break;
+        }
+        case OP_AGG_SET: {
+            Nvm2cSimSlot value, rec;
+            uint16_t fi = ins.operands[0].u16;
+            if (!b->canonical_records || fi >= b->record_width) {
+                nvm2c_fail(b, "I require admitted canonical record field mutation");
+                return 0;
+            }
+            if (!sim_pop(b, idx, stk, &sp, &value) ||
+                !sim_pop(b, idx, stk, &sp, &rec)) return 0;
+            if (rec.kind == NVM2C_VK_VALUE) {
+                rec.shape = shape_child(b, rec.shape, 0);
+                rec.kind = NVM2C_VK_REC;
+                rec.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
+                if (!rec.rec_k) return 0;
+            } else mark_origin(local_kind, nloc, rec.origin, NVM2C_VK_REC);
+            NvmShapeId replacement = value.shape;
+            if (value.kind == NVM2C_VK_VALUE) {
+                replacement = shape_child(b, replacement, 0);
+                if (value.array_payload_kind) {
+                    int generic = b->shape_generic_array; b->shape_generic_array = 0;
+                    int valid = shape_kind(b, replacement, value.array_payload_kind);
+                    b->shape_generic_array = generic;
+                    if (!valid) return 0;
+                }
+            }
+            if (value.kind == NVM2C_VK_MAP && !private_map_shape(b, replacement, map_value_tag)) return 0;
+            if (!shape_type(b, rec.shape, NVM_SHAPE_RECORD) ||
+                !shape_equal(b, shape_child(b, rec.shape, fi), replacement) ||
+                !shape_equal(b, shape_variable(b, b->shape_current), rec.shape)) return 0;
+            rec.kind = NVM2C_VK_REC;
+            if (!sim_push_slot(b, idx, stk, &sp, rec)) return 0;
             break;
         }
         case OP_AGG_GET: {
@@ -2988,7 +3137,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
 }
 
 static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
-                             uint8_t *local_kind, uint8_t *rec_fields, Nvm2cFacts *facts) {
+                             uint8_t *local_kind, uint8_t *rec_fields, Nvm2cFacts *facts, uint8_t map_value_tag) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     if (fn->local_count > NVM2C_MAX_LOCALS) {
         nvm2c_fail(b, "function %u: too many locals", idx);
@@ -3056,7 +3205,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         if (handler->function == idx &&
             !sim_join(b, idx, handler->target, &joins[handler->target], stack, 0, facts)) goto done;
     }
-    ok = classify_function_body(b, mod, idx, local_kind, rec_fields, joins, targets, facts, stack);
+    ok = classify_function_body(b, mod, idx, local_kind, rec_fields, joins, targets, facts, stack, map_value_tag);
     if (ok && facts->final) {
         for (size_t pc = 0; pc <= length; ++pc) {
             if (!joins[pc].set || !joins[pc].sp) continue;
@@ -3263,6 +3412,30 @@ static int stack_push_rarr(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
     st->kinds[st->sp] = NVM2C_VK_RARR;
     st->sp++;
     return a;
+}
+
+/* I unbox only the exact record-array payload proved for this write. */
+static int stack_checked_record_array(Nvm2cBuf *b, Nvm2cStack *st,
+                                      NvmShapeId carrier, int value) {
+    NvmShapeId payload = nvm_shape_kind(&b->shapes, carrier) == NVM_SHAPE_OPTIONAL
+        ? nvm_shape_lookup(&b->shapes, carrier, 0) : carrier;
+    if (resolved_shape_kind(b, payload) != NVM2C_VK_RARR) {
+        nvm2c_fail(b, "I require an exact record-array payload at a tagged record write");
+        return -1;
+    }
+    nvm2c_printf(b, "    if (v[%d].kind != 7 || v[%d].integer != %u || !v[%d].text) NVM2C_ABORT();\n",
+                value, value, NVM2C_VK_RARR, value);
+    char expression[80];
+    snprintf(expression, sizeof expression, "(nrarr_t)v[%d].text", value);
+    int array = stack_push_rarr(b, st, expression);
+    if (array < 0) return -1;
+    --st->sp; /* I return a temporary, without adding a bytecode operand. */
+    NvmShapeId element = nvm_shape_lookup(&b->shapes, payload, 0);
+    for (size_t f = 0; f < b->record_width; ++f)
+        st->rarr_k[array][f] = resolved_shape_kind(b,
+            nvm_shape_lookup(&b->shapes, element, (uint32_t)f));
+    if (!shape_ok(b)) return -1;
+    return array;
 }
 
 static int stack_push_map(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
@@ -3707,9 +3880,12 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
         return 0;
     }
     int needed = 0;
-    for (int i = 0; i < stack->sp; ++i)
-        if (scalar_kind_tags(stack->kinds[i]) != NVM2C_SCALAR_UNKNOWN &&
-            nvm_shape_kind(&b->shapes, shape->shapes[i]) == NVM_SHAPE_OPTIONAL) needed = 1;
+    for (int i = 0; i < stack->sp; ++i) {
+        NvmShapeKind destination = nvm_shape_kind(&b->shapes, shape->shapes[i]);
+        if ((scalar_kind_tags(stack->kinds[i]) != NVM2C_SCALAR_UNKNOWN &&
+             destination == NVM_SHAPE_OPTIONAL) ||
+            (stack->kinds[i] == NVM2C_VK_VALUE && destination == NVM_SHAPE_BOOL)) needed = 1;
+    }
     if (!needed) return record_join_storage(b, idx, joins, set, target, stack);
     Nvm2cStack edge = *stack;
     edge.slots = malloc((size_t)edge.sp * sizeof *edge.slots);
@@ -3721,6 +3897,18 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
     memcpy(edge.slots, stack->slots, (size_t)edge.sp * sizeof *edge.slots);
     memcpy(edge.kinds, stack->kinds, (size_t)edge.sp * sizeof *edge.kinds);
     for (int i = 0; i < edge.sp; ++i) {
+        /* I extract only a proved exact boolean, retaining the runtime tag
+         * check for boxed record projections. I do not coerce truth values. */
+        if (edge.kinds[i] == NVM2C_VK_VALUE &&
+            nvm_shape_kind(&b->shapes, shape->shapes[i]) == NVM_SHAPE_BOOL) {
+            if ((size_t)edge.next_temp >= edge.capacity) {
+                nvm2c_fail(b, "I cannot represent another boolean join temporary"); break;
+            }
+            int boolean = edge.next_temp++;
+            nvm2c_printf(b, "    t[%d] = nvalue_require_bool(v[%d]);\n", boolean, edge.slots[i]);
+            edge.slots[i] = boolean; edge.kinds[i] = NVM2C_VK_BOOL;
+            continue;
+        }
         if (scalar_kind_tags(edge.kinds[i]) == NVM2C_SCALAR_UNKNOWN ||
             nvm_shape_kind(&b->shapes, shape->shapes[i]) != NVM_SHAPE_OPTIONAL) continue;
         if ((size_t)edge.next_value >= edge.capacity) {
@@ -5336,6 +5524,14 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int ix = stack_pop_expect(b, &st, NVM2C_VK_INT, "ARR_SET index");
             int arr = stack_pop_kind(b, &st, &ak);
             if (b->failed) goto done;
+            int boxed_record_array = ak == NVM2C_VK_VALUE && vk == NVM2C_VK_REC;
+            if (boxed_record_array) {
+                arr = stack_checked_record_array(b, &st, b->shape_outputs[idx][start], arr);
+                if (arr < 0) goto done;
+                ak = NVM2C_VK_RARR;
+                boxed_record_array = nvm_shape_kind(&b->shapes,
+                    b->shape_outputs[idx][start]) == NVM_SHAPE_OPTIONAL;
+            }
             if (ak == NVM2C_VK_U8ARR || ak == NVM2C_VK_NARR) {
                 char boxed[96];
                 scalar_value_expression(b, boxed, sizeof boxed, vk, val);
@@ -5391,8 +5587,14 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                              arr, ix, ak == NVM2C_VK_BARR ? "bool" : "int", val);
             else nvm2c_printf(b, "    %s[%d]->data[t[%d]] = %s[%d];\n", array, arr, ix, value, val);
             /* The result is the same handle, not a copy: aliases see the write. */
-            st.slots[st.sp] = arr;
-            st.kinds[st.sp++] = ak;
+            if (boxed_record_array) {
+                char expr[80];
+                snprintf(expr, sizeof expr, "(nmap_value){7, %u, (char *)ra[%d]}", ak, arr);
+                stack_push_value(b, &st, expr);
+            } else {
+                st.slots[st.sp] = arr;
+                st.kinds[st.sp++] = ak;
+            }
             break;
         }
         case OP_ARR_PUSH: {
@@ -5401,6 +5603,14 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int val = stack_pop_kind(b, &st, &vk);
             int arr = stack_pop_kind(b, &st, &ak);
             if (b->failed) goto done;
+            int boxed_record_array = ak == NVM2C_VK_VALUE && vk == NVM2C_VK_REC;
+            if (boxed_record_array) {
+                arr = stack_checked_record_array(b, &st, b->shape_outputs[idx][start], arr);
+                if (arr < 0) goto done;
+                ak = NVM2C_VK_RARR;
+                boxed_record_array = nvm_shape_kind(&b->shapes,
+                    b->shape_outputs[idx][start]) == NVM_SHAPE_OPTIONAL;
+            }
             if (ak == NVM2C_VK_U8ARR || ak == NVM2C_VK_NARR) {
                 char boxed[96];
                 scalar_value_expression(b, boxed, sizeof boxed, vk, val);
@@ -5449,6 +5659,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 snprintf(expr, sizeof expr, "nrarr_push(ra[%d], r[%d])", arr, val);
                 int a = stack_push_rarr(b, &st, expr);
                 if (a >= 0) memcpy(st.rarr_k[a], st.rec_k[val], b->record_width);
+                if (a >= 0 && boxed_record_array) {
+                    --st.sp;
+                    snprintf(expr, sizeof expr, "(nmap_value){7, %u, (char *)ra[%d]}", NVM2C_VK_RARR, a);
+                    stack_push_value(b, &st, expr);
+                }
             } else {
                 nvm2c_fail(b, "function %u: ARR_PUSH type mismatch", idx);
                 goto done;
@@ -5473,7 +5688,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             for (ei = (int)count - 1; ei >= 0; ei--) {
                 uint8_t vk = NVM2C_VK_INT;
-                elems[ei] = stack_pop_kind(b, &st, &vk);
+                uint8_t exact = b->canonical_records ? resolved_shape_kind(b,
+                    nvm_shape_lookup(&b->shapes, b->shape_outputs[idx][start], (uint32_t)ei)) : NVM2C_VK_UNK;
+                if (b->canonical_records && st.sp > 0 && st.kinds[st.sp - 1] == NVM2C_VK_VALUE &&
+                    (word_array_storage(exact) || exact == NVM2C_VK_SARR)) {
+                    vk = exact; elems[ei] = stack_pop_expect(b, &st, exact, "AGG_PACK exact array field");
+                } else elems[ei] = stack_pop_kind(b, &st, &vk);
                 if (b->failed) goto done;
                 if (vk != NVM2C_VK_INT && vk != NVM2C_VK_STR &&
                     !word_array_storage(vk) && vk != NVM2C_VK_SARR &&
@@ -5495,6 +5715,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             {
                 int r = st.next_rec++;
+                if (b->canonical_records)
+                    nvm2c_printf(b, "    r[%d] = nrec_create(%u, %u, %u);\n", r,
+                        (unsigned)count, (unsigned)kind, (unsigned)ins.operands[2].u16);
                 nvm2c_printf(b, "    r[%d].n = %u;\n", r, (unsigned)count);
                 nvm2c_printf(b, "    r[%d].kind = %u; r[%d].tag = %u;\n",
                              r, (unsigned)kind, r, (unsigned)ins.operands[2].u16);
@@ -5576,6 +5799,42 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     kind == NVM2C_VK_SARR ? "sa" : kind == NVM2C_VK_RARR ? "ra" : kind == NVM2C_VK_MAP ? "m" : "f";
                 nvm2c_printf(b, "    nenv->%s[%u] = %s[%d];\n", field, u, stack_array_name(kind), value);
             }
+            break;
+        }
+        case OP_AGG_SET: {
+            uint16_t fi = ins.operands[0].u16;
+            if (!b->canonical_records || fi >= b->record_width) {
+                nvm2c_fail(b, "I require admitted canonical record field mutation");
+                goto done;
+            }
+            uint8_t kind = resolved_shape_kind(b,
+                nvm_shape_lookup(&b->shapes, b->shape_outputs[idx][start], fi));
+            if (!shape_ok(b) || (kind != NVM2C_VK_INT && kind != NVM2C_VK_BOOL &&
+                kind != NVM2C_VK_FLOAT && kind != NVM2C_VK_STR &&
+                kind != NVM2C_VK_REC && kind != NVM2C_VK_SARR && !word_array_storage(kind) &&
+                !(private_map_enabled(b) && kind == NVM2C_VK_MAP))) {
+                nvm2c_fail(b, "function %u at offset %zu: I require an exact ordinary record replacement representation for field %u (kind %u)", idx, start, fi, kind);
+                goto done;
+            }
+            int value = stack_pop_expect(b, &st, kind, "AGG_SET value");
+            int rec = stack_pop_expect(b, &st, NVM2C_VK_REC, "AGG_SET receiver");
+            if (b->failed) goto done;
+            nvm2c_printf(b, "    if (!r[%d].identity || r[%d].kind != 0 || %u >= r[%d].n || r[%d].k[%u] != %u) NVM2C_ABORT();\n",
+                rec, rec, fi, rec, rec, fi, kind);
+            if (kind == NVM2C_VK_FLOAT)
+                nvm2c_printf(b, "    memcpy(&r[%d].f[%u], &f[%d], sizeof f[%d]);\n", rec, fi, value, value);
+            else if (kind == NVM2C_VK_REC)
+                nvm2c_printf(b, "    r[%d].rec[%u] = nrec_snapshot(r[%d]);\n", rec, fi, value);
+            else {
+                const char *field = kind == NVM2C_VK_STR ? "s" :
+                    kind == NVM2C_VK_SARR ? "sa" : word_array_storage(kind) ? "a" :
+                    private_map_enabled(b) && kind == NVM2C_VK_MAP ? "m" : "f";
+                nvm2c_printf(b, "    r[%d].%s[%u] = %s[%d];\n", rec, field, fi,
+                    stack_array_name(kind), value);
+            }
+            /* No allocation or collection occurs between the checked operands
+             * and publication of the replacement edge in the canonical owner. */
+            st.slots[st.sp] = rec; st.kinds[st.sp++] = NVM2C_VK_REC;
             break;
         }
         case OP_LOAD_UPVALUE:
@@ -7390,8 +7649,12 @@ static int prune_unemittable_callers(Nvm2cBuf *b, const NvmModule *mod) {
 }
 
 #include "nvm2c_owned.h"
+#include "record_array_admission.h"
 
-char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
+static char *nvm2c_emit_core(const NvmModule *mod, char *err, size_t err_len
+                             , const NvmRecordMapExecutionPlan *map_plan, uint8_t map_value_tag
+                             ) {
+    bool private_maps = map_plan != NULL;
     if (err && err_len) err[0] = '\0';
     if (!mod) {
         if (err && err_len) snprintf(err, err_len, "module is null");
@@ -7402,11 +7665,21 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "I require reviewed service lifetime and dispatch admission before translation");
         return NULL;
     }
-    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return emit_owned_array_module(mod,err,err_len);
-    if(nvm_mixed_samples_candidate(mod))return emit_mixed_samples_module(mod,err,err_len);
+    if(!private_maps && nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return emit_owned_array_module(mod,err,err_len);
+    if(!private_maps && nvm_mixed_samples_candidate(mod))return emit_mixed_samples_module(mod,err,err_len);
+    bool record_arrays=!private_maps && nvm_record_array_candidate(mod);
+    if(record_arrays) {
+        NvmRecordArrayExecutionPlan *plan=NULL;
+        NvmArrayEligibilityResult admission=nvm_record_array_admit(mod,&plan);
+        if(admission.status!=NVM_ARRAY_ELIGIBLE) {
+            if(err && err_len)snprintf(err,err_len,"%s",admission.message);
+            return NULL;
+        }
+        nvm_record_array_execution_free(plan);
+    }
     bool needs_ownership = false;
-    if (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK || needs_ownership ||
-        nvm_uses_owned_transfers(mod)) {
+    if (!private_maps && !record_arrays && (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK || needs_ownership ||
+        nvm_uses_owned_transfers(mod))) {
         if (nvm_verify_owned_module(mod).ok) return emit_owned_module(mod, err, err_len);
         if (err && err_len) snprintf(err, err_len,
             "I require valid reference lifetime and ownership instruction verification before translation");
@@ -7435,6 +7708,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     memset(&b, 0, sizeof b);
     b.err = err;
     b.err_len = err_len;
+    b.canonical_records = record_arrays || private_maps;
+    b.map_plan = map_plan;
+    if (record_arrays || private_maps) b.has_maps = 1;
     b.record_width = 1;
     b.local_width = 1;
     /* I share cleanup-preserving unwinding between HALT and lexical effects. */
@@ -7457,7 +7733,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     /* The tagged map runtime also provides shared frame/aggregate root tracing.
      * Owned strings/aggregates need it even without map instructions. */
     if (b.has_owned_strings) b.has_maps = 1;
-    b.has_owned_aggregates = (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP) || module_has_opcode(mod, OP_ARR_GET)) ||
+    b.has_owned_aggregates = private_maps || (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP) || module_has_opcode(mod, OP_ARR_GET)) ||
         module_has_opcode(mod, OP_ARR_NEW) || module_has_opcode(mod, OP_ARR_LITERAL) ||
         module_has_opcode(mod, OP_ARR_PUSH) || module_has_opcode(mod, OP_ARR_GET) ||
         module_has_opcode(mod, OP_ARR_SET) || module_has_opcode(mod, OP_ARR_LEN) || module_has_opcode(mod, OP_ARR_SLICE) || module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP) ||
@@ -7621,7 +7897,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             for (uint32_t i = 0; i < mod->function_count; ++i) {
                 if (!classify_function(&b, mod, i, kinds + (size_t)i * b.local_width,
                                        rec_fields + (size_t)i * b.local_width * b.record_width,
-                                       &facts)) goto fail;
+                                       &facts, map_value_tag)) goto fail;
             }
             if (!facts.changed) break;
         }
@@ -7648,7 +7924,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         for (uint32_t i = 0; i < mod->function_count; i++) {
             if (!classify_function(&b, mod, i, kinds + (size_t)i * b.local_width,
                                    rec_fields + (size_t)i * b.local_width * b.record_width,
-                                   &facts)) {
+                                   &facts, map_value_tag)) {
                 goto fail;
             }
         }
@@ -8241,11 +8517,17 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         emit_typed_artifact_adapters(&b, mod);
         nvm2c_puts(&b, "typedef struct nrarr_s nrarr_s;\ntypedef nrarr_s *nrarr_t;\n");
         nvm2c_puts(&b, "typedef struct nrec_s nrec_t;\n");
+        if (b.canonical_records) {
+            nvm2c_printf(&b, "#define NREC_CANONICAL 1\n#define NREC_WIDTH %zu\n", b.record_width);
+            nvm2c_puts(&b,
+                "struct nrec_s { int64_t *f; const char **s; narr_t *a; nsarr_t *sa; nrarr_t *ra; const nrec_t **rec; uint8_t *k, *vk; nmap_t *m; uint16_t n, tag; uint8_t kind; uint32_t callable_target; const nrec_t *identity; };\n");
+        } else {
         nvm2c_printf(&b,
             "struct nrec_s { int64_t f[%zu]; const char *s[%zu]; narr_t a[%zu]; nsarr_t sa[%zu]; nrarr_t ra[%zu]; const nrec_t *rec[%zu]; uint8_t k[%zu], vk[%zu]; uint16_t n, tag; uint8_t kind; uint32_t callable_target;",
             b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width);
         if (b.has_maps) nvm2c_printf(&b, " nmap_t m[%zu];", b.record_width);
         nvm2c_puts(&b, " };\n");
+        }
         if (module_has_opcode(mod, OP_ARR_SET)) nvm2c_puts(&b,
             "static inline int nrec_field_storage_matches(const nrec_t *a, const nrec_t *b, size_t field) {\n"
             "    unsigned ak = a->k[field], bk = b->k[field];\n"
@@ -8256,7 +8538,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "           (at != 5 || (a->s[field] && b->s[field]));\n}\n");
         nvm2c_puts(&b,
             "struct nrarr_s { nrec_t *data; size_t len; struct nrarr_owner *owner; };\n\n");
-        if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP) || module_has_opcode(mod, OP_ARR_GET))) nvm2c_puts(&b,
+        if (b.canonical_records) nvm2c_puts(&b,
+#include "nvm2c_record_identity.inc"
+        );
+        else if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP) || module_has_opcode(mod, OP_ARR_GET))) nvm2c_puts(&b,
             "typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;\n"
             "static nrec_owned *nrec_owned_head;\n"
             "static inline const nrec_t *nrec_snapshot(nrec_t value) {\n"
@@ -8561,4 +8846,19 @@ fail:
     }
     free(b.data);
     return NULL;
+}
+
+#include "nvm2c_map_private.inc"
+#ifdef NANO_UNION_FIELD_PRIVATE_NATIVE
+#include "nvm2c_union_target_private.inc"
+#endif
+/* Absent routing retains the original admission and output behavior. */
+char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
+#ifdef NANO_UNION_FIELD_PRIVATE_NATIVE
+    (void)nvm2c_prepare_union_target_source; /* Retain test-only static query; never execute it here. */
+#endif
+    if(nvm_record_map_selected(nvm_record_map_route(mod)))return nvm2c_emit_record_map_source(mod,err,err_len,true);
+    return nvm2c_emit_core(mod, err, err_len
+                           , NULL, TAG_VOID
+                           );
 }

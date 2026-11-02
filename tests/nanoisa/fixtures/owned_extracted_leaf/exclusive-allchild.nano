@@ -1,0 +1,24 @@
+resource struct Leaf { value: int, active: bool }
+resource struct Box { leaf: Leaf }
+fn update(view: &mut Leaf) -> int {
+ set view.value (+ view.value 3)
+ set view.active (not view.active)
+ return view.value
+}
+shadow update {
+ let mut leaf: Leaf = Leaf { value: 7, active: false }
+ assert (== (update &mut leaf) 10)
+ let Leaf { value, active } = leaf
+ assert (== value 10) assert active
+}
+fn main() -> int {
+ let leaf: Leaf = Leaf { value: 7, active: false }
+ let parent: Box = Box { leaf: leaf }
+ let Box { leaf } = parent
+ let mut current: Leaf = leaf
+ assert (== (update &mut current) 10)
+ let Leaf { value, active } = current
+ assert active
+ return value
+}
+shadow main { assert true }

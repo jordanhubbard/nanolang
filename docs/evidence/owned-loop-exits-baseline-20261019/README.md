@@ -1,0 +1,9 @@
+# I retain the structured loop-exit baseline
+
+I use unchanged `source_borrow_loop_exits.nano` and `source_borrow_range_for.nano` from aggregate8f5b21af0 in isolated `design/5.1-owned-loop-exits`. Both retained child producers compile each source, original verification passes and VM exits0. Original entry/helper locals are14/2 and31/3. Both C/Nano reconstruction targets refuse `one unconditional backedge per owned loop header` and preserve prior output. This is actual accepted-source evidence, not a bytecode-only admission claim.
+
+I retain exact commands/stdout/stderr in `commands.json`, module paths/hashes/refusals in `results.json`, all four complete facts/dumps and unchanged sources, and retained tool/reconstruction source hashes in `hashes.json`. My providers are retained child NanoVirt and nanoc_u8_context, not fresh aggregate installed stages. I ran no native compilation, facts build or frontend bootstrap and changed no admission source.
+
+`static-inventory.json` records exact opcode/edge counts and explicitly hypothetical output-storage inventories. It is not an admitted structured analysis or regenerated measurement. The range caller has27 scalar slots and15 ADDs; the existing unoptimized seven-local-per-ADD representation already exceeds128 before other storage. The contract preserves that concern and requires reviewed representation/actual count qualification rather than a higher limit or removed assertions. The earlier failed path lookup during read-only inspection was a shell lookup (`src/nanoisa/borrow_codegen.inc`/`vm.c`); actual sources are `src/nanovirt/borrow_codegen.inc` and `src/nanovm/vm.c`. No runtime failure is attributed to that lookup.
+
+My detailed interface, arithmetic, work/lifetime and acceptance proposal is in `../../NANOISA_OWNED_LOOP_EXITS_DESIGN.md`. This checkpoint is design/baseline only; required #999 and platform qualification stay open.

@@ -1,0 +1,12 @@
+{
+  "src/nanovm/heap.c": "2cd994d52ac9b5db33b83666d6a3db4d35aea5665b69a4ba6ce6417e8e974da4",
+  "src/nanovm/heap.h": "e5e6455d7419fdba18abdc5689ce7f827c231afe9ee3f5ab3f2c1edba1021f5e",
+  "src/nanovm/record_map_heap_private.h": "425fd6f8ae5f579cdc15ea9ec5cf32516145e28815eda1cb49fea0c14c77e9af",
+  "src/nanovm/record_map_heap.inc": "236ee9fbc5a7623e5378c1e7ec667f9cc3b32f4125c82f34c3d8962769f3e1f0",
+  "src/nanovm/heap_cycles.c": "5fe9ba89e07a0907ac9d1ed6f403b13d227a0035af06337fb2db16b836ff710f",
+  "src/nanovm/vm.c": "18a9fefa14314bb74b4716231ebec38a082692affc6ae9f13204f44445513463",
+  "src/nanovm/value.c": "5d18b054b3e173162d5b5dff8e40aa5b6b032a5e110fd8c4f1dccfe2e6b94210",
+  "tests/nanovm/test_record_map_heap.c": "7e6ea3dcd85ff3dd45669ddcf99eff3a26eb0b2938efc1019131ab6fcf8c6c28",
+  "tests/test_record_map_heap.py": "ab8964dfaaaba9e9003d7db4aa3851e6421eecc762febde3efe7f4e040de2f00",
+  "Makefile.gnu": "1a6bc157abff550889b4b8a27e823d81059741b7b05354ecaf021128cea71fcd"
+}

@@ -1,0 +1,58 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-qkmq43r2
+test_mixed_descriptors_and_child_scalar_operations_refuse (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_descriptors_and_child_scalar_operations_refuse) ... ok
+test_mixed_order_calls_branches_and_loop (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_order_calls_branches_and_loop) ... 
+  test_mixed_order_calls_branches_and_loop (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_order_calls_branches_and_loop) (case='order', producer='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt') ... FAIL
+  test_mixed_order_calls_branches_and_loop (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_order_calls_branches_and_loop) (case='order', producer='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context') ... FAIL
+test_raw_aggregate_read_and_scalar_child_confusion_refuse_atomically (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_raw_aggregate_read_and_scalar_child_confusion_refuse_atomically) ... ok
+test_source_observation_boundary_and_verified_probe_refuse (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_source_observation_boundary_and_verified_probe_refuse) ... FAIL
+test_written_assertion_precedes_declaration_order_division (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_written_assertion_precedes_declaration_order_division) ... ok
+
+======================================================================
+FAIL: test_mixed_order_calls_branches_and_loop (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_order_calls_branches_and_loop) (case='order', producer='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_mixed_reconstruction.py", line 49, in test_mixed_order_calls_branches_and_loop
+    self.assertEqual(facts['layouts'],self.facts(rebuilt)['layouts'])
+                                      ~~~~~~~~~~^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 46, in facts
+    return json.loads(self.command([ROOT/'bin/nanoisa_hl_facts',module]).stdout)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require a verified bounded resource module with exact fields.
+
+
+======================================================================
+FAIL: test_mixed_order_calls_branches_and_loop (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_mixed_order_calls_branches_and_loop) (case='order', producer='/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_mixed_reconstruction.py", line 49, in test_mixed_order_calls_branches_and_loop
+    self.assertEqual(facts['layouts'],self.facts(rebuilt)['layouts'])
+                                      ~~~~~~~~~~^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 46, in facts
+    return json.loads(self.command([ROOT/'bin/nanoisa_hl_facts',module]).stdout)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require a verified bounded resource module with exact fields.
+
+
+======================================================================
+FAIL: test_source_observation_boundary_and_verified_probe_refuse (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_source_observation_boundary_and_verified_probe_refuse)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_mixed_reconstruction.py", line 136, in test_source_observation_boundary_and_verified_probe_refuse
+    self.command([ROOT/'bin/nanoisa','asm',asm,'-o',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-owned-nested-depth2/tests/test_owned_branch_reconstruction.py", line 35, in command
+    if expected is not None:self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+                            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-qkmq43r2/observed-parent.nasm': Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[0] at 49: I require an available scalar-leaf resource owner and reference slot in a live region
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 28.340s
+
+FAILED (failures=3)

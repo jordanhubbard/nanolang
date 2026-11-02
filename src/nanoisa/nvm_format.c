@@ -243,6 +243,249 @@ bool nvm_add_function_purity(NvmModule *mod, uint32_t function, bool declared) {
     return data != UINT32_MAX && nvm_add_metadata(mod, key, data);
 }
 
+static const char effects_key[] = "nano.effects.v1";
+
+/* I leave unknown versions transportable and uninterpreted. */
+static bool effects_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {
+    return mod->string_lengths[entry->key_idx] == sizeof effects_key - 1 &&
+        memcmp(mod->strings[entry->key_idx], effects_key, sizeof effects_key - 1) == 0;
+}
+
+static bool effects_record(const NvmModule *mod, const NvmMetadataEntry *entry,
+                          uint32_t *function, int *effects) {
+    if (mod->string_lengths[entry->value_idx] != 8) return false;
+    const unsigned char *p = (const unsigned char *)mod->strings[entry->value_idx];
+    *function = (uint32_t)p[0] | (uint32_t)p[1] << 8 |
+        (uint32_t)p[2] << 16 | (uint32_t)p[3] << 24;
+    *effects = p[4];
+    return *function < mod->function_count && p[4] <= 63 &&
+        !p[5] && !p[6] && !p[7];
+}
+
+int nvm_function_effects(const NvmModule *mod, uint32_t function) {
+    if (!nvm_metadata_valid(mod) || function >= mod->function_count) return -1;
+    int found = -1;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        const NvmMetadataEntry *entry = &mod->metadata[i];
+        if (!effects_entry(mod, entry)) continue;
+        uint32_t index; int effects;
+        if (!effects_record(mod, entry, &index, &effects)) return -1;
+        if (index == function) {
+            if (found != -1) return -1;
+            found = effects;
+        }
+    }
+    return found;
+}
+
+bool nvm_add_function_effects(NvmModule *mod, uint32_t function, unsigned effects) {
+    if (effects > 63 || !nvm_metadata_valid(mod) || function >= mod->function_count) return false;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        const NvmMetadataEntry *entry = &mod->metadata[i];
+        if (!effects_entry(mod, entry)) continue;
+        uint32_t index; int previous;
+        if (!effects_record(mod, entry, &index, &previous) || index == function)
+            return false;
+    }
+    unsigned char value[8] = {0};
+    for (unsigned i = 0; i < 4; ++i) value[i] = (unsigned char)(function >> (8 * i));
+    value[4] = effects;
+    uint32_t key = nvm_add_string(mod, effects_key, sizeof effects_key - 1);
+    if (key == UINT32_MAX) return false;
+    uint32_t data = nvm_add_string(mod, (const char *)value, sizeof value);
+    return data != UINT32_MAX && nvm_add_metadata(mod, key, data);
+}
+
+static const char affine_key[] = "nano.affine.v1";
+
+/* I leave unknown versions transportable and uninterpreted. */
+static bool affine_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {
+    return mod->string_lengths[entry->key_idx] == sizeof affine_key - 1 &&
+        memcmp(mod->strings[entry->key_idx], affine_key, sizeof affine_key - 1) == 0;
+}
+
+static bool affine_record(const NvmModule *mod, const NvmMetadataEntry *entry,
+                          uint32_t *function, int *affine) {
+    if (mod->string_lengths[entry->value_idx] != 8) return false;
+    const unsigned char *p = (const unsigned char *)mod->strings[entry->value_idx];
+    *function = (uint32_t)p[0] | (uint32_t)p[1] << 8 |
+        (uint32_t)p[2] << 16 | (uint32_t)p[3] << 24;
+    *affine = p[4];
+    return *function < mod->function_count && p[4] <= 1 &&
+        !p[5] && !p[6] && !p[7];
+}
+
+int nvm_function_affine(const NvmModule *mod, uint32_t function) {
+    if (!nvm_metadata_valid(mod) || function >= mod->function_count) return -1;
+    int found = -1;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        const NvmMetadataEntry *entry = &mod->metadata[i];
+        if (!affine_entry(mod, entry)) continue;
+        uint32_t index; int affine;
+        if (!affine_record(mod, entry, &index, &affine)) return -1;
+        if (index == function) {
+            if (found != -1) return -1;
+            found = affine;
+        }
+    }
+    return found;
+}
+
+bool nvm_add_function_affine(NvmModule *mod, uint32_t function, unsigned affine) {
+    if (affine > 1 || !nvm_metadata_valid(mod) || function >= mod->function_count) return false;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        const NvmMetadataEntry *entry = &mod->metadata[i];
+        if (!affine_entry(mod, entry)) continue;
+        uint32_t index; int previous;
+        if (!affine_record(mod, entry, &index, &previous) || index == function)
+            return false;
+    }
+    unsigned char value[8] = {0};
+    for (unsigned i = 0; i < 4; ++i) value[i] = (unsigned char)(function >> (8 * i));
+    value[4] = affine;
+    uint32_t key = nvm_add_string(mod, affine_key, sizeof affine_key - 1);
+    if (key == UINT32_MAX) return false;
+    uint32_t data = nvm_add_string(mod, (const char *)value, sizeof value);
+    return data != UINT32_MAX && nvm_add_metadata(mod, key, data);
+}
+
+static const char match_key[] = "nano.match.v1";
+
+static bool match_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {
+    return mod->string_lengths[entry->key_idx] == sizeof match_key - 1 &&
+        memcmp(mod->strings[entry->key_idx], match_key, sizeof match_key - 1) == 0;
+}
+
+static bool match_record(const NvmModule *mod, const NvmMetadataEntry *entry,
+                         NvmMatchCoverage *out) {
+    uint32_t size = mod->string_lengths[entry->value_idx];
+    if (size < 20) return false;
+    const uint8_t *p = (const uint8_t *)mod->strings[entry->value_idx];
+    NvmMatchCoverage value = {le_read_u32(p), le_read_u32(p + 4), le_read_u32(p + 8),
+        p[12], p[13], (const char *)p + 20, le_read_u32(p + 16)};
+    if (value.function >= mod->function_count || !value.line || !value.column ||
+        value.coverage > 2 || value.coordinates < 1 || value.coordinates > 2 ||
+        p[14] || p[15] || value.source_path_length != size - 20 ||
+        memchr(value.source_path, 0, value.source_path_length)) return false;
+    *out = value;
+    return true;
+}
+
+static bool same_match(const NvmMatchCoverage *a, const NvmMatchCoverage *b) {
+    return a->function == b->function && a->line == b->line &&
+        a->column == b->column && a->coordinates == b->coordinates &&
+        a->source_path_length == b->source_path_length &&
+        !memcmp(a->source_path, b->source_path, a->source_path_length);
+}
+
+bool nvm_match_coverage_at(const NvmModule *mod, uint32_t index, NvmMatchCoverage *out) {
+    if (!out || !nvm_metadata_valid(mod) || index >= mod->metadata_count) return false;
+    NvmMatchCoverage selected;
+    if (!match_entry(mod, &mod->metadata[index]) ||
+        !match_record(mod, &mod->metadata[index], &selected)) return false;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        if (i == index || !match_entry(mod, &mod->metadata[i])) continue;
+        NvmMatchCoverage other;
+        if (!match_record(mod, &mod->metadata[i], &other) || same_match(&selected, &other)) return false;
+    }
+    *out = selected;
+    return true;
+}
+
+bool nvm_add_match_coverage(NvmModule *mod, uint32_t function, uint32_t line,
+    uint32_t column, unsigned coverage, unsigned coordinates, const char *source_path) {
+    if (!nvm_metadata_valid(mod) || function >= mod->function_count || !line || !column ||
+        coverage > 2 || coordinates < 1 || coordinates > 2 || !source_path) return false;
+    size_t length = strlen(source_path);
+    if (length > UINT32_MAX - 20) return false;
+    NvmMatchCoverage selected = {function, line, column, coverage, coordinates,
+        source_path, (uint32_t)length};
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        if (!match_entry(mod, &mod->metadata[i])) continue;
+        NvmMatchCoverage other;
+        if (!match_record(mod, &mod->metadata[i], &other)) return false;
+        if (same_match(&selected, &other)) return false;
+    }
+    uint8_t *data = calloc(1, 20 + length);
+    if (!data) return false;
+    le_write_u32(data, function); le_write_u32(data + 4, line); le_write_u32(data + 8, column);
+    data[12] = coverage; data[13] = coordinates;
+    le_write_u32(data + 16, (uint32_t)length);
+    memcpy(data + 20, source_path, length);
+    uint32_t key = nvm_add_string(mod, match_key, sizeof match_key - 1);
+    uint32_t value = key == UINT32_MAX ? UINT32_MAX : nvm_add_string(mod, (const char *)data, 20 + (uint32_t)length);
+    free(data);
+    return value != UINT32_MAX && nvm_add_metadata(mod, key, value);
+}
+
+static const char affine_use_key[] = "nano.affine-use.v1";
+
+static bool affine_use_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {
+    return mod->string_lengths[entry->key_idx] == sizeof affine_use_key - 1 &&
+        !memcmp(mod->strings[entry->key_idx], affine_use_key, sizeof affine_use_key - 1);
+}
+static bool affine_use_record(const NvmModule *mod, const NvmMetadataEntry *entry,
+                              NvmAffineUse *out) {
+    uint32_t size = mod->string_lengths[entry->value_idx];
+    if (size < 24) return false;
+    const uint8_t *p = (const uint8_t *)mod->strings[entry->value_idx];
+    uint32_t path = le_read_u32(p + 16), binding = le_read_u32(p + 20);
+    if (path > size - 24 || !binding || binding != size - 24 - path) return false;
+    NvmAffineUse value = {le_read_u32(p), le_read_u32(p + 4), le_read_u32(p + 8),
+        p[12], p[13], (const char *)p + 24, (const char *)p + 24 + path, path, binding};
+    if (value.function >= mod->function_count || !value.line || !value.column ||
+        value.state > 2 || value.coordinates < 1 || value.coordinates > 2 || p[14] || p[15] ||
+        memchr(value.source_path, 0, path) || memchr(value.binding, 0, binding)) return false;
+    *out = value;
+    return true;
+}
+static bool same_affine_use(const NvmAffineUse *a, const NvmAffineUse *b) {
+    return a->function == b->function && a->line == b->line && a->column == b->column &&
+        a->coordinates == b->coordinates && a->source_path_length == b->source_path_length &&
+        !memcmp(a->source_path, b->source_path, a->source_path_length);
+}
+bool nvm_affine_use_at(const NvmModule *mod, uint32_t index, NvmAffineUse *out) {
+    if (!out || !nvm_metadata_valid(mod) || index >= mod->metadata_count) return false;
+    NvmAffineUse selected;
+    if (!affine_use_entry(mod, &mod->metadata[index]) ||
+        !affine_use_record(mod, &mod->metadata[index], &selected)) return false;
+    for (uint32_t i = 0; i < mod->metadata_count; i++) {
+        if (i == index || !affine_use_entry(mod, &mod->metadata[i])) continue;
+        NvmAffineUse other;
+        if (!affine_use_record(mod, &mod->metadata[i], &other) || same_affine_use(&selected, &other)) return false;
+    }
+    *out = selected;
+    return true;
+}
+bool nvm_add_affine_use(NvmModule *mod, uint32_t function, uint32_t line,
+    uint32_t column, unsigned state, unsigned coordinates, const char *path, const char *binding) {
+    if (!nvm_metadata_valid(mod) || function >= mod->function_count || !line || !column ||
+        state > 2 || coordinates < 1 || coordinates > 2 || !path || !binding || !*binding) return false;
+    size_t np = strlen(path), nb = strlen(binding);
+    if (np > UINT32_MAX - 24 || nb > UINT32_MAX - 24 - np) return false;
+    NvmAffineUse selected = {function, line, column, state, coordinates, path, binding, (uint32_t)np, (uint32_t)nb};
+    for (uint32_t i = 0; i < mod->metadata_count; i++) {
+        if (!affine_use_entry(mod, &mod->metadata[i])) continue;
+        NvmAffineUse other;
+        if (!affine_use_record(mod, &mod->metadata[i], &other) || same_affine_use(&selected, &other)) return false;
+    }
+    uint32_t size = 24 + (uint32_t)np + (uint32_t)nb;
+    uint8_t *data = calloc(1, size);
+    if (!data) return false;
+    le_write_u32(data, function); le_write_u32(data + 4, line); le_write_u32(data + 8, column);
+    data[12] = state; data[13] = coordinates;
+    le_write_u32(data + 16, (uint32_t)np); le_write_u32(data + 20, (uint32_t)nb);
+    memcpy(data + 24, path, np); memcpy(data + 24 + np, binding, nb);
+    uint32_t key = nvm_add_string(mod, affine_use_key, sizeof affine_use_key - 1);
+    uint32_t value = key == UINT32_MAX ? UINT32_MAX : nvm_add_string(mod, (const char *)data, size);
+    free(data);
+    return value != UINT32_MAX && nvm_add_metadata(mod, key, value);
+}
+
+#include "borrow_place_facts.inc"
+#include "field_read_facts.inc"
+#include "field_write_facts.inc"
+
 static const char generic_key[] = "nano.generic.v1";
 
 static bool generic_metadata_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {

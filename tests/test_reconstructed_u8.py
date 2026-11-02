@@ -209,11 +209,13 @@ shadow main { assert (== (main) 0) }
                     self.checked([executable])
 
     def test_contextual_source_literal_refusals_preserve_output(self):
-        cases = ('256', '(- 0 1)', '(+ 127 1)')
+        # I keep genuine literal/type refusals; computed integers gained
+        # deliberate modulo-256 conversion in #963 and now both producers.
+        cases = ('256', '-1', 'true', '1.5', '"wrong"')
         with tempfile.TemporaryDirectory(prefix='nano-u8-source-refusal-') as tmp:
             directory = Path(tmp); source = directory/'wrong.nano'; output = directory/'previous.nvm'
             for expression in cases:
-                source.write_text(f'fn octet() -> u8 {{ return {expression} }}\nshadow octet {{ assert true }}\nfn main() -> int {{ return 0 }}\nshadow main {{ assert true }}\n')
+                source.write_text(f'fn octet() -> u8 {{ return {expression} }}\nshadow octet {{ assert true }}\nfn main() -> int {{ return (cast_int (octet)) }}\nshadow main {{ assert true }}\n')
                 for producer in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
                     with self.subTest(producer=producer, expression=expression):
                         output.write_bytes(b'previous')

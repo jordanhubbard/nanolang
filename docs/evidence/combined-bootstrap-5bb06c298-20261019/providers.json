@@ -1,0 +1,46 @@
+[
+  {
+    "name": "nano_virt",
+    "sha256": "7eed7b22c956dd7384fd42aedcea9141d9ab3fbb5cb51ad2add69826916019f7"
+  },
+  {
+    "name": "nano_vm",
+    "sha256": "be7541d293f117020ee6fe2f3dd3b5da8c565442f2748cce3aed90d75997d400"
+  },
+  {
+    "name": "nanoisa",
+    "sha256": "516d3c1434951205658e5b3948c1c0816f4a8b0aaf21644518b389892f0afb44"
+  },
+  {
+    "name": "nvm2c",
+    "sha256": "4ac9e35c283d8c8643f3df287bf64ae49c33cddb72bb4bfd9c65953bfc65711f"
+  },
+  {
+    "name": "nanoc_c",
+    "sha256": "c6a778a0eb0046b3f21f574ded32a4ec8f604723b5a2b9bd70403b8fb30b5ff1"
+  },
+  {
+    "name": "nanoc_seed.nvm",
+    "sha256": "fa0b460ccc32b1d0b8d151025e032204bbc141df7d5b1ef2cbc64428d3838854"
+  },
+  {
+    "name": "nanoc_stage1.nvm",
+    "sha256": "182fc72f24eb304f543f0208d8c2208dcc51453dfd72cac7d34fe7c2541a4a08"
+  },
+  {
+    "name": "nanoc_stage2.nvm",
+    "sha256": "182fc72f24eb304f543f0208d8c2208dcc51453dfd72cac7d34fe7c2541a4a08"
+  },
+  {
+    "name": "nanoc_stage1",
+    "sha256": "73d6ff5eed8089c404791610be6790e360eccb2feaa3a87b4087bd8c1b37da77"
+  },
+  {
+    "name": "nanoc_stage2",
+    "sha256": "15ccc30607f5f814e786a777c08eb2b931cfcccdf11d76593c33575e56d10e35"
+  },
+  {
+    "name": "nano_aot_runtime.o",
+    "sha256": "d48980563f3c31ce8eb4b0b1a3309a7dbc17749fd9a42f445bca4c42ff487863"
+  }
+]

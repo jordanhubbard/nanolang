@@ -1,0 +1,23 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-2jut0rmx
+test_eager_false_operand_and_final_false_operation_count (tests.test_owned_wrapping_reconstruction.OwnedWrappingReconstruction.test_eager_false_operand_and_final_false_operation_count) ... ok
+test_exact_condition_types_and_other_operations_refuse (tests.test_owned_wrapping_reconstruction.OwnedWrappingReconstruction.test_exact_condition_types_and_other_operations_refuse) ... ok
+test_exact_wrapping_endpoints_through_all_routes (tests.test_owned_wrapping_reconstruction.OwnedWrappingReconstruction.test_exact_wrapping_endpoints_through_all_routes) ... ok
+test_generated_helper_budget_and_local_budget_refuse_atomically (tests.test_owned_wrapping_reconstruction.OwnedWrappingReconstruction.test_generated_helper_budget_and_local_budget_refuse_atomically) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mpyc6i4m
+test_actual_multiple_nested_and_terminal_conditions (tests.test_owned_observation_reconstruction.OwnedObservationReconstruction.test_actual_multiple_nested_and_terminal_conditions) ... ok
+test_defensive_condition_effects_refuse (tests.test_owned_observation_reconstruction.OwnedObservationReconstruction.test_defensive_condition_effects_refuse) ... ok
+test_original_verified_inverted_exit (tests.test_owned_observation_reconstruction.OwnedObservationReconstruction.test_original_verified_inverted_exit) ... ok
+test_raw_reference_and_interior_edges_refuse_atomically (tests.test_owned_observation_reconstruction.OwnedObservationReconstruction.test_raw_reference_and_interior_edges_refuse_atomically) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-shault2r
+test_actual_arithmetic_pretests_refuse_atomically (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_actual_arithmetic_pretests_refuse_atomically) ... ok
+test_actual_loop_lifetimes_and_both_outputs (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_actual_loop_lifetimes_and_both_outputs) ... ok
+test_crc_valid_loop_edges_refuse_atomically (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_crc_valid_loop_edges_refuse_atomically) ... ok
+test_loop_state_refusals_from_actual_facts (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_loop_state_refusals_from_actual_facts) ... ok
+test_verified_inverted_pretest_and_unreachable_backedge (tests.test_owned_loop_reconstruction.OwnedLoopReconstruction.test_verified_inverted_pretest_and_unreachable_backedge) ... ok
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-xk4maj9j
+test_written_assertion_precedes_declaration_order_division (tests.test_owned_mixed_reconstruction.OwnedMixedReconstruction.test_written_assertion_precedes_declaration_order_division) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 263.150s
+
+OK

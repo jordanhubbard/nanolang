@@ -1,0 +1,68 @@
+[
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-g",
+      "-O3",
+      "-ftree-vectorize",
+      "-fPIC",
+      "-Isrc",
+      "-D_GNU_SOURCE",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-fsyntax-only",
+      "src/nanoisa/managed_array_shapes.c"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-g",
+      "-O3",
+      "-ftree-vectorize",
+      "-fPIC",
+      "-Isrc",
+      "-D_GNU_SOURCE",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-fsyntax-only",
+      "src/nanovm/heap.c"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-g",
+      "-O3",
+      "-ftree-vectorize",
+      "-fPIC",
+      "-Isrc",
+      "-D_GNU_SOURCE",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "status": 1,
+    "stdout": "",
+    "stderr": "In file included from src/nanovm/vm.c:5083:\nsrc/nanovm/record_map_public_prepare.inc:371:38: error: unused function 'vm_record_map_public_prepare' [-Werror,-Wunused-function]\n  371 | VM_RMP_API NvmArrayEligibilityResult vm_record_map_public_prepare(const VmState *vm,VmRecordMapPublicPreparation **out) {\n      |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~\n1 error generated.\n"
+  }
+]

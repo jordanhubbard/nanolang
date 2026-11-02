@@ -1,0 +1,22 @@
+[
+  {
+    "path": "scripts/nanoisa_owned_reconstruction.py",
+    "sha256": "f237335ff1a417f787b6098c8dd14fcb1d1211052a12453d5b9c445b1daaf765",
+    "retained": "before-fold/nanoisa_owned_reconstruction.py"
+  },
+  {
+    "path": "scripts/nanoisa_owned_control.py",
+    "sha256": "bb08d9188d5428389b79d8cc186494df517067936dd97c179aedb4f91b9e0914",
+    "retained": "before-fold/nanoisa_owned_control.py"
+  },
+  {
+    "path": "src/nanoisa/hl_owned_facts.inc",
+    "sha256": "41035e971b593690f5804752b26dc6ea7b2ba5b4f816dc8716a594a849d3364c",
+    "retained": "before-fold/hl_owned_facts.inc"
+  },
+  {
+    "path": "tests/test_owned_exclusive_control_reconstruction.py",
+    "sha256": "4125c162542fecfd3f5618b8da074a42cc092c7d5ec717848aa31153d1ec1dec",
+    "retained": "before-fold/test_owned_exclusive_control_reconstruction.py"
+  }
+]

@@ -1,0 +1,241 @@
+{
+  "base": "d5bc83d23",
+  "providers": {
+    "/private/tmp/nanolang-map-paired-publication-20261022/nano_virt": "61294b8ec8b82bda1b48e861d3b1804c43266276c97b1cc7902e350837310068",
+    "/private/tmp/nanolang-map-paired-publication-20261022/canonical": "1cb2a8a392828eddea0386324688ff5eceff2e9b72fd484ba8b75f1f3abf8487",
+    "/private/tmp/nanolang-map-paired-publication-20261022/raw_driver": "ed5fb71c2bb6a3e9690d1751e831b798ec6aa91b941b501e6e1ba415a9282489",
+    "/private/tmp/nanolang-map-paired-publication-20261022/c-shadow": "fa540863857db4b665f05e119e1b484f99cba17ec59d0f0a69d6688018138c88",
+    "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm": "c922172ae16e366ea86bd385f37ad36197d658e9d220a2debda541df97176e2f",
+    "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa": "be2c803ccdb6b04915c1a915a05714fbb3338d7583bf8f8f9a5ae3d59ab3b9f6",
+    "/private/tmp/nanolang-map-paired-publication-20261022/nvm2c": "2398ecc28f9282692d23e6b359cb3f570a0cb4f4923921d4d558f059637ca084"
+  },
+  "commands": [
+    {
+      "name": "seed-source",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nano_virt",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/integer.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-verify",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-vm",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-dump",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/seed.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "seed-selected-refusal",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/seed-selected.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/seed-prior.nvm"
+      ],
+      "status": 1
+    },
+    {
+      "name": "canonical-source",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/canonical",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/integer.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/canonical.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-verify",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/canonical.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-vm",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/canonical.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-dump",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/canonical.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "canonical-selected-refusal",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/canonical-selected.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/canonical-prior.nvm"
+      ],
+      "status": 1
+    },
+    {
+      "name": "c-shadow-source",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/c-shadow",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/integer.nano"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-asm",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/c-shadow.raw.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/c-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-verify",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/c-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-vm",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/c-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-dump",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/c-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "c-shadow-selected-refusal",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/c-shadow-selected.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/c-shadow-prior.nvm"
+      ],
+      "status": 1
+    },
+    {
+      "name": "raw-shadow-source",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/raw_driver",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/integer.nano",
+        "0",
+        "raw"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-asm",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/raw-shadow.raw.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/raw-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-verify",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm",
+        "--verify-only",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/raw-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-vm",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/raw-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-dump",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+        "dump",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/raw-shadow.nvm"
+      ],
+      "status": 0
+    },
+    {
+      "name": "raw-shadow-selected-refusal",
+      "argv": [
+        "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa",
+        "asm",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/raw-shadow-selected.nasm",
+        "-o",
+        "/private/tmp/nanolang-map-delete-baseline-20261022/raw-shadow-prior.nvm"
+      ],
+      "status": 1
+    }
+  ],
+  "source": "715fcbb56885b0c3b98eb71573265b656f841bb9611df028edfce36ded607d65",
+  "original_source": "cdc01a4c0306ec8e6a322c871a6ad98bfa7ecca0002469593e2a53d0b83a7e0c",
+  "modules": {
+    "seed": "f8b1851a0a62f424b98d90fbd3047b865407e7a96a7ffe26d2e79fea14faf7e9",
+    "canonical": "335db0f8571cef0aaeb012fa1603a0a60ef1db2c31b6be3438d76f3664444318",
+    "c-shadow": "9e87c101703c0f73bae34b90d2b0ba3ca967e1a4780cddf3fba091736d34198c",
+    "raw-shadow": "d5448355efbd20d29f9b6b95bc3e150cb04ea8a9a51dbd9756ec8ea779f18de5"
+  },
+  "after": {
+    "/private/tmp/nanolang-map-paired-publication-20261022/nano_virt": "61294b8ec8b82bda1b48e861d3b1804c43266276c97b1cc7902e350837310068",
+    "/private/tmp/nanolang-map-paired-publication-20261022/canonical": "1cb2a8a392828eddea0386324688ff5eceff2e9b72fd484ba8b75f1f3abf8487",
+    "/private/tmp/nanolang-map-paired-publication-20261022/raw_driver": "ed5fb71c2bb6a3e9690d1751e831b798ec6aa91b941b501e6e1ba415a9282489",
+    "/private/tmp/nanolang-map-paired-publication-20261022/c-shadow": "fa540863857db4b665f05e119e1b484f99cba17ec59d0f0a69d6688018138c88",
+    "/private/tmp/nanolang-map-paired-publication-20261022/nano_vm": "c922172ae16e366ea86bd385f37ad36197d658e9d220a2debda541df97176e2f",
+    "/private/tmp/nanolang-map-paired-publication-20261022/nanoisa": "be2c803ccdb6b04915c1a915a05714fbb3338d7583bf8f8f9a5ae3d59ab3b9f6",
+    "/private/tmp/nanolang-map-paired-publication-20261022/nvm2c": "2398ecc28f9282692d23e6b359cb3f570a0cb4f4923921d4d558f059637ca084"
+  }
+}

@@ -1,0 +1,6 @@
+test_instrumented_runtime (tests.test_record_array_self_tail.RecordArraySelfTail.test_instrumented_runtime) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 26.847s
+
+OK

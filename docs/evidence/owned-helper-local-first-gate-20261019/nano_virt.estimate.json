@@ -1,0 +1,35 @@
+{
+  "input": "nano_virt",
+  "input_locals": [
+    12,
+    41
+  ],
+  "estimated": [
+    49,
+    179
+  ],
+  "shadow_estimated": 38,
+  "proof": {
+    "work": 1092,
+    "loops": [
+      {
+        "form": "rank",
+        "slot": 28,
+        "initial": 0,
+        "bound": 2,
+        "iterations": 2,
+        "work": 634
+      }
+    ],
+    "add_work": 256,
+    "limit": 4096,
+    "witness": {
+      "tokens": 13,
+      "traversal": 1680,
+      "allocated_bindings": 358,
+      "token_limit": 4096,
+      "binding_limit": 4096,
+      "traversal_limit": 65536
+    }
+  }
+}

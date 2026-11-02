@@ -1,0 +1,185 @@
+2026-10-21T10:25:32.7303430Z FFFFFFFF.FF..FFFFFFFFFF..
+2026-10-21T10:25:32.7305211Z ======================================================================
+2026-10-21T10:25:32.7306019Z FAIL: test_direct_field_match_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_executes) (compiler='nanoc_stage1')
+2026-10-21T10:25:32.7308464Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7308739Z Traceback (most recent call last):
+2026-10-21T10:25:32.7311633Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7313844Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7315675Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7316408Z 
+2026-10-21T10:25:32.7316412Z 
+2026-10-21T10:25:32.7316505Z ======================================================================
+2026-10-21T10:25:32.7318751Z FAIL: test_direct_field_match_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_executes) (compiler='nanoc_stage2')
+2026-10-21T10:25:32.7321371Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7323641Z Traceback (most recent call last):
+2026-10-21T10:25:32.7326419Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7329073Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7331521Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7333808Z 
+2026-10-21T10:25:32.7333813Z 
+2026-10-21T10:25:32.7333923Z ======================================================================
+2026-10-21T10:25:32.7336162Z FAIL: test_direct_field_match_expression_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_expression_executes) (compiler='nanoc_stage1')
+2026-10-21T10:25:32.7338466Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7341122Z Traceback (most recent call last):
+2026-10-21T10:25:32.7343267Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7343659Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7345902Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7348179Z 
+2026-10-21T10:25:32.7348183Z 
+2026-10-21T10:25:32.7348271Z ======================================================================
+2026-10-21T10:25:32.7351623Z FAIL: test_direct_field_match_expression_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_expression_executes) (compiler='nanoc_stage2')
+2026-10-21T10:25:32.7359376Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7365679Z Traceback (most recent call last):
+2026-10-21T10:25:32.7366033Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7368393Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7370958Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7371235Z 
+2026-10-21T10:25:32.7371237Z 
+2026-10-21T10:25:32.7373279Z ======================================================================
+2026-10-21T10:25:32.7375579Z FAIL: test_distinct_instances_execute (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_distinct_instances_execute) (compiler='nanoc_stage1')
+2026-10-21T10:25:32.7376110Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7378880Z Traceback (most recent call last):
+2026-10-21T10:25:32.7382114Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7383967Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7386135Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field number
+2026-10-21T10:25:32.7386706Z 
+2026-10-21T10:25:32.7386710Z 
+2026-10-21T10:25:32.7388555Z ======================================================================
+2026-10-21T10:25:32.7389154Z FAIL: test_distinct_instances_execute (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_distinct_instances_execute) (compiler='nanoc_stage2')
+2026-10-21T10:25:32.7391047Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7393328Z Traceback (most recent call last):
+2026-10-21T10:25:32.7395627Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7397908Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7398455Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field number
+2026-10-21T10:25:32.7400775Z 
+2026-10-21T10:25:32.7400779Z 
+2026-10-21T10:25:32.7401076Z ======================================================================
+2026-10-21T10:25:32.7403260Z FAIL: test_empty_inline_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_empty_inline_field_executes) (compiler='nanoc_stage1')
+2026-10-21T10:25:32.7405757Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7406101Z Traceback (most recent call last):
+2026-10-21T10:25:32.7408751Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7411617Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7413687Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7414401Z 
+2026-10-21T10:25:32.7414408Z 
+2026-10-21T10:25:32.7416295Z ======================================================================
+2026-10-21T10:25:32.7416837Z FAIL: test_empty_inline_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_empty_inline_field_executes) (compiler='nanoc_stage2')
+2026-10-21T10:25:32.7418722Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7422196Z Traceback (most recent call last):
+2026-10-21T10:25:32.7424755Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7427566Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7427957Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7428227Z 
+2026-10-21T10:25:32.7428231Z 
+2026-10-21T10:25:32.7430284Z ======================================================================
+2026-10-21T10:25:32.7432911Z FAIL: test_forward_union_declaration_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_forward_union_declaration_executes) (compiler='nanoc_stage1')
+2026-10-21T10:25:32.7435253Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7435642Z Traceback (most recent call last):
+2026-10-21T10:25:32.7438088Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7441170Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7443337Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7443611Z 
+2026-10-21T10:25:32.7443614Z 
+2026-10-21T10:25:32.7445906Z ======================================================================
+2026-10-21T10:25:32.7446462Z FAIL: test_forward_union_declaration_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_forward_union_declaration_executes) (compiler='nanoc_stage2')
+2026-10-21T10:25:32.7449301Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7465958Z Traceback (most recent call last):
+2026-10-21T10:25:32.7466398Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7469059Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7472087Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7477119Z 
+2026-10-21T10:25:32.7477123Z 
+2026-10-21T10:25:32.7477266Z ======================================================================
+2026-10-21T10:25:32.7480039Z FAIL: test_imported_field_layout_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_imported_field_layout_executes) (compiler='nanoc_stage1')
+2026-10-21T10:25:32.7482643Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7485083Z Traceback (most recent call last):
+2026-10-21T10:25:32.7487469Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7487918Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7492068Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7492465Z 
+2026-10-21T10:25:32.7492469Z 
+2026-10-21T10:25:32.7494507Z ======================================================================
+2026-10-21T10:25:32.7495123Z FAIL: test_imported_field_layout_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_imported_field_layout_executes) (compiler='nanoc_stage2')
+2026-10-21T10:25:32.7497691Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7500112Z Traceback (most recent call last):
+2026-10-21T10:25:32.7502882Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7505355Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7505892Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7508356Z 
+2026-10-21T10:25:32.7508361Z 
+2026-10-21T10:25:32.7508472Z ======================================================================
+2026-10-21T10:25:32.7511554Z FAIL: test_nested_generic_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_generic_field_executes) (compiler='nanoc_stage1')
+2026-10-21T10:25:32.7512139Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7514287Z Traceback (most recent call last):
+2026-10-21T10:25:32.7518712Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7519158Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7521795Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7524430Z 
+2026-10-21T10:25:32.7524433Z 
+2026-10-21T10:25:32.7524623Z ======================================================================
+2026-10-21T10:25:32.7527111Z FAIL: test_nested_generic_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_generic_field_executes) (compiler='nanoc_stage2')
+2026-10-21T10:25:32.7527694Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7529848Z Traceback (most recent call last):
+2026-10-21T10:25:32.7532188Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7534501Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7534902Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7535173Z 
+2026-10-21T10:25:32.7535180Z 
+2026-10-21T10:25:32.7535275Z ======================================================================
+2026-10-21T10:25:32.7535737Z FAIL: test_nested_record_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_record_executes) (compiler='nanoc_stage1')
+2026-10-21T10:25:32.7536219Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7536447Z Traceback (most recent call last):
+2026-10-21T10:25:32.7536756Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7537102Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7537447Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7537715Z 
+2026-10-21T10:25:32.7537717Z 
+2026-10-21T10:25:32.7537803Z ======================================================================
+2026-10-21T10:25:32.7538256Z FAIL: test_nested_record_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_record_executes) (compiler='nanoc_stage2')
+2026-10-21T10:25:32.7538729Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7538961Z Traceback (most recent call last):
+2026-10-21T10:25:32.7539265Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7539601Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7539940Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7540267Z 
+2026-10-21T10:25:32.7540270Z 
+2026-10-21T10:25:32.7540358Z ======================================================================
+2026-10-21T10:25:32.7541020Z FAIL: test_nonempty_field_payload_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nonempty_field_payload_executes) (compiler='nanoc_stage1')
+2026-10-21T10:25:32.7541546Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7541780Z Traceback (most recent call last):
+2026-10-21T10:25:32.7542089Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7542428Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7542778Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7543037Z 
+2026-10-21T10:25:32.7543040Z 
+2026-10-21T10:25:32.7543122Z ======================================================================
+2026-10-21T10:25:32.7543613Z FAIL: test_nonempty_field_payload_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nonempty_field_payload_executes) (compiler='nanoc_stage2')
+2026-10-21T10:25:32.7544132Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7544434Z Traceback (most recent call last):
+2026-10-21T10:25:32.7544744Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7545082Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7545501Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field boxed
+2026-10-21T10:25:32.7545773Z 
+2026-10-21T10:25:32.7545775Z 
+2026-10-21T10:25:32.7545860Z ======================================================================
+2026-10-21T10:25:32.7546398Z FAIL: test_two_argument_result_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_two_argument_result_field_executes) (compiler='nanoc_stage1')
+2026-10-21T10:25:32.7546958Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7547243Z Traceback (most recent call last):
+2026-10-21T10:25:32.7547550Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7547890Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7548276Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field result
+2026-10-21T10:25:32.7548545Z 
+2026-10-21T10:25:32.7548555Z 
+2026-10-21T10:25:32.7548633Z ======================================================================
+2026-10-21T10:25:32.7549138Z FAIL: test_two_argument_result_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_two_argument_result_field_executes) (compiler='nanoc_stage2')
+2026-10-21T10:25:32.7549704Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7549963Z Traceback (most recent call last):
+2026-10-21T10:25:32.7550270Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+2026-10-21T10:25:32.7550700Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-21T10:25:32.7551060Z AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared type for record field result
+2026-10-21T10:25:32.7551331Z 
+2026-10-21T10:25:32.7551334Z 
+2026-10-21T10:25:32.7551441Z ----------------------------------------------------------------------
+2026-10-21T10:25:32.7551673Z Ran 15 tests in 15.186s
+2026-10-21T10:25:32.7551780Z 
+2026-10-21T10:25:32.7551845Z FAILED (failures=20)

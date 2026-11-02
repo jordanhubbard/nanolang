@@ -1,0 +1,12 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-kj2azj2u
+test_borrowed_empty_original_is_not_admitted (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_borrowed_empty_original_is_not_admitted) ... ok
+test_distinct_empty_nominal_identities (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_distinct_empty_nominal_identities) ... ok
+test_nominal_transfer_and_consumption_fail_closed (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_nominal_transfer_and_consumption_fail_closed) ... ok
+test_transport_and_advisory_independence (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_transport_and_advisory_independence) ... ok
+test_unchanged_source_and_independent_shadow (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_unchanged_source_and_independent_shadow) ... ok
+test_zero_pack_preserves_operand_prefix (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_zero_pack_preserves_operand_prefix) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 25.380s
+
+OK

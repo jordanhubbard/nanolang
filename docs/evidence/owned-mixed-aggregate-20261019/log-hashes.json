@@ -1,0 +1,14 @@
+[
+  {
+    "original": "/private/tmp/nanolang-mixed-aggregate-build.log",
+    "original_sha256": "55e61302349c548fe37a06a11966a9979fcbe69c13eb2e860602f9989b66da6f",
+    "copy": "build.log",
+    "copy_sha256": "55e61302349c548fe37a06a11966a9979fcbe69c13eb2e860602f9989b66da6f"
+  },
+  {
+    "original": "/private/tmp/nanolang-mixed-aggregate-tests.log",
+    "original_sha256": "f4b94d271cf4fe1adbd123fe025216334ed9a7c1109bbe9d69264c15d9015814",
+    "copy": "tests.log",
+    "copy_sha256": "f4b94d271cf4fe1adbd123fe025216334ed9a7c1109bbe9d69264c15d9015814"
+  }
+]

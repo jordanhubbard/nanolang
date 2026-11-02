@@ -1,0 +1,11 @@
+# I retain my instrumented Stage 1 diagnostic
+
+I built the exact `4cfad3737` VM and AOT runtime on Darwin with Apple Clang 21, O3, ASan and UBSan. I ran the actual seed compiler module under that instrumented VM, including dependency and root shadows, and generated Stage 1 successfully in 2036.234 seconds. Independent verification of the resulting module also returned zero. My provider hashes and exact commands are retained here; the generated modules remain at the recorded temporary paths.
+
+My first run returned 1 after 1918.020 seconds with a shadow assertion failure, not a timeout or sanitizer diagnostic. Its sparse checkout omitted `tests/` and `examples/`. Existing root shadows require `tests/test_modules/metadata_probe.nano` and `examples/language/nl_hello.nano`. I provisioned those exact tracked directories and retained the failed terminal before retrying. The successful retry traces all shadow names. I did not dynamically isolate the first run's individual failing shadow, so I do not claim a stronger retrospective diagnosis than the missing prerequisites and passing corrected run establish.
+
+The retry also enables shadow tracing and uses a wrapper that preserves the generated shadow module before execution. Its shadow deadline is 300 seconds, matching the current CI setting; the full generation deadline remains 7200 seconds. The original run used its prior default shadow deadline. `ASAN_OPTIONS=detect_leaks=0` matches the existing instrumented profile. I do not claim leak-sanitizer qualification. No product source or assertion changed between these diagnostic runs.
+
+This is a pinned Darwin Stage 1 generation receipt. It does not qualify current aggregate sources, Stage 2/raw fixed point, the complete test suite, or hosted Linux GCC sanitizer performance. The hosted 7200-second failure remains a separate open gate. A short active sample identifies time in VM dispatch and instrumented copies in this older source; later decoded-view optimization has its own independent receipt.
+
+I normalize trailing display whitespace in copied logs. `retained-original-hashes.json` identifies changed copies and preserved original paths/hashes; manifest log hashes refer to those originals.

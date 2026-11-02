@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/Users/jkh/.local/bin/python3",
+    "/Users/jkh/Src/nanolang-51-owned-float-design/scripts/nvm2hl.py",
+    "--language",
+    "c",
+    "/private/tmp/borrowed-float-local-baseline-20261019/original-shadows.nvm",
+    "-o",
+    "/private/tmp/borrowed-float-local-planned-20261020/original-shadows.c"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-owned-float-design"
+}

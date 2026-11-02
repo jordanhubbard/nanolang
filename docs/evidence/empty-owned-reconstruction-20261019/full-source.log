@@ -1,0 +1,51 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-_5aini3c
+test_borrowed_empty_original_is_not_admitted (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_borrowed_empty_original_is_not_admitted) ... ok
+test_distinct_empty_nominal_identities (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_distinct_empty_nominal_identities) ... ERROR
+test_nominal_transfer_and_consumption_fail_closed (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_nominal_transfer_and_consumption_fail_closed) ... ok
+test_transport_and_advisory_independence (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_transport_and_advisory_independence) ... ok
+test_unchanged_source_and_independent_shadow (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_unchanged_source_and_independent_shadow) ... ERROR
+test_zero_pack_preserves_operand_prefix (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_zero_pack_preserves_operand_prefix) ... ERROR
+
+======================================================================
+ERROR: test_distinct_empty_nominal_identities (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_distinct_empty_nominal_identities)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_empty_owned_reconstruction.py", line 82, in test_distinct_empty_nominal_identities
+    self.strict_c(module.with_suffix('.c'))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_empty_owned_reconstruction.py", line 53, in strict_c
+    output = source.with_suffix(optimization)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0'
+
+======================================================================
+ERROR: test_unchanged_source_and_independent_shadow (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_unchanged_source_and_independent_shadow)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_empty_owned_reconstruction.py", line 70, in test_unchanged_source_and_independent_shadow
+    self.strict_c(module.with_suffix('.c'))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_empty_owned_reconstruction.py", line 53, in strict_c
+    output = source.with_suffix(optimization)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0'
+
+======================================================================
+ERROR: test_zero_pack_preserves_operand_prefix (tests.test_empty_owned_reconstruction.EmptyOwnedReconstruction.test_zero_pack_preserves_operand_prefix)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_empty_owned_reconstruction.py", line 104, in test_zero_pack_preserves_operand_prefix
+    self.strict_c(output, 7)
+    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-owned-float-design/tests/test_empty_owned_reconstruction.py", line 53, in strict_c
+    output = source.with_suffix(optimization)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 438, in with_suffix
+    raise ValueError(f"Invalid suffix {suffix!r}")
+ValueError: Invalid suffix '-O0'
+
+----------------------------------------------------------------------
+Ran 6 tests in 5.984s
+
+FAILED (errors=3)

@@ -1,0 +1,21 @@
+[
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-ul1_86m5",
+    "status_sha256": "8d3bd7d45840c9c12fc6ea0237ea050e860c40e5ff61f8b03c6d6550614ac494",
+    "commands": 12,
+    "exit_counts": {
+      "0": 12
+    },
+    "total_seconds": 6.271463168086484
+  },
+  {
+    "path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-native-tlnh88rt",
+    "status_sha256": "afaf188e75874c5192bdb82c7463eac5d7e792ffc06deef611262ca9182eb656",
+    "commands": 808,
+    "exit_counts": {
+      "-6": 660,
+      "0": 148
+    },
+    "total_seconds": 67.36296608758857
+  }
+]

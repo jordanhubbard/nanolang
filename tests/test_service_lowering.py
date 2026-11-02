@@ -51,12 +51,16 @@ class ServiceLowering(unittest.TestCase):
         cls.compiler=shlex.split(os.environ.get('NANO_NATIVE_TEST_CC') or os.environ.get('CC') or 'cc')
 
     @staticmethod
-    def command(args):
+    def command(args, *, build=False):
+        # I budget native compilation separately from guest execution.
+        timeout = int(os.environ.get('CMD_TIMEOUT', '600')) if build else 120
+        if timeout < 1:
+            raise ValueError('I require a positive native compilation timeout.')
         started=time.monotonic()
         process=subprocess.Popen(list(map(str,args)),cwd=ROOT,stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE,text=True,start_new_session=True)
         try:
-            stdout,stderr=process.communicate(timeout=120)
+            stdout,stderr=process.communicate(timeout=timeout)
         except BaseException:
             try:os.killpg(process.pid,signal.SIGKILL)
             except ProcessLookupError:pass
@@ -72,7 +76,7 @@ class ServiceLowering(unittest.TestCase):
         native_c=self.work/'source.c';native=self.work/'source.native'
         vm=self.command([os.environ.get('NANO_SERVICE_LOWERING_RUNNER',ROOT/'obj/test_service_lowering'),path,selection,native_c,status])
         self.command([*self.compiler,'-std=c11','-g',os.environ.get('NANO_NATIVE_TEST_OPT','-O2'),'-fsanitize=address,undefined','-fno-sanitize-recover=all',
-                      '-I'+str(self.work),'-Isrc',native_c,self.work/'wrapper.c',ROOT/'lib/libnano_file_runtime.a','-o',native,'-lm'])
+                      '-I'+str(self.work),'-Isrc',native_c,self.work/'wrapper.c',ROOT/'lib/libnano_file_runtime.a','-o',native,'-lm'], build=True)
         actual=self.command([native])
         pattern=r'EXEC (\d+) VALUE (-?\d+)'
         self.assertEqual(re.search(pattern,vm).groups(),re.search(pattern,actual).groups())

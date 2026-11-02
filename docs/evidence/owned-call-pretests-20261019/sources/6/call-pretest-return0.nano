@@ -1,0 +1,35 @@
+resource struct Leaf { value: int, enabled: bool }
+resource struct Tree { first: Leaf, second: Leaf, amount: Leaf }
+fn change(first: &mut Leaf, second: &mut Leaf, amount: &Leaf) -> int {
+ set first.value (+ first.value amount.value)
+ set second.value (- second.value amount.value)
+ assert amount.enabled
+ return (- first.value second.value)
+}
+shadow change {
+ let mut a: Leaf = Leaf { value: 1, enabled: true }
+ let mut b: Leaf = Leaf { value: 4, enabled: true }
+ let c: Leaf = Leaf { value: 1, enabled: true }
+ assert (== (change &mut a &mut b &c) -1)
+ let Leaf { value, enabled } = a assert (== value 2) assert enabled
+ let Leaf { value, enabled } = b assert (== value 3) assert enabled
+ let Leaf { value, enabled } = c assert (== value 1) assert enabled
+}
+fn main() -> int {
+ let a: Leaf = Leaf { value: 1, enabled: true }
+ let b: Leaf = Leaf { value: 4, enabled: true }
+ let c: Leaf = Leaf { value: 1, enabled: true }
+ let mut root: Tree = Tree { first: a, second: b, amount: c }
+ assert (== (change &mut root.first &mut root.second &root.amount) -1)
+ while (< (change &mut root.first &mut root.second &root.amount) 0) { let Tree { first, second, amount } = root
+ let Leaf { value, enabled } = first assert (== value 3) assert enabled
+ let Leaf { value, enabled } = second assert (== value 2) assert enabled
+ let Leaf { value, enabled } = amount assert (== value 1) assert enabled
+ return 0 }
+ let Tree { first, second, amount } = root
+ let Leaf { value, enabled } = first assert (== value 3) assert enabled
+ let Leaf { value, enabled } = second assert (== value 2) assert enabled
+ let Leaf { value, enabled } = amount assert (== value 1) assert enabled
+ return 0
+}
+shadow main { assert true }

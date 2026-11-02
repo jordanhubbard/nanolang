@@ -1,0 +1,38 @@
+[
+  {
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-D_GNU_SOURCE",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-fsyntax-only",
+      "src/nanoisa/hl_facts_main.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-D_GNU_SOURCE",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-fsyntax-only",
+      "src/nanoisa/hl_facts_main.c"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

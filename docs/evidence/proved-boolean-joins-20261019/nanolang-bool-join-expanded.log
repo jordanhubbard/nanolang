@@ -1,0 +1,32 @@
+I retain conditional record-join evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-i7g1r59h
+test_proved_boolean_record_projection_short_circuit (tests.test_optional_record_join.OptionalRecordJoin.test_proved_boolean_record_projection_short_circuit) ... FAIL
+
+======================================================================
+FAIL: test_proved_boolean_record_projection_short_circuit (tests.test_optional_record_join.OptionalRecordJoin.test_proved_boolean_record_projection_short_circuit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_optional_record_join.py", line 186, in test_proved_boolean_record_projection_short_circuit
+    self.checked_boolean_guard(case, generated, operation == 'or')
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_optional_record_join.py", line 209, in checked_boolean_guard
+    self.run_retained(label+'-build', [*self.cc, '-std=c11', optimization, '-DNDEBUG',
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '-fno-sanitize-recover=all', wrapper, ROOT/'bin/nano_aot_runtime.o',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '-lm', *native_link_flags(), '-o', binary], build=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_optional_record_join.py", line 103, in run_retained
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-optional-record-join-i7g1r59h/boolean-or-False-False-guard.c:11:5: error: call to undeclared function 'nmap_dispose_all'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   11 |     nmap_dispose_all();
+      |     ^
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 8.125s
+
+FAILED (failures=1)

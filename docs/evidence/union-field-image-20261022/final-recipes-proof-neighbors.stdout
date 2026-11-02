@@ -1,0 +1,83 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-vxb9hx0b
+original /private/tmp/nanolang-union-field-baseline-20261022/seed.nvm instructions=40 functions=1 reserved=67194647 work=16868329
+original /private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm instructions=48 functions=3 reserved=67196047 work=16870638
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm instructions=35 functions=1 reserved=67193730 work=16866891
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm instructions=44 functions=3 reserved=67195360 work=16869580
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm instructions=35 functions=1 reserved=67193669 work=16866769
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm instructions=44 functions=3 reserved=67195299 work=16869458
+PASS 842 union recipe checks; public execution remains refused
+union atomic proof/sites prefixes=38 both denial modes
+union recipes owner=32 site=72 carrier=13384 origin_scratch=2592 retained=14854 peak=74825 bytes=67189009 work=16859481 prefixes=54
+union retained oracle case=0 bytes=14854 peak=74825 cost_work=276
+union retained oracle case=1 bytes=14862 peak=74833 cost_work=276
+union retained oracle case=2 bytes=14863 peak=74834 cost_work=276
+union retained oracle case=3 bytes=14876 peak=74847 cost_work=288
+union retained oracle case=4 bytes=14884 peak=74855 cost_work=288
+union retained oracle case=5 bytes=14896 peak=74867 cost_work=288
+PASS 3504 union recipe allocation checks
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-n9cl4udy
+PASS 59 union declaration checks; no execution authority
+original /private/tmp/nanolang-union-field-baseline-20261022/seed.nvm origins=2 functions=1 reserved=16963686 work=1447026
+original /private/tmp/nanolang-union-field-baseline-20261022/c-shadow.nvm origins=2 functions=3 reserved=16974232 work=1545592
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical.nvm origins=2 functions=1 reserved=16963011 work=1443878
+original /private/tmp/nanolang-union-field-baseline-20261022/canonical-shadow.nvm origins=2 functions=3 reserved=16973588 work=1705579
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-program.nvm origins=2 functions=1 reserved=16963011 work=1443817
+original /private/tmp/nanolang-union-field-baseline-20261022/raw-shadow.nvm origins=2 functions=3 reserved=16973588 work=1705518
+PASS 338 union proof checks; public execution remains refused
+sizes analysis=39840 value=16 wrapper=16 context=1096 owner=72 row=40 retained=282 peak=60685 reserved=16943517 work=1183046 prefixes=37
+PASS 393 union proof allocation checks
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-execution-22sw6rgo
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 4523 record-array origin checks; no runtime admission
+I begin owned execution snapshots
+I begin copied byte conversion recipes
+I begin initializer identity and call signatures
+I begin exact branch and instruction facts
+I begin the 256-function and counted-string boundaries
+I begin closed preparation refusal boundaries
+PASS 6558 record-array execution-plan checks; no runtime admission
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+I measured 41 allocation positions and 65034 peak payload bytes; every refusal recovered
+PASS 5051 record-array origin checks; no runtime admission
+I begin owned execution snapshots
+I begin copied byte conversion recipes
+I begin initializer identity and call signatures
+I begin exact branch and instruction facts
+I begin the 256-function and counted-string boundaries
+I begin closed preparation refusal boundaries
+I begin complete opcode recipes
+I checked 94 explicit opcode recipes and every numeric opcode
+I begin precise private layout allocation facts
+I begin plan allocation/work boundaries
+I measured 96 plan allocation positions and 83206 peak payload bytes; each one-shot/persistent refusal recovered
+PASS 10230 record-array execution-plan checks; no runtime admission
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-execution-c97b42rj
+PASS 500 map origin checks; public boundaries checked
+PASS 687 copied map recipe checks; public boundaries checked
+I retained 45 allocation prefixes and independent recovery.
+PASS 1095 map origin checks; public boundaries checked
+I retained 45 stack/plan proof failure prefixes.
+I retained 60 recipe allocation prefixes; reserved 67191725 bytes/16863488 work.
+PASS 2812 copied map recipe checks; public boundaries checked
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-image-4_v3sgw2
+PASS 500 map origin checks; public boundaries checked
+PASS 687 copied map recipe checks; public boundaries checked
+PASS 781 retained map image cost checks; public boundaries checked
+I retained 45 allocation prefixes and independent recovery.
+PASS 1095 map origin checks; public boundaries checked
+I retained 45 stack/plan proof failure prefixes.
+I retained 60 recipe allocation prefixes; reserved 67191725 bytes/16863488 work.
+PASS 2812 copied map recipe checks; public boundaries checked
+I matched retained payload and exact logical work without allocations.
+I retained 61 independent-image allocation prefixes; overlap 67215446 bytes/16863784 work.
+PASS 8697 retained map image cost checks; public boundaries checked

@@ -1,0 +1,163 @@
+{
+  "seed_sha256": "070ae40404ad429d1bbbb8973532f8bf6361033863d2b3ab5a828911bdd8ca86",
+  "source_sha256": "251be1bcda41b9a4584f7c70a506be0102878d288253bcfb0e8128f90ec1e951",
+  "binaries": {
+    "A": {
+      "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_baseline",
+      "sha256": "605ff1d103230423924170045a7842cf420808c0e96db5073851ba070e7df808"
+    },
+    "B": {
+      "path": "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_view",
+      "sha256": "0822966876650fca2e249f8a345b47118d35f3493ac17d4a9e8b3f0621a139f0"
+    }
+  },
+  "timeout_seconds": 180,
+  "runs": [
+    {
+      "variant": "A",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_baseline",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/nanoc_seed.nvm",
+        "--",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/parser_refactor.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/program.nvm"
+      ],
+      "returncode": 0,
+      "timeout": false,
+      "wall_seconds": 5.717203333973885,
+      "cpu_seconds": 5.643129,
+      "module_sha256": "48be9f8da56a61ce084d8d5d18bd350e9326d6bff10583322d606d2529f681dc"
+    },
+    {
+      "variant": "B",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_view",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/nanoc_seed.nvm",
+        "--",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/parser_refactor.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/program.nvm"
+      ],
+      "returncode": 0,
+      "timeout": false,
+      "wall_seconds": 5.234977292013355,
+      "cpu_seconds": 5.154446,
+      "module_sha256": "48be9f8da56a61ce084d8d5d18bd350e9326d6bff10583322d606d2529f681dc"
+    },
+    {
+      "variant": "B",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_view",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/nanoc_seed.nvm",
+        "--",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/parser_refactor.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/program.nvm"
+      ],
+      "returncode": 0,
+      "timeout": false,
+      "wall_seconds": 5.091732124972623,
+      "cpu_seconds": 5.043574,
+      "module_sha256": "48be9f8da56a61ce084d8d5d18bd350e9326d6bff10583322d606d2529f681dc"
+    },
+    {
+      "variant": "A",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_baseline",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/nanoc_seed.nvm",
+        "--",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/parser_refactor.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/program.nvm"
+      ],
+      "returncode": 0,
+      "timeout": false,
+      "wall_seconds": 5.674044290964957,
+      "cpu_seconds": 5.628684000000001,
+      "module_sha256": "48be9f8da56a61ce084d8d5d18bd350e9326d6bff10583322d606d2529f681dc"
+    },
+    {
+      "variant": "A",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_baseline",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/nanoc_seed.nvm",
+        "--",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/parser_refactor.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/program.nvm"
+      ],
+      "returncode": 0,
+      "timeout": false,
+      "wall_seconds": 5.680804292031098,
+      "cpu_seconds": 5.626681000000001,
+      "module_sha256": "48be9f8da56a61ce084d8d5d18bd350e9326d6bff10583322d606d2529f681dc"
+    },
+    {
+      "variant": "B",
+      "command": [
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/bin/nano_vm_decoded_view",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/nanoc_seed.nvm",
+        "--",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/parser_refactor.nano",
+        "--emit-nvm",
+        "-o",
+        "/Users/jkh/Src/nanolang-affine-borrowed-roots/obj/decoded-view-sanitized/ab-token/program.nvm"
+      ],
+      "returncode": 0,
+      "timeout": false,
+      "wall_seconds": 5.044293665967416,
+      "cpu_seconds": 5.0017450000000006,
+      "module_sha256": "48be9f8da56a61ce084d8d5d18bd350e9326d6bff10583322d606d2529f681dc"
+    }
+  ],
+  "source_origin": "tests/token_value_bytes.nano",
+  "outputs": {
+    "2-B-verify.stdout": "",
+    "1-B-execute.stderr": "",
+    "2-B.stderr": "",
+    "0-A-execute.stderr": "",
+    "0-A.stderr": "",
+    "5-B.stdout": "",
+    "4-A-verify.stderr": "",
+    "3-A-verify.stderr": "",
+    "4-A-execute.stderr": "",
+    "5-B-execute.stderr": "",
+    "5-B-verify.stdout": "",
+    "4-A-execute.stdout": "0:4:4\n1:1:2\n2:3:8\n3:3:6\n4:3:2\n5:70:3\n6:7:0\n7:8:0\n8:0:0\n",
+    "5-B-execute.stdout": "0:4:4\n1:1:2\n2:3:8\n3:3:6\n4:3:2\n5:70:3\n6:7:0\n7:8:0\n8:0:0\n",
+    "5-B-verify.stderr": "",
+    "3-A-verify.stdout": "",
+    "0-A.stdout": "",
+    "5-B.stderr": "",
+    "4-A-verify.stdout": "",
+    "2-B-verify.stderr": "",
+    "1-B-execute.stdout": "0:4:4\n1:1:2\n2:3:8\n3:3:6\n4:3:2\n5:70:3\n6:7:0\n7:8:0\n8:0:0\n",
+    "0-A-execute.stdout": "0:4:4\n1:1:2\n2:3:8\n3:3:6\n4:3:2\n5:70:3\n6:7:0\n7:8:0\n8:0:0\n",
+    "2-B.stdout": "",
+    "0-A-verify.stderr": "",
+    "3-A.stderr": "",
+    "3-A-execute.stdout": "0:4:4\n1:1:2\n2:3:8\n3:3:6\n4:3:2\n5:70:3\n6:7:0\n7:8:0\n8:0:0\n",
+    "1-B-verify.stdout": "",
+    "2-B-execute.stdout": "0:4:4\n1:1:2\n2:3:8\n3:3:6\n4:3:2\n5:70:3\n6:7:0\n7:8:0\n8:0:0\n",
+    "4-A.stdout": "",
+    "1-B.stderr": "",
+    "4-A.stderr": "",
+    "1-B.stdout": "",
+    "3-A.stdout": "",
+    "3-A-execute.stderr": "",
+    "2-B-execute.stderr": "",
+    "1-B-verify.stderr": "",
+    "0-A-verify.stdout": ""
+  },
+  "source": "import \"src_nano/compiler/lexer.nano\"\nimport \"src_nano/compiler/diagnostics.nano\"\nimport \"src_nano/compiler/token_value_bytes.nano\"\n\nfn token_count_checks() -> void {\n    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)\n    let tokens: List<LexerToken> = (tokenize_string \"name 42 \\\"a\\\\0suffix\\\" \\\"\\\\u0000\\\" \\\"\u00e9\\\" not ( )\" \"counts.nano\" diagnostics)\n    assert (== (list_LexerToken_length tokens) 9)\n    let expected: array<int> = [4,2,8,6,2,3,0,0,0]\n    let kinds: array<int> = [4,1,3,3,3,70,7,8,0]\n    for i in (range 0 9) {\n        let tok: LexerToken = (list_LexerToken_get tokens i)\n        assert (== tok.value_bytes (at expected i))\n        assert (== tok.token_type (at kinds i))\n    }\n    let literal: LexerToken = (list_LexerToken_get tokens 2)\n    assert (== literal.value \"a\\\\0suffix\")\n    let copied: LexerToken = LexerToken { token_type: 3, value: \"raw\", line: 7, column: 9, value_bytes: 1099511627776 }\n    let copies: List<LexerToken> = (list_LexerToken_new)\n    for i in (range 0 33) { (list_LexerToken_push copies copied) }\n    (list_LexerToken_insert copies 1 copied)\n    (list_LexerToken_set copies 2 copied)\n    (list_LexerToken_remove copies 1)\n    assert (== (list_LexerToken_length copies) 33)\n    let removed: LexerToken = (list_LexerToken_get copies 1)\n    let popped: LexerToken = (list_LexerToken_pop copies)\n    assert (== removed.value_bytes 1099511627776)\n    assert (== popped.value_bytes 1099511627776)\n    let first: LexerToken = (list_LexerToken_get copies 0)\n    assert (== first.value_bytes 1099511627776)\n    assert (== first.line 7)\n    assert (== first.column 9)\n    let grammar_input: string = \" { rule <- \\\"a\\\\nb\\\" }\"\n    let bodies: List<LexerToken> = (list_LexerToken_new)\n    let grammar_bytes: int = (str_length grammar_input)\n    let end: int = (process_grammar_body grammar_input 0 grammar_bytes bodies 1 1)\n    assert (== end grammar_bytes)\n    let body: LexerToken = (list_LexerToken_get bodies 0)\n    let body_bytes: int = (str_length body.value)\n    assert (== body.value_bytes body_bytes)\n    assert (> body.value_bytes (token_literal_value_bytes body.value))\n    let parts: List<LexerToken> = (tokenize_string \"f\\\"a\\\\0suffix{42}\u00e9\\\"\" \"parts.nano\" diagnostics)\n    let mut strings: int = 0\n    for i in (range 0 (list_LexerToken_length parts)) {\n        let part: LexerToken = (list_LexerToken_get parts i)\n        if (== part.token_type LexerTokenType.TOKEN_STRING) {\n            if (== strings 0) { assert (== part.value_bytes 8) }\n            else { assert (== part.value_bytes 2) }\n            set strings (+ strings 1)\n        }\n    }\n    assert (== strings 2)\n}\n\nshadow token_count_checks { (token_count_checks) }\n\nfn main() -> int {\n    (token_count_checks)\n    let tokens: List<LexerToken> = (tokenize_string \"name 42 \\\"a\\\\0suffix\\\" \\\"\\\\u0000\\\" \\\"\u00e9\\\" not ( )\" \"counts.nano\" (diag_list_new))\n    for i in (range 0 (list_LexerToken_length tokens)) {\n        let tok: LexerToken = (list_LexerToken_get tokens i)\n        (println (+ (+ (+ (+ (int_to_string i) \":\") (int_to_string tok.token_type)) \":\") (int_to_string tok.value_bytes)))\n    }\n    return 0\n}\n",
+  "median_cpu_seconds": {
+    "A": 5.628684000000001,
+    "B": 5.043574
+  }
+}

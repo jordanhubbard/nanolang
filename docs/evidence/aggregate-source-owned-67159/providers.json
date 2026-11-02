@@ -1,0 +1,10 @@
+{
+  "bin/nanoc_stage1.nvm": "2fadb9394ddb49f2173d6ac6920536a7890a8e6ec7f4b1f43c5513747fcc6349",
+  "bin/nanoc_stage2.nvm": "2fadb9394ddb49f2173d6ac6920536a7890a8e6ec7f4b1f43c5513747fcc6349",
+  "bin/nano_virt": "5b281b8573d1ab62fa8187ea3ced843a07d35f85c3402cd66e7a72d5a8a06e6a",
+  "bin/nanoc_stage1": "b7e4d9f1d89a75460320608399370a6556a54760db294ed2ca9288804f9cd400",
+  "bin/nanoc_stage2": "0bab6331b9cf8541e845c6706dbf69a6b0a9f6c1729328398c67c4585c370595",
+  "bin/nvm2c": "61f6008dd86d7cd9535551631813cbfe2ad077b61dac76530964583bc5724418",
+  "bin/nvm2hl": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c",
+  "modules/nanoisa/.build/current/libnanoisa.dylib": "dfd86133764b47737310defa82f8ba3e015467d9b18c4378e96a8f020fd064b4"
+}

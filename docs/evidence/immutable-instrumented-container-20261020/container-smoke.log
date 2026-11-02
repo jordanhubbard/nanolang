@@ -1,0 +1,23 @@
+Loaded image ID: sha256:885454cfdb893f15290671d474a2a51793a1532a40bbf03440e51e4a1fa12f02
+I loaded the exact transported instrumented image.
+{"container": {"archive_sha256": "2d903777775a8f0933517ca4e1758eaee28f49bd2df49d51b14f3806baff258c", "config_id": "sha256:ddb2f18feb98b229b38330c17ba4210285ec6259497ab0338f3fa8725fcdcf4d", "image_id": "sha256:885454cfdb893f15290671d474a2a51793a1532a40bbf03440e51e4a1fa12f02", "platform": "linux/arm64", "version": 1}, "outer_runner": {"ImageOS": null, "ImageVersion": "20261012.334.1"}}
+..................
+----------------------------------------------------------------------
+Ran 18 tests in 0.446s
+
+OK
+Capturing coverage data from /ci-temp/container-checkpoint-probe
+geninfo cmd: '/usr/bin/geninfo /ci-temp/container-checkpoint-probe --output-filename /ci-temp/container-checkpoint-probe/coverage.info --memory 0'
+Found gcov version: 13.3.0
+Using intermediate gcov format
+Writing temporary data to /tmp/geninfo_datzBeC
+Scanning /ci-temp/container-checkpoint-probe for .gcda files ...
+Found 1 data files in /ci-temp/container-checkpoint-probe
+Processing /ci-temp/container-checkpoint-probe/coverage-tiny.gcda
+geninfo: WARNING: using JSON module "JSON::PP" - which is much slower than some alternatives.  Consider installing one of JSON::XS or Cpanel::JSON::XS
+Finished .info-file creation
+I compiled and executed sanitizer and coverage probes in the verified image.
+{"container": {"archive_sha256": "2d903777775a8f0933517ca4e1758eaee28f49bd2df49d51b14f3806baff258c", "config_id": "sha256:ddb2f18feb98b229b38330c17ba4210285ec6259497ab0338f3fa8725fcdcf4d", "image_id": "sha256:885454cfdb893f15290671d474a2a51793a1532a40bbf03440e51e4a1fa12f02", "platform": "linux/arm64", "version": 1}, "outer_runner": {"ImageOS": null, "ImageVersion": "20261018.339.1"}}
+I restored exact providers in a second container despite a different outer runner label; changed flags still refuse identity.
+{"container": {"archive_sha256": "2d903777775a8f0933517ca4e1758eaee28f49bd2df49d51b14f3806baff258c", "config_id": "sha256:ddb2f18feb98b229b38330c17ba4210285ec6259497ab0338f3fa8725fcdcf4d", "image_id": "sha256:885454cfdb893f15290671d474a2a51793a1532a40bbf03440e51e4a1fa12f02", "platform": "linux/arm64", "version": 1}, "outer_runner": {"ImageOS": null, "ImageVersion": null}}
+I passed real container transport, immutable-root, instrumented-provider and identity controls.

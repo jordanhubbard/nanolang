@@ -5,19 +5,21 @@
 # (mirror stalls, dpkg locks). Without a per-attempt timeout those hangs consume the
 # entire job budget and surface as a cancelled workflow rather than a retryable
 # install failure. This helper bounds each attempt and retries a few times.
+# The bound must outlast a slow mirror: hosted runs 40377551919 and 40377552283
+# fetched about 20 packages in 180 seconds and were killed three times running.
 #
 # Usage:
 #   ./scripts/ci-apt-install.sh <package> [package...]
 #
 # Environment:
 #   CI_APT_ATTEMPTS      Max attempts (default: 3)
-#   CI_APT_TIMEOUT_SECS  Per-attempt timeout in seconds (default: 180)
+#   CI_APT_TIMEOUT_SECS  Per-attempt timeout in seconds (default: 420)
 #   CI_APT_BACKOFF_SECS  Backoff base in seconds, scaled by attempt (default: 5)
 
 set -euo pipefail
 
 MAX_ATTEMPTS="${CI_APT_ATTEMPTS:-3}"
-ATTEMPT_TIMEOUT="${CI_APT_TIMEOUT_SECS:-180}"
+ATTEMPT_TIMEOUT="${CI_APT_TIMEOUT_SECS:-420}"
 BACKOFF_SECS="${CI_APT_BACKOFF_SECS:-5}"
 
 if [ "$#" -eq 0 ]; then
@@ -50,14 +52,21 @@ APT_ATTEMPT='
   attempt="$1"
   shift
   if [ "$attempt" -gt 1 ]; then
+    # A mirror that stalled once is likely to stall again: hosted runs spent
+    # three 420-second attempts on azure.archive.ubuntu.com without finishing.
+    # I retry against the main archive instead.
+    for list in /etc/apt/apt-mirrors.txt /etc/apt/sources.list /etc/apt/sources.list.d/*.sources /etc/apt/sources.list.d/*.list; do
+      [ -f "$list" ] || continue
+      sudo sed -i "s#azure\.archive\.ubuntu\.com#archive.ubuntu.com#g" "$list" || true
+    done
     echo "I recover pending dpkg configuration before retrying installation"
     # I may still lack dependencies after interrupted unpacking. I retain that
     # diagnostic and let apt repair them within this same attempt deadline.
     sudo -E dpkg --configure -a || echo "dpkg configuration needs dependency repair" >&2
-    sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 --fix-broken install -y
+    sudo -E apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Dpkg::Use-Pty=0 --fix-broken install -y
   fi
-  sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 update -qq
-  sudo -E apt-get -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 install -y "$@"
+  sudo -E apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Dpkg::Use-Pty=0 update -qq
+  sudo -E apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Dpkg::Use-Pty=0 install -y "$@"
 '
 
 install_once() {

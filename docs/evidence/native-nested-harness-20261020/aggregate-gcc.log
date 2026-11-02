@@ -1,0 +1,9 @@
+I retain nested array evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-nested-arrays-rv19xvv9
+test_nested_record_child (tests.test_native_nested_arrays.NativeNestedArrays.test_nested_record_child) ... ok
+test_self_cycle_survives_collection_and_pop (tests.test_native_nested_arrays.NativeNestedArrays.test_self_cycle_survives_collection_and_pop) ... ok
+test_slice_retains_children_after_outer_release (tests.test_native_nested_arrays.NativeNestedArrays.test_slice_retains_children_after_outer_release) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.086s
+
+OK

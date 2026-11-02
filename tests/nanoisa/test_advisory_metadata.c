@@ -98,6 +98,240 @@ static void test_purity(void) {
         m = asm_assemble(invalid[i], &result); CHECK(!m);
     }
 }
+static void test_match_coverage(void) {
+    NvmMatchCoverage view = {.line = 123};
+    CHECK(!nvm_match_coverage_at(NULL, 0, &view) && view.line == 123);
+    CHECK(!nvm_add_match_coverage(NULL, 0, 1, 1, 1, 1, "a.nano"));
+    NvmModule *m = ordinary();
+    CHECK(!nvm_add_match_coverage(m, 0, 0, 1, 1, 1, "a.nano"));
+    CHECK(!nvm_add_match_coverage(m, 0, 1, 1, 3, 1, "a.nano"));
+    CHECK(!nvm_add_match_coverage(m, 0, 1, 1, 1, 0, "a.nano"));
+    CHECK(nvm_add_match_coverage(m, 0, 3, 7, 1, 1, "a.nano"));
+    CHECK(nvm_match_coverage_at(m, 0, &view));
+    CHECK(view.function == 0 && view.line == 3 && view.column == 7 && view.coverage == 1);
+    CHECK(view.coordinates == 1 && view.source_path_length == 6 && !memcmp(view.source_path, "a.nano", 6));
+    CHECK(!nvm_add_match_coverage(m, 0, 3, 7, 0, 1, "a.nano"));
+    CHECK(nvm_add_match_coverage(m, 0, 3, 8, 0, 1, "a.nano"));
+    CHECK(nvm_add_match_coverage(m, 0, 40, 7, 2, 2, ""));
+    CHECK(nvm_match_coverage_at(m, 1, &view) && view.coverage == 0);
+    CHECK(nvm_match_coverage_at(m, 2, &view) && view.coverage == 2);
+    NvmModule *b = copy(m); compare_wire(m, b);
+    char *text = disasm_module_styled(b, DISASM_STYLE_CANONICAL); CHECK(text);
+    AsmResult r; NvmModule *c = asm_assemble(text, &r); CHECK(c); compare_wire(b, c);
+    free(text); nvm_module_free(b); nvm_module_free(c);
+    CHECK(nvm_verify(m).ok);
+    uint32_t value = m->metadata[0].value_idx;
+    char *data = m->strings[value];
+    const unsigned offsets[] = {0, 4, 8, 12, 13, 14, 15, 16, 20};
+    for (unsigned i = 0; i < sizeof offsets / sizeof *offsets; ++i) {
+        unsigned offset = offsets[i]; char old = data[offset];
+        data[offset] = (offset == 4 || offset == 8 || offset == 13 || offset == 20) ? 0 : 127;
+        view.line = 123;
+        CHECK(!nvm_match_coverage_at(m, 0, &view) && view.line == 123);
+        CHECK(nvm_verify(m).ok); /* I do not make advisory validity execution authority. */
+        data[offset] = old;
+    }
+    uint32_t key = m->metadata[0].key_idx;
+    char *key_text = m->strings[key];
+    key_text[m->string_lengths[key]-1] = '2';
+    CHECK(!nvm_match_coverage_at(m, 0, &view));
+    CHECK(nvm_verify(m).ok);
+    key_text[m->string_lengths[key]-1] = '1';
+    uint32_t original_size = m->string_lengths[value];
+    m->string_lengths[value] = 19;
+    CHECK(!nvm_match_coverage_at(m, 0, &view));
+    m->string_lengths[value] = original_size;
+    CHECK(nvm_add_metadata(m, m->metadata[0].key_idx, value));
+    CHECK(!nvm_match_coverage_at(m, 0, &view));
+    nvm_module_free(m);
+    m = asm_assemble(".function main 0 0 0 int 1\n.match_coverage 3 7 2 2 \"a.nano\"\nPUSH_I64 42\nRET\n.end\n.entry main\n", &r);
+    CHECK(m && nvm_match_coverage_at(m, 0, &view) && view.coverage == 2);
+    nvm_module_free(m);
+    const char *bad[] = {"0 1 1 1 \"a\"", "1 1 3 1 \"a\"", "1 1 1 3 \"a\"", "1 1 1 1 \"a\" extra", "1 1 1 1 \"a\\0b\""};
+    for (unsigned i = 0; i < sizeof bad / sizeof *bad; ++i) {
+        char source[512]; snprintf(source, sizeof source, ".function main 0 0 0 int 1\n.match_coverage %s\nPUSH_I64 42\nRET\n.end\n", bad[i]);
+        m = asm_assemble(source, &r); CHECK(!m);
+    }
+}
+
+static void test_affine_use(void) {
+    NvmAffineUse view = {.line = 123};
+    CHECK(!nvm_affine_use_at(NULL, 0, &view) && view.line == 123);
+    NvmModule *m = ordinary();
+    CHECK(!nvm_add_affine_use(m, 0, 1, 1, 1, 1, "", ""));
+    CHECK(!nvm_add_affine_use(m, 1, 1, 1, 1, 1, "", "x"));
+    CHECK(!nvm_add_affine_use(m, 0, 0, 1, 1, 1, "", "x"));
+    CHECK(!nvm_add_affine_use(m, 0, 1, 1, 3, 1, "", "x"));
+    CHECK(!nvm_add_affine_use(m, 0, 1, 1, 1, 0, "", "x"));
+    CHECK(nvm_add_affine_use(m, 0, 3, 7, 1, 1, "a.nano", "owner"));
+    CHECK(nvm_affine_use_at(m, 0, &view));
+    CHECK(view.function == 0 && view.line == 3 && view.column == 7 && view.state == 1);
+    CHECK(view.coordinates == 1 && view.source_path_length == 6 && !memcmp(view.source_path, "a.nano", 6));
+    CHECK(view.binding_length == 5 && !memcmp(view.binding, "owner", 5));
+    /* I never use binding spelling as site identity. */
+    CHECK(!nvm_add_affine_use(m, 0, 3, 7, 2, 1, "a.nano", "different"));
+    CHECK(nvm_add_affine_use(m, 0, 3, 7, 2, 2, "a.nano", "owner"));
+    CHECK(nvm_add_affine_use(m, 0, 3, 8, 0, 1, "", "x"));
+    CHECK(nvm_affine_use_at(m, 1, &view) && view.state == 2);
+    CHECK(nvm_affine_use_at(m, 2, &view) && view.state == 0);
+    NvmModule *b = copy(m); compare_wire(m, b);
+    char *text = disasm_module_styled(b, DISASM_STYLE_CANONICAL); CHECK(text);
+    AsmResult r; NvmModule *c = asm_assemble(text, &r); CHECK(c); compare_wire(b, c);
+    free(text); nvm_module_free(b); nvm_module_free(c);
+    char error[256]; char *native = nvm2c_emit(m, error, sizeof error); CHECK(native);
+    uint32_t value = m->metadata[0].value_idx;
+    char *data = m->strings[value];
+    const unsigned offsets[] = {0, 4, 8, 12, 13, 14, 15, 16, 20, 24, 30};
+    for (unsigned i = 0; i < sizeof offsets / sizeof *offsets; ++i) {
+        unsigned offset = offsets[i]; char old = data[offset];
+        data[offset] = (offset == 4 || offset == 8 || offset == 13 || offset >= 24) ? 0 : 127;
+        view.line = 123;
+        CHECK(!nvm_affine_use_at(m, 0, &view) && view.line == 123);
+        /* I fail closed on another malformed entry, without execution authority. */
+        CHECK(!nvm_affine_use_at(m, 1, &view) && view.line == 123);
+        CHECK(nvm_verify(m).ok);
+        char *again = nvm2c_emit(m, error, sizeof error); CHECK(again && !strcmp(native, again)); free(again);
+        data[offset] = old;
+    }
+    free(native);
+    uint32_t original_size = m->string_lengths[value];
+    m->string_lengths[value] = 23;
+    CHECK(!nvm_affine_use_at(m, 0, &view));
+    m->string_lengths[value] = original_size;
+    /* I forge a duplicate with a different spelling, bypassing the safe writer. */
+    char duplicate[64]; CHECK(original_size < sizeof duplicate);
+    memcpy(duplicate, data, original_size); memcpy(duplicate + 30, "other", 5);
+    uint32_t other = nvm_add_string(m, duplicate, original_size);
+    CHECK(nvm_add_metadata(m, m->metadata[0].key_idx, other));
+    view.line = 123;
+    CHECK(!nvm_affine_use_at(m, 0, &view) && view.line == 123);
+    CHECK(nvm_verify(m).ok); nvm_module_free(m);
+    const char *prefix = ".function main 0 0 0 int 1\nPUSH_I64 42\nRET\n.end\n.entry main\n";
+    char source[1024];
+    snprintf(source, sizeof source, "%s.affine_use 0 3 7 2 2 \"a.nano\" \"owner\"\n", prefix);
+    m = asm_assemble(source, &r); CHECK(m && nvm_affine_use_at(m, 0, &view) && view.state == 2); nvm_module_free(m);
+    const char *bad[] = {"0 0 1 1 1 \"a\" \"x\"", "0 1 1 3 1 \"a\" \"x\"", "0 1 1 1 3 \"a\" \"x\"", "0 1 1 1 1 \"a\" \"\"", "0 1 1 1 1 \"a\" \"x\" extra", "0 1 1 1 1 \"a\\0b\" \"x\"", "0 1 1 1 1 \"a\" \"x\\0y\"", "1 1 1 1 1 \"a\" \"x\""};
+    for (unsigned i = 0; i < sizeof bad / sizeof *bad; ++i) {
+        snprintf(source, sizeof source, "%s.affine_use %s\n", prefix, bad[i]);
+        CHECK(!asm_assemble(source, &r));
+    }
+    CHECK(!asm_assemble(".function main 0 0 0 int 1\n.affine_use 0 1 1 1 1 \"a\" \"x\"\nPUSH_I64 42\nRET\n.end\n", &r));
+}
+
+static void test_effects(void) {
+    CHECK(nvm_function_effects(NULL, 0) == -1);
+    CHECK(!nvm_add_function_effects(NULL, 0, 63));
+    NvmModule *m = ordinary();
+    CHECK(nvm_function_effects(m, 0) == -1);
+    CHECK(!nvm_add_function_effects(m, 1, 63));
+    CHECK(!nvm_add_function_effects(m, 0, 64));
+    CHECK(nvm_add_function_effects(m, 0, 63));
+    CHECK(nvm_function_effects(m, 0) == 63);
+    CHECK(nvm_function_effects(m, 1) == -1);
+    CHECK(!nvm_add_function_effects(m, 0, 0));
+    NvmModule *b = copy(m); compare_wire(m, b);
+    CHECK(nvm_function_effects(b, 0) == 63);
+    char *text = disasm_module_styled(b, DISASM_STYLE_CANONICAL); CHECK(text);
+    AsmResult result; NvmModule *c = asm_assemble(text, &result); CHECK(c);
+    compare_wire(b, c); CHECK(nvm_function_effects(c, 0) == 63);
+    free(text); nvm_module_free(b); nvm_module_free(c);
+    nvm_strip_debug_info(m); CHECK(nvm_function_effects(m, 0) == 63);
+    NvmMetadataEntry e = m->metadata[0];
+    CHECK(nvm_add_metadata(m, e.key_idx, e.value_idx));
+    CHECK(nvm_function_effects(m, 0) == -1); CHECK(nvm_verify(m).ok);
+    b = copy(m); compare_wire(m, b); nvm_module_free(b); nvm_module_free(m);
+    const unsigned char malformed[][8] = {
+        {1,0,0,0,1,0,0,0}, {0,0,0,0,64,0,0,0},
+        {0,0,0,0,1,1,0,0}, {0,0,0,0,1,0,1,0}, {0,0,0,0,1,0,0,1}
+    };
+    for (size_t i = 0; i < sizeof malformed / sizeof *malformed; ++i) {
+        m = ordinary();
+        uint32_t key = nvm_add_string(m, "nano.effects.v1", 15);
+        uint32_t value = nvm_add_string(m, (const char *)malformed[i], 8);
+        CHECK(nvm_add_metadata(m, key, value));
+        CHECK(nvm_function_effects(m, 0) == -1);
+        CHECK(!nvm_add_function_effects(m, 0, 63));
+        CHECK(nvm_verify(m).ok); b = copy(m); compare_wire(m, b);
+        nvm_module_free(b); nvm_module_free(m);
+    }
+    m = ordinary();
+    uint32_t key = nvm_add_string(m, "nano.effects.v1", 15);
+    uint32_t value = nvm_add_string(m, "", 0);
+    CHECK(nvm_add_metadata(m, key, value));
+    CHECK(nvm_function_effects(m, 0) == -1); CHECK(nvm_verify(m).ok);
+    nvm_module_free(m);
+    m = ordinary(); key = nvm_add_string(m, "nano.effects.v2", 15);
+    CHECK(nvm_add_metadata(m, key, key));
+    CHECK(nvm_function_effects(m, 0) == -1);
+    CHECK(nvm_add_function_effects(m, 0, 0));
+    CHECK(nvm_function_effects(m, 0) == 0); nvm_module_free(m);
+    m = asm_assemble(".function main 0 0 0 int 1\n.function_effects 0\nPUSH_I64 42\nRET\n.end\n.entry main\n", &result);
+    CHECK(m); CHECK(nvm_function_effects(m, 0) == 0); nvm_module_free(m);
+    const char *invalid[] = {".function_effects 1\n", ".function main 0 0 0 void 0\n.function_effects 64\nRET\n.end\n",
+        ".function main 0 0 0 void 0\n.function_effects 1 junk\nRET\n.end\n",
+        ".function main 0 0 0 void 0\n.function_effects 1\n.function_effects 1\nRET\n.end\n"};
+    for (size_t i = 0; i < sizeof invalid / sizeof *invalid; ++i) {
+        m = asm_assemble(invalid[i], &result); CHECK(!m);
+    }
+}
+static void test_affine(void) {
+    CHECK(nvm_function_affine(NULL, 0) == -1);
+    CHECK(!nvm_add_function_affine(NULL, 0, 1));
+    NvmModule *m = ordinary();
+    CHECK(nvm_function_affine(m, 0) == -1);
+    CHECK(!nvm_add_function_affine(m, 1, 1));
+    CHECK(!nvm_add_function_affine(m, 0, 2));
+    CHECK(nvm_add_function_affine(m, 0, 1));
+    CHECK(nvm_function_affine(m, 0) == 1);
+    CHECK(nvm_function_affine(m, 1) == -1);
+    CHECK(!nvm_add_function_affine(m, 0, 0));
+    NvmModule *b = copy(m); compare_wire(m, b);
+    CHECK(nvm_function_affine(b, 0) == 1);
+    char *text = disasm_module_styled(b, DISASM_STYLE_CANONICAL); CHECK(text);
+    AsmResult result; NvmModule *c = asm_assemble(text, &result); CHECK(c);
+    compare_wire(b, c); CHECK(nvm_function_affine(c, 0) == 1);
+    free(text); nvm_module_free(b); nvm_module_free(c);
+    nvm_strip_debug_info(m); CHECK(nvm_function_affine(m, 0) == 1);
+    NvmMetadataEntry e = m->metadata[0];
+    CHECK(nvm_add_metadata(m, e.key_idx, e.value_idx));
+    CHECK(nvm_function_affine(m, 0) == -1); CHECK(nvm_verify(m).ok);
+    b = copy(m); compare_wire(m, b); nvm_module_free(b); nvm_module_free(m);
+    const unsigned char malformed[][8] = {
+        {1,0,0,0,1,0,0,0}, {0,0,0,0,2,0,0,0},
+        {0,0,0,0,1,1,0,0}, {0,0,0,0,1,0,1,0}, {0,0,0,0,1,0,0,1}
+    };
+    for (size_t i = 0; i < sizeof malformed / sizeof *malformed; ++i) {
+        m = ordinary();
+        uint32_t key = nvm_add_string(m, "nano.affine.v1", 14);
+        uint32_t value = nvm_add_string(m, (const char *)malformed[i], 8);
+        CHECK(nvm_add_metadata(m, key, value));
+        CHECK(nvm_function_affine(m, 0) == -1);
+        CHECK(!nvm_add_function_affine(m, 0, 1));
+        CHECK(nvm_verify(m).ok); b = copy(m); compare_wire(m, b);
+        nvm_module_free(b); nvm_module_free(m);
+    }
+    m = ordinary();
+    uint32_t key = nvm_add_string(m, "nano.affine.v1", 14);
+    uint32_t value = nvm_add_string(m, "", 0);
+    CHECK(nvm_add_metadata(m, key, value));
+    CHECK(nvm_function_affine(m, 0) == -1); CHECK(nvm_verify(m).ok);
+    nvm_module_free(m);
+    m = ordinary(); key = nvm_add_string(m, "nano.affine.v2", 14);
+    CHECK(nvm_add_metadata(m, key, key));
+    CHECK(nvm_function_affine(m, 0) == -1);
+    CHECK(nvm_add_function_affine(m, 0, 0));
+    CHECK(nvm_function_affine(m, 0) == 0); nvm_module_free(m);
+    m = asm_assemble(".function main 0 0 0 int 1\n.function_affine 0\nPUSH_I64 42\nRET\n.end\n.entry main\n", &result);
+    CHECK(m); CHECK(nvm_function_affine(m, 0) == 0); nvm_module_free(m);
+    m = asm_assemble(".function main 0 0 0 int 1\nPUSH_I64 42\nRET\n.end\n.affine_completion 0 1\n.entry main\n", &result);
+    CHECK(m); CHECK(nvm_function_affine(m, 0) == 1); nvm_module_free(m);
+    const char *invalid[] = {".affine_completion 0 1\n", ".function main 0 0 0 int 1\n.affine_completion 0 1\nPUSH_I64 42\nRET\n.end\n", ".function main 0 0 0 int 1\nPUSH_I64 42\nRET\n.end\n.affine_completion 0 2\n", ".function_affine 1\n", ".function main 0 0 0 void 0\n.function_affine 2\nRET\n.end\n",
+        ".function main 0 0 0 void 0\n.function_affine 1 junk\nRET\n.end\n",
+        ".function main 0 0 0 void 0\n.function_affine 1\n.function_affine 1\nRET\n.end\n"};
+    for (size_t i = 0; i < sizeof invalid / sizeof *invalid; ++i) {
+        m = asm_assemble(invalid[i], &result); CHECK(!m);
+    }
+}
 static void test_generic_bindings(void) {
     NvmGenericBinding view = {.function = 777};
     CHECK(!nvm_generic_binding_at(NULL, 0, &view) && view.function == 777);
@@ -172,8 +406,131 @@ static void test_generic_bindings(void) {
         m = asm_assemble(bad[i], &result); CHECK(!m);
     }
 }
+static void test_borrow_places(void) {
+    NvmModule *m=ordinary();
+    NvmBorrowPlace fact={0,2,3,2,9,0,2,1,"module.nano","owner",".left",11,5,5},view={0};
+    CHECK(nvm_add_borrow_place(m,&fact));CHECK(nvm_borrow_place_at(m,0,&view));
+    CHECK(view.mode==2 && view.ordinal==0 && view.projection_length==5);
+    NvmBorrowPlace alternate=fact;alternate.mode=1;alternate.root="other";
+    CHECK(!nvm_add_borrow_place(m,&alternate)); /* descriptive changes do not create another site */
+    NvmModule *c=copy(m);compare_wire(m,c);CHECK(nvm_borrow_place_at(c,0,&view));
+    char *text=disasm_module_styled(c,DISASM_STYLE_CANONICAL);CHECK(text);
+    AsmResult assembled;NvmModule *round=asm_assemble(text,&assembled);CHECK(round);compare_wire(m,round);
+    free(text);nvm_module_free(round);nvm_module_free(c);
+    char error[256];char *native=nvm2c_emit(m,error,sizeof error);CHECK(native);
+    uint32_t value=m->metadata[0].value_idx,size=m->string_lengths[value];
+    uint8_t *bytes=(uint8_t *)m->strings[value];uint8_t saved[128];CHECK(size<=sizeof saved);memcpy(saved,bytes,size);
+    const unsigned offsets[]={0,4,8,12,16,24,25,26,27,28,32,36,40};
+    for(size_t i=0;i<sizeof offsets/sizeof *offsets;i++) {
+        memcpy(bytes,saved,size);
+        if(offsets[i]<=16)word(bytes+offsets[i],offsets[i]?0:UINT32_MAX);
+        else if(offsets[i]>=28 && offsets[i]<=36)word(bytes+offsets[i],UINT32_MAX);
+        else bytes[offsets[i]]=offsets[i]==40?0xff:0xff;
+        view.call_line=777;CHECK(!nvm_borrow_place_at(m,0,&view) && view.call_line==777);
+        CHECK(nvm_verify(m).ok);char *again=nvm2c_emit(m,error,sizeof error);CHECK(again && !strcmp(native,again));free(again);
+    }
+    memcpy(bytes,saved,size);
+    for(uint32_t n=0;n<size;n++) {m->string_lengths[value]=n;view.call_line=777;CHECK(!nvm_borrow_place_at(m,0,&view) && view.call_line==777);}
+    m->string_lengths[value]=size;
+    /* A forged duplicate with a changed mode is still ambiguous. */
+    saved[24]=1;uint32_t duplicate=nvm_add_string(m,(const char *)saved,size);
+    CHECK(duplicate!=UINT32_MAX && nvm_add_metadata(m,m->metadata[0].key_idx,duplicate));
+    view.call_line=777;CHECK(!nvm_borrow_place_at(m,0,&view) && view.call_line==777);
+    CHECK(!nvm_borrow_place_at(m,1,&view) && view.call_line==777);
+    CHECK(nvm_verify(m).ok);char *again=nvm2c_emit(m,error,sizeof error);CHECK(again && !strcmp(native,again));free(again);
+    m->metadata_count=0;again=nvm2c_emit(m,error,sizeof error);CHECK(again && !strcmp(native,again));free(again);free(native);
+    nvm_module_free(m);
+    m=ordinary();fact.projection="";fact.projection_length=0;CHECK(nvm_add_borrow_place(m,&fact));
+    CHECK(nvm_borrow_place_at(m,0,&view) && !view.projection_length);
+    uint32_t unknown=nvm_add_string(m,"nano.borrow-place.v9",20),junk=nvm_add_string(m,"opaque",6);
+    CHECK(nvm_add_metadata(m,unknown,junk));CHECK(nvm_borrow_place_at(m,0,&view));nvm_module_free(m);
+}
+
+static void test_field_reads(void) {
+    NvmModule *m=ordinary();
+    NvmFieldRead fact={0,2,3,2,1,"module.nano","owner",".left",11,5,5},view={0};
+    CHECK(nvm_add_field_read(m,&fact));CHECK(nvm_field_read_at(m,0,&view));
+    CHECK(view.category==2 && view.projection_length==5);
+    NvmFieldRead alternate=fact;alternate.category=1;alternate.root="other";
+    CHECK(!nvm_add_field_read(m,&alternate)); /* descriptive changes do not create another site */
+    NvmModule *c=copy(m);compare_wire(m,c);CHECK(nvm_field_read_at(c,0,&view));
+    char *text=disasm_module_styled(c,DISASM_STYLE_CANONICAL);CHECK(text);
+    AsmResult assembled;NvmModule *round=asm_assemble(text,&assembled);CHECK(round);compare_wire(m,round);
+    free(text);nvm_module_free(round);nvm_module_free(c);
+    char error[256];char *native=nvm2c_emit(m,error,sizeof error);CHECK(native);
+    uint32_t value=m->metadata[0].value_idx,size=m->string_lengths[value];
+    uint8_t *bytes=(uint8_t *)m->strings[value];uint8_t saved[128];CHECK(size<=sizeof saved);memcpy(saved,bytes,size);
+    const unsigned offsets[]={0,4,8,12,13,14,15,16,20,24,28};
+    for(size_t i=0;i<sizeof offsets/sizeof *offsets;i++) {
+        memcpy(bytes,saved,size);
+        if(offsets[i]<=8)word(bytes+offsets[i],offsets[i]?0:UINT32_MAX);
+        else if(offsets[i]>=16 && offsets[i]<=24)word(bytes+offsets[i],UINT32_MAX);
+        else bytes[offsets[i]]=offsets[i]==28?0xff:0xff;
+        view.line=777;CHECK(!nvm_field_read_at(m,0,&view) && view.line==777);
+        CHECK(nvm_verify(m).ok);char *again=nvm2c_emit(m,error,sizeof error);CHECK(again && !strcmp(native,again));free(again);
+    }
+    memcpy(bytes,saved,size);
+    for(uint32_t n=0;n<size;n++) {m->string_lengths[value]=n;view.line=777;CHECK(!nvm_field_read_at(m,0,&view) && view.line==777);}
+    m->string_lengths[value]=size;
+    /* A forged duplicate with a changed category is still ambiguous. */
+    saved[12]=1;uint32_t duplicate=nvm_add_string(m,(const char *)saved,size);
+    CHECK(duplicate!=UINT32_MAX && nvm_add_metadata(m,m->metadata[0].key_idx,duplicate));
+    view.line=777;CHECK(!nvm_field_read_at(m,0,&view) && view.line==777);
+    CHECK(!nvm_field_read_at(m,1,&view) && view.line==777);
+    CHECK(nvm_verify(m).ok);char *again=nvm2c_emit(m,error,sizeof error);CHECK(again && !strcmp(native,again));free(again);
+    m->metadata_count=0;again=nvm2c_emit(m,error,sizeof error);CHECK(again && !strcmp(native,again));free(again);free(native);
+    nvm_module_free(m);
+    m=ordinary();fact.projection="";fact.projection_length=0;CHECK(!nvm_add_field_read(m,&fact));
+    fact.projection=".left";fact.projection_length=5;CHECK(nvm_add_field_read(m,&fact));
+    uint32_t unknown=nvm_add_string(m,"nano.field-read.v9",18),junk=nvm_add_string(m,"opaque",6);
+    CHECK(nvm_add_metadata(m,unknown,junk));CHECK(nvm_field_read_at(m,0,&view));nvm_module_free(m);
+}
+
+static void test_field_writes(void) {
+    NvmModule *m=ordinary();
+    NvmFieldWrite fact={0,2,3,1,1,"module.nano","owner",".left",11,5,5},view={0};
+    CHECK(nvm_add_field_write(m,&fact));CHECK(nvm_field_write_at(m,0,&view));
+    CHECK(view.mode==1 && view.projection_length==5);
+    NvmFieldWrite alternate=fact;alternate.mode=1;alternate.root="other";
+    CHECK(!nvm_add_field_write(m,&alternate)); /* descriptive changes do not create another site */
+    NvmModule *c=copy(m);compare_wire(m,c);CHECK(nvm_field_write_at(c,0,&view));
+    char *text=disasm_module_styled(c,DISASM_STYLE_CANONICAL);CHECK(text);
+    AsmResult assembled;NvmModule *round=asm_assemble(text,&assembled);CHECK(round);compare_wire(m,round);
+    free(text);nvm_module_free(round);nvm_module_free(c);
+    char error[256];char *native=nvm2c_emit(m,error,sizeof error);CHECK(native);
+    uint32_t value=m->metadata[0].value_idx,size=m->string_lengths[value];
+    uint8_t *bytes=(uint8_t *)m->strings[value];uint8_t saved[128];CHECK(size<=sizeof saved);memcpy(saved,bytes,size);
+    const unsigned offsets[]={0,4,8,12,13,14,15,16,20,24,28};
+    for(size_t i=0;i<sizeof offsets/sizeof *offsets;i++) {
+        memcpy(bytes,saved,size);
+        if(offsets[i]<=8)word(bytes+offsets[i],offsets[i]?0:UINT32_MAX);
+        else if(offsets[i]>=16 && offsets[i]<=24)word(bytes+offsets[i],UINT32_MAX);
+        else bytes[offsets[i]]=offsets[i]==28?0xff:0xff;
+        view.line=777;CHECK(!nvm_field_write_at(m,0,&view) && view.line==777);
+        CHECK(nvm_verify(m).ok);char *again=nvm2c_emit(m,error,sizeof error);CHECK(again && !strcmp(native,again));free(again);
+    }
+    memcpy(bytes,saved,size);
+    for(uint32_t n=0;n<size;n++) {m->string_lengths[value]=n;view.line=777;CHECK(!nvm_field_write_at(m,0,&view) && view.line==777);}
+    m->string_lengths[value]=size;
+    /* A forged duplicate with a changed mode is still ambiguous. */
+    saved[12]=1;uint32_t duplicate=nvm_add_string(m,(const char *)saved,size);
+    CHECK(duplicate!=UINT32_MAX && nvm_add_metadata(m,m->metadata[0].key_idx,duplicate));
+    view.line=777;CHECK(!nvm_field_write_at(m,0,&view) && view.line==777);
+    CHECK(!nvm_field_write_at(m,1,&view) && view.line==777);
+    CHECK(nvm_verify(m).ok);char *again=nvm2c_emit(m,error,sizeof error);CHECK(again && !strcmp(native,again));free(again);
+    m->metadata_count=0;again=nvm2c_emit(m,error,sizeof error);CHECK(again && !strcmp(native,again));free(again);free(native);
+    nvm_module_free(m);
+    m=ordinary();fact.projection="";fact.projection_length=0;CHECK(!nvm_add_field_write(m,&fact));
+    fact.projection=".left";fact.projection_length=5;CHECK(nvm_add_field_write(m,&fact));
+    uint32_t unknown=nvm_add_string(m,"nano.field-write.v9",19),junk=nvm_add_string(m,"opaque",6);
+    CHECK(nvm_add_metadata(m,unknown,junk));CHECK(nvm_field_write_at(m,0,&view));nvm_module_free(m);
+}
+
 int main(int argc, char **argv) {
     test_purity();
+    test_effects();
+    test_affine();
+    test_match_coverage(); test_affine_use(); test_borrow_places(); test_field_reads(); test_field_writes();
     test_generic_bindings();
     NvmModule *m = ordinary();
     uint32_t legacy_size; uint8_t *legacy = nvm_serialize(m, &legacy_size);

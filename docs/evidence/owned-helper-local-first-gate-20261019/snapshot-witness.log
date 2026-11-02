@@ -1,0 +1,13 @@
+test_actual_shared_literal_required (tests.test_owned_helper_local_witness.HelperLocalWitness.test_actual_shared_literal_required) ... ok
+test_allocation_and_traversal_caps_precede_mutation (tests.test_owned_helper_local_witness.HelperLocalWitness.test_allocation_and_traversal_caps_precede_mutation) ... ok
+test_field_generation_and_nominal_identity (tests.test_owned_helper_local_witness.HelperLocalWitness.test_field_generation_and_nominal_identity) ... ok
+test_immutable_preloop_snapshot_survives_invalidation (tests.test_owned_helper_local_witness.HelperLocalWitness.test_immutable_preloop_snapshot_survives_invalidation) ... ok
+test_literal_and_token_equality_only (tests.test_owned_helper_local_witness.HelperLocalWitness.test_literal_and_token_equality_only) ... ok
+test_loop_preinvalidates_every_nonrank_write (tests.test_owned_helper_local_witness.HelperLocalWitness.test_loop_preinvalidates_every_nonrank_write) ... ok
+test_merge_does_not_equate_unknown_or_distinct_facts (tests.test_owned_helper_local_witness.HelperLocalWitness.test_merge_does_not_equate_unknown_or_distinct_facts) ... ok
+test_same_iteration_owner_capture (tests.test_owned_helper_local_witness.HelperLocalWitness.test_same_iteration_owner_capture) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.001s
+
+OK

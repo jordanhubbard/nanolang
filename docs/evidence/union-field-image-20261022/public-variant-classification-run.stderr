@@ -1,0 +1,10 @@
+public verify original=0 copied=0
+native=0 I require valid reference lifetime and ownership instruction verification before translation
+public verify original=1 copied=1
+native=1 
+public verify original=1 copied=1
+native=1 
+public verify original=1 copied=1
+native=1 
+public verify original=1 copied=1
+native=1 

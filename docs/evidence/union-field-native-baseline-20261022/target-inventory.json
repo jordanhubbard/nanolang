@@ -1,0 +1,34 @@
+{
+  "scope": "declaration-only sizeof; no emitter or production objects",
+  "compiler": "Homebrew clang version 23.1.2",
+  "compiler_sha256": "5b3adae66bf3e36a0aa2e90db47e3456d31bf5f992124fd09ae9119b076e00be",
+  "command": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Isrc/nanoisa",
+    "docs/evidence/union-field-native-baseline-20261022/target-inventory.c",
+    "-o",
+    "/private/tmp/union-native-target-inventory"
+  ],
+  "source_sha256": "d843147d385133034dac7c585cdc28ce7959222cc08a36b4c217baaa01b60841",
+  "sizes": {
+    "origin": 40,
+    "instruction": 144,
+    "function": 36,
+    "header": 32,
+    "execution_counts": 64,
+    "proof_counts": 32,
+    "value": 16,
+    "layout": 8,
+    "variant": 12,
+    "field": 12,
+    "context": 40,
+    "scratch": 3080
+  },
+  "simultaneous_named_storage": 3120,
+  "whole_call_stack": "unmeasured; includes simultaneously live caller/callee/getter frames",
+  "disk_before": "22GiB free,99% used; no heavy job"
+}

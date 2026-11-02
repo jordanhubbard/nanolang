@@ -1,0 +1,14 @@
+build 0
+ordinary 0
+alias first=0 stack=1 frames=0 globals=1
+alias second=8 stack=3 frames=1 globals=1 identity=1
+/private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm run0 result0 globals0
+/private/tmp/nanolang-map-baseline-20261021/string-int-seed.nvm run1 result0 globals0
+/private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm run0 result0 globals0
+/private/tmp/nanolang-map-baseline-20261021/string-int-c-hosted-nano.nvm run1 result0 globals0
+/private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm run0 result0 globals0
+/private/tmp/nanolang-map-baseline-20261021/string-int-stage1.nvm run1 result0 globals0
+/private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm run0 result0 globals0
+/private/tmp/nanolang-map-baseline-20261021/string-int-stage2.nvm run1 result0 globals0
+PASS 84 ordinary lifecycle checks
+

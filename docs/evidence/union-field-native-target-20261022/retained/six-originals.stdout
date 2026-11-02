@@ -1,0 +1,8 @@
+context=40 scratch=3024 origins=2592
+target /private/tmp/nanolang-union-native-baseline-20261022/seed-selected.nvm status=0 work=300157 scratch=65536 message=I prepared a private native union target; I emit no code.
+target /private/tmp/nanolang-union-native-baseline-20261022/c-shadow-selected.nvm status=0 work=345678 scratch=65536 message=I prepared a private native union target; I emit no code.
+target /private/tmp/nanolang-union-native-baseline-20261022/canonical-selected.nvm status=0 work=268997 scratch=65536 message=I prepared a private native union target; I emit no code.
+target /private/tmp/nanolang-union-native-baseline-20261022/canonical-shadow-selected.nvm status=0 work=320271 scratch=65536 message=I prepared a private native union target; I emit no code.
+target /private/tmp/nanolang-union-native-baseline-20261022/raw-program-selected.nvm status=0 work=268997 scratch=65536 message=I prepared a private native union target; I emit no code.
+target /private/tmp/nanolang-union-native-baseline-20261022/raw-shadow-selected.nvm status=0 work=320271 scratch=65536 message=I prepared a private native union target; I emit no code.
+PASS 121 target checks six originals

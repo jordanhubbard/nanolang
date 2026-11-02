@@ -1,0 +1,7 @@
+{
+  "src/nanovirt/wrapper_gen.c": "4d887b5f5853815ad4c26426edf01958fb7d32d5aa1cc0626b8eaf8aeee4b96c",
+  "bin/nano_virt": "18a870082df7f6f1522b3706e82a794db4b1c12410fc1a415303b3b51898a2cc",
+  "obj/checked_borrow_facts.o": "5a4ac7c49f8c0518f37fb5e9c735f3050568410b87b3acf6007f5c765a143553",
+  "obj/env.o": "59f2d7eb8320282b8159103a3586de316a877b4a809f632ba8567a79b4a292ee",
+  "obj/resource_flow.o": "a2aa3084af00d410b6eb94b719b3b1dfb5ecbf86d98cff027082c18ecb1dbdd6"
+}

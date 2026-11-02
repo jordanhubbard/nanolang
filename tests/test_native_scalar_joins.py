@@ -59,6 +59,26 @@ class NativeScalarJoins(unittest.TestCase):
                             'PUSH_BOOL 1\nCALL choose\n'+('' if truth else 'BOOL_NOT\n')+'ASSERT\n')
                     self.compare(self.program(body,self.choose(instruction,tag,reverse)))
 
+    def test_proved_boolean_global_edges_preserve_short_circuit(self):
+        for operation in ('or', 'and'):
+            branch = 'JMP_TRUE' if operation == 'or' else 'JMP_FALSE'
+            helper = ('.function choose 1 1 0 bool 1\n.parameters choose bool\n'
+                'LOAD_GLOBAL 0\nDUP\n'+branch+' join\nPOP\n'
+                'LOAD_GLOBAL 1\nPUSH_I64 1\nI64_ADD\nSTORE_GLOBAL 1\n'
+                'LOAD_LOCAL 0\nBOOL_NOT\njoin:\nRET\n.end\n')
+            body = ''
+            for left in (False, True):
+                for right in (False, True):
+                    result = (left or right) if operation == 'or' else (left and right)
+                    evaluated = (not left) if operation == 'or' else left
+                    body += (f'PUSH_BOOL {int(left)}\nSTORE_GLOBAL 0\n'
+                        'PUSH_I64 0\nSTORE_GLOBAL 1\n'
+                        f'PUSH_BOOL {int(not right)}\nCALL choose\n'
+                        f'PUSH_BOOL {int(result)}\nEQ\nASSERT\n'
+                        f'LOAD_GLOBAL 1\nPUSH_I64 {int(evaluated)}\nI64_EQ\nASSERT\n')
+            with self.subTest(operation=operation):
+                self.compare(self.program(body, helper))
+
     def test_explicit_void_local_retains_join_provenance(self):
         function = self.choose('PUSH_I64 7', 1).replace(
             '.parameters choose bool\n', '.parameters choose bool\nPUSH_VOID\nSTORE_LOCAL 1\n')
@@ -121,10 +141,45 @@ class NativeScalarJoins(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0)
                     self.assertEqual(target.read_text(), 'previous')
 
+    def test_byte_integer_join_retains_exact_tags(self):
+        for reverse in (False, True):
+            first, second = ('PUSH_U8 255', 'PUSH_I64 255')
+            if reverse:
+                first, second = second, first
+            byte_arm = 1 if reverse else 0
+            helper = ('.function choose 1 1 0 bool 1\n.parameters choose bool\n'
+                'LOAD_LOCAL 0\nJMP_TRUE right\n'+first+'\nJMP join\nright:\n'+second+
+                '\njoin:\nDUP\nTYPE_CHECK 2\nLOAD_LOCAL 0\n'+
+                ('' if byte_arm else 'BOOL_NOT\n')+'EQ\nASSERT\n'
+                'CAST_INT\nPUSH_I64 255\nI64_EQ\nRET\n.end\n')
+            self.compare(self.program('PUSH_BOOL 0\nCALL choose\nASSERT\n'
+                                      'PUSH_BOOL 1\nCALL choose\nASSERT\n', helper))
+
+    def test_carried_argument_survives_conditional_call_operand(self):
+        # I preserve a copied argument below both conditional edges, first
+        # from a literal and then from a tagged map lookup.
+        source = '.string key "number"\n' + self.program(
+            'ARR_NEW 1\nSTORE_GLOBAL 1\n'
+            'HM_NEW 5 1\nPUSH_STR key\nPUSH_I64 7\nHM_SET\nSTORE_GLOBAL 0\n'
+            'PUSH_I64 7\nPUSH_BOOL 0\nCALL carry\nPUSH_I64 8\nI64_EQ\nASSERT\n'
+            'PUSH_I64 7\nPUSH_BOOL 1\nCALL carry\nPUSH_I64 9\nI64_EQ\nASSERT\n'
+            'PUSH_BOOL 0\nCALL bridge\nPUSH_I64 8\nI64_EQ\nASSERT\n'
+            'PUSH_BOOL 1\nCALL bridge\nPUSH_I64 9\nI64_EQ\nASSERT\n',
+            '.function carry 2 3 0 int 1\n.parameters carry int bool\n'
+            'LOAD_LOCAL 0\nSTORE_LOCAL 2\nLOAD_LOCAL 2\nLOAD_LOCAL 1\n'
+            'JMP_TRUE two\nPUSH_I64 1\nJMP joined\ntwo:\nPUSH_I64 2\n'
+            'joined:\nCALL sink\nRET\n.end\n'
+            '.function bridge 1 1 0 int 1\n.parameters bridge bool\n'
+            'CALL getter\nLOAD_LOCAL 0\nCALL carry\nRET\n.end\n'
+            '.function getter 0 0 0 int 1\n'
+            'LOAD_GLOBAL 0\nPUSH_STR key\nHM_GET\nRET\n.end\n'
+            '.function sink 2 2 0 int 1\n.parameters sink int int\n'
+            'LOAD_LOCAL 0\nLOAD_LOCAL 1\nI64_ADD\nRET\n.end\n')
+        self.compare(source)
+
     def test_heap_and_unrelated_union_still_refuse_publication(self):
         for left,right in [('PUSH_VOID','ARR_NEW 1'), ('ARR_NEW 1\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0','PUSH_I64 1'),
-                           ('PUSH_BOOL 1','PUSH_I64 1'),
-                           ('PUSH_U8 1','PUSH_I64 1')]:
+                           ('PUSH_BOOL 1','PUSH_I64 1')]:
             with self.subTest(left=left,right=right):
                 source=self.program('PUSH_BOOL 0\nJMP_TRUE right\n'+left+'\nJMP join\nright:\n'+right+'\njoin:\nPOP\n')
                 module=self.module(source)

@@ -1,0 +1,126 @@
+[
+  {
+    "name": "seed-compile",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_virt",
+      "/private/tmp/nanolang-map-public-baseline-20261021/global.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-map-public-baseline-20261021/seed.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.021028708026278764
+  },
+  {
+    "name": "seed-verify",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-map-public-baseline-20261021/seed.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.0045067500323057175
+  },
+  {
+    "name": "seed-repeat",
+    "argv": [
+      "/private/tmp/nanolang-map-public-baseline-20261021/baseline",
+      "/private/tmp/nanolang-map-public-baseline-20261021/seed.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.051543832989409566
+  },
+  {
+    "name": "c-hosted-nano-compile",
+    "argv": [
+      "/private/tmp/nanolang-self-tail-proof-20261021/emitter",
+      "/private/tmp/nanolang-map-public-baseline-20261021/global.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-map-public-baseline-20261021/c-hosted-nano.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.00827604200458154
+  },
+  {
+    "name": "c-hosted-nano-verify",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-map-public-baseline-20261021/c-hosted-nano.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.004202832991722971
+  },
+  {
+    "name": "c-hosted-nano-repeat",
+    "argv": [
+      "/private/tmp/nanolang-map-public-baseline-20261021/baseline",
+      "/private/tmp/nanolang-map-public-baseline-20261021/c-hosted-nano.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.054203499981667846
+  },
+  {
+    "name": "stage1-compile",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1",
+      "/private/tmp/nanolang-map-public-baseline-20261021/global.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-map-public-baseline-20261021/stage1.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.04437033296562731
+  },
+  {
+    "name": "stage1-verify",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-map-public-baseline-20261021/stage1.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.004291416029445827
+  },
+  {
+    "name": "stage1-repeat",
+    "argv": [
+      "/private/tmp/nanolang-map-public-baseline-20261021/baseline",
+      "/private/tmp/nanolang-map-public-baseline-20261021/stage1.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.04875908396206796
+  },
+  {
+    "name": "stage2-compile",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+      "/private/tmp/nanolang-map-public-baseline-20261021/global.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.04379220801638439
+  },
+  {
+    "name": "stage2-verify",
+    "argv": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.004273500002454966
+  },
+  {
+    "name": "stage2-repeat",
+    "argv": [
+      "/private/tmp/nanolang-map-public-baseline-20261021/baseline",
+      "/private/tmp/nanolang-map-public-baseline-20261021/stage2.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.051088000007439405
+  }
+]

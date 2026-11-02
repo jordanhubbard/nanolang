@@ -1,0 +1,26 @@
+[
+  {
+    "command": [
+      "make",
+      "test-union-field-vm"
+    ],
+    "code": 0,
+    "seconds": 21.2275429579895,
+    "log": "/private/tmp/nanolang-union-vm-aggregate-0.log"
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-qualification-venv/bin/python",
+      "-m",
+      "unittest",
+      "tests.test_ci_workflow",
+      "tests.test_ci_bootstrap_checkpoint",
+      "tests.test_ci_capture_selection",
+      "tests.test_ci_container",
+      "tests.test_nanoisa_schema"
+    ],
+    "code": 0,
+    "seconds": 2.066538125043735,
+    "log": "/private/tmp/nanolang-union-vm-aggregate-1.log"
+  }
+]

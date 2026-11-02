@@ -1,0 +1,56 @@
+[
+  {
+    "name": "seed",
+    "sha256": "04520087c90a82ca747792c0297d95f693fa795e8e1b311f5353e2c6d3ef145e",
+    "bytes": 1100,
+    "types": "1 0 1",
+    "functions": 1,
+    "instructions": 40,
+    "query": 0
+  },
+  {
+    "name": "c-shadow",
+    "sha256": "2eeb157a6521ef4b74a4d61a8ba250bbc1c2d6239e1d51e22a0841789cd8faa2",
+    "bytes": 1288,
+    "types": "1 0 1",
+    "functions": 3,
+    "instructions": 48,
+    "query": 0
+  },
+  {
+    "name": "canonical",
+    "sha256": "3e737814af333b5617fa0adbd434402e41b750bd64bb5a8f3ccca0047873abe1",
+    "bytes": 876,
+    "types": "1 0 1",
+    "functions": 1,
+    "instructions": 35,
+    "query": 0
+  },
+  {
+    "name": "canonical-shadow",
+    "sha256": "ea0f49145579d967292c84fa712a2e01fc564338c72acf5e01960ce08c8434dc",
+    "bytes": 1140,
+    "types": "1 0 1",
+    "functions": 3,
+    "instructions": 44,
+    "query": 0
+  },
+  {
+    "name": "raw-program",
+    "sha256": "1cc10d74812db57421559a72591629bd065f54ff43d4abe9deffa726885b60f2",
+    "bytes": 812,
+    "types": "1 0 1",
+    "functions": 1,
+    "instructions": 35,
+    "query": 0
+  },
+  {
+    "name": "raw-shadow",
+    "sha256": "8bd8f485f8a3c1ed91c3943bc35e17c992424cac0d8f1a2670f2bccbc9c867c9",
+    "bytes": 1076,
+    "types": "1 0 1",
+    "functions": 3,
+    "instructions": 44,
+    "query": 0
+  }
+]

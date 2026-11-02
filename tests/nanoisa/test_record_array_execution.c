@@ -307,7 +307,7 @@ static const struct {uint8_t opcode,recipe;uint16_t flags;} operations[]={
     SPEC(LOAD_LOCAL,LOAD,BASE|KEEP),SPEC(LOAD_GLOBAL,LOAD,BASE|KEEP),SPEC(STORE_LOCAL,STORE,BASE|KEEP),SPEC(STORE_GLOBAL,STORE,BASE|KEEP),
     SPEC(DUP,DUP,BASE|KEEP),SPEC(SWAP,SWAP,BASE),SPEC(POP,DROP,BASE),SPEC(ASSERT,DROP,BASE),
     SPEC(JMP,BRANCH,BASE),SPEC(JMP_TRUE,BRANCH,BASE),SPEC(JMP_FALSE,BRANCH,BASE),
-    SPEC(CALL,CALL,BASE|NVM_RA_STAGE_OPERANDS),SPEC(RET,RETURN,BASE|NVM_RA_STAGE_OPERANDS),
+    SPEC(CALL,CALL,BASE|NVM_RA_STAGE_OPERANDS),SPEC(TAIL_CALL,TAIL,BASE|NVM_RA_STAGE_OPERANDS|KEEP),SPEC(RET,RETURN,BASE|NVM_RA_STAGE_OPERANDS),
     SPEC(STRUCT_NEW,CONSTRUCT,BASE|NOM|SAFE),SPEC(STRUCT_LITERAL,CONSTRUCT,BASE|NOM|SAFE),SPEC(AGG_PACK,CONSTRUCT,BASE|NOM|SAFE),
     SPEC(ARR_NEW,CONSTRUCT,BASE|SAFE),SPEC(ARR_LITERAL,CONSTRUCT,BASE|SAFE),
     SPEC(STRUCT_GET,GET,BASE|NOM|BOUND|KEEP),SPEC(AGG_GET,GET,BASE|NOM|BOUND|KEEP),SPEC(ARR_GET,GET,BASE|BOUND|KEEP),
@@ -321,7 +321,7 @@ static const struct {uint8_t opcode,recipe;uint16_t flags;} operations[]={
 #undef BOUND
 #undef NOM
 static void complete_opcode_table(void) {
-    bool listed[256]={false};size_t count=sizeof operations/sizeof operations[0];CHECK(count==93);
+    bool listed[256]={false};size_t count=sizeof operations/sizeof operations[0];CHECK(count==94);
     for(size_t i=0;i<count;i++) {
         uint8_t opcode=operations[i].opcode;CHECK(!listed[opcode]);listed[opcode]=true;
         NvmRecordArrayExecutionInstruction recipe={0};CHECK(rae_recipe(opcode,&recipe));
@@ -334,7 +334,7 @@ static void complete_opcode_table(void) {
             /* Arbitrary encoded immediate bits are retained even in dead rows.
              * Branch/call/global fields need valid decoder-level destinations. */
             bits[j]=width==8?UINT64_C(0xfff8000012345678):3;
-            if(opcode==OP_CALL||opcode==OP_JMP||opcode==OP_JMP_TRUE||opcode==OP_JMP_FALSE)bits[j]=0;
+            if(opcode==OP_CALL||opcode==OP_TAIL_CALL||opcode==OP_JMP||opcode==OP_JMP_TRUE||opcode==OP_JMP_FALSE)bits[j]=0;
             for(unsigned k=0;k<width;k++)b8(c.code,&c.n,(uint8_t)(bits[j]>>(8*k)));
         }
         c.fn[0].arity=2;c.fn[0].code_length=(uint32_t)c.n;c.m.code_size=(uint32_t)c.n;
@@ -346,11 +346,11 @@ static void complete_opcode_table(void) {
         for(unsigned j=0;j<info->operand_count;j++)CHECK(row->operand_types[j]==info->operands[j]&&row->operand_bits[j]==bits[j]);
         int pops=info->pop_count,pushes=info->push_count;
         if(opcode==OP_ARR_LITERAL||opcode==OP_STRUCT_LITERAL||opcode==OP_AGG_PACK){pops=3;pushes=1;}
-        if(opcode==OP_CALL){pops=2;pushes=1;CHECK(row->callee==0);}
+        if(opcode==OP_CALL||opcode==OP_TAIL_CALL){pops=2;pushes=opcode==OP_TAIL_CALL?0:1;CHECK(row->callee==0);}
         else CHECK(row->callee==NO);
         if(opcode==OP_RET){pops=1;pushes=0;}
         CHECK(row->pops==pops&&row->pushes==pushes);
-        if(opcode==OP_RET)CHECK(row->successor_count==0);
+        if(opcode==OP_RET||opcode==OP_TAIL_CALL)CHECK(row->successor_count==0);
         else if(opcode==OP_JMP)CHECK(row->successor_count==1&&row->successors[0]==0);
         else if(opcode==OP_JMP_TRUE||opcode==OP_JMP_FALSE)CHECK(row->successor_count==2&&row->successors[0]==0&&row->successors[1]==c.n);
         else CHECK(row->successor_count==1&&row->successors[0]==c.n);
@@ -361,6 +361,24 @@ static void complete_opcode_table(void) {
         CHECK(!!nvm_record_array_opcode_supported((uint8_t)i)==listed[i]);
     }
     printf("I checked %zu explicit opcode recipes and every numeric opcode\n",count);
+}
+static void tail_graph_budget(void) {
+    Input c;init(&c,TAG_INT,false);arg32(&c,OP_TAIL_CALL,1);
+    c.fn[0].code_length=(uint32_t)c.n;c.m.function_count=2;
+    c.fn[1].name_idx=2;c.fn[1].code_offset=(uint32_t)c.n;c.fn[1].result_count=1;c.fn[1].result_tag=TAG_INT;
+    scalar(&c,TAG_INT);op(&c,OP_RET);c.fn[1].code_length=(uint32_t)c.n-c.fn[1].code_offset;authority(&c);
+    NvmRecordArrayStructure *structure=NULL;NvmRecordArrayBudget budget={0};
+    CHECK(nvm_record_array_structure_prepare(&c.m,&budget,&structure).status==NVM_ARRAY_ELIGIBLE);
+    size_t live=ra_live,bytes=ra_bytes;
+    for(unsigned exhausted=0;exhausted<2;exhausted++) {
+        Analysis a={0};a.module=&c.m;a.structure=structure;
+        if(exhausted)a.budget.work=NVM_RA_STEPS-2;else a.budget.bytes=NVM_RA_BYTES;
+        CHECK(!tail_prepare(&a) && a.result.status==NVM_ARRAY_LIMIT);
+        CHECK(ra_live==live && ra_bytes==bytes);
+    }
+    Analysis recovery={0};recovery.module=&c.m;recovery.structure=structure;
+    CHECK(tail_prepare(&recovery));CHECK(ra_live==live && ra_bytes==bytes);
+    nvm_record_array_structure_free(structure);CHECK(!ra_live && !ra_bytes);
 }
 static void detailed_layout_allocation(void) {
     for(unsigned forward=0;forward<2;forward++) {
@@ -467,7 +485,7 @@ int RECORD_ARRAY_EXECUTION_MAIN(void) {
     puts("I begin closed preparation refusal boundaries");plan_refusals();
 #ifdef RA_WHITEBOX
     puts("I begin complete opcode recipes");complete_opcode_table();
-    puts("I begin precise private layout allocation facts");detailed_layout_allocation();
+    puts("I begin precise private layout allocation facts");tail_graph_budget();detailed_layout_allocation();
     puts("I begin plan allocation/work boundaries");plan_accounting();
 #endif
     printf("PASS %u record-array execution-plan checks; no runtime admission\n",checks);return 0;

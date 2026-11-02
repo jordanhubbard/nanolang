@@ -1,0 +1,11 @@
+{
+  "original_locals": [
+    24,
+    3
+  ],
+  "estimated_locals": [
+    131,
+    21
+  ],
+  "output_sentinel_preserved": true
+}

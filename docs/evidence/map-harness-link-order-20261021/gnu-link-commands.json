@@ -1,0 +1,43 @@
+[
+  [
+    "clang",
+    "--target=aarch64-linux-gnu",
+    "-c",
+    "/private/tmp/nano-gnu-link-myrq7cnu/provider.c",
+    "-o",
+    "/private/tmp/nano-gnu-link-myrq7cnu/provider.c.o"
+  ],
+  [
+    "clang",
+    "--target=aarch64-linux-gnu",
+    "-c",
+    "/private/tmp/nano-gnu-link-myrq7cnu/user.c",
+    "-o",
+    "/private/tmp/nano-gnu-link-myrq7cnu/user.c.o"
+  ],
+  [
+    "clang",
+    "--target=aarch64-linux-gnu",
+    "-c",
+    "/private/tmp/nano-gnu-link-myrq7cnu/start.s",
+    "-o",
+    "/private/tmp/nano-gnu-link-myrq7cnu/start.s.o"
+  ],
+  [
+    "docker",
+    "run",
+    "--rm",
+    "--read-only",
+    "--network",
+    "none",
+    "--entrypoint",
+    "/bin/sh",
+    "-v",
+    "/private/tmp/nano-gnu-link-myrq7cnu:/evidence",
+    "-w",
+    "/evidence",
+    "a2fda0831ae6",
+    "-c",
+    "ar rcs provider.a provider.c.o; ld --version; ld -o bad provider.a user.c.o start.s.o >bad.log 2>&1; bad=$?; cat bad.log; test \"$bad\" -ne 0 || exit 20; ld -o good user.c.o start.s.o provider.a || exit 21; ./good || exit 22; echo GNU_LINK_CONTROL_PASS"
+  ]
+]

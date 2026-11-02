@@ -1,0 +1,1 @@
+union Box<T> { Some { value: T }, None {} } union Other<T> { Some { value: T }, None {} } struct Outer { boxed: Box<int> } fn main()->int { let outer:Outer = Outer { boxed:Box.Some { value: "bad" } } return 0 } shadow main { assert (== (main) 0) }

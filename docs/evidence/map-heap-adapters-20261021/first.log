@@ -1,0 +1,21 @@
+test_private_heap (tests.test_record_map_heap.RecordMapHeap.test_private_heap) ... I retain heap artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-heap-c_s4a29_
+FAIL
+
+======================================================================
+FAIL: test_private_heap (tests.test_record_map_heap.RecordMapHeap.test_private_heap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_record_map_heap.py", line 37, in test_private_heap
+    self.command('harness-build', [*cc, *flags, 'tests/nanovm/test_record_map_heap.c',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'tests/nanoisa/record_array_alloc.c', *products, '-lm', '-o', str(exe)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-platform-qualification/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.444s
+
+FAILED (failures=1)

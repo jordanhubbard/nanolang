@@ -1,0 +1,133 @@
+﻿2026-10-27T00:13:05.0022270Z Current runner version: '2.338.0'
+2026-10-27T00:13:05.0042330Z ##[group]Runner Image Provisioner
+2026-10-27T00:13:05.0042940Z Hosted Compute Agent
+2026-10-27T00:13:05.0043310Z Version: 20261021.618
+2026-10-27T00:13:05.0043740Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-27T00:13:05.0044230Z Build Date: 2026-10-21T00:45:21Z
+2026-10-27T00:13:05.0044720Z Worker ID: {5180afc3-9d73-4b62-9246-93d7b4c89fd4}
+2026-10-27T00:13:05.0045170Z Region: westus
+2026-10-27T00:13:05.0045580Z Cloud: MacCloud
+2026-10-27T00:13:05.0045990Z ##[endgroup]
+2026-10-27T00:13:05.0047040Z ##[group]Operating System
+2026-10-27T00:13:05.0047430Z macOS
+2026-10-27T00:13:05.0047800Z 27.0.1
+2026-10-27T00:13:05.0048160Z 26A434
+2026-10-27T00:13:05.0048490Z ##[endgroup]
+2026-10-27T00:13:05.0048860Z ##[group]Runner Image
+2026-10-27T00:13:05.0049260Z Image: xcode-27-arm64
+2026-10-27T00:13:05.0049670Z Version: 20261023.0307.1
+2026-10-27T00:13:05.0050670Z Included Software: https://github.com/actions/runner-images/blob/xcode-27-arm64/20261023.0307/images/macos/xcode-27-arm64-Readme.md
+2026-10-27T00:13:05.0051700Z Image Release: https://github.com/actions/runner-images/releases/tag/xcode-27-arm64%2F20261023.0307
+2026-10-27T00:13:05.0052370Z ##[endgroup]
+2026-10-27T00:13:05.0053140Z ##[group]GITHUB_TOKEN Permissions
+2026-10-27T00:13:05.0054830Z Contents: read
+2026-10-27T00:13:05.0055220Z Metadata: read
+2026-10-27T00:13:05.0055660Z ##[endgroup]
+2026-10-27T00:13:05.0057320Z Secret source: Actions
+2026-10-27T00:13:05.0057920Z Cache mode: write
+2026-10-27T00:13:05.0058380Z Prepare workflow directory
+2026-10-27T00:13:05.0433330Z Prepare all required actions
+2026-10-27T00:13:05.0523980Z Complete job name: probe
+2026-10-27T00:13:05.1630960Z ##[group]Run ls -d /Applications/Xcode* 2>&1 || true
+2026-10-27T00:13:05.1631780Z [36;1mls -d /Applications/Xcode* 2>&1 || true[0m
+2026-10-27T00:13:05.1632390Z [36;1mecho "--- selected:"; xcode-select -p; xcodebuild -version || true[0m
+2026-10-27T00:13:05.1633750Z [36;1mecho "--- CLT SDKs:"; ls -la /Library/Developer/CommandLineTools/SDKs 2>&1 || true[0m
+2026-10-27T00:13:05.1635940Z [36;1mfor app in /Applications/Xcode*.app; do[0m
+2026-10-27T00:13:05.1637230Z [36;1m  d="$app/Contents/Developer"[0m
+2026-10-27T00:13:05.1638680Z [36;1m  echo "=== $app"[0m
+2026-10-27T00:13:05.1640030Z [36;1m  ls "$d/Platforms/MacOSX.platform/Developer/SDKs" 2>&1 || true[0m
+2026-10-27T00:13:05.1641700Z [36;1m  t="$d/Toolchains/XcodeDefault.xctoolchain/usr/bin"[0m
+2026-10-27T00:13:05.1643100Z [36;1m  "$t/clang" --version 2>&1 | head -1 || true[0m
+2026-10-27T00:13:05.1644110Z [36;1m  for n in clang as; do p="$(python3 -c "import os,sys;print(os.path.realpath(sys.argv[1]))" "$t/$n")"; echo "$n $p $(shasum -a 256 "$p" | cut -d' ' -f1)"; done[0m
+2026-10-27T00:13:05.1644990Z [36;1mdone[0m
+2026-10-27T00:13:05.1645980Z [36;1mecho "--- SDK version:"; python3 -c "import json;print(json.load(open('/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/SDKSettings.json'))['Version'])" 2>&1 || true[0m
+2026-10-27T00:13:05.3837830Z shell: /bin/bash -e {0}
+2026-10-27T00:13:05.3838500Z ##[endgroup]
+2026-10-27T00:13:05.4245660Z /Applications/Xcode_27.0.0.app
+2026-10-27T00:13:05.4246400Z /Applications/Xcode_27.0.app
+2026-10-27T00:13:05.4246880Z /Applications/Xcode_27.1.0.app
+2026-10-27T00:13:05.4247460Z /Applications/Xcode_27.1.app
+2026-10-27T00:13:05.4247940Z /Applications/Xcode_27.2_Release_Candidate.app
+2026-10-27T00:13:05.4248450Z /Applications/Xcode_27.2.0.app
+2026-10-27T00:13:05.4248880Z /Applications/Xcode_27.2.app
+2026-10-27T00:13:05.4249290Z /Applications/Xcode_27.app
+2026-10-27T00:13:05.4249810Z /Applications/Xcode.app
+2026-10-27T00:13:05.4250210Z --- selected:
+2026-10-27T00:13:05.4294110Z /Applications/Xcode_27.1.app/Contents/Developer
+2026-10-27T00:13:05.9055420Z Xcode 27.1
+2026-10-27T00:13:05.9074400Z Build version 27A9275
+2026-10-27T00:13:05.9093320Z --- CLT SDKs:
+2026-10-27T00:13:05.9230810Z total 0
+2026-10-27T00:13:05.9232200Z drwxr-xr-x  7 root  wheel  224 Oct 23 04:28 .
+2026-10-27T00:13:05.9235230Z drwxr-xr-x  5 root  wheel  160 Oct 23 04:27 ..
+2026-10-27T00:13:05.9239530Z lrwxr-xr-x  1 root  wheel   14 Oct 23 04:28 MacOSX.sdk -> MacOSX27.0.sdk
+2026-10-27T00:13:05.9241260Z drwxr-xr-x  7 root  wheel  224 May 12 22:29 MacOSX26.5.sdk
+2026-10-27T00:13:05.9243060Z lrwxr-xr-x  1 root  wheel   14 Oct 23 04:28 MacOSX26.sdk -> MacOSX26.5.sdk
+2026-10-27T00:13:05.9244890Z drwxr-xr-x  7 root  wheel  224 Aug 30 17:49 MacOSX27.0.sdk
+2026-10-27T00:13:05.9246760Z lrwxr-xr-x  1 root  wheel   14 Oct 23 04:28 MacOSX27.sdk -> MacOSX27.0.sdk
+2026-10-27T00:13:05.9248380Z === /Applications/Xcode_27.0.0.app
+2026-10-27T00:13:05.9318170Z MacOSX.sdk
+2026-10-27T00:13:05.9319260Z MacOSX27.0.sdk
+2026-10-27T00:13:05.9320240Z MacOSX27.sdk
+2026-10-27T00:13:06.1615380Z Apple clang version 21.0.0 (clang-2100.3.34.2)
+2026-10-27T00:13:07.2758910Z clang /Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang 5922f5f7843fee699497c45cc98134b6686e0a5e2fa8a5866ab74c5482fa87a5
+2026-10-27T00:13:07.3313700Z as /Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as 06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc
+2026-10-27T00:13:07.3316800Z === /Applications/Xcode_27.0.app
+2026-10-27T00:13:07.3361380Z MacOSX.sdk
+2026-10-27T00:13:07.3363110Z MacOSX27.0.sdk
+2026-10-27T00:13:07.3364560Z MacOSX27.sdk
+2026-10-27T00:13:07.3481950Z Apple clang version 21.0.0 (clang-2100.3.34.2)
+2026-10-27T00:13:07.8741710Z clang /Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang 5922f5f7843fee699497c45cc98134b6686e0a5e2fa8a5866ab74c5482fa87a5
+2026-10-27T00:13:07.9194750Z as /Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as 06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc
+2026-10-27T00:13:07.9196960Z === /Applications/Xcode_27.1.0.app
+2026-10-27T00:13:07.9223870Z MacOSX.sdk
+2026-10-27T00:13:07.9224710Z MacOSX27.0.sdk
+2026-10-27T00:13:07.9225680Z MacOSX27.sdk
+2026-10-27T00:13:08.1131460Z Apple clang version 21.0.0 (clang-2100.3.34.2)
+2026-10-27T00:13:08.9344390Z clang /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang 06e3d64f541c65a93acd176690bdaae13a3d7db092c8b98b392d4c6d0d03f176
+2026-10-27T00:13:08.9889950Z as /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as 06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc
+2026-10-27T00:13:08.9892140Z === /Applications/Xcode_27.1.app
+2026-10-27T00:13:08.9934390Z MacOSX.sdk
+2026-10-27T00:13:08.9935140Z MacOSX27.0.sdk
+2026-10-27T00:13:08.9935980Z MacOSX27.sdk
+2026-10-27T00:13:09.0057140Z Apple clang version 21.0.0 (clang-2100.3.34.2)
+2026-10-27T00:13:09.4911450Z clang /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang 06e3d64f541c65a93acd176690bdaae13a3d7db092c8b98b392d4c6d0d03f176
+2026-10-27T00:13:09.5564430Z as /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as 06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc
+2026-10-27T00:13:09.5565450Z === /Applications/Xcode_27.2_Release_Candidate.app
+2026-10-27T00:13:09.5718310Z MacOSX.sdk
+2026-10-27T00:13:09.5719440Z MacOSX27.2.sdk
+2026-10-27T00:13:09.5720220Z MacOSX27.sdk
+2026-10-27T00:13:09.8616480Z Apple clang version 21.0.0 (clang-2100.3.34.1)
+2026-10-27T00:13:10.9613960Z clang /Applications/Xcode_27.2_Release_Candidate.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang c596e98dbf1218d8a989f66ba638ac8ed57fac3e3719ccdf1b8605544a5ba4e2
+2026-10-27T00:13:11.0308350Z as /Applications/Xcode_27.2_Release_Candidate.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as 06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc
+2026-10-27T00:13:11.0314830Z === /Applications/Xcode_27.2.0.app
+2026-10-27T00:13:11.0355070Z MacOSX.sdk
+2026-10-27T00:13:11.0367730Z MacOSX27.2.sdk
+2026-10-27T00:13:11.0373230Z MacOSX27.sdk
+2026-10-27T00:13:11.0524300Z Apple clang version 21.0.0 (clang-2100.3.34.1)
+2026-10-27T00:13:11.6497660Z clang /Applications/Xcode_27.2_Release_Candidate.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang c596e98dbf1218d8a989f66ba638ac8ed57fac3e3719ccdf1b8605544a5ba4e2
+2026-10-27T00:13:11.7068180Z as /Applications/Xcode_27.2_Release_Candidate.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as 06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc
+2026-10-27T00:13:11.7069710Z === /Applications/Xcode_27.2.app
+2026-10-27T00:13:11.7099010Z MacOSX.sdk
+2026-10-27T00:13:11.7099240Z MacOSX27.2.sdk
+2026-10-27T00:13:11.7099650Z MacOSX27.sdk
+2026-10-27T00:13:11.7194760Z Apple clang version 21.0.0 (clang-2100.3.34.1)
+2026-10-27T00:13:12.2725260Z clang /Applications/Xcode_27.2_Release_Candidate.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang c596e98dbf1218d8a989f66ba638ac8ed57fac3e3719ccdf1b8605544a5ba4e2
+2026-10-27T00:13:12.3195990Z as /Applications/Xcode_27.2_Release_Candidate.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as 06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc
+2026-10-27T00:13:12.3198480Z === /Applications/Xcode_27.app
+2026-10-27T00:13:12.3244030Z MacOSX.sdk
+2026-10-27T00:13:12.3245090Z MacOSX27.0.sdk
+2026-10-27T00:13:12.3245680Z MacOSX27.sdk
+2026-10-27T00:13:12.3355330Z Apple clang version 21.0.0 (clang-2100.3.34.2)
+2026-10-27T00:13:12.8640570Z clang /Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang 5922f5f7843fee699497c45cc98134b6686e0a5e2fa8a5866ab74c5482fa87a5
+2026-10-27T00:13:12.9040870Z as /Applications/Xcode_27.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as 06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc
+2026-10-27T00:13:12.9041980Z === /Applications/Xcode.app
+2026-10-27T00:13:12.9068560Z MacOSX.sdk
+2026-10-27T00:13:12.9069460Z MacOSX27.0.sdk
+2026-10-27T00:13:12.9070580Z MacOSX27.sdk
+2026-10-27T00:13:12.9160670Z Apple clang version 21.0.0 (clang-2100.3.34.2)
+2026-10-27T00:13:13.3851700Z clang /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang 06e3d64f541c65a93acd176690bdaae13a3d7db092c8b98b392d4c6d0d03f176
+2026-10-27T00:13:13.4291360Z as /Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as 06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc
+2026-10-27T00:13:13.4756870Z --- SDK version:
+2026-10-27T00:13:13.4757120Z 27.0
+2026-10-27T00:13:13.4990220Z Cleaning up orphan processes

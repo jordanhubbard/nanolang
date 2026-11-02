@@ -1,0 +1,10 @@
+tests/nanoisa/test_record_map_image.c:163:86: error: too many arguments to function call, expected 4, have 5
+  163 |         uint8_t key=99,value=98;CHECK(nvm_record_map_execution_field(source,0,0,&key,&value)&&key==TAG_STRING&&value==TAG_INT);
+      |                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                 ^~~~~~
+tests/nanoisa/test_record_array_origins.c:23:36: note: expanded from macro 'CHECK'
+   23 | #define CHECK(x) do {checks++;if(!(x)){fprintf(stderr,"I failed line %u: %s\n",__LINE__,#x);exit(1);}} while(0)
+      |                                    ^
+tests/nanoisa/../../src/nanoisa/managed_record_map_execution.inc:163:6: note: 'nvm_record_map_execution_field' declared here
+  163 | bool nvm_record_map_execution_field(const NvmRecordMapExecutionPlan *p,uint32_t i,uint16_t field,NvmV2LayoutField *out) {
+      |      ^                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

@@ -1,0 +1,69 @@
+I retain owned branch evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-5v8h91af
+test_nested_owner_results (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_nested_owner_results) ... 
+  test_nested_owner_results (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_nested_owner_results) (fixture='nested_owner_result_source', original='nested_owner_result_source.nano_virt.nvm') ... FAIL
+  test_nested_owner_results (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_nested_owner_results) (fixture='nested_owner_result_source', original='nested_owner_result_source.nanoc_stage1.nvm') ... FAIL
+  test_nested_owner_results (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_nested_owner_results) (fixture='nested_owner_result_source', original='nested_owner_result_source.nanoc_stage2.nvm') ... FAIL
+  test_nested_owner_results (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_nested_owner_results) (fixture='nested_owner_result_source', original='nested_owner_result_source.original-shadow.nvm') ... FAIL
+test_temporary_arguments (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_temporary_arguments) ... 
+  test_temporary_arguments (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_temporary_arguments) (fixture='temporary_owner_fixture', original='temporary_owner_fixture.nano_virt.nvm') ... FAIL
+  test_temporary_arguments (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_temporary_arguments) (fixture='temporary_owner_fixture', original='temporary_owner_fixture.nanoc_stage1.nvm') ... FAIL
+  test_temporary_arguments (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_temporary_arguments) (fixture='temporary_owner_fixture', original='temporary_owner_fixture.nanoc_stage2.nvm') ... FAIL
+  test_temporary_arguments (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_temporary_arguments) (fixture='temporary_owner_fixture', original='temporary_owner_fixture.original-shadow.nvm') ... FAIL
+test_transitive_wrappers (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_transitive_wrappers) ... 
+  test_transitive_wrappers (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_transitive_wrappers) (fixture='transitive_wrapper_fixture', original='transitive_wrapper_fixture.nano_virt.nvm') ... FAIL
+  test_transitive_wrappers (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_transitive_wrappers) (fixture='transitive_wrapper_fixture', original='transitive_wrapper_fixture.nanoc_stage1.nvm') ... FAIL
+  test_transitive_wrappers (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_transitive_wrappers) (fixture='transitive_wrapper_fixture', original='transitive_wrapper_fixture.nanoc_stage2.nvm') ... FAIL
+  test_transitive_wrappers (tests.test_owned_wrapper_reconstruction.OwnedWrapperReconstruction.test_transitive_wrappers) (fixture='transitive_wrapper_fixture', original='transitive_wrapper_fixture.original-shadow.nvm') ... FAIL
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/__main__.py", line 18, in <module>
+    main(module=None)
+    ~~~~^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/main.py", line 104, in __init__
+    self.runTests()
+    ~~~~~~~~~~~~~^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/main.py", line 270, in runTests
+    self.result = testRunner.run(self.test)
+                  ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/runner.py", line 257, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/suite.py", line 122, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/suite.py", line 122, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/suite.py", line 114, in run
+    self._handleClassSetUp(test, result)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/unittest/suite.py", line 166, in _handleClassSetUp
+    setUpClass()
+    ~~~~~~~~~~^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_source_borrow_emission.py", line 341, in setUpClass
+    cls.command(ROOT / 'bin' / compiler, shadow_source, '-o', shadow_tool, timeout=900)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/Src/nanolang-51-harness/tests/test_source_borrow_emission.py", line 350, in command
+    result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
+                            text=True, timeout=timeout)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 1221, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/subprocess.py", line 2153, in _communicate
+    ready = selector.select(timeout)
+  File "/Users/jkh/.mac/lib/python/cpython-3.14.7-macos-aarch64-none/lib/python3.14/selectors.py", line 398, in select
+    fd_event_list = self._selector.poll(timeout)
+KeyboardInterrupt

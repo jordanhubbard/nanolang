@@ -1,0 +1,22 @@
+{
+  ".github/workflows/retirement-qualification.yml": "17aaeb940a9eb72e6498a494428cd2bae918b36cd9bc952f1f5818a5c9429990",
+  "Makefile.gnu": "24117f02c6a704e88100847ad4341250448165490ef308468a2024d4e0316d60",
+  "docs/NANOISA_NESTED_PRIMITIVE_ARRAY_AUTHORITY.md": "fba53a21ab02043ce900ca99df06d1e85088f99c92bad143299f723a43b3e7d1",
+  "docs/ROADMAP.md": "89171b713f28839eff4fa24628243f89f4dbe3f2ef8950671b974eb683b9dbdb",
+  "src/nanoisa/managed_array_shapes.c": "161bee007d87c465541e09c4ef95435448e883f3e277ecb803f255b0d43ad72e",
+  "src/nanoisa/managed_record_array_origins.h": "f689c90490d847002190b368ed04acb247751f6b44287c27108d891b8a613709",
+  "src/nanoisa/nvm2c.c": "27d4662df446c34bc07bf71ef9e4337bb8736288a9468f64f400f1530147f2cf",
+  "src/nanoisa/ownership_array_fields.inc": "a34855b4598dca1449116ab4d75195ffff04091ed91dbd481ef7a1fc7e56bf83",
+  "src/nanoisa/record_array_origins.inc": "f79e17fa4893adc627aaea3c1e47cdcb16436e5903575565fa54f405d96f4f67",
+  "src/nanovirt/codegen.c": "99f7991b9f4c224710e6b181e701ff10892c5cb2282e3f0fbcd819140cab81b3",
+  "src/nanovirt/ordinary_authority.inc": "e99e65f627d2547654d1da1d165848365d036953fd230cb6bf106b44a04c1c32",
+  "src/nanovm/record_array_vm_prepare.inc": "ca51c28bd86f41fa2f18af2ba8f4fc03162a96f331e5c99e35f4773383d05f77",
+  "src_nano/compiler/nanoisa_codegen.nano": "96885c4e34937d3721dd77727023afb7de3ae60042a94747e4915c2443f7464f",
+  "tests/nanoisa/test_record_array_nested.c": "8de5b8af4083aec62b1ce79f1618aa874b83c3d3941c6cc0aa60a0c404804374",
+  "tests/nanoisa/test_record_array_origins.c": "c46c5d13dfd232e839acae4eeaadc3b39edb11e08214769fe5d422d17e07469c",
+  "tests/test_flat_array_source_publication.py": "e5f0f15919156bf3e9c49a23a2547368ae5d9c16732752dfe831b235b4fc12d0",
+  "tests/test_ordinary_declaration_provenance.py": "c617fc806b2cf938b39d72ec5477f7e64e4d94677e8cac5ecc41865ff1d4ffb9",
+  "tests/test_publication_allocation.py": "9d497548cb6fe56a70dd96335524c14dfe7027c759cf251cb5965f11848d280f",
+  "tests/test_record_array_nested.py": "5acaa356145b5434e1420bba6200ae1eec37ca664c43a51eab282a8ae5e654e8",
+  "tests/test_record_array_nested_primitive.py": "c208e5f7ed6d63646d6705bcbfb6115a2a487174ab4da00b04fc901a23ebd6e3"
+}

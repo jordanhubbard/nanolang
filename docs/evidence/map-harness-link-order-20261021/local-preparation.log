@@ -1,0 +1,17 @@
+I retain preparation artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-preparation-8ai6eybu
+test_instrumented_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_instrumented_preparation) ... PASS 500 map origin checks; public boundaries checked
+PASS 687 copied map recipe checks; public boundaries checked
+I checked 873 preparation allocation prefixes in both modes, including intern growth, retained 9269153 bytes.
+I checked private map preparation and independence; execution remains refused.
+
+ok
+test_linked_preparation (tests.test_record_map_preparation.RecordMapPreparation.test_linked_preparation) ... PASS 500 map origin checks; public boundaries checked
+PASS 687 copied map recipe checks; public boundaries checked
+I checked private map preparation and independence; execution remains refused.
+
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 13.742s
+
+OK

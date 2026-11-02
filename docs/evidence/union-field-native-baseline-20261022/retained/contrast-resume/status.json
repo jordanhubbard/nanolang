@@ -1,0 +1,226 @@
+[
+  {
+    "name": "false-assert-assemble",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-union-halt-baseline-20261022/false-assert.nasm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/false-assert.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.004696625052019954
+  },
+  {
+    "name": "false-assert-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/false-assert.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.004705916973762214
+  },
+  {
+    "name": "false-assert-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/false-assert.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/false-assert.c"
+    ],
+    "code": 0,
+    "seconds": 0.003955041989684105
+  },
+  {
+    "name": "false-assert-build",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/false-assert.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/false-assert"
+    ],
+    "code": 0,
+    "seconds": 0.12334741710219532
+  },
+  {
+    "name": "false-assert-run",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/false-assert"
+    ],
+    "code": -6,
+    "seconds": 0.2547181670088321
+  },
+  {
+    "name": "init-halt-assemble",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-union-halt-baseline-20261022/init-halt.nasm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-halt.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.004319790983572602
+  },
+  {
+    "name": "init-halt-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-halt.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.0047322920290753245
+  },
+  {
+    "name": "init-halt-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-halt.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-halt.c"
+    ],
+    "code": 0,
+    "seconds": 0.004536124994046986
+  },
+  {
+    "name": "init-halt-build",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-halt.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-halt"
+    ],
+    "code": 0,
+    "seconds": 0.15016279101837426
+  },
+  {
+    "name": "init-halt-run",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-halt"
+    ],
+    "code": 16,
+    "seconds": 0.1723148749442771
+  },
+  {
+    "name": "init-halt-probe-build",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O1",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-halt-probe.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-halt-probe"
+    ],
+    "code": 0,
+    "seconds": 0.13884262507781386
+  },
+  {
+    "name": "init-halt-probe",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-halt-probe"
+    ],
+    "code": 0,
+    "seconds": 0.10826595802791417
+  },
+  {
+    "name": "init-return-assemble",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-union-halt-baseline-20261022/init-return.nasm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-return.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.004922333988361061
+  },
+  {
+    "name": "init-return-verify",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-return.nvm"
+    ],
+    "code": 0,
+    "seconds": 0.006236999994143844
+  },
+  {
+    "name": "init-return-native",
+    "command": [
+      "/Users/jkh/Src/nanolang-51-harness/bin/nvm2c",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-return.nvm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-return.c"
+    ],
+    "code": 0,
+    "seconds": 0.005006749997846782
+  },
+  {
+    "name": "init-return-build",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-return.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-return"
+    ],
+    "code": 0,
+    "seconds": 0.15666541690006852
+  },
+  {
+    "name": "init-return-run",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-return"
+    ],
+    "code": 7,
+    "seconds": 0.15229879203252494
+  },
+  {
+    "name": "init-return-probe-build",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O1",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-return-probe.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-return-probe"
+    ],
+    "code": 0,
+    "seconds": 0.13475824997294694
+  },
+  {
+    "name": "init-return-probe",
+    "command": [
+      "/private/tmp/nanolang-union-native-baseline-20261022/contrast-resume/init-return-probe"
+    ],
+    "code": 0,
+    "seconds": 0.1458864581072703
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "before": {
+    "commit": "f1f9683f1745f0f38a4fc25e50f6f0799589367b",
+    "providers": {
+      "bin/nano_virt": "78b3578f6b90d364203cd960e45ff95235b91be1b7dc67c0c4ce2b17d984e070",
+      "bin/nanoc_stage1": "7044052b5c2ba71435d76abd9e5860e5aa2a2724551c8ffc4b38a8e7c95f0718",
+      "bin/nanoc_stage2": "f7ebdb2c585cdcbf92ec39cc2a75e90ff84ec7b3671927364bd3be9e3e3f295f",
+      "bin/nanoisa": "98b1b76099b9cd22970d0773895ba2147b025b851139b4720495972b0eed80a8",
+      "bin/nano_vm": "72da879f9fa8a913eb50d69f4eb9fbcd65ab61b2aa79145dbfe7b54ebfd98f68",
+      "bin/nvm2c": "61a0e892866262cd63d9f855c6de509ee97de8683c988dd5f5a3b61024d646f6",
+      "bin/nano_aot_runtime.o": "ba2af3b6b612558643e407f9d67860aaae7d38817781e8ed8ba2e31e07a24016",
+      "bin/nanoisa_hl_facts": "68e9ca3fea7bfd10b385a7b0a535074cde8863a1d316376a367fbf1b1520042e",
+      "bin/nvm2hl": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c",
+      "/private/tmp/owned-string-baseline-20261019/shadow_driver": "c23774c828833a8213e51c7cf16185d55902fe1706f383e6b4084570b15db571"
+    }
+  },
+  "after": {
+    "bin/nano_virt": "78b3578f6b90d364203cd960e45ff95235b91be1b7dc67c0c4ce2b17d984e070",
+    "bin/nanoc_stage1": "7044052b5c2ba71435d76abd9e5860e5aa2a2724551c8ffc4b38a8e7c95f0718",
+    "bin/nanoc_stage2": "f7ebdb2c585cdcbf92ec39cc2a75e90ff84ec7b3671927364bd3be9e3e3f295f",
+    "bin/nanoisa": "98b1b76099b9cd22970d0773895ba2147b025b851139b4720495972b0eed80a8",
+    "bin/nano_vm": "72da879f9fa8a913eb50d69f4eb9fbcd65ab61b2aa79145dbfe7b54ebfd98f68",
+    "bin/nvm2c": "61a0e892866262cd63d9f855c6de509ee97de8683c988dd5f5a3b61024d646f6",
+    "bin/nano_aot_runtime.o": "ba2af3b6b612558643e407f9d67860aaae7d38817781e8ed8ba2e31e07a24016",
+    "bin/nanoisa_hl_facts": "68e9ca3fea7bfd10b385a7b0a535074cde8863a1d316376a367fbf1b1520042e",
+    "bin/nvm2hl": "6224aa15b80a4776528791cefb78f7dfd64216b5a801bf1eeae281cfaaaeac2c",
+    "/private/tmp/owned-string-baseline-20261019/shadow_driver": "c23774c828833a8213e51c7cf16185d55902fe1706f383e6b4084570b15db571"
+  }
+}

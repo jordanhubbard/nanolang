@@ -1,0 +1,123 @@
+[
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-g",
+      "-O3",
+      "-ftree-vectorize",
+      "-fPIC",
+      "-Isrc",
+      "-D_GNU_SOURCE",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanovm/heap.c"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-g",
+      "-O3",
+      "-ftree-vectorize",
+      "-fPIC",
+      "-Isrc",
+      "-D_GNU_SOURCE",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-g",
+      "-O3",
+      "-ftree-vectorize",
+      "-fPIC",
+      "-Isrc",
+      "-D_GNU_SOURCE",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-fsyntax-only",
+      "src/nanoisa/nvm2c.c"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-g",
+      "-O3",
+      "-ftree-vectorize",
+      "-fPIC",
+      "-Isrc",
+      "-D_GNU_SOURCE",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_NATIVE",
+      "-fsyntax-only",
+      "src/nanovm/heap.c"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-g",
+      "-O3",
+      "-ftree-vectorize",
+      "-fPIC",
+      "-Isrc",
+      "-D_GNU_SOURCE",
+      "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi",
+      "-I/opt/homebrew/Cellar/openssl@4/4.0.3/include",
+      "-DNANO_RECORD_ARRAY_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_HEAP",
+      "-DNANO_RECORD_MAP_PRIVATE_RUNTIME",
+      "-DNANO_RECORD_MAP_PRIVATE_NATIVE",
+      "-fsyntax-only",
+      "src/nanovm/vm.c"
+    ],
+    "status": 1,
+    "stdout": "",
+    "stderr": "In file included from src/nanovm/vm.c:19:\nsrc/nanovm/record_map_runtime_private.h:11:2: error: \"private map invocation requires consistent preparation, heap and DAG macros\"\n   11 | #error \"private map invocation requires consistent preparation, heap and DAG macros\"\n      |  ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:51:25: error: incomplete definition of type 'const VmRecordMapPrivate' (aka 'const struct VmRecordMapPrivate')\n   51 |             s->def_idx<p->layout_count && p->layouts[s->def_idx].declaration.kind==NVM_V2_LAYOUT_STRUCT &&\n      |                        ~^\nsrc/nanovm/record_map_runtime_private.h:7:16: note: forward declaration of 'struct VmRecordMapPrivate'\n    7 | typedef struct VmRecordMapPrivate VmRecordMapPrivate;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:51:44: error: incomplete definition of type 'const VmRecordMapPrivate' (aka 'const struct VmRecordMapPrivate')\n   51 |             s->def_idx<p->layout_count && p->layouts[s->def_idx].declaration.kind==NVM_V2_LAYOUT_STRUCT &&\n      |                                           ~^\nsrc/nanovm/record_map_runtime_private.h:7:16: note: forward declaration of 'struct VmRecordMapPrivate'\n    7 | typedef struct VmRecordMapPrivate VmRecordMapPrivate;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:52:30: error: incomplete definition of type 'const VmRecordMapPrivate' (aka 'const struct VmRecordMapPrivate')\n   52 |             s->field_count==p->layouts[s->def_idx].declaration.fields && !s->field_names &&\n      |                             ~^\nsrc/nanovm/record_map_runtime_private.h:7:16: note: forward declaration of 'struct VmRecordMapPrivate'\n    7 | typedef struct VmRecordMapPrivate VmRecordMapPrivate;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:58:17: error: incomplete definition of type 'const VmRecordMapPrivate' (aka 'const struct VmRecordMapPrivate')\n   58 |     if(layout>=p->layout_count || field>=p->layouts[layout].declaration.fields || !vm_rmx_value_valid(p,value))return false;\n      |                ~^\nsrc/nanovm/record_map_runtime_private.h:7:16: note: forward declaration of 'struct VmRecordMapPrivate'\n    7 | typedef struct VmRecordMapPrivate VmRecordMapPrivate;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:58:43: error: incomplete definition of type 'const VmRecordMapPrivate' (aka 'const struct VmRecordMapPrivate')\n   58 |     if(layout>=p->layout_count || field>=p->layouts[layout].declaration.fields || !vm_rmx_value_valid(p,value))return false;\n      |                                          ~^\nsrc/nanovm/record_map_runtime_private.h:7:16: note: forward declaration of 'struct VmRecordMapPrivate'\n    7 | typedef struct VmRecordMapPrivate VmRecordMapPrivate;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:59:47: error: incomplete definition of type 'const VmRecordMapPrivate' (aka 'const struct VmRecordMapPrivate')\n   59 |     const VmRecordMapRuntimeField *expected=&p->fields[p->layouts[layout].field_start+field];\n      |                                              ~^\nsrc/nanovm/record_map_runtime_private.h:7:16: note: forward declaration of 'struct VmRecordMapPrivate'\n    7 | typedef struct VmRecordMapPrivate VmRecordMapPrivate;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:59:57: error: incomplete definition of type 'const VmRecordMapPrivate' (aka 'const struct VmRecordMapPrivate')\n   59 |     const VmRecordMapRuntimeField *expected=&p->fields[p->layouts[layout].field_start+field];\n      |                                                        ~^\nsrc/nanovm/record_map_runtime_private.h:7:16: note: forward declaration of 'struct VmRecordMapPrivate'\n    7 | typedef struct VmRecordMapPrivate VmRecordMapPrivate;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:74:16: error: incomplete definition of type 'const VmRecordMapInvocation' (aka 'const struct VmRecordMapInvocation')\n   74 |     if(!v || !v->active || !v->owner)return false;\n      |               ~^\nsrc/nanovm/record_map_runtime_private.h:8:16: note: forward declaration of 'struct VmRecordMapInvocation'\n    8 | typedef struct VmRecordMapInvocation VmRecordMapInvocation;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:74:30: error: incomplete definition of type 'const VmRecordMapInvocation' (aka 'const struct VmRecordMapInvocation')\n   74 |     if(!v || !v->active || !v->owner)return false;\n      |                             ~^\nsrc/nanovm/record_map_runtime_private.h:8:16: note: forward declaration of 'struct VmRecordMapInvocation'\n    8 | typedef struct VmRecordMapInvocation VmRecordMapInvocation;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:75:34: error: incomplete definition of type 'const VmRecordMapInvocation' (aka 'const struct VmRecordMapInvocation')\n   75 |     const VmRecordMapPrivate *p=v->owner;\n      |                                 ~^\nsrc/nanovm/record_map_runtime_private.h:8:16: note: forward declaration of 'struct VmRecordMapInvocation'\n    8 | typedef struct VmRecordMapInvocation VmRecordMapInvocation;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:76:10: error: incomplete definition of type 'const VmRecordMapPrivate' (aka 'const struct VmRecordMapPrivate')\n   76 |     if(!p->prepared || !p->busy || v->epoch!=p->epoch || vm!=&p->vm || v->vm!=vm ||\n      |         ~^\nsrc/nanovm/record_map_runtime_private.h:7:16: note: forward declaration of 'struct VmRecordMapPrivate'\n    7 | typedef struct VmRecordMapPrivate VmRecordMapPrivate;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:76:26: error: incomplete definition of type 'const VmRecordMapPrivate' (aka 'const struct VmRecordMapPrivate')\n   76 |     if(!p->prepared || !p->busy || v->epoch!=p->epoch || vm!=&p->vm || v->vm!=vm ||\n      |                         ~^\nsrc/nanovm/record_map_runtime_private.h:7:16: note: forward declaration of 'struct VmRecordMapPrivate'\n    7 | typedef struct VmRecordMapPrivate VmRecordMapPrivate;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:76:37: error: incomplete definition of type 'const VmRecordMapInvocation' (aka 'const struct VmRecordMapInvocation')\n   76 |     if(!p->prepared || !p->busy || v->epoch!=p->epoch || vm!=&p->vm || v->vm!=vm ||\n      |                                    ~^\nsrc/nanovm/record_map_runtime_private.h:8:16: note: forward declaration of 'struct VmRecordMapInvocation'\n    8 | typedef struct VmRecordMapInvocation VmRecordMapInvocation;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:76:47: error: incomplete definition of type 'const VmRecordMapPrivate' (aka 'const struct VmRecordMapPrivate')\n   76 |     if(!p->prepared || !p->busy || v->epoch!=p->epoch || vm!=&p->vm || v->vm!=vm ||\n      |                                              ~^\nsrc/nanovm/record_map_runtime_private.h:7:16: note: forward declaration of 'struct VmRecordMapPrivate'\n    7 | typedef struct VmRecordMapPrivate VmRecordMapPrivate;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:76:64: error: incomplete definition of type 'const VmRecordMapPrivate' (aka 'const struct VmRecordMapPrivate')\n   76 |     if(!p->prepared || !p->busy || v->epoch!=p->epoch || vm!=&p->vm || v->vm!=vm ||\n      |                                                               ~^\nsrc/nanovm/record_map_runtime_private.h:7:16: note: forward declaration of 'struct VmRecordMapPrivate'\n    7 | typedef struct VmRecordMapPrivate VmRecordMapPrivate;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:76:73: error: incomplete definition of type 'const VmRecordMapInvocation' (aka 'const struct VmRecordMapInvocation')\n   76 |     if(!p->prepared || !p->busy || v->epoch!=p->epoch || vm!=&p->vm || v->vm!=vm ||\n      |                                                                        ~^\nsrc/nanovm/record_map_runtime_private.h:8:16: note: forward declaration of 'struct VmRecordMapInvocation'\n    8 | typedef struct VmRecordMapInvocation VmRecordMapInvocation;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:78:9: error: incomplete definition of type 'const VmRecordMapInvocation' (aka 'const struct VmRecordMapInvocation')\n   78 |        v->module!=nvm_record_map_image_borrow(p->image) || vm->module!=v->module || vm->root_module!=v->module ||\n      |        ~^\nsrc/nanovm/record_map_runtime_private.h:8:16: note: forward declaration of 'struct VmRecordMapInvocation'\n    8 | typedef struct VmRecordMapInvocation VmRecordMapInvocation;\n      |                ^\nIn file included from src/nanovm/vm.c:1654:\nsrc/nanovm/record_map_vm_context.inc:78:48: error: incomplete definition of type 'const VmRecordMapPrivate' (aka 'const struct VmRecordMapPrivate')\n   78 |        v->module!=nvm_record_map_image_borrow(p->image) || vm->module!=v->module || vm->root_module!=v->module ||\n      |                                               ~^\nsrc/nanovm/record_map_runtime_private.h:7:16: note: forward declaration of 'struct VmRecordMapPrivate'\n    7 | typedef struct VmRecordMapPrivate VmRecordMapPrivate;\n      |                ^\nfatal error: too many errors emitted, stopping now [-ferror-limit=]\n20 errors generated.\n"
+  }
+]

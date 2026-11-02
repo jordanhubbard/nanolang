@@ -1,0 +1,96 @@
+python3 scripts/embed_binary64_parser.py --check
+............................
+----------------------------------------------------------------------
+Ran 28 tests in 92.613s
+
+OK
+.......s
+----------------------------------------------------------------------
+Ran 8 tests in 25.471s
+
+OK (skipped=1)
+python3 -m unittest -v tests.test_native_process tests.test_retained_process_evidence
+test_archive_order_preserves_inputs_and_links_real_users (tests.test_native_process.NativeProcess.test_archive_order_preserves_inputs_and_links_real_users) ... ok
+test_budget_default_override_and_invalid_values (tests.test_native_process.NativeProcess.test_budget_default_override_and_invalid_values) ... ok
+test_build_budget_is_explicit_and_guest_deadline_stays_short (tests.test_native_process.NativeProcess.test_build_budget_is_explicit_and_guest_deadline_stays_short) ... ok
+test_link_flags_inherit_and_preserve_explicit_empty_override (tests.test_native_process.NativeProcess.test_link_flags_inherit_and_preserve_explicit_empty_override) ... ok
+test_timeout_kills_descendant_and_reaps_driver (tests.test_native_process.NativeProcess.test_timeout_kills_descendant_and_reaps_driver) ... ok
+test_timeout_retains_group_and_unchanged_deadline (tests.test_retained_process_evidence.RetainedProcessEvidence.test_timeout_retains_group_and_unchanged_deadline) ... ok
+test_unavailable_diagnostic_does_not_prevent_cleanup (tests.test_retained_process_evidence.RetainedProcessEvidence.test_unavailable_diagnostic_does_not_prevent_cleanup) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 6.779s
+
+OK
+...........................................E..................................................................
+======================================================================
+ERROR: test_call_safepoint_collects_without_backwards_branch (tests.test_native_string_retention.NativeStringRetention.test_call_safepoint_collects_without_backwards_branch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/runner/work/nanolang/nanolang/tests/test_native_string_retention.py", line 98, in test_call_safepoint_collects_without_backwards_branch
+    self.check_program(HEADER + '.function main 0 0 0 int 1\n' + calls +
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       'PUSH_I64 0\nRET\n.end\n' + HELPERS)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_native_string_retention.py", line 44, in check_program
+    self.run_checked(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      source, '-o', binary])
+                      ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/nanolang/nanolang/tests/test_native_string_retention.py", line 22, in run_checked
+    result = subprocess.run([str(x) for x in args], capture_output=True,
+                            text=True, timeout=90, **kwargs)
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0_1/Frameworks/Python.framework/Versions/3.15/lib/python3.15/subprocess.py", line 671, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0_1/Frameworks/Python.framework/Versions/3.15/lib/python3.15/subprocess.py", line 1395, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0_1/Frameworks/Python.framework/Versions/3.15/lib/python3.15/subprocess.py", line 2424, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        skip_check_and_raise=True)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0_1/Frameworks/Python.framework/Versions/3.15/lib/python3.15/subprocess.py", line 1434, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-string-retention-gpwl0txa/input.c', '-o', '/var/folders/5n/5t77mfb93jd7q8v9s6f0dn0m0000gn/T/nano-string-retention-gpwl0txa/program']' timed out after 90 seconds
+
+----------------------------------------------------------------------
+Ran 110 tests in 3223.299s
+
+FAILED (errors=1)
+roots=1024 comparisons=4550 seconds=0.001797
+roots=2048 comparisons=8961 seconds=0.000505
+roots=4096 comparisons=17831 seconds=0.001542
+scans=0 peak=3
+all families scans=1 visits=10004 retained=2097484 allocated=4196113
+scans=0 visits=0 map_peak_bytes=230288
+mixed scans=2 visits=20008 retained=2097504 allocated=4195016 peak=2097796
+string_peak_bytes=84222
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65630
+string_peak_bytes=65623
+string_peak_bytes=65630
+string_peak_bytes=65630
+string_peak_bytes=65671
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66712
+aggregate_peak_bytes=67672
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66856
+aggregate_peak_bytes=66856
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66720
+aggregate_peak_bytes=66584
+aggregate_peak_bytes=66856
+make: *** [test-one-ir-compiler] Error 1

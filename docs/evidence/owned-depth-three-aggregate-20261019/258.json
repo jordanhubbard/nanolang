@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nvm2hl",
+    "--language",
+    "c",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/wrong-child.nvm",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-branches-mcur8sw8/prior.c"
+  ],
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "I cannot load this module: NVM v2 module does not verify: I refuse reference lifetime and ownership instruction dataflow in function[0] at 49: I require exact scalar or owned fields in declaration order\nI did not publish reconstructed source\n"
+}

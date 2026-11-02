@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_owned_double_call_pretest_reconstruction",
+    "tests.test_owned_loop_first_witness_reconstruction",
+    "tests.test_consuming_float_exits_reconstruction",
+    "tests.test_borrowed_empty_local_reconstruction",
+    "tests.test_owned_wrapper_reconstruction"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-harness",
+  "NANOLANG_OWNED_RECONSTRUCTION_COMPILERS": "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage1 /Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2"
+}

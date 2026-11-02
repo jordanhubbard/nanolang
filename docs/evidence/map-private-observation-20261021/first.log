@@ -1,0 +1,11 @@
+I retain runtime artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-map-runtime-u8xgb84b
+I copied observations32/identity16 with owner818512 unchanged; lookup work229.
+PASS 40 private copied map observation checks; public admission remains refused.
+
+ test_original_switch (tests.test_record_map_observation.RecordMapObservation.test_original_switch) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 8.000s
+
+OK
+

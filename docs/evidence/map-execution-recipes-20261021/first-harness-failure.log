@@ -1,0 +1,4 @@
+tests/nanoisa/test_record_map_execution.c:23:16: error: call to undeclared function 'nvm_record_map_opcode'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   23 |             if(nvm_record_map_opcode(ins.opcode)) {
+      |                ^
+1 error generated.

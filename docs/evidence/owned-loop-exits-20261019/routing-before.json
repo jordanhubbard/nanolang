@@ -1,0 +1,59 @@
+{
+  "source_sha256": "37fb8cac93554a46af8c138e1c136c3a945736e34babe35a7c4a5435ffb0b18e",
+  "module_sha256": "8a16b4579e8bfac0f30e07a7928a4e047a73ae01bd80a8f26315930879fc73cc",
+  "commands": [
+    {
+      "command": [
+        "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_virt",
+        "/private/tmp/owned-single-backedge-break.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/owned-single-backedge-break.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/owned-single-backedge-break.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nano_vm",
+        "/private/tmp/owned-single-backedge-break.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoisa_hl_facts",
+        "/private/tmp/owned-single-backedge-break.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "{\"profile\":\"owned-local-v1\",\"entry\":0,\"layouts\":[{\"identity\":0,\"resource\":true,\"fields\":[1,4],\"field_types\":[[1,4294967295],[4,4294967295]]}],\"functions\":[{\"name\":\"owned_0\",\"locals\":7,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[],\"param_modes\":[],\"names\":[\"\",\"\",\"\",\"\",\"\",\"\",\"\"],\"local_types\":[[1,4294967295],[4,4294967295],[8,0],[1,4294967295],[8,0],[1,4294967295],[4,4294967295]],\"size\":213,\"code\":[{\"pc\":0,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":9,\"op\":\"STORE_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":12,\"op\":\"PUSH_BOOL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":14,\"op\":\"STORE_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":17,\"op\":\"LOAD_LOCAL\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":20,\"op\":\"LOAD_LOCAL\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":23,\"op\":\"OWN_PACK\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":28,\"op\":\"OWN_STORE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":31,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":40,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":43,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":46,\"op\":\"PUSH_I64\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":55,\"op\":\"LT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":56,\"op\":\"JMP_FALSE\",\"arg\":74,\"args\":[74],\"target\":130},{\"pc\":61,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":64,\"op\":\"PUSH_I64\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":73,\"op\":\"ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":74,\"op\":\"STORE_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":77,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":80,\"op\":\"PUSH_I64\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":89,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":90,\"op\":\"JMP_FALSE\",\"arg\":10,\"args\":[10],\"target\":100},{\"pc\":95,\"op\":\"JMP\",\"arg\":35,\"args\":[35],\"target\":130},{\"pc\":100,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":101,\"op\":\"BORROW_LOCAL_EXCLUSIVE\",\"arg\":0,\"args\":[0,2],\"target\":4294967295},{\"pc\":106,\"op\":\"CALL_REF\",\"arg\":1,\"args\":[1,0],\"target\":4294967295},{\"pc\":113,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":114,\"op\":\"PUSH_I64\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":123,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":124,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":125,\"op\":\"JMP\",\"arg\":-82,\"args\":[-82],\"target\":43},{\"pc\":130,\"op\":\"LOAD_LOCAL\",\"arg\":3,\"args\":[3],\"target\":4294967295},{\"pc\":133,\"op\":\"PUSH_I64\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":142,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":143,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":144,\"op\":\"OWN_MOVE_LOCAL\",\"arg\":2,\"args\":[2],\"target\":4294967295},{\"pc\":147,\"op\":\"OWN_STORE_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":150,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":151,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,4],\"target\":4294967295},{\"pc\":156,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":161,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":162,\"op\":\"STORE_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":165,\"op\":\"REGION_BEGIN\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":166,\"op\":\"BORROW_LOCAL_SHARED\",\"arg\":0,\"args\":[0,4],\"target\":4294967295},{\"pc\":171,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,1],\"target\":4294967295},{\"pc\":176,\"op\":\"REGION_END\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":177,\"op\":\"STORE_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":180,\"op\":\"LOAD_LOCAL\",\"arg\":5,\"args\":[5],\"target\":4294967295},{\"pc\":183,\"op\":\"PUSH_I64\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":192,\"op\":\"EQ\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":193,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":194,\"op\":\"LOAD_LOCAL\",\"arg\":6,\"args\":[6],\"target\":4294967295},{\"pc\":197,\"op\":\"ASSERT\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":198,\"op\":\"PUSH_I64\",\"arg\":0,\"args\":[0],\"target\":4294967295},{\"pc\":207,\"op\":\"OWN_UNPACK_LOCAL\",\"arg\":4,\"args\":[4],\"target\":4294967295},{\"pc\":210,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":211,\"op\":\"POP\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":212,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]},{\"name\":\"owned_1\",\"locals\":1,\"result_type\":[1,4294967295],\"result\":1,\"result_count\":1,\"params\":[[8,0]],\"param_modes\":[2],\"names\":[\"\"],\"local_types\":[[8,0]],\"size\":26,\"code\":[{\"pc\":0,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":5,\"op\":\"PUSH_I64\",\"arg\":1,\"args\":[1],\"target\":4294967295},{\"pc\":14,\"op\":\"ADD\",\"arg\":0,\"args\":[],\"target\":4294967295},{\"pc\":15,\"op\":\"REF_SET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":20,\"op\":\"REF_GET\",\"arg\":0,\"args\":[0,0],\"target\":4294967295},{\"pc\":25,\"op\":\"RET\",\"arg\":0,\"args\":[],\"target\":4294967295}]}]}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nvm2hl",
+        "--language",
+        "nano",
+        "/private/tmp/owned-single-backedge-break.nvm",
+        "-o",
+        "/private/tmp/owned-single-backedge-break.rebuilt.nano"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "I require a non-crossing owned diamond\nI did not publish reconstructed source\n"
+    }
+  ]
+}

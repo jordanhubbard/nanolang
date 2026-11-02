@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/Users/jkh/Src/nanolang-51-harness/bin/nanoc_stage2",
+    "src_nano/nanoisa_driver.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-emitter-join-20261019/retry-20261019-030242/driver.nvm"
+  ],
+  "cwd": "/Users/jkh/Src/nanolang-51-harness",
+  "timeout_seconds": 1800,
+  "returncode": 0,
+  "pid": 84703,
+  "elapsed_seconds": 513.0929949169513
+}

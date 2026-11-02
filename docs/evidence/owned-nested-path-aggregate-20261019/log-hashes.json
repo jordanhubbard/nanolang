@@ -1,0 +1,12 @@
+{
+  "tests.log": {
+    "source": "/private/tmp/nanolang-nested-path-aggregate-tests.log",
+    "original_sha256": "d2b2a8ca23d7065bf9a1efd72c44d5c567d81c93e2fadf810d0219a4f1b66d40",
+    "copy_sha256": "d2b2a8ca23d7065bf9a1efd72c44d5c567d81c93e2fadf810d0219a4f1b66d40"
+  },
+  "build.log": {
+    "source": "/private/tmp/nanolang-nested-path-aggregate-build.log",
+    "original_sha256": "55e61302349c548fe37a06a11966a9979fcbe69c13eb2e860602f9989b66da6f",
+    "copy_sha256": "55e61302349c548fe37a06a11966a9979fcbe69c13eb2e860602f9989b66da6f"
+  }
+}

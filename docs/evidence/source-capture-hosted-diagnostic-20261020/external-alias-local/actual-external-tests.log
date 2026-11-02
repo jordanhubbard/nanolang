@@ -1,0 +1,7 @@
+test_native_unit_post_capture_reads (tests.test_source_snapshots.SourceSnapshots.test_native_unit_post_capture_reads) ... ok
+test_apple_native_unit_capture_failure_recovery (tests.test_source_snapshots.SourceSnapshots.test_apple_native_unit_capture_failure_recovery) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 58.048s
+
+OK

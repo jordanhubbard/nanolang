@@ -1,0 +1,6 @@
+I checked 472 transient and persistent public allocation prefixes for tag 1.
+I checked 472 transient and persistent public allocation prefixes for tag 2.
+I checked 472 transient and persistent public allocation prefixes for tag 3.
+I checked 472 transient and persistent public allocation prefixes for tag 4.
+I checked 472 transient and persistent public allocation prefixes for tag 5.
+PASS 34861 public record-array checks

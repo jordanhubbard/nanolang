@@ -1,0 +1,4 @@
+nano_virt ordinary [92, 103] verify/VM PASS
+nano_virt selected-shadow [98, 103] verify/VM PASS
+original-shadows ordinary [92, 103] verify/VM PASS
+original-shadows selected-shadow [98, 103] verify/VM PASS

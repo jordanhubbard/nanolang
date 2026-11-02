@@ -1,0 +1,12 @@
+{
+  "Makefile.gnu": "2eae7f5fcc7b8b3c4878c27148ab189acb3bcb8833de06b832deb28fa6fc04aa",
+  "modules/nanoisa/nanoisa.c": "a9fdbc401bdf2487d65b4af1912d8656b91650ac364c2b3e35563d518d0a92f8",
+  "modules/nanoisa/nanoisa.h": "f513167205e904a7e9b636cce64d772b3f344303e48c775e6ec5d9c855771b39",
+  "modules/nanoisa/nanoisa.nano": "2df8d4faf7c42438e819b5cc60c264a3bb4e6c7967615b538160d517218ba276",
+  "src/nanovirt/codegen.c": "55f98bfd7704b1fe8b2b550694ba3b4395d250e2741d058ea78ea192d2ee6c59",
+  "src/nanovirt/ordinary_authority.inc": "ebba4ed255d73c31cf2a07cf923f807c3b23e57a4eb2eddb842db8b83e7e0a5f",
+  "src_nano/compiler/nanoisa_codegen.nano": "936c6856b171cfa120d490272b7d30fc5529da6ce411213ef0581c7e8cc868ac",
+  "tests/test_publication_allocation.py": "496259c121d620e5a6fa9f94719898c38dd278ad4ff924ccfa51248096a4b0e4",
+  "tests/nanovirt/test_map_publication.c": "a88f0acf82fa9409afe4e91a1e8fbc55d06a5ef685ebfc25ef1be393b70edf2a",
+  "tests/test_map_field_publication.py": "1dc680e5f42a42ee5c0e63b99495432798cc4724f7d4175f4c91ffde56b571b7"
+}

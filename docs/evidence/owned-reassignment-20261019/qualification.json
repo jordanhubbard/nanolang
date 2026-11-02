@@ -1,0 +1,18 @@
+{
+  "environment": {
+    "NANOLANG_OWNED_RECONSTRUCTION_COMPILERS": "/Users/jkh/Src/nanolang-owned-nested-depth2/bin/nanoc_u8_context",
+    "NANO_NATIVE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang"
+  },
+  "new_target": "tests.test_owned_reassignment_reconstruction",
+  "new_methods": 11,
+  "commands_retained": 559,
+  "artifact_hashes": 834,
+  "ancestor": "557f7b5b2afff0046a605670329bca8038222569",
+  "design_commits": [
+    "4f10f4c1b",
+    "f79b2dcf3"
+  ],
+  "syntax": "python3 -m py_compile scripts/nanoisa_owned_reconstruction.py scripts/nanoisa_owned_origins.py scripts/nanoisa_owned_rendering.py tests/test_owned_reassignment_reconstruction.py",
+  "syntax_exit": 0,
+  "diff_check_exit": 0
+}
