@@ -4681,6 +4681,14 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
     if (and (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) (>= (nisa_union_index parser expected) 0)) {
         return (nisa_emit_union_context parser node_id expected)
     }
+    if (and (== node_type ParseNodeType.PNODE_MATCH) (>= (nisa_union_index parser expected) 0)) {
+        # I give each value arm the declared union so a generic constructor has one exact identity.
+        let selection: ASTMatch = (parser_get_match parser node_id)
+        if (not (nisa_match_domain_covered parser selection (nisa_expr_type parser selection.scrutinee selection.scrutinee_type))) {
+            return (nisa_fail "I require exhaustive match expression arms with one exact scalar result type")
+        }
+        return (nisa_emit_match_body parser node_id expected)
+    }
     if (nisa_tuple_type_ok parser expected) {
         if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) {
             return (nisa_emit_tuple_literal parser node_id expected)
