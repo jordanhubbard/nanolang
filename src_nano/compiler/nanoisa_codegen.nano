@@ -5737,6 +5737,19 @@ shadow nisa_emit_abs {
     let reset: int = (nisa_reset)
 }
 
+# I return the declared function index of a named int, bool or float callback, or -1.
+fn nisa_direct_scalar_callback(parser: Parser, callback: ASTStmtRef, signature: string) -> int {
+    if (!= callback.node_type ParseNodeType.PNODE_IDENTIFIER) { return -1 }
+    let index: int = (nisa_function_value_index parser callback.node_id callback.node_type)
+    if (< index 0) { return -1 }
+    let function: ASTFunction = (parser_get_function parser index)
+    if (or (nisa_generic_function parser function) (< function.body 0)) { return -1 }
+    for part in (function_type_parts signature) {
+        if (and (!= part "int") (and (!= part "float") (!= part "bool"))) { return -1 }
+    }
+    return index
+}
+
 fn nisa_emit_functional_array(parser: Parser, call: ASTCall, source_name: string) -> string {
     let name: string = (nisa_array_operation source_name)
     let signature: string = (nisa_functional_signature parser call name)
@@ -5761,10 +5774,20 @@ fn nisa_emit_functional_array(parser: Parser, call: ASTCall, source_name: string
     }
     # I capture the callback once after the array and initializer, before length.
     let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start (- call.arg_count 1)))
-    set text (+ text (nisa_emit_expected_expr parser callback.node_id callback.node_type signature))
+    # I call a resolved named scalar callback directly; every other callback keeps the indirect boundary.
+    let direct_index: int = (nisa_direct_scalar_callback parser callback signature)
+    let saved_callables: bool = nisa_has_callables
+    let saved_ordinary: bool = nisa_ordinary_ok
+    let callback_text: string = (nisa_emit_expected_expr parser callback.node_id callback.node_type signature)
     if (not nisa_ok) { return "" }
     let callback_slot: string = (nisa_temp_local signature)
-    set text (+ text (nisa_line_imm "STORE_LOCAL" callback_slot))
+    if (< direct_index 0) {
+        set text (+ text (+ callback_text (nisa_line_imm "STORE_LOCAL" callback_slot)))
+    } else {
+        set nisa_has_callables saved_callables
+        set nisa_ordinary_ok saved_ordinary
+        (nisa_require_function direct_index)
+    }
     let length_slot: string = (nisa_temp_local "int")
     set text (+ text (nisa_line_imm "LOAD_LOCAL" source_slot))
     set text (+ text (nisa_line "ARR_LEN"))
@@ -5803,10 +5826,14 @@ fn nisa_emit_functional_array(parser: Parser, call: ASTCall, source_name: string
     set text (+ text (nisa_line_imm "STORE_LOCAL" element_slot))
     if (== name "reduce") { set text (+ text (nisa_line_imm "LOAD_LOCAL" result_slot)) }
     set text (+ text (nisa_line_imm "LOAD_LOCAL" element_slot))
-    set nisa_has_callables true
-    set nisa_ordinary_ok false
-    set text (+ text (nisa_line_imm "LOAD_LOCAL" callback_slot))
-    set text (+ text (nisa_line_imm "CALL_INDIRECT" (+ (int_to_string arity) " 1")))
+    if (>= direct_index 0) {
+        set text (+ text (nisa_line_imm "CALL" (parser_get_function parser direct_index).name))
+    } else {
+        set nisa_has_callables true
+        set nisa_ordinary_ok false
+        set text (+ text (nisa_line_imm "LOAD_LOCAL" callback_slot))
+        set text (+ text (nisa_line_imm "CALL_INDIRECT" (+ (int_to_string arity) " 1")))
+    }
     if (== name "reduce") {
         set text (+ text (nisa_line_imm "STORE_LOCAL" result_slot))
     } else {
@@ -5828,8 +5855,8 @@ fn nisa_emit_functional_array(parser: Parser, call: ASTCall, source_name: string
 shadow nisa_emit_functional_array {
     let text: string = (nanoisa_emit_nasm "fn keep(x:float)->bool{return true} fn main()->int{let xs:array<float> = (filter [] keep) return (array_length xs)}")
     assert (str_contains text "ARR_NEW 3")
-    assert (str_contains text "FUNCREF keep")
-    assert (str_contains text "CALL_INDIRECT 1 1")
+    assert (str_contains text "CALL keep")
+    assert (not (str_contains text "CALL_INDIRECT"))
     assert (== (nanoisa_emit_nasm "fn wrong(x:int)->int{return x} fn main()->int{let xs:array<int> = (filter [1] wrong) return 0}") "")
     let reset: int = (nisa_reset)
 }
