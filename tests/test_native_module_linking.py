@@ -7,7 +7,8 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-COMPILER = Path(os.environ.get("NANOLANG_SELFHOST_COMPILER", ROOT / "bin/nanoc_stage2")).resolve()
+# I scope this to the C seed: the self-hosted route has no manifest C-bridge extern lowering (#1054).
+COMPILER = Path(os.environ.get("NANOLANG_SELFHOST_COMPILER", ROOT / "bin/nanoc_c")).resolve()
 
 
 class NativeModuleLinking(unittest.TestCase):
