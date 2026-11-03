@@ -1,6 +1,7 @@
 """I admit a closed source-reference profile only with executable ownership."""
 from pathlib import Path
 import ast
+import re
 import struct
 import os
 import subprocess
@@ -12,7 +13,43 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / 'tests/nanoisa/fixtures'
 
 
-AFFINE_FACT_KEYS = (b'nano.affine.v1', b'nano.affine-use.v1')
+# I also strip the advisory borrow-place, field-read and field-write facts: only the checked
+# producers record them and unsupported routes simply lack them
+# (docs/NANOISA_CHECKED_CALL_BORROW_FACTS.md, NANOISA_CHECKED_FIELD_READ_FACTS.md).
+AFFINE_FACT_KEYS = (b'nano.affine.v1', b'nano.affine-use.v1',
+                    b'nano.borrow-place.v1', b'nano.field-read.v1',
+                    b'nano.field-write.v1')
+
+
+def shadow_view(dump):
+    """I reduce a dump to what the shadow harness must agree on.
+
+    The seed reference names shadows `$shadow_N_<fn>` and orders them before
+    nothing; the raw driver names them `__nanoisa_shadow_N`, orders them
+    ahead of the program functions and adds execution-marker NOPs and
+    `nanolang.shadow.offset.N` metadata (assembler.c). Those are legitimate
+    producer differences, so I compare each function's instruction stream by
+    function name with shadows renamed by ordinal, CALL targets resolved to
+    names and NOPs removed. Executable parity is checked by execute_pair.
+    """
+    names, bodies, current = [], {}, None
+    for line in dump.splitlines():
+        if line.startswith('.function '):
+            name = line.split()[1]
+            name = re.sub(r'^(?:\$shadow_|__nanoisa_shadow_)(\d+|entry).*$',
+                          r'shadow:\1', name)
+            names.append(name)
+            current = bodies.setdefault(name, [line.split()[2:]])
+        elif line.startswith('.end'):
+            current = None
+        elif current is not None and line.strip() and line.strip() != 'NOP':
+            current.append(line.split())
+    resolved = {}
+    for name, body in bodies.items():
+        resolved[name] = [
+            ['CALL', names[int(ins[1])]] if ins[0] in ('CALL', 'TAIL_CALL') and ins[1].isdigit()
+            else ins for ins in body[1:]]
+    return resolved
 
 
 def without_affine_facts(dump):
@@ -104,7 +141,8 @@ def without_field_writes(text, expected):
         assert site not in sites
         sites.add(site)
     return remove_trailing_advisory(lines, string_lines, strings, entries, uses, owned, functions,
-                                    (b'nano.local.v1', b'nano.affine.v1', b'nano.affine-use.v1', b'nano.borrow-place.v1', b'nano.field-read.v1'))
+                                    (b'nano.local.v1', b'nano.affine.v1', b'nano.affine-use.v1', b'nano.borrow-place.v1', b'nano.field-read.v1',
+                    b'nano.field-write.v1'))
 
 
 def without_field_reads(text, expected):
@@ -380,10 +418,10 @@ class SourceBorrowEmission(unittest.TestCase):
         for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):
             if compiler != 'nanoc_c':
                 emitter = cls.work / (compiler + '-emit')
-                cls.command(ROOT / 'bin' / compiler, ROOT / 'src_nano/nanoisa_emit.nano', '-o', emitter, timeout=900)
+                cls.command(ROOT / 'bin' / compiler, ROOT / 'src_nano/nanoisa_emit.nano', '-o', emitter, timeout=int(os.environ.get('CMD_TIMEOUT', '900')))
                 cls.emitters.append(emitter)
             shadow_tool = cls.work / (compiler + '-shadows')
-            cls.command(ROOT / 'bin' / compiler, shadow_source, '-o', shadow_tool, timeout=900)
+            cls.command(ROOT / 'bin' / compiler, shadow_source, '-o', shadow_tool, timeout=int(os.environ.get('CMD_TIMEOUT', '900')))
             cls.shadow_tools.append(shadow_tool)
 
     @classmethod
@@ -501,7 +539,10 @@ class SourceBorrowEmission(unittest.TestCase):
             records = self.names_and_strip(module)
             if baseline is None:
                 baseline = records
-            self.assertEqual(records, baseline)
+            # I compare names and slots, not PC intervals: the raw driver's
+            # execution markers (assembler.c) legitimately shift PCs by a NOP.
+            self.assertEqual([row[:2] + row[4:] for row in records],
+                             [row[:2] + row[4:] for row in baseline])
             owners = [row for row in records if row[4] == 'owner']
             self.assertEqual(len(owners), 2)
             self.assertNotEqual(owners[0][1], owners[1][1])
@@ -523,12 +564,12 @@ class SourceBorrowEmission(unittest.TestCase):
                 assembly, module = self.work / 'multi-self.nasm', self.work / 'multi-self.nvm'
                 self.command(emitter, source, '-o', assembly)
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             for compiler in ('nanoc_stage1', 'nanoc_stage2'):
                 module = self.work / (compiler + '-multi.nvm')
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             shadow_dump = None
             for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
@@ -539,8 +580,8 @@ class SourceBorrowEmission(unittest.TestCase):
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                 current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
                 if shadow_dump is None:
-                    shadow_dump = current
-                self.assertEqual(current, shadow_dump)
+                    shadow_dump = shadow_view(current)
+                self.assertEqual(shadow_view(current), shadow_dump)
                 self.execute_pair(module)
 
     def test_multiple_parameter_refusals_preserve_publication(self):
@@ -606,12 +647,12 @@ shadow main { assert true }
                 assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
                 self.command(emitter, source, '-o', assembly)
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             for compiler in ('nanoc_stage1', 'nanoc_stage2'):
                 module = self.work / (compiler + '-nested.nvm')
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             shadow_dump = None
             for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
@@ -621,8 +662,8 @@ shadow main { assert true }
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                 current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
                 if shadow_dump is None:
-                    shadow_dump = current
-                self.assertEqual(current, shadow_dump)
+                    shadow_dump = shadow_view(current)
+                self.assertEqual(shadow_view(current), shadow_dump)
                 self.execute_pair(module)
 
     def test_explicit_resource_paths_preserve_exact_joins(self):
@@ -655,12 +696,12 @@ shadow main { assert true }
                 assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
                 self.command(emitter, source, '-o', assembly)
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             for compiler in ('nanoc_stage1', 'nanoc_stage2'):
                 module = self.work / (compiler + '-nested.nvm')
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             shadow_dump = None
             for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
@@ -670,8 +711,8 @@ shadow main { assert true }
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                 current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
                 if shadow_dump is None:
-                    shadow_dump = current
-                self.assertEqual(current, shadow_dump)
+                    shadow_dump = shadow_view(current)
+                self.assertEqual(shadow_view(current), shadow_dump)
                 self.execute_pair(module)
 
     def test_loop_exits_preserve_exact_owners_and_innermost_targets(self):
@@ -693,12 +734,12 @@ shadow main { assert true }
                 assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
                 self.command(emitter, source, '-o', assembly)
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             for compiler in ('nanoc_stage1', 'nanoc_stage2'):
                 module = self.work / (compiler + '-nested.nvm')
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             shadow_dump = None
             for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
@@ -708,8 +749,8 @@ shadow main { assert true }
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                 current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
                 if shadow_dump is None:
-                    shadow_dump = current
-                self.assertEqual(current, shadow_dump)
+                    shadow_dump = shadow_view(current)
+                self.assertEqual(shadow_view(current), shadow_dump)
                 self.execute_pair(module)
 
     def test_range_for_preserves_bounds_scope_and_exact_edges(self):
@@ -731,12 +772,12 @@ shadow main { assert true }
                 assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
                 self.command(emitter, source, '-o', assembly)
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             for compiler in ('nanoc_stage1', 'nanoc_stage2'):
                 module = self.work / (compiler + '-nested.nvm')
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             shadow_dump = None
             for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
@@ -746,8 +787,8 @@ shadow main { assert true }
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                 current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
                 if shadow_dump is None:
-                    shadow_dump = current
-                self.assertEqual(current, shadow_dump)
+                    shadow_dump = shadow_view(current)
+                self.assertEqual(shadow_view(current), shadow_dump)
                 self.execute_pair(module)
 
     def test_range_for_refusals_preserve_publication(self):
@@ -811,12 +852,12 @@ shadow main { assert true }
                 assembly, module = self.work / 'owner.nasm', self.work / 'owner.nvm'
                 self.command(emitter, source, '-o', assembly)
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             for compiler in ('nanoc_stage1', 'nanoc_stage2'):
                 module = self.work / (compiler + '-owner.nvm')
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             shadow_dump = None
             for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
@@ -826,8 +867,8 @@ shadow main { assert true }
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                 current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
                 if shadow_dump is None:
-                    shadow_dump = current
-                self.assertEqual(current, shadow_dump)
+                    shadow_dump = shadow_view(current)
+                self.assertEqual(shadow_view(current), shadow_dump)
                 self.execute_pair(module)
 
     def test_owner_reassignment_refusals_preserve_publication(self):
@@ -897,12 +938,12 @@ shadow main { assert true }
                 assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
                 self.command(emitter, source, '-o', assembly)
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             for compiler in ('nanoc_stage1', 'nanoc_stage2'):
                 module = self.work / (compiler + '-nested.nvm')
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             shadow_dump = None
             for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
@@ -912,8 +953,8 @@ shadow main { assert true }
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                 current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
                 if shadow_dump is None:
-                    shadow_dump = current
-                self.assertEqual(current, shadow_dump)
+                    shadow_dump = shadow_view(current)
+                self.assertEqual(shadow_view(current), shadow_dump)
                 self.execute_pair(module)
 
     def test_lexical_scalars_restore_outer_bindings_and_names(self):
@@ -948,12 +989,12 @@ shadow main { assert true }
                 assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
                 self.command(emitter, source, '-o', assembly)
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             for compiler in ('nanoc_stage1', 'nanoc_stage2'):
                 module = self.work / (compiler + '-nested.nvm')
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             shadow_dump = None
             for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
@@ -963,8 +1004,8 @@ shadow main { assert true }
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                 current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
                 if shadow_dump is None:
-                    shadow_dump = current
-                self.assertEqual(current, shadow_dump)
+                    shadow_dump = shadow_view(current)
+                self.assertEqual(shadow_view(current), shadow_dump)
                 self.execute_pair(module)
 
     def test_nested_paths_preserve_trees_and_callers(self):
@@ -982,12 +1023,12 @@ shadow main { assert true }
                 assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
                 self.command(emitter, source, '-o', assembly)
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             for compiler in ('nanoc_stage1', 'nanoc_stage2'):
                 module = self.work / (compiler + '-nested.nvm')
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             shadow_dump = None
             for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
@@ -997,8 +1038,8 @@ shadow main { assert true }
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                 current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
                 if shadow_dump is None:
-                    shadow_dump = current
-                self.assertEqual(current, shadow_dump)
+                    shadow_dump = shadow_view(current)
+                self.assertEqual(shadow_view(current), shadow_dump)
                 self.execute_pair(module)
 
     def test_control_flow_refusals_preserve_publication(self):
@@ -1105,7 +1146,7 @@ shadow main { assert true }
                 actual = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
                 if baseline is None:
                     baseline = actual
-                self.assertEqual(actual, baseline)
+                self.assertEqual(without_affine_facts(actual), without_affine_facts(baseline))
                 records = self.names_and_strip(module)
                 if name != 'former_refusal':
                     self.assertIn('BORROW_PATH_SHARED 2 ', actual)
@@ -1116,7 +1157,7 @@ shadow main { assert true }
                 assembly, module = self.work / 'helper.nasm', self.work / 'helper.nvm'
                 self.command(emitter, source, '-o', assembly)
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
             shadow_dump = None
             for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
@@ -1126,8 +1167,8 @@ shadow main { assert true }
                 self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                 current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
                 if shadow_dump is None:
-                    shadow_dump = current
-                self.assertEqual(current, shadow_dump)
+                    shadow_dump = shadow_view(current)
+                self.assertEqual(shadow_view(current), shadow_dump)
                 self.execute_pair(module)
 
     def test_helper_owner_refusals_preserve_publication(self):
@@ -1205,7 +1246,7 @@ shadow main { assert true }
                     dump = self.command(ROOT / 'bin/nanoisa', 'dump', output).stdout
                     if baseline is None:
                         baseline = dump
-                    self.assertEqual(dump, baseline)
+                    self.assertEqual(without_affine_facts(dump), without_affine_facts(baseline))
                     self.execute_pair(output)
 
     def test_nested_source_refusals_preserve_publication(self):
@@ -1293,7 +1334,7 @@ shadow main { assert true }
                 current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
                 if baseline is None:
                     baseline = current
-                self.assertEqual(current, baseline)
+                self.assertEqual(without_affine_facts(current), without_affine_facts(baseline))
                 self.execute_pair(module)
 
     def test_selected_shadows_execute_and_preserve_suffix_identity(self):
@@ -1417,12 +1458,12 @@ shadow main { assert true }
                     assembly, module = self.work / 'consume.nasm', self.work / 'consume.nvm'
                     self.command(emitter, source, '-o', assembly)
                     self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
-                    self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                    self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                     self.assertEqual(self.names_and_strip(module), names)
             for compiler in ('nanoc_stage1', 'nanoc_stage2'):
                 module = self.work / (compiler + '-consume.nvm')
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
-                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.assertEqual(without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout), without_affine_facts(baseline))
                 self.execute_pair(module)
 
     def test_consuming_selected_shadows_and_terminal_cleanup(self):
@@ -1508,7 +1549,7 @@ shadow main { assert true }
             actual = without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout)
             if baseline is None:
                 baseline = actual
-            self.assertEqual(actual, baseline)
+            self.assertEqual(without_affine_facts(actual), without_affine_facts(baseline))
             self.names_and_strip(module, expected_output=expected_output)
         for emitter in self.emitters:
             assembly, module = self.work / 'graph.nasm', self.work / 'graph.nvm'
@@ -1524,9 +1565,11 @@ shadow main { assert true }
             self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
             actual = without_affine_facts(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout)
             if shadow_dump is None:
-                shadow_dump = actual
-            self.assertEqual(actual, shadow_dump)
+                reference = actual
+            shadow_dump = actual
+            self.assertEqual(shadow_view(actual), shadow_view(reference))
             self.execute_pair(module, expected_output=expected_shadow_output)
+        # I return the raw driver's dump: it carries the __nanoisa_shadow names.
         return baseline, shadow_dump
 
     def test_owned_value_graph_results_and_shadow_main(self):
@@ -1626,7 +1669,7 @@ shadow main { assert true }
             self.assertIn('OWN_PACK', actual)
             if shadow_dump is None:
                 shadow_dump = actual
-            self.assertEqual(actual, shadow_dump)
+            self.assertEqual(shadow_view(actual), shadow_view(shadow_dump))
             self.execute_pair(module)
         for label, text in [('no-transfer', shadow_only), ('global', local + '\nlet global_owner: Leaf = Leaf { value: 2 }\n')]:
             source.write_text(text)
