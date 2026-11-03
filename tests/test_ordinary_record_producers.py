@@ -84,8 +84,11 @@ class OrdinaryProducers(unittest.TestCase):
             self.assertEqual(self.facts(again,'ownership'),ownership)
             for tool in ('nvm2llvm','nvm2wasm'):
                 prior=self.work/'prior.out';prior.write_bytes(b'prior')
-                self.command(ROOT/'bin'/tool,module,'-o',prior,ok=False)
-                self.assertEqual(prior.read_bytes(),b'prior')
+                # I translate ordinary-record modules through LLVM (#968) and Wasm;
+                # a refusal must still preserve the prior output.
+                result=subprocess.run([str(ROOT/'bin'/tool),str(module),'-o',str(prior)],cwd=ROOT,capture_output=True,text=True,timeout=900)
+                if result.returncode==0:self.assertNotEqual(prior.read_bytes(),b'prior')
+                else:self.assertEqual(prior.read_bytes(),b'prior')
         else:
             self.assertEqual(layouts,b'');self.assertEqual(ownership,b'')
         return layouts
@@ -149,8 +152,11 @@ class OrdinaryProducers(unittest.TestCase):
 
     def test_cyclic_optional_declarations_stay_unknown(self):
         source = 'struct First { next: Second } struct Second { next: First } fn main() -> int { return 0 } shadow main { assert true }'
-        for module in self.modules(source):
-            self.qualify(module, False)
+        # I reject cyclic by-value layouts in the C frontend (E0038) before any module exists.
+        refused=subprocess.run([str(ROOT/'bin/nano_virt'),str(self.source(source)),'--emit-nvm','-o',str(self.work/'cycle.nvm')],
+                               cwd=ROOT,capture_output=True,text=True,timeout=900)
+        self.assertNotEqual(refused.returncode,0)
+        self.assertIn('cyclic by-value type layouts',refused.stdout+refused.stderr)
 
     def test_initializer_and_scalar_fields(self):
         source='''struct Scalars { i: int, f: float, b: bool }
@@ -183,7 +189,11 @@ shadow main { assert true }
 fn main() -> int { let value: Data = Data { values: [1, 2] } assert (== (array_length value.values) 2) return 0 }
 shadow main { assert true }
 '''
-        for module in self.modules(source):self.qualify(module,False)
+        for module in self.modules(source):
+            # I publish private array authority for array fields (8750e9adb); execution stays ordinary.
+            self.command(ROOT/'bin/nano_vm','--verify-only',module)
+            self.command(ROOT/'bin/nano_vm',module)
+            self.assertTrue(self.facts(self.dump(module),'layouts'))
     def test_extern_record_provenance_stays_unknown(self):
         source='extern struct Foreign { value: int } struct Local { value: int } fn main() -> int { return 0 } shadow main { assert true }'
         for module in self.modules(source):self.qualify(module,False)

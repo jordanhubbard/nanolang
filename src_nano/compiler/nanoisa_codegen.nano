@@ -1930,7 +1930,14 @@ fn nisa_union_supported_seen(parser: Parser, name: string, signatures: array<str
     if (and (== definition.generic_param_count 0) (!= (nisa_compact_type name) definition.name)) { return false }
     let mut parameter: int = 0
     while (< parameter definition.generic_param_count) {
-        if (not (nisa_union_value_type_seen parser (at args parameter) path)) { return false }
+        # I accept a phantom argument without inspecting it: no field stores it, so it owns no payload.
+        let mut mentioned: bool = false
+        let mut slot: int = 0
+        while (< slot (array_length definition.variant_field_types)) {
+            if (str_contains (at definition.variant_field_types slot) (at definition.generic_params parameter)) { set mentioned true }
+            set slot (+ slot 1)
+        }
+        if (and mentioned (not (nisa_union_value_type_seen parser (at args parameter) path))) { return false }
         let mut prior: int = 0
         while (< prior parameter) {
             if (== (at definition.generic_params prior) (at definition.generic_params parameter)) { return false }
@@ -2077,7 +2084,8 @@ fn nisa_emit_union_context(parser: Parser, node_id: int, identity: string) -> st
         let expected: string = (nisa_union_concrete_field definition identity (+ offset field))
         let value: int = (at literal.field_value_ids i)
         let kind: int = (at literal.field_value_types i)
-        let contextual_union: bool = (and (== kind ParseNodeType.PNODE_UNION_CONSTRUCT) (nisa_union_supported parser expected))
+        let contextual_union: bool = (or (and (== kind ParseNodeType.PNODE_UNION_CONSTRUCT) (nisa_union_supported parser expected))
+                                         (and (== kind ParseNodeType.PNODE_ARRAY_LITERAL) (str_starts_with expected "array<")))
         if (and (not contextual_union) (and (not (nisa_function_type_ok parser expected)) (!= (nisa_expr_type parser value kind) expected))) { return (nisa_fail "I require the declared union field type") }
         set out (+ out (nisa_emit_expected_expr parser value kind expected))
         if (not nisa_ok) { return "" }
@@ -2284,7 +2292,7 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
             set slot (+ slot 1)
         }
         if (and (!= actual "int") (!= variant "_")) {
-            set names (array_push names (at node.arm_bindings i))
+            set names (array_push names (cond ((== (at node.arm_bindings i) "_") "") (else (at node.arm_bindings i))))
             set types (array_push types (+ actual (+ "." variant)))
         }
         set nisa_names names
@@ -4681,6 +4689,14 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
     if (and (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) (>= (nisa_union_index parser expected) 0)) {
         return (nisa_emit_union_context parser node_id expected)
     }
+    if (and (== node_type ParseNodeType.PNODE_MATCH) (>= (nisa_union_index parser expected) 0)) {
+        # I give each value arm the declared union so a generic constructor has one exact identity.
+        let selection: ASTMatch = (parser_get_match parser node_id)
+        if (not (nisa_match_domain_covered parser selection (nisa_expr_type parser selection.scrutinee selection.scrutinee_type))) {
+            return (nisa_fail "I require exhaustive match expression arms with one exact scalar result type")
+        }
+        return (nisa_emit_match_body parser node_id expected)
+    }
     if (nisa_tuple_type_ok parser expected) {
         if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) {
             return (nisa_emit_tuple_literal parser node_id expected)
@@ -4697,6 +4713,15 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         }
         if (and (or (== expected "float") (== actual "float")) (!= actual expected)) {
             return (nisa_fail "I require the declared float value type")
+        }
+    }
+    if (and (str_starts_with expected "array<") (== node_type ParseNodeType.PNODE_CALL)) {
+        let functional: ASTCall = (parser_get_call parser node_id)
+        let functional_name: string = (nisa_call_name parser functional)
+        if (and (nisa_functional_name functional_name) (< (nisa_call_index parser functional) 0)) {
+            if (!= (nisa_expr_type parser node_id node_type) expected) {
+                return (nisa_fail "I require exact functional callback, array element and accumulator types")
+            }
         }
     }
     if (and (!= expected "") (!= node_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
@@ -5728,6 +5753,19 @@ shadow nisa_emit_abs {
     let reset: int = (nisa_reset)
 }
 
+# I return the declared function index of a named int, bool or float callback, or -1.
+fn nisa_direct_scalar_callback(parser: Parser, callback: ASTStmtRef, signature: string) -> int {
+    if (!= callback.node_type ParseNodeType.PNODE_IDENTIFIER) { return -1 }
+    let index: int = (nisa_function_value_index parser callback.node_id callback.node_type)
+    if (< index 0) { return -1 }
+    let function: ASTFunction = (parser_get_function parser index)
+    if (or (nisa_generic_function parser function) (< function.body 0)) { return -1 }
+    for part in (function_type_parts signature) {
+        if (and (!= part "int") (and (!= part "float") (!= part "bool"))) { return -1 }
+    }
+    return index
+}
+
 fn nisa_emit_functional_array(parser: Parser, call: ASTCall, source_name: string) -> string {
     let name: string = (nisa_array_operation source_name)
     let signature: string = (nisa_functional_signature parser call name)
@@ -5752,10 +5790,20 @@ fn nisa_emit_functional_array(parser: Parser, call: ASTCall, source_name: string
     }
     # I capture the callback once after the array and initializer, before length.
     let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start (- call.arg_count 1)))
-    set text (+ text (nisa_emit_expected_expr parser callback.node_id callback.node_type signature))
+    # I call a resolved named scalar callback directly; every other callback keeps the indirect boundary.
+    let direct_index: int = (nisa_direct_scalar_callback parser callback signature)
+    let saved_callables: bool = nisa_has_callables
+    let saved_ordinary: bool = nisa_ordinary_ok
+    let callback_text: string = (nisa_emit_expected_expr parser callback.node_id callback.node_type signature)
     if (not nisa_ok) { return "" }
     let callback_slot: string = (nisa_temp_local signature)
-    set text (+ text (nisa_line_imm "STORE_LOCAL" callback_slot))
+    if (< direct_index 0) {
+        set text (+ text (+ callback_text (nisa_line_imm "STORE_LOCAL" callback_slot)))
+    } else {
+        set nisa_has_callables saved_callables
+        set nisa_ordinary_ok saved_ordinary
+        (nisa_require_function direct_index)
+    }
     let length_slot: string = (nisa_temp_local "int")
     set text (+ text (nisa_line_imm "LOAD_LOCAL" source_slot))
     set text (+ text (nisa_line "ARR_LEN"))
@@ -5794,10 +5842,14 @@ fn nisa_emit_functional_array(parser: Parser, call: ASTCall, source_name: string
     set text (+ text (nisa_line_imm "STORE_LOCAL" element_slot))
     if (== name "reduce") { set text (+ text (nisa_line_imm "LOAD_LOCAL" result_slot)) }
     set text (+ text (nisa_line_imm "LOAD_LOCAL" element_slot))
-    set nisa_has_callables true
-    set nisa_ordinary_ok false
-    set text (+ text (nisa_line_imm "LOAD_LOCAL" callback_slot))
-    set text (+ text (nisa_line_imm "CALL_INDIRECT" (+ (int_to_string arity) " 1")))
+    if (>= direct_index 0) {
+        set text (+ text (nisa_line_imm "CALL" (parser_get_function parser direct_index).name))
+    } else {
+        set nisa_has_callables true
+        set nisa_ordinary_ok false
+        set text (+ text (nisa_line_imm "LOAD_LOCAL" callback_slot))
+        set text (+ text (nisa_line_imm "CALL_INDIRECT" (+ (int_to_string arity) " 1")))
+    }
     if (== name "reduce") {
         set text (+ text (nisa_line_imm "STORE_LOCAL" result_slot))
     } else {
@@ -5819,8 +5871,8 @@ fn nisa_emit_functional_array(parser: Parser, call: ASTCall, source_name: string
 shadow nisa_emit_functional_array {
     let text: string = (nanoisa_emit_nasm "fn keep(x:float)->bool{return true} fn main()->int{let xs:array<float> = (filter [] keep) return (array_length xs)}")
     assert (str_contains text "ARR_NEW 3")
-    assert (str_contains text "FUNCREF keep")
-    assert (str_contains text "CALL_INDIRECT 1 1")
+    assert (str_contains text "CALL keep")
+    assert (not (str_contains text "CALL_INDIRECT"))
     assert (== (nanoisa_emit_nasm "fn wrong(x:int)->int{return x} fn main()->int{let xs:array<int> = (filter [1] wrong) return 0}") "")
     let reset: int = (nisa_reset)
 }
@@ -5848,6 +5900,7 @@ fn nisa_emit_indirect_call(parser: Parser, call: ASTCall) -> string {
         let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
         let mut contextual: bool = (and (== expected "u8") (== argument.node_type ParseNodeType.PNODE_NUMBER))
         if (str_starts_with (nisa_compact_type expected) "fn(") { set contextual true }
+        if (and (== argument.node_type ParseNodeType.PNODE_UNION_CONSTRUCT) (nisa_union_supported parser expected)) { set contextual true }
         if (and (str_starts_with expected "array<") (== argument.node_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
             set contextual (== (parser_get_array_literal parser argument.node_id).element_count 0)
         }
