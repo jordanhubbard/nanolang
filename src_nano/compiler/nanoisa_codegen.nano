@@ -2077,7 +2077,8 @@ fn nisa_emit_union_context(parser: Parser, node_id: int, identity: string) -> st
         let expected: string = (nisa_union_concrete_field definition identity (+ offset field))
         let value: int = (at literal.field_value_ids i)
         let kind: int = (at literal.field_value_types i)
-        let contextual_union: bool = (and (== kind ParseNodeType.PNODE_UNION_CONSTRUCT) (nisa_union_supported parser expected))
+        let contextual_union: bool = (or (and (== kind ParseNodeType.PNODE_UNION_CONSTRUCT) (nisa_union_supported parser expected))
+                                         (and (== kind ParseNodeType.PNODE_ARRAY_LITERAL) (str_starts_with expected "array<")))
         if (and (not contextual_union) (and (not (nisa_function_type_ok parser expected)) (!= (nisa_expr_type parser value kind) expected))) { return (nisa_fail "I require the declared union field type") }
         set out (+ out (nisa_emit_expected_expr parser value kind expected))
         if (not nisa_ok) { return "" }
@@ -5892,6 +5893,7 @@ fn nisa_emit_indirect_call(parser: Parser, call: ASTCall) -> string {
         let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
         let mut contextual: bool = (and (== expected "u8") (== argument.node_type ParseNodeType.PNODE_NUMBER))
         if (str_starts_with (nisa_compact_type expected) "fn(") { set contextual true }
+        if (and (== argument.node_type ParseNodeType.PNODE_UNION_CONSTRUCT) (nisa_union_supported parser expected)) { set contextual true }
         if (and (str_starts_with expected "array<") (== argument.node_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
             set contextual (== (parser_get_array_literal parser argument.node_id).element_count 0)
         }
