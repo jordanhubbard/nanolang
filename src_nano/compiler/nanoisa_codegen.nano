@@ -1930,7 +1930,14 @@ fn nisa_union_supported_seen(parser: Parser, name: string, signatures: array<str
     if (and (== definition.generic_param_count 0) (!= (nisa_compact_type name) definition.name)) { return false }
     let mut parameter: int = 0
     while (< parameter definition.generic_param_count) {
-        if (not (nisa_union_value_type_seen parser (at args parameter) path)) { return false }
+        # I accept a phantom argument without inspecting it: no field stores it, so it owns no payload.
+        let mut mentioned: bool = false
+        let mut slot: int = 0
+        while (< slot (array_length definition.variant_field_types)) {
+            if (str_contains (at definition.variant_field_types slot) (at definition.generic_params parameter)) { set mentioned true }
+            set slot (+ slot 1)
+        }
+        if (and mentioned (not (nisa_union_value_type_seen parser (at args parameter) path))) { return false }
         let mut prior: int = 0
         while (< prior parameter) {
             if (== (at definition.generic_params prior) (at definition.generic_params parameter)) { return false }
