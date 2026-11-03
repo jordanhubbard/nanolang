@@ -2284,7 +2284,7 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
             set slot (+ slot 1)
         }
         if (and (!= actual "int") (!= variant "_")) {
-            set names (array_push names (at node.arm_bindings i))
+            set names (array_push names (cond ((== (at node.arm_bindings i) "_") "") (else (at node.arm_bindings i))))
             set types (array_push types (+ actual (+ "." variant)))
         }
         set nisa_names names

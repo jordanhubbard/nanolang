@@ -25,7 +25,8 @@ class ScalarUnionEmission(unittest.TestCase):
         cls.raw = [ROOT/'bin/nanoisa_emit', cls.work/'stage2-emit']
         # I build a compiler here; canonical qualification measured 440.639s.
         # Ordinary program checks retain their separate 180-second deadline.
-        cls.command(ROOT/'bin/nanoc_stage2', ROOT/'src_nano/nanoisa_emit.nano', '-o', cls.raw[1], timeout=900)
+        cls.command(ROOT/'bin/nanoc_stage2', ROOT/'src_nano/nanoisa_emit.nano', '-o', cls.raw[1],
+                    timeout=int(os.environ.get('CMD_TIMEOUT', '900')))
         shadow_source = cls.work/'shadows.nano'
         shadow_source.write_text((ROOT/'tests/nanoisa/fixtures/shadow_module_driver.nano.txt').read_text())
         cls.shadows = cls.work/'shadows'
