@@ -30,7 +30,7 @@ shadow main { assert (== (main) 0) }
 """
 class OrdinaryProducers(unittest.TestCase):
     @classmethod
-    def command(cls,*args,ok=True,timeout=900):
+    def command(cls,*args,ok=True,timeout=int(os.environ.get('CMD_TIMEOUT','900'))):
         p=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=timeout)
         if (p.returncode==0)!=ok:raise AssertionError(f'{args}: {p.returncode}\n{p.stdout}\n{p.stderr}')
         return p.stdout
@@ -86,7 +86,7 @@ class OrdinaryProducers(unittest.TestCase):
                 prior=self.work/'prior.out';prior.write_bytes(b'prior')
                 # I translate ordinary-record modules through LLVM (#968) and Wasm;
                 # a refusal must still preserve the prior output.
-                result=subprocess.run([str(ROOT/'bin'/tool),str(module),'-o',str(prior)],cwd=ROOT,capture_output=True,text=True,timeout=900)
+                result=subprocess.run([str(ROOT/'bin'/tool),str(module),'-o',str(prior)],cwd=ROOT,capture_output=True,text=True,timeout=int(os.environ.get('CMD_TIMEOUT','900')))
                 if result.returncode==0:self.assertNotEqual(prior.read_bytes(),b'prior')
                 else:self.assertEqual(prior.read_bytes(),b'prior')
         else:
@@ -154,7 +154,7 @@ class OrdinaryProducers(unittest.TestCase):
         source = 'struct First { next: Second } struct Second { next: First } fn main() -> int { return 0 } shadow main { assert true }'
         # I reject cyclic by-value layouts in the C frontend (E0038) before any module exists.
         refused=subprocess.run([str(ROOT/'bin/nano_virt'),str(self.source(source)),'--emit-nvm','-o',str(self.work/'cycle.nvm')],
-                               cwd=ROOT,capture_output=True,text=True,timeout=900)
+                               cwd=ROOT,capture_output=True,text=True,timeout=int(os.environ.get('CMD_TIMEOUT','900')))
         self.assertNotEqual(refused.returncode,0)
         self.assertIn('cyclic by-value type layouts',refused.stdout+refused.stderr)
 

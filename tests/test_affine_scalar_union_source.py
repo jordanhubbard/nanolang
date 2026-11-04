@@ -132,7 +132,7 @@ shadow main { assert (== (main) 17) }
 
 
 class AffineScalarUnionSource(unittest.TestCase):
-    def command(self, *args, env=None, timeout=180):
+    def command(self, *args, env=None, timeout=int(os.environ.get('CMD_TIMEOUT','180'))):
         result = subprocess.run([str(arg) for arg in args], cwd=ROOT,
                                 capture_output=True, text=True, env=env, timeout=timeout)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -142,7 +142,7 @@ class AffineScalarUnionSource(unittest.TestCase):
         prior = b'prior-affine-union-output\n'
         output.write_bytes(prior)
         result = subprocess.run([str(arg) for arg in args], cwd=ROOT,
-                                capture_output=True, text=True, timeout=180)
+                                capture_output=True, text=True, timeout=int(os.environ.get('CMD_TIMEOUT','180')))
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(output.read_bytes(), prior)
         diagnostic = result.stdout + result.stderr
@@ -215,7 +215,7 @@ class AffineScalarUnionSource(unittest.TestCase):
             expected = 'right\nsemantic-source-parity-pass\n'
             selfhost = work / 'stage2-nanoisa-emit'
             self.command(ROOT / 'bin/nanoc_stage2', ROOT / 'src_nano/nanoisa_emit.nano',
-                         '-o', selfhost, timeout=900)
+                         '-o', selfhost, timeout=int(os.environ.get('CMD_TIMEOUT','900')))
 
             emitters = (ROOT / 'bin/nanoisa_emit', selfhost)
             for index, emitter in enumerate(emitters):
@@ -306,7 +306,7 @@ class AffineScalarUnionSource(unittest.TestCase):
             work = Path(raw)
             selfhost = work / 'stage2-nanoisa-emit'
             self.command(ROOT / 'bin/nanoc_stage2', ROOT / 'src_nano/nanoisa_emit.nano',
-                         '-o', selfhost, timeout=900)
+                         '-o', selfhost, timeout=int(os.environ.get('CMD_TIMEOUT','900')))
             routes = (
                 ('raw-cseed', ROOT / 'bin/nanoisa_emit'),
                 ('raw-selfhost', selfhost),

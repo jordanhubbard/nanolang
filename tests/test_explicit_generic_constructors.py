@@ -1,5 +1,6 @@
 """I retain explicit constructor instances without replacing them with context."""
 import subprocess
+import os
 from tests import test_scalar_match_values as matches
 
 ROOT = matches.ROOT
@@ -66,7 +67,7 @@ shadow main { assert (== (main) 0) }
                     args = [tool, source]
                     if tool not in self.raw:
                         args.append('--emit-nvm')
-                    result = subprocess.run([*args, '-o', output], cwd=ROOT, text=True, capture_output=True, timeout=180)
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, text=True, capture_output=True, timeout=int(os.environ.get('CMD_TIMEOUT','180')))
                     self.assertGreater(result.returncode, 0, result.stdout + result.stderr)
                     self.assertEqual(output.read_text(), 'retained')
                     self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse error')

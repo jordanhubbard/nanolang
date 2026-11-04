@@ -19,7 +19,7 @@ class FunctionalArrays(unittest.TestCase):
     def tearDownClass(cls): cls.scratch.cleanup()
     @staticmethod
     def run_checked(args):
-        r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=180,
+        r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=int(os.environ.get('CMD_TIMEOUT','180')),
             env={**os.environ,'ASAN_OPTIONS':'halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
         if r.returncode: raise AssertionError(f'{args}: {r.returncode}\n{r.stdout}\n{r.stderr}')
         return r
@@ -164,8 +164,10 @@ shadow value { let xs:array<int> = (map [1] value) assert (== (at xs 0) 21) }
 fn main()->int{return 0}
 shadow main { assert true }
 ''','bound')
-        self.assertIn('FUNCREF dep_a_value',assembly)
-        self.assertIn('FUNCREF dep_b_value',assembly)
+        # I call a resolved named scalar callback directly, so each selected shadow
+        # still depends on its owner through a CALL edge, not a FUNCREF.
+        self.assertIn('CALL dep_a_value',assembly)
+        self.assertIn('CALL dep_b_value',assembly)
     def test_signature_and_shadowing_refusals_preserve_output(self):
         declarations='''fn integer(x:int)->int{return x}
 shadow integer { assert true }
@@ -185,13 +187,13 @@ shadow container { assert true }
                 with self.subTest(expression=expression):
                     source.write_text(declarations+'fn main()->int{ let result: array<int> = '+expression+' return 0 }\nshadow main { assert true }\n')
                     output.write_bytes(b'previous')
-                    result=subprocess.run([SOURCE_COMPILER,source,'--emit-nvm','-o',output],cwd=ROOT,capture_output=True,text=True,timeout=60)
+                    result=subprocess.run([SOURCE_COMPILER,source,'--emit-nvm','-o',output],cwd=ROOT,capture_output=True,text=True,timeout=int(os.environ.get('CMD_TIMEOUT','60')))
                     self.assertEqual(result.returncode,1,result.stdout+result.stderr)
                     self.assertNotIn('parse failed', result.stdout)
                     self.assertEqual(output.read_bytes(),b'previous')
             source.write_text(declarations+'fn main()->int{ let integer: int = 7\n let result: array<int> = (map [1] integer) return 0 }\n')
             output.write_bytes(b'previous')
-            result=subprocess.run([SOURCE_COMPILER,source,'--emit-nvm','-o',output],cwd=ROOT,capture_output=True,text=True,timeout=60)
+            result=subprocess.run([SOURCE_COMPILER,source,'--emit-nvm','-o',output],cwd=ROOT,capture_output=True,text=True,timeout=int(os.environ.get('CMD_TIMEOUT','60')))
             self.assertEqual(result.returncode,1,result.stdout+result.stderr)
             self.assertRegex(result.stdout+result.stderr, 'I require a resolved declared scalar callback|I require exact supported functional callback types|I require exact functional callback, array element and accumulator types')
             self.assertEqual(output.read_bytes(),b'previous')
