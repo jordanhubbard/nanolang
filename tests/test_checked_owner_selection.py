@@ -1,6 +1,7 @@
 """I select checked scalar closures without discarding source obligations."""
 from pathlib import Path
 import hashlib
+import os
 import subprocess
 import sys
 import tempfile
@@ -27,7 +28,7 @@ class CheckedOwnerSelection(unittest.TestCase):
         cls.drivers = []
         for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):
             driver = cls.work / compiler
-            cls.command(ROOT / 'bin' / compiler, source, '-o', driver, timeout=900)
+            cls.command(ROOT / 'bin' / compiler, source, '-o', driver, timeout=int(os.environ.get('CMD_TIMEOUT','900')))
             cls.drivers.append(driver)
             print(f'DRIVER {compiler} sha256={hashlib.sha256(driver.read_bytes()).hexdigest()}', file=sys.stderr, flush=True)
 
@@ -45,7 +46,7 @@ class CheckedOwnerSelection(unittest.TestCase):
         output = self.work / 'selected.nasm'
         output.write_bytes(b'prior artifact')
         result = subprocess.run([str(driver), str(source), mode, str(first), str(output)],
-                                cwd=ROOT, capture_output=True, text=True, timeout=180)
+                                cwd=ROOT, capture_output=True, text=True, timeout=int(os.environ.get('CMD_TIMEOUT','180')))
         if accepted:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertNotEqual(output.read_bytes(), b'prior artifact')

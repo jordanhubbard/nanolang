@@ -26,7 +26,7 @@ class ShadowEmitter(unittest.TestCase):
     @staticmethod
     def command(*args, expected=0):
         result = subprocess.run([str(a) for a in args], cwd=ROOT,
-                                text=True, capture_output=True, timeout=180)
+                                text=True, capture_output=True, timeout=int(os.environ.get('CMD_TIMEOUT', '180')))
         if result.returncode != expected:
             raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
         return result
