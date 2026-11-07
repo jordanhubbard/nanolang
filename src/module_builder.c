@@ -5229,6 +5229,25 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
     return command_ok;
 }
 
+#ifdef __APPLE__
+/* I retain the admitted shared-link recipe when adding dependency recording.
+ * Shell quoting can expand each path byte to at most four bytes. The fixed
+ * suffix, path flag, surrounding quotes and terminator fit within 64 bytes. */
+static char *module_recorded_link_command(const char *command, const char *record) {
+    size_t command_length = strlen(command), record_length = strlen(record);
+    if (command_length > 65536 || record_length > 2047) return NULL;
+    size_t capacity = command_length + 4 * record_length + 64;
+    char *recorded = calloc(capacity, 1);
+    if (!recorded ||
+        !module_build_append(recorded, capacity, "%s -Xlinker -dependency_info", command) ||
+        !module_append_path_flag(recorded, capacity, "-Xlinker ", record)) {
+        free(recorded);
+        return NULL;
+    }
+    return recorded;
+}
+#endif
+
 /* I pin the primary output at both layers without dropping selection flags.
  * The caller still admits auxiliary output options and indirect controls; this
  * is not a filesystem sandbox for arbitrary compiler/linker arguments. */
@@ -5740,11 +5759,11 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             /* I preserve an ordinary link when dependency capture is not
              * supported. I admit my retained compiler argument transports,
              * but not indirect user response inputs hidden from this format. */
-            char recorded_command[8192] = {0}, link_record[2048] = {0};
+            char *recorded_command = NULL;
+            char link_record[2048] = {0};
             bool capture = command_ok && link_observation && module_link_response_safe(meta, flags, lib_cmd) &&
                 module_build_append(link_record, sizeof(link_record), "%s/.link-dependencies", build_dir) &&
-                module_build_append(recorded_command, sizeof(recorded_command), "%s -Xlinker -dependency_info", lib_cmd) &&
-                module_append_path_flag(recorded_command, sizeof(recorded_command), "-Xlinker ", link_record);
+                (recorded_command = module_recorded_link_command(lib_cmd, link_record)) != NULL;
             bool final_link = false;
             if (capture) {
                 lib_result = system(recorded_command);
@@ -5770,6 +5789,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 if (link_record[0]) (void)unlink(link_record);
                 lib_result = command_ok ? system(lib_cmd) : -1;
             }
+            free(recorded_command);
 #else
             lib_result = command_ok ? system(lib_cmd) : -1;
 #endif

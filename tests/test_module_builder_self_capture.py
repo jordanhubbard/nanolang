@@ -41,6 +41,46 @@ class ModuleBuilderSelfCapture(unittest.TestCase):
             native=ctypes.CDLL(str(library));native.total.restype=ctypes.c_longlong
             self.assertEqual(native.total(),sum(range(count)))
 
+    def test_large_shared_closure_records_dependencies_and_reuses_generation(self):
+        import ctypes
+        with tempfile.TemporaryDirectory(prefix="nano-large-shared-") as tmp:
+            module = Path(tmp)/("quoted ' dollar$ path " + "x"*180)
+            module.mkdir()
+            count = 40
+            names = [f"part{i}.c" for i in range(count)]
+            for i, name in enumerate(names):
+                (module/name).write_text(f"long long part{i}(void) {{ return {i}; }}\n")
+            (module/"sum.c").write_text("".join(f"extern long long part{i}(void);\n" for i in range(count)) +
+                "long long total(void) { return " + "+".join(f"part{i}()" for i in range(count)) + "; }\n")
+            (module/"module.json").write_text(json.dumps({"name": "many_shared", "c_sources": ["sum.c"],
+                                                         "shared_c_sources": names}))
+            cold = self.build(module)
+            self.assertEqual(cold.returncode, 0, cold.stdout + cold.stderr)
+            first = Path(cold.stdout.strip()).parent
+            self.assertGreater(sum(len(str(first/f"__shared_{i}.o"))+3 for i in range(count)), 8192)
+            self.assertTrue((first/"source_hashes.json").is_file(), cold.stdout + cold.stderr)
+            suffix = ".dylib" if sys.platform == "darwin" else ".so"
+            library = first/("libmany_shared" + suffix)
+            original_bytes = library.read_bytes()
+            native = ctypes.CDLL(str(library))
+            native.total.restype = ctypes.c_longlong
+            self.assertEqual(native.total(), sum(range(count)))
+            warm = self.build(module)
+            self.assertEqual(warm.returncode, 0, warm.stdout + warm.stderr)
+            self.assertEqual(Path(warm.stdout.strip()).parent, first)
+            self.assertEqual(library.read_bytes(), original_bytes)
+            (module/names[0]).write_text("long long part0(void) { return 99; }\n")
+            changed = self.build(module)
+            self.assertEqual(changed.returncode, 0, changed.stdout + changed.stderr)
+            replacement = Path(changed.stdout.strip()).parent
+            self.assertNotEqual(replacement, first)
+            self.assertTrue((replacement/"source_hashes.json").is_file())
+            updated = ctypes.CDLL(str(replacement/("libmany_shared" + suffix)))
+            updated.total.restype = ctypes.c_longlong
+            self.assertEqual(updated.total(), sum(range(count)) + 99)
+            self.assertEqual(native.total(), sum(range(count)))
+            self.assertEqual(library.read_bytes(), original_bytes)
+
     def test_builder_source_retains_and_builds_its_own_marker(self):
         with tempfile.TemporaryDirectory(prefix="nano-self-capture-") as tmp:
             module = Path(tmp)

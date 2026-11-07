@@ -1,0 +1,6 @@
+test_large_shared_closure_records_dependencies_and_reuses_generation (tests.test_module_builder_self_capture.ModuleBuilderSelfCapture.test_large_shared_closure_records_dependencies_and_reuses_generation) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 7.287s
+
+OK

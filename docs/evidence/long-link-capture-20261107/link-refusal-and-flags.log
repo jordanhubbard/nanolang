@@ -1,0 +1,8 @@
+test_failed_final_link_preserves_previous_generation (tests.test_module_cache_publication.ModuleCachePublication.test_failed_final_link_preserves_previous_generation) ... ok
+test_shared_link_preserves_framework_pairs (tests.test_source_snapshots.SourceSnapshots.test_shared_link_preserves_framework_pairs) ... ok
+test_shared_link_does_not_drop_tail_flags_or_repeated_libraries (tests.test_source_snapshots.SourceSnapshots.test_shared_link_does_not_drop_tail_flags_or_repeated_libraries) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.377s
+
+OK
