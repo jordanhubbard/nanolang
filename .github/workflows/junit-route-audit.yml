@@ -2,21 +2,25 @@ name: Complete JUnit producer-route diagnosis
 
 on:
   push:
-    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text]
+    branches: [fix/5.1-tail-string-casts, fix/5.1-source-float-text, fix/5.1-map-constructor-parity]
     paths:
       - '.github/workflows/junit-route-audit.yml'
       - 'scripts/junit_route_audit.py'
       - 'tests/test_junit_route_audit.py'
       - 'tests/test_canonical_string_builtins.py'
+      - 'tests/test_map_constructor_contexts.py'
+      - 'tests/unit/test_map_constructor_contexts.nano'
+      - 'Makefile.gnu'
       - 'src_nano/compiler/nanoisa_codegen.nano'
       - 'src/nanovirt/codegen.c'
+      - 'src_nano/typecheck.nano'
 
 permissions:
   contents: read
 
 jobs:
   original-corpus:
-    name: Fresh scalar string returns and complete original JUnit routes
+    name: Fresh compiler parity and complete original JUnit routes
     runs-on: ubuntu-latest
     timeout-minutes: 360
     env:
@@ -91,6 +95,14 @@ jobs:
               (output / 'focused-results.json').write_text(json.dumps(results, indent=2) + '\n')
           raise SystemExit(int(any(row['returncode'] != 0 for row in results)))
           PY
+      - name: Exercise the unchanged complete four-pair map constructor contract
+        if: always() && steps.bootstrap.outcome == 'success'
+        timeout-minutes: 45
+        run: |
+          set -o pipefail
+          python3 -m unittest -v tests.test_map_constructor_contexts \
+            2>&1 | tee .test_output/junit-route-audit/map-contexts.log
+
       - name: Retain the complete original corpus across seed native, VM and both stages
         if: always() && steps.bootstrap.outcome == 'success'
         timeout-minutes: 180

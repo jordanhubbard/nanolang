@@ -1,6 +1,9 @@
 """I retain checked map tags at every constructor boundary."""
 from pathlib import Path
 import subprocess
+import os
+import shlex
+from tests.native_process import native_link_flags
 import tempfile
 import unittest
 
@@ -31,8 +34,22 @@ class MapConstructorContexts(unittest.TestCase):
                             source = source.replace('"kept"', "42")
                         path = work / "case.nano"
                         path.write_text(source)
-                        self.run_checked([ROOT / "bin/nano_virt", path, "--emit-nvm", "-o", work / "case.nvm"])
-                        self.run_checked([ROOT / "bin/nano_vm", work / "case.nvm"])
+                        for producer in ("nano_virt", "nanoc_stage1", "nanoc_stage2"):
+                            with self.subTest(producer=producer):
+                                module = work / f"{key}-{value}-{producer}.nvm"
+                                c_source = module.with_suffix('.c')
+                                native = work / f"{key}-{value}-{producer}-native"
+                                self.run_checked([ROOT / "bin" / producer, path, "--emit-nvm", "-o", module])
+                                self.run_checked([ROOT / "bin/nano_vm", "--verify-only", module])
+                                self.run_checked([ROOT / "bin/nano_vm", module])
+                                self.run_checked([ROOT / "bin/nvm2c", module, "-o", c_source])
+                                self.run_checked([*shlex.split(os.environ.get("NANO_NATIVE_TEST_CC", "cc")),
+                                    "-std=c11", "-O1", "-Wall", "-Wextra", "-Werror",
+                                    "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                                    c_source, ROOT / "bin/nano_aot_runtime.o", "-lm", *native_link_flags(),
+                                    *(["-Wl,--export-dynamic", "-ldl"] if os.sys.platform.startswith("linux") else []),
+                                    "-o", native])
+                                self.run_checked([native])
                         self.run_checked([ROOT / "bin/nanoc_c", path, "-o", work / "native"])
                         self.run_checked([work / "native"])
 
@@ -167,11 +184,11 @@ static inline int64_t nl_owned_count(void) { return finalized; }
             source, output = work / "bad.nano", work / "prior"
             for body in bodies:
                 source.write_text("fn main() -> int { " + body + " return 0 } shadow main { assert true }")
-                for compiler in ("nanoc_c", "nano_virt"):
+                for compiler in ("nanoc_c", "nano_virt", "nanoc_stage1", "nanoc_stage2"):
                     with self.subTest(body=body, compiler=compiler):
                         output.write_text("prior artifact")
                         command = [ROOT / "bin" / compiler, source, "-o", output]
-                        if compiler == "nano_virt": command.append("--emit-nvm")
+                        if compiler != "nanoc_c": command.append("--emit-nvm")
                         result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
                         self.assertNotEqual(result.returncode, 0)
                         self.assertEqual(output.read_text(), "prior artifact")

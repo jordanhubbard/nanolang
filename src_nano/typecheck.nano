@@ -4553,7 +4553,53 @@ shadow tc_function_value_symbol {
     (mb_reset [])
 }
 
+# I refine the builtin's empty map from an exact scalar-pair context, not from an unknown wildcard.
+fn check_empty_map_context(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType) -> NSType {
+    if (or (!= actual.kind TypeKind.TYPE_UNKNOWN) (!= actual.name "HashMap")) { return actual }
+    if (or (!= expected.kind TypeKind.TYPE_STRUCT) (!= node_type ParseNodeType.PNODE_CALL)) { return actual }
+    let spelling: string = (strip_spaces (type_to_string expected))
+    if (!= (base_type_name spelling) "HashMap") { return actual }
+    let arguments: array<string> = (tc_generic_arguments spelling)
+    if (!= (array_length arguments) 2) { return actual }
+    let mut index: int = 0
+    while (< index 2) {
+        let scalar: string = (at arguments index)
+        if (not (or (== scalar "int") (== scalar "string"))) { return actual }
+        set index (+ index 1)
+    }
+    # I do not reinterpret a real same-named nominal declaration as the builtin family.
+    set index 0
+    while (< index (parser_get_struct_def_count parser)) {
+        if (== (base_type_name (parser_get_struct_def parser index).name) "HashMap") { return actual }
+        set index (+ index 1)
+    }
+    let call: ASTCall = (parser_get_call parser node_id)
+    if (or (!= call.arg_count 0) (!= call.function_type ParseNodeType.PNODE_IDENTIFIER)) { return actual }
+    if (!= (parser_get_identifier parser call.function).name "map_new") { return actual }
+    return expected
+}
+shadow check_empty_map_context {
+    let parser: Parser = (resource_test_parser "fn main()->int{let values:HashMap<string,string> = (map_new) return 0} shadow main{assert true}")
+    let unknown: NSType = (type_unknown_named "HashMap")
+    let expected: NSType = (type_from_string "HashMap<string,string>")
+    let checked: NSType = (check_empty_map_context parser 0 ParseNodeType.PNODE_CALL unknown expected)
+    assert (== checked.kind TypeKind.TYPE_STRUCT)
+    assert (== (type_to_string checked) "HashMap<string,string>")
+    let unsupported: NSType = (check_empty_map_context parser 0 ParseNodeType.PNODE_CALL unknown (type_from_string "HashMap<string,bool>"))
+    assert (== unsupported.kind TypeKind.TYPE_UNKNOWN)
+    let wrong: NSType = (check_empty_map_context parser 0 ParseNodeType.PNODE_CALL (type_int) expected)
+    assert (== wrong.kind TypeKind.TYPE_INT)
+    let malformed: Parser = (resource_test_parser "fn main()->int{let values:HashMap<string,string> = (map_new 1) return 0} shadow main{assert true}")
+    assert (== (check_empty_map_context malformed 0 ParseNodeType.PNODE_CALL unknown expected).kind TypeKind.TYPE_UNKNOWN)
+    let nominal: Parser = (resource_test_parser "struct HashMap<K,V>{value:int} fn main()->int{let values:HashMap<string,string> = (map_new) return 0} shadow main{assert true}")
+    assert (== (check_empty_map_context nominal 0 ParseNodeType.PNODE_CALL unknown expected).kind TypeKind.TYPE_UNKNOWN)
+}
+
 fn check_constructor_argument(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (and (== actual.kind TypeKind.TYPE_UNKNOWN) (== actual.name "HashMap")) {
+        let contextual: NSType = (check_empty_map_context parser node_id node_type actual expected)
+        if (!= contextual.kind TypeKind.TYPE_UNKNOWN) { return contextual }
+    }
     if (str_starts_with (type_to_string expected) "fn(") {
         if (== node_type ParseNodeType.PNODE_BLOCK) {
             let block: ASTBlock = (parser_get_block parser node_id)
@@ -4659,6 +4705,18 @@ fn check_constructor_argument(parser: Parser, node_id: int, node_type: int, actu
     return expected
 }
 shadow check_constructor_argument {
+    let scalars: array<string> = ["int", "string"]
+    for key in scalars {
+        for value in scalars {
+            let map_type: string = (+ "HashMap<" (+ key (+ "," (+ value ">"))))
+            let source: string = (+ "union Box<T>{Some{value:T}} fn main()->int{let wrapped:Box<" (+ map_type "> = Box.Some{value:(map_new)} return 0} shadow main{assert true}"))
+            assert (not (typecheck_phase (resource_test_parser source) "map-payload.nano").had_error)
+        }
+    }
+    let wrong_map: Parser = (resource_test_parser "union Box<T>{Some{value:T}} fn main()->int{let values:HashMap<string,int> = (map_new) let wrapped:Box<HashMap<string,string>> = Box.Some{value:values} return 0} shadow main{assert true}")
+    assert (typecheck_phase wrong_map "wrong-map-payload.nano").had_error
+    let unknown_map: Parser = (resource_test_parser "union Box<T>{Some{value:T}} fn main()->int{let wrapped:Box<HashMap<string,Missing>> = Box.Some{value:(map_new)} return 0} shadow main{assert true}")
+    assert (typecheck_phase unknown_map "unknown-map-payload.nano").had_error
     let callbacks: Parser = (resource_test_parser "fn id(x:T)->T{return x} fn other(x:T)->T{return x} fn main()->int{let f:fn(int)->int=(cond (true id) (else other)) return (f 7)}")
     assert (not (typecheck_phase callbacks "conditional.nano").had_error)
     let wrong: Parser = (resource_test_parser "fn id(x:T)->T{return x} fn wrong(x:int)->bool{return true} fn main()->int{let f:fn(int)->int=(cond (true id) (else wrong)) return (f 7)}")

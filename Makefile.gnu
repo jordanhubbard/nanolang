@@ -4813,7 +4813,7 @@ test-units: test-generic-selected-ownership
 test-generic-selected-ownership: bootstrap
 	python3 -m unittest -v tests.test_generic_selected_ownership
 .PHONY: test-map-constructor-contexts
-test-map-constructor-contexts: $(COMPILER_C) nano_virt nano_vm
+test-map-constructor-contexts: bootstrap nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest tests.test_map_constructor_contexts
 
 test-units: test-map-constructor-contexts
