@@ -129,6 +129,7 @@ def run(command, label, output, temp_parent=None, interval=30, min_free_bytes=2 
         if any(volumes[name]['free'] < min_free_bytes for name in ('temporary', 'workspace', 'output')):
             raise RuntimeError('I retain a two-GiB log reserve and stop new qualification writes.')
     process = None
+    group_active = False
     try:
         guard(record('before', sizes=True, command=command))
         env = dict(os.environ, TMPDIR=str(root), TMP=str(root), TEMP=str(root))
@@ -136,6 +137,7 @@ def run(command, label, output, temp_parent=None, interval=30, min_free_bytes=2 
         env['NANOLANG_QUALIFICATION_ARCHIVES'] = str(output)
         print(f'I retain {label} temporary evidence at {root}', flush=True)
         process = subprocess.Popen(command, env=env, start_new_session=True)
+        group_active = True
         while True:
             try:
                 status = process.wait(timeout=interval)
@@ -147,7 +149,7 @@ def run(command, label, output, temp_parent=None, interval=30, min_free_bytes=2 
         try:
             os.killpg(process.pid, 0)
         except ProcessLookupError:
-            pass
+            group_active = False
         else:
             raise RuntimeError('I retain a temporary root with surviving child processes.')
         volumes = record('after', sizes=True, returncode=status)
@@ -160,7 +162,7 @@ def run(command, label, output, temp_parent=None, interval=30, min_free_bytes=2 
             record('retained_failure', returncode=status)
         return status
     except BaseException as error:
-        if process is not None:
+        if process is not None and group_active:
             try:
                 os.killpg(process.pid, signal.SIGKILL)
             except ProcessLookupError:

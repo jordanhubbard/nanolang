@@ -26,10 +26,10 @@ sampling observes less than two GiB free on its workspace/temp/output volume;
 this sampling guard is not a hard allocation quota. Archives need additional
 space and a failed archive preserves its original root.
 
-My [local controls](local-controls.log) pass 25 storage and merge-policy tests.
+My [local controls](local-controls.log) pass 26 storage and merge-policy tests.
 They execute real child processes and filesystem operations, including failure
 retention, bytes/modes/links/debug-sidecar archival, mutation/refusal, nested
-archive lifetime and low-space refusal. My frozen Make-command fixture preserves
+archive lifetime, low-space refusal and late-error process-group lifetime. My frozen Make-command fixture preserves
 the original module selection. These controls do not qualify native reconstruction.
 
 My branch-scoped recovery workflow calls the actual release-qualification

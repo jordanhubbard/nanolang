@@ -65,6 +65,17 @@ class QualificationStorage(unittest.TestCase):
         self.assertTrue(root.is_dir())
         self.assertFalse(list(self.output.glob('*.tar.gz')))
 
+    def test_late_archive_error_never_signals_an_exited_process_group(self):
+        signal_group = os.killpg
+        with mock.patch.object(storage.os, 'killpg', wraps=signal_group) as signals:
+            with mock.patch.object(storage, 'archive_success', side_effect=ValueError('archive refusal')):
+                with self.assertRaisesRegex(ValueError, 'archive refusal'):
+                    storage.run(self.child('pass'), 'late-error', self.output, self.base)
+        self.assertTrue(signals.call_args_list)
+        self.assertTrue(all(call.args[1] == 0 for call in signals.call_args_list))
+        root, = self.base.glob('nano-qualification-*')
+        self.assertTrue(root.is_dir())
+
     def test_archive_verification_failure_never_removes_source(self):
         root = self.base/'owned';root.mkdir();(root/'input').write_text('unchanged')
         with mock.patch.object(storage, 'verify_archive', side_effect=ValueError('damaged archive')):

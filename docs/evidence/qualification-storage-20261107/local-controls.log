@@ -5,15 +5,17 @@ test_cli_unknown_collection_options_refuse_before_running (tests.test_ci_qualifi
                            {run,unittest}
 python3 -m unittest: error: I require -v followed by explicit tests.* module names.
 ok
-test_failed_real_child_retains_originals_and_exit_status (tests.test_ci_qualification_storage.QualificationStorage.test_failed_real_child_retains_originals_and_exit_status) ... I retain failed-control temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-dxdi40xw/nano-qualification-brsw_10g
+test_failed_real_child_retains_originals_and_exit_status (tests.test_ci_qualification_storage.QualificationStorage.test_failed_real_child_retains_originals_and_exit_status) ... I retain failed-control temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-8vas20zs/nano-qualification-ix6wqgsh
+ok
+test_late_archive_error_never_signals_an_exited_process_group (tests.test_ci_qualification_storage.QualificationStorage.test_late_archive_error_never_signals_an_exited_process_group) ... I retain late-error temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-n44929_e/nano-qualification-06afn9m9
 ok
 test_low_space_refuses_to_launch_and_retains_the_fresh_root (tests.test_ci_qualification_storage.QualificationStorage.test_low_space_refuses_to_launch_and_retains_the_fresh_root) ... ok
 test_make_hook_keeps_the_exact_original_module_selection (tests.test_ci_qualification_storage.QualificationStorage.test_make_hook_keeps_the_exact_original_module_selection) ... ok
-test_nested_phase_archive_outlives_outer_temporary_root (tests.test_ci_qualification_storage.QualificationStorage.test_nested_phase_archive_outlives_outer_temporary_root) ... I retain outer temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-vj7phfr2/nano-qualification-5wczlanj
-I retain inner temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-vj7phfr2/nano-qualification-5wczlanj/nano-qualification-_pevlanq
+test_nested_phase_archive_outlives_outer_temporary_root (tests.test_ci_qualification_storage.QualificationStorage.test_nested_phase_archive_outlives_outer_temporary_root) ... I retain outer temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-y1hj_9x7/nano-qualification-kmc2qcqa
+I retain inner temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-y1hj_9x7/nano-qualification-kmc2qcqa/nano-qualification-m5edfi_h
 ok
 test_source_mutation_during_archive_retains_both_versions (tests.test_ci_qualification_storage.QualificationStorage.test_source_mutation_during_archive_retains_both_versions) ... ok
-test_success_preserves_bytes_modes_links_and_directory_before_removal (tests.test_ci_qualification_storage.QualificationStorage.test_success_preserves_bytes_modes_links_and_directory_before_removal) ... I retain native-output-control temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-n_4y5qm8/nano-qualification-vv9mjl4y
+test_success_preserves_bytes_modes_links_and_directory_before_removal (tests.test_ci_qualification_storage.QualificationStorage.test_success_preserves_bytes_modes_links_and_directory_before_removal) ... I retain native-output-control temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-jq7lnao0/nano-qualification-jyef0fbg
 ok
 test_additional_owner_checks_are_preserved (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_additional_owner_checks_are_preserved) ... ok
 test_cli_exports_locally_and_reports_live_policy_drift (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_cli_exports_locally_and_reports_live_policy_drift) ... ok
@@ -33,6 +35,6 @@ test_pure_prose_pr_range_is_documentation (tests.test_ci_changed.GitHubEventClas
 test_real_cli_reads_the_event_and_fails_closed_for_bad_json (tests.test_ci_changed.GitHubEventClassification.test_real_cli_reads_the_event_and_fails_closed_for_bad_json) ... ok
 
 ----------------------------------------------------------------------
-Ran 25 tests in 6.206s
+Ran 26 tests in 8.007s
 
 OK
