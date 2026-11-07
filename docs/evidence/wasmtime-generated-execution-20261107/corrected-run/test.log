@@ -1,0 +1,19 @@
+test_calls_loops_branch_effects_and_bool_transport (tests.test_nvm2wasm.ScalarWasm.test_calls_loops_branch_effects_and_bool_transport) ... ok
+test_checked_float_conversions (tests.test_nvm2wasm.ScalarWasm.test_checked_float_conversions) ... ok
+test_existing_predicate_and_unused_array_signature (tests.test_nvm2wasm.ScalarWasm.test_existing_predicate_and_unused_array_signature) ... ok
+test_float_arithmetic_comparisons_and_nan (tests.test_nvm2wasm.ScalarWasm.test_float_arithmetic_comparisons_and_nan) ... ok
+test_float_calls_locals_joins_truthiness_and_signed_zero (tests.test_nvm2wasm.ScalarWasm.test_float_calls_locals_joins_truthiness_and_signed_zero) ... ok
+test_integer_boundaries (tests.test_nvm2wasm.ScalarWasm.test_integer_boundaries) ... ok
+test_invalid_float_to_int_traps (tests.test_nvm2wasm.ScalarWasm.test_invalid_float_to_int_traps) ... ok
+test_output_and_source_preservation (tests.test_nvm2wasm.ScalarWasm.test_output_and_source_preservation) ... ok
+test_recursive_call_and_stack_join (tests.test_nvm2wasm.ScalarWasm.test_recursive_call_and_stack_join) ... ok
+test_rot3_calls_locals_and_loop (tests.test_nvm2wasm.ScalarWasm.test_rot3_calls_locals_and_loop) ... ok
+test_rot3_stack_rotation (tests.test_nvm2wasm.ScalarWasm.test_rot3_stack_rotation) ... ok
+test_scalar_entry_result_and_custom_name (tests.test_nvm2wasm.ScalarWasm.test_scalar_entry_result_and_custom_name) ... ok
+test_scalar_tags_boolean_ops_and_argument_order (tests.test_nvm2wasm.ScalarWasm.test_scalar_tags_boolean_ops_and_argument_order) ... ok
+test_shared_profile_refusals_preserve_output (tests.test_nvm2wasm.ScalarWasm.test_shared_profile_refusals_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 9.671s
+
+OK

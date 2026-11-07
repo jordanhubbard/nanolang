@@ -1,0 +1,7 @@
+[
+  "/usr/bin/python3",
+  "-m",
+  "unittest",
+  "-v",
+  "tests.test_nvm2wasm"
+]

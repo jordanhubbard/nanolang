@@ -1,0 +1,11 @@
+[
+  "make",
+  "-f",
+  "Makefile.gnu",
+  "-j2",
+  "CC=/usr/bin/clang",
+  "test-file-hosted",
+  "test-file-private-vm",
+  "test-file-hosted-sanitizers",
+  "test-file-private-vm-sanitizers"
+]
