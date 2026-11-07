@@ -65,7 +65,7 @@ I reviewed my eight integration contracts, their direct public interface depende
 original-source skill, workflow/routing, explicit root lineage and preservation limits. I retain original source
 as release authority. This review covers metadata consistency; it is not a compiler acceptance or test receipt.
 
-<!-- literate-ai:authority-reviewed sha256:0939e420c05bebfd77d054dfa2f506c78a702ee7df05c96246964364bd43b1d0 -->
+<!-- literate-ai:authority-reviewed sha256:6307b0c6a123997a58fc83d0592a07f98589fe9efd7c18f53c1e4144029e6ea6 -->
 
 ## My first metadata checkpoint
 
@@ -236,3 +236,9 @@ check preserves all 90,248 baseline entries, with no changed or dirty original
 paths. All eight locks and four delegates pass with installed Literate AI 1.4.0
 at `10e872cfae2465e831901108d50e62c2ff9dfb78`, publication unverified.
 GitGuardian #1076, exact integration gates and native adoption remain open.
+
+My [committed qualification-code custody report](source-preservation-qualification-20261107.json)
+at `2ecd38eab130f4a307d3e1336f269f78e8e01e38` preserves all 90,248 baseline entries with no changed or dirty
+original paths. I retain the earlier profile baseline and reports unchanged.
+My metadata controls establish source custody, not native lifecycle admission or
+a passing exact-candidate compiler/qualification run.
