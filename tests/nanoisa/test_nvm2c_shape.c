@@ -314,6 +314,61 @@ static void test_explicit_variant_scalar_storage(void) {
     }
 }
 
+/* I keep finite variant sets inside inferred optional payload storage only. */
+static void test_nested_variant_payload_conversion(void) {
+    const NvmShapeKind members[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL,
+        NVM_SHAPE_FLOAT, NVM_SHAPE_STRING, NVM_SHAPE_U8};
+    for (size_t member = 0; member < sizeof members / sizeof *members; ++member) {
+        for (int reverse = 0; reverse < 2; ++reverse) {
+            for (int exact = 0; exact < 3; ++exact) {
+                NvmShapeGraph g = {0};
+                NvmShapeId producer = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+                NvmShapeId finite = nvm_shape_new(&g, NVM_SHAPE_VARIANT_SCALAR);
+                CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, producer, 0), finite));
+                NvmShapeId scalar = nvm_shape_new(&g, members[member]);
+                NvmShapeId storage = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+                NvmShapeId payload = nvm_shape_child(&g, storage, 0);
+                if (exact == 1) CHECK(nvm_shape_unify(&g, payload, scalar));
+                if (reverse && !exact) CHECK(nvm_shape_convert(&g, producer, storage));
+                CHECK(nvm_shape_convert(&g, scalar, storage));
+                CHECK(nvm_shape_solve_conversions(&g));
+                if (exact == 2) {
+                    /* I also preserve a later exact binding to inferred storage. */
+                    if (reverse) {
+                        /* I raise the inferred root's rank before an exact alias. */
+                        CHECK(nvm_shape_unify(&g, payload, nvm_shape_new(&g, NVM_SHAPE_UNKNOWN)));
+                        CHECK(nvm_shape_unify(&g, payload, scalar));
+                    } else CHECK(nvm_shape_unify(&g, scalar, payload));
+                }
+                CHECK(nvm_shape_convert(&g, producer, storage));
+                CHECK(nvm_shape_solve_conversions(&g) == !exact);
+                if (!exact) {
+                    CHECK(nvm_shape_kind(&g, payload) == NVM_SHAPE_VARIANT_SCALAR);
+                    CHECK(nvm_shape_kind(&g, scalar) == members[member]);
+                    CHECK(nvm_shape_root(&g, payload) != nvm_shape_root(&g, finite));
+                    CHECK(nvm_shape_solve_conversions(&g));
+                } else CHECK(g.error != NULL);
+                nvm_shape_destroy(&g);
+            }
+        }
+        /* A finite carrier cannot flow into a bare scalar or array element. */
+        for (int array = 0; array < 2; ++array) {
+            NvmShapeGraph g = {0};
+            NvmShapeId source = nvm_shape_new(&g, array ? NVM_SHAPE_ARRAY : NVM_SHAPE_UNKNOWN);
+            NvmShapeId target = nvm_shape_new(&g, array ? NVM_SHAPE_ARRAY : NVM_SHAPE_UNKNOWN);
+            NvmShapeId from = array ? nvm_shape_child(&g, source, 0) : source;
+            NvmShapeId to = array ? nvm_shape_child(&g, target, 0) : target;
+            CHECK(nvm_shape_convert(&g, nvm_shape_new(&g, members[member]), to));
+            CHECK(nvm_shape_solve_conversions(&g));
+            CHECK(nvm_shape_unify(&g, from, nvm_shape_new(&g, NVM_SHAPE_VARIANT_SCALAR)));
+            CHECK(nvm_shape_convert(&g, source, target));
+            CHECK(!nvm_shape_solve_conversions(&g));
+            CHECK(g.error != NULL);
+            nvm_shape_destroy(&g);
+        }
+    }
+}
+
 static void test_finite_variant_integer_array(void) {
     const NvmShapeKind members[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT,
         NVM_SHAPE_STRING, NVM_SHAPE_U8, NVM_SHAPE_VARIANT_SCALAR, NVM_SHAPE_VARIANT_INT_ARRAY};
@@ -763,6 +818,7 @@ int main(void) {
     }
     test_finite_variant_integer_array();
     test_explicit_variant_scalar_storage();
+    test_nested_variant_payload_conversion();
     test_numeric_union_payload();
     {
         NvmShapeGraph g = {0};

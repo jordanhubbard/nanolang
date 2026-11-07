@@ -160,25 +160,13 @@ shadow main { assert true }
                     self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
                     self.assertEqual(output.read_text(), 'retained')
 
-    def test_nested_union_payload_runs_in_vm_and_native_refusal_is_explicit(self):
-        # I accept a union-typed payload in the self-hosted compilers and execute
-        # it in NanoVM; native translation refuses it explicitly (#1061).
-        source = self.work/'nested.nano'
-        source.write_text('''union Inner { Empty {}, Num { n: int } }
-union Box { Some { value: Inner } }
-fn read(b: Box) -> int { return match b { Some(p) => (match p.value { Empty(q) => 0 Num(q) => q.n }) } }
-shadow read { assert (== (read Box.Some { value: Inner.Num { n: 5 } }) 5) assert (== (read Box.Some { value: Inner.Empty {} }) 0) }
-fn main() -> int { let x: Box = Box.Some { value: Inner.Num { n: 9 } } return (- (read x) 9) }
-shadow main { assert true }
-''')
-        for compiler in ('nanoc_stage1', 'nanoc_stage2'):
-            module = self.work/f'nested-{compiler}.nvm'
-            self.command(ROOT/'bin'/compiler, source, '--emit-nvm', '-o', module)
-            self.command(ROOT/'bin/nano_vm', '--verify-only', module)
-            self.command(ROOT/'bin/nano_vm', module)
-            refused = subprocess.run([NVM2C, module, '-o', self.work/'nested.c'], cwd=ROOT,
-                                     capture_output=True, text=True, timeout=120)
-            self.assertNotEqual(refused.returncode, 0)
+    def test_nested_union_payload_runs_in_vm_and_native(self):
+        source = ROOT/'tests/nanoisa/fixtures/nested_union_native.nano'
+        for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+            with self.subTest(compiler=compiler):
+                module = self.work/f'nested-{compiler}.nvm'
+                self.command(ROOT/'bin'/compiler, source, '--emit-nvm', '-o', module)
+                self.execute(module, '9\n0\n')
 
     def test_c_seed_resource_payload_constructor_remains_checked(self):
         source = self.work/'resource.nano'
@@ -204,3 +192,24 @@ shadow main { assert (== (main) 0) }
             result = self.command(ROOT/'bin'/compiler, source, '--emit-nvm', '-o', module)
             self.assertNotIn('E001 TYPE MISMATCH', result.stderr)
             self.execute(module)
+
+
+class NestedUnionNative(unittest.TestCase):
+    """I exercise the native storage regression without rebuilding my compilers."""
+
+    command = staticmethod(ScalarUnionEmission.command)
+    execute = ScalarUnionEmission.execute
+
+    def test_nested_payload_flows_in_both_match_orders(self):
+        fixture = (ROOT/'tests/nanoisa/fixtures/nested_union_native.nano').read_text()
+        with tempfile.TemporaryDirectory(prefix='nested-union-native-') as work:
+            self.work = Path(work)
+            for reverse in (False, True):
+                with self.subTest(reverse=reverse):
+                    source = self.work/'nested.nano'
+                    source.write_text(fixture.replace(
+                        'Empty(empty) => 0\n            Num(number) => number.n',
+                        'Num(number) => number.n\n            Empty(empty) => 0') if reverse else fixture)
+                    module = self.work/'nested.nvm'
+                    self.command(ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', module)
+                    self.execute(module, '9\n0\n')
