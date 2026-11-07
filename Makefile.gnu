@@ -698,6 +698,9 @@ nvm2c: check-binary64-parser $(BIN_DIR)/nvm2c
 $(BIN_DIR)/nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a $(LDFLAGS)
 
+# I optionally retain each complete reconstruction module in verified archives.
+RECONSTRUCTION_UNITTEST ?= python3 -m unittest
+
 .PHONY: nvm2hl test-scalar-reconstruction
 nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $(BIN_DIR)/nanoisa_hl_facts src/nanoisa/hl_facts_main.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
@@ -714,22 +717,22 @@ test-binary64-arithmetic:
 
 .PHONY: test-reconstruction-f64-arithmetic
 test-reconstruction-f64-arithmetic: nvm2hl nanoisa_dump nano_vm nvm2c bootstrap
-	NANO_HL_COMPILER_DIR=$(CURDIR)/bin python3 -m unittest -v tests.test_reconstruction_f64_arithmetic
+	NANO_HL_COMPILER_DIR=$(CURDIR)/bin $(RECONSTRUCTION_UNITTEST) -v tests.test_reconstruction_f64_arithmetic
 
 .PHONY: test-reconstruction-f64-negation
 test-reconstruction-f64-negation: nvm2hl nanoisa_dump nano_vm nvm2c
-	python3 -m unittest -v tests.test_reconstruction_f64_negation
+	$(RECONSTRUCTION_UNITTEST) -v tests.test_reconstruction_f64_negation
 
 .PHONY: test-reconstruction-f64-comparisons
 test-reconstruction-f64-comparisons: nvm2hl nanoisa_dump nano_vm nvm2c
-	python3 -m unittest -v tests.test_reconstruction_f64_comparisons
+	$(RECONSTRUCTION_UNITTEST) -v tests.test_reconstruction_f64_comparisons
 
 .PHONY: test-reconstruction-f64-transport
 test-reconstruction-f64-transport: nvm2hl nanoisa_dump nano_vm nvm2c
-	python3 -m unittest -v tests.test_reconstruction_f64_transport
+	$(RECONSTRUCTION_UNITTEST) -v tests.test_reconstruction_f64_transport
 
 test-reconstruction-binary64-facts: nvm2hl nanoisa_dump
-	python3 -m unittest -v tests.test_reconstruction_binary64_facts
+	$(RECONSTRUCTION_UNITTEST) -v tests.test_reconstruction_binary64_facts
 
 test-units: test-reconstruction-binary64-facts
 
@@ -747,7 +750,7 @@ test-units: test-canonical-f64-bits
 .PHONY: test-canonical-f64-bits
 .PHONY: test-reconstruction-binary64-facts
 test-scalar-reconstruction: nvm2hl nanoisa_dump nano_virt nano_vm nvm2c nvm2c-runtime bootstrap
-	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply tests.test_reconstructed_generic_integer tests.test_reconstructed_rot3 tests.test_reconstructed_comparisons tests.test_reconstructed_carry_borrow tests.test_reconstructed_u8
+	$(RECONSTRUCTION_UNITTEST) -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply tests.test_reconstructed_generic_integer tests.test_reconstructed_rot3 tests.test_reconstructed_comparisons tests.test_reconstructed_carry_borrow tests.test_reconstructed_u8
 test-units: test-scalar-reconstruction
 
 .PHONY: nanoisa_emit
@@ -6865,10 +6868,12 @@ test-embedded-nano-identifiers: $(OBJ_DIR)/fixture_identifier_lexer
 	python3 scripts/check_embedded_nano_identifiers.py --lexer "$(OBJ_DIR)/fixture_identifier_lexer"
 
 .PHONY: check-fast
+# I keep broader profiles opt-in until their full coverage and job budget qualify.
+FAST_GATE_TEST_PROFILES ?= 0
 check-fast: test-embedded-nano-identifiers
 	python3 -m unittest tests.test_make_prerequisites tests.test_wasmtime_prerequisite
 	python3 -m unittest -v tests.test_fast_gate
-	python3 scripts/fast_gate.py
+	python3 scripts/fast_gate.py $(if $(filter 1,$(FAST_GATE_TEST_PROFILES)),--test-profiles --report .test_output/fast-gate-profiles.json)
 	python3 -m unittest tests.test_bootstrap_tools
 
 # I measure broader Make/private profiles separately while auditing the Python-built
@@ -6996,7 +7001,7 @@ test-units: test-publication-allocation
 
 .PHONY: test-owned-reconstruction
 test-owned-reconstruction: nvm2hl nano_virt nano_vm nvm2c
-	python3 -m unittest -v tests.test_owned_reconstruction tests.test_owned_call_reconstruction tests.test_owned_branch_reconstruction tests.test_owned_loop_reconstruction tests.test_owned_void_reconstruction tests.test_owned_shared_reconstruction tests.test_owned_nested_reconstruction tests.test_owned_mixed_reconstruction tests.test_owned_observation_reconstruction tests.test_owned_wrapping_reconstruction tests.test_owned_exclusive_reconstruction tests.test_owned_extracted_reconstruction tests.test_owned_depth_three_reconstruction tests.test_owned_multi_reference_reconstruction tests.test_owned_nested_path_reconstruction tests.test_owned_shared_path_reconstruction tests.test_owned_call_pretest_reconstruction tests.test_owned_double_call_pretest_reconstruction tests.test_owned_loop_first_witness_reconstruction tests.test_owned_shared_control_reconstruction tests.test_owned_exclusive_control_reconstruction tests.test_owned_reassignment_reconstruction tests.test_owned_loop_exit_reconstruction tests.test_owned_string_reconstruction tests.test_owned_float_reconstruction tests.test_consuming_float_exits_reconstruction tests.test_owned_helper_local_witness tests.test_owned_helper_local_reconstruction tests.test_single_exclusive_helper_local_reconstruction tests.test_empty_owned_reconstruction tests.test_borrowed_empty_local_reconstruction tests.test_owned_wrapper_reconstruction tests.test_eight_shared_reconstruction tests.test_borrowed_float_local_reconstruction
+	$(RECONSTRUCTION_UNITTEST) -v tests.test_owned_reconstruction tests.test_owned_call_reconstruction tests.test_owned_branch_reconstruction tests.test_owned_loop_reconstruction tests.test_owned_void_reconstruction tests.test_owned_shared_reconstruction tests.test_owned_nested_reconstruction tests.test_owned_mixed_reconstruction tests.test_owned_observation_reconstruction tests.test_owned_wrapping_reconstruction tests.test_owned_exclusive_reconstruction tests.test_owned_extracted_reconstruction tests.test_owned_depth_three_reconstruction tests.test_owned_multi_reference_reconstruction tests.test_owned_nested_path_reconstruction tests.test_owned_shared_path_reconstruction tests.test_owned_call_pretest_reconstruction tests.test_owned_double_call_pretest_reconstruction tests.test_owned_loop_first_witness_reconstruction tests.test_owned_shared_control_reconstruction tests.test_owned_exclusive_control_reconstruction tests.test_owned_reassignment_reconstruction tests.test_owned_loop_exit_reconstruction tests.test_owned_string_reconstruction tests.test_owned_float_reconstruction tests.test_consuming_float_exits_reconstruction tests.test_owned_helper_local_witness tests.test_owned_helper_local_reconstruction tests.test_single_exclusive_helper_local_reconstruction tests.test_empty_owned_reconstruction tests.test_borrowed_empty_local_reconstruction tests.test_owned_wrapper_reconstruction tests.test_eight_shared_reconstruction tests.test_borrowed_float_local_reconstruction
 test-units: test-owned-reconstruction
 
 .PHONY: test-record-array-tail-build

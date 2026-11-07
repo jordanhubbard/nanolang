@@ -155,6 +155,20 @@ def binding_profiles(base, destination):
     return profiles
 
 
+def file_runtime_profiles(base):
+    """I select my actual hosted-plan/private-VM sources and allocation/sentinel hooks."""
+    from tests.file_runtime_compile_profile import compile_flags, provider_profiles, fixture_profile
+    profiles = []
+    for kind in ('hosted', 'vm'):
+        flags, _ = compile_profile(compile_flags(kind, base))
+        for instrument in (False, True):
+            profiles.extend(([*flags, *hooks], source)
+                            for _, source, hooks in provider_profiles(kind, instrument))
+            source, hooks = fixture_profile(kind, instrument)
+            profiles.append(([*flags, *hooks], source))
+    return profiles
+
+
 def test_profiles(compiler, family, header_root):
     """I cover Make-built units and private union modes; I report the remaining C inventory."""
     text = make_preview(['test-units'], [f'WEBSOCKET_PUBLIC_TEST_PREFIX={header_root}'])
@@ -187,6 +201,7 @@ def test_profiles(compiler, family, header_root):
         raise ValueError('I found no Make test profiles.')
     commands.extend(private_union_profiles(base))
     commands.extend(binding_profiles(base, header_root))
+    commands.extend(file_runtime_profiles(base))
     unique = {}
     for flags, source in commands:
         for instrumented in (False, True):

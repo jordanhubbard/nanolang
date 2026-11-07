@@ -1,0 +1,24 @@
+{
+  "run": 42406792194,
+  "source": "6959a9762c4aa18b4d9b12bec06b85d09ae1266a",
+  "conclusion": "cancelled",
+  "job_seconds": 1517.0,
+  "acceptance_budget_seconds": 1200,
+  "measurement_limit_seconds": 1500,
+  "artifact": 13588283484,
+  "artifact_sha256": "799d3f01d4424dd4ff48e6c5b3ddf4918ee69e5a5694b9fdcc5d833886029420",
+  "completed_compilers": {
+    "clang": {
+      "compiles": 1727,
+      "failures": 0,
+      "seconds": 741.728110097,
+      "uncovered_test_c_files": 230
+    }
+  },
+  "incomplete_compilers": [
+    "gcc"
+  ],
+  "final_bootstrap_tools_control_reached": false,
+  "budget_qualified": false,
+  "native_lifecycle_qualified": false
+}

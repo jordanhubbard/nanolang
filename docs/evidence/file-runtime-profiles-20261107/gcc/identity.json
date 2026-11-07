@@ -1,0 +1,7 @@
+{
+  "source": "eb68d30f6f344512d23d8971f4acfca4f1c752c9",
+  "compiler": "/usr/bin/gcc-14",
+  "resolved": "/usr/bin/x86_64-linux-gnu-gcc-14",
+  "sha256": "ce298ce0c8fbdaa4b43f6e0596e37d25a35a07b5c743cb26f11815b76fccf90d",
+  "version": "gcc-14 (Ubuntu 14.2.0-4ubuntu2~24.04.1) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+}

@@ -1,0 +1,30 @@
+{
+  "source": "eb68d30f6f344512d23d8971f4acfca4f1c752c9",
+  "run": 42405314498,
+  "compilers": {
+    "clang": {
+      "artifact": 13587775941,
+      "archive_sha256": "43b34ff0adc856b00f007c6a3c95fe3a43ef569a76523f5dddb5b80b54aa5aee",
+      "diagnostic_compiles": 130,
+      "diagnostic_failures": 0,
+      "diagnostic_seconds": 83.90654899399999,
+      "native_tests": 8,
+      "native_suites": 4,
+      "native_compiler_commands": 132,
+      "native_returncode": 0
+    },
+    "gcc": {
+      "artifact": 13587711624,
+      "archive_sha256": "d3b7293b68d73bc05e106f4a773180392733c708d421d67332424126e2e89919",
+      "diagnostic_compiles": 130,
+      "diagnostic_failures": 0,
+      "diagnostic_seconds": 94.94619911900003,
+      "native_tests": 8,
+      "native_suites": 4,
+      "native_compiler_commands": 132,
+      "native_returncode": 0
+    }
+  },
+  "main_integration_pending": true,
+  "full_python_profile_inventory_qualified": false
+}

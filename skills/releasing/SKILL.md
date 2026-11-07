@@ -94,6 +94,38 @@ The gates are tested in `tests/test_release_gates.py`, which replays the
 3.5 → 4.0 release and requires the documentation gate to catch
 `CONTRIBUTING.md`. A gate nobody has watched fail is not evidence of anything.
 
+## My 5.1 merge-check policy
+
+I declare my minimum merge contexts in `.github/merge-gates.json`. I preserve
+the existing 11 checks and propose the fast gate, immutable image, sanitizer
+stages, coverage generations, performance job and all eight qualification legs.
+Issue #1051 requires owner approval for the exact ruleset change. My exporter
+does not apply repository settings and preserves every unrelated rule, bypass,
+branch condition and existing check producer binding.
+
+I capture the actual ruleset and all pages of exact candidate check runs:
+
+```sh
+gate_candidate_sha=$(git rev-parse HEAD)
+gh api repos/jordanhubbard/nanolang/rulesets/21250292 > /tmp/nanolang-ruleset.json
+gh api --paginate --slurp "repos/jordanhubbard/nanolang/commits/$gate_candidate_sha/check-runs?per_page=100" > /tmp/nanolang-checks.json
+python3 scripts/ci_merge_gate_policy.py --observed-ruleset /tmp/nanolang-ruleset.json \
+  --observed-checks /tmp/nanolang-checks.json --check --require-head-success
+```
+
+Missing names, incomplete observations,
+pending, failed, skipped or neutral contexts do not establish native release
+evidence. The read-only `--payload <proposal.json>` option emits the additive
+settings for review; it never applies them. I keep #1049/#1053's blocking-policy
+restoration and #1051's owner approval visible until complete.
+
+For pure documentation changes I emit the eight exact qualification names with
+an explicit nonexecution message. Code/unknown PR ranges and manual dispatch
+execute the real matrix. Before tagging 5.1 I require a full exact-candidate
+native run and its corpus evidence; documentation stand-ins and a context-name
+audit cannot replace it. All original 5.1 scope, native lifecycle and security
+obligations remain in force independently of this check inventory.
+
 ## Before tagging, by hand
 
 The helpers report staleness; they cannot write prose. When a gate names a

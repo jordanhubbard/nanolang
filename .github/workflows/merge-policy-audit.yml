@@ -1,0 +1,45 @@
+name: Merge policy controls
+
+on:
+  push:
+    branches: [fix/5.1-required-check-policy]
+    paths:
+      - '.github/workflows/merge-policy-audit.yml'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/retirement-qualification.yml'
+      - '.github/merge-gates.json'
+      - 'scripts/ci_changed.py'
+      - 'scripts/ci_merge_gate_policy.py'
+      - 'tests/test_ci_changed.py'
+      - 'tests/test_ci_merge_gate_policy.py'
+
+permissions:
+  contents: read
+
+jobs:
+  controls:
+    name: Real Git classification and additive merge-policy controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exercise actual Git ranges and ruleset preservation/refusal
+        run: |
+          mkdir -p .test_output/merge-policy
+          python3 -m unittest -v tests.test_ci_changed tests.test_ci_merge_gate_policy \
+            > .test_output/merge-policy/controls.log 2>&1
+          cat .test_output/merge-policy/controls.log
+      - name: Export the additive review artifact without applying settings
+        run: |
+          python3 scripts/ci_merge_gate_policy.py \
+            --observed-ruleset docs/evidence/merge-check-policy-20261107/observed-ruleset.json \
+            --observed-checks docs/evidence/merge-check-policy-20261107/observed-head-contexts.json \
+            --payload .test_output/merge-policy/proposed-ruleset.json \
+            > .test_output/merge-policy/audit.json
+      - name: Retain actual control output and proposed settings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merge-policy-controls-${{ github.sha }}
+          path: .test_output/merge-policy
+          if-no-files-found: error

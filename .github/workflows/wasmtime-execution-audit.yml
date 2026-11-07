@@ -1,0 +1,99 @@
+name: Wasmtime dependency execution audit
+
+on:
+  push:
+    branches: [qualify/5.1-wasmtime-execution]
+    paths:
+      - '.github/workflows/wasmtime-execution-audit.yml'
+      - '.github/containers/instrumented/install_wasmtime.py'
+      - 'tests/test_nvm2wasm.py'
+
+permissions:
+  contents: read
+
+jobs:
+  generated-programs:
+    name: Wasmtime generated-program dependency qualification
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check worker resources before provisioning and building
+        run: |
+          python3 - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+          disk = shutil.disk_usage('.')
+          memory = {line.split(':')[0]: int(line.split()[1]) * 1024
+                    for line in Path('/proc/meminfo').read_text().splitlines()
+                    if line.startswith(('MemTotal:', 'MemAvailable:'))}
+          output = Path('.test_output/wasmtime-execution')
+          output.mkdir(parents=True, exist_ok=True)
+          report = {'cpus': os.cpu_count(), 'disk_free': disk.free,
+                    'disk_free_fraction': disk.free / disk.total, 'memory': memory}
+          print(json.dumps(report, indent=2))
+          (output / 'worker.json').write_text(json.dumps(report, indent=2) + '\n')
+          if disk.free < 2 * 1024**3 or disk.free / disk.total < 0.02:
+              raise SystemExit('I hold this dependency qualification because worker disk is critical.')
+          if memory['MemAvailable'] / memory['MemTotal'] <= 0.05:
+              raise SystemExit('I hold this dependency qualification because worker memory is critical.')
+          PY
+      - name: Install the existing LLVM, Wasm linker and engine prerequisites
+        timeout-minutes: 20
+        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev clang llvm lld nodejs
+      - name: Install and check my existing checksum-pinned Wasmtime runtime
+        timeout-minutes: 5
+        run: |
+          python3 .github/containers/instrumented/install_wasmtime.py --prefix "$RUNNER_TEMP/nanolang-test-tools" \
+            > .test_output/wasmtime-execution/installer.log 2>&1
+          printf '%s/bin\n' "$RUNNER_TEMP/nanolang-test-tools" >> "$GITHUB_PATH"
+      - name: Retain exact source and real executable identities
+        run: |
+          python3 .github/containers/instrumented/install_wasmtime.py --check
+          python3 - <<'PY'
+          import hashlib, json, shutil, subprocess
+          from pathlib import Path
+          tools = {}
+          for tool in ('clang', 'cc', 'llvm-as', 'lli', 'opt', 'llc', 'wasm-ld', 'wasmtime', 'node'):
+              path = shutil.which(tool)
+              if not path:
+                  raise SystemExit('I require my actual dependency: ' + tool)
+              binary = Path(path).resolve()
+              tools[tool] = {'path': path, 'resolved': str(binary),
+                             'sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
+                             'version': subprocess.check_output([path, '--version'], text=True)}
+          report = {'source': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+                    'tools': tools, 'native_lifecycle_qualified': False}
+          Path('.test_output/wasmtime-execution/identity.json').write_text(json.dumps(report, indent=2) + '\n')
+          PY
+      - name: Freshly build my actual VM, C, LLVM and Wasm producers
+        run: |
+          set -o pipefail
+          make -f Makefile.gnu -j2 CC=clang nvm2wasm nanoisa_dump nano_vm nvm2c bin/nanoisa \
+            2>&1 | tee .test_output/wasmtime-execution/build.log
+          sha256sum bin/nvm2wasm bin/nvm2llvm bin/nano_vm bin/nvm2c bin/nanoisa \
+            > .test_output/wasmtime-execution/providers.sha256
+      - name: Run every original scalar-Wasm execution and refusal case
+        run: |
+          python3 - <<'PY'
+          import json, subprocess, sys, time
+          from pathlib import Path
+          output = Path('.test_output/wasmtime-execution')
+          argv = [sys.executable, '-m', 'unittest', '-v', 'tests.test_nvm2wasm']
+          (output / 'test-command.json').write_text(json.dumps(argv, indent=2) + '\n')
+          started = time.monotonic()
+          with (output / 'test.log').open('w') as log:
+              result = subprocess.run(argv, stdout=log, stderr=subprocess.STDOUT)
+          (output / 'test-status.json').write_text(json.dumps({
+              'returncode': result.returncode, 'elapsed_seconds': time.monotonic() - started,
+              'native_lifecycle_qualified': False}, indent=2) + '\n')
+          print((output / 'test.log').read_text())
+          raise SystemExit(result.returncode)
+          PY
+      - name: Retain the real dependency, build and test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasmtime-execution-${{ github.sha }}
+          path: .test_output/wasmtime-execution
+          if-no-files-found: error

@@ -1,0 +1,8 @@
+{
+  "run_head": "435dae34cc2ce74d5210806d26ef1ebb9f9e4b7a",
+  "actual_checkout": "a6ba0d210667fcc65d91778fcfcccaa8b2cfb917",
+  "run_head_tree": "6f0a4a71268ce3e22f611363d7befa83461b260c",
+  "actual_checkout_tree": "6f0a4a71268ce3e22f611363d7befa83461b260c",
+  "trees_equal": true,
+  "scope": "I verify Git file/mode identity, not equality of commit metadata or a native lifecycle receipt."
+}
