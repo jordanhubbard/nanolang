@@ -92,7 +92,7 @@ class MergeGatePolicy(unittest.TestCase):
         for job in ['qualification-documentation', 'retirement']:
             block = text.split('  ' + job + ':\n', 1)[1].split('\n  retirement:', 1)[0]
             name = re.search(r'^    name: (.+)$', block, re.M).group(1)
-            axes = {key: [value.strip() for value in re.search(r'^        ' + key + r': \[(.+)\]$', block, re.M).group(1).split(',')]
+            axes = {key: json.loads(re.search(r'^        ' + key + r": \$\{\{ fromJSON\(inputs\.[a-z]+ \|\| '(\[.+\])'\) \}\}$", block, re.M).group(1))
                     for key in ['os', 'corpus']}
             contexts.append({name.replace('${{ matrix.os }}', platform).replace('${{ matrix.corpus }}', corpus)
                              for platform, corpus in itertools.product(axes['os'], axes['corpus'])})

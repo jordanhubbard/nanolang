@@ -6,6 +6,14 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      platforms:
+        type: string
+        default: '["ubuntu-latest", "xcode-27"]'
+      corpora:
+        type: string
+        default: '["retirement", "compiler-contracts", "contract-effects", "record-maps"]'
 
 permissions:
   contents: read
@@ -39,8 +47,8 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        os: [ubuntu-latest, xcode-27]
-        corpus: [retirement, compiler-contracts, contract-effects, record-maps]
+        os: ${{ fromJSON(inputs.platforms || '["ubuntu-latest", "xcode-27"]') }}
+        corpus: ${{ fromJSON(inputs.corpora || '["retirement", "compiler-contracts", "contract-effects", "record-maps"]') }}
     steps:
       - run: echo 'I classified a documentation-only range; this check records conditional nonexecution, not native qualification.'
 
@@ -62,8 +70,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, xcode-27]
-        corpus: [retirement, compiler-contracts, contract-effects, record-maps]
+        os: ${{ fromJSON(inputs.platforms || '["ubuntu-latest", "xcode-27"]') }}
+        corpus: ${{ fromJSON(inputs.corpora || '["retirement", "compiler-contracts", "contract-effects", "record-maps"]') }}
     env:
       CMD_TIMEOUT: '1800'
       BOOTSTRAP_NANOISA_TIMEOUT: '5400'
@@ -74,6 +82,12 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
+
+      - name: Record initial worker storage and exercise archive controls
+        if: matrix.corpus == 'contract-effects'
+        run: |
+          python3 -m unittest -v tests.test_ci_qualification_storage
+          python3 scripts/ci_qualification_storage.py run --label initial -- python3 -c 'pass'
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
@@ -123,6 +137,10 @@ jobs:
           git diff --exit-code HEAD
           uname -a > .test_output/retirement/host.txt
           "${CC:-cc}" --version > .test_output/retirement/compiler.txt
+
+      - name: Record storage after dependencies and before bootstrap
+        if: matrix.corpus == 'contract-effects'
+        run: python3 scripts/ci_qualification_storage.py run --label post-dependencies -- python3 -c 'pass'
 
       - name: Build and verify fresh compiler generations
         timeout-minutes: 150
@@ -229,6 +247,7 @@ jobs:
           NANOLANG_EFFECTS_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
           NANOLANG_PURITY_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
           NANOLANG_GENERIC_METADATA_COMPILERS="$PWD/bin/nano_virt:$PWD/bin/nanoc_stage1:$PWD/bin/nanoc_stage2" \
+          python3 scripts/ci_qualification_storage.py run --label metadata-effects -- \
           make -f Makefile.gnu CC="${CC:-cc}" test-local-binding-producers \
             test-effect-binding-metadata test-function-purity-metadata test-function-effects-metadata test-match-coverage-metadata test-function-affine-metadata test-affine-use-metadata \
             test-generic-binding-metadata test-owned-effect-c-source test-selfhost-effects \
@@ -242,6 +261,7 @@ jobs:
           set -o pipefail
           for stage in 1 2; do
             NANOLANG_SELFHOST_MODULE="$PWD/bin/nanoc_stage${stage}.nvm" \
+              python3 scripts/ci_qualification_storage.py run --label "product-stage${stage}" -- \
               make -f Makefile.gnu CC="${CC:-cc}" test-selfhost-product-derivation \
               2>&1 | tee ".test_output/retirement/product-stage${stage}.log"
           done
@@ -256,7 +276,10 @@ jobs:
         run: |
           set -o pipefail
           NANOLANG_OWNED_RECONSTRUCTION_COMPILERS="$PWD/bin/nanoc_stage1 $PWD/bin/nanoc_stage2" \
-          make -f Makefile.gnu CC="${CC:-cc}" test-owned-reconstruction test-scalar-reconstruction \
+          python3 scripts/ci_qualification_storage.py run --label reconstruction -- \
+          make -f Makefile.gnu CC="${CC:-cc}" \
+            RECONSTRUCTION_UNITTEST='python3 scripts/ci_qualification_storage.py unittest --' \
+            test-owned-reconstruction test-scalar-reconstruction \
             test-reconstruction-binary64-facts test-reconstruction-f64-transport \
             test-reconstruction-f64-negation test-reconstruction-f64-comparisons \
             test-reconstruction-f64-arithmetic \
@@ -280,4 +303,14 @@ jobs:
             obj/bootstrap-nanoisa/**/*.log
           include-hidden-files: true
           if-no-files-found: error
+          retention-days: 30
+
+      - name: Retain original failed temporary roots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qualification-temporary-failures-${{ matrix.corpus }}-${{ matrix.os }}
+          path: ${{ runner.temp }}/nano-qualification-*/
+          include-hidden-files: true
+          if-no-files-found: ignore
           retention-days: 30

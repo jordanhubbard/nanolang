@@ -1,0 +1,38 @@
+test_archive_verification_failure_never_removes_source (tests.test_ci_qualification_storage.QualificationStorage.test_archive_verification_failure_never_removes_source) ... ok
+test_cli_runs_every_original_module_in_order_even_after_failure (tests.test_ci_qualification_storage.QualificationStorage.test_cli_runs_every_original_module_in_order_even_after_failure) ... ok
+test_cli_unknown_collection_options_refuse_before_running (tests.test_ci_qualification_storage.QualificationStorage.test_cli_unknown_collection_options_refuse_before_running) ... usage: python3 -m unittest [-h] [--label LABEL] [--output OUTPUT]
+                           [--temp-parent TEMP_PARENT]
+                           {run,unittest}
+python3 -m unittest: error: I require -v followed by explicit tests.* module names.
+ok
+test_failed_real_child_retains_originals_and_exit_status (tests.test_ci_qualification_storage.QualificationStorage.test_failed_real_child_retains_originals_and_exit_status) ... I retain failed-control temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-dxdi40xw/nano-qualification-brsw_10g
+ok
+test_low_space_refuses_to_launch_and_retains_the_fresh_root (tests.test_ci_qualification_storage.QualificationStorage.test_low_space_refuses_to_launch_and_retains_the_fresh_root) ... ok
+test_make_hook_keeps_the_exact_original_module_selection (tests.test_ci_qualification_storage.QualificationStorage.test_make_hook_keeps_the_exact_original_module_selection) ... ok
+test_nested_phase_archive_outlives_outer_temporary_root (tests.test_ci_qualification_storage.QualificationStorage.test_nested_phase_archive_outlives_outer_temporary_root) ... I retain outer temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-vj7phfr2/nano-qualification-5wczlanj
+I retain inner temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-vj7phfr2/nano-qualification-5wczlanj/nano-qualification-_pevlanq
+ok
+test_source_mutation_during_archive_retains_both_versions (tests.test_ci_qualification_storage.QualificationStorage.test_source_mutation_during_archive_retains_both_versions) ... ok
+test_success_preserves_bytes_modes_links_and_directory_before_removal (tests.test_ci_qualification_storage.QualificationStorage.test_success_preserves_bytes_modes_links_and_directory_before_removal) ... I retain native-output-control temporary evidence at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-storage-controls-n_4y5qm8/nano-qualification-vv9mjl4y
+ok
+test_additional_owner_checks_are_preserved (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_additional_owner_checks_are_preserved) ... ok
+test_cli_exports_locally_and_reports_live_policy_drift (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_cli_exports_locally_and_reports_live_policy_drift) ... ok
+test_export_changes_only_additional_status_contexts (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_export_changes_only_additional_status_contexts) ... ok
+test_missing_checks_and_latest_non_success_never_become_admission (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_missing_checks_and_latest_non_success_never_become_admission) ... ok
+test_qualification_contexts_exist_for_both_native_and_prose_paths (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_qualification_contexts_exist_for_both_native_and_prose_paths) ... ok
+test_wrong_repository_or_duplicate_policy_refuses (tests.test_ci_merge_gate_policy.MergeGatePolicy.test_wrong_repository_or_duplicate_policy_refuses) ... ok
+test_any_code_or_build_file_is_code (tests.test_ci_changed.CiChanged.test_any_code_or_build_file_is_code) ... ok
+test_command_output (tests.test_ci_changed.CiChanged.test_command_output) ... ok
+test_documentation_only_is_not_code (tests.test_ci_changed.CiChanged.test_documentation_only_is_not_code) ... ok
+test_unknown_or_empty_input_runs_the_long_jobs (tests.test_ci_changed.CiChanged.test_unknown_or_empty_input_runs_the_long_jobs) ... ok
+test_actual_push_prose_range_is_documentation (tests.test_ci_changed.GitHubEventClassification.test_actual_push_prose_range_is_documentation) ... ok
+test_complete_pr_range_keeps_earlier_code_after_a_prose_push (tests.test_ci_changed.GitHubEventClassification.test_complete_pr_range_keeps_earlier_code_after_a_prose_push) ... ok
+test_manual_empty_and_unknown_events_keep_native_jobs (tests.test_ci_changed.GitHubEventClassification.test_manual_empty_and_unknown_events_keep_native_jobs) ... ok
+test_missing_remote_and_unknown_commit_keep_native_jobs (tests.test_ci_changed.GitHubEventClassification.test_missing_remote_and_unknown_commit_keep_native_jobs) ... ok
+test_pure_prose_pr_range_is_documentation (tests.test_ci_changed.GitHubEventClassification.test_pure_prose_pr_range_is_documentation) ... ok
+test_real_cli_reads_the_event_and_fails_closed_for_bad_json (tests.test_ci_changed.GitHubEventClassification.test_real_cli_reads_the_event_and_fails_closed_for_bad_json) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 6.206s
+
+OK

@@ -1,0 +1,16 @@
+name: Qualification storage recovery
+
+on:
+  push:
+    branches: [fix/5.1-qualification-storage]
+
+permissions:
+  contents: read
+
+jobs:
+  recovery:
+    # I reuse the complete native job. I change neither its corpus nor flags.
+    uses: ./.github/workflows/retirement-qualification.yml
+    with:
+      platforms: '["xcode-27"]'
+      corpora: '["contract-effects"]'
