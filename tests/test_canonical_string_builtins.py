@@ -2,10 +2,12 @@
 import os
 from pathlib import Path
 import struct
+import shlex
 import subprocess
 import sys
 import tempfile
 import unittest
+from tests.native_process import native_link_flags
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPILER = Path(os.environ.get('NANOLANG_SELFHOST_COMPILER', ROOT / 'bin/nanoc_stage2')).resolve()
@@ -27,8 +29,8 @@ class CanonicalStringBuiltins(unittest.TestCase):
         self.command([ROOT / 'bin/nano_vm', '--verify-only', module])
         vm = self.command([ROOT / 'bin/nano_vm', module])
         self.command([ROOT / 'bin/nvm2c', module, '-o', c_source])
-        self.command(['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', c_source,
-                      ROOT / 'bin/nano_aot_runtime.o', '-lm',
+        self.command([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', 'cc')), '-std=c11', '-Wall', '-Wextra', '-Werror', c_source,
+                      ROOT / 'bin/nano_aot_runtime.o', '-lm', *native_link_flags(),
                       *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
                       '-o', native])
         self.assertEqual(self.command([native]).stdout, vm.stdout)

@@ -37,3 +37,9 @@ syntax checks pass. I require the actual default fast gate, a fresh hosted boots
 results through all three producers, complete original four-route reports and
 unchanged source/provider checks before native acceptance. Both issues remain
 open. Earlier run 42413840812 continues on its immutable source checkpoint.
+
+I also attach the complete canonical module to the blocking platform jobs after
+fresh bootstrap, with explicit VM/assembler/C AOT runtime prerequisites and all
+three producers. Native compilation uses the selected `NANO_NATIVE_TEST_CC` and
+link flags. This schedules source-versus-raw checks in ordinary Linux/Darwin CI;
+it is not evidence that those future checks have already executed.

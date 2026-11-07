@@ -6,6 +6,8 @@
 
 - [x] Under #994 I retain the current combined-tree Linux original empty-record fixture and all five nominal-identity methods, including executed matching contexts and imported/wrong-record refusal controls. My [exact hosted log, job and unchanged source hashes](evidence/empty-record-current-hosted-20261107/README.md) verify this bounded repair; broader exact-release/platform and fresh stage acceptance remain under #976. I retain the separate 64 nonblocking JUnit failures under #1081.
 
+- [ ] Under #1082 I attach the complete canonical string/source-versus-raw formatting suite after fresh bootstrap in my three blocking platform jobs, using the selected native compiler/link flags. I require the fresh AOT runtime provider explicitly and preserve all original methods and refusals; the separate four-route diagnosis remains additional evidence.
+
 - [ ] Under #1082/#1081 I preserve source whole-float to_string/cast_string and f-string text through both NanoISA producers by reusing existing source float_to_string lowering. I retain the raw primitive CAST_STRING reference contract and original complete fixture/assertions, require signed-zero/whole/fraction/exponent/nonfinite and once-only VM/C AOT execution through all fresh producers, and preserve normal casts, declarations and refusal/publication behavior.
 
 - [ ] Under #1081 I run the complete unchanged JUnit selection through fresh C-native seed, seed NanoVM and both self-hosted products, retaining every XML/log/failure and provider/source identity. I validate report counts against actual case outcomes, retain failed output roots and continue collection across failed routes without declaring success. My local counterpart lacks its AOT runtime object and does not establish native acceptance.
