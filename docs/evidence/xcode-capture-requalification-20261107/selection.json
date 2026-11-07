@@ -1,0 +1,14 @@
+{
+  "selected": "/Applications/Xcode_27.2.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+  "resolved": "/Applications/Xcode_27.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+  "developer_dir": "/Applications/Xcode_27.2.0.app/Contents/Developer",
+  "sdk_root": "/Applications/Xcode_27.2.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "sha256": "04988adaddb282c8c074a1a55f8221452f18f64df3ca0006135f62031710377b",
+  "required_probes": {
+    "8-external-assemble": 0,
+    "8-external-fresh-shared": 0,
+    "8-debug-expand": 0,
+    "8-debug-replay": 0
+  },
+  "passed": true
+}

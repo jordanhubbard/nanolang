@@ -1,7 +1,8 @@
 name: Source capture selected-tool diagnostics
 on:
+  workflow_dispatch:
   push:
-    branches: [fix/5.1-platform-qualification]
+    branches: [fix/5.1-platform-qualification, fix/5.1-capture-requalification]
     paths:
       - '.github/workflows/source-capture-toolchain-diagnostic.yml'
       - 'scripts/ci_source_capture_diagnostic.py'
