@@ -12,6 +12,37 @@ from scripts import fast_gate as gate
 
 
 class FastGatePlanning(unittest.TestCase):
+    def test_instrumented_profile_retains_requested_fortify_level(self):
+        compiler = shutil.which('clang')
+        if not compiler:
+            self.skipTest('I require Clang for the Fortify/ASan option control.')
+        with tempfile.TemporaryDirectory(prefix='nano-fast-fortify-control-') as directory:
+            source = Path(directory) / 'fortify.c'
+            source.write_text('#if !defined(_FORTIFY_SOURCE) || _FORTIFY_SOURCE != 2\n'
+                              '#error I require the requested Fortify level\n#endif\n'
+                              'int native_fortify_control(void) { return 2; }\n')
+            command = gate.diagnostic_profile(compiler, ['-std=c99', '-Wall', '-Wextra', '-Werror'],
+                                               str(source), instrumented=True)
+            accepted = gate.run(command)
+            self.assertEqual(accepted[1], 0, accepted[2])
+
+    def test_coverage_keeps_instrumentation_and_uses_a_private_output(self):
+        compiler = shutil.which('clang')
+        if not compiler:
+            self.skipTest('I require Clang for the coverage-output control.')
+        with tempfile.TemporaryDirectory(prefix='nano-fast-coverage-control-') as directory:
+            source = Path(directory) / 'coverage.c'
+            source.write_text('int native_coverage_control(int value) { return value ? 1 : 0; }\n')
+            command = [compiler, '-O3', '-fprofile-arcs', '-ftest-coverage',
+                       '-S', str(source), '-o', '/dev/null']
+            result = gate.run(command)
+            self.assertEqual(result[1], 0, result[2])
+            self.assertIn('-fprofile-arcs', result[0])
+            self.assertIn('-ftest-coverage', result[0])
+            output = Path(result[0][result[0].index('-o') + 1])
+            self.assertNotEqual(output, Path('/dev/null'))
+            self.assertFalse(output.parent.exists())
+
     def test_object_valued_macro_preserves_the_compiler_refusal(self):
         compiler = shutil.which('cc')
         if not compiler:

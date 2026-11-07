@@ -1,0 +1,6 @@
+test_managed_header_uses_the_real_private_producer (tests.test_fast_gate_preparation.ProfilePreparation.test_managed_header_uses_the_real_private_producer) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.160s
+
+OK

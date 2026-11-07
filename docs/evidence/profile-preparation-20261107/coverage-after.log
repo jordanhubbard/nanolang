@@ -1,0 +1,6 @@
+test_coverage_keeps_instrumentation_and_uses_a_private_output (tests.test_fast_gate.FastGatePlanning.test_coverage_keeps_instrumentation_and_uses_a_private_output) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.032s
+
+OK

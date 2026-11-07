@@ -38,6 +38,9 @@ jobs:
                     'disk_free': disk.free, 'disk_free_fraction': disk.free / disk.total,
                     'memory': memory}
           print(json.dumps(report, indent=2))
+          output = Path('.test_output/compiler-profile-audit')
+          output.mkdir(parents=True, exist_ok=True)
+          (output / 'worker.json').write_text(json.dumps(report, indent=2) + '\n')
           if disk.free < 2 * 1024**3 or disk.free / disk.total < 0.02:
               raise SystemExit('I hold this measurement because the worker disk is critical.')
           if memory['MemAvailable'] / memory['MemTotal'] <= 0.05:
@@ -45,12 +48,27 @@ jobs:
           PY
       - name: Install the existing fast-gate dependencies
         timeout-minutes: 25
-        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev clang
+        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev clang llvm
       - name: Retain tool versions and source identity
         run: |
           mkdir -p .test_output/compiler-profile-audit
           git rev-parse HEAD > .test_output/compiler-profile-audit/source-commit.txt
-          { uname -sm; gcc --version; clang --version; } > .test_output/compiler-profile-audit/tools.txt
+          python3 - <<'PY' > .test_output/compiler-profile-audit/tools.json
+          import hashlib, json, subprocess
+          from pathlib import Path
+          from scripts.fast_gate import detect_compilers
+          result = {}
+          for name, path in detect_compilers().items():
+              resolved = Path(path).resolve()
+              result[name] = {'path': path, 'resolved': str(resolved),
+                              'sha256': hashlib.sha256(resolved.read_bytes()).hexdigest(),
+                              'version': subprocess.check_output([path, '--version'], text=True),
+                              'target': subprocess.check_output([path, '-dumpmachine'], text=True).strip()}
+          result['opt'] = subprocess.check_output(['opt', '--version'], text=True)
+          print(json.dumps(result, indent=2))
+          PY
+      - name: Verify real profile preparation and compiler refusal controls
+        run: python3 -m unittest -v tests.test_fast_gate tests.test_fast_gate_preparation
       - name: Measure ordinary and instrumented strict profiles
         env:
           PROFILE_COMPILER: ${{ matrix.compiler }}

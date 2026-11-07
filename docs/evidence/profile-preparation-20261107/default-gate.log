@@ -1,0 +1,47 @@
+NANO_FIXTURE_LEXER="/Users/jkh/Src/nanolang/obj/fixture_identifier_lexer" python3 -m unittest -v tests.test_embedded_nano_identifiers
+test_docstrings_are_not_fixture_programs_and_literals_are_not_executed (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_docstrings_are_not_fixture_programs_and_literals_are_not_executed) ... ok
+test_exact_negative_annotation_does_not_hide_other_reserved_names (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_exact_negative_annotation_does_not_hide_other_reserved_names) ... ok
+test_real_reported_fixtures_refuse_the_original_regressions (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_real_reported_fixtures_refuse_the_original_regressions) ... ok
+test_reserved_parameter_and_constructor_field_names (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_reserved_parameter_and_constructor_field_names) ... ok
+test_strings_comments_and_mutable_names_follow_actual_lexer (tests.test_embedded_nano_identifiers.EmbeddedNanoIdentifiers.test_strings_comments_and_mutable_names_follow_actual_lexer) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.978s
+
+OK
+python3 scripts/check_embedded_nano_identifiers.py --lexer "obj/fixture_identifier_lexer"
+I lexed 3120 static fixture fragments; 0 reserved names; 133 lexer-refused fragments remain with their executable tests.
+python3 -m unittest tests.test_make_prerequisites tests.test_wasmtime_prerequisite
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 1.610s
+
+OK
+python3 -m unittest -v tests.test_fast_gate
+test_actual_glibc_disassembler_profiles_reject_old_source (tests.test_fast_gate.FastGateGccControls.test_actual_glibc_disassembler_profiles_reject_old_source) ... skipped 'I require the original glibc sprintf wrapper; Darwin does not reproduce this diagnostic.'
+test_actual_private_union_profile_rejects_old_source (tests.test_fast_gate.FastGateGccControls.test_actual_private_union_profile_rejects_old_source) ... ok
+test_c_valued_options_and_forced_includes_keep_the_actual_source (tests.test_fast_gate.FastGatePlanning.test_c_valued_options_and_forced_includes_keep_the_actual_source) ... ok
+test_coverage_keeps_instrumentation_and_uses_a_private_output (tests.test_fast_gate.FastGatePlanning.test_coverage_keeps_instrumentation_and_uses_a_private_output) ... ok
+test_instrumented_profile_retains_requested_fortify_level (tests.test_fast_gate.FastGatePlanning.test_instrumented_profile_retains_requested_fortify_level) ... ok
+test_make_failure_is_not_an_empty_success (tests.test_fast_gate.FastGatePlanning.test_make_failure_is_not_an_empty_success) ... ok
+test_object_valued_macro_preserves_the_compiler_refusal (tests.test_fast_gate.FastGatePlanning.test_object_valued_macro_preserves_the_compiler_refusal) ... ok
+test_preview_does_not_execute_recursive_or_plus_recipes (tests.test_fast_gate.FastGatePlanning.test_preview_does_not_execute_recursive_or_plus_recipes) ... ok
+test_product_report_retains_uncovered_test_inventory (tests.test_fast_gate.FastGatePlanning.test_product_report_retains_uncovered_test_inventory) ... ok
+test_real_shell_quoting_keeps_macro_operands_and_each_translation_unit (tests.test_fast_gate.FastGatePlanning.test_real_shell_quoting_keeps_macro_operands_and_each_translation_unit) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 82.313s
+
+OK (skipped=1)
+cc (/usr/bin/cc): 1 compiles, 0 failed, 0.2s
+fast gate: ok
+python3 scripts/fast_gate.py
+clang (/usr/bin/clang): 223 compiles, 0 failed, 53.7s
+gcc (/opt/homebrew/bin/gcc-16): 223 compiles, 0 failed, 127.2s
+fast gate: ok
+python3 -m unittest tests.test_bootstrap_tools
+.
+----------------------------------------------------------------------
+Ran 1 test in 1.682s
+
+OK
